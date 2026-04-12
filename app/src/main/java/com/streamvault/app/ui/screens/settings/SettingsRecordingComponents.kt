@@ -228,14 +228,16 @@ internal fun BackupImportPreviewDialog(
             BackupToggleRow(stringResource(R.string.settings_backup_section_recordings), plan.importRecordingSchedules, onImportRecordingSchedulesChanged)
         },
         footer = {
-            PremiumDialogFooterButton(
+            PremiumDialogActionButton(
                 label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f)
             )
-            PremiumDialogFooterButton(
+            PremiumDialogActionButton(
                 label = stringResource(R.string.settings_backup_import_confirm),
                 onClick = onConfirm,
-                emphasized = true
+                emphasized = true,
+                modifier = Modifier.weight(1f)
             )
         }
     )

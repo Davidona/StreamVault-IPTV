@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.*
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.theme.*
@@ -83,6 +84,7 @@ private enum class SourceType { XTREAM, M3U_URL, M3U_FILE }
 fun ProviderSetupScreen(
     onProviderAdded: () -> Unit,
     onBack: () -> Unit,
+    onRestoreBackup: () -> Unit = {},
     editProviderId: Long? = null,
     initialImportUri: String? = null,
     viewModel: ProviderSetupViewModel = hiltViewModel()
@@ -298,6 +300,7 @@ fun ProviderSetupScreen(
                         onToggleFastSync = { viewModel.updateXtreamFastSyncEnabled(!uiState.xtreamFastSyncEnabled) },
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
                         onSelectEpgSyncMode = viewModel::updateEpgSyncMode,
+                        onRestoreBackup = onRestoreBackup,
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                 }
@@ -327,6 +330,7 @@ fun ProviderSetupScreen(
                         onToggleFastSync = { viewModel.updateXtreamFastSyncEnabled(!uiState.xtreamFastSyncEnabled) },
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
                         onSelectEpgSyncMode = viewModel::updateEpgSyncMode,
+                        onRestoreBackup = onRestoreBackup,
                         modifier = Modifier.weight(1f).fillMaxWidth()
                     )
                 }
@@ -381,6 +385,7 @@ private fun ProviderFormContent(
     onToggleFastSync: () -> Unit,
     onToggleM3uVodClassification: () -> Unit,
     onSelectEpgSyncMode: (ProviderEpgSyncMode) -> Unit,
+    onRestoreBackup: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -515,6 +520,14 @@ private fun ProviderFormContent(
                         onClick = onAddM3u
                     )
                 }
+            }
+
+            if (!uiState.hasExistingProvider && !uiState.isEditing) {
+                Spacer(modifier = Modifier.height(4.dp))
+                ActionButton(
+                    text = "Restore Configuration Backup",
+                    onClick = onRestoreBackup
+                )
             }
         }
     }

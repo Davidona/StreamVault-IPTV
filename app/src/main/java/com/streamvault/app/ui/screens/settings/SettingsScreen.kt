@@ -61,6 +61,13 @@ import com.streamvault.app.ui.interaction.TvIconButton
 import com.streamvault.app.util.OfficialBuildStatus
 import com.streamvault.app.util.OfficialBuildVerifier
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.tasks.Task
+import com.streamvault.app.ui.screens.settings.drive.GoogleDriveManager
+import android.net.Uri
+import java.io.File
+
 import com.streamvault.app.ui.components.dialogs.PinDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogActionButton
@@ -247,6 +254,36 @@ fun SettingsScreen(
     var pinError by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingAction by remember { mutableStateOf<ParentalAction?>(null) }
     var pendingProtectionLevel by rememberSaveable { mutableStateOf<Int?>(null) }
+    var isDriveSyncing by rememberSaveable { mutableStateOf(false) }
+
+    val driveManager = remember { GoogleDriveManager(context) }
+    val googleSignInExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+            if (account != null) {
+                viewModel.exportToGoogleDrive(context, account, driveManager)
+            }
+        } catch (e: Exception) {
+            viewModel.showUserMessage("Google Sign-In failed")
+        }
+    }
+
+    val googleSignInImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+            if (account != null) {
+                viewModel.importFromGoogleDrive(context, account, driveManager)
+            }
+        } catch (e: Exception) {
+            viewModel.showUserMessage("Google Sign-In failed")
+        }
+    }
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -831,9 +868,10 @@ fun SettingsScreen(
                     // ג”€ג”€ 4: Backup ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                     else if (selectedCategory == 5) {
                         item {
+                            SettingsSectionHeader(title = "Local Device Backup", subtitle = "Export or import your data directly")
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                             ) {
                                 TvClickableSurface(
                                     onClick = { createDocumentLauncher.launch("streamvault_backup.json") },
@@ -873,6 +911,72 @@ fun SettingsScreen(
                                         Text(text = "\u2193", style = MaterialTheme.typography.titleLarge, color = Secondary, fontWeight = FontWeight.Bold)
                                         Text(text = stringResource(R.string.settings_restore_data), style = MaterialTheme.typography.titleSmall, color = Secondary, textAlign = TextAlign.Center)
                                         Text(text = stringResource(R.string.settings_backup_subtitle), style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim, textAlign = TextAlign.Center)
+                                    }
+                                }
+                            }
+                        }
+                        item {
+                            SettingsSectionHeader(title = "Google Drive Sync", subtitle = "Securely save your settings to the cloud")
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            ) {
+                                TvClickableSurface(
+                                    onClick = { 
+                                        val account = GoogleSignIn.getLastSignedInAccount(context)
+                                        if (account != null) {
+                                            viewModel.exportToGoogleDrive(context, account, driveManager)
+                                        } else {
+                                            googleSignInExportLauncher.launch(driveManager.getSignInOptions().let { 
+                                                GoogleSignIn.getClient(context, it).signInIntent 
+                                            })
+                                        }
+                                    },
+                                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+                                    colors = ClickableSurfaceDefaults.colors(
+                                        containerColor = Primary.copy(alpha = 0.12f),
+                                        focusedContainerColor = Primary.copy(alpha = 0.28f)
+                                    ),
+                                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(24.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(text = "\u2191", style = MaterialTheme.typography.titleLarge, color = Primary, fontWeight = FontWeight.Bold)
+                                        Text(text = "Sync to Drive", style = MaterialTheme.typography.titleSmall, color = Primary, textAlign = TextAlign.Center)
+                                        Text(text = "Upload config to cloud", style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim, textAlign = TextAlign.Center)
+                                    }
+                                }
+                                TvClickableSurface(
+                                    onClick = { 
+                                        val account = GoogleSignIn.getLastSignedInAccount(context)
+                                        if (account != null) {
+                                            viewModel.importFromGoogleDrive(context, account, driveManager)
+                                        } else {
+                                            googleSignInImportLauncher.launch(driveManager.getSignInOptions().let { 
+                                                GoogleSignIn.getClient(context, it).signInIntent 
+                                            })
+                                        }
+                                    },
+                                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+                                    colors = ClickableSurfaceDefaults.colors(
+                                        containerColor = Secondary.copy(alpha = 0.12f),
+                                        focusedContainerColor = Secondary.copy(alpha = 0.28f)
+                                    ),
+                                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(24.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(text = "\u2193", style = MaterialTheme.typography.titleLarge, color = Secondary, fontWeight = FontWeight.Bold)
+                                        Text(text = "Fetch from Drive", style = MaterialTheme.typography.titleSmall, color = Secondary, textAlign = TextAlign.Center)
+                                        Text(text = "Restore config from cloud", style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim, textAlign = TextAlign.Center)
                                     }
                                 }
                             }

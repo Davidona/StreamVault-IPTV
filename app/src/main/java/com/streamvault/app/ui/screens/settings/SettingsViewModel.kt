@@ -61,6 +61,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import javax.inject.Inject
+import android.content.Context
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.streamvault.app.ui.screens.settings.drive.GoogleDriveManager
+import java.io.File
+import androidx.core.net.toUri
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -595,6 +600,10 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(userMessage = null) }
     }
 
+    fun showUserMessage(message: String) {
+        _uiState.update { it.copy(userMessage = message) }
+    }
+
     fun refreshProvider(
         providerId: Long,
         syncMode: SettingsProviderSyncMode = SettingsProviderSyncMode.QUICK
@@ -657,6 +666,58 @@ class SettingsViewModel @Inject constructor(
 
     fun setBackupConflictStrategy(strategy: BackupConflictStrategy) {
         backupActions.setBackupConflictStrategy(strategy)
+    }
+
+    fun exportToGoogleDrive(context: Context, account: GoogleSignInAccount, driveManager: GoogleDriveManager) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, userMessage = "Syncing to Google Drive...") }
+            val token = driveManager.getAuthToken(account)
+            if (token == null) {
+                _uiState.update { it.copy(isSyncing = false, userMessage = "Failed to get Google Auth Token") }
+                return@launch
+            }
+            val tempFile = File(context.cacheDir, "streamvault_backup.json")
+            val uriString = tempFile.toUri().toString()
+            val exportResult = backupManager.exportConfig(uriString)
+            if (exportResult !is Result.Success) {
+                _uiState.update { it.copy(isSyncing = false, userMessage = "Failed to create local backup") }
+                return@launch
+            }
+            val success = driveManager.uploadBackup(token, tempFile)
+            tempFile.delete()
+            _uiState.update { 
+                it.copy(
+                    isSyncing = false, 
+                    userMessage = if (success) "Successfully backed up to Google Drive" else "Failed to upload to Google Drive"
+                )
+            }
+        }
+    }
+
+    fun importFromGoogleDrive(context: Context, account: GoogleSignInAccount, driveManager: GoogleDriveManager) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, userMessage = "Downloading from Google Drive...") }
+            val token = driveManager.getAuthToken(account)
+            if (token == null) {
+                _uiState.update { it.copy(isSyncing = false, userMessage = "Failed to get Google Auth Token") }
+                return@launch
+            }
+            val tempFile = File(context.cacheDir, "streamvault_backup_downloaded.json")
+            val success = driveManager.downloadBackup(token, tempFile)
+            if (!success) {
+                _uiState.update { it.copy(isSyncing = false, userMessage = "Failed to download backup from Google Drive") }
+                return@launch
+            }
+            val uriString = tempFile.toUri().toString()
+            val result = backupManager.inspectBackup(uriString)
+            if (result is Result.Success) {
+                // Pre-populate so user can confirm
+                backupActions.inspectBackup(viewModelScope, uriString)
+            } else {
+                _uiState.update { it.copy(isSyncing = false, userMessage = "Downloaded backup is invalid") }
+            }
+            tempFile.deleteOnExit() // Deleting immediately would break the import step since it reads it again
+        }
     }
 
     fun setImportPreferences(enabled: Boolean) {

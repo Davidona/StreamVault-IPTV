@@ -287,6 +287,11 @@ fun AppNavigation(mainActivity: MainActivity) {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.PROVIDER_SETUP) { inclusive = true }
                     }
+                },
+                onRestoreBackup = dropUnlessResumed {
+                    navController.navigate(Routes.SETTINGS) {
+                        popUpTo(Routes.PROVIDER_SETUP) { inclusive = true }
+                    }
                 }
             )
         }

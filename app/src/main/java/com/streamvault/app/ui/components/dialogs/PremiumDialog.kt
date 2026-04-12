@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
@@ -117,7 +119,13 @@ fun PremiumDialog(
                             }
                         }
 
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            content = content
+                        )
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -173,7 +181,13 @@ fun PremiumDialog(
                                 }
                             }
 
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f, fill = false)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                content = content
+                            )
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -223,9 +237,11 @@ fun PremiumDialogActionButton(
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus)
+                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
+                shape = RoundedCornerShape(10.dp)
             )
         ),
+        shape = ButtonDefaults.shape(shape = RoundedCornerShape(10.dp)),
         scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale)
     ) {
         Text(
@@ -265,9 +281,11 @@ fun PremiumDialogFooterButton(
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus)
+                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
+                shape = RoundedCornerShape(10.dp)
             )
         ),
+        shape = ButtonDefaults.shape(shape = RoundedCornerShape(10.dp)),
         scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelLarge)
