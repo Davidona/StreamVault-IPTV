@@ -114,6 +114,7 @@ fun ProviderSetupScreen(
     var fileImportError by rememberSaveable { mutableStateOf<String?>(null) }
     var handledInitialImportUri by rememberSaveable { mutableStateOf<String?>(null) }
     var showDiscardDraftDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedSellerServiceId by rememberSaveable { mutableStateOf(SellerProviderCatalog.services.firstOrNull()?.id.orEmpty()) }
 
     // ?? File import helper ????????????????????????????????????????????????????
     fun importM3uUri(uri: android.net.Uri) {
@@ -228,6 +229,8 @@ fun ProviderSetupScreen(
         uiState.m3uTab == 1 -> SourceType.M3U_FILE
         else -> SourceType.M3U_URL
     }
+    val selectedSellerService = SellerProviderCatalog.findById(selectedSellerServiceId)
+    val resolvedXtreamServerUrl = if (uiState.isEditing) serverUrl else selectedSellerService?.serverUrl.orEmpty()
 
     fun onSourceTypeSelected(type: SourceType) {
         if (uiState.isEditing) return
@@ -307,6 +310,9 @@ fun ProviderSetupScreen(
                         uiState = uiState,
                         name = name, onNameChange = { name = ProviderInputSanitizer.sanitizeProviderNameForEditing(it) },
                         serverUrl = serverUrl, onServerUrlChange = { serverUrl = ProviderInputSanitizer.sanitizeUrlForEditing(it) },
+                        sellerServices = SellerProviderCatalog.services,
+                        selectedSellerServiceId = selectedSellerServiceId,
+                        onSelectSellerService = { selectedSellerServiceId = it },
                         username = username, onUsernameChange = { username = ProviderInputSanitizer.sanitizeUsernameForEditing(it) },
                         password = password, onPasswordChange = { password = ProviderInputSanitizer.sanitizePasswordForEditing(it) },
                         m3uUrl = m3uUrl, onM3uUrlChange = { m3uUrl = ProviderInputSanitizer.sanitizeUrlForEditing(it) },
@@ -318,7 +324,17 @@ fun ProviderSetupScreen(
                         stalkerDeviceLocale = stalkerDeviceLocale, onStalkerDeviceLocaleChange = { stalkerDeviceLocale = ProviderInputSanitizer.sanitizeLocaleForEditing(it) },
                         fileImportError = fileImportError,
                         onFilePick = { filePickerLauncher.launch(arrayOf("*/*")) },
-                        onLoginXtream = { viewModel.loginXtream(serverUrl, username, password, name, httpUserAgent, httpHeaders) },
+                        onLoginXtream = {
+                            val resolvedName = name.ifBlank { selectedSellerService?.defaultPlaylistName.orEmpty() }
+                            viewModel.loginXtream(
+                                resolvedXtreamServerUrl,
+                                username,
+                                password,
+                                resolvedName,
+                                httpUserAgent,
+                                httpHeaders
+                            )
+                        },
                         onLoginStalker = { viewModel.loginStalker(serverUrl, stalkerMacAddress, name, stalkerDeviceProfile, stalkerDeviceTimezone, stalkerDeviceLocale) },
                         onAddM3u = { viewModel.addM3u(m3uUrl, name, httpUserAgent, httpHeaders) },
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
@@ -349,6 +365,9 @@ fun ProviderSetupScreen(
                         uiState = uiState,
                         name = name, onNameChange = { name = ProviderInputSanitizer.sanitizeProviderNameForEditing(it) },
                         serverUrl = serverUrl, onServerUrlChange = { serverUrl = ProviderInputSanitizer.sanitizeUrlForEditing(it) },
+                        sellerServices = SellerProviderCatalog.services,
+                        selectedSellerServiceId = selectedSellerServiceId,
+                        onSelectSellerService = { selectedSellerServiceId = it },
                         username = username, onUsernameChange = { username = ProviderInputSanitizer.sanitizeUsernameForEditing(it) },
                         password = password, onPasswordChange = { password = ProviderInputSanitizer.sanitizePasswordForEditing(it) },
                         m3uUrl = m3uUrl, onM3uUrlChange = { m3uUrl = ProviderInputSanitizer.sanitizeUrlForEditing(it) },
@@ -360,7 +379,17 @@ fun ProviderSetupScreen(
                         stalkerDeviceLocale = stalkerDeviceLocale, onStalkerDeviceLocaleChange = { stalkerDeviceLocale = ProviderInputSanitizer.sanitizeLocaleForEditing(it) },
                         fileImportError = fileImportError,
                         onFilePick = { filePickerLauncher.launch(arrayOf("*/*")) },
-                        onLoginXtream = { viewModel.loginXtream(serverUrl, username, password, name, httpUserAgent, httpHeaders) },
+                        onLoginXtream = {
+                            val resolvedName = name.ifBlank { selectedSellerService?.defaultPlaylistName.orEmpty() }
+                            viewModel.loginXtream(
+                                resolvedXtreamServerUrl,
+                                username,
+                                password,
+                                resolvedName,
+                                httpUserAgent,
+                                httpHeaders
+                            )
+                        },
                         onLoginStalker = { viewModel.loginStalker(serverUrl, stalkerMacAddress, name, stalkerDeviceProfile, stalkerDeviceTimezone, stalkerDeviceLocale) },
                         onAddM3u = { viewModel.addM3u(m3uUrl, name, httpUserAgent, httpHeaders) },
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
@@ -502,6 +531,9 @@ private fun ProviderFormContent(
     uiState: ProviderSetupState,
     name: String, onNameChange: (String) -> Unit,
     serverUrl: String, onServerUrlChange: (String) -> Unit,
+    sellerServices: List<SellerXtreamService>,
+    selectedSellerServiceId: String,
+    onSelectSellerService: (String) -> Unit,
     username: String, onUsernameChange: (String) -> Unit,
     password: String, onPasswordChange: (String) -> Unit,
     m3uUrl: String, onM3uUrlChange: (String) -> Unit,
@@ -555,16 +587,24 @@ private fun ProviderFormContent(
 
             when (sourceType) {
                 SourceType.XTREAM -> {
-                    ProviderTextField(
-                        value = serverUrl, onValueChange = onServerUrlChange,
-                        placeholder = androidx.compose.ui.res.stringResource(R.string.setup_server_hint),
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.None,
-                            autoCorrectEnabled = false,
-                            keyboardType = if (isTelevisionDevice) KeyboardType.Ascii else KeyboardType.Uri,
-                            imeAction = ImeAction.Next
+                    if (!uiState.isEditing) {
+                        SellerServiceSelector(
+                            services = sellerServices,
+                            selectedServiceId = selectedSellerServiceId,
+                            onSelect = onSelectSellerService
                         )
-                    )
+                    } else {
+                        ProviderTextField(
+                            value = serverUrl, onValueChange = onServerUrlChange,
+                            placeholder = androidx.compose.ui.res.stringResource(R.string.setup_server_hint),
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.None,
+                                autoCorrectEnabled = false,
+                                keyboardType = if (isTelevisionDevice) KeyboardType.Ascii else KeyboardType.Uri,
+                                imeAction = ImeAction.Next
+                            )
+                        )
+                    }
                     ProviderTextField(
                         value = username, onValueChange = onUsernameChange,
                         placeholder = androidx.compose.ui.res.stringResource(R.string.setup_user_hint),
@@ -1161,6 +1201,32 @@ private fun FormErrors(validationError: String?, error: String?) {
     }
     error?.let {
         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = ErrorColor)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SellerServiceSelector(
+    services: List<SellerXtreamService>,
+    selectedServiceId: String,
+    onSelect: (String) -> Unit
+) {
+    Text(
+        text = "Select Service",
+        style = MaterialTheme.typography.labelMedium,
+        color = TextPrimary
+    )
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        services.forEach { service ->
+            TabButton(
+                text = service.displayName,
+                isSelected = selectedServiceId == service.id,
+                onClick = { onSelect(service.id) }
+            )
+        }
     }
 }
 
