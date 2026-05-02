@@ -26,6 +26,16 @@ object SellerProviderCatalog {
             id = "apex",
             displayName = "Apex",
             serverUrl = "https://hyper-apex.com"
+        ),
+        SellerXtreamService(
+            id = "combo",
+            displayName = "Combo",
+            serverUrl = "https://toastybread.fyi"
+        ),
+        SellerXtreamService(
+            id = "premium",
+            displayName = "Premium",
+            serverUrl = "https://musclesx.cc"
         )
     )
 
