@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">StreamVault AHV</string>
     <string name="nav_home">الرئيسية</string>
     <string name="nav_live_tv">البث التلفزيوني المباشر</string>
     <string name="nav_movies">أفلام</string>
