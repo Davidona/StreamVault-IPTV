@@ -222,13 +222,8 @@ fun ProviderSetupScreen(
         }
     }
 
-    // ?? Derived UI source type ????????????????????????????????????????????????
-    val sourceType = when {
-        selectedTab == 0 -> SourceType.XTREAM
-        selectedTab == 1 -> SourceType.STALKER
-        uiState.m3uTab == 1 -> SourceType.M3U_FILE
-        else -> SourceType.M3U_URL
-    }
+    // Xtream-only provider setup flow
+    val sourceType = SourceType.XTREAM
     val selectedSellerService = SellerProviderCatalog.findById(selectedSellerServiceId)
     val resolvedXtreamServerUrl = if (uiState.isEditing) serverUrl else selectedSellerService?.serverUrl.orEmpty()
 
@@ -1264,43 +1259,13 @@ private fun SourceTypeSelectorPanel(
                 style = MaterialTheme.typography.labelSmall,
                 color = TextTertiary
             )
-            if (!isEditing || sourceType == SourceType.XTREAM) {
-                SourceTypeCard(
-                    title = androidx.compose.ui.res.stringResource(R.string.setup_xtream),
-                    subtitle = androidx.compose.ui.res.stringResource(R.string.setup_info_xtream_body),
-                    selected = sourceType == SourceType.XTREAM,
-                    enabled = !isEditing,
-                    onClick = { onSelect(SourceType.XTREAM) }
-                )
-            }
-            if (!isEditing || sourceType == SourceType.STALKER) {
-                SourceTypeCard(
-                    title = androidx.compose.ui.res.stringResource(R.string.setup_stalker),
-                    badge = androidx.compose.ui.res.stringResource(R.string.badge_beta),
-                    subtitle = androidx.compose.ui.res.stringResource(R.string.setup_info_stalker_body),
-                    selected = sourceType == SourceType.STALKER,
-                    enabled = !isEditing,
-                    onClick = { onSelect(SourceType.STALKER) }
-                )
-            }
-            if (!isEditing || sourceType == SourceType.M3U_URL) {
-                SourceTypeCard(
-                    title = androidx.compose.ui.res.stringResource(R.string.setup_tab_url),
-                    subtitle = androidx.compose.ui.res.stringResource(R.string.setup_info_m3u_body),
-                    selected = sourceType == SourceType.M3U_URL,
-                    enabled = !isEditing,
-                    onClick = { onSelect(SourceType.M3U_URL) }
-                )
-            }
-            if (!isEditing || sourceType == SourceType.M3U_FILE) {
-                SourceTypeCard(
-                    title = androidx.compose.ui.res.stringResource(R.string.setup_tab_file),
-                    subtitle = androidx.compose.ui.res.stringResource(R.string.setup_file_browse_hint),
-                    selected = sourceType == SourceType.M3U_FILE,
-                    enabled = !isEditing,
-                    onClick = { onSelect(SourceType.M3U_FILE) }
-                )
-            }
+            SourceTypeCard(
+                title = androidx.compose.ui.res.stringResource(R.string.setup_xtream),
+                subtitle = androidx.compose.ui.res.stringResource(R.string.setup_info_xtream_body),
+                selected = true,
+                enabled = false,
+                onClick = { }
+            )
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = androidx.compose.ui.res.stringResource(R.string.setup_info_manage_title),
@@ -1377,35 +1342,11 @@ private fun SourceTypeTabRow(
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (!isEditing || sourceType == SourceType.XTREAM) {
-            TabButton(
-                text = androidx.compose.ui.res.stringResource(R.string.setup_xtream),
-                isSelected = sourceType == SourceType.XTREAM,
-                onClick = { if (!isEditing) onSelect(SourceType.XTREAM) }
-            )
-        }
-        if (!isEditing || sourceType == SourceType.STALKER) {
-            TabButton(
-                text = androidx.compose.ui.res.stringResource(R.string.setup_stalker),
-                badge = androidx.compose.ui.res.stringResource(R.string.badge_beta),
-                isSelected = sourceType == SourceType.STALKER,
-                onClick = { if (!isEditing) onSelect(SourceType.STALKER) }
-            )
-        }
-        if (!isEditing || sourceType == SourceType.M3U_URL) {
-            TabButton(
-                text = androidx.compose.ui.res.stringResource(R.string.setup_tab_url),
-                isSelected = sourceType == SourceType.M3U_URL,
-                onClick = { if (!isEditing) onSelect(SourceType.M3U_URL) }
-            )
-        }
-        if (!isEditing || sourceType == SourceType.M3U_FILE) {
-            TabButton(
-                text = androidx.compose.ui.res.stringResource(R.string.setup_tab_file),
-                isSelected = sourceType == SourceType.M3U_FILE,
-                onClick = { if (!isEditing) onSelect(SourceType.M3U_FILE) }
-            )
-        }
+        TabButton(
+            text = androidx.compose.ui.res.stringResource(R.string.setup_xtream),
+            isSelected = true,
+            onClick = { }
+        )
     }
 }
 
