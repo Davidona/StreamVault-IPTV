@@ -33,58 +33,7 @@ class GitHubReleaseChecker @Inject constructor(
     }
 
     suspend fun fetchLatestRelease(): Result<GitHubReleaseInfo> = withContext(Dispatchers.IO) {
-        try {
-            val request = Request.Builder()
-                .url(RELEASES_LATEST_URL)
-                .header("Accept", "application/vnd.github+json")
-                .header("User-Agent", "StreamVault-Update-Checker")
-                .build()
-
-            okHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    return@withContext Result.error("Update check failed: HTTP ${response.code}")
-                }
-
-                val body = when (val bodyResult = response.body?.let(::readResponseBodyCapped)) {
-                    is Result.Success -> bodyResult.data
-                    is Result.Error -> return@withContext Result.error(bodyResult.message, bodyResult.exception)
-                    null,
-                    Result.Loading -> ""
-                }
-                if (body.isBlank()) {
-                    return@withContext Result.error("Update check failed: empty GitHub release response")
-                }
-
-                val json = JSONObject(body)
-                val parsedTag = parseTagVersionInfo(json.optString("tag_name"))
-                if (parsedTag.versionName.isBlank()) {
-                    return@withContext Result.error("Update check failed: latest release tag is missing")
-                }
-
-                val notes = json.optString("body").trim()
-                val assets = json.optJSONArray("assets")
-                val releaseUrl = json.optString("html_url").takeIf(::isHttpsUrl).orEmpty()
-                if (releaseUrl.isBlank()) {
-                    return@withContext Result.error("Update check failed: latest release URL is not HTTPS")
-                }
-                val downloadUrl = findApkAssetUrl(assets)
-
-                return@withContext Result.success(
-                    GitHubReleaseInfo(
-                        versionName = parsedTag.versionName,
-                        versionCode = parsedTag.versionCode,
-                        releaseUrl = releaseUrl,
-                        downloadUrl = downloadUrl,
-                        releaseNotes = notes,
-                        publishedAt = json.optString("published_at").takeIf { it.isNotBlank() }
-                    )
-                )
-            }
-        } catch (error: IOException) {
-            Result.error("Update check failed: network error", error)
-        } catch (error: Exception) {
-            Result.error("Update check failed: ${error.message}", error)
-        }
+        Result.error("In-app update checks are disabled in this build")
     }
 
     private fun readResponseBodyCapped(body: ResponseBody): Result<String> {
