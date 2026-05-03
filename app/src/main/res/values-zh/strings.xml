@@ -404,7 +404,7 @@
     <string name="settings_enabled">已启用</string>
     <string name="settings_disabled">已禁用</string>
     <string name="settings_developed_by">开发者</string>
-    <string name="settings_developer_name">David Nashash</string>
+    <string name="settings_developer_name">Astranet AHV (Based on StreamVault by David Nashash)</string>
     <string name="settings_github">GitHub</string>
     <string name="settings_github_url">https://github.com/Davidona</string>
     <string name="settings_donate">在 Ko-fi 上支持</string>

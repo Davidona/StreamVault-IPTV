@@ -404,7 +404,7 @@
     <string name="settings_enabled">사용</string>
     <string name="settings_disabled">사용 안 함</string>
     <string name="settings_developed_by">개발</string>
-    <string name="settings_developer_name">David Nashash</string>
+    <string name="settings_developer_name">Astranet AHV (Based on StreamVault by David Nashash)</string>
     <string name="settings_github">GitHub</string>
     <string name="settings_github_url">https://github.com/Davidona</string>
     <string name="settings_donate">Ko-fi로 후원</string>

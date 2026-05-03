@@ -404,7 +404,7 @@
     <string name="settings_enabled">Attivato</string>
     <string name="settings_disabled">Disattivato</string>
     <string name="settings_developed_by">Sviluppato da</string>
-    <string name="settings_developer_name">David Nashash</string>
+    <string name="settings_developer_name">Astranet AHV (Based on StreamVault by David Nashash)</string>
     <string name="settings_github">GitHub</string>
     <string name="settings_github_url">https://github.com/Davidona</string>
     <string name="settings_donate">Supporto su Ko-fi</string>

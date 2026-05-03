@@ -404,7 +404,7 @@
     <string name="settings_enabled">Ingeschakeld</string>
     <string name="settings_disabled">Uitgeschakeld</string>
     <string name="settings_developed_by">Ontwikkeld door</string>
-    <string name="settings_developer_name">David Nashash</string>
+    <string name="settings_developer_name">Astranet AHV (Based on StreamVault by David Nashash)</string>
     <string name="settings_github">GitHub</string>
     <string name="settings_github_url">https://github.com/Davidona</string>
     <string name="settings_donate">Ondersteuning op Ko-fi</string>
