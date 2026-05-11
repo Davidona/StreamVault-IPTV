@@ -30,21 +30,26 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import com.streamvault.app.BuildConfig
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.design.AppColors
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.usecase.ValidateAndAddProvider
+import com.streamvault.domain.usecase.XtreamProviderSetupCommand
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
-    private val providerRepository: ProviderRepository
+    private val providerRepository: ProviderRepository,
+    private val validateAndAddProvider: ValidateAndAddProvider
 ) : ViewModel() {
 
     private val _hasProviders = MutableStateFlow<Boolean?>(null)
@@ -52,10 +57,32 @@ class WelcomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            maybeSeedDevProvider()
             providerRepository.getProviders()
                 .map { it.isNotEmpty() }
                 .collect { _hasProviders.value = it }
         }
+    }
+
+    // Debug-only seeding: when BuildConfig.XTREAM_DEV_* is populated via
+    // root/local.properties (gitignored) AND no provider exists yet, create
+    // one silently so the dev hot-path skips onboarding. Release builds see
+    // empty strings (see app/build.gradle.kts defaultConfig) and this is a no-op.
+    private suspend fun maybeSeedDevProvider() {
+        val server = BuildConfig.XTREAM_DEV_SERVER
+        val username = BuildConfig.XTREAM_DEV_USERNAME
+        val password = BuildConfig.XTREAM_DEV_PASSWORD
+        if (server.isBlank() || username.isBlank() || password.isBlank()) return
+        if (providerRepository.getProviders().first().isNotEmpty()) return
+
+        validateAndAddProvider.loginXtream(
+            XtreamProviderSetupCommand(
+                serverUrl = server,
+                username = username,
+                password = password,
+                name = BuildConfig.XTREAM_DEV_NAME.ifBlank { "Dev (seeded)" }
+            )
+        )
     }
 }
 

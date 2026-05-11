@@ -18,6 +18,14 @@ if (keystorePropertiesFile.exists()) {
     FileInputStream(keystorePropertiesFile).use(keystoreProperties::load)
 }
 
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties()
+if (localPropertiesFile.exists()) {
+    FileInputStream(localPropertiesFile).use(localProperties::load)
+}
+
+fun localProp(key: String): String = localProperties.getProperty(key, "")
+
 fun computeOfficialSigningCertSha256(): String {
     if (!keystorePropertiesFile.exists()) return ""
 
@@ -53,6 +61,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.app\"")
         buildConfigField("String", "OFFICIAL_SIGNING_CERT_SHA256", "\"$officialSigningCertSha256\"")
+        buildConfigField("String", "XTREAM_DEV_SERVER", "\"\"")
+        buildConfigField("String", "XTREAM_DEV_USERNAME", "\"\"")
+        buildConfigField("String", "XTREAM_DEV_PASSWORD", "\"\"")
+        buildConfigField("String", "XTREAM_DEV_NAME", "\"\"")
     }
 
     signingConfigs {
@@ -67,6 +79,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
+            buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")
+            buildConfigField("String", "XTREAM_DEV_PASSWORD", "\"${localProp("xtream.dev.password")}\"")
+            buildConfigField("String", "XTREAM_DEV_NAME", "\"${localProp("xtream.dev.name")}\"")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
