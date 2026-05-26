@@ -29,6 +29,7 @@ import com.streamvault.app.ui.theme.*
 import com.streamvault.domain.model.Provider
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
+import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.design.requestFocusSafely
 import kotlinx.coroutines.delay
 
@@ -41,6 +42,7 @@ fun SettingsScreen(
     onNavigateToParentalControl: (Long) -> Unit = {},
     currentRoute: String,
     initialBackupImportUri: String? = null,
+    initialSelectedCategory: Int? = null,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -128,6 +130,10 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(initialSelectedCategory) {
+        initialSelectedCategory?.let { dialogState.selectedCategory = it }
+    }
+
     LaunchedEffect(uiState.recordingItems) {
         dialogState.selectedRecordingId = when {
             uiState.recordingItems.isEmpty() -> null
@@ -141,7 +147,7 @@ fun SettingsScreen(
         val uri = initialBackupImportUri?.takeIf { it.isNotBlank() } ?: return@LaunchedEffect
         if (handledInitialBackupImportUri == uri) return@LaunchedEffect
         handledInitialBackupImportUri = uri
-        dialogState.selectedCategory = 5
+        dialogState.selectedCategory = SETTINGS_CATEGORY_BACKUP
         viewModel.inspectBackup(uri)
     }
 
@@ -205,6 +211,17 @@ fun SettingsScreen(
                     onDriveSignOut = viewModel::signOutDrive,
                     onDrivePush = viewModel::pushToDrive,
                     onDrivePull = viewModel::pullFromDrive,
+                    onPlayDownload = { item ->
+                        mainActivity?.openPlayer(
+                            Routes.player(
+                                streamUrl = item.localUri,
+                                title = item.title,
+                                internalId = item.id,
+                                contentType = "MOVIE",
+                                returnRoute = currentRoute
+                            )
+                        )
+                    },
                     onOpenUri = uriHandler::openUri,
                     modifier = Modifier.weight(1f)
                 )

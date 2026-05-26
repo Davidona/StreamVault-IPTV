@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -838,6 +839,7 @@ private fun buildDestinationItems(): List<DestinationItem> = listOf(
     DestinationItem(Routes.MOVIES, R.string.nav_movies, Icons.Default.Star),
     DestinationItem(Routes.SERIES, R.string.nav_series, Icons.Default.Menu),
     DestinationItem(Routes.EPG, R.string.nav_epg, Icons.Default.Info),
+    DestinationItem(Routes.SETTINGS_DOWNLOADS, R.string.nav_downloads, Icons.Default.KeyboardArrowDown),
     DestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search),
     DestinationItem(Routes.PLUGINS, R.string.nav_plugins, PluginBlocksIcon),
     DestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)

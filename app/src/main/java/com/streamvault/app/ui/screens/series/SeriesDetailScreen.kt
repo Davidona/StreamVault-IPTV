@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +67,8 @@ import com.streamvault.domain.model.Series
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.app.download.OfflineDownloadItem
+import com.streamvault.app.download.OfflineDownloadStatus
 
 private const val EPISODE_DETAIL_PAGE_SIZE = 100
 
@@ -113,7 +116,12 @@ fun SeriesDetailScreen(
         unwatchedEpisodeCount = uiState.unwatchedEpisodeCount,
         externalRatings = uiState.externalRatings,
         isLoadingExternalRatings = uiState.isLoadingExternalRatings,
+        downloadingEpisodeIds = uiState.downloadingEpisodeIds,
+        episodeDownloadStatuses = uiState.episodeDownloadStatuses,
+        episodeDownloadItems = uiState.episodeDownloadItems,
+        downloadMessage = uiState.downloadMessage,
         onToggleFavorite = viewModel::toggleFavorite,
+        onDownloadEpisode = viewModel::downloadEpisode,
         onSeasonSelected = viewModel::selectSeason,
         onEpisodeClick = onEpisodeClick,
         onResumeClick = onResumeClick ?: onEpisodeClick,
@@ -129,7 +137,12 @@ private fun SeriesDetailContent(
     unwatchedEpisodeCount: Int,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
+    downloadingEpisodeIds: Set<Long>,
+    episodeDownloadStatuses: Map<Long, OfflineDownloadStatus>,
+    episodeDownloadItems: Map<Long, OfflineDownloadItem>,
+    downloadMessage: String?,
     onToggleFavorite: () -> Unit,
+    onDownloadEpisode: (Episode) -> Unit,
     onSeasonSelected: (Season) -> Unit,
     onEpisodeClick: (Episode) -> Unit,
     onResumeClick: (Episode) -> Unit,
@@ -273,6 +286,10 @@ private fun SeriesDetailContent(
                                     resumeEpisode = ep,
                                     hasProgress = hasProgress,
                                     onResumeClick = onResumeClick,
+                                    onDownloadEpisode = onDownloadEpisode,
+                                    isDownloading = ep.id in downloadingEpisodeIds,
+                                    downloadStatus = episodeDownloadStatuses[ep.id],
+                                    downloadItem = episodeDownloadItems[ep.id],
                                     onToggleFavorite = onToggleFavorite
                                 )
                             }
@@ -353,6 +370,10 @@ private fun SeriesDetailContent(
                                     resumeEpisode = ep,
                                     hasProgress = hasProgress,
                                     onResumeClick = onResumeClick,
+                                    onDownloadEpisode = onDownloadEpisode,
+                                    isDownloading = ep.id in downloadingEpisodeIds,
+                                    downloadStatus = episodeDownloadStatuses[ep.id],
+                                    downloadItem = episodeDownloadItems[ep.id],
                                     onToggleFavorite = onToggleFavorite
                                 )
                             }
@@ -401,10 +422,27 @@ private fun SeriesDetailContent(
                             style = MaterialTheme.typography.bodyMedium,
                             color = AppColors.TextTertiary
                         )
+                        downloadMessage?.takeIf { it.isNotBlank() }?.let { message ->
+                            Text(
+                                text = message,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = AppColors.TextSecondary,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
                 items(visibleEpisodes, key = { it.id }) { episode ->
-                    EpisodeItem(episode = episode, onClick = { onEpisodeClick(episode) })
+                    EpisodeItem(
+                        episode = episode,
+                        onClick = { onEpisodeClick(episode) },
+                        onDownload = { onDownloadEpisode(episode) },
+                        onPlayDownload = { item -> onEpisodeClick(episode.copy(streamUrl = item.localUri)) },
+                        isDownloading = episode.id in downloadingEpisodeIds,
+                        downloadStatus = episodeDownloadStatuses[episode.id],
+                        downloadItem = episodeDownloadItems[episode.id]
+                    )
                 }
                 if (visibleEpisodes.size < season.episodes.size) {
                     item {
@@ -435,8 +473,14 @@ private fun SeriesDetailActions(
     resumeEpisode: Episode,
     hasProgress: Boolean,
     onResumeClick: (Episode) -> Unit,
+    onDownloadEpisode: (Episode) -> Unit,
+    isDownloading: Boolean,
+    downloadStatus: OfflineDownloadStatus?,
+    downloadItem: OfflineDownloadItem?,
     onToggleFavorite: () -> Unit
 ) {
+    val canPlayDownload = downloadItem?.isPlayable == true
+    val canResumeDownload = downloadStatus == OfflineDownloadStatus.PAUSED
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
         TvButton(
             onClick = { onResumeClick(resumeEpisode) },
@@ -459,6 +503,36 @@ private fun SeriesDetailActions(
                         resumeEpisode.seasonNumber,
                         resumeEpisode.episodeNumber
                     )
+                }
+            )
+        }
+        TvButton(
+            onClick = {
+                if (canPlayDownload) {
+                    onResumeClick(resumeEpisode.copy(streamUrl = checkNotNull(downloadItem).localUri))
+                } else {
+                    onDownloadEpisode(resumeEpisode)
+                }
+            },
+            enabled = canPlayDownload || canResumeDownload || (!isDownloading && downloadStatus == null),
+            colors = ButtonDefaults.colors(
+                containerColor = AppColors.SurfaceEmphasis,
+                contentColor = AppColors.TextPrimary,
+                disabledContainerColor = AppColors.SurfaceElevated,
+                disabledContentColor = AppColors.TextTertiary
+            )
+        ) {
+            Icon(imageVector = Icons.Filled.Download, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isDownloading) {
+                    stringResource(R.string.vod_download_downloading)
+                } else if (canPlayDownload) {
+                    stringResource(R.string.settings_downloads_play)
+                } else if (downloadStatus != null) {
+                    downloadStatus.buttonLabel(downloadItem)
+                } else {
+                    stringResource(R.string.vod_download)
                 }
             )
         }
@@ -524,20 +598,83 @@ fun SeasonChip(
 @Composable
 fun EpisodeItem(
     episode: Episode,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDownload: () -> Unit,
+    onPlayDownload: (OfflineDownloadItem) -> Unit,
+    isDownloading: Boolean,
+    downloadStatus: OfflineDownloadStatus?,
+    downloadItem: OfflineDownloadItem?
 ) {
-    TvClickableSurface(
-        onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(18.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = AppColors.SurfaceElevated,
-            focusedContainerColor = AppColors.SurfaceEmphasis
-        ),
-        modifier = Modifier.fillMaxWidth()
+    val canPlayDownload = downloadItem?.isPlayable == true
+    val canResumeDownload = downloadStatus == OfflineDownloadStatus.PAUSED
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        EpisodeRowCard(
-            episode = episode,
-            modifier = Modifier.fillMaxWidth()
-        )
+        TvClickableSurface(
+            onClick = onClick,
+            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(18.dp)),
+            colors = ClickableSurfaceDefaults.colors(
+                containerColor = AppColors.SurfaceElevated,
+                focusedContainerColor = AppColors.SurfaceEmphasis
+            ),
+            modifier = Modifier.weight(1f)
+        ) {
+            EpisodeRowCard(
+                episode = episode,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        TvButton(
+            onClick = {
+                if (canPlayDownload) {
+                    onPlayDownload(checkNotNull(downloadItem))
+                } else {
+                    onDownload()
+                }
+            },
+            enabled = canPlayDownload || canResumeDownload || (!isDownloading && downloadStatus == null),
+            colors = ButtonDefaults.colors(
+                containerColor = AppColors.SurfaceEmphasis,
+                contentColor = AppColors.TextPrimary,
+                disabledContainerColor = AppColors.SurfaceElevated,
+                disabledContentColor = AppColors.TextTertiary
+            )
+        ) {
+            Icon(imageVector = Icons.Filled.Download, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isDownloading) {
+                    stringResource(R.string.vod_download_downloading)
+                } else if (canPlayDownload) {
+                    stringResource(R.string.settings_downloads_play)
+                } else if (downloadStatus != null) {
+                    downloadStatus.buttonLabel(downloadItem)
+                } else {
+                    stringResource(R.string.vod_download)
+                }
+            )
+        }
+    }
+}
+
+private val OfflineDownloadItem.isPlayable: Boolean
+    get() = status == OfflineDownloadStatus.SUCCESSFUL && localUri.isNotBlank()
+
+@Composable
+private fun OfflineDownloadStatus.buttonLabel(item: OfflineDownloadItem?): String {
+    val percent = item?.progressPercent
+    return when (this) {
+        OfflineDownloadStatus.PENDING,
+        OfflineDownloadStatus.RUNNING -> percent?.let {
+            stringResource(R.string.vod_download_downloading_progress, it)
+        } ?: stringResource(R.string.vod_download_downloading)
+        OfflineDownloadStatus.PAUSED -> percent?.let {
+            stringResource(R.string.vod_download_resume_progress, it)
+        } ?: stringResource(R.string.vod_download_resume)
+        OfflineDownloadStatus.SUCCESSFUL -> stringResource(R.string.vod_download_downloaded)
+        OfflineDownloadStatus.FAILED,
+        OfflineDownloadStatus.UNKNOWN -> stringResource(R.string.vod_download)
     }
 }

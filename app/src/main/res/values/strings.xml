@@ -8,6 +8,7 @@
     <string name="nav_movies">Movies</string>
     <string name="nav_series">Series</string>
     <string name="nav_epg">Guide</string>
+    <string name="nav_downloads">Downloads</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_plugins">Plugins</string>
 
@@ -1340,6 +1341,15 @@
     <string name="movie_detail_play">Play</string>
     <string name="movie_detail_resume_from">Resume from %1$s</string>
     <string name="movie_detail_trailer">Trailer</string>
+    <string name="vod_download">Download</string>
+    <string name="vod_download_preparing">Preparing...</string>
+    <string name="vod_download_downloading">Downloading</string>
+    <string name="vod_download_downloading_progress">Downloading %1$d%%</string>
+    <string name="vod_download_paused">Paused</string>
+    <string name="vod_download_pause">Pause</string>
+    <string name="vod_download_resume">Resume</string>
+    <string name="vod_download_resume_progress">Resume %1$d%%</string>
+    <string name="vod_download_downloaded">Downloaded</string>
     <string name="movie_detail_related">More Like This</string>
     <string name="favorites_add">Add to favourites</string>
     <string name="favorites_remove">Remove from favourites</string>
@@ -1399,6 +1409,38 @@
 
     
     <string name="settings_privacy">Privacy</string>
+    <string name="settings_downloads_title">Downloads</string>
+    <string name="settings_downloads_subtitle">Manage offline movies and episodes saved by StreamVault.</string>
+    <string name="settings_downloads_active">Active</string>
+    <string name="settings_downloads_completed">Completed</string>
+    <string name="settings_downloads_total">Total</string>
+    <string name="settings_downloads_refresh">Refresh</string>
+    <string name="settings_downloads_empty">No offline downloads yet. Use Download on a movie or episode to save it for travel.</string>
+    <string name="settings_downloads_play">Play</string>
+    <string name="settings_downloads_delete">Delete</string>
+    <string name="settings_downloads_select">Select</string>
+    <string name="settings_downloads_selected">Selected</string>
+    <string name="settings_downloads_select_all">Select all</string>
+    <string name="settings_downloads_clear_selection">Clear selection</string>
+    <string name="settings_downloads_delete_selected">Delete selected</string>
+    <string name="settings_downloads_selected_count">%1$d selected</string>
+    <string name="settings_downloads_folder_count">%1$d items - %2$d selected</string>
+    <string name="settings_downloads_deleted">Download deleted</string>
+    <string name="settings_downloads_removed">Download removed from StreamVault</string>
+    <string name="settings_downloads_resumed">Download resumed</string>
+    <string name="settings_downloads_paused">Download paused</string>
+    <string name="settings_downloads_pause_failed">Could not pause download</string>
+    <string name="settings_downloads_already_active">Download is already active</string>
+    <plurals name="settings_downloads_deleted_count">
+        <item quantity="one">%1$d download deleted</item>
+        <item quantity="other">%1$d downloads deleted</item>
+    </plurals>
+    <string name="settings_downloads_status_running">Downloading</string>
+    <string name="settings_downloads_status_pending">Queued</string>
+    <string name="settings_downloads_status_paused">Paused</string>
+    <string name="settings_downloads_status_complete">Ready</string>
+    <string name="settings_downloads_status_failed">Failed</string>
+    <string name="settings_downloads_status_unknown">Unknown</string>
     <string name="settings_privacy_subtitle">Manage watch history and incognito mode.</string>
     <string name="settings_incognito_mode">Incognito Mode</string>
     <string name="settings_incognito_mode_subtitle">Don\'t save watch history or recently visited categories while active.</string>

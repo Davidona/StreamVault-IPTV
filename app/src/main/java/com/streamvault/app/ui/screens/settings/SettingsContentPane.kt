@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.streamvault.app.download.OfflineDownloadItem
 import com.streamvault.domain.model.Provider
 
 @Composable
@@ -33,6 +34,7 @@ internal fun SettingsContentPane(
     onDriveSignOut: () -> Unit,
     onDrivePush: () -> Unit,
     onDrivePull: () -> Unit,
+    onPlayDownload: (OfflineDownloadItem) -> Unit,
     onOpenUri: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -141,7 +143,13 @@ internal fun SettingsContentPane(
                 onShowRecordingPaddingDialogChange = { dialogState.showRecordingPaddingDialog = it },
                 onShowRecordingBrowserDialogChange = { dialogState.showRecordingBrowserDialog = it }
             )
-        } else if (dialogState.selectedCategory == 5) {
+        } else if (dialogState.selectedCategory == SETTINGS_CATEGORY_DOWNLOADS) {
+            settingsDownloadsSection(
+                uiState = uiState,
+                viewModel = viewModel,
+                onPlayDownload = onPlayDownload
+            )
+        } else if (dialogState.selectedCategory == SETTINGS_CATEGORY_BACKUP) {
             settingsBackupSection(
                 onCreateBackup = onCreateBackup,
                 onShareBackup = onShareBackup,
@@ -154,12 +162,12 @@ internal fun SettingsContentPane(
                 onPush = onDrivePush,
                 onPull = onDrivePull
             )
-        } else if (dialogState.selectedCategory == 6) {
+        } else if (dialogState.selectedCategory == 7) {
             epgSourcesSection(
                 uiState = uiState,
                 viewModel = viewModel
             )
-        } else if (dialogState.selectedCategory == 7) {
+        } else if (dialogState.selectedCategory == 8) {
             settingsAboutSection(
                 uiState = uiState,
                 context = context,

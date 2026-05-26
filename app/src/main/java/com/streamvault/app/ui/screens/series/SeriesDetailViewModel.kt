@@ -3,6 +3,11 @@ package com.streamvault.app.ui.screens.series
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.streamvault.app.download.OfflineDownloadResult
+import com.streamvault.app.download.OfflineDownloadItem
+import com.streamvault.app.download.OfflineDownloadStatus
+import com.streamvault.app.download.OfflineVodDownloadManager
+import com.streamvault.app.download.isKeptDownload
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
@@ -19,6 +24,7 @@ import com.streamvault.domain.util.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +40,8 @@ class SeriesDetailViewModel @Inject constructor(
     private val providerRepository: ProviderRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
     private val externalRatingsRepository: ExternalRatingsRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val offlineVodDownloadManager: OfflineVodDownloadManager
 ) : ViewModel() {
 
     private val seriesId: Long = checkNotNull(
@@ -48,6 +55,7 @@ class SeriesDetailViewModel @Inject constructor(
     private var providerDetailJob: Job? = null
 
     init {
+        observeDownloadStatuses()
         viewModelScope.launch {
             providerRepository.getActiveProvider().collect { provider ->
                 providerDetailJob?.cancel()
@@ -69,6 +77,31 @@ class SeriesDetailViewModel @Inject constructor(
                     loadSeriesDetailsForProvider(effectiveProviderId)
                 }
             }
+        }
+    }
+
+    private fun observeDownloadStatuses() {
+        viewModelScope.launch {
+            while (true) {
+                refreshDownloadStatuses()
+                delay(2_000)
+            }
+        }
+    }
+
+    private fun refreshDownloadStatuses() {
+        val episodes = _uiState.value.series?.seasons.orEmpty().flatMap { it.episodes }
+        if (episodes.isEmpty()) return
+        val items = episodes.mapNotNull { episode ->
+            offlineVodDownloadManager.findBySourceUrl(episode.streamUrl)
+                ?.takeIf { it.status.isKeptDownload }
+                ?.let { episode.id to it }
+        }.toMap()
+        _uiState.update {
+            it.copy(
+                episodeDownloadItems = items,
+                episodeDownloadStatuses = items.mapValues { entry -> entry.value.status }
+            )
         }
     }
 
@@ -96,6 +129,7 @@ class SeriesDetailViewModel @Inject constructor(
                             error = null
                         )
                     }
+                    refreshDownloadStatuses()
                 }
                 is Result.Error -> {
                     _uiState.update {
@@ -160,6 +194,70 @@ class SeriesDetailViewModel @Inject constructor(
         _uiState.update { it.copy(selectedSeason = season) }
     }
 
+    fun downloadEpisode(episode: Episode) {
+        val seriesTitle = _uiState.value.series?.name.orEmpty()
+        val title = buildString {
+            if (seriesTitle.isNotBlank()) {
+                append(seriesTitle)
+                append(" - ")
+            }
+            append("S")
+            append(episode.seasonNumber.toString().padStart(2, '0'))
+            append("E")
+            append(episode.episodeNumber.toString().padStart(2, '0'))
+            append(" - ")
+            append(episode.title)
+        }
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    downloadingEpisodeIds = it.downloadingEpisodeIds + episode.id,
+                    downloadMessage = "Preparing download..."
+                )
+            }
+            when (val streamResult = seriesRepository.getEpisodeStreamInfo(episode)) {
+                is Result.Success -> {
+                    val restartPaused = _uiState.value.episodeDownloadItems[episode.id]?.status == OfflineDownloadStatus.PAUSED
+                    val downloadResult = offlineVodDownloadManager.enqueue(
+                        title = title,
+                        streamInfo = streamResult.data,
+                        lookupUrl = episode.streamUrl,
+                        restartPaused = restartPaused
+                    )
+                    val message = when (downloadResult) {
+                        is OfflineDownloadResult.Queued -> "Download queued: ${downloadResult.fileName}"
+                        is OfflineDownloadResult.AlreadyExists -> downloadResult.item.status.toExistingDownloadMessage()
+                        is OfflineDownloadResult.Unsupported -> downloadResult.message
+                        is OfflineDownloadResult.Error -> downloadResult.message
+                    }
+                    _uiState.update {
+                        it.copy(
+                            downloadingEpisodeIds = it.downloadingEpisodeIds - episode.id,
+                            episodeDownloadStatuses = when (downloadResult) {
+                                is OfflineDownloadResult.Queued -> it.episodeDownloadStatuses + (episode.id to OfflineDownloadStatus.PENDING)
+                                is OfflineDownloadResult.AlreadyExists -> it.episodeDownloadStatuses + (episode.id to downloadResult.item.status)
+                                else -> it.episodeDownloadStatuses
+                            },
+                            episodeDownloadItems = when (downloadResult) {
+                                is OfflineDownloadResult.AlreadyExists -> it.episodeDownloadItems + (episode.id to downloadResult.item)
+                                else -> it.episodeDownloadItems
+                            },
+                            downloadMessage = message
+                        )
+                    }
+                }
+                is Result.Error -> _uiState.update {
+                    it.copy(
+                        downloadingEpisodeIds = it.downloadingEpisodeIds - episode.id,
+                        downloadMessage = streamResult.message
+                    )
+                }
+                is Result.Loading -> Unit
+            }
+        }
+    }
+
+
     private fun findResumeEpisode(series: Series): Episode? {
         val ordered = series.seasons
             .sortedBy { it.seasonNumber }
@@ -175,6 +273,15 @@ class SeriesDetailViewModel @Inject constructor(
         // Fall back to the first episode that has never been started
         return ordered.firstOrNull { ep -> ep.lastWatchedAt == 0L }
     }
+
+    private fun OfflineDownloadStatus.toExistingDownloadMessage(): String = when (this) {
+        OfflineDownloadStatus.SUCCESSFUL -> "Already downloaded. Open Downloads from the top menu to manage it."
+        OfflineDownloadStatus.PAUSED -> "Already in Downloads, but paused. Open Downloads from the top menu to manage it."
+        OfflineDownloadStatus.PENDING,
+        OfflineDownloadStatus.RUNNING -> "Already downloading. Open Downloads from the top menu to check progress."
+        OfflineDownloadStatus.FAILED,
+        OfflineDownloadStatus.UNKNOWN -> "Already in Downloads. Open Downloads from the top menu to manage it."
+    }
 }
 
 data class SeriesDetailUiState(
@@ -185,5 +292,9 @@ data class SeriesDetailUiState(
     val unwatchedEpisodeCount: Int = 0,
     val error: String? = null,
     val isLoadingExternalRatings: Boolean = false,
-    val externalRatings: ExternalRatings = ExternalRatings.unavailable()
+    val externalRatings: ExternalRatings = ExternalRatings.unavailable(),
+    val downloadingEpisodeIds: Set<Long> = emptySet(),
+    val episodeDownloadStatuses: Map<Long, OfflineDownloadStatus> = emptyMap(),
+    val episodeDownloadItems: Map<Long, OfflineDownloadItem> = emptyMap(),
+    val downloadMessage: String? = null
 )

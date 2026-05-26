@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
@@ -63,6 +64,8 @@ import com.streamvault.domain.model.Movie
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.app.download.OfflineDownloadItem
+import com.streamvault.app.download.OfflineDownloadStatus
 
 @Composable
 fun MovieDetailScreen(
@@ -107,7 +110,12 @@ fun MovieDetailScreen(
                 externalRatings = uiState.externalRatings,
                 isLoadingExternalRatings = uiState.isLoadingExternalRatings,
                 relatedContent = uiState.relatedContent,
+                isDownloadQueued = uiState.isDownloadQueued,
+                downloadItem = uiState.downloadItem,
+                downloadStatus = uiState.downloadStatus,
+                downloadMessage = uiState.downloadMessage,
                 onPlay = { onPlay(movie) },
+                onDownload = viewModel::downloadMovie,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onRelatedClick = onPlay,
                 onBack = onBack
@@ -124,7 +132,12 @@ private fun MovieDetailContent(
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
     relatedContent: List<Movie>,
+    isDownloadQueued: Boolean,
+    downloadItem: OfflineDownloadItem?,
+    downloadStatus: OfflineDownloadStatus?,
+    downloadMessage: String?,
     onPlay: () -> Unit,
+    onDownload: () -> Unit,
     onToggleFavorite: () -> Unit,
     onRelatedClick: (Movie) -> Unit,
     onBack: () -> Unit
@@ -210,8 +223,13 @@ private fun MovieDetailContent(
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
                             onPlay = onPlay,
+                            onDownload = onDownload,
                             onToggleFavorite = onToggleFavorite,
                             playButtonFocusRequester = playButtonFocusRequester,
+                            isDownloadQueued = isDownloadQueued,
+                            downloadItem = downloadItem,
+                            downloadStatus = downloadStatus,
+                            downloadMessage = downloadMessage,
                             onPlayTrailer = {
                                 resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
                                     runCatching {
@@ -234,8 +252,13 @@ private fun MovieDetailContent(
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
                             onPlay = onPlay,
+                            onDownload = onDownload,
                             onToggleFavorite = onToggleFavorite,
                             playButtonFocusRequester = playButtonFocusRequester,
+                            isDownloadQueued = isDownloadQueued,
+                            downloadItem = downloadItem,
+                            downloadStatus = downloadStatus,
+                            downloadMessage = downloadMessage,
                             onPlayTrailer = {
                                 resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
                                     runCatching {
@@ -327,8 +350,13 @@ private fun MovieDetailHeroText(
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
     onPlay: () -> Unit,
+    onDownload: () -> Unit,
     onToggleFavorite: () -> Unit,
     playButtonFocusRequester: FocusRequester,
+    isDownloadQueued: Boolean,
+    downloadItem: OfflineDownloadItem?,
+    downloadStatus: OfflineDownloadStatus?,
+    downloadMessage: String?,
     onPlayTrailer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -402,6 +430,31 @@ private fun MovieDetailHeroText(
                     Text(stringResource(R.string.movie_detail_trailer))
                 }
             }
+            TvButton(
+                onClick = onDownload,
+                enabled = !isDownloadQueued && (downloadStatus == null || downloadStatus == OfflineDownloadStatus.PAUSED),
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary,
+                    disabledContainerColor = AppColors.SurfaceElevated,
+                    disabledContentColor = AppColors.TextTertiary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Download,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (isDownloadQueued) {
+                        stringResource(R.string.vod_download_preparing)
+                    } else if (downloadStatus != null) {
+                        downloadStatus.buttonLabel(downloadItem)
+                    } else {
+                        stringResource(R.string.vod_download)
+                    }
+                )
+            }
             TvIconButton(
                 onClick = onToggleFavorite,
                 colors = ButtonDefaults.colors(
@@ -418,6 +471,16 @@ private fun MovieDetailHeroText(
             }
         }
 
+        downloadMessage?.takeIf { it.isNotBlank() }?.let { message ->
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = AppColors.TextSecondary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
         Text(
             text = movie.plot?.ifBlank { stringResource(R.string.movie_plot_fallback) }
                 ?: stringResource(R.string.movie_plot_fallback),
@@ -426,6 +489,23 @@ private fun MovieDetailHeroText(
             maxLines = 6,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+private fun OfflineDownloadStatus.buttonLabel(item: OfflineDownloadItem?): String {
+    val percent = item?.progressPercent
+    return when (this) {
+        OfflineDownloadStatus.PENDING,
+        OfflineDownloadStatus.RUNNING -> percent?.let {
+            stringResource(R.string.vod_download_downloading_progress, it)
+        } ?: stringResource(R.string.vod_download_downloading)
+        OfflineDownloadStatus.PAUSED -> percent?.let {
+            stringResource(R.string.vod_download_resume_progress, it)
+        } ?: stringResource(R.string.vod_download_resume)
+        OfflineDownloadStatus.SUCCESSFUL -> stringResource(R.string.vod_download_downloaded)
+        OfflineDownloadStatus.FAILED,
+        OfflineDownloadStatus.UNKNOWN -> stringResource(R.string.vod_download)
     }
 }
 

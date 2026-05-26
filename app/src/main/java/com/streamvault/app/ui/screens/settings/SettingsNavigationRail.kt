@@ -23,6 +23,9 @@ private data class SettingsNavEntry(
     val accent: Color
 )
 
+internal const val SETTINGS_CATEGORY_BACKUP = 6
+internal const val SETTINGS_CATEGORY_DOWNLOADS = 5
+
 @Composable
 internal fun SettingsNavigationRail(
     selectedCategory: Int,
@@ -54,6 +57,11 @@ internal fun SettingsNavigationRail(
             label = stringResource(R.string.settings_recording_title),
             icon = "R",
             accent = Color(0xFFEF5350)
+        ),
+        SettingsNavEntry(
+            label = stringResource(R.string.settings_downloads_title),
+            icon = "v",
+            accent = Color(0xFF26C6DA)
         ),
         SettingsNavEntry(
             label = stringResource(R.string.settings_backup_restore),

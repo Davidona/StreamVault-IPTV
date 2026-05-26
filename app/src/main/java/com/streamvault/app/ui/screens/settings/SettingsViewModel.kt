@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.streamvault.app.R
 import com.streamvault.app.BuildConfig
 import com.streamvault.app.diagnostics.CrashReportStore
+import com.streamvault.app.download.OfflineDownloadItem
+import com.streamvault.app.download.OfflineDownloadResult
+import com.streamvault.app.download.OfflineVodDownloadManager
 import com.streamvault.app.tv.LauncherRecommendationsManager
 import com.streamvault.app.tv.WatchNextManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
@@ -75,6 +78,7 @@ import com.streamvault.domain.usecase.SyncProviderResult
 import com.streamvault.player.AudioCompatibilityMemoryStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -112,7 +116,8 @@ class SettingsViewModel @Inject constructor(
     private val gitHubReleaseChecker: GitHubReleaseChecker,
     private val appUpdateInstaller: AppUpdateInstaller,
     private val getCustomCategories: GetCustomCategories,
-    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore
+    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
+    private val offlineVodDownloadManager: OfflineVodDownloadManager
 ) : ViewModel() {
     private val appContext = application
     private val exportBackup = ExportBackup(backupManager)
@@ -212,7 +217,106 @@ class SettingsViewModel @Inject constructor(
             epgSourceRepository = epgSourceRepository,
             uiState = _uiState
         )
+        observeOfflineDownloads()
         driveBackupActions.observeAuthState(viewModelScope)
+    }
+
+    private fun observeOfflineDownloads() {
+        viewModelScope.launch {
+            while (true) {
+                refreshOfflineDownloads()
+                delay(2_000)
+            }
+        }
+    }
+
+    fun refreshOfflineDownloads() {
+        val downloads = offlineVodDownloadManager.snapshot()
+        val liveIds = downloads.map { it.id }.toSet()
+        _uiState.update {
+            it.copy(
+                offlineDownloads = downloads,
+                selectedOfflineDownloadIds = it.selectedOfflineDownloadIds intersect liveIds
+            )
+        }
+    }
+
+    fun deleteOfflineDownload(downloadId: Long) {
+        val deleted = offlineVodDownloadManager.delete(downloadId)
+        _uiState.update {
+            it.copy(
+                offlineDownloads = offlineVodDownloadManager.snapshot(),
+                selectedOfflineDownloadIds = it.selectedOfflineDownloadIds - downloadId,
+                userMessage = appContext.getString(
+                    if (deleted) R.string.settings_downloads_deleted else R.string.settings_downloads_removed
+                )
+            )
+        }
+    }
+
+    fun toggleOfflineDownloadSelection(downloadId: Long) {
+        _uiState.update {
+            val selected = it.selectedOfflineDownloadIds
+            it.copy(
+                selectedOfflineDownloadIds = if (downloadId in selected) {
+                    selected - downloadId
+                } else {
+                    selected + downloadId
+                }
+            )
+        }
+    }
+
+    fun selectOfflineDownloads(downloadIds: Set<Long>) {
+        _uiState.update { it.copy(selectedOfflineDownloadIds = it.selectedOfflineDownloadIds + downloadIds) }
+    }
+
+    fun clearOfflineDownloadSelection() {
+        _uiState.update { it.copy(selectedOfflineDownloadIds = emptySet()) }
+    }
+
+    fun deleteSelectedOfflineDownloads() {
+        val selectedIds = _uiState.value.selectedOfflineDownloadIds
+        if (selectedIds.isEmpty()) return
+        selectedIds.forEach { offlineVodDownloadManager.delete(it) }
+        _uiState.update {
+            it.copy(
+                offlineDownloads = offlineVodDownloadManager.snapshot(),
+                selectedOfflineDownloadIds = emptySet(),
+                userMessage = appContext.resources.getQuantityString(
+                    R.plurals.settings_downloads_deleted_count,
+                    selectedIds.size,
+                    selectedIds.size
+                )
+            )
+        }
+    }
+
+    fun resumeOfflineDownload(item: OfflineDownloadItem) {
+        val result = offlineVodDownloadManager.restart(item)
+        _uiState.update {
+            it.copy(
+                offlineDownloads = offlineVodDownloadManager.snapshot(),
+                userMessage = when (result) {
+                    is OfflineDownloadResult.Queued -> appContext.getString(R.string.settings_downloads_resumed)
+                    is OfflineDownloadResult.Error -> result.message
+                    is OfflineDownloadResult.Unsupported -> result.message
+                    is OfflineDownloadResult.AlreadyExists -> appContext.getString(R.string.settings_downloads_already_active)
+                }
+            )
+        }
+    }
+
+    fun pauseOfflineDownload(item: OfflineDownloadItem) {
+        val paused = offlineVodDownloadManager.pause(item)
+        _uiState.update {
+            it.copy(
+                offlineDownloads = offlineVodDownloadManager.snapshot(),
+                userMessage = appContext.getString(
+                    if (paused) R.string.settings_downloads_paused else R.string.settings_downloads_pause_failed
+                )
+            )
+        }
     }
 
     fun refreshCrashReport() {

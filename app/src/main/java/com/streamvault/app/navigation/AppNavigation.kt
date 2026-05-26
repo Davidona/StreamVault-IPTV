@@ -29,6 +29,7 @@ import com.streamvault.app.ui.screens.player.PlayerScreen
 import com.streamvault.app.ui.screens.plugins.PluginsScreen
 import com.streamvault.app.ui.screens.provider.ProviderSetupScreen
 import com.streamvault.app.ui.screens.series.SeriesScreen
+import com.streamvault.app.ui.screens.settings.SETTINGS_CATEGORY_DOWNLOADS
 import com.streamvault.app.ui.screens.settings.SettingsScreen
 import com.streamvault.app.ui.screens.welcome.WelcomeScreen
 import com.streamvault.app.MainActivity
@@ -73,6 +74,7 @@ object Routes {
     const val EPG_DESTINATION = "epg?categoryId={categoryId}&anchorTime={anchorTime}&favoritesOnly={favoritesOnly}"
     const val SETTINGS = "settings"
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
+    const val SETTINGS_DOWNLOADS = "downloads_settings"
     const val PLUGINS = "plugins"
     const val PLAYER = "player"
     const val SEARCH = "search"
@@ -572,6 +574,23 @@ fun AppNavigation(mainActivity: MainActivity) {
                 },
                 currentRoute = Routes.SETTINGS,
                 initialBackupImportUri = backupUri
+            )
+        }
+
+        composable(Routes.SETTINGS_DOWNLOADS) {
+            SettingsScreen(
+                onNavigate = { route -> tabNavigate(route) },
+                onAddProvider = dropUnlessResumed {
+                    navController.navigate(Routes.providerSetup(null))
+                },
+                onEditProvider = { provider ->
+                    navController.navigateIfResumed(Routes.providerSetup(provider.id))
+                },
+                onNavigateToParentalControl = { providerId ->
+                    navController.navigateIfResumed(Routes.parentalControlGroups(providerId))
+                },
+                currentRoute = Routes.SETTINGS_DOWNLOADS,
+                initialSelectedCategory = SETTINGS_CATEGORY_DOWNLOADS
             )
         }
 

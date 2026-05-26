@@ -171,7 +171,6 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    debugImplementation(libs.leakcanary.android)
 
     // Compose TV
     implementation(libs.compose.tv.foundation)
