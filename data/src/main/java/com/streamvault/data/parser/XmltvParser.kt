@@ -86,6 +86,7 @@ class XmltvParser {
     private val localDateTimeFormats = listOf(
         DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US),
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.US),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX"),
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US),
         DateTimeFormatter.ofPattern("yyyyMMddHHmm", Locale.US)
     )
@@ -577,6 +578,8 @@ class XmltvParser {
         //      separator (e.g. "2025-01-01").  Using lastIndexOf avoids triggering on the
         //      first '-' of an ISO date while still catching e.g. "2025-01-01 12:00:00-05:30".
         // 'Z'  is the UTC designator.
+        // 'T'  is the ISO date-time separator; if present without a known offset suffix,
+        //      the date is in local time and should be parsed as such.
         //
         // If a timezone marker is detected but the offset parsers above could not consume
         // the string, digit-stripping would silently discard the offset and shift the time;

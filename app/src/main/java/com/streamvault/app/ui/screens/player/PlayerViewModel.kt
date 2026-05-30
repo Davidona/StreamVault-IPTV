@@ -733,6 +733,23 @@ class PlayerViewModel @Inject constructor(
             )
             return
         }
+        // After software decoder retry fails, also try an alternate stream format
+        // (e.g. HLS→MPEG-TS or MPEG-TS→HLS) before giving up.
+        if (error is PlayerError.DecoderError && hasRetriedWithSoftwareDecoder) {
+            if (!isActivePlaybackSession(requestVersion, playbackUrl)) return
+            val channel = currentChannelFlow.value?.sanitizedForPlayer() ?: return
+            val switched = tryAlternateStreamInternal(channel)
+            if (switched) {
+                appendRecoveryAction("Trying alternate stream format after decoder error")
+                showPlayerNotice(
+                    message = "Trying alternate stream format for ${channel.name}.",
+                    recoveryType = PlayerRecoveryType.DECODER,
+                    actions = buildRecoveryActions(PlayerRecoveryType.DECODER),
+                    isRetryNotice = true
+                )
+                return
+            }
+        }
         recoveryJob = viewModelScope.launch {
             if (!isActivePlaybackSession(requestVersion, playbackUrl)) return@launch
             if (tryRefreshXtreamPlaybackAfterAuthError(error, requestVersion, playbackUrl)) {

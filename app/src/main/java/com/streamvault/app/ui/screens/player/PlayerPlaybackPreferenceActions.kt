@@ -128,6 +128,32 @@ fun PlayerViewModel.selectLiveVariant(rawChannelId: Long) {
     }
 }
 
+/**
+ * Switches to a different stream format (e.g. HLS vs MPEG-TS) for the current live channel.
+ * The [formatUrl] is one of the [com.streamvault.domain.model.ChannelQualityOption.url] values
+ * from the channel's [com.streamvault.domain.model.Channel.qualityOptions].
+ */
+fun PlayerViewModel.selectStreamFormat(formatUrl: String) {
+    val channel = currentChannelFlow.value?.sanitizedForPlayer() ?: return
+    if (formatUrl == currentStreamUrl) return
+
+    val requestVersion = beginPlaybackSession()
+    triedAlternativeStreams.add(formatUrl)
+    currentStreamUrl = formatUrl
+    updateStreamClass("Format")
+    viewModelScope.launch {
+        val streamInfo = resolvePlaybackStreamInfo(
+            logicalUrl = formatUrl,
+            internalContentId = channel.id,
+            providerId = channel.providerId,
+            contentType = ContentType.LIVE
+        ) ?: return@launch
+        if (!isActivePlaybackSession(requestVersion, formatUrl)) return@launch
+        if (!preparePlayer(streamInfo.copy(title = streamInfo.title ?: currentTitle), requestVersion)) return@launch
+        playerEngine.play()
+    }
+}
+
 fun PlayerViewModel.recordLiveVariantObservation(playbackState: PlaybackState, videoFormat: VideoFormat) {
     if (currentContentType != ContentType.LIVE || playbackState != PlaybackState.READY || videoFormat.isEmpty) {
         return

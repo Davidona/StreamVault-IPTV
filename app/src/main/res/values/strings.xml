@@ -1056,6 +1056,7 @@
     <string name="player_epg_short">EPG</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_quality_short">Quality</string>
+    <string name="player_format_short">Format</string>
     <string name="player_variants_short">Variants</string>
     <string name="player_episodes">Episodes</string>
     <string name="player_resume_title">Resume Playback</string>
@@ -1068,8 +1069,10 @@
     <string name="player_track_subs">Select Subtitles</string>
     <string name="player_track_off">Off</string>
     <string name="player_video_quality">Video Quality</string>
+    <string name="player_stream_format">Stream Format</string>
     <string name="player_channel_variants">Channel Variants</string>
     <string name="player_action_variants">Variants</string>
+    <string name="player_action_format">Format</string>
     <string name="player_aspect_ratio_label">Aspect %1$s</string>
     <string name="player_resolution_auto_label">AUTO:%1$s</string>
     <string name="player_channel_not_found">Channel not found</string>

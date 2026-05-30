@@ -219,6 +219,7 @@ fun PlayerScreen(
 
     var showTrackSelection by remember { mutableStateOf<TrackType?>(null) }
     var showVariantSelection by remember { mutableStateOf(false) }
+    var showStreamFormatSelection by remember { mutableStateOf(false) }
     var showSpeedSelection by remember { mutableStateOf(false) }
     var showAudioVideoOffsetDialog by remember { mutableStateOf(false) }
     var showStopPlaybackTimerDialog by remember { mutableStateOf(false) }
@@ -321,7 +322,7 @@ fun PlayerScreen(
     // Consolidated focus management for all overlays
     val liveOverlayVisible = contentType == "LIVE" && (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay)
     val nextEpisodeCountdownVisible = !isInPictureInPictureMode && autoPlayCountdown != null
-    val anyOverlayVisible = liveOverlayVisible || nextEpisodeCountdownVisible || showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker || showDiagnostics
+    val anyOverlayVisible = liveOverlayVisible || nextEpisodeCountdownVisible || showTrackSelection != null || showVariantSelection || showStreamFormatSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker || showDiagnostics
 
     LaunchedEffect(contentType, showCategoryListOverlay, showChannelListOverlay, showEpgOverlay, showChannelInfoOverlay) {
         if (contentType == "LIVE" && (showCategoryListOverlay || showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay)) {
@@ -471,10 +472,10 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(showControls, showTrackSelection, showVariantSelection, showSpeedSelection, showAudioVideoOffsetDialog, showStopPlaybackTimerDialog, showIdleStandbyTimerDialog, showProgramHistory, showSplitDialog, showEpisodePicker) {
+    LaunchedEffect(showControls, showTrackSelection, showVariantSelection, showStreamFormatSelection, showSpeedSelection, showAudioVideoOffsetDialog, showStopPlaybackTimerDialog, showIdleStandbyTimerDialog, showProgramHistory, showSplitDialog, showEpisodePicker) {
         if (!showControls) {
             viewModel.cancelControlsAutoHide()
-        } else if (showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker) {
+        } else if (showTrackSelection != null || showVariantSelection || showStreamFormatSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker) {
             viewModel.cancelControlsAutoHide()
         } else {
             viewModel.hideControlsAfterDelay()
@@ -504,6 +505,7 @@ fun PlayerScreen(
         showIdleStandbyTimerDialog,
         showTrackSelection,
         showVariantSelection,
+        showStreamFormatSelection,
         showDiagnostics,
         showChannelInfoOverlay,
         showChannelListOverlay,
@@ -528,6 +530,7 @@ fun PlayerScreen(
                 showStopPlaybackTimerDialog -> showStopPlaybackTimerDialog = false
                 showIdleStandbyTimerDialog -> showIdleStandbyTimerDialog = false
                 showVariantSelection -> showVariantSelection = false
+                showStreamFormatSelection -> showStreamFormatSelection = false
                 showTrackSelection != null -> showTrackSelection = null
                 showDiagnostics -> viewModel.toggleDiagnostics()
                 showChannelInfoOverlay -> viewModel.closeChannelInfoOverlay()
@@ -589,7 +592,7 @@ fun PlayerScreen(
                 if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showDiagnostics) {
                     return@onPreviewKeyEvent false
                 }
-                if (showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker) {
+                if (showTrackSelection != null || showVariantSelection || showStreamFormatSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker) {
                     return@onPreviewKeyEvent false
                 }
                 if (showChannelInfoOverlay && channelInfoSubPanelOpen) {
@@ -631,7 +634,7 @@ fun PlayerScreen(
                             else -> true
                         }
                     }
-                    if (showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog) {
+                    if (showTrackSelection != null || showVariantSelection || showStreamFormatSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog) {
                         if (showAudioVideoOffsetDialog) {
                             return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
                                 KeyEvent.KEYCODE_BACK -> {
@@ -1137,6 +1140,12 @@ fun PlayerScreen(
                 onDismiss = { showVariantSelection = false },
                 onSelectVariant = viewModel::selectLiveVariant
             )
+            StreamFormatSelectionDialog(
+                visible = showStreamFormatSelection,
+                channel = currentChannel,
+                onDismiss = { showStreamFormatSelection = false },
+                onSelectFormat = viewModel::selectStreamFormat
+            )
             PlayerSpeedSelectionDialog(
                 visible = showSpeedSelection,
                 selectedSpeed = playbackSpeed,
@@ -1344,12 +1353,14 @@ fun PlayerScreen(
                     audioTrackCount = availableAudioTracks.size,
                     videoQualityCount = availableVideoQualities.size,
                     channelVariantCount = currentChannel?.variants?.size ?: 0,
+                    qualityOptionCount = currentChannel?.qualityOptions?.size ?: 0,
                     isMuted = isMuted,
                     onToggleMute = viewModel::toggleMute,
                     onOpenSubtitleTracks = { showTrackSelection = TrackType.TEXT },
                     onOpenAudioTracks = { showTrackSelection = TrackType.AUDIO },
                     onOpenVideoTracks = { showTrackSelection = TrackType.VIDEO },
                     onOpenVariants = { showVariantSelection = true },
+                    onOpenStreamFormats = { showStreamFormatSelection = true },
                     onOpenAudioVideoSync = { showAudioVideoOffsetDialog = true },
                     audioVideoSyncEnabled = audioVideoSyncEnabled,
                     onEnterPictureInPicture = enterPictureInPicture,
