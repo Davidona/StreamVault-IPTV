@@ -51,6 +51,7 @@ class PlayerMediaSourceFactory(
                 .createMediaSource(mediaItem)
 
             resolvedStreamType == ResolvedStreamType.DASH -> DashMediaSource.Factory(dataSourceFactory)
+                .setMatchLastModifiedTime(true)
                 .setLoadErrorHandlingPolicy(retryPolicy)
                 .createMediaSource(mediaItem)
 
