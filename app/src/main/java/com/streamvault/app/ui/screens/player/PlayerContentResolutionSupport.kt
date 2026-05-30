@@ -77,10 +77,21 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 channelRepository.getChannel(internalContentId)?.let { channel ->
                     fallbackStreamId = channel.streamId.takeIf { it > 0L }
                         ?: channel.epgChannelId?.toLongOrNull()
-                    channelRepository.getStreamInfo(channel).getOrNull()?.let { resolved ->
-                        return PlayerPlaybackStreamResolution(
-                            streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
-                        )
+                    val streamInfoResult = channelRepository.getStreamInfo(channel)
+                    if (streamInfoResult.isSuccess) {
+                        streamInfoResult.getOrNull()?.let { resolved ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                            )
+                        }
+                    } else {
+                        // Propagate the underlying error so the caller can show it to the user
+                        (streamInfoResult as? Result.Error)?.message?.let { errorMsg ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = null,
+                                resolutionFailureMessage = errorMsg
+                            )
+                        }
                     }
                 }
             }
@@ -89,10 +100,20 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 movieRepository.getMovie(internalContentId)?.let { movie ->
                     fallbackStreamId = movie.streamId.takeIf { it > 0L }
                     fallbackContainerExtension = movie.containerExtension
-                    movieRepository.getStreamInfo(movie).getOrNull()?.let { resolved ->
-                        return PlayerPlaybackStreamResolution(
-                            streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
-                        )
+                    val streamInfoResult = movieRepository.getStreamInfo(movie)
+                    if (streamInfoResult.isSuccess) {
+                        streamInfoResult.getOrNull()?.let { resolved ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                            )
+                        }
+                    } else {
+                        (streamInfoResult as? Result.Error)?.message?.let { errorMsg ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = null,
+                                resolutionFailureMessage = errorMsg
+                            )
+                        }
                     }
                 }
             }
@@ -111,10 +132,20 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 episode?.let {
                     fallbackStreamId = it.episodeId.takeIf { episodeId -> episodeId > 0L } ?: it.id
                     fallbackContainerExtension = it.containerExtension
-                    seriesRepository.getEpisodeStreamInfo(it).getOrNull()?.let { resolved ->
-                        return PlayerPlaybackStreamResolution(
-                            streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
-                        )
+                    val streamInfoResult = seriesRepository.getEpisodeStreamInfo(it)
+                    if (streamInfoResult.isSuccess) {
+                        streamInfoResult.getOrNull()?.let { resolved ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                            )
+                        }
+                    } else {
+                        (streamInfoResult as? Result.Error)?.message?.let { errorMsg ->
+                            return PlayerPlaybackStreamResolution(
+                                streamInfo = null,
+                                resolutionFailureMessage = errorMsg
+                            )
+                        }
                     }
                 }
             }
