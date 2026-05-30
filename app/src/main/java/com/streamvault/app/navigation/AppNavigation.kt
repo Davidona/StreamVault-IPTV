@@ -352,7 +352,7 @@ fun AppNavigation(mainActivity: MainActivity) {
                 initialImportUri = importUri,
                 onBack = { navController.popBackStack() },
                 onProviderAdded = dropUnlessResumed {
-                    navController.navigate(Routes.HOME) {
+                    navController.navigate(Routes.liveTv()) {
                         popUpTo(Routes.PROVIDER_SETUP) { inclusive = true }
                     }
                 }
