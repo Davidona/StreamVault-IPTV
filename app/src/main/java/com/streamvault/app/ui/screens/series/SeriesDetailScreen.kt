@@ -137,6 +137,9 @@ fun SeriesDetailScreen(
         onDownloadEpisode = { episode ->
             viewModel.downloadEpisode(context, episode)
         },
+        onCastEpisode = { episode ->
+            viewModel.castEpisode(context, episode)
+        },
         onBack = onBack
     )
 }
@@ -156,6 +159,7 @@ private fun SeriesDetailContent(
     onResumeClick: (Episode) -> Unit,
     onCopyEpisodeUrl: suspend (Episode) -> String?,
     onDownloadEpisode: (Episode) -> Unit,
+    onCastEpisode: (Episode) -> Unit,
     onBack: () -> Unit
 ) {
     val isTelevisionDevice = rememberIsTelevisionDevice()
@@ -309,6 +313,7 @@ private fun SeriesDetailContent(
                                      hasProgress = hasProgress,
                                      onResumeClick = onResumeClick,
                                      onCopyUrl = { copyEpisodeUrl(ep) },
+                                     onCast = { onCastEpisode(ep) },
                                      onToggleFavorite = onToggleFavorite
                                  )
                             }
@@ -395,6 +400,7 @@ private fun SeriesDetailContent(
                                      hasProgress = hasProgress,
                                      onResumeClick = onResumeClick,
                                      onCopyUrl = { copyEpisodeUrl(ep) },
+                                     onCast = { onCastEpisode(ep) },
                                      onToggleFavorite = onToggleFavorite
                                  )
                             }
@@ -454,7 +460,8 @@ private fun SeriesDetailContent(
                         fallbackImageUrl = fallbackCover,
                         onClick = { onEpisodeClick(episode) },
                         onCopyUrl = { copyEpisodeUrl(episode) },
-                        onDownload = { onDownloadEpisode(episode) }
+                        onDownload = { onDownloadEpisode(episode) },
+                        onCast = { onCastEpisode(episode) }
                     )
                 }
                 if (visibleEpisodes.size < season.episodes.size) {
@@ -521,6 +528,7 @@ private fun SeriesDetailActions(
     hasProgress: Boolean,
     onResumeClick: (Episode) -> Unit,
     onCopyUrl: () -> Unit,
+    onCast: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -547,6 +555,15 @@ private fun SeriesDetailActions(
                     )
                 }
             )
+        }
+        TvButton(
+            onClick = onCast,
+            colors = ButtonDefaults.colors(
+                containerColor = AppColors.SurfaceEmphasis,
+                contentColor = AppColors.TextPrimary
+            )
+        ) {
+            Text("Transmitir")
         }
         TvButton(
             onClick = onCopyUrl,
@@ -622,7 +639,8 @@ fun EpisodeItem(
     fallbackImageUrl: String? = null,
     onClick: () -> Unit,
     onCopyUrl: () -> Unit,
-    onDownload: () -> Unit
+    onDownload: () -> Unit,
+    onCast: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -645,6 +663,15 @@ fun EpisodeItem(
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            TvButton(
+                onClick = onCast,
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary
+                )
+            ) {
+                Text("Transmitir")
+            }
             TvButton(
                 onClick = onDownload,
                 colors = ButtonDefaults.colors(

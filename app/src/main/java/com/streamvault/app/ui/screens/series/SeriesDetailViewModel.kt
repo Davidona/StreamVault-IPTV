@@ -48,7 +48,8 @@ class SeriesDetailViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val preferencesRepository: PreferencesRepository,
     private val pluginManager: StreamVaultPluginManager,
-    private val downloadManager: DownloadManager
+    private val downloadManager: DownloadManager,
+    private val castManager: com.streamvault.app.cast.CastManager
 ) : ViewModel() {
 
     private val seriesId: Long = checkNotNull(
@@ -244,6 +245,34 @@ class SeriesDetailViewModel @Inject constructor(
                 }
                 is Result.Error ->
                     Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
+                Result.Loading -> Unit
+            }
+    }
+    
+    fun castEpisode(context: Context, episode: Episode) {
+        val series = _uiState.value.series ?: return
+        viewModelScope.launch {
+            val resolvedUrl = resolveCopyStreamUrl(episode)
+            when (resolvedUrl) {
+                is Result.Success -> {
+                    val request = com.streamvault.app.cast.CastMediaRequest(
+                        url = resolvedUrl.data,
+                        title = series.name,
+                        subtitle = "T${episode.seasonNumber}:E${episode.episodeNumber} - ${episode.title}",
+                        artworkUrl = episode.coverUrl ?: series.posterUrl ?: series.backdropUrl,
+                        isLive = false,
+                        startPositionMs = episode.watchProgress
+                    )
+                    val result = castManager.startCasting(request)
+                    if (result == com.streamvault.app.cast.CastStartResult.ROUTE_SELECTION_REQUIRED) {
+                        context.startActivity(
+                            android.content.Intent(context, com.streamvault.app.cast.CastRouteChooserActivity::class.java)
+                        )
+                    } else if (result == com.streamvault.app.cast.CastStartResult.UNAVAILABLE) {
+                        Toast.makeText(context, "Google Cast indisponível", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Result.Error -> Toast.makeText(context, "Erro ao obter URL do episódio", Toast.LENGTH_SHORT).show()
                 Result.Loading -> Unit
             }
         }

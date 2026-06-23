@@ -155,6 +155,7 @@ private fun MovieDetailContent(
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val playButtonFocusRequester = remember { FocusRequester() }
     val onDownload: () -> Unit = { viewModel.downloadMovie(context) }
+    val onCast: () -> Unit = { viewModel.castMovie(context) }
 
     LaunchedEffect(movie.id) {
         playButtonFocusRequester.requestFocusSafely(
@@ -239,6 +240,7 @@ private fun MovieDetailContent(
                                 }
                             },
                             onDownload = onDownload,
+                            onCast = onCast,
                             onToggleFavorite = onToggleFavorite,
                             onSelectVariant = onSelectVariant,
                             playButtonFocusRequester = playButtonFocusRequester,
@@ -270,6 +272,7 @@ private fun MovieDetailContent(
                                 }
                             },
                             onDownload = onDownload,
+                            onCast = onCast,
                             onToggleFavorite = onToggleFavorite,
                             onSelectVariant = onSelectVariant,
                             playButtonFocusRequester = playButtonFocusRequester,
@@ -366,6 +369,7 @@ private fun MovieDetailHeroText(
     onPlay: () -> Unit,
     onCopyUrl: () -> Unit,
     onDownload: () -> Unit,
+    onCast: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSelectVariant: (Long) -> Unit,
     playButtonFocusRequester: FocusRequester,
@@ -436,6 +440,15 @@ private fun MovieDetailHeroText(
                         stringResource(R.string.movie_detail_play)
                     }
                 )
+            }
+            TvButton(
+                onClick = onCast,
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary
+                )
+            ) {
+                Text("Transmitir")
             }
             TvButton(
                 onClick = onCopyUrl,

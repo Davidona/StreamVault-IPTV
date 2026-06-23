@@ -44,7 +44,8 @@ class MovieDetailViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val preferencesRepository: PreferencesRepository,
     private val pluginManager: StreamVaultPluginManager,
-    private val downloadManager: DownloadManager
+    private val downloadManager: DownloadManager,
+    private val castManager: com.streamvault.app.cast.CastManager
 ) : ViewModel() {
 
     private val movieId: Long = checkNotNull(
@@ -174,6 +175,34 @@ class MovieDetailViewModel @Inject constructor(
                 }
                 is Result.Error ->
                     Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
+                Result.Loading -> Unit
+            }
+    }
+    
+    fun castMovie(context: Context) {
+        val movie = _uiState.value.movie ?: return
+        viewModelScope.launch {
+            val resolvedUrl = resolveCopyStreamUrl()
+            when (resolvedUrl) {
+                is Result.Success -> {
+                    val request = com.streamvault.app.cast.CastMediaRequest(
+                        url = resolvedUrl.data,
+                        title = movie.name,
+                        subtitle = movie.director ?: movie.year,
+                        artworkUrl = movie.posterUrl ?: movie.backdropUrl,
+                        isLive = false,
+                        startPositionMs = _uiState.value.resumePositionMs
+                    )
+                    val result = castManager.startCasting(request)
+                    if (result == com.streamvault.app.cast.CastStartResult.ROUTE_SELECTION_REQUIRED) {
+                        context.startActivity(
+                            android.content.Intent(context, com.streamvault.app.cast.CastRouteChooserActivity::class.java)
+                        )
+                    } else if (result == com.streamvault.app.cast.CastStartResult.UNAVAILABLE) {
+                        Toast.makeText(context, "Google Cast indisponível", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Result.Error -> Toast.makeText(context, "Erro ao obter URL do filme", Toast.LENGTH_SHORT).show()
                 Result.Loading -> Unit
             }
         }
