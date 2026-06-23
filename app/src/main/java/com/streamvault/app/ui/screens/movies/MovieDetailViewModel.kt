@@ -181,6 +181,20 @@ class MovieDetailViewModel @Inject constructor(
     }
 
     fun castMovie(context: Context) {
+        val options = arrayOf("Google Cast (Chromecast)", "Web Video Caster")
+        android.app.AlertDialog.Builder(context)
+            .setTitle("Transmitir via")
+            .setItems(options) { _, which ->
+                if (which == 0) {
+                    startGoogleCast(context)
+                } else {
+                    startWebVideoCaster(context)
+                }
+            }
+            .show()
+    }
+
+    private fun startGoogleCast(context: Context) {
         val movie = _uiState.value.movie ?: return
         viewModelScope.launch {
             val resolvedUrl = resolveCopyStreamUrl()
@@ -201,6 +215,42 @@ class MovieDetailViewModel @Inject constructor(
                         )
                     } else if (result == com.streamvault.app.cast.CastStartResult.UNAVAILABLE) {
                         Toast.makeText(context, "Google Cast indisponível", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Result.Error -> Toast.makeText(context, "Erro ao obter URL do filme", Toast.LENGTH_SHORT).show()
+                Result.Loading -> Unit
+            }
+        }
+    }
+
+    private fun startWebVideoCaster(context: Context) {
+        val movie = _uiState.value.movie ?: return
+        viewModelScope.launch {
+            val resolvedUrl = resolveCopyStreamUrl()
+            when (resolvedUrl) {
+                is Result.Success -> {
+                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                        setDataAndType(android.net.Uri.parse(resolvedUrl.data), "video/*")
+                        setPackage("com.instantbits.cast.webvideo")
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        Toast.makeText(context, "Web Video Caster não instalado", Toast.LENGTH_SHORT).show()
+                        try {
+                            context.startActivity(
+                                android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=com.instantbits.cast.webvideo")).apply {
+                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        } catch (anfe: Exception) {
+                            context.startActivity(
+                                android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.instantbits.cast.webvideo")).apply {
+                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        }
                     }
                 }
                 is Result.Error -> Toast.makeText(context, "Erro ao obter URL do filme", Toast.LENGTH_SHORT).show()
