@@ -177,8 +177,9 @@ class MovieDetailViewModel @Inject constructor(
                     Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
                 Result.Loading -> Unit
             }
+        }
     }
-    
+
     fun castMovie(context: Context) {
         val movie = _uiState.value.movie ?: return
         viewModelScope.launch {

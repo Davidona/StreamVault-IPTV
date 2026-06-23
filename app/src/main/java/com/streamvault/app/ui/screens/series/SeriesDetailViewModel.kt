@@ -247,8 +247,9 @@ class SeriesDetailViewModel @Inject constructor(
                     Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
                 Result.Loading -> Unit
             }
+        }
     }
-    
+
     fun castEpisode(context: Context, episode: Episode) {
         val series = _uiState.value.series ?: return
         viewModelScope.launch {
