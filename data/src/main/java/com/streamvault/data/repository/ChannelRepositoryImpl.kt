@@ -30,11 +30,15 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.util.ChannelNormalizer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -42,6 +46,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -164,7 +170,32 @@ class ChannelRepositoryImpl @Inject constructor(
         searchChannelEntities(providerId, categoryId, query, CATEGORY_SEARCH_LIMIT)
             .let { flow -> observeChannels(flow, providerId) }
 
+    // Scope for shareIn-cached flows; lives as long as this @Singleton repository.
+    private val sharedFlowScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // Stale-while-revalidate cache for the category list. Computing it runs a
+    // GROUP BY aggregate over the whole channels table (50k+ rows for large
+    // providers), so the result is kept hot per provider: re-subscribers get the
+    // last list instantly via replay while Room re-runs the query and emits
+    // fresh data only if something changed.
+    private val categoriesFlowCache = ConcurrentHashMap<Long, Flow<List<Category>>>()
+
     override fun getCategories(providerId: Long): Flow<List<Category>> =
+        categoriesFlowCache.computeIfAbsent(providerId) {
+            buildCategoriesFlow(providerId).distinctUntilChanged().shareIn(
+                scope = sharedFlowScope,
+                // Stop the upstream query the moment the last subscriber leaves:
+                // during catalog syncs every table write invalidates this heavy
+                // aggregate, and a keep-alive would re-run it continuously in the
+                // background, starving other screens' queries. The replay cache
+                // survives the stop, so re-entering the screen still renders the
+                // last list instantly while a fresh query runs.
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 0L),
+                replay = 1
+            )
+        }
+
+    private fun buildCategoriesFlow(providerId: Long): Flow<List<Category>> =
         combine(
             categoryDao.getByProviderAndType(providerId, ContentType.LIVE.name),
             decorativeAwareCategoryCountFlow(providerId),
