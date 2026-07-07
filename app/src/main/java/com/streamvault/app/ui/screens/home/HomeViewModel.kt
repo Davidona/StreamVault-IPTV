@@ -100,6 +100,13 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    // Preview playback state lives in its own flow so high-frequency playback
+    // ticks (loading/error transitions while a stream spins up or stalls) do not
+    // copy-and-republish the whole HomeUiState, which recomposes the entire
+    // Home screen scope. Collected only by the preview pane host.
+    private val _previewUiState = MutableStateFlow(HomePreviewUiState())
+    val previewUiState: StateFlow<HomePreviewUiState> = _previewUiState.asStateFlow()
     val remoteShortcutPreferences = preferencesRepository.remoteShortcutPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), com.streamvault.domain.model.RemoteShortcutPreferences())
 
@@ -287,7 +294,7 @@ class HomeViewModel @Inject constructor(
                         state.copy(filteredChannels = markedChannels)
                     }
                 }
-                val previewChannelId = _uiState.value.previewChannelId
+                val previewChannelId = _previewUiState.value.channelId
                 if (previewChannelId != null && markedChannels.none { it.id == previewChannelId }) {
                     clearPreview()
                 }
@@ -992,33 +999,31 @@ class HomeViewModel @Inject constructor(
 
     fun previewChannel(channel: Channel) {
         if (_uiState.value.liveTvChannelMode != LiveTvChannelMode.PRO) return
-        if (_uiState.value.previewChannelId == channel.id && _uiState.value.previewPlayerEngine != null) return
+        if (_previewUiState.value.channelId == channel.id && _previewUiState.value.playerEngine != null) return
 
         val previewVersion = ++previewSessionVersion
         val engine = previewPlayerEngine ?: playerEngineProvider.get().also { previewPlayerEngine = it }
         previewPlaybackJob?.cancel()
         previewErrorJob?.cancel()
 
-        _uiState.update {
-            it.copy(
-                previewChannelId = channel.id,
-                previewPlayerEngine = engine,
-                isPreviewLoading = true,
-                previewErrorMessage = null
-            )
-        }
+        _previewUiState.value = HomePreviewUiState(
+            channelId = channel.id,
+            playerEngine = engine,
+            isLoading = true,
+            errorMessage = null
+        )
 
         previewPlaybackJob = viewModelScope.launch {
             engine.playbackState.collectLatest { playbackState ->
                 if (!isActivePreviewSession(previewVersion, channel.id)) return@collectLatest
-                _uiState.update { state ->
+                _previewUiState.update { state ->
                     state.copy(
-                        isPreviewLoading = playbackState == PlaybackState.IDLE || playbackState == PlaybackState.BUFFERING,
-                        previewErrorMessage = when {
-                            playbackState == PlaybackState.ERROR && state.previewErrorMessage.isNullOrBlank() ->
+                        isLoading = playbackState == PlaybackState.IDLE || playbackState == PlaybackState.BUFFERING,
+                        errorMessage = when {
+                            playbackState == PlaybackState.ERROR && state.errorMessage.isNullOrBlank() ->
                                 appContext.getString(R.string.live_preview_failed)
                             playbackState != PlaybackState.ERROR -> null
-                            else -> state.previewErrorMessage
+                            else -> state.errorMessage
                         }
                     )
                 }
@@ -1029,10 +1034,10 @@ class HomeViewModel @Inject constructor(
             engine.error.collectLatest { error ->
                 if (!isActivePreviewSession(previewVersion, channel.id)) return@collectLatest
                 if (error != null) {
-                    _uiState.update {
+                    _previewUiState.update {
                         it.copy(
-                            isPreviewLoading = false,
-                            previewErrorMessage = error.message.ifBlank { appContext.getString(R.string.live_preview_failed) }
+                            isLoading = false,
+                            errorMessage = error.message.ifBlank { appContext.getString(R.string.live_preview_failed) }
                         )
                     }
                 }
@@ -1047,10 +1052,10 @@ class HomeViewModel @Inject constructor(
                         is Result.Success -> pluginResult.data
                         is Result.Error -> {
                             if (!isActivePreviewSession(previewVersion, channel.id)) return@launch
-                            _uiState.update {
+                            _previewUiState.update {
                                 it.copy(
-                                    isPreviewLoading = false,
-                                    previewErrorMessage = pluginResult.message.ifBlank { appContext.getString(R.string.live_preview_failed) }
+                                    isLoading = false,
+                                    errorMessage = pluginResult.message.ifBlank { appContext.getString(R.string.live_preview_failed) }
                                 )
                             }
                             return@launch
@@ -1083,10 +1088,10 @@ class HomeViewModel @Inject constructor(
                 }
                 is Result.Error -> {
                     if (!isActivePreviewSession(previewVersion, channel.id)) return@launch
-                    _uiState.update {
+                    _previewUiState.update {
                         it.copy(
-                            isPreviewLoading = false,
-                            previewErrorMessage = result.message
+                            isLoading = false,
+                            errorMessage = result.message
                         )
                     }
                 }
@@ -1106,7 +1111,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             delay(ADAPTIVE_PREVIEW_REPRIME_DELAY_MS)
             if (!isActivePreviewSession(previewVersion, channel.id)) return@launch
-            if (_uiState.value.previewErrorMessage != null) return@launch
+            if (_previewUiState.value.errorMessage != null) return@launch
             if (engine.playbackState.value != PlaybackState.READY) return@launch
             if (!engine.isPlaying.value) return@launch
             if (engine.playerStats.value.ttffMs > 0L) return@launch
@@ -1123,7 +1128,7 @@ class HomeViewModel @Inject constructor(
 
     fun beginPreviewHandoff(channel: Channel): Boolean {
         val engine = previewPlayerEngine ?: return false
-        if (_uiState.value.previewChannelId != channel.id) return false
+        if (_previewUiState.value.channelId != channel.id) return false
         if (!livePreviewHandoffManager.beginFullscreenHandoff(channel.id, engine)) return false
 
         previewSessionVersion++
@@ -1132,14 +1137,7 @@ class HomeViewModel @Inject constructor(
         previewPlaybackJob = null
         previewErrorJob = null
         previewPlayerEngine = null
-        _uiState.update {
-            it.copy(
-                previewChannelId = null,
-                previewPlayerEngine = null,
-                isPreviewLoading = false,
-                previewErrorMessage = null
-            )
-        }
+        _previewUiState.value = HomePreviewUiState()
         return true
     }
 
@@ -1169,19 +1167,17 @@ class HomeViewModel @Inject constructor(
             engine = engine,
             source = PreviewHandoffSource.HOME
         )
-        _uiState.update {
-            it.copy(
-                previewChannelId = session.channelId,
-                previewPlayerEngine = engine,
-                isPreviewLoading = false,
-                previewErrorMessage = null
-            )
-        }
+        _previewUiState.value = HomePreviewUiState(
+            channelId = session.channelId,
+            playerEngine = engine,
+            isLoading = false,
+            errorMessage = null
+        )
         previewPlaybackJob = viewModelScope.launch {
             engine.playbackState.collectLatest { state ->
                 if (!isActivePreviewSession(version, session.channelId)) return@collectLatest
-                if (state == PlaybackState.ERROR && _uiState.value.previewErrorMessage == null) {
-                    _uiState.update { it.copy(previewErrorMessage = appContext.getString(R.string.live_preview_failed)) }
+                if (state == PlaybackState.ERROR && _previewUiState.value.errorMessage == null) {
+                    _previewUiState.update { it.copy(errorMessage = appContext.getString(R.string.live_preview_failed)) }
                 }
             }
         }
@@ -1198,18 +1194,11 @@ class HomeViewModel @Inject constructor(
         previewPlayerEngine?.stop()
         previewPlayerEngine?.release()
         previewPlayerEngine = null
-        _uiState.update {
-            it.copy(
-                previewChannelId = null,
-                previewPlayerEngine = null,
-                isPreviewLoading = false,
-                previewErrorMessage = null
-            )
-        }
+        _previewUiState.value = HomePreviewUiState()
     }
 
     private fun isActivePreviewSession(version: Long, channelId: Long): Boolean =
-        version == previewSessionVersion && _uiState.value.previewChannelId == channelId
+        version == previewSessionVersion && _previewUiState.value.channelId == channelId
 
     private fun fetchEpgForChannels(channels: List<Channel>) {
         epgJob?.cancel()
@@ -2013,13 +2002,20 @@ data class HomeUiState(
     val isChannelReorderMode: Boolean = false,
     val reorderCategory: Category? = null,
     val liveTvChannelMode: LiveTvChannelMode = LiveTvChannelMode.PRO,
-    val previewChannelId: Long? = null,
-    val previewPlayerEngine: PlayerEngine? = null,
-    val isPreviewLoading: Boolean = false,
-    val previewErrorMessage: String? = null,
     val errorMessage: String? = null,
     val multiviewChannelCount: Int = 0,
     val multiviewSlotCapacity: Int = MultiViewManager.MAX_SLOTS
+)
+
+/**
+ * Live-preview playback state, split out of [HomeUiState] so playback ticks only
+ * recompose the preview pane host instead of the whole Home screen.
+ */
+data class HomePreviewUiState(
+    val channelId: Long? = null,
+    val playerEngine: PlayerEngine? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 private data class CategorySelectionContext(
