@@ -151,6 +151,13 @@ kotlin {
     }
 }
 
+composeCompiler {
+    // Marks cross-module immutable classes (domain models, java.time) as stable so
+    // composables taking them as parameters can skip recomposition. See
+    // compose-stability.conf at the repo root.
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose-stability.conf"))
+}
+
 kover {
     currentProject {
         createVariant("ci") {
