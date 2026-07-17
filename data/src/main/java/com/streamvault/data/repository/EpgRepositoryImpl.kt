@@ -81,7 +81,7 @@ class EpgRepositoryImpl @Inject constructor(
 
     companion object {
         private const val MAX_EPG_SIZE_BYTES = NetworkTimeoutConfig.EPG_MAX_SIZE_BYTES
-        private const val EPG_PROGRAM_BATCH_SIZE = 500
+        private const val EPG_PROGRAM_BATCH_SIZE = 5000
         private const val NOW_AND_NEXT_LOOKBACK_MS = 60L * 60L * 1000L
         private const val NOW_AND_NEXT_LOOKAHEAD_MS = 2L * 60L * 60L * 1000L
         private const val NOW_AND_NEXT_REFRESH_INTERVAL_MS = 60L * 1000L
