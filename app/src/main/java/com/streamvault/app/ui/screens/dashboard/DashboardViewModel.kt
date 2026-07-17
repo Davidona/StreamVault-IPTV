@@ -167,7 +167,7 @@ class DashboardViewModel @Inject constructor(
         combinedProfileId: Long?
     ): Flow<DashboardUiState> {
         val movieShelf = combine(
-            movieRepository.getFreshPreview(provider.id, MOVIE_SHELF_LIMIT),
+            movieRepository.getByReleaseDate(provider.id, MOVIE_SHELF_LIMIT),
             preferencesRepository.parentalControlLevel
         ) { movies, level ->
             movies
@@ -191,7 +191,7 @@ class DashboardViewModel @Inject constructor(
                 .take(MOVIE_SHELF_LIMIT)
         }
         val seriesShelf = combine(
-            seriesRepository.getFreshPreview(provider.id, SERIES_SHELF_LIMIT),
+            seriesRepository.getByReleaseDate(provider.id, SERIES_SHELF_LIMIT),
             preferencesRepository.parentalControlLevel
         ) { series, level ->
             series

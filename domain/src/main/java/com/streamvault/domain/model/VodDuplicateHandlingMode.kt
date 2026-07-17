@@ -7,6 +7,6 @@ enum class VodDuplicateHandlingMode(val storageValue: String) {
 
     companion object {
         fun fromStorage(value: String?): VodDuplicateHandlingMode =
-            entries.firstOrNull { it.storageValue.equals(value, ignoreCase = true) } ?: SHOW_ALL
+            entries.firstOrNull { it.storageValue.equals(value, ignoreCase = true) } ?: GROUPED
     }
 }

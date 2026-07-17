@@ -896,14 +896,37 @@ interface TmdbIdentityDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface MovieDao {
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC")
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, year DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<MovieBrowseEntity>>
 
     /** SQL-level parental filter — avoids loading protected items into memory. */
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND is_user_protected = 0 ORDER BY added_at DESC, name ASC, id ASC")
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId AND is_user_protected = 0
+        ORDER BY
+            COALESCE(release_date, year) IS NULL,
+            COALESCE(release_date, year) DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        """
+    )
     fun getByProviderUnprotected(providerId: Long): Flow<List<MovieBrowseEntity>>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit OFFSET :offset")
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+        ORDER BY
+            COALESCE(release_date, year) IS NULL,
+            COALESCE(release_date, year) DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit OFFSET :offset
+        """
+    )
     fun getByProviderPage(providerId: Long, limit: Int, offset: Int): Flow<List<MovieBrowseEntity>>
 
     @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY name ASC, id ASC LIMIT :limit")
@@ -1070,7 +1093,7 @@ interface MovieDao {
         limit: Int
     ): List<MovieBrowseEntity>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY added_at DESC, name ASC, id ASC")
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY added_at DESC, year DESC, name ASC, id ASC")
     fun getByCategory(providerId: Long, categoryId: Long): Flow<List<MovieBrowseEntity>>
 
     @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY name ASC, id ASC LIMIT :limit")
@@ -1255,13 +1278,48 @@ interface MovieDao {
     ): List<MovieBrowseEntity>
 
     /** SQL-level parental filter per category. */
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId AND is_user_protected = 0 ORDER BY added_at DESC, name ASC, id ASC")
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId AND category_id = :categoryId AND is_user_protected = 0
+        ORDER BY
+            COALESCE(release_date, year) IS NULL,
+            COALESCE(release_date, year) DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        """
+    )
     fun getByCategoryUnprotected(providerId: Long, categoryId: Long): Flow<List<MovieBrowseEntity>>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit OFFSET :offset")
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId AND category_id = :categoryId
+        ORDER BY
+            COALESCE(release_date, year) IS NULL,
+            COALESCE(release_date, year) DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit OFFSET :offset
+        """
+    )
     fun getByCategoryPage(providerId: Long, categoryId: Long, limit: Int, offset: Int): Flow<List<MovieBrowseEntity>>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId AND category_id = :categoryId
+        ORDER BY
+            COALESCE(release_date, year) IS NULL,
+            COALESCE(release_date, year) DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
     fun getByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<MovieBrowseEntity>>
 
     @Query("SELECT * FROM movies WHERE provider_id = :providerId AND rating > 0 ORDER BY rating DESC, name ASC LIMIT :limit")
@@ -1384,6 +1442,52 @@ interface MovieDao {
         limit: Int
     ): List<MovieBrowseEntity>
 
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+        ORDER BY
+            CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END DESC,
+            year DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedCursorPage(providerId: Long, limit: Int): List<MovieBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+          AND (
+              CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END
+              < CASE WHEN COALESCE(:lastYear, '') != '' THEN 1 ELSE 0 END
+              OR (
+                  CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END
+                  = CASE WHEN COALESCE(:lastYear, '') != '' THEN 1 ELSE 0 END
+                  AND (year < :lastYear OR (year IS NULL AND :lastYear IS NOT NULL) OR (year = :lastYear AND added_at < :lastAddedAt) OR (year = :lastYear AND added_at = :lastAddedAt AND (name > :lastName OR (name = :lastName AND id > :lastId))))
+              )
+          )
+        ORDER BY
+            CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END DESC,
+            year DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedCursorPageAfter(
+        providerId: Long,
+        lastYear: String?,
+        lastAddedAt: Long,
+        lastName: String,
+        lastId: Long,
+        limit: Int
+    ): List<MovieBrowseEntity>
+
     @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId AND added_at > 0 ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
     fun getFreshByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<MovieBrowseEntity>>
 
@@ -1440,6 +1544,55 @@ interface MovieDao {
     suspend fun getFreshByCategoryCursorPageAfter(
         providerId: Long,
         categoryId: Long,
+        lastAddedAt: Long,
+        lastName: String,
+        lastId: Long,
+        limit: Int
+    ): List<MovieBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+          AND category_id = :categoryId
+        ORDER BY
+            CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END DESC,
+            year DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedByCategoryCursorPage(providerId: Long, categoryId: Long, limit: Int): List<MovieBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+          AND category_id = :categoryId
+          AND (
+              CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END
+              < CASE WHEN COALESCE(:lastYear, '') != '' THEN 1 ELSE 0 END
+              OR (
+                  CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END
+                  = CASE WHEN COALESCE(:lastYear, '') != '' THEN 1 ELSE 0 END
+                  AND (year < :lastYear OR (year IS NULL AND :lastYear IS NOT NULL) OR (year = :lastYear AND added_at < :lastAddedAt) OR (year = :lastYear AND added_at = :lastAddedAt AND (name > :lastName OR (name = :lastName AND id > :lastId))))
+              )
+          )
+        ORDER BY
+            CASE WHEN COALESCE(year, '') != '' THEN 1 ELSE 0 END DESC,
+            year DESC,
+            added_at DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedByCategoryCursorPageAfter(
+        providerId: Long,
+        categoryId: Long,
+        lastYear: String?,
         lastAddedAt: Long,
         lastName: String,
         lastId: Long,
@@ -1779,6 +1932,26 @@ interface MovieDao {
 
     @Query("UPDATE movies SET is_user_protected = 0 WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
     suspend fun clearProtectionForCategories(providerId: Long, categoryIds: List<Long>)
+
+    /** Restore year from parenthetical (YYYY) at end of name for rows where
+     *  year was cleared or doesn't match. SUBSTR(name, -4, 4) extracts the
+     *  4-digit year from the last 4 characters before the closing paren. */
+    @Query(
+        """
+        UPDATE movies SET year = SUBSTR(name, -4, 4)
+        WHERE year IS NULL
+          AND name LIKE '%(____)'
+          AND SUBSTR(name, -4, 1) BETWEEN '1' AND '2'
+        """
+    )
+    suspend fun restoreYearsFromName()
+
+    /** Clear year values that don't match a parenthetical (YYYY) at the end of
+     *  the movie name (e.g. '2049' from 'Blade Runner 2049'). */
+    @Query(
+        "UPDATE movies SET year = NULL WHERE year IS NOT NULL AND SUBSTR(name, -6) != ('(' || year || ')')"
+    )
+    suspend fun clearInvalidYears()
 }
 
 @Dao
@@ -1787,7 +1960,19 @@ interface SeriesDao {
     @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY last_modified DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<SeriesBrowseEntity>>
 
-    @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit OFFSET :offset")
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+        ORDER BY
+            COALESCE(release_date, '') IS NULL,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit OFFSET :offset
+        """
+    )
     fun getByProviderPage(providerId: Long, limit: Int, offset: Int): Flow<List<SeriesBrowseEntity>>
 
     @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY name ASC, id ASC LIMIT :limit")
@@ -2259,7 +2444,19 @@ interface SeriesDao {
     )
     fun getByWatchCountCategoryPage(providerId: Long, categoryId: Long, limit: Int, offset: Int): Flow<List<SeriesBrowseEntity>>
 
-    @Query("SELECT * FROM series WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit OFFSET :offset")
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId AND category_id = :categoryId
+        ORDER BY
+            COALESCE(release_date, '') IS NULL,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit OFFSET :offset
+        """
+    )
     fun getByCategoryPage(providerId: Long, categoryId: Long, limit: Int, offset: Int): Flow<List<SeriesBrowseEntity>>
 
     @Query("SELECT * FROM series WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY name ASC, id ASC LIMIT :limit")
@@ -2283,7 +2480,19 @@ interface SeriesDao {
         limit: Int
     ): List<SeriesBrowseEntity>
 
-    @Query("SELECT * FROM series WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit")
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId AND category_id = :categoryId
+        ORDER BY
+            COALESCE(release_date, '') IS NULL,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
     fun getByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<SeriesBrowseEntity>>
 
     @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY rating DESC, name ASC LIMIT :limit")
@@ -2349,6 +2558,27 @@ interface SeriesDao {
     @Query("SELECT * FROM series WHERE provider_id = :providerId AND last_modified > 0 ORDER BY last_modified DESC, name ASC LIMIT :limit")
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<SeriesBrowseEntity>>
 
+    @Query("""
+        SELECT s.* FROM series s
+        LEFT JOIN (
+            SELECT series_id, MAX(release_date) AS latest_episode_date
+            FROM episodes
+            WHERE provider_id = :providerId AND release_date IS NOT NULL AND release_date != ''
+            GROUP BY series_id
+        ) e ON s.id = e.series_id
+        WHERE s.provider_id = :providerId
+        ORDER BY
+            CASE WHEN COALESCE(e.latest_episode_date, s.release_date, '') != '' THEN 0 ELSE 1 END,
+            e.latest_episode_date DESC,
+            CASE WHEN COALESCE(s.release_date, '') != '' THEN 0 ELSE 1 END,
+            s.release_date DESC,
+            s.last_modified DESC,
+            s.name ASC,
+            s.id ASC
+        LIMIT :limit
+    """)
+    fun getByReleaseDate(providerId: Long, limit: Int): Flow<List<SeriesBrowseEntity>>
+
     @Query(
         """
         SELECT * FROM series
@@ -2391,6 +2621,52 @@ interface SeriesDao {
     )
     suspend fun getFreshCursorPageAfter(
         providerId: Long,
+        lastModified: Long,
+        lastName: String,
+        lastId: Long,
+        limit: Int
+    ): List<SeriesBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+        ORDER BY
+            CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END DESC,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedCursorPage(providerId: Long, limit: Int): List<SeriesBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+          AND (
+              CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END
+              < CASE WHEN COALESCE(:lastReleaseDate, '') != '' THEN 1 ELSE 0 END
+              OR (
+                  CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END
+                  = CASE WHEN COALESCE(:lastReleaseDate, '') != '' THEN 1 ELSE 0 END
+                  AND (release_date < :lastReleaseDate OR (release_date IS NULL AND :lastReleaseDate IS NOT NULL) OR (release_date = :lastReleaseDate AND last_modified < :lastModified) OR (release_date = :lastReleaseDate AND last_modified = :lastModified AND (name > :lastName OR (name = :lastName AND id > :lastId))))
+              )
+          )
+        ORDER BY
+            CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END DESC,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedCursorPageAfter(
+        providerId: Long,
+        lastReleaseDate: String?,
         lastModified: Long,
         lastName: String,
         lastId: Long,
@@ -2446,6 +2722,55 @@ interface SeriesDao {
     suspend fun getFreshByCategoryCursorPageAfter(
         providerId: Long,
         categoryId: Long,
+        lastModified: Long,
+        lastName: String,
+        lastId: Long,
+        limit: Int
+    ): List<SeriesBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+          AND category_id = :categoryId
+        ORDER BY
+            CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END DESC,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedByCategoryCursorPage(providerId: Long, categoryId: Long, limit: Int): List<SeriesBrowseEntity>
+
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+          AND category_id = :categoryId
+          AND (
+              CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END
+              < CASE WHEN COALESCE(:lastReleaseDate, '') != '' THEN 1 ELSE 0 END
+              OR (
+                  CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END
+                  = CASE WHEN COALESCE(:lastReleaseDate, '') != '' THEN 1 ELSE 0 END
+                  AND (release_date < :lastReleaseDate OR (release_date IS NULL AND :lastReleaseDate IS NOT NULL) OR (release_date = :lastReleaseDate AND last_modified < :lastModified) OR (release_date = :lastReleaseDate AND last_modified = :lastModified AND (name > :lastName OR (name = :lastName AND id > :lastId))))
+              )
+          )
+        ORDER BY
+            CASE WHEN COALESCE(release_date, '') != '' THEN 1 ELSE 0 END DESC,
+            release_date DESC,
+            last_modified DESC,
+            name ASC,
+            id ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getReleasedByCategoryCursorPageAfter(
+        providerId: Long,
+        categoryId: Long,
+        lastReleaseDate: String?,
         lastModified: Long,
         lastName: String,
         lastId: Long,

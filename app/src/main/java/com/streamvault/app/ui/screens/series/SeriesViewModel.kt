@@ -409,7 +409,7 @@ class SeriesViewModel @Inject constructor(
                         favoriteRepository.getAllFavorites(provider.id, ContentType.SERIES),
                         playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
                         seriesRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
-                        seriesRepository.getFreshPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
+                        seriesRepository.getByReleaseDate(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
                     ) { allFavorites, history, topRated, fresh ->
                         SeriesLibraryLensDependencies(
                             providerId = provider.id,

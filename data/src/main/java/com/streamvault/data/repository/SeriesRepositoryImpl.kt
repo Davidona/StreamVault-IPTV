@@ -110,6 +110,13 @@ class SeriesRepositoryImpl @Inject constructor(
         val id: Long
     )
 
+    private data class ReleasedCursor(
+        val releaseDate: String?,
+        val lastModified: Long,
+        val name: String,
+        val id: Long
+    )
+
     private val xtreamProviderCache = ConcurrentHashMap<Long, CachedXtreamProvider>()
     private val xtreamCategoryLoadLocks = ConcurrentHashMap<String, Mutex>()
     private val loadedXtreamCategories = ConcurrentHashMap.newKeySet<String>()
@@ -288,6 +295,21 @@ class SeriesRepositoryImpl @Inject constructor(
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Series>> =
         combine(
             seriesDao.getFreshPreview(providerId, limit),
+            preferencesRepository.parentalControlLevel
+        ) { entities, level: Int ->
+            if (level >= 3) {
+                entities.filter { !it.isUserProtected }
+            } else {
+                entities
+            }
+        }.map { list -> list.map { it.toDomain() } }
+            .combine(seriesPresentationSettingsFlow) { list, settings ->
+                buildPresentedSeries(list, settings).take(limit)
+            }
+
+    override fun getByReleaseDate(providerId: Long, limit: Int): Flow<List<Series>> =
+        combine(
+            seriesDao.getByReleaseDate(providerId, limit),
             preferencesRepository.parentalControlLevel
         ) { entities, level: Int ->
             if (level >= 3) {
@@ -1317,12 +1339,26 @@ class SeriesRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun loadSeriesReleasedPage(query: LibraryBrowseQuery, limit: Int, cursor: ReleasedCursor?): List<SeriesBrowseEntity> {
+        val categoryId = query.categoryId
+        return if (categoryId == null) {
+            if (cursor == null) seriesDao.getReleasedCursorPage(query.providerId, limit)
+            else seriesDao.getReleasedCursorPageAfter(
+                query.providerId, cursor.releaseDate, cursor.lastModified, cursor.name, cursor.id, limit
+            )
+        } else {
+            if (cursor == null) seriesDao.getReleasedByCategoryCursorPage(query.providerId, categoryId, limit)
+            else seriesDao.getReleasedByCategoryCursorPageAfter(
+                query.providerId, categoryId, cursor.releaseDate, cursor.lastModified, cursor.name, cursor.id, limit
+            )
+        }
+    }
+
     private fun supportsCursorBrowse(query: LibraryBrowseQuery): Boolean {
         if (query.searchQuery.isNotBlank()) return false
         return when {
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy in setOf(
-                    LibrarySortBy.LIBRARY,
                     LibrarySortBy.TITLE,
                     LibrarySortBy.UPDATED,
                     LibrarySortBy.RATING
@@ -1345,9 +1381,15 @@ class SeriesRepositoryImpl @Inject constructor(
         }
 
         val sorted = when (query.sortBy) {
-            LibrarySortBy.LIBRARY -> filtered
+            // LIBRARY: sort by effective year descending. Items with no year
+            // info (null score) sort last, below all dated items.
+            LibrarySortBy.LIBRARY -> filtered.sortedWith(
+                compareByDescending<Series> { seriesReleaseScore(it) ?: Long.MIN_VALUE }
+            )
             LibrarySortBy.TITLE -> filtered.sortedBy { it.name.lowercase() }
-            LibrarySortBy.RELEASE -> filtered.sortedByDescending(::seriesReleaseScore)
+            LibrarySortBy.RELEASE -> filtered.sortedWith(
+                compareByDescending<Series> { seriesReleaseScore(it) ?: Long.MIN_VALUE }
+            )
             LibrarySortBy.UPDATED -> filtered.sortedByDescending(::seriesUpdatedScore)
             LibrarySortBy.RATING -> filtered.sortedByDescending { it.rating }
             LibrarySortBy.WATCH_COUNT -> filtered.sortedByDescending { watchCounts[it.id] ?: 0 }
@@ -1647,12 +1689,16 @@ class SeriesRepositoryImpl @Inject constructor(
         return true
     }
 
-    private fun seriesReleaseScore(series: Series): Long =
+    private fun extractYearFromName(name: String): Long? {
+        val parenYear = Regex("""\((\d{4})\)\s*$""").find(name)
+        return parenYear?.groupValues?.get(1)?.toLongOrNull()
+    }
+
+    private fun seriesReleaseScore(series: Series): Long? =
         series.releaseDate
-            ?.filter { it.isDigit() }
-            ?.take(8)
+            ?.take(4)
             ?.toLongOrNull()
-            ?: seriesUpdatedScore(series)
+            ?: extractYearFromName(series.name)
 
     private fun seriesUpdatedScore(series: Series): Long =
         series.lastModified.takeIf { it > 0L } ?: 0L

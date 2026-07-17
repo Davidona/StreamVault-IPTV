@@ -18,6 +18,7 @@ interface SeriesRepository {
     fun getCategoryPreviewRows(providerId: Long, categoryIds: List<Long>, limitPerCategory: Int): Flow<Map<Long?, List<Series>>>
     fun getTopRatedPreview(providerId: Long, limit: Int): Flow<List<Series>>
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Series>>
+    fun getByReleaseDate(providerId: Long, limit: Int): Flow<List<Series>>
     fun getSeriesByIds(ids: List<Long>): Flow<List<Series>>
     fun getCategories(providerId: Long): Flow<List<Category>>
     fun getCategoryItemCounts(providerId: Long): Flow<Map<Long, Int>>

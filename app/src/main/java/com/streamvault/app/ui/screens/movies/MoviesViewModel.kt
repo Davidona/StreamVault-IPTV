@@ -405,7 +405,7 @@ class MoviesViewModel @Inject constructor(
                         favoriteRepository.getAllFavorites(provider.id, ContentType.MOVIE),
                         playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
                         movieRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
-                        movieRepository.getFreshPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
+                        movieRepository.getByReleaseDate(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
                     ) { allFavorites, history, topRated, fresh ->
                         MovieLibraryLensDependencies(
                             providerId = provider.id,

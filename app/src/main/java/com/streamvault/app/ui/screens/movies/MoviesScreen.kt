@@ -620,7 +620,7 @@ private fun MoviesVodContent(
                 CategoryRow(
                     title = stringResource(R.string.library_lens_fresh_movies),
                     items = freshMovies,
-                    onSeeAll = null,
+                    onSeeAll = onOpenFresh,
                     keySelector = { it.id }
                 ) { movie ->
                         val isLocked = isMovieLocked(movie)
@@ -638,7 +638,7 @@ private fun MoviesVodContent(
                 CategoryRow(
                     title = stringResource(R.string.library_lens_top_rated),
                     items = topRatedMovies,
-                    onSeeAll = null,
+                    onSeeAll = onOpenTopRated,
                     keySelector = { it.id }
                 ) { movie ->
                         val isLocked = isMovieLocked(movie)

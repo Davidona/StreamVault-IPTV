@@ -948,8 +948,18 @@ class XtreamProvider(
             ),
             isUserProtected = false,
             streamId = streamId,
-            addedAt = added?.trim()?.toLongOrNull() ?: 0L
+            addedAt = added?.trim()?.toLongOrNull() ?: 0L,
+            year = extractYearFromName(resolvedName)
         )
+    }
+
+    /**
+     * Extracts a 4-digit year from a movie name as fallback for the DB year column.
+     * Priority: parenthetical year at end first, then any standalone year.
+     */
+    private fun extractYearFromName(name: String): String? {
+        val parenYear = Regex("""\((\d{4})\)\s*$""").find(name)
+        return parenYear?.groupValues?.get(1)
     }
 
     private fun mapVodStream(
