@@ -110,6 +110,7 @@
     <string name="dashboard_favorite_movies">Favorite Movies</string>
     <string name="dashboard_favorite_series">Favorite Series</string>
     <string name="dashboard_recent_movies">Recently Added Movies</string>
+    <string name="dashboard_pinned_categories">Pinned Categories</string>
     <string name="dashboard_recent_series">Recently Updated Series</string>
     <string name="dashboard_top_rated_movies">Top Rated Movies</string>
     <string name="dashboard_recommended_movies">Recommended Movies</string>
@@ -165,6 +166,8 @@
     <string name="category_options_pin">Pin Category</string>
     <string name="category_options_unpin">Unpin Category</string>
     <string name="category_pinned">Pinned %1$s.</string>
+    <string name="category_pin">Pin</string>
+    <string name="category_unpin">Unpin</string>
     <string name="category_unpinned">Unpinned %1$s.</string>
 
     <string name="add_group_manage_title">Manage: %1$s</string>

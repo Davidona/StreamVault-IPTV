@@ -76,6 +76,7 @@ import com.streamvault.app.ui.design.AppColors.TextPrimary as TextPrimary
 import com.streamvault.app.ui.design.AppColors.TextTertiary as OnSurfaceDim
 import com.streamvault.app.ui.design.AppColors.TextTertiary as TextTertiary
 import com.streamvault.domain.model.AppHomeDashboardShelf
+import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PlaybackHistory
@@ -224,6 +225,13 @@ fun DashboardScreen(
                     AppHomeDashboardShelf.CONTINUE_WATCHING -> ContinueWatchingRow(
                         items = uiState.continueWatching,
                         onItemClick = onContinueWatchingItemClick
+                    )
+
+                    AppHomeDashboardShelf.PINNED_CATEGORIES -> PinnedCategoriesSection(
+                        pinnedMovieCategories = uiState.pinnedMovieCategories,
+                        pinnedSeriesCategories = uiState.pinnedSeriesCategories,
+                        onMovieClick = onMovieClick,
+                        onSeriesClick = onSeriesClick
                     )
 
                     AppHomeDashboardShelf.RECENT_MOVIES -> CategoryRow(
@@ -870,6 +878,49 @@ private fun EmptyDashboard(
 }
 
 @Composable
+private fun PinnedCategoriesSection(
+    pinnedMovieCategories: Map<String, List<Movie>>,
+    pinnedSeriesCategories: Map<String, List<Series>>,
+    onMovieClick: (Movie) -> Unit,
+    onSeriesClick: (Series) -> Unit
+) {
+    Column {
+        pinnedMovieCategories.forEach { (categoryName, movies) ->
+            if (movies.isNotEmpty()) {
+                CategoryRow(
+                    title = categoryName,
+                    items = movies,
+                    keySelector = { it.id }
+                ) { movie ->
+                    MovieCard(
+                        movie = movie,
+                        isLocked = false,
+                        onClick = { onMovieClick(movie) },
+                        onLongClick = {}
+                    )
+                }
+            }
+        }
+        pinnedSeriesCategories.forEach { (categoryName, seriesList) ->
+            if (seriesList.isNotEmpty()) {
+                CategoryRow(
+                    title = categoryName,
+                    items = seriesList,
+                    keySelector = { it.id }
+                ) { series ->
+                    SeriesCard(
+                        series = series,
+                        isLocked = false,
+                        onClick = { onSeriesClick(series) },
+                        onLongClick = {}
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun rememberDashboardSections(
     uiState: DashboardUiState
 ): List<AppHomeDashboardShelf> {
@@ -886,7 +937,9 @@ private fun rememberDashboardSections(
         uiState.recentMovies,
         uiState.recentSeries,
         uiState.topRatedMovies,
-        uiState.recommendedMovies
+        uiState.recommendedMovies,
+        uiState.pinnedMovieCategories,
+        uiState.pinnedSeriesCategories
     ) {
         resolveVisibleDashboardShelves(uiState)
     }

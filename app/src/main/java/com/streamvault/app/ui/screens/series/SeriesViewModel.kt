@@ -149,7 +149,8 @@ class SeriesViewModel @Inject constructor(
                         seriesRepository.getCategoryItemCounts(provider.id),
                         seriesRepository.getLibraryCount(provider.id),
                         preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES),
-                        preferencesRepository.getCategorySortMode(provider.id, ContentType.SERIES)
+                        preferencesRepository.getCategorySortMode(provider.id, ContentType.SERIES),
+                        preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.SERIES)
                     ) { values ->
                         val allFavorites = values[0] as List<com.streamvault.domain.model.Favorite>
                         val customCategories = values[1] as List<Category>
@@ -158,6 +159,7 @@ class SeriesViewModel @Inject constructor(
                         val libraryCount = values[4] as Int
                         val hiddenCategoryIds = values[5] as Set<Long>
                         val sortMode = values[6] as CategorySortMode
+                        val pinnedCategoryIds = values[7] as Set<Long>
                         val visibleProviderCategories = applyProviderCategoryDisplayPreferences(
                             categories = providerCategories,
                             hiddenCategoryIds = hiddenCategoryIds,
@@ -169,13 +171,18 @@ class SeriesViewModel @Inject constructor(
                                 categories
                             }
                         }
+                        val pinnedProviderCategories = visibleProviderCategories.filter { it.id in pinnedCategoryIds }
+                        val unpinnedProviderCategories = visibleProviderCategories.filterNot { it.id in pinnedCategoryIds }
                         SeriesCatalogDependencies(
                             allFavorites = allFavorites,
                             customCategories = customCategories,
                             providerCategories = visibleProviderCategories,
+                            pinnedProviderCategories = pinnedProviderCategories,
+                            unpinnedProviderCategories = unpinnedProviderCategories,
                             providerCategoryCounts = providerCategoryCounts,
                             libraryCount = libraryCount,
                             hiddenCategoryIds = hiddenCategoryIds,
+                            pinnedCategoryIds = pinnedCategoryIds,
                             categorySortMode = sortMode
                         )
                     }.combine(searchQueryForBrowse) { dependencies, query ->
@@ -184,9 +191,12 @@ class SeriesViewModel @Inject constructor(
                             allFavorites = dependencies.allFavorites,
                             customCategories = dependencies.customCategories,
                             providerCategories = dependencies.providerCategories,
+                            pinnedProviderCategories = dependencies.pinnedProviderCategories,
+                            unpinnedProviderCategories = dependencies.unpinnedProviderCategories,
                             providerCategoryCounts = dependencies.providerCategoryCounts,
                             libraryCount = dependencies.libraryCount,
                             hiddenCategoryIds = dependencies.hiddenCategoryIds,
+                            pinnedCategoryIds = dependencies.pinnedCategoryIds,
                             categorySortMode = dependencies.categorySortMode,
                             query = query
                         )
@@ -261,6 +271,7 @@ class SeriesViewModel @Inject constructor(
                             selected in providerCategoryNames ||
                             selected in customCategoryNames
                     }
+                    val currentPinnedIds = _uiState.value.pinnedCategoryIds
                     _uiState.update {
                         it.copy(
                             seriesByCategory = snapshot.grouped,
@@ -268,6 +279,7 @@ class SeriesViewModel @Inject constructor(
                             categoryCounts = snapshot.categoryCounts,
                             libraryCount = snapshot.libraryCount,
                             providerCategories = snapshot.providerCategories,
+                            pinnedCategoryIds = currentPinnedIds.ifEmpty { snapshot.pinnedCategoryIds },
                             selectedCategory = resolvedSelected,
                             selectedCategoryItems = if (resolvedSelected == null) emptyList() else it.selectedCategoryItems,
                             selectedCategoryLoadedCount = if (resolvedSelected == null) 0 else it.selectedCategoryLoadedCount,
@@ -491,6 +503,17 @@ class SeriesViewModel @Inject constructor(
                 .flatMapLatest { provider -> getCustomCategories(provider.id, ContentType.SERIES) }
                 .collect { categories ->
                     _uiState.update { it.copy(categories = categories) }
+                }
+        }
+
+        viewModelScope.launch {
+            providerRepository.getActiveProvider()
+                .filterNotNull()
+                .flatMapLatest { provider ->
+                    preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.SERIES)
+                }
+                .collect { pinnedIds ->
+                    _uiState.update { it.copy(pinnedCategoryIds = pinnedIds) }
                 }
         }
     }
@@ -782,6 +805,26 @@ class SeriesViewModel @Inject constructor(
                 dismissCategoryOptions()
             }
             _uiState.update { it.copy(userMessage = "Hidden category ${category.name}") }
+        }
+    }
+
+    fun toggleCategoryPinned(category: Category) {
+        if (category.isVirtual) return
+        val providerId = activeProviderId ?: return
+        val shouldPin = category.id !in _uiState.value.pinnedCategoryIds
+        viewModelScope.launch {
+            preferencesRepository.setCategoryPinned(
+                providerId = providerId,
+                type = ContentType.SERIES,
+                categoryId = category.id,
+                pinned = shouldPin
+            )
+            dismissCategoryOptions()
+            _uiState.update {
+                it.copy(
+                    userMessage = if (shouldPin) "Pinned ${category.name}" else "Unpinned ${category.name}"
+                )
+            }
         }
     }
 
@@ -1213,9 +1256,12 @@ private data class SeriesCatalogParams(
     val allFavorites: List<com.streamvault.domain.model.Favorite>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
+    val pinnedProviderCategories: List<Category> = emptyList(),
+    val unpinnedProviderCategories: List<Category> = emptyList(),
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val categorySortMode: CategorySortMode,
     val query: String
 )
@@ -1224,9 +1270,12 @@ private data class SeriesCatalogDependencies(
     val allFavorites: List<com.streamvault.domain.model.Favorite>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
+    val pinnedProviderCategories: List<Category> = emptyList(),
+    val unpinnedProviderCategories: List<Category> = emptyList(),
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val categorySortMode: CategorySortMode
 )
 
@@ -1235,7 +1284,8 @@ private data class SeriesCatalogSnapshot(
     val categoryNames: List<String>,
     val categoryCounts: Map<String, Int>,
     val libraryCount: Int,
-    val providerCategories: List<Category>
+    val providerCategories: List<Category>,
+    val pinnedCategoryIds: Set<Long> = emptySet()
 )
 
 private data class SeriesLibraryLensDependencies(
@@ -1314,6 +1364,7 @@ data class SeriesUiState(
     val selectedSeriesForDialog: Series? = null,
     val categories: List<Category> = emptyList(),
     val providerCategories: List<Category> = emptyList(),
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val dialogGroupMemberships: List<Long> = emptyList(),
     val userMessage: String? = null,
     val selectedCategoryForOptions: Category? = null,
