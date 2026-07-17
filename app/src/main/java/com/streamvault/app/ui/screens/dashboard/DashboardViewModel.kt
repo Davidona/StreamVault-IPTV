@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.app.ui.model.orderedByRequestedRawIds
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.sync.DatabaseMaintenanceManager
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.app.update.AppUpdateActionState
 import com.streamvault.app.update.AppUpdateInstaller
@@ -58,6 +59,8 @@ import com.streamvault.domain.util.AdultContentVisibilityPolicy
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -76,7 +79,8 @@ class DashboardViewModel @Inject constructor(
     private val getCustomCategories: GetCustomCategories,
     private val syncManager: SyncManager,
     private val appUpdateInstaller: AppUpdateInstaller,
-    private val recordingManager: RecordingManager
+    private val recordingManager: RecordingManager,
+    private val databaseMaintenanceManager: DatabaseMaintenanceManager
 ) : ViewModel() {
     private companion object {
         const val FAVORITE_CHANNEL_LIMIT = 12
@@ -97,6 +101,12 @@ class DashboardViewModel @Inject constructor(
     val scheduledChannelIds: StateFlow<Set<Long>> = _scheduledChannelIds.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) { databaseMaintenanceManager.runDailyMaintenance() }
+            } catch (_: Exception) { }
+        }
+
         viewModelScope.launch {
             recordingManager.observeRecordingItems().collect { items ->
                 _recordingChannelIds.value = items

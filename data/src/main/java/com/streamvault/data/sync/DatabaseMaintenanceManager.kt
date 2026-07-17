@@ -206,7 +206,7 @@ class DatabaseMaintenanceManager @Inject constructor(
     companion object {
         private const val TAG = "DbMaintenance"
         private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000L
-        private const val PROGRAM_MIN_RETENTION_MILLIS = MILLIS_PER_DAY
+        private const val PROGRAM_MIN_RETENTION_MILLIS = 12L * 60 * 60 * 1000L
         private const val PROGRAM_REMINDER_RETENTION_MILLIS = MILLIS_PER_DAY
         private const val SEARCH_HISTORY_RETENTION_MILLIS = 90L * MILLIS_PER_DAY
         private const val MIN_RECLAIMABLE_BYTES = 32L * 1024 * 1024

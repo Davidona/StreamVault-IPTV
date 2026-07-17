@@ -65,7 +65,7 @@ object NetworkModule {
             .cache(
                 Cache(
                     directory = File(context.cacheDir, "streamvault_http_cache"),
-                    maxSize = 256L * 1024 * 1024
+                    maxSize = 16L * 1024 * 1024
                 )
             )
             .connectTimeout(NetworkTimeoutConfig.CONNECT_TIMEOUT_SECONDS, SECONDS)
