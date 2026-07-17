@@ -132,6 +132,9 @@ class MainActivity : ComponentActivity() {
         _pictureInPictureModeFlow.value = isInPictureInPictureMode
         handleExternalIntent(intent)
         if (isTelevisionDevice()) {
+            // Lock TVs to landscape — the manifest uses "unspecified" so phones/tablets
+            // can freely rotate, but TV UI is designed for landscape only.
+            requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             lifecycleScope.launch {
                 watchNextManager.refreshWatchNext()
                 launcherRecommendationsManager.refreshRecommendations()
