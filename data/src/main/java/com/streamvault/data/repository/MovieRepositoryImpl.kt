@@ -54,18 +54,17 @@ import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -135,9 +134,17 @@ class MovieRepositoryImpl @Inject constructor(
         val id: Long
     )
 
+    private data class ReleasedCursor(
+        val year: String?,
+        val addedAt: Long,
+        val name: String,
+        val id: Long
+    )
+
     private val xtreamProviderCache = ConcurrentHashMap<Long, CachedXtreamProvider>()
     private val xtreamCategoryLoadLocks = ConcurrentHashMap<String, Mutex>()
     private val freshXtreamCategories = ConcurrentHashMap.newKeySet<String>()
+    private var yearsCleared = false
     private val backgroundRefreshes = ConcurrentHashMap.newKeySet<String>()
     private val repositoryScope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO.limitedParallelism(XTREAM_CATEGORY_HYDRATION_CONCURRENCY)
@@ -162,7 +169,7 @@ class MovieRepositoryImpl @Inject constructor(
             else movieDao.getByProvider(providerId)
         }.combine(moviePresentationSettingsFlow) { list, settings ->
             buildPresentedMovies(list.map { it.toDomain() }, settings)
-        }
+        }.flowOn(kotlinx.coroutines.Dispatchers.Default)
 
     override fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>> =
         flow {
@@ -173,7 +180,7 @@ class MovieRepositoryImpl @Inject constructor(
                     else movieDao.getByCategory(providerId, categoryId)
                 }.combine(moviePresentationSettingsFlow) { list, settings ->
                     buildPresentedMovies(list.map { it.toDomain() }, settings)
-                }
+                }.flowOn(kotlinx.coroutines.Dispatchers.Default)
             )
         }
 
@@ -197,7 +204,7 @@ class MovieRepositoryImpl @Inject constructor(
             }.map { list -> list.map { it.toDomain() } }
                 .combine(moviePresentationSettingsFlow) { movies, settings ->
                     buildPresentedMovies(movies, settings)
-                }
+                }.flowOn(kotlinx.coroutines.Dispatchers.Default)
         )
     }
 
@@ -217,7 +224,7 @@ class MovieRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(moviePresentationSettingsFlow) { movies, settings ->
                         buildPresentedMovies(movies, settings).take(limit)
-                    }
+                    }.flowOn(kotlinx.coroutines.Dispatchers.Default)
             )
         }
 
@@ -292,7 +299,7 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
-            }
+            }.flowOn(kotlinx.coroutines.Dispatchers.Default)
 
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -307,7 +314,22 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
+            }.flowOn(kotlinx.coroutines.Dispatchers.Default)
+
+    override fun getByReleaseDate(providerId: Long, limit: Int): Flow<List<Movie>> =
+        combine(
+            movieDao.getReleasedPreview(providerId, limit),
+            preferencesRepository.parentalControlLevel
+        ) { entities, level: Int ->
+            if (level >= 3) {
+                entities.filter { !it.isUserProtected }
+            } else {
+                entities
             }
+        }.map { list -> list.map { it.toDomain() } }
+            .combine(moviePresentationSettingsFlow) { movies, settings ->
+                buildPresentedMovies(movies, settings).take(limit)
+            }.flowOn(kotlinx.coroutines.Dispatchers.Default)
 
     override fun getRecommendations(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -418,7 +440,7 @@ class MovieRepositoryImpl @Inject constructor(
                 movies.map { if (it.id in favoriteIds) it.copy(isFavorite = true) else it }
             }.combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings)
-            }
+            }.flowOn(kotlinx.coroutines.Dispatchers.Default)
         }
 
     override suspend fun getMovie(movieId: Long): Movie? =
@@ -647,7 +669,7 @@ class MovieRepositoryImpl @Inject constructor(
             .sortedWith(
                 compareByDescending<Pair<Movie, Float>> { it.second }
                     .thenByDescending { it.first.rating }
-                    .thenByDescending { movieReleaseScore(it.first) }
+                    .thenByDescending { movieReleaseScore(it.first) ?: Long.MIN_VALUE }
                     .thenBy { it.first.name.lowercase() }
             )
             .map { it.first }
@@ -656,7 +678,7 @@ class MovieRepositoryImpl @Inject constructor(
             .ifEmpty {
                 movies
                     .filterNot { movie -> movie.id in excludedIds }
-                    .sortedWith(compareByDescending<Movie> { it.rating }.thenByDescending(::movieReleaseScore).thenBy { it.name.lowercase() })
+                .sortedWith(compareByDescending<Movie> { it.rating }.thenByDescending { movieReleaseScore(it) ?: Long.MIN_VALUE }.thenBy { it.name.lowercase() })
                     .take(limit)
             }
     }
@@ -673,7 +695,7 @@ class MovieRepositoryImpl @Inject constructor(
             .sortedWith(
                 compareByDescending<Pair<Movie, Float>> { it.second }
                     .thenByDescending { it.first.rating }
-                    .thenByDescending { movieReleaseScore(it.first) }
+                    .thenByDescending { movieReleaseScore(it.first) ?: Long.MIN_VALUE }
                     .thenBy { it.first.name.lowercase() }
             )
             .map { it.first }
@@ -697,7 +719,7 @@ class MovieRepositoryImpl @Inject constructor(
         }
 
         score += candidate.rating * 0.35f
-        score += movieReleaseScore(candidate) * 0.0001f
+        score += (movieReleaseScore(candidate) ?: 0L) * 0.0001f
         return score
     }
 
@@ -1031,6 +1053,14 @@ class MovieRepositoryImpl @Inject constructor(
         (query.offset + query.limit + BROWSE_WINDOW_BUFFER).coerceAtMost(SEARCH_RESULT_LIMIT)
 
     private suspend fun fetchMovieBrowseResult(query: LibraryBrowseQuery): PagedResult<Movie> {
+        // One-time repair: old extractYearFromName extracted false positives
+        // from titles (e.g. year='2049' for 'Blade Runner 2049'). First restore
+        // any years from parenthetical (YYYY) patterns, then clear bad ones.
+        if (!yearsCleared) {
+            yearsCleared = true
+            movieDao.restoreYearsFromName()
+            movieDao.clearInvalidYears()
+        }
         val normalizedSearch = query.searchQuery.trim()
         val presentationSettings = moviePresentationSettingsFlow.first()
         if (normalizedSearch.length >= MIN_SEARCH_QUERY_LENGTH && supportsFastMovieSearchBrowse(query)) {
@@ -1326,12 +1356,26 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun loadMovieReleasedPage(query: LibraryBrowseQuery, limit: Int, cursor: ReleasedCursor?): List<MovieBrowseEntity> {
+        val categoryId = query.categoryId
+        return if (categoryId == null) {
+            if (cursor == null) movieDao.getReleasedCursorPage(query.providerId, limit)
+            else movieDao.getReleasedCursorPageAfter(
+                query.providerId, cursor.year, cursor.addedAt, cursor.name, cursor.id, limit
+            )
+        } else {
+            if (cursor == null) movieDao.getReleasedByCategoryCursorPage(query.providerId, categoryId, limit)
+            else movieDao.getReleasedByCategoryCursorPageAfter(
+                query.providerId, categoryId, cursor.year, cursor.addedAt, cursor.name, cursor.id, limit
+            )
+        }
+    }
+
     private fun supportsCursorBrowse(query: LibraryBrowseQuery): Boolean {
         if (query.searchQuery.isNotBlank()) return false
         return when {
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy in setOf(
-                    LibrarySortBy.LIBRARY,
                     LibrarySortBy.TITLE,
                     LibrarySortBy.UPDATED,
                     LibrarySortBy.RATING
@@ -1355,9 +1399,18 @@ class MovieRepositoryImpl @Inject constructor(
         }
 
         val sorted = when (query.sortBy) {
-            LibrarySortBy.LIBRARY -> filtered
+            // LIBRARY: sort by effective year descending. Extracts year from
+            // releaseDate, DB year column, or parenthetical (YYYY) in name.
+            // Items with no year info sort last (Long.MIN_VALUE).
+            LibrarySortBy.LIBRARY -> filtered.sortedWith(
+                compareByDescending<Movie> {
+                    movieReleaseScore(it) ?: Long.MIN_VALUE
+                }
+            )
             LibrarySortBy.TITLE -> filtered.sortedBy { it.name.lowercase() }
-            LibrarySortBy.RELEASE -> filtered.sortedByDescending(::movieReleaseScore)
+            LibrarySortBy.RELEASE -> filtered.sortedWith(
+                compareByDescending<Movie> { movieReleaseScore(it) ?: Long.MIN_VALUE }
+            )
             LibrarySortBy.UPDATED -> filtered.sortedByDescending(::movieAddedScore)
             LibrarySortBy.RATING -> filtered.sortedByDescending { it.rating }
             LibrarySortBy.WATCH_COUNT -> filtered.sortedByDescending { watchCounts[it.id] ?: 0 }
@@ -1668,11 +1721,23 @@ class MovieRepositoryImpl @Inject constructor(
         return !moviePlaybackComplete(movie.watchProgress, totalDurationMs)
     }
 
-    private fun movieReleaseScore(movie: Movie): Long =
-        movie.releaseDate?.filter { it.isDigit() }?.take(8)?.toLongOrNull()
+    /**
+     * Extracts a 4-digit year from a movie name as fallback.
+     * Handles "Movie Name (YYYY)" and standalone years.
+     */
+    private fun extractYearFromName(name: String): Long? {
+        val parenYear = Regex("""\((\d{4})\)\s*$""").find(name)
+        return parenYear?.groupValues?.get(1)?.toLongOrNull()
+    }
+
+    /**
+     * Returns the effective release year (4 digits) or null if no year info exists.
+     * Items with null score sort last in descending order (below all dated items).
+     */
+    private fun movieReleaseScore(movie: Movie): Long? =
+        movie.releaseDate?.take(4)?.toLongOrNull()
             ?: movie.year?.toLongOrNull()
-            ?: movie.addedAt.takeIf { it > 0L }
-            ?: 0L
+            ?: extractYearFromName(movie.name)
 
     private fun movieAddedScore(movie: Movie): Long =
         movie.addedAt.takeIf { it > 0L } ?: 0L

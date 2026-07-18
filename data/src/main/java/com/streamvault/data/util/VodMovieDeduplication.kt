@@ -72,6 +72,9 @@ private val QUALITY_CLEANUP_REGEX = Regex(
 )
 private val NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")
 
+private val displayYearCache = java.util.concurrent.ConcurrentHashMap<String, Int?>(256)
+private val normalizedTitleCache = java.util.concurrent.ConcurrentHashMap<String, String>(256)
+
 data class MoviePresentationSettings(
     val duplicateHandlingMode: VodDuplicateHandlingMode,
     val preferenceMode: VodVariantPreferenceMode,
@@ -298,20 +301,36 @@ private fun movieVariantLabel(movie: Movie): String {
     return parts.distinct().joinToString(" ").ifBlank { "Version ${movie.id}" }
 }
 
+private val NON_ASCII_REGEX = Regex("[^\\u0000-\\u007F]")
+
 private fun normalizedMovieTitle(value: String): String {
+    normalizedTitleCache[value]?.let { return it }
     val withoutProviderPrefix = value.substringAfter(" - ", value)
     val withoutYearSuffix = YEAR_SUFFIX_REGEX.replace(withoutProviderPrefix, "")
     val withoutQuality = QUALITY_CLEANUP_REGEX.replace(withoutYearSuffix, " ")
-    val normalized = Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}+"), "")
-        .lowercase(Locale.ROOT)
-    return NON_ALPHANUMERIC_REGEX.replace(normalized, "").trim()
+    // Fast path: skip Normalizer.normalize() for pure ASCII strings — on API 25
+    // the JNI call to ICU4C is very slow and most IPTV movie titles are ASCII.
+    val normalized = if (NON_ASCII_REGEX.containsMatchIn(withoutQuality)) {
+        Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
+            .replace(Regex("\\p{Mn}+"), "")
+    } else {
+        withoutQuality
+    }
+    val result = NON_ALPHANUMERIC_REGEX.replace(normalized.lowercase(Locale.ROOT), "").trim()
+    normalizedTitleCache[value] = result
+    return result
 }
 
-private fun movieDisplayYear(movie: Movie): Int? =
-    movie.year?.trim()?.toIntOrNull()
+private fun movieDisplayYear(movie: Movie): Int? {
+    val cacheKey = movie.name + "|" + movie.year + "|" + movie.releaseDate
+    displayYearCache[cacheKey]?.let { return it }
+    val result = movie.year?.trim()?.toIntOrNull()
         ?: movie.releaseDate?.filter(Char::isDigit)?.take(4)?.toIntOrNull()
         ?: YEAR_REGEX.find(movie.name)?.value?.toIntOrNull()
+    // ConcurrentHashMap.put throws NPE on null values on API 25, so only cache non-null
+    if (result != null) displayYearCache[cacheKey] = result
+    return result
+}
 
 private fun reliabilityScore(movie: Movie, observations: Map<Long, VodVariantObservation>): Int {
     val observation = observations[movie.id] ?: return 0
