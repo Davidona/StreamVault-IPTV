@@ -1159,8 +1159,7 @@ class SeriesRepositoryImpl @Inject constructor(
             .map { it.contentId }
             .toSet()
 
-        val canUseCursorWindow = presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL &&
-            supportsCursorBrowse(query)
+        val canUseCursorWindow = supportsCursorBrowse(query)
         val items = if (canUseCursorWindow) {
             fetchSeriesCursorWindow(query, favoriteIds)
         } else {
@@ -1201,45 +1200,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 .take(query.limit)
         }
 
-        val totalCount = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
-            rawTotalCount
-        } else {
-            val series = seriesBrowseSource(query).first()
-            val history = playbackHistoryDao.getByProvider(query.providerId).first()
-            val inProgressIds = history
-                .asSequence()
-                .filter { it.contentType == ContentType.SERIES || it.contentType == ContentType.SERIES_EPISODE }
-                .filter {
-                    it.resumePositionMs > 0L && (
-                        it.totalDurationMs <= 0L ||
-                            it.resumePositionMs < (it.totalDurationMs * 0.95f).toLong()
-                        )
-                }
-                .mapNotNull { it.seriesId ?: it.contentId }
-                .toSet()
-            val completedSeriesIds = history
-                .asSequence()
-                .filter { it.contentType == ContentType.SERIES_EPISODE }
-                .filter { it.totalDurationMs > 0L && it.resumePositionMs >= (it.totalDurationMs * 0.95f).toLong() }
-                .mapNotNull { it.seriesId }
-                .toSet()
-            val watchCounts = history
-                .asSequence()
-                .filter { it.contentType == ContentType.SERIES || it.contentType == ContentType.SERIES_EPISODE }
-                .groupBy { it.seriesId ?: it.contentId }
-                .mapValues { (_, entries) -> entries.maxOf { it.watchCount } }
-            buildPresentedSeries(
-                applySeriesBrowseQuery(
-                    series = series,
-                    query = query,
-                    favoriteIds = favoriteIds,
-                    inProgressIds = inProgressIds,
-                    completedSeriesIds = completedSeriesIds,
-                    watchCounts = watchCounts
-                ),
-                presentationSettings
-            ).size
-        }
+        val totalCount = rawTotalCount
 
         val hasMoreRemote = query.categoryId?.let { categoryId ->
             val provider = loadCompatibilityProvider(query.providerId)
