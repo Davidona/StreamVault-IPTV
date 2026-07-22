@@ -1,6 +1,11 @@
 package com.streamvault.app
 
 import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -18,6 +23,7 @@ import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.remote.jellyfin.JellyfinImageAuthInterceptor
 import com.streamvault.data.sync.ProviderSyncWorker
 import com.streamvault.data.sync.XtreamIndexWorker
+import com.streamvault.data.util.isUserUnlockedForWork
 import com.streamvault.domain.model.Result
 import com.streamvault.player.timeshift.TimeshiftDiskManager
 import dagger.hilt.android.HiltAndroidApp
@@ -29,16 +35,26 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okio.Path.Companion.toOkioPath
+import java.util.concurrent.atomic.AtomicBoolean
 import androidx.work.Constraints
+import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 
 @HiltAndroidApp
-class StreamVaultApp : Application(), SingletonImageLoader.Factory {
+class StreamVaultApp :
+    Application(),
+    SingletonImageLoader.Factory,
+    Configuration.Provider {
     private val runtimeDiagnosticsManager by lazy { RuntimeDiagnosticsManager(this) }
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val initializedAfterUnlock = AtomicBoolean(false)
+    private var userUnlockedReceiver: BroadcastReceiver? = null
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().build()
 
     @Inject
     lateinit var preferencesRepository: PreferencesRepository
@@ -60,6 +76,41 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (isUserUnlockedForWork()) {
+            initializeAfterUserUnlock()
+        } else {
+            registerUserUnlockedReceiver()
+        }
+    }
+
+    private fun registerUserUnlockedReceiver() {
+        if (userUnlockedReceiver != null) return
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action != Intent.ACTION_USER_UNLOCKED || !isUserUnlockedForWork()) {
+                    return
+                }
+
+                runCatching { unregisterReceiver(this) }
+                userUnlockedReceiver = null
+                initializeAfterUserUnlock()
+            }
+        }
+
+        userUnlockedReceiver = receiver
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            IntentFilter(Intent.ACTION_USER_UNLOCKED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    private fun initializeAfterUserUnlock() {
+        if (!initializedAfterUnlock.compareAndSet(false, true)) return
+
         CrashReportStore.install(this)
         runtimeDiagnosticsManager.start()
 
@@ -102,7 +153,15 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     }
 
     override fun onTerminate() {
-        runtimeDiagnosticsManager.stop()
+        userUnlockedReceiver?.let { receiver ->
+            runCatching { unregisterReceiver(receiver) }
+            userUnlockedReceiver = null
+        }
+
+        if (initializedAfterUnlock.get()) {
+            runtimeDiagnosticsManager.stop()
+        }
+
         super.onTerminate()
     }
 

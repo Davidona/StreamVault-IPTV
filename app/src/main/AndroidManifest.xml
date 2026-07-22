@@ -44,6 +44,8 @@
     <application
         android:name=".StreamVaultApp"
         android:allowBackup="false"
+        android:defaultToDeviceProtectedStorage="false"
+        android:directBootAware="false"
         android:banner="@drawable/app_banner"
         android:icon="@mipmap/ic_launcher_vault"
         android:roundIcon="@mipmap/ic_launcher_vault"
@@ -51,7 +53,8 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="false"
         android:supportsRtl="true"
-        android:theme="@style/Theme.StreamVault">
+        android:theme="@style/Theme.StreamVault"
+        tools:replace="android:defaultToDeviceProtectedStorage,android:directBootAware">
 
         <activity
             android:name=".MainActivity"
@@ -162,6 +165,24 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.streamvault.app.cast.StreamVaultCastOptionsProvider" />
+
+        <!--
+             WorkManager cannot initialize while the process is running against
+             device-protected storage. Remove its AndroidX Startup initializer and
+             let StreamVaultApp initialize it on demand after the user is unlocked.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:directBootAware="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:directBootAware">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
         <provider
             android:name="androidx.core.content.FileProvider"

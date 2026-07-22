@@ -160,7 +160,6 @@ kover {
 }
 
 dependencies {
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":domain"))
     implementation(project(":data"))

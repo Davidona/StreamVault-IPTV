@@ -16,6 +16,7 @@
 
         <receiver
             android:name="com.streamvault.data.manager.recording.RecordingRestoreReceiver"
+            android:directBootAware="false"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -26,6 +27,7 @@
 
         <receiver
             android:name="com.streamvault.data.manager.reminder.ProgramReminderRestoreReceiver"
+            android:directBootAware="false"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
