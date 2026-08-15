@@ -1,4 +1,13 @@
+import java.io.ByteArrayInputStream
 import java.util.Properties
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 
 plugins {
     alias(libs.plugins.android.library)
@@ -6,6 +15,120 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kover)
+}
+
+abstract class VerifyLocalFfmpegArtifactTask : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val ffmpegAarFile: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val ffmpegManifestFile: RegularFileProperty
+
+    @TaskAction
+    fun verify() {
+        val aarFile = ffmpegAarFile.get().asFile
+        val manifestFile = ffmpegManifestFile.get().asFile
+        val manifest = Properties().apply {
+            manifestFile.inputStream().use(::load)
+        }
+
+        check(manifest.getProperty("media3Version") == "1.9.2") {
+            "FFmpeg artifact must use Media3 version 1.9.2"
+        }
+
+        val aarEntries = ZipFile(aarFile).use { zipFile ->
+            zipFile.entries().asSequence()
+                .filterNot { it.isDirectory }
+                .map { it.name }
+                .toSet()
+        }
+        listOf("jni/arm64-v8a/", "jni/armeabi-v7a/").forEach { abiPrefix ->
+            check(aarEntries.any { it.startsWith(abiPrefix) && it.endsWith(".so") }) {
+                "FFmpeg artifact is missing a native library under $abiPrefix"
+            }
+        }
+
+        val classesJarBytes = readZipEntry(aarFile, "classes.jar")
+        val classEntries = zipEntryNames(classesJarBytes)
+        listOf(
+            "androidx/media3/decoder/ffmpeg/FfmpegLibrary.class",
+            "androidx/media3/decoder/ffmpeg/FfmpegAudioRenderer.class"
+        ).forEach { requiredClass ->
+            check(requiredClass in classEntries) {
+                "FFmpeg artifact is missing required class $requiredClass"
+            }
+        }
+
+        val enabledDecoders = manifest.getProperty("enabledDecoders")
+            .split(',')
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .toSet()
+        check("mp2" in enabledDecoders) {
+            "FFmpeg artifact must include the mp2 decoder for MPEG layer II audio streams"
+        }
+
+        val ffmpegLibraryClassText = zipEntryBytes(
+            classesJarBytes,
+            "androidx/media3/decoder/ffmpeg/FfmpegLibrary.class"
+        ).toString(Charsets.ISO_8859_1)
+        check("audio/mpeg-L2" in ffmpegLibraryClassText) {
+            "FFmpeg FfmpegLibrary must expose audio/mpeg-L2 MIME type for MPEG layer II audio"
+        }
+
+        ZipFile(aarFile).use { zipFile ->
+            zipFile.entries().asSequence()
+                .filter { entry ->
+                    !entry.isDirectory &&
+                        entry.name.startsWith("jni/") &&
+                        entry.name.endsWith("/libffmpegJNI.so")
+                }
+                .forEach { nativeLibrary ->
+                    val nativeLibraryText = zipFile.getInputStream(nativeLibrary).use { input ->
+                        input.readBytes().toString(Charsets.ISO_8859_1)
+                    }
+                    check("ff_mp2_decoder" in nativeLibraryText) {
+                        "FFmpeg native library is missing the mp2 decoder: ${nativeLibrary.name}"
+                    }
+                }
+        }
+    }
+
+    private fun readZipEntry(zipFile: java.io.File, entryName: String): ByteArray =
+        ZipFile(zipFile).use { archive ->
+            val entry = archive.getEntry(entryName)
+                ?: error("FFmpeg artifact is missing $entryName")
+            archive.getInputStream(entry).use { it.readBytes() }
+        }
+
+    private fun zipEntryNames(zipBytes: ByteArray): Set<String> {
+        val names = mutableSetOf<String>()
+        ZipInputStream(ByteArrayInputStream(zipBytes)).use { zipInput ->
+            var entry = zipInput.nextEntry
+            while (entry != null) {
+                names += entry.name
+                entry = zipInput.nextEntry
+            }
+        }
+        return names
+    }
+
+    private fun zipEntryBytes(zipBytes: ByteArray, entryName: String): ByteArray {
+        var bytes: ByteArray? = null
+        ZipInputStream(ByteArrayInputStream(zipBytes)).use { zipInput ->
+            var entry = zipInput.nextEntry
+            while (entry != null) {
+                if (entry.name == entryName) {
+                    bytes = zipInput.readBytes()
+                    break
+                }
+                entry = zipInput.nextEntry
+            }
+        }
+        return bytes ?: error("FFmpeg classes.jar is missing $entryName")
+    }
 }
 
 android {
@@ -42,76 +165,12 @@ kover {
     }
 }
 
-val ffmpegAarFile = layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.aar").asFile
-val ffmpegManifestFile = layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.properties").asFile
-
-val verifyLocalFfmpegArtifact by tasks.registering {
+val verifyLocalFfmpegArtifact = tasks.register<VerifyLocalFfmpegArtifactTask>("verifyLocalFfmpegArtifact") {
     group = "verification"
     description = "Verifies the bundled Media3 FFmpeg artifact, metadata, and supported ABIs."
 
-    inputs.file(ffmpegAarFile)
-    inputs.file(ffmpegManifestFile)
-
-    doLast {
-        check(ffmpegAarFile.isFile) {
-            "Required FFmpeg artifact missing: ${ffmpegAarFile.absolutePath}"
-        }
-        check(ffmpegManifestFile.isFile) {
-            "Required FFmpeg manifest missing: ${ffmpegManifestFile.absolutePath}"
-        }
-
-        val manifest = Properties().apply {
-            ffmpegManifestFile.inputStream().use(::load)
-        }
-        check(manifest.getProperty("media3Version") == "1.9.2") {
-            "FFmpeg manifest media3Version must be 1.9.2"
-        }
-
-        val aarEntries = zipTree(ffmpegAarFile).files.map { it.invariantSeparatorsPath }
-        listOf("jni/arm64-v8a/", "jni/armeabi-v7a/").forEach { abiPrefix ->
-            check(aarEntries.any { it.contains(abiPrefix) && it.endsWith(".so") }) {
-                "FFmpeg artifact is missing native libraries under $abiPrefix"
-            }
-        }
-
-        val classesJar = zipTree(ffmpegAarFile).matching { include("classes.jar") }.singleFile
-        val classEntries = zipTree(classesJar).files.map { it.invariantSeparatorsPath }
-        listOf(
-            "androidx/media3/decoder/ffmpeg/FfmpegLibrary.class",
-            "androidx/media3/decoder/ffmpeg/FfmpegAudioRenderer.class"
-        ).forEach { requiredClass ->
-            check(classEntries.any { it.endsWith(requiredClass) }) {
-                "FFmpeg artifact is missing required class $requiredClass"
-            }
-        }
-
-        val enabledDecoders = manifest.getProperty("enabledDecoders")
-            .split(',')
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .toSet()
-        check("mp2" in enabledDecoders) {
-            "FFmpeg artifact must include the mp2 decoder for MPEG layer II audio streams"
-        }
-
-        val ffmpegLibraryClass = zipTree(classesJar)
-            .matching { include("androidx/media3/decoder/ffmpeg/FfmpegLibrary.class") }
-            .singleFile
-        val ffmpegLibraryClassText = ffmpegLibraryClass.readBytes().toString(Charsets.ISO_8859_1)
-        check("audio/mpeg-L2" in ffmpegLibraryClassText) {
-            "FFmpeg FfmpegLibrary must expose audio/mpeg-L2 MIME type for MPEG layer II audio"
-        }
-
-        zipTree(ffmpegAarFile)
-            .matching { include("jni/*/libffmpegJNI.so") }
-            .files
-            .forEach { nativeLibrary ->
-                val nativeLibraryText = nativeLibrary.readBytes().toString(Charsets.ISO_8859_1)
-                check("ff_mp2_decoder" in nativeLibraryText) {
-                    "FFmpeg native library is missing the mp2 decoder: ${nativeLibrary.name}"
-                }
-            }
-    }
+    ffmpegAarFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.aar"))
+    ffmpegManifestFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.properties"))
 }
 
 tasks.named("preBuild").configure {

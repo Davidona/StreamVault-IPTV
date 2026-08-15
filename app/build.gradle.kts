@@ -159,6 +159,15 @@ kotlin {
     }
 }
 
+// Diagnostic-only output for the Compose reduction work. These reports are
+// build artifacts and are intentionally not committed. They expose unstable
+// parameters, restartable/skippable composables, and large generated groups
+// before we change UI state ownership or module boundaries.
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("reports/compose-compiler")
+    metricsDestination = layout.buildDirectory.dir("reports/compose-compiler")
+}
+
 kover {
     currentProject {
         createVariant("ci") {
