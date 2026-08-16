@@ -8,6 +8,7 @@ All notable product changes are recorded in this document.
 
 - Improved Stalker EPG synchronization by increasing channel batch sizes from 500 to 5,000, reducing request overhead for large channel lineups while retaining bounded processing.
 - Reduced storage usage by limiting the shared HTTP cache to 16 MiB and pruning past EPG entries after 12 hours when a provider does not require a longer catch-up window.
+- Added VOD category pinning for Movies and Series, with pin-first browsing, Android TV pin controls, and pinned category content shelves on the Home dashboard.
 
 ## [1.0.17]
 
