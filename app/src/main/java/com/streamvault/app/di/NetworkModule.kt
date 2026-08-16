@@ -37,6 +37,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    private const val HTTP_CACHE_MAX_BYTES = 16L * 1024 * 1024
+
     @Provides
     @Singleton
     fun provideOkHttpClient(
@@ -60,7 +62,7 @@ object NetworkModule {
             .cache(
                 Cache(
                     directory = File(context.cacheDir, "streamvault_http_cache"),
-                    maxSize = 256L * 1024 * 1024
+                    maxSize = HTTP_CACHE_MAX_BYTES
                 )
             )
             .connectTimeout(NetworkTimeoutConfig.CONNECT_TIMEOUT_SECONDS, SECONDS)

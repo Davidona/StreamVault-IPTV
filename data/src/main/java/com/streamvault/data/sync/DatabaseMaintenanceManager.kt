@@ -16,6 +16,14 @@ import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000L
+
+// Keep enough history for the maximum supported +/-12-hour EPG correction.
+private const val PROGRAM_MIN_RETENTION_MILLIS = 12L * 60 * 60 * 1000L
+
+internal fun calculateProgramRetentionMillis(catchUpDays: Int): Long =
+    maxOf(PROGRAM_MIN_RETENTION_MILLIS, catchUpDays.coerceAtLeast(0) * MILLIS_PER_DAY)
+
 @Singleton
 class DatabaseMaintenanceManager @Inject constructor(
     private val database: StreamVaultDatabase,
@@ -137,8 +145,8 @@ class DatabaseMaintenanceManager @Inject constructor(
     }
 
     private suspend fun programRetentionMillis(): Long {
-        val catchUpDays = channelDao.getMaxCatchUpDaysAcrossAllProviders().coerceAtLeast(0)
-        return maxOf(PROGRAM_MIN_RETENTION_MILLIS, catchUpDays * MILLIS_PER_DAY)
+        val catchUpDays = channelDao.getMaxCatchUpDaysAcrossAllProviders()
+        return calculateProgramRetentionMillis(catchUpDays)
     }
 
     @WorkerThread
@@ -215,8 +223,6 @@ class DatabaseMaintenanceManager @Inject constructor(
 
     companion object {
         private const val TAG = "DbMaintenance"
-        private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000L
-        private const val PROGRAM_MIN_RETENTION_MILLIS = MILLIS_PER_DAY
         private const val PROGRAM_REMINDER_RETENTION_MILLIS = MILLIS_PER_DAY
         private const val SEARCH_HISTORY_RETENTION_MILLIS = 90L * MILLIS_PER_DAY
         private const val MIN_RECLAIMABLE_BYTES = 32L * 1024 * 1024
