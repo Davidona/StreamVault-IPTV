@@ -165,7 +165,7 @@ class MovieRepositoryImpl @Inject constructor(
             else movieDao.getByProvider(providerId)
         }.combine(moviePresentationSettingsFlow) { list, settings ->
             buildPresentedMovies(list.map { it.toDomain() }, settings)
-        }
+        }.flowOn(Dispatchers.Default)
 
     override fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>> =
         flow {
@@ -176,7 +176,7 @@ class MovieRepositoryImpl @Inject constructor(
                     else movieDao.getByCategory(providerId, categoryId)
                 }.combine(moviePresentationSettingsFlow) { list, settings ->
                     buildPresentedMovies(list.map { it.toDomain() }, settings)
-                }
+                }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -206,7 +206,7 @@ class MovieRepositoryImpl @Inject constructor(
             }.map { list -> list.map { it.toDomain() } }
                 .combine(moviePresentationSettingsFlow) { movies, settings ->
                     buildPresentedMovies(movies, settings)
-                }
+                }.flowOn(Dispatchers.Default)
         )
     }
 
@@ -232,7 +232,7 @@ class MovieRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(moviePresentationSettingsFlow) { movies, settings ->
                         buildPresentedMovies(movies, settings).take(limit)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -286,7 +286,7 @@ class MovieRepositoryImpl @Inject constructor(
                     moviePresentationSettingsFlow
                 ) { previews, settings ->
                     previews.mapValues { (_, movies) -> buildPresentedMovies(movies, settings).take(limitPerCategory) }
-                }.collect { previews ->
+                }.flowOn(Dispatchers.Default).collect { previews ->
                     send(previews)
                 }
             }
@@ -305,7 +305,7 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -320,7 +320,7 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getRecommendations(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -532,7 +532,7 @@ class MovieRepositoryImpl @Inject constructor(
                 movies.map { if (it.id in favoriteIds) it.copy(isFavorite = true) else it }
             }.combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings)
-            }
+            }.flowOn(Dispatchers.Default)
         }
 
     override suspend fun getMovie(movieId: Long): Movie? =

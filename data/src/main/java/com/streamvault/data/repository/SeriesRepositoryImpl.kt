@@ -147,7 +147,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getSeriesByCategory(providerId: Long, categoryId: Long): Flow<List<Series>> =
         flow {
@@ -165,7 +165,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(seriesPresentationSettingsFlow) { list, settings ->
                         buildPresentedSeries(list, settings)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -189,7 +189,7 @@ class SeriesRepositoryImpl @Inject constructor(
             }.map { list -> list.map { it.toDomain() } }
                 .combine(seriesPresentationSettingsFlow) { list, settings ->
                     buildPresentedSeries(list, settings)
-                }
+                }.flowOn(Dispatchers.Default)
         )
     }
 
@@ -209,7 +209,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(seriesPresentationSettingsFlow) { list, settings ->
                         buildPresentedSeries(list, settings).take(limit)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -265,7 +265,7 @@ class SeriesRepositoryImpl @Inject constructor(
                     seriesPresentationSettingsFlow
                 ) { previews, settings ->
                     previews.mapValues { (_, items) -> buildPresentedSeries(items, settings).take(limitPerCategory) }
-                }.collect { previews ->
+                }.flowOn(Dispatchers.Default).collect { previews ->
                     send(previews)
                 }
             }
@@ -284,7 +284,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Series>> =
         combine(
@@ -299,7 +299,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getSeriesByIds(ids: List<Long>): Flow<List<Series>> =
         seriesDao.getByIds(ids).map { entities -> entities.map { it.toDomain() } }
@@ -450,7 +450,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 series.map { if (it.id in favoriteIds) it.copy(isFavorite = true) else it }
             }.combine(seriesPresentationSettingsFlow) { series, settings ->
                 buildPresentedSeries(series, settings)
-            }
+            }.flowOn(Dispatchers.Default)
         }
 
     override suspend fun getSeriesById(seriesId: Long): Series? =
