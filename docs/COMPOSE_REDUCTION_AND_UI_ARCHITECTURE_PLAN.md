@@ -1038,6 +1038,42 @@ The modernization is complete when:
 - [ ] Create the second no-behavior-change PR for `ProviderSetupScreen` decomposition.
 - [ ] Revisit the initial success targets after baseline data is available.
 
+## 19. PR #162 assessment
+
+PR [#162](https://github.com/Davidona/StreamVault-IPTV/pull/162) is directionally aligned with this plan, but it should be reviewed as four separate changes. It currently targets `master`; if `develop` is the integration branch, retarget it or apply the accepted commits to `develop` before synchronizing `feature/improveCompose`.
+
+| PR commit/change | Plan relationship | Recommendation |
+|---|---|---|
+| Split Home preview state from `HomeUiState` | Directly advances Phase 2 runtime state isolation and the current route/state boundary work | Good merge candidate after Home preview, fullscreen handoff, cleanup, and loading/error tests pass |
+| Cache live category flows per provider | Useful data/runtime optimization, but not specifically a Compose refactor | Keep as a separate data-layer change; add replay, refresh, preference-change, provider-removal, and one-shot `first()` tests before merging |
+| `compose-stability.conf` for all `domain.model` classes | Supports the stability goal, but the wildcard is broader than the proof currently provides | Do not accept unchanged; audit every UI-facing model and replace the wildcard with a verified allowlist or genuinely immutable UI models |
+| Baseline profile module and generated profiles | Fits Phase 0/benchmark infrastructure and later startup optimization | Keep the tooling concept, but do not reuse the generated files unchanged; redesign the journeys, regenerate on current `develop`, and validate release/beta behavior before committing output |
+
+The Home preview split is the part most directly connected to this Compose plan. The stability configuration is the highest correctness risk because Kotlin `List`/`Map` properties are not immutable by type, even when the containing model uses `val` properties. The category cache also needs explicit freshness tests because `shareIn(replay = 1)` changes the behavior of callers that use `first()`.
+
+The four generated profile files in PR #162 are identical: beta and release contain the same rules, and `baseline-prof.txt` is also identical to `startup-prof.txt`. The generator currently sets `includeInStartupProfile = true` around startup, top-navigation traversal, and list scrolling, causing the whole journey to be treated as startup code. Startup-profile generation should cover only startup-critical paths; general Home/navigation/scrolling journeys belong in the Baseline Profile without being promoted into the Startup Profile.
+
+Recommended integration order:
+
+1. Merge the accepted Home preview change into `develop` after adding focused tests.
+2. Review the category cache as an independent data PR.
+3. Narrow and validate the stability configuration separately.
+4. Add baseline-profile generation separately after the benchmark/device setup is available.
+5. Synchronize `feature/improveCompose` with the resulting `develop` and rerun Phase 0 measurements.
+
+### 19.1 Baseline profile maintenance policy
+
+- Treat the generator tests and reusable critical-user-journey helpers as the source of truth. Never hand-maintain generated profile rules.
+- Cherry-pick or recreate the baseline-profile module and build configuration when this phase begins; regenerate the text files from the then-current `develop` code instead of carrying PR #162's generated files forward.
+- Keep startup generation separate from general performance journeys. Startup, Home, Live TV/EPG, and player-controls journeys should be explicit and independently reviewable.
+- Use a pinned Gradle-managed device for reproducible generation where practical. Use physical constrained-TV hardware for before/after benchmarking.
+- If beta and release execute the same code paths, set `mergeIntoMain = true` and maintain one generated profile. Keep variant-specific profiles only when their code or journeys genuinely differ.
+- Regenerate before release candidates and after material startup/navigation changes, feature-module moves, package or method-signature changes, major Compose/Kotlin/AGP upgrades, or changes to the profiled journeys.
+- Commit generated output only after the generator succeeds, the release artifact contains the compiled profile, and macrobenchmarks show a benefit without unacceptable APK, memory, or compilation cost.
+- Do not enable profile generation on every ordinary developer build. A dedicated release-candidate or scheduled CI job avoids doubling normal build time while still keeping profiles current.
+
+Official maintenance references: [Create Baseline Profiles](https://developer.android.com/topic/performance/baselineprofiles/create-baselineprofile), [Configure Baseline Profile generation](https://developer.android.com/topic/performance/baselineprofiles/configure-baselineprofiles), and [Startup Profiles](https://developer.android.com/topic/performance/startupprofiles/dex-layout-optimizations).
+
 ## Appendix A - Initial file mapping
 
 The following is a proposed migration map. Exact names may change during implementation.
