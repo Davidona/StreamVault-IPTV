@@ -178,14 +178,10 @@ class SeriesViewModel @Inject constructor(
                                 categories
                             }
                         }
-                        val pinnedProviderCategories = visibleProviderCategories.filter { it.id in pinnedCategoryIds }
-                        val unpinnedProviderCategories = visibleProviderCategories.filterNot { it.id in pinnedCategoryIds }
                         SeriesCatalogDependencies(
                             allFavorites = allFavorites,
                             customCategories = customCategories,
                             providerCategories = visibleProviderCategories,
-                            pinnedProviderCategories = pinnedProviderCategories,
-                            unpinnedProviderCategories = unpinnedProviderCategories,
                             providerCategoryCounts = providerCategoryCounts,
                             libraryCount = libraryCount,
                             hiddenCategoryIds = hiddenCategoryIds,
@@ -198,8 +194,6 @@ class SeriesViewModel @Inject constructor(
                             allFavorites = dependencies.allFavorites,
                             customCategories = dependencies.customCategories,
                             providerCategories = dependencies.providerCategories,
-                            pinnedProviderCategories = dependencies.pinnedProviderCategories,
-                            unpinnedProviderCategories = dependencies.unpinnedProviderCategories,
                             providerCategoryCounts = dependencies.providerCategoryCounts,
                             libraryCount = dependencies.libraryCount,
                             hiddenCategoryIds = dependencies.hiddenCategoryIds,
@@ -242,7 +236,8 @@ class SeriesViewModel @Inject constructor(
                                         allFavorites = params.allFavorites,
                                         customCategories = params.customCategories,
                                         providerCategories = params.providerCategories,
-                                        hiddenCategoryIds = params.hiddenCategoryIds
+                                        hiddenCategoryIds = params.hiddenCategoryIds,
+                                        pinnedCategoryIds = params.pinnedCategoryIds
                                     ).copy(libraryCount = 0),
                                     false, false
                                 ))
@@ -256,7 +251,8 @@ class SeriesViewModel @Inject constructor(
                                         allFavorites = params.allFavorites,
                                         customCategories = params.customCategories,
                                         providerCategories = params.providerCategories,
-                                        hiddenCategoryIds = params.hiddenCategoryIds
+                                        hiddenCategoryIds = params.hiddenCategoryIds,
+                                        pinnedCategoryIds = params.pinnedCategoryIds
                                     ).copy(libraryCount = searchResults.size),
                                     false, false
                                 ))
@@ -278,7 +274,6 @@ class SeriesViewModel @Inject constructor(
                             selected in providerCategoryNames ||
                             selected in customCategoryNames
                     }
-                    val currentPinnedIds = _uiState.value.pinnedCategoryIds
                     _uiState.update {
                         it.copy(
                             seriesByCategory = snapshot.grouped,
@@ -286,7 +281,7 @@ class SeriesViewModel @Inject constructor(
                             categoryCounts = snapshot.categoryCounts,
                             libraryCount = snapshot.libraryCount,
                             providerCategories = snapshot.providerCategories,
-                            pinnedCategoryIds = currentPinnedIds.ifEmpty { snapshot.pinnedCategoryIds },
+                            pinnedCategoryIds = snapshot.pinnedCategoryIds,
                             selectedCategory = resolvedSelected,
                             selectedCategoryItems = if (resolvedSelected == null) emptyList() else it.selectedCategoryItems,
                             selectedCategoryLoadedCount = if (resolvedSelected == null) 0 else it.selectedCategoryLoadedCount,
@@ -1113,7 +1108,8 @@ class SeriesViewModel @Inject constructor(
             categoryNames = snapshot.categoryNames,
             categoryCounts = snapshot.categoryCounts,
             libraryCount = snapshot.libraryCount,
-            providerCategories = params.providerCategories
+            providerCategories = params.providerCategories,
+            pinnedCategoryIds = params.pinnedCategoryIds
         )
     }
 
@@ -1122,7 +1118,8 @@ class SeriesViewModel @Inject constructor(
         allFavorites: List<com.streamvault.domain.model.Favorite>,
         customCategories: List<Category>,
         providerCategories: List<Category>,
-        hiddenCategoryIds: Set<Long>
+        hiddenCategoryIds: Set<Long>,
+        pinnedCategoryIds: Set<Long>
     ): SeriesCatalogSnapshot {
         val snapshot = buildVodSearchCatalog(
             items = series,
@@ -1141,7 +1138,8 @@ class SeriesViewModel @Inject constructor(
             categoryNames = snapshot.categoryNames,
             categoryCounts = snapshot.categoryCounts,
             libraryCount = snapshot.libraryCount,
-            providerCategories = providerCategories
+            providerCategories = providerCategories,
+            pinnedCategoryIds = pinnedCategoryIds
         )
     }
 
@@ -1371,8 +1369,6 @@ private data class SeriesCatalogParams(
     val allFavorites: List<com.streamvault.domain.model.Favorite>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
-    val pinnedProviderCategories: List<Category> = emptyList(),
-    val unpinnedProviderCategories: List<Category> = emptyList(),
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,
@@ -1385,8 +1381,6 @@ private data class SeriesCatalogDependencies(
     val allFavorites: List<com.streamvault.domain.model.Favorite>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
-    val pinnedProviderCategories: List<Category> = emptyList(),
-    val unpinnedProviderCategories: List<Category> = emptyList(),
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,

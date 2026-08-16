@@ -462,17 +462,17 @@ private fun SeriesVodContent(
     val categoryOptions = remember(visibleCategoryNames, uiState.categoryCounts, categoryByName, uiState.parentalControlLevel, uiState.unlockedCategoryIds) {
         visibleCategoryNames.map { name ->
             val matchedCategory = categoryByName[name]
-            val locked = matchedCategory?.let(isCategoryLocked) == true
+            val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
             VodCategoryOption(
                 name = name,
                 count = uiState.categoryCounts[name] ?: 0,
                 onClick = {
-                    if (locked && matchedCategory != null) openProtectedCategory(matchedCategory) else onSelectCategory(name)
+                    if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(name)
                 },
-                onLongClick = matchedCategory?.takeIf { !locked }?.let { category ->
+                onLongClick = matchedCategory?.takeIf { lockedCategory == null }?.let { category ->
                     { onShowCategoryOptions(category.name) }
                 },
-                isLocked = locked
+                isLocked = lockedCategory != null
             )
         }
     }
@@ -649,12 +649,12 @@ private fun SeriesVodContent(
                 val categoryName = entry.key
                 val seriesList = entry.value
                 val matchedCategory = categoryByName[categoryName]
-                val lockedCategory = matchedCategory?.let(isCategoryLocked) == true
+                val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
                 CategoryRow(
                     title = categoryName,
                     items = seriesList,
                     onSeeAll = {
-                        if (lockedCategory && matchedCategory != null) openProtectedCategory(matchedCategory) else onSelectCategory(categoryName)
+                        if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(categoryName)
                     },
                     onPinToggle = matchedCategory?.let { { onToggleCategoryPinned(it) } },
                     isPinned = matchedCategory?.id in uiState.pinnedCategoryIds,
@@ -711,12 +711,12 @@ private fun SeriesVodContent(
                 val categoryName = entry.key
                 val seriesList = entry.value
                 val matchedCategory = categoryByName[categoryName]
-                val lockedCategory = matchedCategory?.let(isCategoryLocked) == true
+                val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
                 CategoryRow(
                     title = categoryName,
                     items = seriesList,
                     onSeeAll = {
-                        if (lockedCategory && matchedCategory != null) openProtectedCategory(matchedCategory) else onSelectCategory(categoryName)
+                        if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(categoryName)
                     },
                     onPinToggle = matchedCategory?.let { { onToggleCategoryPinned(it) } },
                     isPinned = matchedCategory?.id in uiState.pinnedCategoryIds,
@@ -1165,7 +1165,7 @@ private fun SeriesVodClassicContent(
                     .filterNot { it == uiState.favoriteCategoryName }
                     .forEach { name ->
                         val matchedCategory = categoryByName[name]
-                        val locked = matchedCategory?.let(isCategoryLocked) == true
+                        val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
                         add(
                             VodClassicCategoryOption(
                                 key = "category:$name",
@@ -1173,10 +1173,10 @@ private fun SeriesVodClassicContent(
                                 count = uiState.categoryCounts[name] ?: 0,
                                 isSelected = selectedKey == "category:$name",
                                 onClick = {
-                                    if (locked && matchedCategory != null) openProtectedCategory(matchedCategory) else onSelectCategory(name)
+                                    if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(name)
                                 },
-                                onLongClick = matchedCategory?.takeIf { !locked }?.let { { onShowCategoryOptions(name) } },
-                                isLocked = locked
+                                onLongClick = matchedCategory?.takeIf { lockedCategory == null }?.let { { onShowCategoryOptions(name) } },
+                                isLocked = lockedCategory != null
                             )
                         )
                     }

@@ -167,14 +167,27 @@ class DashboardViewModel @Inject constructor(
                 if (pinnedIds.isEmpty()) {
                     flowOf(emptyMap())
                 } else {
-                    movieRepository.getCategories(providerId).flatMapLatest { categories ->
-                        val pinned = categories.filter { it.id in pinnedIds }
+                    combine(
+                        movieRepository.getCategories(providerId),
+                        preferencesRepository.getHiddenCategoryIds(providerId, ContentType.MOVIE),
+                        preferencesRepository.parentalControlLevel
+                    ) { categories, hiddenCategoryIds, level ->
+                        categories.filter { category ->
+                            category.id in pinnedIds &&
+                                category.id !in hiddenCategoryIds &&
+                                !shouldHideVodCategoryFromHome(category, level)
+                        }
+                    }.flatMapLatest { pinned ->
                         if (pinned.isEmpty()) {
                             flowOf(emptyMap())
                         } else {
                             val flows = pinned.map { category ->
                                 movieRepository.getMoviesByCategoryPreview(providerId, category.id, MOVIE_SHELF_LIMIT)
-                                    .map { movies -> category.name to movies }
+                                    .combine(preferencesRepository.parentalControlLevel) { movies, level ->
+                                        category.name to movies
+                                            .filter { !shouldHideVodFromHome(it, level) }
+                                            .take(MOVIE_SHELF_LIMIT)
+                                    }
                             }
                             combine(flows) { results -> results.toMap() }
                         }
@@ -188,14 +201,27 @@ class DashboardViewModel @Inject constructor(
                 if (pinnedIds.isEmpty()) {
                     flowOf(emptyMap())
                 } else {
-                    seriesRepository.getCategories(providerId).flatMapLatest { categories ->
-                        val pinned = categories.filter { it.id in pinnedIds }
+                    combine(
+                        seriesRepository.getCategories(providerId),
+                        preferencesRepository.getHiddenCategoryIds(providerId, ContentType.SERIES),
+                        preferencesRepository.parentalControlLevel
+                    ) { categories, hiddenCategoryIds, level ->
+                        categories.filter { category ->
+                            category.id in pinnedIds &&
+                                category.id !in hiddenCategoryIds &&
+                                !shouldHideVodCategoryFromHome(category, level)
+                        }
+                    }.flatMapLatest { pinned ->
                         if (pinned.isEmpty()) {
                             flowOf(emptyMap())
                         } else {
                             val flows = pinned.map { category ->
                                 seriesRepository.getSeriesByCategoryPreview(providerId, category.id, SERIES_SHELF_LIMIT)
-                                    .map { series -> category.name to series }
+                                    .combine(preferencesRepository.parentalControlLevel) { series, level ->
+                                        category.name to series
+                                            .filter { !shouldHideVodFromHome(it, level) }
+                                            .take(SERIES_SHELF_LIMIT)
+                                    }
                             }
                             combine(flows) { results -> results.toMap() }
                         }
@@ -799,6 +825,10 @@ class DashboardViewModel @Inject constructor(
         if (series.isAdult || series.isUserProtected) return true
         return titleLooksExplicit(series.name)
     }
+
+    private fun shouldHideVodCategoryFromHome(category: Category, level: Int): Boolean =
+        !AdultContentVisibilityPolicy.showInAggregatedSurfaces(level) &&
+            (category.isAdult || category.isUserProtected)
 
     private fun titleLooksExplicit(title: String): Boolean {
         val normalized = title.lowercase()
