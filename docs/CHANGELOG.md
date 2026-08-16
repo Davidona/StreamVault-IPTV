@@ -2,6 +2,13 @@
 
 All notable product changes are recorded in this document.
 
+## [1.0.18]
+
+### Changed
+
+- Improved Stalker EPG synchronization by increasing channel batch sizes from 500 to 5,000, reducing request overhead for large channel lineups while retaining bounded processing.
+- Reduced storage usage by limiting the shared HTTP cache to 16 MiB and pruning past EPG entries after 12 hours when a provider does not require a longer catch-up window.
+
 ## [1.0.17]
 
 ### Added
