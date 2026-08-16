@@ -11,6 +11,7 @@ All notable product changes are recorded in this document.
 - Added VOD category pinning for Movies and Series, with pin-first browsing, Android TV pin controls, and pinned category content shelves on the Home dashboard.
 - Improved device orientation behavior by allowing portrait rotation on phones and tablets while keeping Android TV and Fire TV interfaces locked to landscape.
 - Improved grouped VOD deduplication performance by moving movie and series presentation work off the main thread, adding bounded normalization caches, and avoiding unnecessary ICU normalization for ASCII titles.
+- Fixed grouped VOD browse pagination and infinite scroll by using cursor windows, deduplicating before offset/limit application, and handling zero-timestamp catalog entries consistently.
 
 ## [1.0.17]
 
