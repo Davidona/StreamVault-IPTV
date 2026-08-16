@@ -115,6 +115,12 @@ class SeriesRepositoryImpl @Inject constructor(
         val id: Long
     )
 
+    private data class CursorWindowResult<T>(
+        val items: List<T>,
+        val totalVisibleCount: Int,
+        val exhausted: Boolean
+    )
+
     private val xtreamCategoryLoadLocks = KeyedMutexRegistry<String>()
     private val backgroundRefreshes = BoundedKeySet<String>(MAX_BACKGROUND_CATEGORY_REFRESHES)
     private val repositoryScope = CoroutineScope(
@@ -1159,10 +1165,12 @@ class SeriesRepositoryImpl @Inject constructor(
             .map { it.contentId }
             .toSet()
 
-        val canUseCursorWindow = supportsCursorBrowse(query)
-        val items = if (canUseCursorWindow) {
-            fetchSeriesCursorWindow(query, favoriteIds)
+        val cursorWindow = if (supportsCursorBrowse(query)) {
+            fetchSeriesCursorWindow(query, favoriteIds, presentationSettings)
         } else {
+            null
+        }
+        val items = cursorWindow?.items ?: run {
             val series = seriesBrowseSource(query).first()
             val history = playbackHistoryDao.getByProvider(query.providerId).first()
             val inProgressIds = history
@@ -1200,7 +1208,47 @@ class SeriesRepositoryImpl @Inject constructor(
                 .take(query.limit)
         }
 
-        val totalCount = rawTotalCount
+        val totalCount = if (cursorWindow != null) {
+            if (cursorWindow.exhausted) cursorWindow.totalVisibleCount else rawTotalCount
+        } else if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+            rawTotalCount
+        } else {
+            val series = seriesBrowseSource(query).first()
+            val history = playbackHistoryDao.getByProvider(query.providerId).first()
+            val inProgressIds = history
+                .asSequence()
+                .filter { it.contentType == ContentType.SERIES || it.contentType == ContentType.SERIES_EPISODE }
+                .filter {
+                    it.resumePositionMs > 0L && (
+                        it.totalDurationMs <= 0L ||
+                            it.resumePositionMs < (it.totalDurationMs * 0.95f).toLong()
+                        )
+                }
+                .mapNotNull { it.seriesId ?: it.contentId }
+                .toSet()
+            val completedSeriesIds = history
+                .asSequence()
+                .filter { it.contentType == ContentType.SERIES_EPISODE }
+                .filter { it.totalDurationMs > 0L && it.resumePositionMs >= (it.totalDurationMs * 0.95f).toLong() }
+                .mapNotNull { it.seriesId }
+                .toSet()
+            val watchCounts = history
+                .asSequence()
+                .filter { it.contentType == ContentType.SERIES || it.contentType == ContentType.SERIES_EPISODE }
+                .groupBy { it.seriesId ?: it.contentId }
+                .mapValues { (_, entries) -> entries.maxOf { it.watchCount } }
+            buildPresentedSeries(
+                applySeriesBrowseQuery(
+                    series = series,
+                    query = query,
+                    favoriteIds = favoriteIds,
+                    inProgressIds = inProgressIds,
+                    completedSeriesIds = completedSeriesIds,
+                    watchCounts = watchCounts
+                ),
+                presentationSettings
+            ).size
+        }
 
         val hasMoreRemote = query.categoryId?.let { categoryId ->
             val provider = loadCompatibilityProvider(query.providerId)
@@ -1277,16 +1325,18 @@ class SeriesRepositoryImpl @Inject constructor(
 
     private suspend fun fetchSeriesCursorWindow(
         query: LibraryBrowseQuery,
-        favoriteIds: Set<Long>
-    ): List<Series> {
+        favoriteIds: Set<Long>,
+        presentationSettings: SeriesPresentationSettings
+    ): CursorWindowResult<Series> {
         val parentalLevel = preferencesRepository.parentalControlLevel.first()
         val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
         val collected = ArrayList<Series>(targetVisibleCount)
 
-        when {
+        val exhausted = when {
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.LIBRARY -> {
                 collectSeriesPages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.lastModified, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesFreshPage(query, limit, cursor)
@@ -1295,6 +1345,7 @@ class SeriesRepositoryImpl @Inject constructor(
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.TITLE -> {
                 collectSeriesPages<NameCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { NameCursor(it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesNamePage(query, limit, cursor)
@@ -1302,6 +1353,7 @@ class SeriesRepositoryImpl @Inject constructor(
             }
             (query.sortBy == LibrarySortBy.RATING || query.filterBy.type == LibraryFilterType.TOP_RATED) -> {
                 collectSeriesPages<RatingCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { RatingCursor(it.rating, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesRatingPage(query, limit, cursor)
@@ -1310,14 +1362,21 @@ class SeriesRepositoryImpl @Inject constructor(
             query.sortBy == LibrarySortBy.UPDATED ||
                 query.filterBy.type == LibraryFilterType.RECENTLY_UPDATED -> {
                 collectSeriesPages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.lastModified, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesFreshPage(query, limit, cursor)
                 }
             }
+            else -> true
         }
 
-        return collected.drop(query.offset).take(query.limit)
+        val presented = buildPresentedSeries(collected, presentationSettings)
+        return CursorWindowResult(
+            items = presented.drop(query.offset).take(query.limit),
+            totalVisibleCount = presented.size,
+            exhausted = exhausted
+        )
     }
 
     private suspend fun <C> collectSeriesPages(
@@ -1325,15 +1384,16 @@ class SeriesRepositoryImpl @Inject constructor(
         parentalLevel: Int,
         collected: MutableList<Series>,
         favoriteIds: Set<Long>,
+        presentationSettings: SeriesPresentationSettings,
         extractCursor: (SeriesBrowseEntity) -> C,
         loadPage: suspend (limit: Int, cursor: C?) -> List<SeriesBrowseEntity>
-    ) {
+    ): Boolean {
         var cursor: C? = null
-        val targetVisibleCount = query.offset + query.limit
-        while (collected.size < targetVisibleCount) {
+        val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
+        while (presentedSeriesCount(collected, presentationSettings) < targetVisibleCount) {
             val batch = loadPage(CURSOR_BATCH_SIZE, cursor)
             if (batch.isEmpty()) {
-                return
+                return true
             }
             val visibleBatch = if (parentalLevel >= 3) {
                 batch.filterNot { it.isUserProtected }
@@ -1345,10 +1405,20 @@ class SeriesRepositoryImpl @Inject constructor(
                 if (item.id in favoriteIds) item.copy(isFavorite = true) else item
             }
             if (batch.size < CURSOR_BATCH_SIZE) {
-                return
+                return true
             }
             cursor = extractCursor(batch.last())
         }
+        return false
+    }
+
+    private fun presentedSeriesCount(
+        series: List<Series>,
+        presentationSettings: SeriesPresentationSettings
+    ): Int = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+        series.size
+    } else {
+        buildPresentedSeries(series, presentationSettings).size
     }
 
     private suspend fun loadSeriesNamePage(query: LibraryBrowseQuery, limit: Int, cursor: NameCursor?): List<SeriesBrowseEntity> {

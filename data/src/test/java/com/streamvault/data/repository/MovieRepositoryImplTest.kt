@@ -1148,6 +1148,39 @@ class MovieRepositoryImplTest {
         verify(movieDao, never()).getByProviderCursorPage(any(), any())
     }
 
+    @Test
+    fun `browseMovies groups duplicates while using the cursor window`() = runTest {
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(movieDao.getCount(7L)).thenReturn(flowOf(2))
+        whenever(movieDao.getFreshCursorPage(7L, 40)).thenReturn(
+            listOf(
+                movieEntity(id = 101L, name = "Arrival HD", genre = "Sci-Fi", categoryId = 42L, rating = 7.9f)
+                    .copy(year = "2016", releaseDate = "2016-11-11", addedAt = 20L),
+                movieEntity(id = 102L, name = "Arrival 4K", genre = "Sci-Fi", categoryId = 42L, rating = 7.9f)
+                    .copy(year = "2016", releaseDate = "2016-11-11", addedAt = 10L)
+            )
+        )
+        whenever(favoriteDao.getAllByType(7L, ContentType.MOVIE.name)).thenReturn(flowOf(emptyList()))
+
+        val result = createRepository(
+            duplicateHandlingMode = VodDuplicateHandlingMode.SMART,
+            variantPreferenceMode = VodVariantPreferenceMode.BEST_QUALITY
+        ).browseMovies(
+            LibraryBrowseQuery(
+                providerId = 7L,
+                sortBy = LibrarySortBy.LIBRARY,
+                offset = 0,
+                limit = 20
+            )
+        ).first()
+
+        assertThat(result.totalCount).isEqualTo(1)
+        assertThat(result.items).hasSize(1)
+        assertThat(result.items.single().selectedVariantId).isEqualTo(102L)
+        verify(movieDao).getFreshCursorPage(7L, 40)
+        verify(movieDao, never()).getByProviderPage(any(), any(), any())
+    }
+
     private fun createRepository(
         duplicateHandlingMode: VodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,
         variantPreferenceMode: VodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,

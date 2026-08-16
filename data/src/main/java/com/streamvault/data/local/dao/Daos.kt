@@ -1394,7 +1394,7 @@ interface MovieDao {
         limit: Int
     ): List<MovieBrowseEntity>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND added_at > 0 ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<MovieBrowseEntity>>
 
         @Query(
@@ -1451,7 +1451,7 @@ interface MovieDao {
         limit: Int
     ): List<MovieBrowseEntity>
 
-    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND category_id = :categoryId AND added_at > 0 ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
     fun getFreshByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<MovieBrowseEntity>>
 
         @Query(
@@ -2448,14 +2448,13 @@ interface SeriesDao {
     )
     fun getFreshCountByProvider(providerId: Long): Flow<Int>
 
-        @Query("SELECT * FROM series WHERE provider_id = :providerId AND last_modified > 0 ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit")
+        @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit")
     suspend fun getFreshCursorPage(providerId: Long, limit: Int): List<SeriesBrowseEntity>
 
     @Query(
         """
         SELECT * FROM series
         WHERE provider_id = :providerId
-                    AND last_modified > 0
           AND (
               last_modified < :lastModified
               OR (last_modified = :lastModified AND (name > :lastName OR (name = :lastName AND id > :lastId)))
@@ -2501,7 +2500,7 @@ interface SeriesDao {
     )
     fun getFreshCountByCategory(providerId: Long, categoryId: Long): Flow<Int>
 
-        @Query("SELECT * FROM series WHERE provider_id = :providerId AND category_id = :categoryId AND last_modified > 0 ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit")
+        @Query("SELECT * FROM series WHERE provider_id = :providerId AND category_id = :categoryId ORDER BY last_modified DESC, name ASC, id ASC LIMIT :limit")
     suspend fun getFreshByCategoryCursorPage(providerId: Long, categoryId: Long, limit: Int): List<SeriesBrowseEntity>
 
     @Query(
@@ -2509,7 +2508,6 @@ interface SeriesDao {
         SELECT * FROM series
         WHERE provider_id = :providerId
           AND category_id = :categoryId
-                    AND last_modified > 0
           AND (
               last_modified < :lastModified
               OR (last_modified = :lastModified AND (name > :lastName OR (name = :lastName AND id > :lastId)))
