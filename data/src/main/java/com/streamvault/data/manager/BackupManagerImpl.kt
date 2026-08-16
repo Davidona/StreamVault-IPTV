@@ -15,6 +15,9 @@ import com.google.gson.stream.MalformedJsonException
 import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.dao.BackupRestoreCheckpointDao
 import com.streamvault.data.local.dao.ChannelDao
+import com.streamvault.data.local.dao.ChannelPreferenceDao
+import com.streamvault.data.local.dao.CombinedM3uProfileDao
+import com.streamvault.data.local.dao.CombinedM3uProfileMemberDao
 import com.streamvault.data.local.dao.EpisodeDao
 import com.streamvault.data.local.dao.EpgSourceDao
 import com.streamvault.data.local.dao.FavoriteDao
@@ -29,6 +32,9 @@ import com.streamvault.data.local.entity.ProviderEntity
 import com.streamvault.data.local.entity.ProviderAccountRuntimeEntity
 import com.streamvault.data.local.entity.ProviderConfigEntity
 import com.streamvault.data.local.entity.BackupRestoreCheckpointEntity
+import com.streamvault.data.local.entity.ChannelPreferenceEntity
+import com.streamvault.data.local.entity.CombinedM3uProfileEntity
+import com.streamvault.data.local.entity.CombinedM3uProfileMemberEntity
 import com.streamvault.data.local.entity.RecordingScheduleEntity
 import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.mapper.toEntity
@@ -43,6 +49,7 @@ import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.provider.toAccountRuntime
 import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
 import com.streamvault.domain.manager.BackupData
+import com.streamvault.domain.manager.ActiveLiveSourceBackup
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupImportResult
@@ -55,15 +62,22 @@ import com.streamvault.domain.manager.RecordingScheduleImportSummary
 import com.streamvault.domain.manager.ProtectedCategoryBackup
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.ProviderBackupSnapshot
+import com.streamvault.domain.manager.CombinedM3uProfileBackup
+import com.streamvault.domain.manager.CombinedM3uProfileMemberBackup
 import com.streamvault.domain.manager.PortableCategoryReference
+import com.streamvault.domain.manager.PortableCategorySortReference
 import com.streamvault.domain.manager.PortableChannelReference
+import com.streamvault.domain.manager.PortableChannelPreferenceReference
+import com.streamvault.domain.manager.PortableEpgTimeShiftReference
 import com.streamvault.domain.manager.PortableProviderPreferencesBackup
+import com.streamvault.domain.manager.PortableVariantSelectionReference
 import com.streamvault.domain.manager.PortableVirtualGroupReference
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.manager.ScheduledRecordingBackup
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.AppHomeDashboardShelf
+import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingRequest
@@ -85,6 +99,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import java.io.ByteArrayInputStream
@@ -129,7 +144,10 @@ class BackupManagerImpl @Inject constructor(
     private val backupRestoreCheckpointDao: BackupRestoreCheckpointDao? = null,
     private val channelDao: ChannelDao,
     private val seriesDao: SeriesDao,
-    private val epgSourceDao: EpgSourceDao? = null
+    private val epgSourceDao: EpgSourceDao? = null,
+    private val combinedM3uProfileDao: CombinedM3uProfileDao? = null,
+    private val combinedM3uProfileMemberDao: CombinedM3uProfileMemberDao? = null,
+    private val channelPreferenceDao: ChannelPreferenceDao? = null
 ) : BackupManager {
 
     override suspend fun exportConfig(uriString: String): com.streamvault.domain.model.Result<Unit> = withContext(Dispatchers.IO) {
@@ -143,6 +161,8 @@ class BackupManagerImpl @Inject constructor(
                 put("parentalPinHash", parentalPinBackup?.hash ?: "")
                 put("parentalPinSalt", parentalPinBackup?.saltBase64 ?: "")
                 put("appLanguage", preferencesRepository.appLanguage.first())
+                put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
+                put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
                 put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
                 put(
                     "appTopLevelDestinations",
@@ -152,30 +172,76 @@ class BackupManagerImpl @Inject constructor(
                     "appHomeDashboardShelves",
                     preferencesRepository.appHomeDashboardShelves.first().joinToString(",") { it.storageValue }
                 )
+                put("remoteShortcutPreferences", gson.toJson(preferencesRepository.remoteShortcutPreferences.first()))
                 put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
                 put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
+                put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+                put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
+                put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
+                put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
+                put("showRecentChannelsCategory", preferencesRepository.showRecentChannelsCategory.first().toString())
+                put("hideDecorativeLiveRows", preferencesRepository.hideDecorativeLiveRows.first().toString())
+                put("liveChannelNumberingMode", preferencesRepository.liveChannelNumberingMode.first().name)
+                put("liveChannelGroupingMode", preferencesRepository.liveChannelGroupingMode.first().name)
+                put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
+                put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
+                put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+                put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+                put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
+                put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
+                put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
                 put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+                put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
                 put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
                 put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
+                put("playerPlaybackBufferMode", preferencesRepository.playerPlaybackBufferMode.first().name)
                 put("playerAudioOutputPreference", preferencesRepository.playerAudioOutputPreference.first().name)
                 put("playerCompatibilityMemoryEnabled", preferencesRepository.playerCompatibilityMemoryEnabled.first().toString())
                 put("playerSurfaceMode", preferencesRepository.playerSurfaceMode.first().name)
                 put("playerLiveStreamFormatMode", preferencesRepository.playerLiveStreamFormatMode.first().name)
                 put("playerVodHttpProtocolMode", preferencesRepository.playerVodHttpProtocolMode.first().name)
                 put("playerPlaybackSpeed", preferencesRepository.playerPlaybackSpeed.first().toString())
+                put("playerExternalPlaybackMode", preferencesRepository.playerExternalPlaybackMode.first().storageValue)
                 put("playerAudioVideoSyncEnabled", preferencesRepository.playerAudioVideoSyncEnabled.first().toString())
                 put("playerAudioVideoOffsetMs", preferencesRepository.playerAudioVideoOffsetMs.first().toString())
+                put("playerMuted", preferencesRepository.playerMuted.first().toString())
+                put("multiViewPerformanceMode", preferencesRepository.multiViewPerformanceMode.first().orEmpty())
+                put("multiViewCenterTwoSlotLayout", preferencesRepository.multiViewCenterTwoSlotLayout.first().toString())
                 put("multiViewRespectProviderConnectionLimit", preferencesRepository.multiViewRespectProviderConnectionLimit.first().toString())
                 put("preferredAudioLanguage", preferencesRepository.preferredAudioLanguage.first() ?: "auto")
                 put("playerSubtitleTextScale", preferencesRepository.playerSubtitleTextScale.first().toString())
                 put("playerSubtitleTextColor", preferencesRepository.playerSubtitleTextColor.first().toString())
                 put("playerSubtitleBackgroundColor", preferencesRepository.playerSubtitleBackgroundColor.first().toString())
+                put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
+                put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
+                put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
+                put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+                put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
+                put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
                 put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
                 put("playerEthernetMaxVideoHeight", (preferencesRepository.playerEthernetMaxVideoHeight.first() ?: 0).toString())
+                put("playerTimeshiftEnabled", preferencesRepository.playerTimeshiftEnabled.first().toString())
+                put("playerTimeshiftDepthMinutes", preferencesRepository.playerTimeshiftDepthMinutes.first().toString())
+                put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
+                put("defaultStopPlaybackTimerMinutes", preferencesRepository.defaultStopPlaybackTimerMinutes.first().toString())
+                put("defaultIdleStandbyTimerMinutes", preferencesRepository.defaultIdleStandbyTimerMinutes.first().toString())
+                put("preventStandbyDuringPlayback", preferencesRepository.preventStandbyDuringPlayback.first().toString())
+                put("zapAutoRevert", preferencesRepository.zapAutoRevert.first().toString())
+                put("autoPlayNextEpisode", preferencesRepository.autoPlayNextEpisode.first().toString())
+                put("autoCheckAppUpdates", preferencesRepository.autoCheckAppUpdates.first().toString())
+                put("autoDownloadAppUpdates", preferencesRepository.autoDownloadAppUpdates.first().toString())
+                put("recordingWifiOnly", preferencesRepository.recordingWifiOnly.first().toString())
+                put("recordingPaddingBeforeMinutes", preferencesRepository.recordingPaddingBeforeMinutes.first().toString())
+                put("recordingPaddingAfterMinutes", preferencesRepository.recordingPaddingAfterMinutes.first().toString())
+                put("maxConcurrentStreams", preferencesRepository.maxConcurrentStreams.first().toString())
+                put("isIncognitoMode", preferencesRepository.isIncognitoMode.first().toString())
+                put("useXtreamTextClassification", preferencesRepository.useXtreamTextClassification.first().toString())
+                put("xtreamBase64TextCompatibility", preferencesRepository.xtreamBase64TextCompatibility.first().toString())
                 put("guideDensity", preferencesRepository.guideDensity.first() ?: "")
                 put("guideChannelMode", preferencesRepository.guideChannelMode.first() ?: "")
                 put("guideDefaultCategoryId", (preferencesRepository.guideDefaultCategoryId.first() ?: 0L).toString())
                 put("guideFavoritesOnly", preferencesRepository.guideFavoritesOnly.first().toString())
+                put("guideScheduledOnly", preferencesRepository.guideScheduledOnly.first().toString())
                 put("guideAnchorTime", (preferencesRepository.guideAnchorTime.first() ?: 0L).toString())
                 put("lastActiveProviderId", (preferencesRepository.lastActiveProviderId.first() ?: -1L).toString())
                 put("promotedLiveGroupIds", preferencesRepository.promotedLiveGroupIds.first().sorted().joinToString(","))
@@ -209,6 +275,8 @@ class BackupManagerImpl @Inject constructor(
                     stalkerTransportConsentAt = 0L
                 )
             }
+            val combinedM3uProfiles = buildCombinedM3uProfileBackups(providers)
+            val activeLiveSource = buildActiveLiveSourceBackup(providers)
             if (sourceProviders.size != providerEntities.size) {
                 return@withContext com.streamvault.domain.model.Result.error(
                     "Cannot export backup because one or more providers have no typed configuration snapshot"
@@ -274,6 +342,20 @@ class BackupManagerImpl @Inject constructor(
                 "preset_2" to preferencesRepository.getMultiViewPreset(1).first(),
                 "preset_3" to preferencesRepository.getMultiViewPreset(2).first()
             )
+            val portableMultiViewPresets = multiViewPresets.mapValues { (_, channelIds) ->
+                channelIds.mapNotNull { channelId ->
+                    channelDao.getById(channelId)?.let { channel ->
+                        providersById[channel.providerId]?.let { provider ->
+                            PortableChannelReference(
+                                provider = provider.toBackupProviderReference(),
+                                streamId = channel.streamId,
+                                name = channel.name,
+                                streamUrl = channel.streamUrl
+                            )
+                        }
+                    }
+                }
+            }
             val protectedCategories = providers.flatMap { provider ->
                 categoryRepository.getCategories(provider.id).first()
                     .filter { it.isUserProtected }
@@ -308,11 +390,14 @@ class BackupManagerImpl @Inject constructor(
                 virtualGroups = allGroups,
                 playbackHistory = playbackHistory,
                 multiViewPresets = multiViewPresets,
+                portableMultiViewPresets = portableMultiViewPresets,
                 protectedCategories = protectedCategories,
                 scheduledRecordings = scheduledRecordings,
                 portableProviderPreferences = buildPortableProviderPreferences(providers),
                 providerCredentials = providerCredentials.takeIf { it.isNotEmpty() },
-                epgSources = epgSourceDao?.getAllSync()?.map { it.toDomain() }
+                epgSources = epgSourceDao?.getAllSync()?.map { it.toDomain() },
+                combinedM3uProfiles = combinedM3uProfiles,
+                activeLiveSource = activeLiveSource
             )
 
             // Compute checksum over the data without checksum field
@@ -602,19 +687,29 @@ class BackupManagerImpl @Inject constructor(
 
             if (plan.importMultiViewPresets) {
                 val presets = backupData.multiViewPresets
+                val portablePresets = backupData.portableMultiViewPresets
                 when {
-                    presets == null -> skippedSections += "Split Screen Presets"
+                    presets == null && portablePresets == null -> skippedSections += "Split Screen Presets"
                     checkpoint.presetsComplete -> importedSections += "Split Screen Presets"
                     else -> try {
                         checkpoint = checkpoint.ensurePreferenceSnapshot()
-                        preferencesRepository.setMultiViewPreset(0, presets["preset_1"].orEmpty())
-                        preferencesRepository.setMultiViewPreset(1, presets["preset_2"].orEmpty())
-                        preferencesRepository.setMultiViewPreset(2, presets["preset_3"].orEmpty())
+                        val portableUnresolved = portablePresets?.let {
+                            restorePortableMultiViewPresets(it, storedProviders)
+                        }.orEmpty()
+                        unresolvedReferences += portableUnresolved
+                        if (portablePresets == null) {
+                            preferencesRepository.setMultiViewPreset(0, presets?.get("preset_1").orEmpty())
+                            preferencesRepository.setMultiViewPreset(1, presets?.get("preset_2").orEmpty())
+                            preferencesRepository.setMultiViewPreset(2, presets?.get("preset_3").orEmpty())
+                        }
                         checkpoint = checkpoint.copy(
                             presetsComplete = true,
                             preferenceSnapshotJson = null,
                             updatedAt = System.currentTimeMillis()
                         ).persist(clearPreferenceSnapshot = true)
+                        if (portableUnresolved.isNotEmpty()) {
+                            failedSections += "Split Screen Presets: ${portableUnresolved.size} unresolved"
+                        }
                         importedSections += "Split Screen Presets"
                     } catch (error: Exception) {
                         val suffix = if (checkpoint.preferenceSnapshotJson == null) {
@@ -792,6 +887,7 @@ class BackupManagerImpl @Inject constructor(
 
     private fun importedRoomSections(backupData: BackupData, plan: BackupImportPlan): List<String> = buildList {
         if (plan.importProviders && backupData.providers != null) add("Providers")
+        if (plan.importProviders && backupData.combinedM3uProfiles != null) add("Combined M3U Profiles")
         if (plan.importProviders && backupData.epgSources != null && epgSourceDao != null) add("EPG Sources")
         if (plan.importSavedLibrary) add("Saved Library")
         if (plan.importPlaybackHistory && backupData.playbackHistory != null) add("Playback History")
@@ -799,6 +895,7 @@ class BackupManagerImpl @Inject constructor(
 
     private fun skippedRoomSections(backupData: BackupData, plan: BackupImportPlan): List<String> = buildList {
         if (!plan.importProviders || backupData.providers == null) add("Providers")
+        if (!plan.importProviders || backupData.combinedM3uProfiles == null) add("Combined M3U Profiles")
         if (!plan.importProviders || backupData.epgSources == null || epgSourceDao == null) add("EPG Sources")
         if (!plan.importSavedLibrary) add("Saved Library")
         if (!plan.importPlaybackHistory || backupData.playbackHistory == null) add("Playback History")
@@ -869,6 +966,12 @@ class BackupManagerImpl @Inject constructor(
             writeNamedJsonField(jsonWriter, "virtualGroups", backupData.virtualGroups, VIRTUAL_GROUP_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "playbackHistory", backupData.playbackHistory, PLAYBACK_HISTORY_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "multiViewPresets", backupData.multiViewPresets, MULTIVIEW_PRESETS_TYPE)
+            writeNamedJsonField(
+                jsonWriter,
+                "portableMultiViewPresets",
+                backupData.portableMultiViewPresets,
+                PORTABLE_MULTIVIEW_PRESETS_TYPE
+            )
             writeNamedJsonField(jsonWriter, "protectedCategories", backupData.protectedCategories, PROTECTED_CATEGORY_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "scheduledRecordings", backupData.scheduledRecordings, SCHEDULED_RECORDING_LIST_TYPE)
             writeNamedJsonField(
@@ -878,6 +981,18 @@ class BackupManagerImpl @Inject constructor(
                 PortableProviderPreferencesBackup::class.java
             )
             writeNamedJsonField(jsonWriter, "epgSources", backupData.epgSources, EPG_SOURCE_LIST_TYPE)
+            writeNamedJsonField(
+                jsonWriter,
+                "combinedM3uProfiles",
+                backupData.combinedM3uProfiles,
+                COMBINED_M3U_PROFILE_LIST_TYPE
+            )
+            writeNamedJsonField(
+                jsonWriter,
+                "activeLiveSource",
+                backupData.activeLiveSource,
+                ACTIVE_LIVE_SOURCE_BACKUP_TYPE
+            )
             jsonWriter.endObject()
         }
     }
@@ -974,10 +1089,13 @@ class BackupManagerImpl @Inject constructor(
         var virtualGroups: List<com.streamvault.domain.model.VirtualGroup>? = null
         var playbackHistory: List<com.streamvault.domain.model.PlaybackHistory>? = null
         var multiViewPresets: Map<String, List<Long>>? = null
+        var portableMultiViewPresets: Map<String, List<PortableChannelReference>>? = null
         var protectedCategories: List<ProtectedCategoryBackup>? = null
         var scheduledRecordings: List<ScheduledRecordingBackup>? = null
         var portableProviderPreferences: PortableProviderPreferencesBackup? = null
         var epgSources: List<com.streamvault.domain.model.EpgSource>? = null
+        var combinedM3uProfiles: List<CombinedM3uProfileBackup>? = null
+        var activeLiveSource: ActiveLiveSourceBackup? = null
         val seenFields = hashSetOf<String>()
         var headerRead = false
 
@@ -1020,6 +1138,7 @@ class BackupManagerImpl @Inject constructor(
                 "playbackHistory" -> playbackHistory =
                     readLimitedArray(reader, PLAYBACK_HISTORY_TYPE, MAX_SECTION_ITEMS, "playback history")
                 "multiViewPresets" -> multiViewPresets = readMultiViewPresets(reader)
+                "portableMultiViewPresets" -> portableMultiViewPresets = readPortableMultiViewPresets(reader)
                 "protectedCategories" -> protectedCategories =
                     readLimitedArray(reader, PROTECTED_CATEGORY_TYPE, MAX_SECTION_ITEMS, "protected categories")
                 "scheduledRecordings" -> scheduledRecordings =
@@ -1028,6 +1147,15 @@ class BackupManagerImpl @Inject constructor(
                     readPortableProviderPreferences(reader)
                 "epgSources" -> epgSources =
                     readLimitedArray(reader, EPG_SOURCE_TYPE, MAX_EPG_SOURCES, "EPG sources")
+                "combinedM3uProfiles" -> combinedM3uProfiles =
+                    readLimitedArray(
+                        reader,
+                        COMBINED_M3U_PROFILE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "combined M3U profiles"
+                    )
+                "activeLiveSource" -> activeLiveSource =
+                    readLegacyAwareValue(reader, ACTIVE_LIVE_SOURCE_BACKUP_TYPE)
                 else -> reader.skipValue()
             }
         }
@@ -1056,10 +1184,13 @@ class BackupManagerImpl @Inject constructor(
             virtualGroups = virtualGroups,
             playbackHistory = playbackHistory,
             multiViewPresets = multiViewPresets,
+            portableMultiViewPresets = portableMultiViewPresets,
             protectedCategories = protectedCategories,
             scheduledRecordings = scheduledRecordings,
             portableProviderPreferences = portableProviderPreferences,
-            epgSources = epgSources
+            epgSources = epgSources,
+            combinedM3uProfiles = combinedM3uProfiles,
+            activeLiveSource = activeLiveSource
         )
     }
 
@@ -1113,8 +1244,16 @@ class BackupManagerImpl @Inject constructor(
             )
             BACKUP_PROVIDER_REFERENCE_TYPE -> listOf("serverUrl", "username", "stalkerMacAddress")
             PORTABLE_CATEGORY_REFERENCE_TYPE -> listOf("provider", "name", "type", "remoteCategoryId")
+            PORTABLE_CATEGORY_SORT_REFERENCE_TYPE -> listOf("provider", "type", "mode")
             PORTABLE_GROUP_REFERENCE_TYPE -> listOf("provider", "name", "contentType")
             PORTABLE_CHANNEL_REFERENCE_TYPE -> listOf("provider", "streamId", "name", "streamUrl")
+            PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE -> listOf("channel", "aspectRatio", "audioVideoOffsetMs")
+            PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE -> listOf("provider", "minutes")
+            PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE -> listOf("provider", "logicalGroupId", "rawItemId")
+            COMBINED_M3U_PROFILE_TYPE -> listOf("name", "enabled", "members", "createdAt", "updatedAt")
+            ACTIVE_LIVE_SOURCE_BACKUP_TYPE -> listOf(
+                "type", "provider", "combinedProfileName", "combinedProfileProviders"
+            )
             PROTECTED_CATEGORY_TYPE -> listOf(
                 "providerServerUrl", "providerUsername", "providerStalkerMacAddress",
                 "categoryId", "categoryName", "type"
@@ -1136,13 +1275,62 @@ class BackupManagerImpl @Inject constructor(
         }
         when (type) {
             PORTABLE_CATEGORY_REFERENCE_TYPE,
+            PORTABLE_CATEGORY_SORT_REFERENCE_TYPE,
             PORTABLE_GROUP_REFERENCE_TYPE,
-            PORTABLE_CHANNEL_REFERENCE_TYPE -> {
+            PORTABLE_CHANNEL_REFERENCE_TYPE,
+            PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE,
+            PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE,
+            PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE -> {
+                if (type == PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE) {
+                    objectValue.get("channel")?.let { channel ->
+                        objectValue.add(
+                            "channel",
+                            normalizeLegacyBackupElement(channel, PORTABLE_CHANNEL_REFERENCE_TYPE)
+                        )
+                    }
+                } else {
+                    objectValue.get("provider")?.let { provider ->
+                        objectValue.add(
+                            "provider",
+                            normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                        )
+                    }
+                }
+            }
+            COMBINED_M3U_PROFILE_TYPE -> {
+                objectValue.get("members")?.takeIf { it.isJsonArray }?.asJsonArray?.forEach { member ->
+                    if (member.isJsonObject) {
+                        val memberObject = member.asJsonObject
+                        listOf("provider", "priority", "enabled").forEachIndexed { index, fieldName ->
+                            val legacyName = ('a'.code + index).toChar().toString()
+                            if (!memberObject.has(fieldName) && memberObject.has(legacyName)) {
+                                memberObject.add(fieldName, memberObject.remove(legacyName))
+                            }
+                        }
+                        memberObject.get("provider")?.let { provider ->
+                            memberObject.add(
+                                "provider",
+                                normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                            )
+                        }
+                    }
+                }
+            }
+            ACTIVE_LIVE_SOURCE_BACKUP_TYPE -> {
                 objectValue.get("provider")?.let { provider ->
                     objectValue.add(
                         "provider",
                         normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
                     )
+                }
+                objectValue.get("combinedProfileProviders")?.takeIf { it.isJsonArray }?.let { providers ->
+                    val normalizedProviders = com.google.gson.JsonArray()
+                    providers.asJsonArray.forEach { provider ->
+                        normalizedProviders.add(
+                            normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                        )
+                    }
+                    objectValue.add("combinedProfileProviders", normalizedProviders)
                 }
             }
             else -> Unit
@@ -1181,6 +1369,36 @@ class BackupManagerImpl @Inject constructor(
         return result
     }
 
+    private fun <T> readLimitedJsonArray(
+        element: JsonElement?,
+        type: Type,
+        maxItems: Int,
+        label: String
+    ): List<T> {
+        if (element == null || element.isJsonNull) return emptyList()
+        if (!element.isJsonArray) {
+            throw BackupAdmissionException(
+                BackupAdmissionReason.MALFORMED,
+                "Backup field '$label' must be an array"
+            )
+        }
+        if (element.asJsonArray.size() > maxItems) {
+            throw BackupAdmissionException(
+                BackupAdmissionReason.SECTION_LIMIT,
+                "Backup has too many $label"
+            )
+        }
+        return element.asJsonArray.map { item ->
+            if (item.isJsonNull) {
+                throw BackupAdmissionException(
+                    BackupAdmissionReason.MALFORMED,
+                    "Backup contains a null $label entry"
+                )
+            }
+            gson.fromJson(normalizeLegacyBackupElement(item, type), type)
+        }
+    }
+
     private fun readMultiViewPresets(reader: JsonReader): Map<String, List<Long>>? {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull()
@@ -1216,6 +1434,43 @@ class BackupManagerImpl @Inject constructor(
         return result
     }
 
+    private fun readPortableMultiViewPresets(
+        reader: JsonReader
+    ): Map<String, List<PortableChannelReference>>? {
+        if (reader.peek() == JsonToken.NULL) {
+            reader.nextNull()
+            return null
+        }
+        val result = linkedMapOf<String, List<PortableChannelReference>>()
+        var totalEntries = 0
+        reader.beginObject()
+        while (reader.hasNext()) {
+            if (result.size >= MAX_PREFERENCES) {
+                throw BackupAdmissionException(
+                    BackupAdmissionReason.SECTION_LIMIT,
+                    "Backup has too many portable split-screen presets"
+                )
+            }
+            val name = reader.nextName()
+            if (name in result) {
+                throw BackupAdmissionException(
+                    BackupAdmissionReason.DUPLICATE_FIELD,
+                    "Backup contains duplicate portable split-screen preset '$name'"
+                )
+            }
+            val values = readLimitedArray<PortableChannelReference>(
+                reader,
+                PORTABLE_CHANNEL_REFERENCE_TYPE,
+                MAX_SECTION_ITEMS - totalEntries,
+                "portable preset entries"
+            ).orEmpty()
+            totalEntries += values.size
+            result[name] = values
+        }
+        reader.endObject()
+        return result
+    }
+
     private fun readPortableProviderPreferences(reader: JsonReader): PortableProviderPreferencesBackup? {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull()
@@ -1229,7 +1484,19 @@ class BackupManagerImpl @Inject constructor(
         var promotedLiveGroups = emptyList<PortableVirtualGroupReference>()
         var hiddenChannels = emptyList<PortableChannelReference>()
         var hiddenCategories = emptyList<PortableCategoryReference>()
+        var pinnedCategories = emptyList<PortableCategoryReference>()
+        var pinnedCategoriesSpecified = false
+        var categorySortModes = emptyList<PortableCategorySortReference>()
+        var categorySortModesSpecified = false
+        var epgTimeShifts = emptyList<PortableEpgTimeShiftReference>()
+        var epgTimeShiftsSpecified = false
+        var liveVariantSelections = emptyList<PortableVariantSelectionReference>()
+        var liveVariantSelectionsSpecified = false
+        var vodVariantSelections = emptyList<PortableVariantSelectionReference>()
+        var vodVariantSelectionsSpecified = false
         var unresolvedReferences = emptyList<String>()
+        var channelPreferences = emptyList<PortableChannelPreferenceReference>()
+        var channelPreferencesSpecified = false
         val seenFields = hashSetOf<String>()
 
         reader.beginObject()
@@ -1278,13 +1545,79 @@ class BackupManagerImpl @Inject constructor(
                         MAX_SECTION_ITEMS,
                         "hidden categories"
                     ).orEmpty()
-                "unresolvedReferences", "i" -> unresolvedReferences =
+                "pinnedCategories" -> pinnedCategories =
+                    readLimitedArray<PortableCategoryReference>(
+                        reader,
+                        PORTABLE_CATEGORY_REFERENCE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "pinned categories"
+                    ).orEmpty()
+                "pinnedCategoriesSpecified", "j" -> pinnedCategoriesSpecified = reader.nextBoolean()
+                "categorySortModes", "k" -> categorySortModes =
+                    readLimitedArray<PortableCategorySortReference>(
+                        reader,
+                        PORTABLE_CATEGORY_SORT_REFERENCE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "category sort modes"
+                    ).orEmpty()
+                "categorySortModesSpecified", "l" -> categorySortModesSpecified = reader.nextBoolean()
+                "epgTimeShifts", "m" -> epgTimeShifts =
+                    readLimitedArray<PortableEpgTimeShiftReference>(
+                        reader,
+                        PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE,
+                        MAX_PROVIDERS,
+                        "EPG time shifts"
+                    ).orEmpty()
+                "epgTimeShiftsSpecified", "n" -> epgTimeShiftsSpecified = reader.nextBoolean()
+                "liveVariantSelections", "o" -> liveVariantSelections =
+                    readLimitedArray<PortableVariantSelectionReference>(
+                        reader,
+                        PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "live variant selections"
+                    ).orEmpty()
+                "liveVariantSelectionsSpecified", "p" -> liveVariantSelectionsSpecified = reader.nextBoolean()
+                "vodVariantSelections", "q" -> vodVariantSelections =
+                    readLimitedArray<PortableVariantSelectionReference>(
+                        reader,
+                        PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "VOD variant selections"
+                    ).orEmpty()
+                "vodVariantSelectionsSpecified", "r" -> vodVariantSelectionsSpecified = reader.nextBoolean()
+                "unresolvedReferences", "s" -> unresolvedReferences =
                     readLimitedArray<String>(
                         reader,
                         STRING_TYPE,
                         MAX_SECTION_ITEMS,
                         "unresolved references"
                     ).orEmpty()
+                "channelPreferences", "t" -> channelPreferences =
+                    readLimitedArray<PortableChannelPreferenceReference>(
+                        reader,
+                        PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE,
+                        MAX_SECTION_ITEMS,
+                        "channel preferences"
+                    ).orEmpty()
+                "channelPreferencesSpecified", "u" -> channelPreferencesSpecified = reader.nextBoolean()
+                "i" -> {
+                    val element = gson.fromJson<JsonElement>(reader, JsonElement::class.java)
+                    if (element?.isJsonArray == true && element.asJsonArray.any { it.isJsonObject }) {
+                        pinnedCategories = readLimitedJsonArray(
+                            element,
+                            PORTABLE_CATEGORY_REFERENCE_TYPE,
+                            MAX_SECTION_ITEMS,
+                            "pinned categories"
+                        )
+                    } else {
+                        unresolvedReferences = readLimitedJsonArray(
+                            element,
+                            STRING_TYPE,
+                            MAX_SECTION_ITEMS,
+                            "unresolved references"
+                        )
+                    }
+                }
                 else -> reader.skipValue()
             }
         }
@@ -1298,7 +1631,19 @@ class BackupManagerImpl @Inject constructor(
             promotedLiveGroups = promotedLiveGroups,
             hiddenChannels = hiddenChannels,
             hiddenCategories = hiddenCategories,
-            unresolvedReferences = unresolvedReferences
+            pinnedCategories = pinnedCategories,
+            pinnedCategoriesSpecified = pinnedCategoriesSpecified,
+            categorySortModes = categorySortModes,
+            categorySortModesSpecified = categorySortModesSpecified,
+            epgTimeShifts = epgTimeShifts,
+            epgTimeShiftsSpecified = epgTimeShiftsSpecified,
+            liveVariantSelections = liveVariantSelections,
+            liveVariantSelectionsSpecified = liveVariantSelectionsSpecified,
+            vodVariantSelections = vodVariantSelections,
+            vodVariantSelectionsSpecified = vodVariantSelectionsSpecified,
+            unresolvedReferences = unresolvedReferences,
+            channelPreferences = channelPreferences,
+            channelPreferencesSpecified = channelPreferencesSpecified
         )
     }
 
@@ -1321,8 +1666,18 @@ class BackupManagerImpl @Inject constructor(
         require(data.playbackHistory.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too much playback history" }
         require(data.protectedCategories.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too many protected categories" }
         require(data.scheduledRecordings.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too many recording schedules" }
+        require(data.combinedM3uProfiles.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too many combined M3U profiles" }
+        require(data.combinedM3uProfiles.orEmpty().sumOf { it.members.size } <= MAX_SECTION_ITEMS) {
+            "Backup has too many combined M3U profile members"
+        }
+        require(data.portableProviderPreferences?.channelPreferences.orEmpty().size <= MAX_SECTION_ITEMS) {
+            "Backup has too many channel preferences"
+        }
         require(data.epgSources.orEmpty().size <= MAX_EPG_SOURCES) { "Backup has too many EPG sources" }
         require(data.multiViewPresets.orEmpty().values.sumOf { it.size } <= MAX_SECTION_ITEMS) { "Backup has too many preset entries" }
+        require(data.portableMultiViewPresets.orEmpty().values.sumOf { it.size } <= MAX_SECTION_ITEMS) {
+            "Backup has too many portable preset entries"
+        }
         data.epgSources.orEmpty().forEach { source ->
             require(source.name.length <= MAX_FIELD_CHARS && source.url.length <= MAX_FIELD_CHARS) {
                 "Backup contains an overlong EPG source"
@@ -1367,6 +1722,78 @@ class BackupManagerImpl @Inject constructor(
     private fun String.toFileUriTarget(): File? =
         runCatching { File(java.net.URI(this)) }.getOrNull()
             ?: Uri.parse(this).path?.let(::File)
+
+    private suspend fun buildCombinedM3uProfileBackups(
+        providers: List<Provider>
+    ): List<CombinedM3uProfileBackup>? {
+        val profileDao = combinedM3uProfileDao ?: return null
+        val memberDao = combinedM3uProfileMemberDao ?: return null
+        val referencesById = providers.associate { it.id to it.toBackupProviderReference() }
+        return profileDao.getAll().first().map { profile ->
+            CombinedM3uProfileBackup(
+                name = profile.name,
+                enabled = profile.enabled,
+                members = memberDao.getForProfileSync(profile.id).mapNotNull { member ->
+                    referencesById[member.providerId]?.let { provider ->
+                        CombinedM3uProfileMemberBackup(
+                            provider = provider,
+                            priority = member.priority,
+                            enabled = member.enabled
+                        )
+                    }
+                },
+                createdAt = profile.createdAt,
+                updatedAt = profile.updatedAt
+            )
+        }
+    }
+
+    private suspend fun buildActiveLiveSourceBackup(
+        providers: List<Provider>
+    ): ActiveLiveSourceBackup? {
+        val source = (preferencesRepository.activeLiveSource ?: flowOf(null)).first() ?: return null
+        val referencesById = providers.associate { it.id to it.toBackupProviderReference() }
+        return when (source) {
+            is ActiveLiveSource.ProviderSource -> referencesById[source.providerId]?.let { provider ->
+                ActiveLiveSourceBackup(type = "provider", provider = provider)
+            }
+            is ActiveLiveSource.CombinedM3uSource -> {
+                val profile = combinedM3uProfileDao?.getById(source.profileId)
+                val memberProviders = profile?.let {
+                    combinedM3uProfileMemberDao?.getForProfileSync(it.id)
+                        ?.sortedWith(compareBy({ member -> member.priority }, { member -> member.id }))
+                        ?.mapNotNull { member -> referencesById[member.providerId] }
+                }.orEmpty()
+                profile?.let {
+                    ActiveLiveSourceBackup(
+                        type = "combined_m3u",
+                        combinedProfileName = it.name,
+                        combinedProfileProviders = memberProviders
+                    )
+                }
+            }
+        }
+    }
+
+    private fun Map<String, Long>.toPortableVariantSelections(
+        referencesById: Map<Long, BackupProviderReference>,
+        unresolved: MutableList<String>,
+        label: String
+    ): List<PortableVariantSelectionReference> = mapNotNull { (key, rawItemId) ->
+        val separator = key.indexOf('|')
+        val providerId = key.substringBefore('|').toLongOrNull()
+        val logicalGroupId = key.substringAfter('|', "")
+        if (separator <= 0 || providerId == null || logicalGroupId.isBlank() || rawItemId <= 0L) {
+            unresolved += "$label variant selection '$key' is malformed"
+            return@mapNotNull null
+        }
+        referencesById[providerId]?.let { provider ->
+            PortableVariantSelectionReference(provider, logicalGroupId, rawItemId)
+        } ?: run {
+            unresolved += "$label variant selection provider $providerId was not found during export"
+            null
+        }
+    }
 
     internal suspend fun buildPortableProviderPreferences(
         providers: List<Provider>
@@ -1461,6 +1888,71 @@ class BackupManagerImpl @Inject constructor(
                 }
             }
         }
+        val pinnedCategories = providers.flatMap { provider ->
+            val categories = categoriesByProvider[provider.id].orEmpty()
+            ContentType.entries.flatMap { type ->
+                (preferencesRepository.getPinnedCategoryIds(provider.id, type) ?: flowOf(emptySet())).first().mapNotNull { categoryId ->
+                    categories.firstOrNull { it.id == categoryId && it.type == type }?.let { category ->
+                        referencesById[provider.id]?.let { reference ->
+                            PortableCategoryReference(reference, category.name, type, category.id)
+                        }
+                    } ?: run {
+                        unresolved += "Pinned ${type.name} category id $categoryId for provider ${provider.name} was not found during export"
+                        null
+                    }
+                }
+            }
+        }
+        val categorySortModes = providers.flatMap { provider ->
+            referencesById[provider.id]?.let { reference ->
+                ContentType.entries.map { type ->
+                    PortableCategorySortReference(
+                        provider = reference,
+                        type = type,
+                        mode = (preferencesRepository.getCategorySortMode(provider.id, type)
+                            ?: flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT)).first().name
+                    )
+                }
+            }.orEmpty()
+        }
+        val epgTimeShifts = (preferencesRepository.epgTimeShiftsByProvider ?: flowOf(emptyMap()))
+            .first().mapNotNull { (providerId, minutes) ->
+                referencesById[providerId]?.let { reference ->
+                    PortableEpgTimeShiftReference(reference, minutes)
+                } ?: run {
+                    unresolved += "EPG time shift provider $providerId was not found during export"
+                    null
+                }
+            }
+        val liveVariantSelections = (preferencesRepository.liveVariantSelections ?: flowOf(emptyMap()))
+            .first()
+            .toPortableVariantSelections(referencesById, unresolved, "Live")
+        val vodVariantSelections = (preferencesRepository.vodVariantSelections ?: flowOf(emptyMap()))
+            .first()
+            .toPortableVariantSelections(referencesById, unresolved, "VOD")
+        val channelPreferences = channelPreferenceDao?.getAllSync().orEmpty().mapNotNull { preference ->
+            val channel = channels.getById(preference.channelId)
+            val provider = channel?.let { referencesById[it.providerId] }
+            val aspectRatio = preference.aspectRatio?.trim()?.takeIf { it.isNotEmpty() }
+            val audioVideoOffsetMs = preference.audioVideoOffsetMs?.coerceIn(-2_000, 2_000)
+            if (channel == null || provider == null) {
+                unresolved += "Channel preference for channel ${preference.channelId} was not found during export"
+                null
+            } else if (aspectRatio == null && audioVideoOffsetMs == null) {
+                null
+            } else {
+                PortableChannelPreferenceReference(
+                    channel = PortableChannelReference(
+                        provider = provider,
+                        streamId = channel.streamId,
+                        name = channel.name,
+                        streamUrl = channel.streamUrl
+                    ),
+                    aspectRatio = aspectRatio,
+                    audioVideoOffsetMs = audioVideoOffsetMs
+                )
+            }
+        }
         return PortableProviderPreferencesBackup(
             providers = referencesById.values.toList(),
             activeProvider = activeProvider,
@@ -1470,7 +1962,19 @@ class BackupManagerImpl @Inject constructor(
             promotedLiveGroups = promotedGroups.distinct(),
             hiddenChannels = hiddenChannels.distinct(),
             hiddenCategories = hiddenCategories.distinct(),
-            unresolvedReferences = unresolved.distinct()
+            pinnedCategories = pinnedCategories.distinct(),
+            pinnedCategoriesSpecified = true,
+            categorySortModes = categorySortModes.distinct(),
+            categorySortModesSpecified = true,
+            epgTimeShifts = epgTimeShifts.distinct(),
+            epgTimeShiftsSpecified = true,
+            liveVariantSelections = liveVariantSelections.distinct(),
+            liveVariantSelectionsSpecified = true,
+            vodVariantSelections = vodVariantSelections.distinct(),
+            vodVariantSelectionsSpecified = true,
+            unresolvedReferences = unresolved.distinct(),
+            channelPreferences = channelPreferences.distinct(),
+            channelPreferencesSpecified = channelPreferenceDao != null
         )
     }
 
@@ -1524,10 +2028,13 @@ class BackupManagerImpl @Inject constructor(
             virtualGroups.isNullOrEmpty() &&
             playbackHistory.isNullOrEmpty() &&
             multiViewPresets.orEmpty().all { it.value.isEmpty() } &&
+            portableMultiViewPresets.orEmpty().all { it.value.isEmpty() } &&
             protectedCategories.isNullOrEmpty() &&
             scheduledRecordings.isNullOrEmpty() &&
             portableProviderPreferences == null &&
-            epgSources.isNullOrEmpty()
+            epgSources.isNullOrEmpty() &&
+            combinedM3uProfiles.isNullOrEmpty() &&
+            activeLiveSource == null
 
     private suspend fun capturePreferenceSnapshot(providerEntities: List<ProviderEntity>): Map<String, String> {
         val parentalPinBackup = preferencesRepository.exportParentalPinBackup()
@@ -1536,39 +2043,90 @@ class BackupManagerImpl @Inject constructor(
             put("parentalPinHash", parentalPinBackup?.hash.orEmpty())
             put("parentalPinSalt", parentalPinBackup?.saltBase64.orEmpty())
             put("appLanguage", preferencesRepository.appLanguage.first())
+            put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
+            put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
             put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
             put("appTopLevelDestinations", preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue })
             put("appHomeDashboardShelves", preferencesRepository.appHomeDashboardShelves.first().joinToString(",") { it.storageValue })
+            put("remoteShortcutPreferences", gson.toJson(preferencesRepository.remoteShortcutPreferences.first()))
             put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
             put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
+            put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+            put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
+            put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
+            put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
+            put("showRecentChannelsCategory", preferencesRepository.showRecentChannelsCategory.first().toString())
+            put("hideDecorativeLiveRows", preferencesRepository.hideDecorativeLiveRows.first().toString())
+            put("liveChannelNumberingMode", preferencesRepository.liveChannelNumberingMode.first().name)
+            put("liveChannelGroupingMode", preferencesRepository.liveChannelGroupingMode.first().name)
+            put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
+            put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
+            put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+            put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+            put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
+            put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
+            put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
             put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+            put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
             put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
             put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
+            put("playerPlaybackBufferMode", preferencesRepository.playerPlaybackBufferMode.first().name)
             put("playerAudioOutputPreference", preferencesRepository.playerAudioOutputPreference.first().name)
             put("playerCompatibilityMemoryEnabled", preferencesRepository.playerCompatibilityMemoryEnabled.first().toString())
             put("playerSurfaceMode", preferencesRepository.playerSurfaceMode.first().name)
             put("playerLiveStreamFormatMode", preferencesRepository.playerLiveStreamFormatMode.first().name)
             put("playerVodHttpProtocolMode", preferencesRepository.playerVodHttpProtocolMode.first().name)
             put("playerPlaybackSpeed", preferencesRepository.playerPlaybackSpeed.first().toString())
+            put("playerExternalPlaybackMode", preferencesRepository.playerExternalPlaybackMode.first().storageValue)
             put("playerAudioVideoSyncEnabled", preferencesRepository.playerAudioVideoSyncEnabled.first().toString())
             put("playerAudioVideoOffsetMs", preferencesRepository.playerAudioVideoOffsetMs.first().toString())
+            put("playerMuted", preferencesRepository.playerMuted.first().toString())
+            put("multiViewPerformanceMode", preferencesRepository.multiViewPerformanceMode.first().orEmpty())
+            put("multiViewCenterTwoSlotLayout", preferencesRepository.multiViewCenterTwoSlotLayout.first().toString())
             put("multiViewRespectProviderConnectionLimit", preferencesRepository.multiViewRespectProviderConnectionLimit.first().toString())
             put("preferredAudioLanguage", preferencesRepository.preferredAudioLanguage.first() ?: "auto")
             put("playerSubtitleTextScale", preferencesRepository.playerSubtitleTextScale.first().toString())
             put("playerSubtitleTextColor", preferencesRepository.playerSubtitleTextColor.first().toString())
             put("playerSubtitleBackgroundColor", preferencesRepository.playerSubtitleBackgroundColor.first().toString())
+            put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
+            put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
+            put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
+            put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+            put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
+            put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
             put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
             put("playerEthernetMaxVideoHeight", (preferencesRepository.playerEthernetMaxVideoHeight.first() ?: 0).toString())
+            put("playerTimeshiftEnabled", preferencesRepository.playerTimeshiftEnabled.first().toString())
+            put("playerTimeshiftDepthMinutes", preferencesRepository.playerTimeshiftDepthMinutes.first().toString())
+            put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
+            put("defaultStopPlaybackTimerMinutes", preferencesRepository.defaultStopPlaybackTimerMinutes.first().toString())
+            put("defaultIdleStandbyTimerMinutes", preferencesRepository.defaultIdleStandbyTimerMinutes.first().toString())
+            put("preventStandbyDuringPlayback", preferencesRepository.preventStandbyDuringPlayback.first().toString())
+            put("zapAutoRevert", preferencesRepository.zapAutoRevert.first().toString())
+            put("autoPlayNextEpisode", preferencesRepository.autoPlayNextEpisode.first().toString())
+            put("autoCheckAppUpdates", preferencesRepository.autoCheckAppUpdates.first().toString())
+            put("autoDownloadAppUpdates", preferencesRepository.autoDownloadAppUpdates.first().toString())
+            put("recordingWifiOnly", preferencesRepository.recordingWifiOnly.first().toString())
+            put("recordingPaddingBeforeMinutes", preferencesRepository.recordingPaddingBeforeMinutes.first().toString())
+            put("recordingPaddingAfterMinutes", preferencesRepository.recordingPaddingAfterMinutes.first().toString())
+            put("maxConcurrentStreams", preferencesRepository.maxConcurrentStreams.first().toString())
+            put("isIncognitoMode", preferencesRepository.isIncognitoMode.first().toString())
+            put("useXtreamTextClassification", preferencesRepository.useXtreamTextClassification.first().toString())
+            put("xtreamBase64TextCompatibility", preferencesRepository.xtreamBase64TextCompatibility.first().toString())
             put("guideDensity", preferencesRepository.guideDensity.first() ?: "")
             put("guideChannelMode", preferencesRepository.guideChannelMode.first() ?: "")
             put("guideDefaultCategoryId", (preferencesRepository.guideDefaultCategoryId.first() ?: 0L).toString())
             put("guideFavoritesOnly", preferencesRepository.guideFavoritesOnly.first().toString())
+            put("guideScheduledOnly", preferencesRepository.guideScheduledOnly.first().toString())
             put("guideAnchorTime", (preferencesRepository.guideAnchorTime.first() ?: 0L).toString())
             put("lastActiveProviderId", (preferencesRepository.lastActiveProviderId.first() ?: -1L).toString())
             put("promotedLiveGroupIds", preferencesRepository.promotedLiveGroupIds.first().sorted().joinToString(","))
             put(RESTORE_SNAPSHOT_PRESET_1, preferencesRepository.getMultiViewPreset(0).first().joinToString(","))
             put(RESTORE_SNAPSHOT_PRESET_2, preferencesRepository.getMultiViewPreset(1).first().joinToString(","))
             put(RESTORE_SNAPSHOT_PRESET_3, preferencesRepository.getMultiViewPreset(2).first().joinToString(","))
+            channelPreferenceDao?.getAllSync()?.let { preferences ->
+                put(RESTORE_SNAPSHOT_CHANNEL_PREFERENCES, gson.toJson(preferences, CHANNEL_PREFERENCE_ENTITY_LIST_TYPE))
+            }
             providerEntities.forEach { provider ->
                 put(
                     "hiddenChannels_${provider.id}",
@@ -1579,17 +2137,60 @@ class BackupManagerImpl @Inject constructor(
                         "hiddenCategories_${provider.id}_${type.name}",
                         preferencesRepository.getHiddenCategoryIds(provider.id, type).first().sorted().joinToString(",")
                     )
+                    put(
+                        "pinnedCategories_${provider.id}_${type.name}",
+                        (preferencesRepository.getPinnedCategoryIds(provider.id, type) ?: flowOf(emptySet()))
+                            .first().sorted().joinToString(",")
+                    )
+                    put(
+                        "categorySortMode_${provider.id}_${type.name}",
+                        (preferencesRepository.getCategorySortMode(provider.id, type)
+                            ?: flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT)).first().name
+                    )
                 }
+                put(
+                    "epgTimeShift_${provider.id}",
+                    preferencesRepository.epgTimeShiftMinutes(provider.id).first().toString()
+                )
+                put(
+                    "liveVariantSelections_${provider.id}",
+                    (preferencesRepository.liveVariantSelections ?: flowOf(emptyMap()))
+                        .first()
+                        .filterKeys { it.substringBefore('|').toLongOrNull() == provider.id }
+                        .entries
+                        .joinToString("\n") { (key, rawItemId) -> "${key.substringAfter('|')}=$rawItemId" }
+                )
+                put(
+                    "vodVariantSelections_${provider.id}",
+                    (preferencesRepository.vodVariantSelections ?: flowOf(emptyMap()))
+                        .first()
+                        .filterKeys { it.substringBefore('|').toLongOrNull() == provider.id }
+                        .entries
+                        .joinToString("\n") { (key, rawItemId) -> "${key.substringAfter('|')}=$rawItemId" }
+                )
             }
         }
     }
 
     private suspend fun restoreCheckpointPreferenceSnapshot(snapshot: Map<String, String>) {
         restorePreferences(snapshot)
+        snapshot[RESTORE_SNAPSHOT_CHANNEL_PREFERENCES]?.let { encoded ->
+            restoreChannelPreferenceSnapshot(encoded)
+        }
         snapshot["lastActiveProviderId"]?.toLongOrNull()?.let {
             preferencesRepository.setLastActiveProviderId(it)
         }
         restoreCheckpointMultiViewPresets(snapshot)
+    }
+
+    private suspend fun restoreChannelPreferenceSnapshot(encoded: String) {
+        val dao = channelPreferenceDao ?: return
+        val preferences = gson.fromJson<List<ChannelPreferenceEntity>>(
+            encoded,
+            CHANNEL_PREFERENCE_ENTITY_LIST_TYPE
+        ).orEmpty()
+        dao.deleteAll()
+        preferences.forEach { preference -> dao.upsert(preference) }
     }
 
     private suspend fun restoreCheckpointMultiViewPresets(snapshot: Map<String, String>) {
@@ -1605,6 +2206,31 @@ class BackupManagerImpl @Inject constructor(
             2,
             snapshot[RESTORE_SNAPSHOT_PRESET_3].orEmpty().split(",").mapNotNull(String::toLongOrNull)
         )
+    }
+
+    private suspend fun restorePortableMultiViewPresets(
+        presets: Map<String, List<PortableChannelReference>>,
+        storedProviders: List<Provider>
+    ): List<String> {
+        val unresolved = mutableListOf<String>()
+        listOf("preset_1", "preset_2", "preset_3").forEachIndexed { index, presetName ->
+            val channelIds = presets[presetName].orEmpty().mapNotNull { reference ->
+                val provider = storedProviders.findUnambiguousPortableProvider(reference.provider)
+                if (provider == null) {
+                    unresolved += reference.unresolvedLabel("Split-screen channel provider")
+                    return@mapNotNull null
+                }
+                channelDao.getByProviderSync(provider.id)
+                    .resolvePortableChannel(reference)
+                    ?.id
+                    ?: run {
+                        unresolved += reference.unresolvedLabel("Split-screen channel")
+                        null
+                    }
+            }
+            preferencesRepository.setMultiViewPreset(index, channelIds)
+        }
+        return unresolved.distinct()
     }
 
     private suspend fun restorePortableProviderPreferences(
@@ -1626,6 +2252,12 @@ class BackupManagerImpl @Inject constructor(
             portable.promotedLiveGroups.forEach { add(it.provider) }
             portable.hiddenChannels.forEach { add(it.provider) }
             portable.hiddenCategories.forEach { add(it.provider) }
+            portable.pinnedCategories.forEach { add(it.provider) }
+            portable.categorySortModes.forEach { add(it.provider) }
+            portable.epgTimeShifts.forEach { add(it.provider) }
+            portable.liveVariantSelections.forEach { add(it.provider) }
+            portable.vodVariantSelections.forEach { add(it.provider) }
+            portable.channelPreferences.forEach { add(it.channel.provider) }
         }
         val resolvedProviders = referencedProviders.mapNotNull { reference ->
             resolveProvider(reference)?.let { reference to it }
@@ -1686,6 +2318,79 @@ class BackupManagerImpl @Inject constructor(
                 }.toSet()
                 preferencesRepository.setHiddenCategoryIds(provider.id, type, ids)
             }
+            if (portable.pinnedCategoriesSpecified) {
+                ContentType.entries.forEach { type ->
+                    val requested = portable.pinnedCategories.filter { it.provider == reference && it.type == type }
+                    val ids = requested.mapNotNull { categoryReference ->
+                        categories[provider.id].orEmpty().resolvePortableCategory(categoryReference)?.id
+                            ?: run {
+                                unresolved += categoryReference.unresolvedLabel("Pinned ${type.name} category")
+                                null
+                            }
+                    }.toSet()
+                    preferencesRepository.setPinnedCategoryIds(provider.id, type, ids)
+                }
+            }
+            if (portable.categorySortModesSpecified) {
+                ContentType.entries.forEach { type ->
+                    val savedMode = portable.categorySortModes
+                        .firstOrNull { it.provider == reference && it.type == type }
+                        ?.mode
+                        ?.let { mode -> com.streamvault.domain.model.CategorySortMode.entries.firstOrNull { it.name == mode } }
+                        ?: com.streamvault.domain.model.CategorySortMode.DEFAULT
+                    preferencesRepository.setCategorySortMode(provider.id, type, savedMode)
+                }
+            }
+        }
+        if (portable.epgTimeShiftsSpecified) {
+            resolvedProviders.forEach { (reference, provider) ->
+                val minutes = portable.epgTimeShifts.firstOrNull { it.provider == reference }?.minutes ?: 0
+                preferencesRepository.setEpgTimeShiftMinutes(provider.id, minutes)
+            }
+        }
+        if (portable.liveVariantSelectionsSpecified) {
+            resolvedProviders.forEach { (reference, provider) ->
+                val selections = portable.liveVariantSelections
+                    .filter { it.provider == reference }
+                    .associate { it.logicalGroupId to it.rawItemId }
+                preferencesRepository.replacePreferredLiveVariants(provider.id, selections)
+            }
+        }
+        if (portable.vodVariantSelectionsSpecified) {
+            resolvedProviders.forEach { (reference, provider) ->
+                val selections = portable.vodVariantSelections
+                    .filter { it.provider == reference }
+                    .associate { it.logicalGroupId to it.rawItemId }
+                preferencesRepository.replacePreferredVodVariants(provider.id, selections)
+            }
+        }
+        if (portable.channelPreferencesSpecified) {
+            val preferenceDao = channelPreferenceDao
+            if (preferenceDao == null) {
+                unresolved += "Per-channel playback preference storage is unavailable"
+            } else {
+                val resolvedPreferences = portable.channelPreferences.mapNotNull { preference ->
+                    val reference = preference.channel
+                    val provider = resolveProvider(reference.provider)
+                    val channel = provider?.let { resolvedProvider ->
+                        channels.getByProviderSync(resolvedProvider.id).resolvePortableChannel(reference)
+                    }
+                    if (channel == null) {
+                        unresolved += reference.unresolvedLabel("Channel playback preference")
+                        null
+                    } else if (preference.aspectRatio.isNullOrBlank() && preference.audioVideoOffsetMs == null) {
+                        null
+                    } else {
+                        ChannelPreferenceEntity(
+                            channelId = channel.id,
+                            aspectRatio = preference.aspectRatio?.trim()?.takeIf { it.isNotEmpty() },
+                            audioVideoOffsetMs = preference.audioVideoOffsetMs?.coerceIn(-2_000, 2_000)
+                        )
+                    }
+                }
+                preferenceDao.deleteAll()
+                resolvedPreferences.forEach { preference -> preferenceDao.upsert(preference) }
+            }
         }
         return unresolved.distinct()
     }
@@ -1704,6 +2409,13 @@ class BackupManagerImpl @Inject constructor(
             ).takeIf { it.hash.isNotBlank() && it.saltBase64.isNotBlank() }
         )
         prefs["appLanguage"]?.takeIf { it.isNotBlank() }?.let { preferencesRepository.setAppLanguage(it) }
+        prefs["appTimeFormat"]?.takeIf { it.isNotBlank() }?.let { savedFormat ->
+            preferencesRepository.setAppTimeFormat(
+                com.streamvault.domain.model.AppTimeFormat.fromStorage(savedFormat)
+            )
+        }
+        prefs["defaultViewMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setDefaultViewMode(it) }
         prefs["appLandingDestination"]?.takeIf { it.isNotBlank() }?.let { savedDestination ->
             preferencesRepository.setAppLandingDestination(
                 com.streamvault.domain.model.AppLandingDestination.fromStorage(savedDestination)
@@ -1724,11 +2436,65 @@ class BackupManagerImpl @Inject constructor(
                 .mapNotNull { token -> AppHomeDashboardShelf.fromStorage(token.trim()) }
             preferencesRepository.setAppHomeDashboardShelves(shelves)
         }
+        prefs["remoteShortcutPreferences"]?.let { encoded ->
+            restoreRemoteShortcutPreferences(encoded)
+        }
         prefs["liveTvCategoryFilters"]?.let { preferencesRepository.setLiveTvCategoryFilters(it.split('\n')) }
         prefs["liveTvQuickFilterVisibility"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setLiveTvQuickFilterVisibility(it) }
+        prefs["liveTvChannelMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setLiveTvChannelMode(it) }
+        prefs["showLiveSourceSwitcher"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setShowLiveSourceSwitcher(it) }
+        prefs["showFavoritesCategory"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setShowFavoritesCategory(it) }
+        prefs["showAllChannelsCategory"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setShowAllChannelsCategory(it) }
+        prefs["showRecentChannelsCategory"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setShowRecentChannelsCategory(it) }
+        prefs["hideDecorativeLiveRows"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setHideDecorativeLiveRows(it) }
+        prefs["liveChannelNumberingMode"]?.let { savedMode ->
+            preferencesRepository.setLiveChannelNumberingMode(
+                com.streamvault.domain.model.ChannelNumberingMode.fromStorage(savedMode)
+            )
+        }
+        prefs["liveChannelGroupingMode"]?.let { savedMode ->
+            com.streamvault.domain.model.LiveChannelGroupingMode.entries
+                .firstOrNull { it.name == savedMode }
+                ?.let { preferencesRepository.setLiveChannelGroupingMode(it) }
+        }
+        prefs["groupedChannelLabelMode"]?.let { savedMode ->
+            com.streamvault.domain.model.GroupedChannelLabelMode.fromStorage(savedMode)
+                .let { preferencesRepository.setGroupedChannelLabelMode(it) }
+        }
+        prefs["liveVariantPreferenceMode"]?.let { savedMode ->
+            com.streamvault.domain.model.LiveVariantPreferenceMode.fromStorage(savedMode)
+                .let { preferencesRepository.setLiveVariantPreferenceMode(it) }
+        }
+        prefs["vodViewMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setVodViewMode(it) }
+        prefs["vodInfiniteScroll"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setVodInfiniteScroll(it) }
+        prefs["vodCategoryLoadMode"]?.let { savedMode ->
+            preferencesRepository.setVodCategoryLoadMode(
+                com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(savedMode)
+            )
+        }
+        prefs["vodDuplicateHandlingMode"]?.let { savedMode ->
+            preferencesRepository.setVodDuplicateHandlingMode(
+                com.streamvault.domain.model.VodDuplicateHandlingMode.fromStorage(savedMode)
+            )
+        }
+        prefs["vodVariantPreferenceMode"]?.let { savedMode ->
+            preferencesRepository.setVodVariantPreferenceMode(
+                com.streamvault.domain.model.VodVariantPreferenceMode.fromStorage(savedMode)
+            )
+        }
         prefs["playerMediaSessionEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerMediaSessionEnabled(it) }
+        prefs["playerFastRetryOnTransientFailures"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerFastRetryOnTransientFailures(it) }
         val legacyDecoderMode = prefs["playerDecoderMode"]
             ?.takeIf { it.isNotBlank() }
             ?.let { savedMode ->
@@ -1751,6 +2517,11 @@ class BackupManagerImpl @Inject constructor(
             }
             ?.let { preferencesRepository.setPlayerVideoDecoderMode(it) }
             ?: legacyDecoderMode?.let { preferencesRepository.setPlayerVideoDecoderMode(it) }
+        prefs["playerPlaybackBufferMode"]?.let { savedMode ->
+            com.streamvault.domain.model.PlaybackBufferMode.entries
+                .firstOrNull { it.name == savedMode }
+                ?.let { preferencesRepository.setPlayerPlaybackBufferMode(it) }
+        }
         prefs["playerAudioOutputPreference"]?.takeIf { it.isNotBlank() }?.let { savedPreference ->
             val preference = com.streamvault.domain.model.AudioOutputPreference.entries
                 .firstOrNull { entry -> entry.name == savedPreference }
@@ -1782,19 +2553,78 @@ class BackupManagerImpl @Inject constructor(
             }
         }
         prefs["playerPlaybackSpeed"]?.toFloatOrNull()?.let { preferencesRepository.setPlayerPlaybackSpeed(it) }
+        prefs["playerExternalPlaybackMode"]?.let { savedMode ->
+            preferencesRepository.setPlayerExternalPlaybackMode(
+                com.streamvault.domain.model.ExternalPlaybackMode.fromStorageValue(savedMode)
+            )
+        }
         prefs["playerAudioVideoSyncEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerAudioVideoSyncEnabled(it) }
         prefs["playerAudioVideoOffsetMs"]?.toIntOrNull()?.let {
             preferencesRepository.setPlayerAudioVideoOffsetMs(it)
         }
+        prefs["playerMuted"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerMuted(it) }
+        prefs["multiViewPerformanceMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setMultiViewPerformanceMode(it) }
+        prefs["multiViewCenterTwoSlotLayout"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setMultiViewCenterTwoSlotLayout(it) }
         prefs["multiViewRespectProviderConnectionLimit"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setMultiViewRespectProviderConnectionLimit(it) }
         preferencesRepository.setPreferredAudioLanguage(prefs["preferredAudioLanguage"])
         prefs["playerSubtitleTextScale"]?.toFloatOrNull()?.let { preferencesRepository.setPlayerSubtitleTextScale(it) }
         prefs["playerSubtitleTextColor"]?.toIntOrNull()?.let { preferencesRepository.setPlayerSubtitleTextColor(it) }
         prefs["playerSubtitleBackgroundColor"]?.toIntOrNull()?.let { preferencesRepository.setPlayerSubtitleBackgroundColor(it) }
+        prefs["playerLiveTranslationEnabled"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerLiveTranslationEnabled(it) }
+        prefs["playerLiveTranslationEndpoint"]?.let { preferencesRepository.setPlayerLiveTranslationEndpoint(it) }
+        prefs["playerControlsTimeoutSeconds"]?.toIntOrNull()
+            ?.let { preferencesRepository.setPlayerControlsTimeoutSeconds(it) }
+        prefs["playerLiveOverlayTimeoutSeconds"]?.toIntOrNull()
+            ?.let { preferencesRepository.setPlayerLiveOverlayTimeoutSeconds(it) }
+        prefs["playerNoticeTimeoutSeconds"]?.toIntOrNull()
+            ?.let { preferencesRepository.setPlayerNoticeTimeoutSeconds(it) }
+        prefs["playerDiagnosticsTimeoutSeconds"]?.toIntOrNull()
+            ?.let { preferencesRepository.setPlayerDiagnosticsTimeoutSeconds(it) }
         preferencesRepository.setPlayerWifiMaxVideoHeight(prefs["playerWifiMaxVideoHeight"]?.toIntOrNull()?.takeIf { it > 0 })
         preferencesRepository.setPlayerEthernetMaxVideoHeight(prefs["playerEthernetMaxVideoHeight"]?.toIntOrNull()?.takeIf { it > 0 })
+        prefs["playerTimeshiftEnabled"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerTimeshiftEnabled(it) }
+        prefs["playerTimeshiftDepthMinutes"]?.toIntOrNull()
+            ?.let { preferencesRepository.setPlayerTimeshiftDepthMinutes(it) }
+        prefs["playerTimeshiftBackend"]?.let { savedMode ->
+            com.streamvault.domain.model.TimeshiftBackendPreference.entries
+                .firstOrNull { it.name == savedMode }
+                ?.let { preferencesRepository.setPlayerTimeshiftBackend(it) }
+        }
+        prefs["defaultStopPlaybackTimerMinutes"]?.toIntOrNull()
+            ?.let { preferencesRepository.setDefaultStopPlaybackTimerMinutes(it) }
+        prefs["defaultIdleStandbyTimerMinutes"]?.toIntOrNull()
+            ?.let { preferencesRepository.setDefaultIdleStandbyTimerMinutes(it) }
+        prefs["preventStandbyDuringPlayback"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPreventStandbyDuringPlayback(it) }
+        prefs["zapAutoRevert"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setZapAutoRevert(it) }
+        prefs["autoPlayNextEpisode"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setAutoPlayNextEpisode(it) }
+        prefs["autoCheckAppUpdates"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setAutoCheckAppUpdates(it) }
+        prefs["autoDownloadAppUpdates"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setAutoDownloadAppUpdates(it) }
+        prefs["recordingWifiOnly"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setRecordingWifiOnly(it) }
+        prefs["recordingPaddingBeforeMinutes"]?.toIntOrNull()
+            ?.let { preferencesRepository.setRecordingPaddingBeforeMinutes(it) }
+        prefs["recordingPaddingAfterMinutes"]?.toIntOrNull()
+            ?.let { preferencesRepository.setRecordingPaddingAfterMinutes(it) }
+        prefs["maxConcurrentStreams"]?.toIntOrNull()
+            ?.let { preferencesRepository.setMaxConcurrentStreams(it) }
+        prefs["isIncognitoMode"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setIncognitoMode(it) }
+        prefs["useXtreamTextClassification"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setUseXtreamTextClassification(it) }
+        prefs["xtreamBase64TextCompatibility"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setXtreamBase64TextCompatibility(it) }
         prefs["guideDensity"]?.takeIf { it.isNotBlank() }?.let { preferencesRepository.setGuideDensity(it) }
         prefs["guideChannelMode"]?.takeIf { it.isNotBlank() }?.let { preferencesRepository.setGuideChannelMode(it) }
         prefs["guideDefaultCategoryId"]?.toLongOrNull()?.takeUnless { skipProviderScopedReferences }?.let { categoryId ->
@@ -1805,6 +2635,7 @@ class BackupManagerImpl @Inject constructor(
             }
         }
         prefs["guideFavoritesOnly"]?.toBooleanStrictOrNull()?.let { preferencesRepository.setGuideFavoritesOnly(it) }
+        prefs["guideScheduledOnly"]?.toBooleanStrictOrNull()?.let { preferencesRepository.setGuideScheduledOnly(it) }
         prefs["guideAnchorTime"]?.toLongOrNull()?.let { anchorTime ->
             if (anchorTime <= 0L) {
                 preferencesRepository.clearGuideAnchorTime()
@@ -1836,6 +2667,77 @@ class BackupManagerImpl @Inject constructor(
                 val ids = value.split(",").mapNotNull { it.toLongOrNull() }.toSet()
                 preferencesRepository.setHiddenCategoryIds(providerId, type, ids)
             }
+        prefs.entries.takeUnless { skipProviderScopedReferences }.orEmpty()
+            .filter { it.key.startsWith("pinnedCategories_") }
+            .forEach { (key, value) ->
+                val rest = key.removePrefix("pinnedCategories_").split("_")
+                if (rest.size < 2) return@forEach
+                val providerId = rest[0].toLongOrNull() ?: return@forEach
+                val type = ContentType.entries.firstOrNull { it.name == rest[1] } ?: return@forEach
+                val ids = value.split(",").mapNotNull { it.toLongOrNull() }.toSet()
+                preferencesRepository.setPinnedCategoryIds(providerId, type, ids)
+            }
+        prefs.entries.takeUnless { skipProviderScopedReferences }.orEmpty()
+            .filter { it.key.startsWith("categorySortMode_") }
+            .forEach { (key, value) ->
+                val rest = key.removePrefix("categorySortMode_").split("_")
+                if (rest.size < 2) return@forEach
+                val providerId = rest[0].toLongOrNull() ?: return@forEach
+                val type = ContentType.entries.firstOrNull { it.name == rest[1] } ?: return@forEach
+                val mode = com.streamvault.domain.model.CategorySortMode.entries
+                    .firstOrNull { it.name == value }
+                    ?: com.streamvault.domain.model.CategorySortMode.DEFAULT
+                preferencesRepository.setCategorySortMode(providerId, type, mode)
+            }
+        prefs.entries.takeUnless { skipProviderScopedReferences }.orEmpty()
+            .filter { it.key.startsWith("epgTimeShift_") }
+            .forEach { (key, value) ->
+                key.removePrefix("epgTimeShift_").toLongOrNull()?.let { providerId ->
+                    preferencesRepository.setEpgTimeShiftMinutes(providerId, value.toIntOrNull() ?: 0)
+                }
+            }
+        prefs.entries.takeUnless { skipProviderScopedReferences }.orEmpty()
+            .filter { it.key.startsWith("liveVariantSelections_") }
+            .forEach { (key, value) ->
+                val providerId = key.removePrefix("liveVariantSelections_").toLongOrNull() ?: return@forEach
+                val selections = value.lineSequence().mapNotNull { line ->
+                    val separator = line.indexOf('=')
+                    if (separator <= 0) return@mapNotNull null
+                    val logicalGroupId = line.substring(0, separator).trim()
+                    val rawChannelId = line.substring(separator + 1).trim().toLongOrNull()
+                    if (logicalGroupId.isBlank() || rawChannelId == null) null
+                    else logicalGroupId to rawChannelId
+                }.toMap()
+                preferencesRepository.replacePreferredLiveVariants(providerId, selections)
+            }
+        prefs.entries.takeUnless { skipProviderScopedReferences }.orEmpty()
+            .filter { it.key.startsWith("vodVariantSelections_") }
+            .forEach { (key, value) ->
+                val providerId = key.removePrefix("vodVariantSelections_").toLongOrNull() ?: return@forEach
+                val selections = value.lineSequence().mapNotNull { line ->
+                    val separator = line.indexOf('=')
+                    if (separator <= 0) return@mapNotNull null
+                    val logicalGroupId = line.substring(0, separator).trim()
+                    val rawItemId = line.substring(separator + 1).trim().toLongOrNull()
+                    if (logicalGroupId.isBlank() || rawItemId == null) null
+                    else logicalGroupId to rawItemId
+                }.toMap()
+                preferencesRepository.replacePreferredVodVariants(providerId, selections)
+            }
+    }
+
+    private suspend fun restoreRemoteShortcutPreferences(encoded: String) {
+        val restored = runCatching {
+            gson.fromJson(
+                encoded,
+                com.streamvault.domain.model.RemoteShortcutPreferences::class.java
+            )
+        }.getOrNull() ?: return
+        restored.selections.forEach { (profile, buttons) ->
+            buttons.forEach { (button, selection) ->
+                preferencesRepository.setRemoteShortcutSelection(profile, button, selection)
+            }
+        }
     }
 
     private suspend fun restoreRoomBackedSections(
@@ -1850,6 +2752,7 @@ class BackupManagerImpl @Inject constructor(
                 importedSections = emptyList(),
                 skippedSections = buildList {
                     add("Providers")
+                    add("Combined M3U Profiles")
                     add("Saved Library")
                     add("Playback History")
                 },
@@ -1937,7 +2840,16 @@ class BackupManagerImpl @Inject constructor(
                         ?.let { resolvedProviderId ->
                             providerDao.setActive(resolvedProviderId)
                         }
+                    backupData.combinedM3uProfiles?.let { profiles ->
+                        unresolvedReferences += restoreCombinedM3uProfiles(
+                            profiles = profiles,
+                            activeLiveSource = backupData.activeLiveSource,
+                            storedProviders = storedProviders,
+                            conflictStrategy = plan.conflictStrategy
+                        )
+                    }
                     importedSections += "Providers"
+                    if (backupData.combinedM3uProfiles != null) importedSections += "Combined M3U Profiles"
                 } ?: run { skippedSections += "Providers" }
                 backupData.epgSources?.let { sources ->
                     val dao = epgSourceDao
@@ -1964,6 +2876,7 @@ class BackupManagerImpl @Inject constructor(
                 }
             } else {
                 skippedSections += "Providers"
+                if (backupData.combinedM3uProfiles != null) skippedSections += "Combined M3U Profiles"
                 if (!backupData.epgSources.isNullOrEmpty()) skippedSections += "EPG Sources"
             }
 
@@ -2000,6 +2913,100 @@ class BackupManagerImpl @Inject constructor(
             skippedSections = skippedSections,
             unresolvedReferences = unresolvedReferences
         )
+    }
+
+    private suspend fun restoreCombinedM3uProfiles(
+        profiles: List<CombinedM3uProfileBackup>,
+        activeLiveSource: ActiveLiveSourceBackup?,
+        storedProviders: List<Provider>,
+        conflictStrategy: BackupConflictStrategy
+    ): List<String> {
+        val profileDao = combinedM3uProfileDao
+            ?: return listOf("Combined M3U profile storage is unavailable")
+        val memberDao = combinedM3uProfileMemberDao
+            ?: return listOf("Combined M3U profile member storage is unavailable")
+        val unresolved = mutableListOf<String>()
+        val restoredProfileIdsByName = linkedMapOf<String, Long>()
+        var existingProfiles = profileDao.getAll().first()
+
+        profiles.forEach { backup ->
+            val existing = existingProfiles.firstOrNull { it.name.equals(backup.name, ignoreCase = true) }
+            val profileId = if (existing != null && conflictStrategy == BackupConflictStrategy.KEEP_EXISTING) {
+                existing.id
+            } else {
+                val now = System.currentTimeMillis()
+                val entity = CombinedM3uProfileEntity(
+                    id = existing?.id ?: 0L,
+                    name = backup.name,
+                    enabled = backup.enabled,
+                    createdAt = backup.createdAt.takeIf { it > 0L } ?: existing?.createdAt ?: now,
+                    updatedAt = backup.updatedAt.takeIf { it > 0L } ?: now
+                )
+                val id = if (existing == null) profileDao.insert(entity) else {
+                    profileDao.update(entity)
+                    existing.id
+                }
+                val members = backup.members.mapNotNull { member ->
+                    val provider = storedProviders.findUnambiguousPortableProvider(member.provider)
+                    if (provider == null) {
+                        unresolved += "Combined M3U profile '${backup.name}' provider ${member.provider.serverUrl}/${member.provider.username} was not found"
+                        null
+                    } else {
+                        CombinedM3uProfileMemberEntity(
+                            profileId = id,
+                            providerId = provider.id,
+                            priority = member.priority,
+                            enabled = member.enabled
+                        )
+                    }
+                }
+                memberDao.replacePriorities(id, members)
+                id
+            }
+            restoredProfileIdsByName.putIfAbsent(backup.name.lowercase(), profileId)
+            existingProfiles = profileDao.getAll().first()
+        }
+
+        activeLiveSource?.let { source ->
+            when (source.type.lowercase()) {
+                "provider" -> {
+                    val provider = source.provider?.let { storedProviders.findUnambiguousPortableProvider(it) }
+                    if (provider == null) {
+                        unresolved += "Active live source provider was not found"
+                    } else {
+                        preferencesRepository.setActiveLiveSource(ActiveLiveSource.ProviderSource(provider.id))
+                    }
+                }
+                "combined_m3u" -> {
+                    val profilesByName = profileDao.getAll().first()
+                        .filter { profile -> profile.name.equals(source.combinedProfileName, true) }
+                    val profileByMembers = if (source.combinedProfileProviders.isEmpty()) {
+                        null
+                    } else {
+                        profilesByName.firstOrNull { profile ->
+                            val localProviders = memberDao.getForProfileSync(profile.id)
+                                .sortedWith(compareBy({ member -> member.priority }, { member -> member.id }))
+                                .mapNotNull { member ->
+                                    storedProviders.firstOrNull { provider -> provider.id == member.providerId }
+                                        ?.toBackupProviderReference()
+                                }
+                            localProviders == source.combinedProfileProviders
+                        }
+                    }
+                    val profileId = profileByMembers?.id
+                        ?: source.combinedProfileName
+                            ?.let { restoredProfileIdsByName[it.lowercase()] }
+                        ?: profilesByName.firstOrNull()?.id
+                    if (profileId == null) {
+                        unresolved += "Active combined M3U profile '${source.combinedProfileName.orEmpty()}' was not found"
+                    } else {
+                        preferencesRepository.setActiveLiveSource(ActiveLiveSource.CombinedM3uSource(profileId))
+                    }
+                }
+                else -> unresolved += "Unknown active live source type '${source.type}'"
+            }
+        }
+        return unresolved
     }
 
     private suspend fun restoreSavedLibrary(
@@ -2969,7 +3976,8 @@ private const val RESTORE_STATE_FAILED_BEFORE_COMMIT = "FAILED_BEFORE_COMMIT"
 private const val RESTORE_SNAPSHOT_PRESET_1 = "__restore_snapshot_preset_1"
 private const val RESTORE_SNAPSHOT_PRESET_2 = "__restore_snapshot_preset_2"
 private const val RESTORE_SNAPSHOT_PRESET_3 = "__restore_snapshot_preset_3"
-private const val CURRENT_BACKUP_VERSION = 11
+private const val RESTORE_SNAPSHOT_CHANNEL_PREFERENCES = "__restore_snapshot_channel_preferences"
+private const val CURRENT_BACKUP_VERSION = 12
 private const val LEGACY_NO_ACTIVE_PROVIDER_WARNING =
     "Active provider id -1 was not found during export"
 private const val FILE_URI_SCHEME = "file"
@@ -2985,8 +3993,15 @@ private val PROTECTED_CATEGORY_TYPE: Type = ProtectedCategoryBackup::class.java
 private val SCHEDULED_RECORDING_TYPE: Type = ScheduledRecordingBackup::class.java
 private val BACKUP_PROVIDER_REFERENCE_TYPE: Type = BackupProviderReference::class.java
 private val PORTABLE_CATEGORY_REFERENCE_TYPE: Type = PortableCategoryReference::class.java
+private val PORTABLE_CATEGORY_SORT_REFERENCE_TYPE: Type = PortableCategorySortReference::class.java
 private val PORTABLE_GROUP_REFERENCE_TYPE: Type = PortableVirtualGroupReference::class.java
 private val PORTABLE_CHANNEL_REFERENCE_TYPE: Type = PortableChannelReference::class.java
+private val PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE: Type = PortableChannelPreferenceReference::class.java
+private val PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE: Type = PortableEpgTimeShiftReference::class.java
+private val PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE: Type = PortableVariantSelectionReference::class.java
+private val COMBINED_M3U_PROFILE_TYPE: Type = CombinedM3uProfileBackup::class.java
+private val COMBINED_M3U_PROFILE_LIST_TYPE: Type = object : TypeToken<List<CombinedM3uProfileBackup>>() {}.type
+private val ACTIVE_LIVE_SOURCE_BACKUP_TYPE: Type = ActiveLiveSourceBackup::class.java
 private val LONG_TYPE: Type = java.lang.Long::class.java
 private val STRING_TYPE: Type = String::class.java
 private val PROVIDER_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.LegacyProvider>>() {}.type
@@ -2999,5 +4014,7 @@ private val FAVORITE_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.d
 private val VIRTUAL_GROUP_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.VirtualGroup>>() {}.type
 private val PLAYBACK_HISTORY_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.PlaybackHistory>>() {}.type
 private val MULTIVIEW_PRESETS_TYPE: Type = object : TypeToken<Map<String, List<Long>>>() {}.type
+private val PORTABLE_MULTIVIEW_PRESETS_TYPE: Type = object : TypeToken<Map<String, List<PortableChannelReference>>>() {}.type
 private val PROTECTED_CATEGORY_LIST_TYPE: Type = object : TypeToken<List<ProtectedCategoryBackup>>() {}.type
 private val SCHEDULED_RECORDING_LIST_TYPE: Type = object : TypeToken<List<ScheduledRecordingBackup>>() {}.type
+private val CHANNEL_PREFERENCE_ENTITY_LIST_TYPE: Type = object : TypeToken<List<ChannelPreferenceEntity>>() {}.type

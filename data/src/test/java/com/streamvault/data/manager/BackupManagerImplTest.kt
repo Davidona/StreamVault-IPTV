@@ -34,14 +34,19 @@ import com.streamvault.data.provider.toProviderSnapshot
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.manager.BackupData
+import com.streamvault.domain.manager.ActiveLiveSourceBackup
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupRestoreOutcome
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.PortableCategoryReference
+import com.streamvault.domain.manager.PortableCategorySortReference
 import com.streamvault.domain.manager.PortableChannelReference
+import com.streamvault.domain.manager.PortableEpgTimeShiftReference
 import com.streamvault.domain.manager.PortableProviderPreferencesBackup
 import com.streamvault.domain.manager.PortableVirtualGroupReference
+import com.streamvault.domain.manager.CombinedM3uProfileBackup
+import com.streamvault.domain.manager.CombinedM3uProfileMemberBackup
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.manager.RecordingScheduleImportDisposition
@@ -92,11 +97,11 @@ class BackupManagerImplTest {
 
     @Test
     fun `release obfuscated backup fields remain importable`() = runBlocking {
-        val payload = """{"version":11,"portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[]}}"""
+        val payload = """{"version":12,"portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[{"a":{"a":"https://example.com","b":"user"},"b":"News","c":"LIVE","d":50}],"j":true,"k":[{"a":{"a":"https://example.com","b":"user"},"b":"LIVE","c":"TITLE_ASC"}],"l":true,"m":[{"a":{"a":"https://example.com","b":"user"},"b":30}],"n":true,"o":[{"a":{"a":"https://example.com","b":"user"},"b":"news","c":400}],"p":true,"q":[{"a":{"a":"https://example.com","b":"user"},"b":"movie","c":401}],"r":true,"s":[],"t":[{"a":{"a":{"a":"https://example.com","b":"user"},"b":400,"c":"News","d":"https://example.com/news"},"b":"FIT","c":125}],"u":true}}"""
         val checksum = "sha256:" + MessageDigest.getInstance("SHA-256")
             .digest(payload.toByteArray())
             .joinToString(separator = "") { "%02x".format(it) }
-        val json = """{"version":11,"checksum":"$checksum","portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[]}}"""
+        val json = """{"version":12,"checksum":"$checksum","portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[{"a":{"a":"https://example.com","b":"user"},"b":"News","c":"LIVE","d":50}],"j":true,"k":[{"a":{"a":"https://example.com","b":"user"},"b":"LIVE","c":"TITLE_ASC"}],"l":true,"m":[{"a":{"a":"https://example.com","b":"user"},"b":30}],"n":true,"o":[{"a":{"a":"https://example.com","b":"user"},"b":"news","c":400}],"p":true,"q":[{"a":{"a":"https://example.com","b":"user"},"b":"movie","c":401}],"r":true,"s":[],"t":[{"a":{"a":{"a":"https://example.com","b":"user"},"b":400,"c":"News","d":"https://example.com/news"},"b":"FIT","c":125}],"u":true}}"""
         val context: Context = mock()
         val contentResolver: ContentResolver = mock()
         val uriString = "content://obfuscated-backup"
@@ -115,6 +120,20 @@ class BackupManagerImplTest {
             .isEqualTo("https://example.com")
         assertThat(data.portableProviderPreferences?.providers?.single()?.username)
             .isEqualTo("user")
+        assertThat(data.portableProviderPreferences?.pinnedCategories?.single()?.name)
+            .isEqualTo("News")
+        assertThat(data.portableProviderPreferences?.categorySortModes?.single()?.mode)
+            .isEqualTo("TITLE_ASC")
+        assertThat(data.portableProviderPreferences?.epgTimeShifts?.single()?.minutes)
+            .isEqualTo(30)
+        assertThat(data.portableProviderPreferences?.liveVariantSelections?.single()?.rawItemId)
+            .isEqualTo(400L)
+        assertThat(data.portableProviderPreferences?.vodVariantSelections?.single()?.rawItemId)
+            .isEqualTo(401L)
+        assertThat(data.portableProviderPreferences?.channelPreferences?.single()?.aspectRatio)
+            .isEqualTo("FIT")
+        assertThat(data.portableProviderPreferences?.channelPreferences?.single()?.audioVideoOffsetMs)
+            .isEqualTo(125)
 
         val verifyMethod = BackupManagerImpl::class.java
             .getDeclaredMethod("verifyChecksum", parsed::class.java)
@@ -282,7 +301,7 @@ class BackupManagerImplTest {
     fun `inspectBackup rejects unsupported version before reading sections`() = runBlocking {
         val error = inspectAdmissionFailure(
             "unsupported-version",
-            """{"version":12,"preferences":{"value":"${"x".repeat(8_193)}"}}"""
+            """{"version":13,"preferences":{"value":"${"x".repeat(8_193)}"}}"""
         )
 
         assertThat(error.reason).isEqualTo(BackupAdmissionReason.UNSUPPORTED_VERSION)
@@ -1428,6 +1447,18 @@ class BackupManagerImplTest {
         whenever(preferencesRepository.getHiddenCategoryIds(eq(provider.id), any())).thenReturn(flowOf(emptySet()))
         whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE))
             .thenReturn(flowOf(setOf(category.id)))
+        whenever(preferencesRepository.getPinnedCategoryIds(eq(provider.id), any()))
+            .thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.LIVE))
+            .thenReturn(flowOf(setOf(category.id)))
+        whenever(preferencesRepository.getCategorySortMode(eq(provider.id), any()))
+            .thenReturn(flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT))
+        whenever(preferencesRepository.epgTimeShiftsByProvider)
+            .thenReturn(flowOf(mapOf(provider.id to 30)))
+        whenever(preferencesRepository.liveVariantSelections)
+            .thenReturn(flowOf(mapOf("${provider.id}|news" to 400L)))
+        whenever(preferencesRepository.vodVariantSelections)
+            .thenReturn(flowOf(mapOf("${provider.id}|movie" to 401L)))
         whenever(categoryRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(category)))
         whenever(virtualGroupDao.getById(60L)).thenReturn(
             VirtualGroupEntity(
@@ -1464,6 +1495,12 @@ class BackupManagerImplTest {
         assertThat(portable.hiddenChannels.single().streamId).isEqualTo(400L)
         assertThat(portable.hiddenChannels.single().name).isEqualTo("World News")
         assertThat(portable.hiddenCategories.single().remoteCategoryId).isEqualTo(50L)
+        assertThat(portable.pinnedCategories.single().remoteCategoryId).isEqualTo(50L)
+        assertThat(portable.pinnedCategoriesSpecified).isTrue()
+        assertThat(portable.epgTimeShifts.single().minutes).isEqualTo(30)
+        assertThat(portable.epgTimeShiftsSpecified).isTrue()
+        assertThat(portable.liveVariantSelections.single().logicalGroupId).isEqualTo("news")
+        assertThat(portable.vodVariantSelections.single().rawItemId).isEqualTo(401L)
         assertThat(portable.unresolvedReferences).isEmpty()
     }
 
@@ -1617,7 +1654,33 @@ class BackupManagerImplTest {
             ),
             hiddenCategories = listOf(
                 PortableCategoryReference(providerReference, "News", ContentType.LIVE, 50L)
-            )
+            ),
+            pinnedCategories = listOf(
+                PortableCategoryReference(providerReference, "News", ContentType.LIVE, 50L)
+            ),
+            pinnedCategoriesSpecified = true,
+            categorySortModes = listOf(
+                PortableCategorySortReference(providerReference, ContentType.LIVE, "TITLE_ASC")
+            ),
+            categorySortModesSpecified = true,
+            epgTimeShifts = listOf(PortableEpgTimeShiftReference(providerReference, 30)),
+            epgTimeShiftsSpecified = true,
+            liveVariantSelections = listOf(
+                com.streamvault.domain.manager.PortableVariantSelectionReference(
+                    providerReference,
+                    "news",
+                    400L
+                )
+            ),
+            liveVariantSelectionsSpecified = true,
+            vodVariantSelections = listOf(
+                com.streamvault.domain.manager.PortableVariantSelectionReference(
+                    providerReference,
+                    "movie",
+                    401L
+                )
+            ),
+            vodVariantSelectionsSpecified = true
         )
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
@@ -1658,7 +1721,22 @@ class BackupManagerImplTest {
                             "hiddenChannels_2" to "40",
                             "hiddenCategories_2_LIVE" to "50"
                         ),
-                        portableProviderPreferences = portable
+                        portableProviderPreferences = portable,
+                        combinedM3uProfiles = listOf(
+                            CombinedM3uProfileBackup(
+                                name = "All Playlists",
+                                members = listOf(
+                                    CombinedM3uProfileMemberBackup(
+                                        provider = providerReference,
+                                        priority = 0
+                                    )
+                                )
+                            )
+                        ),
+                        activeLiveSource = ActiveLiveSourceBackup(
+                            type = "provider",
+                            provider = providerReference
+                        )
                     )
                 ).toByteArray()
             )
@@ -1677,11 +1755,21 @@ class BackupManagerImplTest {
         val imported = (result as Result.Success).data
         assertThat(imported.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
         assertThat(imported.unresolvedReferences).isEmpty()
+        assertThat(imported.skippedSections).contains("Combined M3U Profiles")
         verify(preferencesRepository).setLastActiveProviderId(7L)
         verify(preferencesRepository).setGuideDefaultCategoryId(150L)
         verify(preferencesRepository).setPromotedLiveGroupIds(setOf(160L))
         verify(preferencesRepository).setHiddenChannelIds(7L, setOf(140L))
         verify(preferencesRepository).setHiddenCategoryIds(7L, ContentType.LIVE, setOf(150L))
+        verify(preferencesRepository).setPinnedCategoryIds(7L, ContentType.LIVE, setOf(150L))
+        verify(preferencesRepository).setCategorySortMode(
+            7L,
+            ContentType.LIVE,
+            com.streamvault.domain.model.CategorySortMode.TITLE_ASC
+        )
+        verify(preferencesRepository).setEpgTimeShiftMinutes(7L, 30)
+        verify(preferencesRepository).replacePreferredLiveVariants(7L, mapOf("news" to 400L))
+        verify(preferencesRepository).replacePreferredVodVariants(7L, mapOf("movie" to 401L))
         verify(preferencesRepository, never()).setHiddenChannelIds(2L, setOf(40L))
     }
 

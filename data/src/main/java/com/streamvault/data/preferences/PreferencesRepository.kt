@@ -2075,6 +2075,67 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun replacePreferredVodVariants(
+        providerId: Long,
+        selections: Map<String, Long>
+    ) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { preferences ->
+            val updated = decodeVodVariantSelections(preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS])
+                .toMutableMap()
+            val providerPrefix = "$providerId|"
+            updated.keys.removeAll { it.startsWith(providerPrefix) }
+            selections.forEach { (logicalGroupId, rawItemId) ->
+                if (logicalGroupId.isNotBlank() && rawItemId > 0L) {
+                    updated[vodVariantSelectionKey(providerId, logicalGroupId)] = rawItemId
+                }
+            }
+            if (updated.isEmpty()) {
+                preferences.remove(PreferencesKeys.VOD_VARIANT_SELECTIONS)
+            } else {
+                preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS] = encodeVodVariantSelections(updated)
+            }
+        }
+    }
+
+    suspend fun replacePreferredLiveVariants(
+        providerId: Long,
+        selections: Map<String, Long>
+    ) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { preferences ->
+            val updated = decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS])
+                .toMutableMap()
+            val providerPrefix = "$providerId|"
+            updated.keys.removeAll { it.startsWith(providerPrefix) }
+            selections.forEach { (logicalGroupId, rawChannelId) ->
+                if (logicalGroupId.isNotBlank() && rawChannelId > 0L) {
+                    updated[liveVariantSelectionKey(providerId, logicalGroupId)] = rawChannelId
+                }
+            }
+            if (updated.isEmpty()) {
+                preferences.remove(PreferencesKeys.LIVE_VARIANT_SELECTIONS)
+            } else {
+                preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS] = encodeLiveVariantSelections(updated)
+            }
+        }
+    }
+
+    suspend fun setPinnedCategoryIds(
+        providerId: Long,
+        type: ContentType,
+        categoryIds: Set<Long>
+    ) {
+        val key = stringPreferencesKey(pinnedCategoriesKey(providerId, type))
+        context.dataStore.edit { preferences ->
+            if (categoryIds.isEmpty()) {
+                preferences.remove(key)
+            } else {
+                preferences[key] = categoryIds.sorted().joinToString(",")
+            }
+        }
+    }
+
     fun getCategorySortMode(providerId: Long, type: ContentType): Flow<CategorySortMode> {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
         return context.dataStore.data.map { preferences ->

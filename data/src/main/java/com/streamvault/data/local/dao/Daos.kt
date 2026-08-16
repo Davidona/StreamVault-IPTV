@@ -666,6 +666,9 @@ abstract class ChannelDao {
 
 @Dao
 interface ChannelPreferenceDao {
+    @Query("SELECT * FROM channel_preferences")
+    suspend fun getAllSync(): List<ChannelPreferenceEntity>
+
     @Query("SELECT aspect_ratio FROM channel_preferences WHERE channel_id = :channelId LIMIT 1")
     fun observeAspectRatio(channelId: Long): Flow<String?>
 

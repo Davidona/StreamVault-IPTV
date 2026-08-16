@@ -14,7 +14,7 @@ import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.model.JellyfinConfig
 
 data class BackupData(
-    val version: Int = 11,
+    val version: Int = 12,
     val checksum: String? = null,
     val preferences: Map<String, String>? = null,
     val providers: List<Provider>? = null,
@@ -26,10 +26,15 @@ data class BackupData(
     val virtualGroups: List<com.streamvault.domain.model.VirtualGroup>? = null,
     val playbackHistory: List<PlaybackHistory>? = null,
     val multiViewPresets: Map<String, List<Long>>? = null,
+    val portableMultiViewPresets: Map<String, List<PortableChannelReference>>? = null,
     val protectedCategories: List<ProtectedCategoryBackup>? = null,
     val scheduledRecordings: List<ScheduledRecordingBackup>? = null,
     val portableProviderPreferences: PortableProviderPreferencesBackup? = null,
-    val epgSources: List<com.streamvault.domain.model.EpgSource>? = null
+    val epgSources: List<com.streamvault.domain.model.EpgSource>? = null,
+    /** User-created combined M3U sources, represented by portable provider identities. */
+    val combinedM3uProfiles: List<CombinedM3uProfileBackup>? = null,
+    /** The selected live source, represented without local provider/profile IDs. */
+    val activeLiveSource: ActiveLiveSourceBackup? = null
 )
 
 data class ProviderBackupSnapshot(
@@ -59,7 +64,25 @@ data class PortableProviderPreferencesBackup(
     val promotedLiveGroups: List<PortableVirtualGroupReference> = emptyList(),
     val hiddenChannels: List<PortableChannelReference> = emptyList(),
     val hiddenCategories: List<PortableCategoryReference> = emptyList(),
-    val unresolvedReferences: List<String> = emptyList()
+    /** Categories explicitly pinned by the user, resolved by provider identity on import. */
+    val pinnedCategories: List<PortableCategoryReference> = emptyList(),
+    val pinnedCategoriesSpecified: Boolean = false,
+    /** Per-provider category ordering choices, resolved by provider identity on import. */
+    val categorySortModes: List<PortableCategorySortReference> = emptyList(),
+    val categorySortModesSpecified: Boolean = false,
+    /** Per-provider EPG time corrections, resolved by provider identity on import. */
+    val epgTimeShifts: List<PortableEpgTimeShiftReference> = emptyList(),
+    val epgTimeShiftsSpecified: Boolean = false,
+    /** Explicit live alternate-stream selections made by the user. */
+    val liveVariantSelections: List<PortableVariantSelectionReference> = emptyList(),
+    val liveVariantSelectionsSpecified: Boolean = false,
+    /** Explicit movie/series alternate-stream selections made by the user. */
+    val vodVariantSelections: List<PortableVariantSelectionReference> = emptyList(),
+    val vodVariantSelectionsSpecified: Boolean = false,
+    val unresolvedReferences: List<String> = emptyList(),
+    /** Per-channel playback choices, resolved through portable channel identity on import. */
+    val channelPreferences: List<PortableChannelPreferenceReference> = emptyList(),
+    val channelPreferencesSpecified: Boolean = false
 )
 
 data class BackupProviderReference(
@@ -86,6 +109,51 @@ data class PortableChannelReference(
     val streamId: Long,
     val name: String,
     val streamUrl: String
+)
+
+data class PortableChannelPreferenceReference(
+    val channel: PortableChannelReference,
+    val aspectRatio: String? = null,
+    val audioVideoOffsetMs: Int? = null
+)
+
+data class PortableCategorySortReference(
+    val provider: BackupProviderReference,
+    val type: ContentType,
+    val mode: String
+)
+
+data class PortableEpgTimeShiftReference(
+    val provider: BackupProviderReference,
+    val minutes: Int
+)
+
+data class PortableVariantSelectionReference(
+    val provider: BackupProviderReference,
+    val logicalGroupId: String,
+    val rawItemId: Long
+)
+
+data class CombinedM3uProfileBackup(
+    val name: String,
+    val enabled: Boolean = true,
+    val members: List<CombinedM3uProfileMemberBackup> = emptyList(),
+    val createdAt: Long = 0L,
+    val updatedAt: Long = 0L
+)
+
+data class CombinedM3uProfileMemberBackup(
+    val provider: BackupProviderReference,
+    val priority: Int,
+    val enabled: Boolean = true
+)
+
+data class ActiveLiveSourceBackup(
+    val type: String,
+    val provider: BackupProviderReference? = null,
+    val combinedProfileName: String? = null,
+    /** Ordered provider identities disambiguate duplicate combined-profile names. */
+    val combinedProfileProviders: List<BackupProviderReference> = emptyList()
 )
 
 data class ProtectedCategoryBackup(
