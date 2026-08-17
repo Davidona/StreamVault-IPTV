@@ -8,6 +8,13 @@ compose-tv-foundation = "1.0.0-beta01"
 # Pinned intentionally; stable as of 2026-03-18, update only after TV regression testing.
 # Remaining experimental TV Material usage is limited to FilterChip in SearchScreen.
 compose-tv-material = "1.0.1"
+benchmark = "1.4.1"
+uiautomator = "2.3.0"
+arch-core = "2.2.0"
+profileinstaller = "1.4.1"
+startup-runtime = "1.1.1"
+errorprone-annotations = "2.36.0"
+tracing = "1.2.0"
 media3 = "1.9.2"
 room = "2.8.4"
 hilt = "2.56.2"
@@ -42,6 +49,7 @@ espresso = "3.6.1"
 androidx-test-runner = "1.6.2"
 
 [libraries]
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -122,6 +130,14 @@ play-services-cast-framework = { group = "com.google.android.gms", name = "play-
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
 
 # Test
+benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
+uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+arch-core-common = { group = "androidx.arch.core", name = "core-common", version.ref = "arch-core" }
+arch-core-runtime = { group = "androidx.arch.core", name = "core-runtime", version.ref = "arch-core" }
+profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup-runtime" }
+errorprone-annotations = { group = "com.google.errorprone", name = "error_prone_annotations", version.ref = "errorprone-annotations" }
+tracing = { group = "androidx.tracing", name = "tracing", version.ref = "tracing" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
@@ -134,6 +150,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

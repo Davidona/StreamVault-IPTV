@@ -119,6 +119,16 @@ android {
             }
             matchingFallbacks += listOf("release")
         }
+        create("benchmark") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            matchingFallbacks += listOf("release")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

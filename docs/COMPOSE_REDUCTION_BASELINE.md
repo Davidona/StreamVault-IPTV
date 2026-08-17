@@ -1,6 +1,6 @@
 # Compose Reduction Baseline
 
-Date: 2026-08-15  
+Date: 2026-08-16
 Repository state: existing user changes in `gradle.properties` and `player/build.gradle.kts` were preserved  
 Purpose: Phase 0 baseline for UI architecture and Compose reduction work
 
@@ -14,7 +14,44 @@ Verification after the extraction:
 - `graphify update .` — passed; graph refreshed to 12,893 nodes and 24,601 edges.
 - `:app:testDebugUnitTest` — passed after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. Existing coroutine opt-in warnings remain.
 
-This document records the first build and Compose compiler measurements before any feature UI refactoring. The numbers are directional until repeated with Gradle Profiler and runtime benchmarks.
+This document records the Phase 0 baseline and the first Phase 1 source decomposition. Phase 0 is complete for the available emulator/development environment; physical-device and provider-auth limitations are recorded below.
+
+## Phase 0 completion measurements
+
+Validation environment:
+
+- SDK: `E:\androidSdk`
+- Emulator: `emulator-5554`, `AOSP_TV_on_x86`, 1920x1080, API 36
+- Release-like benchmark target: `com.streamvault.app`, non-debuggable `benchmark` build type
+- Seeded interaction fixture: `com.streamvault.app.debug`
+
+### Repeated builds
+
+| Scenario | Runs (seconds) | Result |
+|---|---:|---|
+| Warm `:app:assembleDebug --no-daemon` | 286.610, 12.046, 11.673, 11.445, 11.692 | Passed; run 1 included variant/configuration work, subsequent runs were stable |
+| Touch `PlayerScreen.kt` + `:app:compileDebugKotlin --no-daemon` | 19.671, 9.334, 9.428, 9.447, 9.396 | Passed; four stable incremental runs were about 9.3–9.4s |
+
+### Runtime benchmark and artifacts
+
+- Macrobenchmark module builds and installs successfully.
+- Release-like cold startup: 5 iterations, median `975.8 ms`, min `888.4 ms`, max `1,487.6 ms` on the emulator. Android reported the expected emulator warning; do not use this as a physical-device target.
+- Seeded interaction journeys: dashboard scroll, Live TV navigation, EPG navigation, player-controls navigation, and settings navigation all completed 5 iterations. Dashboard diagnostic snapshot: median 87 frames, P50 frame overrun 9.5 ms, P90 27.4 ms, P99 79.2 ms.
+- Release APK: `18,138,676` bytes; 3 dex files totaling `14,015,356` bytes.
+- Release cold `am start -W`: `648 ms` on the same emulator.
+- Release-like process memory after 5 seconds: `91,441 kB` total PSS.
+- Seeded debug process memory after 5 seconds: `265,167 kB` total PSS. This is diagnostic only and includes debug/runtime overhead.
+
+### Live TV long-run evidence
+
+Each channel used 61 screenshots at a 2-second cadence (120 seconds nominal), with SHA-256 frame-hash progression checked.
+
+| Channel | Frames | Unique hashes | Final media session | Result |
+|---|---:|---:|---|---|
+| F1 Channel | 61 | 32 | `ERROR`, `Source error` | Failed after initially rendering video; sanitized logs show provider HTTP 403 and no recovery candidate |
+| US CBSN New York (D) | 61 | 61 | `PLAYING`, `error=null` | Passed; no fatal/stuck-player error observed |
+
+The F1 result is an external stream/authentication failure, not evidence of a Compose regression. Full multi-channel playback validation remains required after playback-facing Phase 1 changes.
 
 ## Build baseline
 

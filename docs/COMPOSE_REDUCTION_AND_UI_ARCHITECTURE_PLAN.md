@@ -7,9 +7,9 @@ Scope: Android application UI, navigation, build structure, and UI-facing module
 
 ## Current execution state
 
-Phase 0 is partially complete. The build and Compose compiler baseline is recorded in [`COMPOSE_REDUCTION_BASELINE.md`](COMPOSE_REDUCTION_BASELINE.md), and the Compose compiler diagnostic outputs are now generated under `app/build/reports/compose-compiler/`.
+Phase 0 is complete for the available development environment. The build, artifact, memory, Compose compiler, Macrobenchmark, and live-playback baseline is recorded in [`COMPOSE_REDUCTION_BASELINE.md`](COMPOSE_REDUCTION_BASELINE.md), and the Compose compiler diagnostic outputs are generated under `app/build/reports/compose-compiler/`. Physical-device measurements and a stable provider stream are explicitly listed as follow-up limitations, not treated as successful release-quality measurements.
 
-The first Phase 1 refactor has also started: `PlayerControlsOverlayHost` was moved out of `PlayerScreen.kt` into its own file without changing its parameters, callbacks, routes, or playback behavior. This reduced `PlayerScreen.kt` from 1,561 to 1,432 lines. `:app:compileDebugKotlin` passes after the extraction.
+The first Phase 1 refactor has also started: `PlayerControlsOverlayHost` was moved out of `PlayerScreen.kt` into its own file without changing its parameters, callbacks, routes, or playback behavior. The player Back-navigation priority is now also isolated in the platform-free `PlayerBackNavigationPolicy`, with focused unit tests. Android lifecycle, Picture-in-Picture cleanup, and keep-screen-on effects are now isolated in `PlayerLifecycleHost` while preserving the original effect keys and callback order. These changes reduced the root screen's coordination responsibilities while preserving the existing callback behavior. `:app:compileDebugKotlin` and the app unit-test suite pass.
 
 The full `:app:testDebugUnitTest` task now passes after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. No production behavior was changed; existing coroutine opt-in warnings remain.
 
@@ -707,6 +707,8 @@ Exit criteria:
 - Debug-only Compose overhead is not used to judge release runtime.
 - The team agrees on baseline-relative targets in Section 13.
 
+Phase 0 execution outcome (2026-08-16): the five-run build repeatability checks, five-iteration release-like cold-start benchmark, five-iteration interaction journeys, release APK/dex snapshot, emulator memory snapshot, and two-channel long-duration playback evidence are recorded in `COMPOSE_REDUCTION_BASELINE.md`. Macrobenchmark interaction journeys use the seeded debug fixture because the release-like benchmark target has no provider data; those results are diagnostic only. The CBSN channel completed the full playback window, while the F1 channel received an external HTTP 403 after initially rendering video. Full playback validation therefore remains a Phase 1 gate for playback-facing changes.
+
 ### Phase 1 - Source decomposition without behavior change
 
 Purpose: make later changes reviewable and lower merge risk.
@@ -1031,10 +1033,12 @@ The modernization is complete when:
 - [x] Capture initial clean-task-graph and warm Gradle baselines. See `docs/COMPOSE_REDUCTION_BASELINE.md`.
 - [x] Add Compose compiler reports and inspect player/provider stability output. See `docs/COMPOSE_REDUCTION_BASELINE.md`.
 - [x] Complete the first no-behavior-change slice by extracting `PlayerControlsOverlayHost`.
+- [x] Extract and unit-test the player Back-navigation priority policy without changing event handling.
+- [x] Extract player lifecycle/window effects into `PlayerLifecycleHost` without changing effect keys or callbacks.
 - [ ] Run a manual app smoke test for player launch, controls, remote/back handling, seeking, and overlay actions.
 - [ ] Run full multi-channel Live TV validation before marking the player phase complete.
-- [ ] Add or define the Macrobenchmark module and constrained-device benchmark flows.
-- [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition.
+- [x] Add or define the Macrobenchmark module and constrained-device benchmark flows.
+- [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition after the manual smoke test.
 - [ ] Create the second no-behavior-change PR for `ProviderSetupScreen` decomposition.
 - [ ] Revisit the initial success targets after baseline data is available.
 

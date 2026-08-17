@@ -2,14 +2,12 @@ package com.streamvault.app.ui.screens.player
 
 import android.app.Activity
 import android.view.KeyEvent
-import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -74,7 +72,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import com.streamvault.app.ui.components.dialogs.ProgramHistoryDialog
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.Lifecycle
 import com.streamvault.app.R
 import com.streamvault.app.MainActivity
 import com.streamvault.app.cast.CastConnectionState
@@ -239,7 +236,6 @@ fun PlayerScreen(
     val channelInfoFocusRequester = remember { FocusRequester() }
     val layoutDirection = LocalLayoutDirection.current
     val isRtl = layoutDirection == LayoutDirection.Rtl
-    val currentPictureInPictureMode by rememberUpdatedState(isInPictureInPictureMode)
     val enterPictureInPicture = remember(mainActivity) {
         {
             mainActivity?.enterPlayerPictureInPictureModeFromPlayer()
@@ -277,49 +273,15 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(isInPictureInPictureMode) {
-        if (isInPictureInPictureMode) {
-            viewModel.closeOverlays()
-            if (showControls) {
-                viewModel.toggleControls()
-            }
-        }
-    }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_START) {
-        viewModel.onAppForegrounded()
-    }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-        if (currentPictureInPictureMode) {
-            viewModel.closeOverlays()
-        } else {
-            viewModel.onAppBackgrounded()
-        }
-    }
-
-    DisposableEffect(mainActivity) {
-        onDispose {
-            mainActivity?.clearPlayerPictureInPictureState()
-            viewModel.onPlayerScreenDisposed()
-        }
-    }
-
-    // Prevent screen from sleeping during active playback
-    val playerWindow = mainActivity?.window
-    DisposableEffect(Unit) {
-        onDispose { playerWindow?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
-    }
-    LaunchedEffect(preventStandbyDuringPlayback, isPlaying, playbackState) {
-        if (preventStandbyDuringPlayback) {
-            // Keep screen always on while in player — prevents TV OS standby nag
-            playerWindow?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else if (isPlaying || playbackState == PlaybackState.BUFFERING) {
-            playerWindow?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else {
-            playerWindow?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
+    PlayerLifecycleHost(
+        mainActivity = mainActivity,
+        playbackState = playbackState,
+        isPlaying = isPlaying,
+        isInPictureInPictureMode = isInPictureInPictureMode,
+        showControls = showControls,
+        preventStandbyDuringPlayback = preventStandbyDuringPlayback,
+        viewModel = viewModel
+    )
 
     // Consolidated focus management for all overlays
     val liveOverlayVisible = contentType == "LIVE" && (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay)
@@ -513,30 +475,53 @@ fun PlayerScreen(
         showCategoryListOverlay,
         showEpgOverlay,
         showControls,
-        numericChannelInput
+        numericChannelInput,
+        onBack,
+        viewModel
     ) {
         {
-            when {
-                viewModel.hasPendingNumericChannelInput() -> viewModel.clearNumericChannelInput()
-                autoPlayCountdown != null -> viewModel.cancelAutoPlay()
-                playerNotice != null -> viewModel.dismissPlayerNotice()
-                showProgramHistory -> showProgramHistory = false
-                showSplitDialog -> showSplitDialog = false
-                showEpisodePicker -> showEpisodePicker = false
-                showSpeedSelection -> showSpeedSelection = false
-                showAudioVideoOffsetDialog -> {
+            when (playerBackAction(
+                PlayerBackNavigationState(
+                    hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
+                    hasAutoPlayCountdown = autoPlayCountdown != null,
+                    hasPlayerNotice = playerNotice != null,
+                    showProgramHistory = showProgramHistory,
+                    showSplitDialog = showSplitDialog,
+                    showEpisodePicker = showEpisodePicker,
+                    showSpeedSelection = showSpeedSelection,
+                    showAudioVideoOffsetDialog = showAudioVideoOffsetDialog,
+                    showStopPlaybackTimerDialog = showStopPlaybackTimerDialog,
+                    showIdleStandbyTimerDialog = showIdleStandbyTimerDialog,
+                    hasTrackSelection = showTrackSelection != null,
+                    showVariantSelection = showVariantSelection,
+                    showDiagnostics = showDiagnostics,
+                    showChannelInfoOverlay = showChannelInfoOverlay,
+                    showChannelListOverlay = showChannelListOverlay,
+                    showCategoryListOverlay = showCategoryListOverlay,
+                    showEpgOverlay = showEpgOverlay,
+                    showControls = showControls
+                )
+            )) {
+                PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT -> viewModel.clearNumericChannelInput()
+                PlayerBackAction.CANCEL_AUTO_PLAY -> viewModel.cancelAutoPlay()
+                PlayerBackAction.DISMISS_PLAYER_NOTICE -> viewModel.dismissPlayerNotice()
+                PlayerBackAction.CLOSE_PROGRAM_HISTORY -> showProgramHistory = false
+                PlayerBackAction.CLOSE_SPLIT_DIALOG -> showSplitDialog = false
+                PlayerBackAction.CLOSE_EPISODE_PICKER -> showEpisodePicker = false
+                PlayerBackAction.CLOSE_SPEED_SELECTION -> showSpeedSelection = false
+                PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG -> {
                     showAudioVideoOffsetDialog = false
                     viewModel.dismissAudioVideoOffsetPreview()
                 }
-                showStopPlaybackTimerDialog -> showStopPlaybackTimerDialog = false
-                showIdleStandbyTimerDialog -> showIdleStandbyTimerDialog = false
-                showVariantSelection -> showVariantSelection = false
-                showTrackSelection != null -> showTrackSelection = null
-                showDiagnostics -> viewModel.toggleDiagnostics()
-                showChannelInfoOverlay -> viewModel.closeChannelInfoOverlay()
-                showChannelListOverlay || showCategoryListOverlay || showEpgOverlay -> viewModel.closeOverlays()
-                showControls -> viewModel.toggleControls()
-                else -> onBack()
+                PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER -> showStopPlaybackTimerDialog = false
+                PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> showIdleStandbyTimerDialog = false
+                PlayerBackAction.CLOSE_VARIANT_SELECTION -> showVariantSelection = false
+                PlayerBackAction.CLOSE_TRACK_SELECTION -> showTrackSelection = null
+                PlayerBackAction.TOGGLE_DIAGNOSTICS -> viewModel.toggleDiagnostics()
+                PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
+                PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
+                PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
+                PlayerBackAction.NAVIGATE_BACK -> onBack()
             }
         }
     }
