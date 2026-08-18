@@ -70,7 +70,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import com.streamvault.app.ui.components.dialogs.ProgramHistoryDialog
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.app.MainActivity
@@ -79,26 +78,18 @@ import com.streamvault.app.ui.components.PlayerRenderView
 import com.streamvault.app.ui.design.requestFocusSafely
 import com.streamvault.app.ui.notifications.rememberNotificationPermissionGate
 import com.streamvault.app.ui.screens.player.overlay.ChannelInfoOverlay
-import com.streamvault.app.ui.screens.player.overlay.ChannelVariantSelectionDialog
 import com.streamvault.app.ui.screens.player.overlay.CategoryListOverlay
 import com.streamvault.app.ui.screens.player.overlay.ChannelListOverlay
 import com.streamvault.app.ui.screens.player.overlay.DiagnosticsOverlay
 import com.streamvault.app.ui.screens.player.overlay.EpgOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerErrorOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerNoticeBanner
-import com.streamvault.app.ui.screens.player.overlay.PlayerEpisodeSelectionDialog
 import com.streamvault.app.ui.screens.player.overlay.PlayerResumePrompt
-import com.streamvault.app.ui.screens.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.app.ui.screens.player.overlay.PlayerAspectRatioToast
 import com.streamvault.app.ui.screens.player.overlay.PlayerNumericInputOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerResolutionBadge
-import com.streamvault.app.ui.screens.player.overlay.PlayerAudioVideoOffsetDialog
-import com.streamvault.app.ui.screens.player.overlay.PlayerSpeedSelectionDialog
-import com.streamvault.app.ui.screens.player.overlay.PlayerSleepTimerDialog
 import com.streamvault.app.ui.screens.player.overlay.PlayerSleepTimerWarningOverlay
 import com.streamvault.app.ui.screens.player.overlay.NextEpisodeCountdownOverlay
-import com.streamvault.app.ui.screens.multiview.MultiViewViewModel
-import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
 import com.streamvault.app.navigation.Routes
 
 
@@ -343,31 +334,24 @@ fun PlayerScreen(
         viewModel.recordLiveVariantObservation(playbackState, videoFormat)
     }
 
-    if (!isInPictureInPictureMode && showProgramHistory) {
-        ProgramHistoryDialog(
-            programs = programHistory,
-            onDismiss = { showProgramHistory = false },
-            onProgramSelect = { program ->
-                viewModel.playCatchUp(program)
-                showProgramHistory = false
-            }
-        )
-    }
-
-    // Split Screen Manager dialog
-    if (showSplitDialog && currentChannel != null) {
-        val multiViewViewModel: MultiViewViewModel = hiltViewModel()
-        MultiViewPlannerDialog(
-            pendingChannel = currentChannel,
-            onDismiss = { showSplitDialog = false },
-            onLaunch = {
-                showSplitDialog = false
-                viewModel.handOffPlaybackToMultiView()
-                onNavigate?.invoke(Routes.MULTI_VIEW)
-            },
-            viewModel = multiViewViewModel
-        )
-    }
+    PlayerTopLevelModalHost(
+        isInPictureInPictureMode = isInPictureInPictureMode,
+        showProgramHistory = showProgramHistory,
+        programHistory = programHistory,
+        onDismissProgramHistory = { showProgramHistory = false },
+        onSelectProgramHistory = { program ->
+            viewModel.playCatchUp(program)
+            showProgramHistory = false
+        },
+        showSplitDialog = showSplitDialog,
+        currentChannel = currentChannel,
+        onDismissSplitDialog = { showSplitDialog = false },
+        onLaunchMultiView = {
+            showSplitDialog = false
+            viewModel.handOffPlaybackToMultiView()
+            onNavigate?.invoke(Routes.MULTI_VIEW)
+        }
+    )
 
     val prepareIdentity = buildPlayerPrepareIdentity(
         streamUrl = streamUrl,
@@ -457,30 +441,8 @@ fun PlayerScreen(
         }
     }
 
-    val handleBackPress = remember(
-        autoPlayCountdown,
-        playerNotice,
-        showProgramHistory,
-        showSplitDialog,
-        showEpisodePicker,
-        showSpeedSelection,
-        showAudioVideoOffsetDialog,
-        showStopPlaybackTimerDialog,
-        showIdleStandbyTimerDialog,
-        showTrackSelection,
-        showVariantSelection,
-        showDiagnostics,
-        showChannelInfoOverlay,
-        showChannelListOverlay,
-        showCategoryListOverlay,
-        showEpgOverlay,
-        showControls,
-        numericChannelInput,
-        onBack,
-        viewModel
-    ) {
-        {
-            when (playerBackAction(
+    val handleBackPress: () -> Unit = {
+            when (playerBackActionAtEvent {
                 PlayerBackNavigationState(
                     hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
                     hasAutoPlayCountdown = autoPlayCountdown != null,
@@ -501,7 +463,7 @@ fun PlayerScreen(
                     showEpgOverlay = showEpgOverlay,
                     showControls = showControls
                 )
-            )) {
+            }) {
                 PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT -> viewModel.clearNumericChannelInput()
                 PlayerBackAction.CANCEL_AUTO_PLAY -> viewModel.cancelAutoPlay()
                 PlayerBackAction.DISMISS_PLAYER_NOTICE -> viewModel.dismissPlayerNotice()
@@ -523,11 +485,37 @@ fun PlayerScreen(
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
                 PlayerBackAction.NAVIGATE_BACK -> onBack()
             }
-        }
     }
 
     BackHandler(enabled = !resumePrompt.show) {
         handleBackPress()
+    }
+
+    val playerInputState = {
+        PlayerInputState(
+            contentType = contentType,
+            isCatchUpPlayback = isCatchUpPlayback,
+            isRtl = isRtl,
+            nextEpisodeCountdownVisible = nextEpisodeCountdownVisible,
+            showChannelListOverlay = showChannelListOverlay,
+            showCategoryListOverlay = showCategoryListOverlay,
+            showEpgOverlay = showEpgOverlay,
+            showChannelInfoOverlay = showChannelInfoOverlay,
+            channelInfoSubPanelOpen = channelInfoSubPanelOpen,
+            showDiagnostics = showDiagnostics,
+            showTrackSelection = showTrackSelection != null,
+            showVariantSelection = showVariantSelection,
+            showSpeedSelection = showSpeedSelection,
+            showAudioVideoOffsetDialog = showAudioVideoOffsetDialog,
+            showStopPlaybackTimerDialog = showStopPlaybackTimerDialog,
+            showIdleStandbyTimerDialog = showIdleStandbyTimerDialog,
+            showProgramHistory = showProgramHistory,
+            showSplitDialog = showSplitDialog,
+            showEpisodePicker = showEpisodePicker,
+            showControls = showControls,
+            hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
+            canOpenEpisodePicker = canOpenEpisodePicker
+        )
     }
 
     Box(
@@ -568,38 +556,19 @@ fun PlayerScreen(
                     return@onPreviewKeyEvent false
                 }
                 viewModel.notifyUserActivity()
-                if (nextEpisodeCountdownVisible) {
-                    return@onPreviewKeyEvent false
+                val decision = playerPreviewInputDecision(
+                    state = playerInputState(),
+                    key = playerInputKey(event.nativeKeyEvent)
+                )
+                if (decision.notifyLiveOverlayInteraction) {
+                    viewModel.onLiveOverlayInteraction()
                 }
-                if (contentType != "LIVE") {
-                    return@onPreviewKeyEvent false
-                }
-                if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showDiagnostics) {
-                    return@onPreviewKeyEvent false
-                }
-                if (showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog || showProgramHistory || showSplitDialog || showEpisodePicker) {
-                    return@onPreviewKeyEvent false
-                }
-                if (showChannelInfoOverlay && channelInfoSubPanelOpen) {
-                    return@onPreviewKeyEvent false
-                }
-
-                when (event.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP,
-                    KeyEvent.KEYCODE_CHANNEL_UP,
-                    KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-                        if (showChannelInfoOverlay || showDiagnostics) {
-                            viewModel.onLiveOverlayInteraction()
-                        }
+                when (decision.action) {
+                    PlayerInputAction.PlayNext -> {
                         viewModel.playNext()
                         true
                     }
-                    KeyEvent.KEYCODE_DPAD_DOWN,
-                    KeyEvent.KEYCODE_CHANNEL_DOWN,
-                    KeyEvent.KEYCODE_DPAD_DOWN_LEFT -> {
-                        if (showChannelInfoOverlay || showDiagnostics) {
-                            viewModel.onLiveOverlayInteraction()
-                        }
+                    PlayerInputAction.PlayPrevious -> {
                         viewModel.playPrevious()
                         true
                     }
@@ -607,265 +576,111 @@ fun PlayerScreen(
                 }
             }
             .onKeyEvent { event ->
-                // Only handle KeyDown to avoid double actions
-                if (event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
-                    viewModel.notifyUserActivity()
-                    if (nextEpisodeCountdownVisible) {
-                        return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
-                            KeyEvent.KEYCODE_BACK -> {
-                                viewModel.cancelAutoPlay()
-                                true
-                            }
-                            else -> true
-                        }
+                if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) {
+                    return@onKeyEvent false
+                }
+                viewModel.notifyUserActivity()
+                val decision = playerInputDecisionAtEvent(
+                    stateProvider = playerInputState,
+                    key = playerInputKey(event.nativeKeyEvent)
+                )
+                if (decision.notifyLiveOverlayInteraction) {
+                    viewModel.onLiveOverlayInteraction()
+                }
+                when (val action = decision.action) {
+                    PlayerInputAction.Pass -> false
+                    PlayerInputAction.Consume -> true
+                    PlayerInputAction.CancelAutoPlay -> {
+                        viewModel.cancelAutoPlay()
+                        true
                     }
-                    if (showTrackSelection != null || showVariantSelection || showSpeedSelection || showAudioVideoOffsetDialog || showStopPlaybackTimerDialog || showIdleStandbyTimerDialog) {
-                        if (showAudioVideoOffsetDialog) {
-                            return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_BACK -> {
-                                    showAudioVideoOffsetDialog = false
-                                    viewModel.dismissAudioVideoOffsetPreview()
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_UP,
-                                KeyEvent.KEYCODE_DPAD_DOWN,
-                                KeyEvent.KEYCODE_DPAD_LEFT,
-                                KeyEvent.KEYCODE_DPAD_RIGHT,
-                                KeyEvent.KEYCODE_DPAD_CENTER,
-                                KeyEvent.KEYCODE_ENTER,
-                                KeyEvent.KEYCODE_NUMPAD_ENTER -> false
-                                else -> true
-                            }
-                        }
-                        if (showSpeedSelection) {
-                            return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_BACK -> {
-                                    showSpeedSelection = false
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_UP,
-                                KeyEvent.KEYCODE_DPAD_DOWN,
-                                KeyEvent.KEYCODE_DPAD_LEFT,
-                                KeyEvent.KEYCODE_DPAD_RIGHT,
-                                KeyEvent.KEYCODE_DPAD_CENTER,
-                                KeyEvent.KEYCODE_ENTER,
-                                KeyEvent.KEYCODE_NUMPAD_ENTER -> false
-                                else -> true
-                            }
-                        }
-                        if (showVariantSelection) {
-                            return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
-                                KeyEvent.KEYCODE_BACK -> {
-                                    showVariantSelection = false
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_UP,
-                                KeyEvent.KEYCODE_DPAD_DOWN,
-                                KeyEvent.KEYCODE_DPAD_LEFT,
-                                KeyEvent.KEYCODE_DPAD_RIGHT,
-                                KeyEvent.KEYCODE_DPAD_CENTER,
-                                KeyEvent.KEYCODE_ENTER,
-                                KeyEvent.KEYCODE_NUMPAD_ENTER -> false
-                                else -> true
-                            }
-                        }
-                        return@onKeyEvent when (event.nativeKeyEvent.keyCode) {
-                            KeyEvent.KEYCODE_BACK -> {
-                                showStopPlaybackTimerDialog = false
-                                showIdleStandbyTimerDialog = false
-                                showTrackSelection = null
-                                true
-                            }
-                            KeyEvent.KEYCODE_DPAD_UP,
-                            KeyEvent.KEYCODE_DPAD_DOWN,
-                            KeyEvent.KEYCODE_DPAD_LEFT,
-                            KeyEvent.KEYCODE_DPAD_RIGHT,
-                            KeyEvent.KEYCODE_DPAD_CENTER,
-                            KeyEvent.KEYCODE_ENTER,
-                            KeyEvent.KEYCODE_NUMPAD_ENTER -> false
-                            else -> true
-                        }
+                    PlayerInputAction.DismissAudioVideoOffset -> {
+                        showAudioVideoOffsetDialog = false
+                        viewModel.dismissAudioVideoOffsetPreview()
+                        true
                     }
-                    when (event.nativeKeyEvent.keyCode) {
-                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                            if (showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (contentType == "LIVE" && !isCatchUpPlayback && viewModel.hasPendingNumericChannelInput()) {
-                                viewModel.commitNumericChannelInput()
-                                   true
-                            } else if (contentType == "LIVE" && !isCatchUpPlayback) {
-                                    if (showChannelInfoOverlay) viewModel.closeChannelInfoOverlay()
-                                    else viewModel.openChannelInfoOverlay()
-                                   true
-                            } else if (showControls) {
-                                false
-                            } else {
-                                viewModel.toggleControls()
-                                true
-                            }
-                        }
-                        KeyEvent.KEYCODE_DPAD_LEFT -> {
-                            if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (showControls && (contentType != "LIVE" || isCatchUpPlayback)) return@onKeyEvent false
-                            if (showChannelListOverlay && contentType == "LIVE" && !isCatchUpPlayback) {
-                                // Second left press while channel list is open → open category list
-                                viewModel.openCategoryListOverlay()
-                                true
-                            } else if (contentType == "LIVE" && !isCatchUpPlayback && !showChannelListOverlay && !showCategoryListOverlay && !showEpgOverlay && !showChannelInfoOverlay) {
-                                if (isRtl) viewModel.openEpgOverlay() else viewModel.openChannelListOverlay()
-                                true
-                            } else if (!showChannelListOverlay && !showCategoryListOverlay && !showEpgOverlay && !showChannelInfoOverlay) {
-                                if (isRtl) viewModel.seekForward() else viewModel.seekBackward()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                            if (showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (showControls && (contentType != "LIVE" || isCatchUpPlayback)) return@onKeyEvent false
-                            if (contentType == "LIVE" && !isCatchUpPlayback && !showChannelListOverlay && !showEpgOverlay && !showChannelInfoOverlay) {
-                                if (isRtl) viewModel.openChannelListOverlay() else viewModel.openEpgOverlay()
-                                true
-                            } else if (!showChannelListOverlay && !showEpgOverlay && !showChannelInfoOverlay) {
-                                if (isRtl) viewModel.seekBackward() else viewModel.seekForward()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_DPAD_UP -> {
-                            if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (showChannelInfoOverlay && channelInfoSubPanelOpen) return@onKeyEvent false
-                            if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) return@onKeyEvent false
-                            if (showControls && (contentType != "LIVE" || isCatchUpPlayback)) return@onKeyEvent false
-
-                            if (contentType == "LIVE" && !isCatchUpPlayback) {
-                                viewModel.playNext()
-                            } else if (canOpenEpisodePicker) {
-                                showEpisodePicker = true
-                            } else {
-                                viewModel.toggleControls()
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_DPAD_DOWN -> {
-                            if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (showChannelInfoOverlay && channelInfoSubPanelOpen) return@onKeyEvent false
-                            if (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showDiagnostics) return@onKeyEvent false
-                            if (showControls && (contentType != "LIVE" || isCatchUpPlayback)) return@onKeyEvent false
-
-                            if (contentType == "LIVE" && !isCatchUpPlayback) {
-                                viewModel.playPrevious()
-                            } else {
-                                viewModel.toggleControls()
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_BACK -> {
-                            handleBackPress()
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
-                            if (isPlaying) viewModel.pause() else viewModel.play()
-                            true
-                        }
-                        KeyEvent.KEYCODE_MUTE, KeyEvent.KEYCODE_VOLUME_MUTE -> {
-                            if (event.nativeKeyEvent.repeatCount == 0) {
-                                viewModel.toggleMute()
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_CHANNEL_UP, KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-                            if (showDiagnostics) {
-                                true
-                            } else if (showChannelInfoOverlay && channelInfoSubPanelOpen) {
-                                true
-                            } else if (contentType == "LIVE") {
-                                viewModel.playNext()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_CHANNEL_DOWN, KeyEvent.KEYCODE_DPAD_DOWN_LEFT -> {
-                            if (showDiagnostics) {
-                                true
-                            } else if (showChannelInfoOverlay && channelInfoSubPanelOpen) {
-                                true
-                            } else if (contentType == "LIVE") {
-                                viewModel.playPrevious()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                            if (showChannelInfoOverlay && channelInfoSubPanelOpen) {
-                                true
-                            } else
-                            if (contentType == "LIVE") {
-                                viewModel.zapToLastChannel()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_GUIDE -> {
-                            if (contentType == "LIVE") {
-                                viewModel.openEpgOverlay()
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        KeyEvent.KEYCODE_INFO -> {
-                            if (showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            if (contentType == "LIVE") {
-                                if (showChannelInfoOverlay) viewModel.closeChannelInfoOverlay()
-                                else viewModel.openChannelInfoOverlay()
-                            } else {
-                                viewModel.toggleControls()
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_MENU -> {
-                            if (showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay || showDiagnostics) {
-                                viewModel.onLiveOverlayInteraction()
-                            }
-                            viewModel.toggleControls()
-                            true
-                        }
-                        in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9,
-                        in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 -> {
-                            if (contentType == "LIVE") {
-                                val keyCode = event.nativeKeyEvent.keyCode
-                                val digit = when (keyCode) {
-                                    in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 -> keyCode - KeyEvent.KEYCODE_0
-                                    in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 -> keyCode - KeyEvent.KEYCODE_NUMPAD_0
-                                    else -> return@onKeyEvent false
-                                }
-                                viewModel.inputNumericChannelDigit(digit)
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                        else -> false
+                    PlayerInputAction.CloseSpeedSelection -> {
+                        showSpeedSelection = false
+                        true
                     }
-                } else {
-                    false
+                    PlayerInputAction.CloseVariantSelection -> {
+                        showVariantSelection = false
+                        true
+                    }
+                    PlayerInputAction.CloseStopIdleTimersAndTrackSelection -> {
+                        showStopPlaybackTimerDialog = false
+                        showIdleStandbyTimerDialog = false
+                        showTrackSelection = null
+                        true
+                    }
+                    PlayerInputAction.CommitNumericChannelInput -> {
+                        viewModel.commitNumericChannelInput()
+                        true
+                    }
+                    PlayerInputAction.OpenChannelInfo -> {
+                        viewModel.openChannelInfoOverlay()
+                        true
+                    }
+                    PlayerInputAction.CloseChannelInfo -> {
+                        viewModel.closeChannelInfoOverlay()
+                        true
+                    }
+                    PlayerInputAction.OpenChannelList -> {
+                        viewModel.openChannelListOverlay()
+                        true
+                    }
+                    PlayerInputAction.OpenCategoryList -> {
+                        viewModel.openCategoryListOverlay()
+                        true
+                    }
+                    PlayerInputAction.OpenEpg -> {
+                        viewModel.openEpgOverlay()
+                        true
+                    }
+                    PlayerInputAction.SeekBackward -> {
+                        viewModel.seekBackward()
+                        true
+                    }
+                    PlayerInputAction.SeekForward -> {
+                        viewModel.seekForward()
+                        true
+                    }
+                    PlayerInputAction.ToggleControls -> {
+                        viewModel.toggleControls()
+                        true
+                    }
+                    PlayerInputAction.TogglePlayback -> {
+                        if (isPlaying) viewModel.pause() else viewModel.play()
+                        true
+                    }
+                    PlayerInputAction.ToggleMute -> {
+                        viewModel.toggleMute()
+                        true
+                    }
+                    PlayerInputAction.PlayNext -> {
+                        viewModel.playNext()
+                        true
+                    }
+                    PlayerInputAction.PlayPrevious -> {
+                        viewModel.playPrevious()
+                        true
+                    }
+                    PlayerInputAction.ZapToLastChannel -> {
+                        viewModel.zapToLastChannel()
+                        true
+                    }
+                    PlayerInputAction.ShowEpisodePicker -> {
+                        showEpisodePicker = true
+                        true
+                    }
+                    is PlayerInputAction.InputNumericDigit -> {
+                        viewModel.inputNumericChannelDigit(action.digit)
+                        true
+                    }
+                    PlayerInputAction.DelegateBack -> {
+                        handleBackPress()
+                        true
+                    }
                 }
             }
     ) {
@@ -1134,90 +949,76 @@ fun PlayerScreen(
             )
         }
         
-        // Track Selection Dialog
-        if (!isInPictureInPictureMode) {
-            PlayerTrackSelectionDialog(
-                trackType = showTrackSelection,
-                audioTracks = availableAudioTracks,
-                subtitleTracks = availableSubtitleTracks,
-                videoTracks = availableVideoQualities,
-                liveTranslationAvailable = liveTranslationAvailable,
-                liveTranslationActive = liveTranslationActive,
-                onDismiss = { showTrackSelection = null },
-                onSelectAudio = viewModel::selectAudioTrack,
-                onSelectVideo = viewModel::selectVideoQuality,
-                onSelectSubtitle = { trackId ->
-                    viewModel.deactivateLiveTranslation()
-                    viewModel.selectSubtitleTrack(trackId)
-                },
-                onSelectLiveTranslation = {
-                    viewModel.selectSubtitleTrack(null)
-                    viewModel.activateLiveTranslation()
-                }
-            )
-            ChannelVariantSelectionDialog(
-                visible = showVariantSelection,
-                channel = currentChannel,
-                onDismiss = { showVariantSelection = false },
-                onSelectVariant = viewModel::selectLiveVariant
-            )
-            PlayerSpeedSelectionDialog(
-                visible = showSpeedSelection,
-                selectedSpeed = playbackSpeed,
-                onDismiss = { showSpeedSelection = false },
-                onSelectSpeed = viewModel::setPlaybackSpeed
-            )
-            PlayerSleepTimerDialog(
-                visible = showStopPlaybackTimerDialog,
-                title = stringResource(R.string.player_stop_playback_after),
-                selectedMinutes = sleepTimerUiState.stopTimerMinutes,
-                onDismiss = { showStopPlaybackTimerDialog = false },
-                onSelectMinutes = { minutes ->
-                    viewModel.notifyUserActivity()
-                    viewModel.setStopPlaybackTimer(minutes)
-                    showStopPlaybackTimerDialog = false
-                }
-            )
-            PlayerSleepTimerDialog(
-                visible = showIdleStandbyTimerDialog,
-                title = stringResource(R.string.player_idle_standby_after),
-                selectedMinutes = sleepTimerUiState.idleTimerMinutes,
-                onDismiss = { showIdleStandbyTimerDialog = false },
-                onSelectMinutes = { minutes ->
-                    viewModel.notifyUserActivity()
-                    viewModel.setIdleStandbyTimer(minutes)
-                    showIdleStandbyTimerDialog = false
-                }
-            )
-            PlayerAudioVideoOffsetDialog(
-                visible = showAudioVideoOffsetDialog &&
-                    audioVideoSyncEnabled &&
-                    castConnectionState != CastConnectionState.CONNECTED,
-                state = audioVideoOffsetState,
-                canSaveChannel = currentChannel != null,
-                onDismiss = {
-                    showAudioVideoOffsetDialog = false
-                    viewModel.dismissAudioVideoOffsetPreview()
-                },
-                onAdjust = viewModel::adjustAudioVideoOffset,
-                onReset = viewModel::resetAudioVideoOffsetPreview,
-                onSaveForChannel = viewModel::saveAudioVideoOffsetForChannel,
-                onSaveAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
-                onUseGlobal = viewModel::useGlobalAudioVideoOffset
-            )
-            PlayerEpisodeSelectionDialog(
-                visible = showEpisodePicker,
-                seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { title },
-                seasons = currentSeriesSeasons.orEmpty(),
-                currentEpisodeId = currentEpisode?.id ?: internalChannelId,
-                currentSeasonNumber = currentEpisode?.seasonNumber ?: seasonNumber,
-                onDismiss = { showEpisodePicker = false },
-                onSelectEpisode = { episode ->
-                    showEpisodePicker = false
-                    viewModel.playEpisode(episode)
-                }
-            )
-        }
+        PlayerControlsModalHost(
+            isInPictureInPictureMode = isInPictureInPictureMode,
+            showTrackSelection = showTrackSelection,
+            availableAudioTracks = availableAudioTracks,
+            availableSubtitleTracks = availableSubtitleTracks,
+            availableVideoQualities = availableVideoQualities,
+            liveTranslationAvailable = liveTranslationAvailable,
+            liveTranslationActive = liveTranslationActive,
+            onDismissTrackSelection = { showTrackSelection = null },
+            onSelectAudio = viewModel::selectAudioTrack,
+            onSelectVideo = viewModel::selectVideoQuality,
+            onSelectSubtitle = { trackId ->
+                viewModel.deactivateLiveTranslation()
+                viewModel.selectSubtitleTrack(trackId)
+            },
+            onSelectLiveTranslation = {
+                viewModel.selectSubtitleTrack(null)
+                viewModel.activateLiveTranslation()
+            },
+            showVariantSelection = showVariantSelection,
+            currentChannel = currentChannel,
+            onDismissVariantSelection = { showVariantSelection = false },
+            onSelectVariant = viewModel::selectLiveVariant,
+            showSpeedSelection = showSpeedSelection,
+            playbackSpeed = playbackSpeed,
+            onDismissSpeedSelection = { showSpeedSelection = false },
+            onSelectSpeed = viewModel::setPlaybackSpeed,
+            showStopPlaybackTimerDialog = showStopPlaybackTimerDialog,
+            stopPlaybackTimerTitle = stringResource(R.string.player_stop_playback_after),
+            stopPlaybackTimerMinutes = sleepTimerUiState.stopTimerMinutes,
+            onDismissStopPlaybackTimer = { showStopPlaybackTimerDialog = false },
+            onSelectStopPlaybackTimer = { minutes ->
+                viewModel.notifyUserActivity()
+                viewModel.setStopPlaybackTimer(minutes)
+                showStopPlaybackTimerDialog = false
+            },
+            showIdleStandbyTimerDialog = showIdleStandbyTimerDialog,
+            idleStandbyTimerTitle = stringResource(R.string.player_idle_standby_after),
+            idleStandbyTimerMinutes = sleepTimerUiState.idleTimerMinutes,
+            onDismissIdleStandbyTimer = { showIdleStandbyTimerDialog = false },
+            onSelectIdleStandbyTimer = { minutes ->
+                viewModel.notifyUserActivity()
+                viewModel.setIdleStandbyTimer(minutes)
+                showIdleStandbyTimerDialog = false
+            },
+            audioVideoOffsetVisible = showAudioVideoOffsetDialog &&
+                audioVideoSyncEnabled &&
+                castConnectionState != CastConnectionState.CONNECTED,
+            audioVideoOffsetState = audioVideoOffsetState,
+            canSaveChannel = currentChannel != null,
+            onDismissAudioVideoOffset = {
+                showAudioVideoOffsetDialog = false
+                viewModel.dismissAudioVideoOffsetPreview()
+            },
+            onAdjustAudioVideoOffset = viewModel::adjustAudioVideoOffset,
+            onResetAudioVideoOffset = viewModel::resetAudioVideoOffsetPreview,
+            onSaveAudioVideoOffsetForChannel = viewModel::saveAudioVideoOffsetForChannel,
+            onSaveAudioVideoOffsetAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
+            onUseGlobalAudioVideoOffset = viewModel::useGlobalAudioVideoOffset,
+            showEpisodePicker = showEpisodePicker,
+            seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { title },
+            seasons = currentSeriesSeasons.orEmpty(),
+            currentEpisodeId = currentEpisode?.id ?: internalChannelId,
+            currentSeasonNumber = currentEpisode?.seasonNumber ?: seasonNumber,
+            onDismissEpisodePicker = { showEpisodePicker = false },
+            onSelectEpisode = { episode ->
+                showEpisodePicker = false
+                viewModel.playEpisode(episode)
+            }
+        )
 
         // --- Overlays ---
         if (!isInPictureInPictureMode && showDiagnostics) {
@@ -1388,6 +1189,32 @@ fun PlayerScreen(
             }
         }
     }
+}
+
+private fun playerInputKey(event: KeyEvent): PlayerInputKey = when (event.keyCode) {
+    KeyEvent.KEYCODE_DPAD_CENTER -> PlayerInputKey.DpadCenter
+    KeyEvent.KEYCODE_ENTER -> PlayerInputKey.Enter
+    KeyEvent.KEYCODE_NUMPAD_ENTER -> PlayerInputKey.NumpadEnter
+    KeyEvent.KEYCODE_DPAD_LEFT -> PlayerInputKey.DpadLeft
+    KeyEvent.KEYCODE_DPAD_RIGHT -> PlayerInputKey.DpadRight
+    KeyEvent.KEYCODE_DPAD_UP -> PlayerInputKey.DpadUp
+    KeyEvent.KEYCODE_DPAD_DOWN -> PlayerInputKey.DpadDown
+    KeyEvent.KEYCODE_DPAD_UP_RIGHT -> PlayerInputKey.DpadUpRight
+    KeyEvent.KEYCODE_DPAD_DOWN_LEFT -> PlayerInputKey.DpadDownLeft
+    KeyEvent.KEYCODE_BACK -> PlayerInputKey.Back
+    KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> PlayerInputKey.MediaPlayPause
+    KeyEvent.KEYCODE_MUTE,
+    KeyEvent.KEYCODE_VOLUME_MUTE -> PlayerInputKey.Mute(event.repeatCount > 0)
+    KeyEvent.KEYCODE_CHANNEL_UP -> PlayerInputKey.ChannelUp
+    KeyEvent.KEYCODE_CHANNEL_DOWN -> PlayerInputKey.ChannelDown
+    KeyEvent.KEYCODE_MEDIA_PREVIOUS -> PlayerInputKey.MediaPrevious
+    KeyEvent.KEYCODE_GUIDE -> PlayerInputKey.Guide
+    KeyEvent.KEYCODE_INFO -> PlayerInputKey.Info
+    KeyEvent.KEYCODE_MENU -> PlayerInputKey.Menu
+    in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 -> PlayerInputKey.Digit(event.keyCode - KeyEvent.KEYCODE_0)
+    in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 ->
+        PlayerInputKey.Digit(event.keyCode - KeyEvent.KEYCODE_NUMPAD_0)
+    else -> PlayerInputKey.Other
 }
 
 private fun AspectRatio.toPlayerSurfaceResizeMode(): PlayerSurfaceResizeMode = when (this) {

@@ -17,6 +17,22 @@ class PlayerBackNavigationPolicyTest {
     }
 
     @Test
+    fun `event-time Back decision sees numeric input added after the previous composition`() {
+        var hasPendingNumericInput = false
+        val stateProvider = {
+            PlayerBackNavigationState(hasPendingNumericChannelInput = hasPendingNumericInput)
+        }
+
+        assertThat(playerBackActionAtEvent(stateProvider))
+            .isEqualTo(PlayerBackAction.NAVIGATE_BACK)
+
+        hasPendingNumericInput = true
+
+        assertThat(playerBackActionAtEvent(stateProvider))
+            .isEqualTo(PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT)
+    }
+
+    @Test
     fun `dialogs close before live overlays`() {
         val state = PlayerBackNavigationState(
             showChannelInfoOverlay = true,

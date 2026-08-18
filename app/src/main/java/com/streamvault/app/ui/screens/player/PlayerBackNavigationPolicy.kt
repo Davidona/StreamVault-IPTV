@@ -67,3 +67,8 @@ internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackActio
     state.showControls -> PlayerBackAction.TOGGLE_CONTROLS
     else -> PlayerBackAction.NAVIGATE_BACK
 }
+
+/** Builds the Back decision from current state when the event is handled. */
+internal fun playerBackActionAtEvent(
+    stateProvider: () -> PlayerBackNavigationState
+): PlayerBackAction = playerBackAction(stateProvider())

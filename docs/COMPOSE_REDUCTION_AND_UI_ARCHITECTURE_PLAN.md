@@ -9,9 +9,15 @@ Scope: Android application UI, navigation, build structure, and UI-facing module
 
 Phase 0 is complete for the available development environment. The build, artifact, memory, Compose compiler, Macrobenchmark, and live-playback baseline is recorded in [`COMPOSE_REDUCTION_BASELINE.md`](COMPOSE_REDUCTION_BASELINE.md), and the Compose compiler diagnostic outputs are generated under `app/build/reports/compose-compiler/`. Physical-device measurements and a stable provider stream are explicitly listed as follow-up limitations, not treated as successful release-quality measurements.
 
-The first Phase 1 refactor has also started: `PlayerControlsOverlayHost` was moved out of `PlayerScreen.kt` into its own file without changing its parameters, callbacks, routes, or playback behavior. The player Back-navigation priority is now also isolated in the platform-free `PlayerBackNavigationPolicy`, with focused unit tests. Android lifecycle, Picture-in-Picture cleanup, and keep-screen-on effects are now isolated in `PlayerLifecycleHost` while preserving the original effect keys and callback order. These changes reduced the root screen's coordination responsibilities while preserving the existing callback behavior. `:app:compileDebugKotlin` and the app unit-test suite pass.
+The first Phase 1 refactor has also started: `PlayerControlsOverlayHost` was moved out of `PlayerScreen.kt` into its own file without changing its parameters, callbacks, routes, or playback behavior. The player Back-navigation priority is now also isolated in the platform-free `PlayerBackNavigationPolicy`, with focused unit tests. Android lifecycle, Picture-in-Picture cleanup, and keep-screen-on effects are now isolated in `PlayerLifecycleHost` while preserving the original effect keys and callback order. The placement-preserving player modal-host slice is now implemented in `PlayerModalHosts.kt` and wired into `PlayerScreen.kt`; its compile, assemble, unit-test, structural, and two-channel long-duration playback checks pass, while the remaining manual and baseline instrumentation gates are recorded as incomplete in the execution plan. Provider setup decomposition has now started with behavior-neutral extraction of file-import support, Stalker form models, source tabs, action buttons, password glyph/text-field behavior, the Jellyfin form/QR helper, the sync-progress dialog, policy option rows, phone pairing, import dialogs/cards, and Stalker request-rule editing; the root still owns draft state, launchers, effects, and ViewModel calls. These changes reduced the root screens' coordination responsibilities while preserving the existing callback behavior. `:app:compileDebugKotlin` and the app unit-test suite pass.
 
 The full `:app:testDebugUnitTest` task now passes after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. No production behavior was changed; existing coroutine opt-in warnings remain.
+
+The ProviderSetup slice now also places the source selector panel, provider-specific form content, and advanced-options section in dedicated files; the root continues to own draft state, launchers, effects, and ViewModel calls. The second no-behavior-change decomposition moved the remaining provider branches into explicit Xtream, Stalker, M3U, and Jellyfin form composables, and moved completion, compatibility-selector, validation-error, and password-transformation leaves into dedicated same-package files.
+
+The AppNavigation split is now complete for Phase 1: startup resolution, route/request contracts, navigation adapters, external-navigation dispatch, and graph registration are in dedicated same-package files; `AppNavigation.kt` retains state collection and orchestration only. No typed-route or module boundary was introduced.
+
+The review follow-up also closed player input freshness regressions: input and Back decisions now build their snapshots at event time, including the ViewModel-backed numeric-channel buffer, with regression tests covering digit-entry updates followed by immediate confirmation or Back. Focused player, provider, and navigation unit tests pass. Long-duration live playback and manual TV smoke checks remain required Phase 1 gates whenever the environment is available; this workspace currently has no `adb` executable/device, so those gates remain explicitly unvalidated.
 
 ## 1. Executive summary
 
@@ -716,17 +722,20 @@ Purpose: make later changes reviewable and lower merge risk.
 Deliverables:
 
 - Split `ProviderSetupScreen.kt` into provider-specific forms, dialogs, import helpers, and components.
-- Split `PlayerScreen.kt` into lifecycle, input, overlay host, and modal host files.
+- Split `PlayerScreen.kt` into lifecycle, input, overlay host, and modal host files. For the modal slice, preserve the current two composition locations and source order rather than forcing every dialog through one relocated call site: top-level program-history/MultiView dialogs remain before the root player `Box`, while controls-related dialogs remain inside it after `PlayerResumePrompt`. The detailed contract is defined in [`superpowers/specs/2026-08-17-player-modal-host-design.md`](superpowers/specs/2026-08-17-player-modal-host-design.md).
 - Split `AppNavigation.kt` into startup/external navigation policy and graph registration files.
 - Keep packages and Gradle modules unchanged.
 - Add or move tests around extracted pure policies.
+- During source-only player splits, preserve every existing visibility predicate, composition order, callback sequence, Back/input/focus rule, effect key, state owner, and ViewModel scope. In particular, do not add a new Picture-in-Picture restriction to MultiView, and preserve the audio/video-offset dialog's sync-enabled and cast-disconnected gates.
+- Do not introduce Phase 2 modal exclusivity or grouped modal state merely to simplify a Phase 1 host API. Callback-heavy, placement-preserving interfaces are acceptable temporary boundaries when they make the mechanical diff safer.
 
 Exit criteria:
 
 - No intended UI behavior change.
 - Screenshots/golden tests remain equivalent.
-- Existing unit and instrumentation suites pass.
+- Existing unit and applicable instrumentation suites pass; if a repository baseline test fails, record the exact command and failure and keep the Phase 1 gate open rather than attributing it to the extraction without evidence.
 - Live TV validation passes if player composition or lifecycle code moved.
+- Manual TV smoke coverage passes for affected dialogs, Back/focus behavior, controls auto-hide, and Picture-in-Picture behavior. Unavailable scenarios are recorded as incomplete gates, not counted as passes.
 
 ### Phase 2 - Runtime state isolation
 
@@ -962,7 +971,7 @@ This sequence keeps reviews focused and creates rollback points:
 
 1. Add build/runtime benchmark infrastructure and capture baseline.
 2. Add Compose compiler report configuration and stability audit notes.
-3. Extract pure player input/modal policies with tests.
+3. Extract pure player input policies with tests, and extract modal composition through placement-preserving hosts with explicit visibility and callback contracts.
 4. Split `PlayerScreen` files without behavior changes.
 5. Isolate player real-time state and validate Live TV fully.
 6. Split provider setup files without behavior changes.
@@ -1035,11 +1044,15 @@ The modernization is complete when:
 - [x] Complete the first no-behavior-change slice by extracting `PlayerControlsOverlayHost`.
 - [x] Extract and unit-test the player Back-navigation priority policy without changing event handling.
 - [x] Extract player lifecycle/window effects into `PlayerLifecycleHost` without changing effect keys or callbacks.
+- [x] Extract and unit-test the player root input decision policy while keeping Android event adaptation, state mutation, focus, pointer, and Back execution in `PlayerScreen.kt`.
+- [x] Add event-time freshness guards for player input and Back decisions, including numeric-channel buffer regressions.
+- [x] Complete the second no-behavior-change `ProviderSetup` decomposition slice; package it as a review PR after the remaining manual gates.
+- [x] Complete the Phase 1 `AppNavigation` policy, adapter, external-request, and graph-registration split.
 - [ ] Run a manual app smoke test for player launch, controls, remote/back handling, seeking, and overlay actions.
 - [ ] Run full multi-channel Live TV validation before marking the player phase complete.
 - [x] Add or define the Macrobenchmark module and constrained-device benchmark flows.
 - [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition after the manual smoke test.
-- [ ] Create the second no-behavior-change PR for `ProviderSetupScreen` decomposition.
+- [ ] Package the completed second no-behavior-change `ProviderSetupScreen` decomposition as a review PR.
 - [ ] Revisit the initial success targets after baseline data is available.
 
 ## 19. PR #162 assessment
