@@ -1,6 +1,7 @@
 package com.streamvault.app.ui.screens.player
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -19,14 +20,13 @@ import com.streamvault.app.ui.screens.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Program
-import com.streamvault.domain.model.Season
 import com.streamvault.player.TrackType
 
 @Composable
 internal fun PlayerTopLevelModalHost(
+    viewModel: PlayerViewModel,
     isInPictureInPictureMode: Boolean,
     showProgramHistory: Boolean,
-    programHistory: List<Program>,
     onDismissProgramHistory: () -> Unit,
     onSelectProgramHistory: (Program) -> Unit,
     showSplitDialog: Boolean,
@@ -35,6 +35,7 @@ internal fun PlayerTopLevelModalHost(
     onLaunchMultiView: () -> Unit,
 ) {
     if (!isInPictureInPictureMode && showProgramHistory) {
+        val programHistory by viewModel.programHistory.collectAsStateWithLifecycle()
         ProgramHistoryDialog(
             programs = programHistory,
             onDismiss = onDismissProgramHistory,
@@ -66,10 +67,9 @@ internal fun PlayerControlsModalHost(
     canSaveChannel: Boolean,
     showAudioVideoOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
-    seriesTitle: String,
-    seasons: List<Season>,
-    currentEpisodeId: Long,
-    currentSeasonNumber: Int?,
+    fallbackTitle: String,
+    fallbackEpisodeId: Long,
+    fallbackSeasonNumber: Int?,
     onDismissModal: () -> Unit,
 ) {
     if (showAudioVideoOffsetDialog) {
@@ -172,12 +172,18 @@ internal fun PlayerControlsModalHost(
         )
     }
     if (!isInPictureInPictureMode && showEpisodePicker) {
+        val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
+        val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
+        val currentEpisode by viewModel.currentEpisode.collectAsStateWithLifecycle()
+        val seasons = remember(currentSeries) {
+            currentSeries?.seasons.sanitizedForPlayer().orEmpty()
+        }
         PlayerEpisodeSelectionDialog(
             visible = true,
-            seriesTitle = seriesTitle,
+            seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { fallbackTitle },
             seasons = seasons,
-            currentEpisodeId = currentEpisodeId,
-            currentSeasonNumber = currentSeasonNumber,
+            currentEpisodeId = currentEpisode?.id ?: fallbackEpisodeId,
+            currentSeasonNumber = currentEpisode?.seasonNumber ?: fallbackSeasonNumber,
             onDismiss = onDismissModal,
             onSelectEpisode = { episode ->
                 onDismissModal()

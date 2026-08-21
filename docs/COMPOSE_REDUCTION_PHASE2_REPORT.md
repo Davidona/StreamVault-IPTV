@@ -25,7 +25,11 @@ request to annotate unstable domain models or to rewrite the UI in Views.
   - live channel, category, EPG, numeric-input, and channel-info state in
     `PlayerLiveOverlayHost`;
   - track, speed, timer, offset, and related dialog state in
-    `PlayerModalHosts`.
+    `PlayerModalHosts`;
+  - program-history state is collected only while the top-level history modal
+    is visible;
+  - current and next program state is collected by the controls and live
+    overlay hosts that render it.
 - Preserved the two modal-host placement boundaries: top-level modal content
   remains before player preparation, and controls modal content remains inside
   the player surface layer after the resume prompt.
@@ -130,6 +134,10 @@ measurement, or a before/after macrobenchmark.
 The required Phase 2 live-TV validation passed on the connected emulator. Each
 channel was opened in the full player and captured at a two-second cadence for
 61 screenshots (roughly two minutes):
+
+The same protocol was rerun after the follow-up player state-isolation slice;
+the post-change captures are prefixed `post_` in `validation/phase2_live/` and
+produced the same passing results below.
 
 | Channel | Screenshots | Unique hashes | Final media session | Healthy log evidence | Error/fallback evidence |
 | --- | ---: | ---: | --- | --- | --- |

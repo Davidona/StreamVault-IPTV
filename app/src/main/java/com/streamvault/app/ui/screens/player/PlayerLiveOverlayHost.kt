@@ -60,8 +60,6 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     currentChannel: Channel?,
     internalChannelId: Long,
     displayChannelNumber: Int,
-    currentProgram: Program?,
-    nextProgram: Program?,
     channelListFocusRequester: FocusRequester,
     categoryListFocusRequester: FocusRequester,
     channelInfoFocusRequester: FocusRequester,
@@ -81,6 +79,8 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     val currentChannelList by viewModel.currentChannelList.collectAsStateWithLifecycle()
     val recentChannels by viewModel.recentChannels.collectAsStateWithLifecycle()
     val lastVisitedCategory by viewModel.lastVisitedCategory.collectAsStateWithLifecycle()
+    val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
+    val nextProgram by viewModel.nextProgram.collectAsStateWithLifecycle()
     val upcomingPrograms by viewModel.upcomingPrograms.collectAsStateWithLifecycle()
 
     AnimatedVisibility(

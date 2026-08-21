@@ -47,7 +47,6 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VideoFormat
-import com.streamvault.domain.model.Program
 import com.streamvault.domain.repository.EpgRepository
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
@@ -156,20 +155,9 @@ fun PlayerScreen(
     val videoFormat by viewModel.videoFormat.collectAsStateWithLifecycle()
     val playerError by viewModel.playerError.collectAsStateWithLifecycle()
     val playbackResolutionUiState by viewModel.playbackResolutionUiState.collectAsStateWithLifecycle()
-    val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
-    val nextProgram by viewModel.nextProgram.collectAsStateWithLifecycle()
-    val programHistory by viewModel.programHistory.collectAsStateWithLifecycle()
     val currentChannel by viewModel.currentChannel.collectAsStateWithLifecycle()
-    val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
-    val currentEpisode by viewModel.currentEpisode.collectAsStateWithLifecycle()
     val autoPlayCountdown by viewModel.autoPlayCountdown.collectAsStateWithLifecycle()
-    val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
     val resumePrompt by viewModel.resumePrompt.collectAsStateWithLifecycle()
-    val currentSeriesSeasons = remember(currentSeries) {
-        currentSeries?.seasons.sanitizedForPlayer()
-    }
-    val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
-        currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
     
     val isCatchUpPlayback by viewModel.isCatchUpPlayback.collectAsStateWithLifecycle()
     val showChannelListOverlay by viewModel.showChannelListOverlay.collectAsStateWithLifecycle()
@@ -270,9 +258,9 @@ fun PlayerScreen(
     }
 
     PlayerTopLevelModalHost(
+        viewModel = viewModel,
         isInPictureInPictureMode = isInPictureInPictureMode,
         showProgramHistory = modalState.showProgramHistory,
-        programHistory = programHistory,
         onDismissProgramHistory = { modalState = modalState.dismiss() },
         onSelectProgramHistory = { program ->
             viewModel.playCatchUp(program)
@@ -449,7 +437,9 @@ fun PlayerScreen(
             showEpisodePicker = modalState.showEpisodePicker,
             showControls = showControls,
             hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
-            canOpenEpisodePicker = canOpenEpisodePicker
+            canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
+                viewModel.currentSeries.value?.seasons.sanitizedForPlayer()
+                    ?.any { it.episodes.isNotEmpty() } == true
         )
     }
 
@@ -716,11 +706,10 @@ fun PlayerScreen(
             playerEngine = playerEngine,
             viewModel = viewModel,
             visible = showControls,
-            title = playbackTitle.ifBlank { title },
+            title = title,
             contentType = contentType,
             isCatchUpPlayback = isCatchUpPlayback,
             isPlaying = isPlaying,
-            currentProgram = currentProgram,
             currentChannel = currentChannel,
             currentChannelName = currentChannel?.name,
             displayChannelNumber = displayChannelNumber,
@@ -736,7 +725,6 @@ fun PlayerScreen(
             onOpenStopPlaybackTimer = { modalState = modalState.open(PlayerModal.StopPlaybackTimer) },
             onOpenIdleStandbyTimer = { modalState = modalState.open(PlayerModal.IdleStandbyTimer) },
             onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
-            showEpisodesAction = canOpenEpisodePicker,
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
             onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
@@ -816,10 +804,9 @@ fun PlayerScreen(
             canSaveChannel = currentChannel != null,
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
-            seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { title },
-            seasons = currentSeriesSeasons.orEmpty(),
-            currentEpisodeId = currentEpisode?.id ?: internalChannelId,
-            currentSeasonNumber = currentEpisode?.seasonNumber ?: seasonNumber,
+            fallbackTitle = title,
+            fallbackEpisodeId = internalChannelId,
+            fallbackSeasonNumber = seasonNumber,
             onDismissModal = { modalState = modalState.dismiss() }
         )
 
@@ -843,8 +830,6 @@ fun PlayerScreen(
                 currentChannel = currentChannel,
                 internalChannelId = internalChannelId,
                 displayChannelNumber = displayChannelNumber,
-                currentProgram = currentProgram,
-                nextProgram = nextProgram,
                 channelListFocusRequester = channelListFocusRequester,
                 categoryListFocusRequester = categoryListFocusRequester,
                 channelInfoFocusRequester = channelInfoFocusRequester,

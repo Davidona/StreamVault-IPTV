@@ -33,7 +33,6 @@ import com.streamvault.app.ui.screens.player.overlay.PlayerControlsOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerResolutionBadge
 import com.streamvault.app.ui.screens.player.overlay.PlayerSleepTimerWarningOverlay
 import com.streamvault.domain.model.Channel
-import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
@@ -56,7 +55,6 @@ internal fun PlayerControlsOverlayHost(
     modifier: Modifier = Modifier,
     isCatchUpPlayback: Boolean = false,
     isPlaying: Boolean,
-    currentProgram: Program?,
     currentChannel: Channel?,
     currentChannelName: String?,
     displayChannelNumber: Int,
@@ -71,7 +69,6 @@ internal fun PlayerControlsOverlayHost(
     onOpenStopPlaybackTimer: () -> Unit,
     onOpenIdleStandbyTimer: () -> Unit,
     onOpenAudioVideoSync: () -> Unit,
-    showEpisodesAction: Boolean,
     onOpenEpisodes: () -> Unit,
     onOpenSplitScreen: () -> Unit,
     onEnterPictureInPicture: () -> Unit,
@@ -80,6 +77,9 @@ internal fun PlayerControlsOverlayHost(
 ) {
     val currentPosition by playerEngine.currentPosition.collectAsStateWithLifecycle()
     val duration by playerEngine.duration.collectAsStateWithLifecycle()
+    val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
+    val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
+    val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
     val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
     val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
     val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
@@ -93,10 +93,15 @@ internal fun PlayerControlsOverlayHost(
     val seekPreview by viewModel.seekPreview.collectAsStateWithLifecycle()
     val timeshiftUiState by viewModel.timeshiftUiState.collectAsStateWithLifecycle()
     val sleepTimerUiState by viewModel.sleepTimerUiState.collectAsStateWithLifecycle()
+    val currentSeriesSeasons = remember(currentSeries) {
+        currentSeries?.seasons.sanitizedForPlayer()
+    }
+    val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
+        currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
 
     PlayerControlsOverlay(
         visible = visible,
-        title = title,
+        title = playbackTitle.ifBlank { title },
         contentType = contentType,
         isCatchUpPlayback = isCatchUpPlayback,
         isPlaying = isPlaying,
@@ -140,7 +145,7 @@ internal fun PlayerControlsOverlayHost(
         onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
         onOpenAudioVideoSync = onOpenAudioVideoSync,
         audioVideoSyncEnabled = audioVideoSyncEnabled,
-        showEpisodesAction = showEpisodesAction,
+        showEpisodesAction = canOpenEpisodePicker,
         onOpenEpisodes = onOpenEpisodes,
         onOpenSplitScreen = onOpenSplitScreen,
         onEnterPictureInPicture = onEnterPictureInPicture,
