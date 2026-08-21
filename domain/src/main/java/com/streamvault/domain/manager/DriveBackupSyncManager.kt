@@ -93,12 +93,13 @@ interface DriveBackupSyncManager {
 /**
  * Cleartext credentials for a single provider, transported alongside the main
  * backup JSON. Drive storage relies on the `drive.appdata` scope + Google
- * account ACL for confidentiality. Matching uses `(serverUrl, username)`.
+ * account ACL for confidentiality. Matching uses `(serverUrl, username, providerType)` when available.
  */
 data class ProviderCredentials(
     val serverUrl: String,
     val username: String,
     val password: String,
+    val providerType: com.streamvault.domain.model.ProviderType? = null,
 )
 
 /** Public Sign-In state for the UI. */

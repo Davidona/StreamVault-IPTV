@@ -5,6 +5,8 @@ import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.app.ui.model.VodViewMode
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupPreview
+import com.streamvault.domain.manager.BackupProviderReference
+import com.streamvault.domain.manager.BackupRestoreJobStatus
 import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveBackupSnapshot
 import com.streamvault.domain.manager.DriveSignInRequest
@@ -116,6 +118,10 @@ data class SettingsUiState(
     val backupPreview: BackupPreview? = null,
     val pendingBackupUri: String? = null,
     val backupImportPlan: BackupImportPlan = BackupImportPlan(),
+    val pendingRestoreJobId: String? = null,
+    val pendingRestoreProviders: List<BackupProviderReference> = emptyList(),
+    val selectedRestoreProviderIndices: Set<Int> = emptySet(),
+    val backupRestoreJobs: List<BackupRestoreJobStatus> = emptyList(),
     // --- Drive sync (M2) ---
     val driveAuthState: DriveAuthState = DriveAuthState.SignedOut,
     val driveSyncStatus: DriveSyncStatus = DriveSyncStatus(),

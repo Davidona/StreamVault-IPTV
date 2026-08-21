@@ -3,9 +3,29 @@ package com.streamvault.app.tvinput
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
+import com.streamvault.domain.model.LegacyProvider
+import com.streamvault.domain.model.ProviderType
 import org.junit.Test
 
 class TvInputChannelSyncManagerTest {
+
+    @Test
+    fun stableTvChannelKey_survivesChangedLocalProviderAndChannelIds() {
+        val beforeProvider = LegacyProvider(
+            id = 1,
+            name = "Provider",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "HTTPS://EXAMPLE.COM/",
+            username = "user",
+            password = "pass"
+        )
+        val afterProvider = beforeProvider.copy(id = 99, serverUrl = "https://example.com")
+        val beforeChannel = Channel(id = 5, streamId = 42, name = "News", providerId = 1)
+        val afterChannel = beforeChannel.copy(id = 500, providerId = 99)
+
+        assertThat(stableTvChannelKey(beforeProvider, beforeChannel))
+            .isEqualTo(stableTvChannelKey(afterProvider, afterChannel))
+    }
 
     @Test
     fun shouldReplaceTvPrograms_preservesGuideWhenMappedChannelHasEmptySnapshot() {

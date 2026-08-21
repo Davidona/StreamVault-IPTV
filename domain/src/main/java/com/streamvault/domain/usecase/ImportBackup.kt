@@ -34,6 +34,8 @@ sealed class ImportBackupResult {
                 val baseSummary = when (result.outcome) {
                     BackupRestoreOutcome.COMPLETE ->
                         result.importedSections.joinToString().ifBlank { "Nothing imported" }
+                    BackupRestoreOutcome.WAITING_FOR_SYNC ->
+                        "Imported; ${result.pendingCount + result.unresolvedCount} item(s) are waiting for provider sync"
                     BackupRestoreOutcome.PARTIAL ->
                         "Partially imported: ${result.importedSections.joinToString().ifBlank { "nothing" }}"
                     BackupRestoreOutcome.FAILED_BEFORE_COMMIT -> "Nothing was committed"

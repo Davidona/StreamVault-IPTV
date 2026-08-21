@@ -30,6 +30,8 @@ import com.streamvault.app.ui.theme.Secondary
 import com.streamvault.domain.manager.DriveAuthState
 
 internal fun LazyListScope.settingsBackupSection(
+    uiState: SettingsUiState,
+    viewModel: SettingsViewModel,
     onCreateBackup: () -> Unit,
     onManageLocalBackups: () -> Unit,
     onShareBackup: () -> Unit,
@@ -75,6 +77,71 @@ internal fun LazyListScope.settingsBackupSection(
                 onClick = onRestoreBackup,
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.backupRestoreJobs
+                .filter { job -> job.status != "COMPLETE" || job.providers.any { provider -> provider.items.any { it.status != "APPLIED" && it.status != "DISMISSED" } } }
+                .forEach { job ->
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Restore ${job.jobId.take(8)} · ${job.status}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = OnSurface
+                        )
+                        job.providers.forEach { provider ->
+                            val waiting = provider.pendingCount + provider.unresolvedCount + provider.failedCount
+                            Text(
+                                text = "${provider.providerIdentityKey.substringBefore('|')} — " +
+                                    "${provider.appliedCount} applied, $waiting waiting (${provider.failedCount} failed)",
+                                color = OnSurfaceDim
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                provider.localProviderId?.let { providerId ->
+                                    BackupActionCard(
+                                        icon = "↻",
+                                        title = "Retry",
+                                        subtitle = "Try available catalog data",
+                                        accent = Primary,
+                                        onClick = { viewModel.retryRestoreProvider(providerId) },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                BackupActionCard(
+                                    icon = "×",
+                                    title = "Dismiss provider",
+                                    subtitle = "Discard unresolved instructions",
+                                    accent = Secondary,
+                                    onClick = { viewModel.dismissRestoreProvider(job.jobId, provider.providerIdentityKey) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            provider.items
+                                .filter { it.status == "UNRESOLVED" || it.status == "FAILED_RETRYABLE" }
+                                .forEach { item ->
+                                    BackupActionCard(
+                                        icon = "!",
+                                        title = "${item.section}${item.contentType?.let { " · $it" }.orEmpty()}",
+                                        subtitle = item.lastError ?: item.status,
+                                        accent = Secondary,
+                                        onClick = { viewModel.dismissRestoreItem(item.id) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                        }
+                        BackupActionCard(
+                            icon = "×",
+                            title = "Dismiss entire restore",
+                            subtitle = "Discard all remaining instructions",
+                            accent = Secondary,
+                            onClick = { viewModel.dismissRestoreJob(job.jobId) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             BackupActionCard(
                 icon = "≡",
                 title = stringResource(R.string.settings_manage_local_backups),

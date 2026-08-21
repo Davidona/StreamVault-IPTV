@@ -1702,6 +1702,16 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun clearPreferredLiveVariants(providerId: Long) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { preferences ->
+            val updated = decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS])
+                .filterKeys { !it.startsWith("$providerId|") }
+            if (updated.isEmpty()) preferences.remove(PreferencesKeys.LIVE_VARIANT_SELECTIONS)
+            else preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS] = encodeLiveVariantSelections(updated)
+        }
+    }
+
     val liveVariantObservations: Flow<Map<Long, LiveChannelObservedQuality>> = context.dataStore.data.map { preferences ->
         decodeLiveVariantObservations(preferences[PreferencesKeys.LIVE_VARIANT_OBSERVATIONS])
     }
@@ -1758,6 +1768,16 @@ class PreferencesRepository @Inject constructor(
             } else {
                 preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS] = encodeVodVariantSelections(updated)
             }
+        }
+    }
+
+    suspend fun clearPreferredVodVariants(providerId: Long) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { preferences ->
+            val updated = decodeVodVariantSelections(preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS])
+                .filterKeys { !it.startsWith("$providerId|") }
+            if (updated.isEmpty()) preferences.remove(PreferencesKeys.VOD_VARIANT_SELECTIONS)
+            else preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS] = encodeVodVariantSelections(updated)
         }
     }
 

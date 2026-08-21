@@ -79,7 +79,8 @@ internal class StalkerCatalogSyncExecutor(
     private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
     private val emitCatalogProgress: (Long, Section, Int?, Int?) -> Unit,
     private val categoryFailureWarning: (String, String, Throwable) -> String,
-    private val sanitizeThrowableMessage: (Throwable?) -> String
+    private val sanitizeThrowableMessage: (Throwable?) -> String,
+    private val requiredHiddenCategoryIds: suspend (Long, ContentType) -> Set<Long> = { _, _ -> emptySet() }
 ) {
     suspend fun syncFull(
         provider: Provider,
@@ -156,10 +157,12 @@ internal class StalkerCatalogSyncExecutor(
         if (force || ContentCachePolicy.shouldRefresh(metadata.lastLiveSuccess, ContentCachePolicy.CATALOG_TTL_MILLIS, now)) {
             progress(provider.id, onProgress, "Downloading Live TV...")
             val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
+            val requiredHiddenLiveCategoryIds = requiredHiddenCategoryIds(provider.id, ContentType.LIVE)
             val liveCatalogResult = syncLiveCatalogStaged(
                 api = api,
                 provider = provider,
                 hiddenLiveCategoryIds = hiddenLiveCategoryIds,
+                requiredHiddenLiveCategoryIds = requiredHiddenLiveCategoryIds,
                 onProgress = onProgress,
                 afterCatalogApply = catalogCommitCallback
             )
@@ -352,7 +355,14 @@ internal class StalkerCatalogSyncExecutor(
         progress(provider.id, onProgress, "Retrying Live TV...")
         val api = createProvider(provider)
         val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
-        val liveCatalogResult = syncLiveCatalogStaged(api, provider, hiddenLiveCategoryIds, onProgress)
+        val requiredHiddenLiveCategoryIds = requiredHiddenCategoryIds(provider.id, ContentType.LIVE)
+        val liveCatalogResult = syncLiveCatalogStaged(
+            api,
+            provider,
+            hiddenLiveCategoryIds,
+            requiredHiddenLiveCategoryIds,
+            onProgress
+        )
         val metadata = (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)).copy(
             lastLiveSync = now,
             lastLiveSuccess = now,
@@ -377,6 +387,7 @@ internal class StalkerCatalogSyncExecutor(
         api: StalkerProvider,
         provider: Provider,
         hiddenLiveCategoryIds: Set<Long>,
+        requiredHiddenLiveCategoryIds: Set<Long>,
         onProgress: ((String) -> Unit)?,
         afterCatalogApply: suspend () -> Unit = {}
     ): StagedStalkerLiveCatalogResult {
@@ -385,7 +396,7 @@ internal class StalkerCatalogSyncExecutor(
         val preferredCategories = when (val categoriesResult = api.getLiveCategories()) {
             is Result.Success -> categoriesResult.data
                 .map { it.toEntity(provider.id) }
-                .filterNot { it.categoryId in hiddenLiveCategoryIds }
+                .filterNot { it.categoryId in hiddenLiveCategoryIds && it.categoryId !in requiredHiddenLiveCategoryIds }
             is Result.Error -> {
                 Log.w(
                     STALKER_EXECUTOR_TAG,
@@ -472,7 +483,7 @@ internal class StalkerCatalogSyncExecutor(
                 withBulkLiveStallTimeout { markBulkProgress ->
                     api.streamLiveStreams { channel ->
                         markBulkProgress()
-                        if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds) return@streamLiveStreams
+                        if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds && channel.categoryId !in requiredHiddenLiveCategoryIds) return@streamLiveStreams
                         if (channel.categoryId != null) bulkRowsWithResolvedCategories++
                         batch += channel
                         if (batch.size >= FALLBACK_STAGE_BATCH_SIZE) {
@@ -532,7 +543,7 @@ internal class StalkerCatalogSyncExecutor(
             )
             warnings += fallbackResult.warnings
             fallbackResult.channels.forEach { channel ->
-                if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds) return@forEach
+                if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds && channel.categoryId !in requiredHiddenLiveCategoryIds) return@forEach
                 batch += channel
                 if (batch.size >= FALLBACK_STAGE_BATCH_SIZE) flushBatch()
             }

@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
 
-internal const val STREAM_VAULT_DATABASE_VERSION = 76
+internal const val STREAM_VAULT_DATABASE_VERSION = 77
 
 @Database(
     entities = [
@@ -67,6 +67,8 @@ internal const val STREAM_VAULT_DATABASE_VERSION = 76
         PluginProviderOwnershipEntity::class,
         ProviderConfigRevisionEntity::class,
         BackupRestoreCheckpointEntity::class,
+        BackupRestoreJobEntity::class,
+        BackupRestoreItemEntity::class,
         ProviderWorkflowEntity::class,
         ProviderWorkflowPhaseEntity::class,
         M3uClassificationOverrideEntity::class,
@@ -122,6 +124,7 @@ abstract class StreamVaultDatabase : RoomDatabase() {
     abstract fun pluginProviderOwnershipDao(): PluginProviderOwnershipDao
     abstract fun providerConfigRevisionDao(): ProviderConfigRevisionDao
     abstract fun backupRestoreCheckpointDao(): BackupRestoreCheckpointDao
+    abstract fun backupRestoreLedgerDao(): BackupRestoreLedgerDao
     abstract fun providerWorkflowDao(): ProviderWorkflowDao
     abstract fun m3uClassificationDao(): M3uClassificationDao
 
@@ -201,5 +204,6 @@ abstract class StreamVaultDatabase : RoomDatabase() {
         val MIGRATION_73_74 = FeatureMigrationsV49To75.MIGRATION_73_74
         val MIGRATION_74_75 = FeatureMigrationsV49To75.MIGRATION_74_75
         val MIGRATION_75_76 = FeatureMigrationsV75To76.MIGRATION_75_76
+        val MIGRATION_76_77 = FeatureMigrationsV76To77.MIGRATION_76_77
     }
 }
