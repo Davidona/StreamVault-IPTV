@@ -74,11 +74,29 @@ internal fun PlayerControlsModalHost(
 ) {
     if (showAudioVideoOffsetDialog) {
         val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
+        val audioVideoOffsetState by viewModel.audioVideoOffsetUiState.collectAsStateWithLifecycle()
+        val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
         LaunchedEffect(audioVideoSyncEnabled) {
             if (!audioVideoSyncEnabled) {
                 onDismissModal()
                 viewModel.dismissAudioVideoOffsetPreview()
             }
+        }
+        if (!isInPictureInPictureMode) {
+            PlayerAudioVideoOffsetDialog(
+                visible = audioVideoSyncEnabled && castConnectionState != com.streamvault.app.cast.CastConnectionState.CONNECTED,
+                state = audioVideoOffsetState,
+                canSaveChannel = canSaveChannel,
+                onDismiss = {
+                    onDismissModal()
+                    viewModel.dismissAudioVideoOffsetPreview()
+                },
+                onAdjust = viewModel::adjustAudioVideoOffset,
+                onReset = viewModel::resetAudioVideoOffsetPreview,
+                onSaveForChannel = viewModel::saveAudioVideoOffsetForChannel,
+                onSaveAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
+                onUseGlobal = viewModel::useGlobalAudioVideoOffset
+            )
         }
     }
 
@@ -151,25 +169,6 @@ internal fun PlayerControlsModalHost(
                 viewModel.setIdleStandbyTimer(minutes)
                 onDismissModal()
             }
-        )
-    }
-    if (!isInPictureInPictureMode && showAudioVideoOffsetDialog) {
-        val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
-        val audioVideoOffsetState by viewModel.audioVideoOffsetUiState.collectAsStateWithLifecycle()
-        val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
-        PlayerAudioVideoOffsetDialog(
-            visible = audioVideoSyncEnabled && castConnectionState != com.streamvault.app.cast.CastConnectionState.CONNECTED,
-            state = audioVideoOffsetState,
-            canSaveChannel = canSaveChannel,
-            onDismiss = {
-                onDismissModal()
-                viewModel.dismissAudioVideoOffsetPreview()
-            },
-            onAdjust = viewModel::adjustAudioVideoOffset,
-            onReset = viewModel::resetAudioVideoOffsetPreview,
-            onSaveForChannel = viewModel::saveAudioVideoOffsetForChannel,
-            onSaveAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
-            onUseGlobal = viewModel::useGlobalAudioVideoOffset
         )
     }
     if (!isInPictureInPictureMode && showEpisodePicker) {
