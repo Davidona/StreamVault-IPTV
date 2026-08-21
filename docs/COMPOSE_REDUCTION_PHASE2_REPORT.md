@@ -136,8 +136,11 @@ channel was opened in the full player and captured at a two-second cadence for
 61 screenshots (roughly two minutes):
 
 The same protocol was rerun after the follow-up player state-isolation slice;
-the post-change captures are prefixed `post_` in `validation/phase2_live/` and
-produced the same passing results below.
+the final exact-build captures are prefixed `final_` in
+`validation/phase2_live/` and produced the same passing results below. The
+fresh preflight log contains HLS prepare and first-frame success for `00s Replay`;
+both final capture logs contain zero matches for the prohibited error,
+stuck-player, and fallback patterns.
 
 | Channel | Screenshots | Unique hashes | Final media session | Healthy log evidence | Error/fallback evidence |
 | --- | ---: | ---: | --- | --- | --- |
