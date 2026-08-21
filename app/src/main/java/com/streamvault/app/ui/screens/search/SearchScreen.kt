@@ -46,6 +46,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.SearchInput
 import com.streamvault.app.ui.components.ChannelCard
+import com.streamvault.app.ui.components.ChannelProgressTicker
 import com.streamvault.app.ui.components.MovieCard
 import com.streamvault.app.ui.components.SeriesCard
 import com.streamvault.app.ui.components.TvEmptyState
@@ -377,6 +378,7 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recordingChannelIds by viewModel.recordingChannelIds.collectAsStateWithLifecycle()
     val scheduledChannelIds by viewModel.scheduledChannelIds.collectAsStateWithLifecycle()
+    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -639,6 +641,7 @@ fun SearchScreen(
                                     )
                                     ChannelCard(
                                         channel = channel,
+                                        nowMs = nowMs,
                                         isLocked = channelLocked,
                                         isRecording = channel.id in recordingChannelIds,
                                         isScheduledRecording = channel.id in scheduledChannelIds,
@@ -727,11 +730,14 @@ fun SearchScreen(
 
                         when (selectedTab) {
                             SearchTab.ALL -> Unit
-                            SearchTab.LIVE -> items(channelRows, key = { row ->
-                                row.joinToString("-") { it.id.toString() }
-                            }) { row ->
+                            SearchTab.LIVE -> items(
+                                items = channelRows,
+                                key = { row -> row.joinToString("-") { it.id.toString() } },
+                                contentType = { "search_live_row" }
+                            ) { row ->
                                 SearchChannelGridRow(
                                     channels = row,
+                                    nowMs = nowMs,
                                     recordingChannelIds = recordingChannelIds,
                                     scheduledChannelIds = scheduledChannelIds,
                                     isLocked = { channel ->
@@ -753,9 +759,11 @@ fun SearchScreen(
                                 )
                             }
 
-                            SearchTab.MOVIES -> items(movieRows, key = { row ->
-                                row.joinToString("-") { it.id.toString() }
-                            }) { row ->
+                            SearchTab.MOVIES -> items(
+                                items = movieRows,
+                                key = { row -> row.joinToString("-") { it.id.toString() } },
+                                contentType = { "search_movie_row" }
+                            ) { row ->
                                 SearchMovieGridRow(
                                     movies = row,
                                     isLocked = { movie ->
@@ -777,9 +785,11 @@ fun SearchScreen(
                                 )
                             }
 
-                            SearchTab.SERIES -> items(seriesRows, key = { row ->
-                                row.joinToString("-") { it.id.toString() }
-                            }) { row ->
+                            SearchTab.SERIES -> items(
+                                items = seriesRows,
+                                key = { row -> row.joinToString("-") { it.id.toString() } },
+                                contentType = { "search_series_row" }
+                            ) { row ->
                                 SearchSeriesGridRow(
                                     seriesItems = row,
                                     isLocked = { seriesItem ->
@@ -1040,6 +1050,7 @@ private fun <T : Any> SearchResultRail(
 @Composable
 private fun SearchChannelGridRow(
     channels: List<Channel>,
+    nowMs: Long,
     recordingChannelIds: Set<Long> = emptySet(),
     scheduledChannelIds: Set<Long> = emptySet(),
     isLocked: (Channel) -> Boolean,
@@ -1054,6 +1065,7 @@ private fun SearchChannelGridRow(
             val locked = isLocked(channel)
             ChannelCard(
                 channel = channel,
+                nowMs = nowMs,
                 isLocked = locked,
                 isRecording = channel.id in recordingChannelIds,
                 isScheduledRecording = channel.id in scheduledChannelIds,

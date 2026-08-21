@@ -997,7 +997,11 @@ private fun ChannelInfoActionMenuTray(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                itemsIndexed(actions) { index, action ->
+                itemsIndexed(
+                    items = actions,
+                    key = { index, action -> "${action.label}:$index" },
+                    contentType = { _, _ -> "channel_info_action" }
+                ) { index, action ->
                     CompactMenuActionButton(
                         text = action.label,
                         onClick = action.onClick,

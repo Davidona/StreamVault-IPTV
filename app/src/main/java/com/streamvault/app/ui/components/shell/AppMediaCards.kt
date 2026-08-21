@@ -27,14 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +53,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.app.ui.components.channelProgressFraction
 import com.streamvault.app.ui.components.rememberCrossfadeImageModel
 import com.streamvault.app.ui.design.AppColors
 import com.streamvault.app.ui.design.AppMotion
@@ -73,24 +66,10 @@ import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 
-private object LiveChannelRowTicker {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    val nowMs = flow {
-        while (true) {
-            emit(System.currentTimeMillis())
-            delay(30_000L)
-        }
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 30_000L),
-        initialValue = System.currentTimeMillis()
-    )
-}
-
 @Composable
 fun LiveChannelRowCard(
     channel: Channel,
+    nowMs: Long,
     sourceBadgeLabel: String? = null,
     modifier: Modifier = Modifier,
     rowHeight: Dp = 68.dp
@@ -103,7 +82,6 @@ fun LiveChannelRowCard(
     val logoPadding = if (isDense) 5.dp else if (isUltraCompact) 6.dp else 8.dp
     val contentSpacing = if (isUltraCompact) 8.dp else 10.dp
     val badgeSpacing = if (isUltraCompact) 3.dp else 4.dp
-    val nowMs by LiveChannelRowTicker.nowMs.collectAsStateWithLifecycle()
     val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
 
     Box(
@@ -186,11 +164,15 @@ fun LiveChannelRowCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    val totalDuration = (program.endTime - program.startTime).coerceAtLeast(1L)
-                    val elapsed = (nowMs - program.startTime).coerceAtLeast(0L)
                     if (!isDense) {
                         LinearProgressIndicator(
-                            progress = { (elapsed.toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f) },
+                            progress = {
+                                channelProgressFraction(
+                                    nowMs = nowMs,
+                                    startTimeMs = program.startTime,
+                                    endTimeMs = program.endTime
+                                )
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(2.dp)
@@ -214,6 +196,7 @@ fun LiveChannelRowCard(
 @Composable
 fun LiveChannelRowSurface(
     channel: Channel,
+    nowMs: Long,
     onClick: () -> Unit,
     sourceBadgeLabel: String? = null,
     modifier: Modifier = Modifier,
@@ -307,6 +290,7 @@ fun LiveChannelRowSurface(
         Box {
             LiveChannelRowCard(
                 channel = channel,
+                nowMs = nowMs,
                 sourceBadgeLabel = sourceBadgeLabel,
                 modifier = Modifier.fillMaxWidth(),
                 rowHeight = rowHeight

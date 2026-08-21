@@ -49,6 +49,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
+import com.streamvault.app.ui.components.ChannelProgressTicker
 import com.streamvault.app.ui.components.LiveSourceSwitcher
 import com.streamvault.app.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
@@ -185,6 +186,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val remoteShortcutPreferences by viewModel.remoteShortcutPreferences.collectAsStateWithLifecycle()
+    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val providerNameById = remember(uiState.allProviders) {
         uiState.allProviders.associateBy({ it.id }, { it.name })
     }
@@ -951,7 +953,8 @@ fun HomeScreen(
 
                         items(
                             items = visibleCategories,
-                            key = { it.id }
+                            key = { it.id },
+                            contentType = { "live_category" }
                         ) { category ->
                             val isLocked = isCategoryLocked(category)
                             val categoryFocusRequester = categoryFocusRequesters.getOrPut(category.id) { FocusRequester() }
@@ -1291,7 +1294,8 @@ fun HomeScreen(
                             ) {
                                 items(
                                     items = uiState.filteredChannels,
-                                    key = { it.id }
+                                    key = { it.id },
+                                    contentType = { "live_channel" }
                                 ) { channel ->
                                     val isLocked = isChannelLocked(channel)
                                     val isDraggingThis = draggingChannel == channel
@@ -1299,6 +1303,7 @@ fun HomeScreen(
 
                                     LiveChannelRowSurface(
                                         channel = channel,
+                                        nowMs = nowMs,
                                         sourceBadgeLabel = uiState.currentCombinedProfileMembers
                                             .firstOrNull { it.providerId == channel.providerId }
                                             ?.providerName

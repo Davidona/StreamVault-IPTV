@@ -79,7 +79,11 @@ fun M3uCategorySeriesAssignmentDialog(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(items, key = { it.channelId }) { item ->
+                    items(
+                        items = items,
+                        key = { it.channelId },
+                        contentType = { "series_assignment" }
+                    ) { item ->
                         val draft = drafts[item.channelId] ?: return@items
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(item.title, color = OnSurface)

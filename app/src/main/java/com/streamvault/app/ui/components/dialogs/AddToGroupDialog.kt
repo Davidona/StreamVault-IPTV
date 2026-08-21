@@ -364,7 +364,11 @@ fun AddToGroupDialog(
                             )
                         }
 
-                        items(groups) { group ->
+                        items(
+                            items = groups,
+                            key = { it.id },
+                            contentType = { "category" }
+                        ) { group ->
                             val isMember = memberOfGroups.contains(group.id)
                             var isFocused by remember { mutableStateOf(false) }
                             val groupAction = { if (isMember) safeRemoveFromGroup(group) else safeAddToGroup(group) }

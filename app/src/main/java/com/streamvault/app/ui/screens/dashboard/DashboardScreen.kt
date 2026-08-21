@@ -53,6 +53,7 @@ import coil3.compose.AsyncImage
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.app.ui.components.ChannelProgressTicker
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
@@ -105,6 +106,7 @@ fun DashboardScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recordingChannelIds by viewModel.recordingChannelIds.collectAsStateWithLifecycle()
     val scheduledChannelIds by viewModel.scheduledChannelIds.collectAsStateWithLifecycle()
+    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val provider = uiState.provider
     val snackbarHostState = remember { SnackbarHostState() }
     var showHomeCustomizationDialog by remember { mutableStateOf(false) }
@@ -186,7 +188,11 @@ fun DashboardScreen(
                         )
                     }
                 }
-                items(orderedSections, key = { it.storageValue }) { section ->
+                items(
+                    items = orderedSections,
+                    key = { it.storageValue },
+                    contentType = { it.storageValue }
+                ) { section ->
                     when (section) {
                     AppHomeDashboardShelf.LIVE_SHORTCUTS -> DashboardShortcutRow(
                         title = stringResource(R.string.dashboard_live_shortcuts),
@@ -216,6 +222,7 @@ fun DashboardScreen(
                     ) { channel ->
                         ChannelCard(
                             channel = channel,
+                            nowMs = nowMs,
                             isRecording = channel.id in recordingChannelIds,
                             isScheduledRecording = channel.id in scheduledChannelIds,
                             onClick = { onRecentChannelClick(channel, uiState.currentCombinedProfileId) }

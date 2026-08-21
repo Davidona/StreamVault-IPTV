@@ -1596,7 +1596,11 @@ private fun PlayerQuickActionRows(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(end = 4.dp)
         ) {
-            itemsIndexed(actions) { actionIndex, action ->
+            itemsIndexed(
+                items = actions,
+                key = { _, action -> action.label },
+                contentType = { _, _ -> "player_quick_action" }
+            ) { actionIndex, action ->
                 PlayerQuickSettingsButton(
                     text = action.label,
                     onClick = action.onClick,

@@ -191,7 +191,8 @@ internal fun EpgGrid(
             ) {
                 itemsIndexed(
                     items = channels,
-                    key = { index, channel -> epgChannelKey(channel, index) }
+                    key = { index, channel -> epgChannelKey(channel, index) },
+                    contentType = { _, _ -> "epg_channel" }
                 ) { index, channel ->
                     if (index >= channels.size - 15) {
                         LaunchedEffect(channels.size) { onRequestMoreChannels() }

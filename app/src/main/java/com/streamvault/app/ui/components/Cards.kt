@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -167,6 +166,7 @@ fun FocusableCard(
 @Composable
 fun ChannelCard(
     channel: Channel,
+    nowMs: Long,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
@@ -176,7 +176,6 @@ fun ChannelCard(
     isRecording: Boolean = false,
     isScheduledRecording: Boolean = false
 ) {
-    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val channelCardShape = LocalAppShapes.current.small
     val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
     val channelDescription = buildString {
@@ -259,12 +258,14 @@ fun ChannelCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    val totalDuration = program.endTime - program.startTime
-                    val elapsed = nowMs - program.startTime
-                    val progress = if (totalDuration > 0) elapsed.toFloat() / totalDuration else 0f
-
                     LinearProgressIndicator(
-                        progress = { progress.coerceIn(0f, 1f) },
+                        progress = {
+                            channelProgressFraction(
+                                nowMs = nowMs,
+                                startTimeMs = program.startTime,
+                                endTimeMs = program.endTime
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(2.dp)

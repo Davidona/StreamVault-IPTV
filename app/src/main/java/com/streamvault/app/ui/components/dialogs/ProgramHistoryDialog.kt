@@ -123,7 +123,11 @@ fun ProgramHistoryDialog(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(programs) { program ->
+                        items(
+                            items = programs,
+                            key = { "${it.channelId}:${it.startTime}:${it.endTime}:${it.id}" },
+                            contentType = { "program" }
+                        ) { program ->
                             var isFocused by remember { mutableStateOf(false) }
 
                             TvClickableSurface(
