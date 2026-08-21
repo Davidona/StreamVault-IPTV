@@ -27,13 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,21 +75,6 @@ import com.streamvault.domain.model.Series
 import com.streamvault.app.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.mouseClickable
 import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
-
-private object ChannelProgressTicker {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    val nowMs = flow {
-        while (true) {
-            emit(System.currentTimeMillis())
-            delay(30_000L)
-        }
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 30_000L),
-        initialValue = System.currentTimeMillis()
-    )
-}
 
 @Composable
 fun FocusableCard(
