@@ -41,7 +41,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/BackupManagerImpl.kt"
-            line="1176"
+            line="2413"
             column="23"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/BackupManagerImpl.kt"
-            line="1186"
+            line="2423"
             column="23"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/BackupManagerImpl.kt"
-            line="1195"
+            line="2432"
             column="16"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/DownloadManagerImpl.kt"
-            line="663"
+            line="664"
             column="23"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/DownloadManagerImpl.kt"
-            line="678"
+            line="679"
             column="58"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/DownloadManagerImpl.kt"
-            line="708"
+            line="710"
             column="27"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/data/manager/DownloadManagerImpl.kt"
-            line="748"
+            line="750"
             column="23"/>
     </issue>
 

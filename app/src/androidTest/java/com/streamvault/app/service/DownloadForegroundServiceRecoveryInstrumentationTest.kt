@@ -10,10 +10,7 @@ import com.streamvault.data.local.dao.DownloadDao
 import com.streamvault.data.local.entity.DownloadEntity
 import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadStatus
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import java.io.File
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -27,12 +24,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DownloadForegroundServiceRecoveryInstrumentationTest {
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface DownloadRecoveryEntryPoint {
-        fun downloadDao(): DownloadDao
-    }
-
     private lateinit var context: Context
     private lateinit var downloadDao: DownloadDao
     private var outputFile: File? = null
@@ -42,7 +33,7 @@ class DownloadForegroundServiceRecoveryInstrumentationTest {
         context = ApplicationProvider.getApplicationContext()
         downloadDao = EntryPointAccessors.fromApplication(
             context,
-            DownloadRecoveryEntryPoint::class.java
+            DownloadForegroundService.DownloadServiceEntryPoint::class.java
         ).downloadDao()
         runBlocking { downloadDao.deleteById(DOWNLOAD_ID) }
     }

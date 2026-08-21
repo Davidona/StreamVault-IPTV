@@ -2,7 +2,6 @@ package com.streamvault.data.manager.recording
 
 import android.content.Context
 import android.content.Intent
-import android.content.ComponentName
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -106,20 +105,20 @@ class PlatformReleaseSafetyInstrumentationTest {
     }
 
     private fun sendToRecordingRestoreReceiver(intent: Intent) {
-        context.sendBroadcast(
-            intent.setComponent(
-                ComponentName(context, RecordingRestoreReceiver::class.java)
-            )
-        )
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        invokeReceiver(RecordingRestoreReceiver(), intent)
     }
 
     private fun sendToReminderRestoreReceiver(intent: Intent) {
-        context.sendBroadcast(
-            intent.setComponent(
-                ComponentName(context, ProgramReminderRestoreReceiver::class.java)
-            )
-        )
+        invokeReceiver(ProgramReminderRestoreReceiver(), intent)
+    }
+
+    private fun invokeReceiver(receiver: android.content.BroadcastReceiver, intent: Intent) {
+        // Android protects BOOT_COMPLETED and exact-alarm broadcasts from app-sent broadcasts.
+        // Invoke the receiver on the same main-thread callback used by the framework so the
+        // assertions observe the WorkManager instance initialized by this instrumentation test.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            receiver.onReceive(context, intent)
+        }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }

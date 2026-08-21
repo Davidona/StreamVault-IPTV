@@ -179,7 +179,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     // change its request contract between profiles/endpoints, so do not
                     // carry a MAC-query decision across a fresh authentication attempt.
                     sessionScope.macQueryRequired = false
-                    val handshakePayload = runCatching {
+                    val handshakePayload = runSuspendCatching {
                         requestJson(
                             url = loadUrl,
                             profile = attemptProfile,
@@ -233,7 +233,7 @@ class OkHttpStalkerApiService @Inject constructor(
                             lastError = IOException("Portal requires account credentials for this connection.")
                             continue
                         }
-                        val authPayload = runCatching {
+                        val authPayload = runSuspendCatching {
                             requestCredentialAuth(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -266,7 +266,7 @@ class OkHttpStalkerApiService @Inject constructor(
                         sessionScopeKey = sessionScopeKey(attemptProfile)
                     )
                     if (recipe.preferLocalizationBeforeProfile) {
-                        runCatching {
+                        runSuspendCatching {
                             requestJson(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -282,7 +282,7 @@ class OkHttpStalkerApiService @Inject constructor(
                             evidence += "get_localization"
                         }
                     }
-                    val profilePayload = runCatching {
+                    val profilePayload = runSuspendCatching {
                         requestJson(
                             url = loadUrl,
                             profile = attemptProfile,
@@ -335,7 +335,7 @@ class OkHttpStalkerApiService @Inject constructor(
                         StalkerBootstrapRecipe.MODULE_GATED -> StalkerBootstrapStrategy.MAC_WITH_MODULES
                     }
                     if (recipe.requestAccountInfo || providerProfile.shouldRequestAccountInfo()) {
-                        runCatching {
+                        runSuspendCatching {
                             requestJson(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -354,7 +354,7 @@ class OkHttpStalkerApiService @Inject constructor(
                         }
                     }
                     if (recipe.requestLocalization && "get_localization" !in evidence) {
-                        runCatching {
+                        runSuspendCatching {
                             requestJson(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -371,7 +371,7 @@ class OkHttpStalkerApiService @Inject constructor(
                         }
                     }
                     if (recipe.requestModules || providerProfile.shouldRequestModules()) {
-                        runCatching {
+                        runSuspendCatching {
                             requestJson(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -395,7 +395,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     if ((recipe.strictIdentityRequired || recipe.playbackBackendHint == StalkerPlaybackBackendHint.TEMP_LINK_STRICT) &&
                         "get_events" !in evidence
                     ) {
-                        runCatching {
+                        runSuspendCatching {
                             requestJson(
                                 url = loadUrl,
                                 profile = attemptProfile,
@@ -413,7 +413,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     }
 
                     if (profile.requireCatalogValidation) {
-                        val catalogEvidence = runCatching {
+                        val catalogEvidence = runSuspendCatching {
                             validateCatalogAcceptance(session, attemptProfile)
                         }.getOrElse { error ->
                             if (error is CancellationException) throw error
@@ -1389,7 +1389,7 @@ class OkHttpStalkerApiService @Inject constructor(
         session: StalkerSession,
         profile: StalkerDeviceProfile
     ): List<StalkerItemRecord>? {
-        return runCatching {
+        return runSuspendCatching {
             requestJson(
                 url = session.loadUrl,
                 profile = profile,
@@ -1442,7 +1442,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 .method(method, requestBody)
                 .build()
 
-            return runCatching {
+            return runSuspendCatching {
                 executeJsonRequest(request, action, profile)
             }.recoverCatching { error ->
                 if (error is CancellationException) throw error
@@ -2182,7 +2182,7 @@ class OkHttpStalkerApiService @Inject constructor(
         profile: StalkerDeviceProfile
     ): List<String> {
         profile.onProgress?.invoke("Validating Live TV categories")
-        val categoriesPayload = runCatching {
+        val categoriesPayload = runSuspendCatching {
             requestJson(
                 url = session.loadUrl,
                 profile = profile,
@@ -2222,7 +2222,7 @@ class OkHttpStalkerApiService @Inject constructor(
             )
         }.distinct()
         for (categoryId in categoryStrategies) {
-            val pagePayload = runCatching {
+            val pagePayload = runSuspendCatching {
                 val query = linkedMapOf(
                     "type" to "itv",
                     "action" to "get_ordered_list",

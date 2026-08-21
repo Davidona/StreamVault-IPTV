@@ -8,10 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.streamvault.data.platform.DataSyncQuotaOwner
 import com.streamvault.data.platform.DataSyncServiceOwner
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -26,12 +23,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DownloadForegroundServiceQuotaInstrumentationTest {
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface QuotaEntryPoint {
-        fun dataSyncQuotaOwner(): DataSyncQuotaOwner
-    }
-
     private lateinit var context: Context
     private lateinit var quotaOwner: DataSyncQuotaOwner
 
@@ -44,7 +35,7 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
             .commit()
         quotaOwner = EntryPointAccessors.fromApplication(
             context,
-            QuotaEntryPoint::class.java
+            DownloadForegroundService.DownloadServiceEntryPoint::class.java
         ).dataSyncQuotaOwner()
     }
 
