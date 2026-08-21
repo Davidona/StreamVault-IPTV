@@ -174,38 +174,13 @@ fun PlayerScreen(
     val isCatchUpPlayback by viewModel.isCatchUpPlayback.collectAsStateWithLifecycle()
     val showChannelListOverlay by viewModel.showChannelListOverlay.collectAsStateWithLifecycle()
     val showCategoryListOverlay by viewModel.showCategoryListOverlay.collectAsStateWithLifecycle()
-    val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
-    val parentalControlLevel by viewModel.parentalControlLevel.collectAsStateWithLifecycle()
-    val activeCategoryId by viewModel.activeCategoryId.collectAsStateWithLifecycle()
     val showEpgOverlay by viewModel.showEpgOverlay.collectAsStateWithLifecycle()
-    val currentChannelList by viewModel.currentChannelList.collectAsStateWithLifecycle()
-    val recentChannels by viewModel.recentChannels.collectAsStateWithLifecycle()
-    val lastVisitedCategory by viewModel.lastVisitedCategory.collectAsStateWithLifecycle()
     val displayChannelNumber by viewModel.displayChannelNumber.collectAsStateWithLifecycle()
-    val upcomingPrograms by viewModel.upcomingPrograms.collectAsStateWithLifecycle()
     val showChannelInfoOverlay by viewModel.showChannelInfoOverlay.collectAsStateWithLifecycle()
-    val numericChannelInput by viewModel.numericChannelInput.collectAsStateWithLifecycle()
-    
-    val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
-    val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
-    val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
-    val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
-    val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
     val aspectRatio by viewModel.aspectRatio.collectAsStateWithLifecycle()
     val showDiagnostics by viewModel.showDiagnostics.collectAsStateWithLifecycle()
-    val playerDiagnostics by viewModel.playerDiagnostics.collectAsStateWithLifecycle()
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
-    val currentChannelRecording by viewModel.currentChannelRecording.collectAsStateWithLifecycle()
-    val isMuted by viewModel.isMuted.collectAsStateWithLifecycle()
-    val mediaTitle by viewModel.mediaTitle.collectAsStateWithLifecycle()
-    val playbackSpeed by viewModel.playbackSpeed.collectAsStateWithLifecycle()
-    val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
-    val audioVideoOffsetState by viewModel.audioVideoOffsetUiState.collectAsStateWithLifecycle()
-    val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
-    val seekPreview by viewModel.seekPreview.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
-    val timeshiftUiState by viewModel.timeshiftUiState.collectAsStateWithLifecycle()
-    val sleepTimerUiState by viewModel.sleepTimerUiState.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
 
     var modalState by remember { mutableStateOf(PlayerModalState()) }
@@ -249,13 +224,6 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(audioVideoSyncEnabled) {
-        if (!audioVideoSyncEnabled && modalState.showAudioVideoOffsetDialog) {
-            modalState = modalState.dismiss()
-            viewModel.dismissAudioVideoOffsetPreview()
-        }
-    }
-
     PlayerLifecycleHost(
         mainActivity = mainActivity,
         playbackState = playbackState,
@@ -287,31 +255,6 @@ fun PlayerScreen(
         if (!anyOverlayVisible) {
             // Restore focus to main player when all overlays are gone
             focusRequester.requestFocusSafely(tag = "PlayerScreen", target = "Player root")
-        }
-    }
-
-    val resolutionBadgeLabel = buildResolutionBadgeLabel(
-        videoFormat = videoFormat,
-        videoTracks = availableVideoQualities,
-        autoResolutionLabel = stringResource(R.string.player_resolution_auto_label, videoFormat.resolutionLabel)
-    )
-    var showResolution by remember(streamUrl) { mutableStateOf(false) }
-    var lastResolutionBadgeLabel by remember(streamUrl) { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(resolutionBadgeLabel) {
-        val nextLabel = resolutionBadgeLabel ?: run {
-            showResolution = false
-            lastResolutionBadgeLabel = null
-            return@LaunchedEffect
-        }
-        if (nextLabel == lastResolutionBadgeLabel) {
-            return@LaunchedEffect
-        }
-        lastResolutionBadgeLabel = nextLabel
-        showResolution = true
-        delay(3000)
-        if (lastResolutionBadgeLabel == nextLabel) {
-            showResolution = false
         }
     }
 
@@ -726,39 +669,12 @@ fun PlayerScreen(
             )
         }
 
-        if (currentChannelRecording?.status == com.streamvault.domain.model.RecordingStatus.RECORDING) {
-            val recordingPulse = rememberInfiniteTransition(label = "recordingPulse")
-            val recordingAlpha by recordingPulse.animateFloat(
-                initialValue = 1f,
-                targetValue = 0.2f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 750),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "recordingAlpha"
-            )
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 18.dp, top = 18.dp)
-                    .background(Color.Black.copy(alpha = 0.58f), RoundedCornerShape(999.dp))
-                    .padding(horizontal = 12.dp, vertical = 7.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(Color(0xFFFF4D4F).copy(alpha = recordingAlpha), RoundedCornerShape(999.dp))
-                )
-                Text(
-                    text = stringResource(R.string.settings_recording_status_recording),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        PlayerRecordingIndicatorHost(
+            viewModel = viewModel,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 18.dp, top = 18.dp)
+        )
 
         when (val resolutionState = playbackResolutionUiState) {
             PlaybackResolutionUiState.Resolving -> Box(
@@ -798,6 +714,7 @@ fun PlayerScreen(
 
         PlayerControlsOverlayHost(
             playerEngine = playerEngine,
+            viewModel = viewModel,
             visible = showControls,
             title = playbackTitle.ifBlank { title },
             contentType = contentType,
@@ -808,47 +725,10 @@ fun PlayerScreen(
             currentChannelName = currentChannel?.name,
             displayChannelNumber = displayChannelNumber,
             aspectRatioLabel = aspectRatio.modeName,
-            subtitleTrackCount = availableSubtitleTracks.size,
-            liveTranslationAvailable = liveTranslationAvailable,
-            audioTrackCount = availableAudioTracks.size,
-            videoQualityCount = availableVideoQualities.size,
-            currentRecordingStatus = currentChannelRecording?.status,
-            isMuted = isMuted,
-            playbackSpeed = playbackSpeed,
-            mediaTitle = mediaTitle,
-            sleepTimerUiState = sleepTimerUiState,
-            timeshiftUiState = timeshiftUiState,
             playButtonFocusRequester = playButtonFocusRequester,
             quickActionsFocusRequester = quickActionsFocusRequester,
             modifier = Modifier.fillMaxSize(),
-            onClose = viewModel::toggleControls,
-            onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
-            onSeekBackward = viewModel::seekBackward,
-            onSeekForward = viewModel::seekForward,
-            onRestartProgram = viewModel::restartCurrentProgram,
             onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
-            onStartRecording = {
-                notificationPermissionGate.runRecordingAction {
-                    viewModel.startManualRecording()
-                }
-            },
-            onStopRecording = viewModel::stopCurrentRecording,
-            onScheduleRecording = {
-                notificationPermissionGate.runRecordingAction {
-                    viewModel.scheduleRecording()
-                }
-            },
-            onScheduleDailyRecording = {
-                notificationPermissionGate.runRecordingAction {
-                    viewModel.scheduleDailyRecording()
-                }
-            },
-            onScheduleWeeklyRecording = {
-                notificationPermissionGate.runRecordingAction {
-                    viewModel.scheduleWeeklyRecording()
-                }
-            },
-            onToggleAspectRatio = viewModel::toggleAspectRatio,
             onOpenSubtitleTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.TEXT)) },
             onOpenAudioTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.AUDIO)) },
             onOpenVideoTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.VIDEO)) },
@@ -856,28 +736,16 @@ fun PlayerScreen(
             onOpenStopPlaybackTimer = { modalState = modalState.open(PlayerModal.StopPlaybackTimer) },
             onOpenIdleStandbyTimer = { modalState = modalState.open(PlayerModal.IdleStandbyTimer) },
             onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
-            audioVideoSyncEnabled = audioVideoSyncEnabled,
             showEpisodesAction = canOpenEpisodePicker,
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
             onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
-            onToggleMute = viewModel::toggleMute,
-            isCastConnected = castConnectionState == CastConnectionState.CONNECTED,
-            onCast = { viewModel.castCurrentMedia { mainActivity?.openCastRouteChooser() } },
-            onStopCasting = viewModel::stopCasting,
-            onSeekToLiveEdge = viewModel::seekToLiveEdge,
-            onSeekToPosition = viewModel::seekTo,
-            onSetScrubbingMode = viewModel::setScrubbingMode,
-            seekPreview = seekPreview,
-            onSeekPreviewPositionChanged = viewModel::updateSeekPreview,
-            onUserInteraction = {
-                viewModel.notifyUserActivity()
-                viewModel.refreshControlsAutoHide()
-            }
+            onRunRecordingAction = notificationPermissionGate::runRecordingAction,
+            onOpenCastRouteChooser = { mainActivity?.openCastRouteChooser() }
         )
 
-        PlayerNumericInputOverlay(
-            state = numericChannelInput,
+        PlayerNumericInputOverlayHost(
+            viewModel = viewModel,
             visible = contentType == "LIVE" && !showControls,
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -892,26 +760,23 @@ fun PlayerScreen(
                 .padding(top = 32.dp)
         )
 
-        PlayerResolutionBadge(
-            visible = showResolution && !showControls && resolutionBadgeLabel != null,
-            resolutionLabel = resolutionBadgeLabel.orEmpty(),
+        PlayerResolutionBadgeHost(
+            viewModel = viewModel,
+            streamUrl = streamUrl,
+            videoFormat = videoFormat,
+            controlsVisible = showControls,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(32.dp)
         )
 
-        if (!isInPictureInPictureMode) {
-            PlayerSleepTimerWarningOverlay(
-                state = sleepTimerUiState,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 88.dp),
-                onExtendStopTimer = { viewModel.extendStopPlaybackTimer() },
-                onDisableStopTimer = viewModel::disableStopPlaybackTimer,
-                onExtendIdleTimer = { viewModel.extendIdleStandbyTimer() },
-                onDisableIdleTimer = viewModel::disableIdleStandbyTimer
-            )
-        }
+        PlayerSleepTimerWarningHost(
+            viewModel = viewModel,
+            isInPictureInPictureMode = isInPictureInPictureMode,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 88.dp)
+        )
 
         // Auto-Play Next Episode countdown overlay
         val countdownState = autoPlayCountdown
@@ -940,243 +805,59 @@ fun PlayerScreen(
         }
         
         PlayerControlsModalHost(
+            viewModel = viewModel,
             isInPictureInPictureMode = isInPictureInPictureMode,
             showTrackSelection = modalState.trackSelection,
-            availableAudioTracks = availableAudioTracks,
-            availableSubtitleTracks = availableSubtitleTracks,
-            availableVideoQualities = availableVideoQualities,
-            liveTranslationAvailable = liveTranslationAvailable,
-            liveTranslationActive = liveTranslationActive,
-            onDismissTrackSelection = { modalState = modalState.dismiss() },
-            onSelectAudio = viewModel::selectAudioTrack,
-            onSelectVideo = viewModel::selectVideoQuality,
-            onSelectSubtitle = { trackId ->
-                viewModel.deactivateLiveTranslation()
-                viewModel.selectSubtitleTrack(trackId)
-            },
-            onSelectLiveTranslation = {
-                viewModel.selectSubtitleTrack(null)
-                viewModel.activateLiveTranslation()
-            },
             showVariantSelection = modalState.showVariantSelection,
             currentChannel = currentChannel,
-            onDismissVariantSelection = { modalState = modalState.dismiss() },
-            onSelectVariant = viewModel::selectLiveVariant,
             showSpeedSelection = modalState.showSpeedSelection,
-            playbackSpeed = playbackSpeed,
-            onDismissSpeedSelection = { modalState = modalState.dismiss() },
-            onSelectSpeed = viewModel::setPlaybackSpeed,
             showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
-            stopPlaybackTimerTitle = stringResource(R.string.player_stop_playback_after),
-            stopPlaybackTimerMinutes = sleepTimerUiState.stopTimerMinutes,
-            onDismissStopPlaybackTimer = { modalState = modalState.dismiss() },
-            onSelectStopPlaybackTimer = { minutes ->
-                viewModel.notifyUserActivity()
-                viewModel.setStopPlaybackTimer(minutes)
-                modalState = modalState.dismiss()
-            },
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
-            idleStandbyTimerTitle = stringResource(R.string.player_idle_standby_after),
-            idleStandbyTimerMinutes = sleepTimerUiState.idleTimerMinutes,
-            onDismissIdleStandbyTimer = { modalState = modalState.dismiss() },
-            onSelectIdleStandbyTimer = { minutes ->
-                viewModel.notifyUserActivity()
-                viewModel.setIdleStandbyTimer(minutes)
-                modalState = modalState.dismiss()
-            },
-            audioVideoOffsetVisible = modalState.showAudioVideoOffsetDialog &&
-                audioVideoSyncEnabled &&
-                castConnectionState != CastConnectionState.CONNECTED,
-            audioVideoOffsetState = audioVideoOffsetState,
             canSaveChannel = currentChannel != null,
-            onDismissAudioVideoOffset = {
-                modalState = modalState.dismiss()
-                viewModel.dismissAudioVideoOffsetPreview()
-            },
-            onAdjustAudioVideoOffset = viewModel::adjustAudioVideoOffset,
-            onResetAudioVideoOffset = viewModel::resetAudioVideoOffsetPreview,
-            onSaveAudioVideoOffsetForChannel = viewModel::saveAudioVideoOffsetForChannel,
-            onSaveAudioVideoOffsetAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
-            onUseGlobalAudioVideoOffset = viewModel::useGlobalAudioVideoOffset,
+            showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
             seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { title },
             seasons = currentSeriesSeasons.orEmpty(),
             currentEpisodeId = currentEpisode?.id ?: internalChannelId,
             currentSeasonNumber = currentEpisode?.seasonNumber ?: seasonNumber,
-            onDismissEpisodePicker = { modalState = modalState.dismiss() },
-            onSelectEpisode = { episode ->
-                modalState = modalState.dismiss()
-                viewModel.playEpisode(episode)
-            }
+            onDismissModal = { modalState = modalState.dismiss() }
         )
 
         // --- Overlays ---
-        if (!isInPictureInPictureMode && showDiagnostics) {
-            val playerStats by viewModel.playerStats.collectAsStateWithLifecycle()
-            DiagnosticsOverlay(
-                stats = playerStats,
-                diagnostics = playerDiagnostics,
-                modifier = Modifier.align(Alignment.TopStart).padding(32.dp)
-            )
-        }
-
+        PlayerDiagnosticsHost(
+            viewModel = viewModel,
+            visible = showDiagnostics,
+            isInPictureInPictureMode = isInPictureInPictureMode,
+            modifier = Modifier.align(Alignment.TopStart).padding(32.dp)
+        )
         if (contentType == "LIVE") {
-            AnimatedVisibility(
-                visible = showChannelListOverlay,
-                enter = slideInHorizontally(initialOffsetX = { if (isRtl) it else -it }),
-                exit = slideOutHorizontally(targetOffsetX = { if (isRtl) it else -it }),
-                modifier = Modifier
-                    .align(if (isRtl) Alignment.TopEnd else Alignment.TopStart)
-                    .fillMaxHeight()
-                    .width(sideOverlayWidth)
-                    .focusGroup()
-            ) {
-                ChannelListOverlay(
-                    channels = currentChannelList,
-                    recentChannels = recentChannels,
-                    currentChannelId = currentChannel?.id ?: internalChannelId,
-                    overlayFocusRequester = channelListFocusRequester,
-                    lastVisitedCategoryName = lastVisitedCategory?.name,
-                    onOpenLastGroup = { viewModel.openLastVisitedCategory() },
-                    onSelectChannel = { channelId -> viewModel.zapToChannel(channelId) },
-                    onOpenCategories = { viewModel.openCategoryListOverlay() },
-                    onDismiss = { viewModel.closeOverlays() },
-                    onOverlayInteracted = viewModel::onLiveOverlayInteraction
-                )
-            }
-
-            AnimatedVisibility(
-                visible = showCategoryListOverlay,
-                enter = slideInHorizontally(initialOffsetX = { if (isRtl) it else -it }),
-                exit = slideOutHorizontally(targetOffsetX = { if (isRtl) it else -it }),
-                modifier = Modifier
-                    .align(if (isRtl) Alignment.TopEnd else Alignment.TopStart)
-                    .fillMaxHeight()
-                    .width(sideOverlayWidth)
-                    .focusGroup()
-            ) {
-                CategoryListOverlay(
-                    categories = availableCategories,
-                    currentCategoryId = activeCategoryId,
-                    overlayFocusRequester = categoryListFocusRequester,
-                    isCategoryLocked = { category ->
-                        parentalControlLevel in 1..2 && (category.isAdult || category.isUserProtected)
-                    },
-                    onSelectCategory = { category ->
-                        viewModel.selectCategoryFromOverlay(category)
-                    },
-                    onDismiss = { viewModel.closeOverlays() },
-                    onOverlayInteracted = viewModel::onLiveOverlayInteraction
-                )
-            }
-
-            AnimatedVisibility(
-                visible = showEpgOverlay,
-                enter = slideInHorizontally(initialOffsetX = { if (isRtl) -it else it }),
-                exit = slideOutHorizontally(targetOffsetX = { if (isRtl) -it else it }),
-                modifier = Modifier
-                    .align(if (isRtl) Alignment.TopStart else Alignment.TopEnd)
-                    .fillMaxHeight()
-                    .width(epgOverlayWidth)
-                    .focusGroup()
-            ) {
-                EpgOverlay(
-                    currentChannel = currentChannel,
-                    displayChannelNumber = displayChannelNumber,
-                    currentProgram = currentProgram,
-                    nextProgram = nextProgram,
-                    upcomingPrograms = upcomingPrograms,
-                    onDismiss = { viewModel.closeOverlays() },
-                    onOpenArchiveBrowser = {
-                        modalState = modalState.open(PlayerModal.ProgramHistory)
-                        viewModel.closeOverlays()
-                    },
-                    onOverlayInteracted = viewModel::onLiveOverlayInteraction
-                )
-            }
-
-            AnimatedVisibility(
-                visible = showChannelInfoOverlay,
-                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .focusGroup()
-            ) {
-                ChannelInfoOverlay(
-                    currentChannel = currentChannel,
-                    displayChannelNumber = displayChannelNumber,
-                    currentProgram = currentProgram,
-                    nextProgram = nextProgram,
-                    focusRequester = channelInfoFocusRequester,
-                    lastVisitedCategoryName = lastVisitedCategory?.name,
-                    onDismiss = { viewModel.closeChannelInfoOverlay() },
-                    onOverlayInteracted = viewModel::onLiveOverlayInteraction,
-                    onOpenFullEpg = {
-                        viewModel.closeChannelInfoOverlay()
-                        viewModel.openEpgOverlay()
-                    },
-                    onOpenLastGroup = {
-                        viewModel.closeChannelInfoOverlay()
-                        viewModel.openLastVisitedCategory()
-                    },
-                    currentRecordingStatus = currentChannelRecording?.status,
-                    onStartRecording = {
-                        notificationPermissionGate.runRecordingAction {
-                            viewModel.startManualRecording()
-                        }
-                    },
-                    onStopRecording = viewModel::stopCurrentRecording,
-                    onScheduleRecording = {
-                        notificationPermissionGate.runRecordingAction {
-                            viewModel.scheduleRecording()
-                        }
-                    },
-                    onScheduleDailyRecording = {
-                        notificationPermissionGate.runRecordingAction {
-                            viewModel.scheduleDailyRecording()
-                        }
-                    },
-                    onScheduleWeeklyRecording = {
-                        notificationPermissionGate.runRecordingAction {
-                            viewModel.scheduleWeeklyRecording()
-                        }
-                    },
-                    onRestartProgram = { viewModel.restartCurrentProgram() },
-                    onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
-                    onToggleAspectRatio = { viewModel.toggleAspectRatio() },
-                    onToggleDiagnostics = { viewModel.toggleDiagnostics() },
-                    onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
-                    onSeekBackward = viewModel::seekBackward,
-                    onSeekForward = viewModel::seekForward,
-                    onSeekToLiveEdge = viewModel::seekToLiveEdge,
-                    isPlaying = isPlaying,
-                    currentAspectRatio = aspectRatio.modeName,
-                    isDiagnosticsEnabled = showDiagnostics,
-                    onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
-                    subtitleTrackCount = availableSubtitleTracks.size,
-                    liveTranslationAvailable = liveTranslationAvailable,
-                    audioTrackCount = availableAudioTracks.size,
-                    videoQualityCount = availableVideoQualities.size,
-                    channelVariantCount = currentChannel?.variants?.size ?: 0,
-                    isMuted = isMuted,
-                    onToggleMute = viewModel::toggleMute,
-                    onOpenSubtitleTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.TEXT)) },
-                    onOpenAudioTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.AUDIO)) },
-                    onOpenVideoTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.VIDEO)) },
-                    onOpenVariants = { modalState = modalState.open(PlayerModal.VariantSelection) },
-                    onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
-                    audioVideoSyncEnabled = audioVideoSyncEnabled,
-                    onEnterPictureInPicture = enterPictureInPicture,
-                    isCastConnected = castConnectionState == CastConnectionState.CONNECTED,
-                    onCast = { viewModel.castCurrentMedia { mainActivity?.openCastRouteChooser() } },
-                    onStopCasting = viewModel::stopCasting,
-                    timeshiftUiState = timeshiftUiState,
-                    onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it },
-                    resolutionLabel = videoFormat.resolutionLabel.takeIf { it.isNotBlank() && !videoFormat.isEmpty }
-                )
-            }
+            PlayerLiveOverlayHost(
+                viewModel = viewModel,
+                isRtl = isRtl,
+                sideOverlayWidth = sideOverlayWidth,
+                epgOverlayWidth = epgOverlayWidth,
+                showChannelListOverlay = showChannelListOverlay,
+                showCategoryListOverlay = showCategoryListOverlay,
+                showEpgOverlay = showEpgOverlay,
+                showChannelInfoOverlay = showChannelInfoOverlay,
+                currentChannel = currentChannel,
+                internalChannelId = internalChannelId,
+                displayChannelNumber = displayChannelNumber,
+                currentProgram = currentProgram,
+                nextProgram = nextProgram,
+                channelListFocusRequester = channelListFocusRequester,
+                categoryListFocusRequester = categoryListFocusRequester,
+                channelInfoFocusRequester = channelInfoFocusRequester,
+                isPlaying = isPlaying,
+                aspectRatioLabel = aspectRatio.modeName,
+                showDiagnostics = showDiagnostics,
+                videoFormat = videoFormat,
+                onOpenModal = { modal -> modalState = modalState.open(modal) },
+                onEnterPictureInPicture = enterPictureInPicture,
+                onRunRecordingAction = notificationPermissionGate::runRecordingAction,
+                onOpenCastRouteChooser = { mainActivity?.openCastRouteChooser() },
+                onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
+            )
         }
     }
 }
@@ -1211,20 +892,6 @@ private fun AspectRatio.toPlayerSurfaceResizeMode(): PlayerSurfaceResizeMode = w
     AspectRatio.FIT -> PlayerSurfaceResizeMode.FIT
     AspectRatio.FILL -> PlayerSurfaceResizeMode.FILL
     AspectRatio.ZOOM -> PlayerSurfaceResizeMode.ZOOM
-}
-
-private fun buildResolutionBadgeLabel(
-    videoFormat: VideoFormat,
-    videoTracks: List<PlayerTrack>,
-    autoResolutionLabel: String
-): String? {
-    if (videoFormat.isEmpty) return null
-    val selectedTrack = videoTracks.firstOrNull(PlayerTrack::isSelected)
-    return if (selectedTrack == null || selectedTrack.id == PLAYER_TRACK_AUTO_ID) {
-        autoResolutionLabel
-    } else {
-        selectedTrack.name
-    }
 }
 
 private tailrec fun android.content.Context.findMainActivity(): MainActivity? = when (this) {

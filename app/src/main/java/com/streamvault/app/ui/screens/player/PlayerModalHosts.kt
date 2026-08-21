@@ -1,7 +1,12 @@
 package com.streamvault.app.ui.screens.player
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.ProgramHistoryDialog
 import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
 import com.streamvault.app.ui.screens.multiview.MultiViewViewModel
@@ -15,7 +20,6 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Season
-import com.streamvault.player.PlayerTrack
 import com.streamvault.player.TrackType
 
 @Composable
@@ -51,54 +55,39 @@ internal fun PlayerTopLevelModalHost(
 
 @Composable
 internal fun PlayerControlsModalHost(
+    viewModel: PlayerViewModel,
     isInPictureInPictureMode: Boolean,
     showTrackSelection: TrackType?,
-    availableAudioTracks: List<PlayerTrack>,
-    availableSubtitleTracks: List<PlayerTrack>,
-    availableVideoQualities: List<PlayerTrack>,
-    liveTranslationAvailable: Boolean,
-    liveTranslationActive: Boolean,
-    onDismissTrackSelection: () -> Unit,
-    onSelectAudio: (String) -> Unit,
-    onSelectVideo: (String) -> Unit,
-    onSelectSubtitle: (String?) -> Unit,
-    onSelectLiveTranslation: () -> Unit,
     showVariantSelection: Boolean,
     currentChannel: Channel?,
-    onDismissVariantSelection: () -> Unit,
-    onSelectVariant: (Long) -> Unit,
     showSpeedSelection: Boolean,
-    playbackSpeed: Float,
-    onDismissSpeedSelection: () -> Unit,
-    onSelectSpeed: (Float) -> Unit,
     showStopPlaybackTimerDialog: Boolean,
-    stopPlaybackTimerTitle: String,
-    stopPlaybackTimerMinutes: Int,
-    onDismissStopPlaybackTimer: () -> Unit,
-    onSelectStopPlaybackTimer: (Int) -> Unit,
     showIdleStandbyTimerDialog: Boolean,
-    idleStandbyTimerTitle: String,
-    idleStandbyTimerMinutes: Int,
-    onDismissIdleStandbyTimer: () -> Unit,
-    onSelectIdleStandbyTimer: (Int) -> Unit,
-    audioVideoOffsetVisible: Boolean,
-    audioVideoOffsetState: PlayerAudioVideoOffsetUiState,
     canSaveChannel: Boolean,
-    onDismissAudioVideoOffset: () -> Unit,
-    onAdjustAudioVideoOffset: (Int) -> Unit,
-    onResetAudioVideoOffset: () -> Unit,
-    onSaveAudioVideoOffsetForChannel: () -> Unit,
-    onSaveAudioVideoOffsetAsGlobal: () -> Unit,
-    onUseGlobalAudioVideoOffset: () -> Unit,
+    showAudioVideoOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
     seriesTitle: String,
     seasons: List<Season>,
     currentEpisodeId: Long,
     currentSeasonNumber: Int?,
-    onDismissEpisodePicker: () -> Unit,
-    onSelectEpisode: (Episode) -> Unit,
+    onDismissModal: () -> Unit,
 ) {
-    if (!isInPictureInPictureMode) {
+    if (showAudioVideoOffsetDialog) {
+        val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
+        LaunchedEffect(audioVideoSyncEnabled) {
+            if (!audioVideoSyncEnabled) {
+                onDismissModal()
+                viewModel.dismissAudioVideoOffsetPreview()
+            }
+        }
+    }
+
+    if (!isInPictureInPictureMode && showTrackSelection != null) {
+        val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
+        val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
+        val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
+        val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
+        val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
         PlayerTrackSelectionDialog(
             trackType = showTrackSelection,
             audioTracks = availableAudioTracks,
@@ -106,57 +95,95 @@ internal fun PlayerControlsModalHost(
             videoTracks = availableVideoQualities,
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
-            onDismiss = onDismissTrackSelection,
-            onSelectAudio = onSelectAudio,
-            onSelectVideo = onSelectVideo,
-            onSelectSubtitle = onSelectSubtitle,
-            onSelectLiveTranslation = onSelectLiveTranslation
+            onDismiss = onDismissModal,
+            onSelectAudio = viewModel::selectAudioTrack,
+            onSelectVideo = viewModel::selectVideoQuality,
+            onSelectSubtitle = { trackId ->
+                viewModel.deactivateLiveTranslation()
+                viewModel.selectSubtitleTrack(trackId)
+            },
+            onSelectLiveTranslation = {
+                viewModel.selectSubtitleTrack(null)
+                viewModel.activateLiveTranslation()
+            }
         )
+    }
+    if (!isInPictureInPictureMode && showVariantSelection) {
         ChannelVariantSelectionDialog(
-            visible = showVariantSelection,
+            visible = true,
             channel = currentChannel,
-            onDismiss = onDismissVariantSelection,
-            onSelectVariant = onSelectVariant
+            onDismiss = onDismissModal,
+            onSelectVariant = viewModel::selectLiveVariant
         )
+    }
+    if (!isInPictureInPictureMode && showSpeedSelection) {
+        val playbackSpeed by viewModel.playbackSpeed.collectAsStateWithLifecycle()
         PlayerSpeedSelectionDialog(
-            visible = showSpeedSelection,
+            visible = true,
             selectedSpeed = playbackSpeed,
-            onDismiss = onDismissSpeedSelection,
-            onSelectSpeed = onSelectSpeed
+            onDismiss = onDismissModal,
+            onSelectSpeed = viewModel::setPlaybackSpeed
         )
+    }
+    if (!isInPictureInPictureMode && showStopPlaybackTimerDialog) {
+        val sleepTimerUiState by viewModel.sleepTimerUiState.collectAsStateWithLifecycle()
         PlayerSleepTimerDialog(
-            visible = showStopPlaybackTimerDialog,
-            title = stopPlaybackTimerTitle,
-            selectedMinutes = stopPlaybackTimerMinutes,
-            onDismiss = onDismissStopPlaybackTimer,
-            onSelectMinutes = onSelectStopPlaybackTimer
+            visible = true,
+            title = stringResource(R.string.player_stop_playback_after),
+            selectedMinutes = sleepTimerUiState.stopTimerMinutes,
+            onDismiss = onDismissModal,
+            onSelectMinutes = { minutes ->
+                viewModel.notifyUserActivity()
+                viewModel.setStopPlaybackTimer(minutes)
+                onDismissModal()
+            }
         )
+    }
+    if (!isInPictureInPictureMode && showIdleStandbyTimerDialog) {
+        val sleepTimerUiState by viewModel.sleepTimerUiState.collectAsStateWithLifecycle()
         PlayerSleepTimerDialog(
-            visible = showIdleStandbyTimerDialog,
-            title = idleStandbyTimerTitle,
-            selectedMinutes = idleStandbyTimerMinutes,
-            onDismiss = onDismissIdleStandbyTimer,
-            onSelectMinutes = onSelectIdleStandbyTimer
+            visible = true,
+            title = stringResource(R.string.player_idle_standby_after),
+            selectedMinutes = sleepTimerUiState.idleTimerMinutes,
+            onDismiss = onDismissModal,
+            onSelectMinutes = { minutes ->
+                viewModel.notifyUserActivity()
+                viewModel.setIdleStandbyTimer(minutes)
+                onDismissModal()
+            }
         )
+    }
+    if (!isInPictureInPictureMode && showAudioVideoOffsetDialog) {
+        val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
+        val audioVideoOffsetState by viewModel.audioVideoOffsetUiState.collectAsStateWithLifecycle()
+        val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
         PlayerAudioVideoOffsetDialog(
-            visible = audioVideoOffsetVisible,
+            visible = audioVideoSyncEnabled && castConnectionState != com.streamvault.app.cast.CastConnectionState.CONNECTED,
             state = audioVideoOffsetState,
             canSaveChannel = canSaveChannel,
-            onDismiss = onDismissAudioVideoOffset,
-            onAdjust = onAdjustAudioVideoOffset,
-            onReset = onResetAudioVideoOffset,
-            onSaveForChannel = onSaveAudioVideoOffsetForChannel,
-            onSaveAsGlobal = onSaveAudioVideoOffsetAsGlobal,
-            onUseGlobal = onUseGlobalAudioVideoOffset
+            onDismiss = {
+                onDismissModal()
+                viewModel.dismissAudioVideoOffsetPreview()
+            },
+            onAdjust = viewModel::adjustAudioVideoOffset,
+            onReset = viewModel::resetAudioVideoOffsetPreview,
+            onSaveForChannel = viewModel::saveAudioVideoOffsetForChannel,
+            onSaveAsGlobal = viewModel::saveAudioVideoOffsetAsGlobal,
+            onUseGlobal = viewModel::useGlobalAudioVideoOffset
         )
+    }
+    if (!isInPictureInPictureMode && showEpisodePicker) {
         PlayerEpisodeSelectionDialog(
-            visible = showEpisodePicker,
+            visible = true,
             seriesTitle = seriesTitle,
             seasons = seasons,
             currentEpisodeId = currentEpisodeId,
             currentSeasonNumber = currentSeasonNumber,
-            onDismiss = onDismissEpisodePicker,
-            onSelectEpisode = onSelectEpisode
+            onDismiss = onDismissModal,
+            onSelectEpisode = { episode ->
+                onDismissModal()
+                viewModel.playEpisode(episode)
+            }
         )
     }
 }
