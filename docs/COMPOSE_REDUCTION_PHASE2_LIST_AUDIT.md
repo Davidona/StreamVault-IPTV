@@ -24,7 +24,7 @@ otherwise difficult for Compose to classify.
 | Program history dialog | Channel/start/end/ID composite | `program` | Fixed; prevents index-key fallback when EPG data refreshes. |
 | Add-to-group dialog | Category ID | `category` | Fixed. |
 | M3U series-assignment dialog | Channel ID | `series_assignment` | Fixed. |
-| Player short action rows | Positional action list | Not required | Reviewed; these are short, homogeneous action strips rather than data-backed scrolling lists. |
+| Player quick/action rows | Semantic `PlayerActionSpec.id` | `player_quick_action` / `channel_info_action` | Fixed; labels can change for mute, casting, playback speed, aspect ratio, or timer state without changing item identity. |
 
 No display-text key was introduced where a stable domain ID was available.
 The channel progress clock is collected once by Dashboard, Home, and Search;

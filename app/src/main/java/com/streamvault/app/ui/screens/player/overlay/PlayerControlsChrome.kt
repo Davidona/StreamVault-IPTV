@@ -93,6 +93,7 @@ import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.interaction.TvIconButton
 
 private data class PlayerActionSpec(
+    val id: String,
     val label: String,
     val onClick: () -> Unit
 )
@@ -785,17 +786,20 @@ private fun PlayerLiveInfo(
         currentChannel.isArchivePlayable(currentProgram)
     val primaryActions = buildList {
         if (showTimeshiftControls) {
-            add(PlayerActionSpec(stringResource(R.string.player_jump_to_live), onSeekToLiveEdge))
+            add(PlayerActionSpec("jump_to_live", stringResource(R.string.player_jump_to_live), onSeekToLiveEdge))
         }
         add(PlayerActionSpec(
+            "mute",
             stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
             onToggleMute
         ))
         add(PlayerActionSpec(
+            "cast",
             stringResource(if (isCastConnected) R.string.player_stop_casting else R.string.player_cast),
             if (isCastConnected) onStopCasting else onCast
         ))
         add(PlayerActionSpec(
+            "stop_playback_timer",
             sleepTimerActionLabel(
                 title = stringResource(R.string.player_stop_playback_after),
                 activeLabel = stringResource(
@@ -807,6 +811,7 @@ private fun PlayerLiveInfo(
             onOpenStopPlaybackTimer
         ))
         add(PlayerActionSpec(
+            "idle_standby_timer",
             sleepTimerActionLabel(
                 title = stringResource(R.string.player_idle_standby_after),
                 activeLabel = stringResource(
@@ -817,38 +822,38 @@ private fun PlayerLiveInfo(
             ),
             onOpenIdleStandbyTimer
         ))
-        add(PlayerActionSpec(stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
+        add(PlayerActionSpec("picture_in_picture", stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
         if (showExternalPlayerAction) {
-            add(PlayerActionSpec(stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
+            add(PlayerActionSpec("external_player", stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
         }
         if (canRestartProgram) {
-            add(PlayerActionSpec(stringResource(R.string.player_restart), onRestartProgram))
-            add(PlayerActionSpec(stringResource(R.string.player_archive), onOpenArchive))
+            add(PlayerActionSpec("restart", stringResource(R.string.player_restart), onRestartProgram))
+            add(PlayerActionSpec("archive", stringResource(R.string.player_archive), onOpenArchive))
         }
         if (currentRecordingStatus == RecordingStatus.RECORDING) {
-            add(PlayerActionSpec(stringResource(R.string.player_stop_recording), onStopRecording))
+            add(PlayerActionSpec("stop_recording", stringResource(R.string.player_stop_recording), onStopRecording))
         } else {
-            add(PlayerActionSpec(stringResource(R.string.player_record), onStartRecording))
-            add(PlayerActionSpec(stringResource(R.string.player_schedule_recording), onScheduleRecording))
-            add(PlayerActionSpec(stringResource(R.string.player_schedule_daily_recording), onScheduleDailyRecording))
-            add(PlayerActionSpec(stringResource(R.string.player_schedule_weekly_recording), onScheduleWeeklyRecording))
+            add(PlayerActionSpec("record", stringResource(R.string.player_record), onStartRecording))
+            add(PlayerActionSpec("schedule_recording", stringResource(R.string.player_schedule_recording), onScheduleRecording))
+            add(PlayerActionSpec("schedule_daily_recording", stringResource(R.string.player_schedule_daily_recording), onScheduleDailyRecording))
+            add(PlayerActionSpec("schedule_weekly_recording", stringResource(R.string.player_schedule_weekly_recording), onScheduleWeeklyRecording))
         }
     }
     val secondaryActions = buildList {
-        add(PlayerActionSpec(stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
+        add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
         if (subtitleTrackCount > 0 || liveTranslationAvailable) {
-            add(PlayerActionSpec(stringResource(R.string.player_subs), onOpenSubtitleTracks))
+            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         }
         if (audioTrackCount > 0) {
-            add(PlayerActionSpec(stringResource(R.string.player_audio), onOpenAudioTracks))
+            add(PlayerActionSpec("audio", stringResource(R.string.player_audio), onOpenAudioTracks))
         }
         if (videoQualityCount > 0) {
-            add(PlayerActionSpec(stringResource(R.string.player_video_quality), onOpenVideoTracks))
+            add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
         }
         if (audioVideoSyncEnabled && !isCastConnected) {
-            add(PlayerActionSpec(stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
+            add(PlayerActionSpec("audio_video_sync", stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
         }
-        add(PlayerActionSpec(stringResource(R.string.multiview_nav), onOpenSplitScreen))
+        add(PlayerActionSpec("split_screen", stringResource(R.string.multiview_nav), onOpenSplitScreen))
     }
 
     Row(verticalAlignment = Alignment.Top) {
@@ -1062,34 +1067,37 @@ private fun PlayerVodInfo(
     val playbackLabel = stringResource(R.string.player_playback_label)
     val actions = buildList {
         add(PlayerActionSpec(
+            "mute",
             stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
             onToggleMute
         ))
         if (subtitleTrackCount > 0) {
-            add(PlayerActionSpec(stringResource(R.string.player_subs), onOpenSubtitleTracks))
+            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         }
         if (videoQualityCount > 0) {
-            add(PlayerActionSpec(stringResource(R.string.player_video_quality), onOpenVideoTracks))
+            add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
         }
         if (showEpisodesAction) {
-            add(PlayerActionSpec(stringResource(R.string.player_episodes), onOpenEpisodes))
+            add(PlayerActionSpec("episodes", stringResource(R.string.player_episodes), onOpenEpisodes))
         }
         if (showExternalPlayerAction) {
-            add(PlayerActionSpec(stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
+            add(PlayerActionSpec("external_player", stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
         }
         if (audioTrackCount > 0) {
-            add(PlayerActionSpec(stringResource(R.string.player_audio), onOpenAudioTracks))
+            add(PlayerActionSpec("audio", stringResource(R.string.player_audio), onOpenAudioTracks))
         }
         add(
             PlayerActionSpec(
+                "playback_speed",
                 stringResource(R.string.player_playback_speed_value, formatPlaybackSpeedLabel(playbackSpeed)),
                 onOpenPlaybackSpeed
             )
         )
         if (audioVideoSyncEnabled && !isCastConnected) {
-            add(PlayerActionSpec(stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
+            add(PlayerActionSpec("audio_video_sync", stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
         }
         add(PlayerActionSpec(
+            "stop_playback_timer",
             sleepTimerActionLabel(
                 title = stringResource(R.string.player_stop_playback_after),
                 activeLabel = stringResource(
@@ -1101,6 +1109,7 @@ private fun PlayerVodInfo(
             onOpenStopPlaybackTimer
         ))
         add(PlayerActionSpec(
+            "idle_standby_timer",
             sleepTimerActionLabel(
                 title = stringResource(R.string.player_idle_standby_after),
                 activeLabel = stringResource(
@@ -1112,11 +1121,12 @@ private fun PlayerVodInfo(
             onOpenIdleStandbyTimer
         ))
         add(PlayerActionSpec(
+            "cast",
             stringResource(if (isCastConnected) R.string.player_stop_casting else R.string.player_cast),
             if (isCastConnected) onStopCasting else onCast
         ))
-        add(PlayerActionSpec(stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
-        add(PlayerActionSpec(stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
+        add(PlayerActionSpec("picture_in_picture", stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
+        add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
     }
     var sliderValue by remember(duration, currentPosition) {
         mutableStateOf(if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f)
@@ -1598,7 +1608,7 @@ private fun PlayerQuickActionRows(
         ) {
             itemsIndexed(
                 items = actions,
-                key = { _, action -> action.label },
+                key = { _, action -> action.id },
                 contentType = { _, _ -> "player_quick_action" }
             ) { actionIndex, action ->
                 PlayerQuickSettingsButton(
