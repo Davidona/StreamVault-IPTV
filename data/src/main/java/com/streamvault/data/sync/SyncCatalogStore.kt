@@ -159,10 +159,10 @@ internal class SyncCatalogStore(
     ) {
         try {
             providerTransaction(providerId) {
-                categories?.let { stageCategories(providerId, sessionId, it) }
-                categories?.let { applyCategories(providerId, sessionId, "LIVE") }
-                applyChannels(providerId, sessionId)
-                catalogSyncDao.rebuildChannelFts()
+                categories?.let { timed(providerId, "category-staging") { stageCategories(providerId, sessionId, it) } }
+                categories?.let { timed(providerId, "category-commit") { applyCategories(providerId, sessionId, "LIVE") } }
+                timed(providerId, "channel-insert-update-delete") { applyChannels(providerId, sessionId) }
+                timed(providerId, "channel-fts-rebuild") { catalogSyncDao.rebuildChannelFts() }
                 afterCatalogApply()
             }
         } finally {
@@ -368,14 +368,25 @@ internal class SyncCatalogStore(
     }
 
     suspend fun stageChannelBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>) {
-        providerTransaction(providerId) {
-            requireStageCapacity(
-                currentCount = catalogSyncDao.countChannelStages(providerId, sessionId),
-                incomingCount = channels.distinctBy { it.streamId }.size,
-                maximum = sizeLimits.maxChannelsPerProvider,
-                label = "channel"
-            )
-            insertStageRows(buildChannelStages(providerId, sessionId, channels), catalogSyncDao::insertChannelStages)
+        timed(providerId, "channel-staging-batch(${channels.size})") {
+            providerTransaction(providerId) {
+                requireStageCapacity(
+                    currentCount = catalogSyncDao.countChannelStages(providerId, sessionId),
+                    incomingCount = channels.distinctBy { it.streamId }.size,
+                    maximum = sizeLimits.maxChannelsPerProvider,
+                    label = "channel"
+                )
+                insertStageRows(buildChannelStages(providerId, sessionId, channels), catalogSyncDao::insertChannelStages)
+            }
+        }
+    }
+
+    private suspend fun <T> timed(providerId: Long, stage: String, block: suspend () -> T): T {
+        val startedAt = System.currentTimeMillis()
+        return try {
+            block()
+        } finally {
+            Log.i(TAG, "catalog timing provider=$providerId stage=$stage took=${System.currentTimeMillis() - startedAt}ms")
         }
     }
 

@@ -1233,6 +1233,56 @@ class SyncManagerTest {
     }
 
     @Test
+    fun `sync_xtream_recreates hidden category shells when provider catalog rows were deleted`() = runTest {
+        val provider = sampleProvider(ProviderType.XTREAM_CODES).copy(
+            xtreamLiveSyncMode = ProviderXtreamLiveSyncMode.CATEGORY_BY_CATEGORY
+        )
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES, providerEntity = provider)
+        org.mockito.kotlin.whenever(preferencesRepo.getHiddenCategoryIds(eq(1L), eq(ContentType.LIVE)))
+            .thenReturn(flowOf(setOf(2L)))
+        org.mockito.kotlin.whenever(categoryDao.getByProviderAndTypeSync(1L, ContentType.LIVE.name))
+            .thenReturn(emptyList())
+        org.mockito.kotlin.whenever(channelDao.getByProviderSync(1L)).thenReturn(emptyList())
+        xtreamBackend.respond(
+            action = "get_live_categories",
+            body = """
+                [
+                  {"category_id":"1","category_name":"News"},
+                  {"category_id":"2","category_name":"Hidden Sports"}
+                ]
+            """.trimIndent()
+        )
+        xtreamBackend.respond(
+            action = "get_live_streams",
+            body = """
+                [
+                  {
+                    "name": "Visible Channel",
+                    "stream_id": 1001,
+                    "category_id": "1",
+                    "stream_icon": "https://example.com/ch1.png",
+                    "tv_archive": 0,
+                    "num": 1
+                  }
+                ]
+            """.trimIndent()
+        )
+        stubXtreamEmptyVodAndSeriesCategories()
+
+        val result = mgr.sync(1L, force = false)
+        advanceUntilIdle()
+
+        assertThat(result.isSuccess).isTrue()
+        val insertedCategories = argumentCaptor<List<com.streamvault.data.local.entity.CategoryImportStageEntity>>()
+        verify(catalogSyncDao, atLeastOnce()).insertCategoryStages(insertedCategories.capture())
+        assertThat(
+            insertedCategories.allValues.flatten()
+                .filter { it.type == ContentType.LIVE }
+                .map { it.categoryId }
+        ).containsAtLeast(1L, 2L)
+    }
+
+    @Test
     fun `sync_xtream_empty_valid_live_without_existing_channels_continues_with_vod_and_series`() = runTest {
         val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
         org.mockito.kotlin.whenever(channelDao.getCount(1L)).thenReturn(flowOf(0))

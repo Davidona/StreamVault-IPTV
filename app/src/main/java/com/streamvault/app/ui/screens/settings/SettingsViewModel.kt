@@ -29,6 +29,7 @@ import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupManager
 import com.streamvault.domain.manager.BackupPreview
+import com.streamvault.domain.manager.BackupRestoreStatusStore
 import com.streamvault.domain.manager.DriveBackupSyncManager
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.manager.RecordingManager
@@ -109,6 +110,7 @@ class SettingsViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     private val internetSpeedTestRunner: InternetSpeedTestRunner,
     private val backupManager: BackupManager,
+    private val backupRestoreStatusStore: BackupRestoreStatusStore,
     private val driveBackupSyncManager: DriveBackupSyncManager,
     private val recordingManager: RecordingManager,
     private val parentalControlManager: ParentalControlManager,
@@ -243,6 +245,11 @@ class SettingsViewModel @Inject constructor(
             uiState = _uiState
         )
         driveBackupActions.observeAuthState(viewModelScope)
+        viewModelScope.launch {
+            backupRestoreStatusStore.observeRestoreJobs().collect { jobs ->
+                _uiState.update { it.copy(backupRestoreJobs = jobs) }
+            }
+        }
     }
 
     fun refreshCrashReport() {
@@ -1189,6 +1196,63 @@ class SettingsViewModel @Inject constructor(
     fun confirmBackupImport() {
         backupActions.confirmBackupImport(viewModelScope) {
             driveBackupActions.applyPendingCredentials(viewModelScope)
+        }
+    }
+
+    fun toggleRestoreSyncProvider(index: Int) = backupActions.toggleRestoreProvider(index)
+
+    fun selectAllRestoreSyncProviders() = backupActions.selectAllRestoreProviders()
+
+    fun restoreSyncLater() = backupActions.dismissRestoreSyncChooser()
+
+    fun retryRestoreProvider(providerId: Long) {
+        viewModelScope.launch { backupRestoreStatusStore.retryProviders(setOf(providerId)) }
+    }
+
+    fun dismissRestoreItem(itemId: Long) {
+        viewModelScope.launch { backupRestoreStatusStore.dismissItem(itemId) }
+    }
+
+    fun dismissRestoreProvider(jobId: String, providerIdentityKey: String) {
+        viewModelScope.launch { backupRestoreStatusStore.dismissProvider(jobId, providerIdentityKey) }
+    }
+
+    fun dismissRestoreJob(jobId: String) {
+        viewModelScope.launch { backupRestoreStatusStore.dismissRestore(jobId) }
+    }
+
+    fun syncSelectedRestoreProviders() {
+        val state = _uiState.value
+        val references = state.selectedRestoreProviderIndices.mapNotNull(state.pendingRestoreProviders::getOrNull)
+        if (references.isEmpty()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, syncProgress = "Syncing restored providers…", syncCanCancel = false) }
+            val failures = mutableListOf<String>()
+            references.forEach { reference ->
+                val provider = _uiState.value.providers.singleOrNull { candidate ->
+                    candidate.serverUrl.trim().trimEnd('/').equals(reference.serverUrl.trim().trimEnd('/'), true) &&
+                        candidate.username.trim() == reference.username.trim() &&
+                        (reference.providerType == null || candidate.type == reference.providerType) &&
+                        candidate.stalkerMacAddress.trim().equals(reference.stalkerMacAddress.orEmpty().trim(), true)
+                }
+                if (provider == null) {
+                    failures += reference.serverUrl
+                } else if (syncManager.sync(provider.id, force = true) is Result.Error) {
+                    failures += provider.name
+                }
+            }
+            backupActions.dismissRestoreSyncChooser()
+            _uiState.update {
+                it.copy(
+                    isSyncing = false,
+                    syncProgress = null,
+                    userMessage = if (failures.isEmpty()) {
+                        "Selected restored providers synced successfully"
+                    } else {
+                        "Some restored providers could not sync: ${failures.joinToString()}"
+                    }
+                )
+            }
         }
     }
 

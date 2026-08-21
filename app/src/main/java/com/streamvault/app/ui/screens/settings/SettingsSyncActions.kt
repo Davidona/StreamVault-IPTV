@@ -3,6 +3,7 @@ package com.streamvault.app.ui.screens.settings
 import android.app.Application
 import com.streamvault.app.R
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
+import com.streamvault.app.tvinput.TvInputCatalogRefreshWorker
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.SyncRepairSection
 import com.streamvault.domain.model.ProviderType
@@ -232,7 +233,7 @@ internal class SettingsSyncActions(
                     it == appContext.getString(R.string.settings_sync_option_tv)
                 }
             ) {
-                tvInputChannelSyncManager.refreshTvInputCatalog()
+                TvInputCatalogRefreshWorker.enqueue(appContext)
             }
 
             uiState.update { state ->

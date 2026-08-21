@@ -6,6 +6,7 @@ import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -287,6 +289,37 @@ internal fun SettingsScreenDialogs(
             onImportRecordingSchedulesChanged = { viewModel.setImportRecordingSchedules(it) },
             isImporting = uiState.isImportingBackup,
             onConfirm = { viewModel.confirmBackupImport() }
+        )
+    }
+
+    if (uiState.pendingRestoreProviders.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = viewModel::restoreSyncLater,
+            title = { Text("Restore waiting for sync") },
+            text = {
+                Column {
+                    Text("Choose providers to sync now. Nothing is selected by default; pending restore data is kept if you choose Later.")
+                    uiState.pendingRestoreProviders.forEachIndexed { index, provider ->
+                        Row {
+                            Checkbox(
+                                checked = index in uiState.selectedRestoreProviderIndices,
+                                onCheckedChange = { viewModel.toggleRestoreSyncProvider(index) }
+                            )
+                            Text(provider.serverUrl + provider.username.takeIf { it.isNotBlank() }?.let { " ($it)" }.orEmpty())
+                        }
+                    }
+                    TextButton(onClick = viewModel::selectAllRestoreSyncProviders) { Text("Select all") }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = uiState.selectedRestoreProviderIndices.isNotEmpty(),
+                    onClick = viewModel::syncSelectedRestoreProviders
+                ) { Text("Sync selected") }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::restoreSyncLater) { Text("Later") }
+            }
         )
     }
 

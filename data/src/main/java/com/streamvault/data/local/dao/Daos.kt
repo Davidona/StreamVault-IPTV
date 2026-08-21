@@ -639,8 +639,17 @@ abstract class ChannelDao {
     @Query("UPDATE channels SET is_user_protected = :isProtected WHERE provider_id = :providerId AND category_id = :categoryId")
     abstract suspend fun updateProtectionStatus(providerId: Long, categoryId: Long, isProtected: Boolean)
 
+    @Query("UPDATE channels SET is_user_protected = :isProtected WHERE id = :id AND provider_id = :providerId")
+    abstract suspend fun updateItemProtection(id: Long, providerId: Long, isProtected: Boolean): Int
+
     @Query("UPDATE channels SET is_user_protected = 0 WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
     abstract suspend fun clearProtectionForCategories(providerId: Long, categoryIds: List<Long>)
+
+    @Query("UPDATE channels SET is_user_protected = 0 WHERE provider_id = :providerId")
+    abstract suspend fun clearItemProtectionByProvider(providerId: Long)
+
+    @Query("UPDATE channels SET is_user_protected = CASE WHEN category_id IN (SELECT category_id FROM categories WHERE provider_id = :providerId AND type = 'LIVE' AND is_user_protected = 1) THEN 1 ELSE 0 END WHERE provider_id = :providerId")
+    abstract suspend fun resetProtectionToCategoryState(providerId: Long)
 
     @Query("UPDATE channels SET error_count = error_count + 1 WHERE id = :id")
     abstract suspend fun incrementErrorCount(id: Long)
@@ -668,6 +677,9 @@ abstract class ChannelDao {
 interface ChannelPreferenceDao {
     @Query("SELECT * FROM channel_preferences")
     suspend fun getAllSync(): List<ChannelPreferenceEntity>
+
+    @Query("DELETE FROM channel_preferences WHERE channel_id IN (SELECT id FROM channels WHERE provider_id = :providerId)")
+    suspend fun deleteByProvider(providerId: Long)
 
     @Query("SELECT aspect_ratio FROM channel_preferences WHERE channel_id = :channelId LIMIT 1")
     fun observeAspectRatio(channelId: Long): Flow<String?>
@@ -1852,8 +1864,17 @@ interface MovieDao {
     @Query("UPDATE movies SET is_user_protected = :isProtected WHERE provider_id = :providerId AND category_id = :categoryId")
     suspend fun updateProtectionStatus(providerId: Long, categoryId: Long, isProtected: Boolean)
 
+    @Query("UPDATE movies SET is_user_protected = :isProtected WHERE id = :id AND provider_id = :providerId")
+    suspend fun updateItemProtection(id: Long, providerId: Long, isProtected: Boolean): Int
+
     @Query("UPDATE movies SET is_user_protected = 0 WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
     suspend fun clearProtectionForCategories(providerId: Long, categoryIds: List<Long>)
+
+    @Query("UPDATE movies SET is_user_protected = 0 WHERE provider_id = :providerId")
+    suspend fun clearItemProtectionByProvider(providerId: Long)
+
+    @Query("UPDATE movies SET is_user_protected = CASE WHEN category_id IN (SELECT category_id FROM categories WHERE provider_id = :providerId AND type IN ('MOVIE', 'VOD') AND is_user_protected = 1) THEN 1 ELSE 0 END WHERE provider_id = :providerId")
+    suspend fun resetProtectionToCategoryState(providerId: Long)
 }
 
 @Dao
@@ -2818,14 +2839,32 @@ interface SeriesDao {
     @Query("UPDATE series SET is_user_protected = :isProtected WHERE provider_id = :providerId AND category_id = :categoryId")
     suspend fun updateProtectionStatus(providerId: Long, categoryId: Long, isProtected: Boolean)
 
+    @Query("UPDATE series SET is_user_protected = :isProtected WHERE id = :id AND provider_id = :providerId")
+    suspend fun updateItemProtection(id: Long, providerId: Long, isProtected: Boolean): Int
+
     @Query("UPDATE series SET is_user_protected = 0 WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
     suspend fun clearProtectionForCategories(providerId: Long, categoryIds: List<Long>)
+
+    @Query("UPDATE series SET is_user_protected = 0 WHERE provider_id = :providerId")
+    suspend fun clearItemProtectionByProvider(providerId: Long)
+
+    @Query("UPDATE series SET is_user_protected = CASE WHEN category_id IN (SELECT category_id FROM categories WHERE provider_id = :providerId AND type IN ('SERIES', 'VOD') AND is_user_protected = 1) THEN 1 ELSE 0 END WHERE provider_id = :providerId")
+    suspend fun resetProtectionToCategoryState(providerId: Long)
 }
 
 
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface EpisodeDao {
+    @Query("UPDATE episodes SET is_user_protected = :isProtected WHERE id = :id AND provider_id = :providerId")
+    suspend fun updateItemProtection(id: Long, providerId: Long, isProtected: Boolean): Int
+
+    @Query("UPDATE episodes SET is_user_protected = 0 WHERE provider_id = :providerId")
+    suspend fun clearItemProtectionByProvider(providerId: Long)
+
+    @Query("UPDATE episodes SET is_user_protected = CASE WHEN series_id IN (SELECT id FROM series WHERE provider_id = :providerId AND is_user_protected = 1) THEN 1 ELSE 0 END WHERE provider_id = :providerId")
+    suspend fun resetProtectionToCategoryState(providerId: Long)
+
     @Query("SELECT * FROM episodes WHERE series_id = :seriesId ORDER BY season_number ASC, episode_number ASC")
     fun getBySeries(seriesId: Long): Flow<List<EpisodeBrowseEntity>>
 
@@ -2840,6 +2879,9 @@ interface EpisodeDao {
 
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId LIMIT 1")
     suspend fun getByProviderAndEpisodeId(providerId: Long, episodeId: Long): EpisodeEntity?
+
+    @Query("SELECT * FROM episodes WHERE provider_id = :providerId")
+    suspend fun getByProviderSync(providerId: Long): List<EpisodeEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(episode: EpisodeEntity): Long
@@ -3372,6 +3414,9 @@ abstract class FavoriteDao {
     @Query("DELETE FROM favorites WHERE provider_id = :providerId AND content_type = :contentType")
     abstract suspend fun deleteByProviderAndType(providerId: Long, contentType: String)
 
+    @Query("DELETE FROM favorites WHERE provider_id = :providerId AND content_type = :contentType AND group_id IS NULL")
+    abstract suspend fun deleteGlobalByProviderAndType(providerId: Long, contentType: String)
+
     @Query(
         "UPDATE favorites SET content_id = :newContentId, content_type = :newContentType, " +
             "group_id = NULL, group_key = 0 WHERE provider_id = :providerId " +
@@ -3593,6 +3638,15 @@ interface PlaybackHistoryDao {
 
 @Dao
 interface SearchHistoryDao {
+    @Query("SELECT * FROM search_history ORDER BY used_at DESC")
+    suspend fun getAllSync(): List<SearchHistoryEntity>
+
+    @Query("SELECT * FROM search_history WHERE query = :query AND content_scope = :contentScope AND provider_id = :providerId LIMIT 1")
+    suspend fun get(query: String, contentScope: String, providerId: Long): SearchHistoryEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(entity: SearchHistoryEntity): Long
+
     @Query(
         """
         SELECT * FROM search_history
@@ -3640,6 +3694,9 @@ interface SearchHistoryDao {
 
     @Query("DELETE FROM search_history WHERE content_scope = :contentScope AND provider_id = :providerId")
     suspend fun deleteByScope(contentScope: String, providerId: Long)
+
+    @Query("DELETE FROM search_history WHERE provider_id = :providerId")
+    suspend fun deleteByProvider(providerId: Long)
 
     @Query("DELETE FROM search_history WHERE used_at < :minUsedAt")
     suspend fun pruneOlderThan(minUsedAt: Long)

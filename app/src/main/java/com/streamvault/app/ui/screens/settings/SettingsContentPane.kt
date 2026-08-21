@@ -169,6 +169,8 @@ internal fun SettingsContentPane(
             )
         } else if (dialogState.selectedCategory == 5) {
             settingsBackupSection(
+                uiState = uiState,
+                viewModel = viewModel,
                 onCreateBackup = onCreateBackup,
                 onManageLocalBackups = onManageLocalBackups,
                 onShareBackup = onShareBackup,

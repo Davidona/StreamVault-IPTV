@@ -711,6 +711,28 @@ class SyncManagerXtreamLiveStrategyTest {
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(requestedCategoryIds).containsExactly("12")
         assertThat(requestCount.get()).isEqualTo(1)
+
+        requestedCategoryIds.clear()
+        requestCount.set(0)
+        val restorePayload = strategy.syncXtreamLiveCatalog(
+            provider = provider,
+            api = xtreamProvider,
+            existingMetadata = SyncMetadata(provider.id),
+            hiddenLiveCategoryIds = setOf(13L),
+            onProgress = null,
+            runtimeProfile = testRuntimeProfile(
+                tier = DeviceSyncTier.HIGH,
+                batchSize = 100,
+                maxCategoryConcurrency = 2
+            ),
+            trackInitialLiveOnboarding = false,
+            effectiveLiveSyncMethod = EffectiveXtreamLiveSyncMethod.STREAM_ALL,
+            requiredHiddenLiveCategoryIds = setOf(13L)
+        )
+
+        assertThat(restorePayload.stagedAcceptedCount).isEqualTo(2)
+        assertThat(requestedCategoryIds).containsExactly("12", "13")
+        Unit
     }
 
     @Test

@@ -28,6 +28,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.streamvault.data.manager.recording.RecordingReconcileWorker
+import com.streamvault.data.manager.PendingBackupRestoreCoordinator
 import com.streamvault.data.sync.ProviderSyncWorker
 import com.streamvault.data.sync.XtreamIndexWorker
 import com.streamvault.data.sync.ProviderSyncLifecycle
@@ -61,6 +62,9 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     @Inject
     lateinit var startupWorkRegistry: StartupWorkRegistry
 
+    @Inject
+    lateinit var pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator
+
     private val imageOkHttpClient: OkHttpClient by lazy {
         okHttpClient.newBuilder()
             .addInterceptor(jellyfinImageAuthInterceptor)
@@ -87,6 +91,9 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
         }
         applicationScope.launch {
             providerSyncLifecycle.reconcileStalkerIndexWorkAtStartup()
+        }
+        applicationScope.launch {
+            pendingBackupRestoreCoordinator.applyAllAvailable()
         }
         
         startupWorkRegistry.register()

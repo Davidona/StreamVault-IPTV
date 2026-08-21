@@ -27,6 +27,8 @@ import com.streamvault.domain.manager.ProviderSyncStateReader
 import com.streamvault.data.repository.*
 import com.streamvault.domain.manager.ParentalControlSessionStore
 import com.streamvault.domain.repository.*
+import com.streamvault.domain.manager.BackupRestoreStatusStore
+import com.streamvault.data.manager.BackupRestoreStatusStoreImpl
 import com.streamvault.domain.provider.ProviderCapabilityRegistry
 import com.streamvault.domain.provider.ProviderSourceRegistry
 import com.streamvault.app.plugins.StreamVaultPluginManager
@@ -43,6 +45,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds @Singleton
+    abstract fun bindBackupRestoreStatusStore(impl: BackupRestoreStatusStoreImpl): BackupRestoreStatusStore
 
     @Binds @Singleton
     abstract fun bindProviderRepository(impl: ProviderRepositoryImpl): ProviderRepository

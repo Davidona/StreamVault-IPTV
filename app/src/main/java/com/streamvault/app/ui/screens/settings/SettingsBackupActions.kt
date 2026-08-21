@@ -159,9 +159,9 @@ internal class SettingsBackupActions(
         scope.launch {
             val result = importBackup.confirm(ImportBackupCommand(uriString, plan))
             uiState.update { state ->
-                val completed = (result as? ImportBackupResult.Success)
-                    ?.result
-                    ?.outcome == BackupRestoreOutcome.COMPLETE
+                val importResult = (result as? ImportBackupResult.Success)?.result
+                val completed = importResult?.outcome == BackupRestoreOutcome.COMPLETE ||
+                    importResult?.outcome == BackupRestoreOutcome.WAITING_FOR_SYNC
                 state.copy(
                     isImportingBackup = false,
                     isSyncing = false,
@@ -174,14 +174,39 @@ internal class SettingsBackupActions(
                     // the user can retry the same durable checkpoint instead of starting over.
                     backupPreview = if (completed) null else state.backupPreview,
                     pendingBackupUri = if (completed) null else state.pendingBackupUri,
-                    backupImportPlan = if (completed) BackupImportPlan() else state.backupImportPlan
+                    backupImportPlan = if (completed) BackupImportPlan() else state.backupImportPlan,
+                    pendingRestoreJobId = importResult?.restoreJobId,
+                    pendingRestoreProviders = importResult?.affectedProviders.orEmpty(),
+                    selectedRestoreProviderIndices = emptySet()
                 )
             }
             if (result is ImportBackupResult.Success &&
-                result.result.outcome == BackupRestoreOutcome.COMPLETE
+                (result.result.outcome == BackupRestoreOutcome.COMPLETE ||
+                    result.result.outcome == BackupRestoreOutcome.WAITING_FOR_SYNC)
             ) {
                 onSuccess?.invoke()
             }
+        }
+    }
+
+    fun toggleRestoreProvider(index: Int) {
+        uiState.update { state ->
+            val selected = state.selectedRestoreProviderIndices
+            state.copy(
+                selectedRestoreProviderIndices = if (index in selected) selected - index else selected + index
+            )
+        }
+    }
+
+    fun selectAllRestoreProviders() {
+        uiState.update { state ->
+            state.copy(selectedRestoreProviderIndices = state.pendingRestoreProviders.indices.toSet())
+        }
+    }
+
+    fun dismissRestoreSyncChooser() {
+        uiState.update { state ->
+            state.copy(pendingRestoreProviders = emptyList(), selectedRestoreProviderIndices = emptySet())
         }
     }
 }

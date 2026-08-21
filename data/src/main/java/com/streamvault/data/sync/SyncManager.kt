@@ -30,6 +30,7 @@ import com.streamvault.data.local.entity.VodCategoryHydrationEntity
 import com.streamvault.data.local.entity.XtreamContentIndexEntity
 import com.streamvault.data.local.entity.XtreamLiveOnboardingStateEntity
 import com.streamvault.data.mapper.toDomain
+import com.streamvault.data.manager.PendingBackupRestoreCoordinator
 import com.streamvault.data.mapper.toEntity
 import com.streamvault.data.parser.M3uParser
 import com.streamvault.data.remote.http.buildAppRequestProfile
@@ -219,7 +220,8 @@ class SyncManager @Inject constructor(
     private val stalkerPlaybackCapabilityCache: StalkerPlaybackCapabilityCache,
     private val providerSyncWorkScheduler: ProviderSyncWorkScheduler,
     private val m3uClassificationDao: M3uClassificationDao? = null,
-    private val m3uClassificationRepository: M3uClassificationRepository? = null
+    private val m3uClassificationRepository: M3uClassificationRepository? = null,
+    private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null
 ) : ProviderSyncCommands, CatalogHydrationCommands, ProviderSyncStateSource, ProviderSyncLifecycle {
     private val syncProviderSnapshotAdapter = SyncProviderSnapshotAdapter(providerSnapshotRepository)
     private val syncStatusPublicationCoordinator = SyncStatusPublicationCoordinator(
@@ -592,7 +594,10 @@ class SyncManager @Inject constructor(
             progress = ::progress,
             emitProgress = ::emitProviderProgress,
             sanitizeThrowableMessage = ::sanitizeThrowableMessage,
-            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) }
+            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) },
+            requiredHiddenCategoryIds = { providerId, type ->
+                pendingBackupRestoreCoordinator?.requiredHiddenCategoryIds(providerId, type).orEmpty()
+            }
         )
     }
     private val stalkerSyncExecutor by lazy {
@@ -623,7 +628,10 @@ class SyncManager @Inject constructor(
                 emitCatalogSyncProgress(providerId, section, total ?: 0, itemsIndexed ?: 0)
             },
             categoryFailureWarning = ::categoryFailureWarning,
-            sanitizeThrowableMessage = ::sanitizeThrowableMessage
+            sanitizeThrowableMessage = ::sanitizeThrowableMessage,
+            requiredHiddenCategoryIds = { providerId, type ->
+                pendingBackupRestoreCoordinator?.requiredHiddenCategoryIds(providerId, type).orEmpty()
+            }
         )
     }
     private val syncCoordinator: SyncCoordinator by lazy {
@@ -671,29 +679,35 @@ class SyncManager @Inject constructor(
         providerId: Long,
         categoryId: Long,
         request: com.streamvault.domain.model.VodCategoryHydrationRequest
-    ): Result<Unit> = vodCategoryHydrationCoordinator.hydrateUnifiedVodCategory(providerId, categoryId, request)
+    ): Result<Unit> = vodCategoryHydrationCoordinator
+        .hydrateUnifiedVodCategory(providerId, categoryId, request)
+        .alsoApplyPendingRestore(providerId)
 
     override suspend fun hydrateSplitVodCategory(
         providerId: Long,
         movieCategoryId: Long,
         request: com.streamvault.domain.model.VodCategoryHydrationRequest,
         requestedProjection: ContentType
-    ): Result<Unit> = vodCategoryHydrationCoordinator.hydrateSplitVodCategory(
-        providerId,
-        movieCategoryId,
-        request,
-        requestedProjection
-    )
+    ): Result<Unit> = vodCategoryHydrationCoordinator
+        .hydrateSplitVodCategory(providerId, movieCategoryId, request, requestedProjection)
+        .alsoApplyPendingRestore(providerId)
 
     override suspend fun hydrateSplitVodSeriesCategory(
         providerId: Long,
         seriesCategoryId: Long,
         request: com.streamvault.domain.model.VodCategoryHydrationRequest
-    ): Result<Unit> = vodCategoryHydrationCoordinator.hydrateSplitVodSeriesCategory(
-        providerId,
-        seriesCategoryId,
-        request
-    )
+    ): Result<Unit> = vodCategoryHydrationCoordinator
+        .hydrateSplitVodSeriesCategory(providerId, seriesCategoryId, request)
+        .alsoApplyPendingRestore(providerId)
+
+    private suspend fun Result<Unit>.alsoApplyPendingRestore(providerId: Long): Result<Unit> {
+        if (this is Result.Success) {
+            val startedAt = System.currentTimeMillis()
+            pendingBackupRestoreCoordinator?.applyForProvider(providerId)
+            Log.i(TAG, "backup restore resolution provider=$providerId took=${System.currentTimeMillis() - startedAt}ms")
+        }
+        return this
+    }
 
     private val xtreamCatalogHttpService: OkHttpXtreamApiService by lazy {
         OkHttpXtreamApiService(
@@ -1160,6 +1174,10 @@ class SyncManager @Inject constructor(
                         status = if (outcome.requiresPartialActivation) "PARTIAL" else "SUCCESS"
                     )
                 }
+                val restoreStartedAt = System.currentTimeMillis()
+                progress(providerId, onProgress, "Restoring backup choices...")
+                pendingBackupRestoreCoordinator?.applyForProvider(providerId)
+                Log.i(TAG, "backup restore resolution provider=$providerId took=${System.currentTimeMillis() - restoreStartedAt}ms")
                 publishSyncState(providerId, if (outcome.requiresPartialActivation) {
                     SyncState.Partial("Sync completed with warnings", outcome.warnings)
                 } else {
@@ -1338,6 +1356,8 @@ class SyncManager @Inject constructor(
                 providerId = providerId,
                 status = if (outcome.requiresPartialActivation) "PARTIAL" else "SUCCESS"
             )
+            progress(providerId, onProgress, "Restoring backup choices...")
+            pendingBackupRestoreCoordinator?.applyForProvider(providerId)
             publishSyncState(
                 providerId,
                 if (outcome.requiresPartialActivation) {
@@ -1431,7 +1451,7 @@ class SyncManager @Inject constructor(
             }
         }
 
-        if (warnings.isNotEmpty()) {
+        val result = if (warnings.isNotEmpty()) {
             val message = warnings.joinToString("; ")
             val cause = failures.firstOrNull()
             val exception = if (sawRetryableFailure) IOException(message, cause) else IllegalStateException(message, cause)
@@ -1439,6 +1459,7 @@ class SyncManager @Inject constructor(
         } else {
             com.streamvault.domain.model.Result.success(Unit)
         }
+        result.alsoApplyPendingRestore(providerId)
     }
 
     override fun cancelStalkerIndexSync(providerId: Long) {
@@ -1532,7 +1553,7 @@ class SyncManager @Inject constructor(
             warnings += "${contentType.name.lowercase().replaceFirstChar { it.titlecase() }} indexing failed: ${sanitizeThrowableMessage(failure)}"
         }
 
-        if (warnings.isNotEmpty()) {
+        val result = if (warnings.isNotEmpty()) {
             val message = warnings.joinToString("; ")
             val cause = failures.firstOrNull()
             val exception = if (sawRetryableFailure) IOException(message, cause) else IllegalStateException(message, cause)
@@ -1542,6 +1563,7 @@ class SyncManager @Inject constructor(
             stalkerIndexContinuationCoordinator.scheduleEpgIfCatalogIdle(provider)
             com.streamvault.domain.model.Result.success(Unit)
         }
+        result.alsoApplyPendingRestore(providerId)
         }
     }
 
@@ -1706,7 +1728,12 @@ class SyncManager @Inject constructor(
         categories: List<CategoryEntity>
     ): List<CategoryEntity> {
         val hiddenCategoryIds = preferencesRepository.getHiddenCategoryIds(providerId, contentType).first()
-        return categories.filterNot { category -> category.categoryId in hiddenCategoryIds }
+        val requiredHiddenIds = pendingBackupRestoreCoordinator
+            ?.requiredHiddenCategoryIds(providerId, contentType)
+            .orEmpty()
+        return categories.filterNot { category ->
+            category.categoryId in hiddenCategoryIds && category.categoryId !in requiredHiddenIds
+        }
     }
 
     private suspend fun visibleStalkerIndexCategories(

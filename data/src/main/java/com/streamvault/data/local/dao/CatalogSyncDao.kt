@@ -371,7 +371,13 @@ interface CatalogSyncDao {
             stage.error_count,
             stage.provider_id,
             stage.is_adult,
-            0,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM categories AS category
+                WHERE category.provider_id = stage.provider_id
+                  AND category.category_id = stage.category_id
+                  AND category.type = 'LIVE'
+                  AND category.is_user_protected = 1
+            ) THEN 1 ELSE 0 END,
             stage.sync_fingerprint
         FROM channel_import_stage AS stage
         WHERE stage.session_id = :sessionId
@@ -613,7 +619,13 @@ interface CatalogSyncDao {
             0,
             0,
             stage.is_adult,
-            0,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM categories AS category
+                WHERE category.provider_id = stage.provider_id
+                  AND category.category_id = stage.category_id
+                  AND category.type IN ('MOVIE', 'VOD')
+                  AND category.is_user_protected = 1
+            ) THEN 1 ELSE 0 END,
             stage.sync_fingerprint,
             stage.added_at
         FROM movie_import_stage AS stage
@@ -831,7 +843,13 @@ interface CatalogSyncDao {
             stage.last_modified,
             stage.provider_id,
             stage.is_adult,
-            0,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM categories AS category
+                WHERE category.provider_id = stage.provider_id
+                  AND category.category_id = stage.category_id
+                  AND category.type = 'SERIES'
+                  AND category.is_user_protected = 1
+            ) THEN 1 ELSE 0 END,
             stage.sync_fingerprint
         FROM series_import_stage AS stage
         WHERE stage.session_id = :sessionId

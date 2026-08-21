@@ -33,6 +33,12 @@ interface M3uClassificationDao {
     @Query("DELETE FROM m3u_classification_overrides WHERE provider_id = :providerId AND source_key = :sourceKey")
     suspend fun deleteOverride(providerId: Long, sourceKey: String)
 
+    @Query("DELETE FROM m3u_classification_overrides WHERE provider_id = :providerId")
+    suspend fun deleteOverridesByProvider(providerId: Long)
+
     @Query("DELETE FROM m3u_category_classification_rules WHERE provider_id = :providerId AND group_key = :groupKey")
     suspend fun deleteCategoryRule(providerId: Long, groupKey: String)
+
+    @Query("DELETE FROM m3u_category_classification_rules WHERE provider_id = :providerId")
+    suspend fun deleteCategoryRulesByProvider(providerId: Long)
 }

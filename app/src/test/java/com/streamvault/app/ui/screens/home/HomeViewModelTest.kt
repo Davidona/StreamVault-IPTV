@@ -48,6 +48,7 @@ class HomeViewModelTest {
     private val channelRepository: ChannelRepository = mock()
     private val categoryRepository: CategoryRepository = mock()
     private val favoriteRepository: FavoriteRepository = mock()
+    private val m3uClassificationRepository: M3uClassificationRepository = mock()
     private val preferencesRepository: PreferencesRepository = mock()
     private val epgRepository: EpgRepository = mock()
     private val playbackHistoryRepository: PlaybackHistoryRepository = mock()
@@ -134,6 +135,7 @@ class HomeViewModelTest {
             channelRepository = channelRepository,
             categoryRepository = categoryRepository,
             favoriteRepository = favoriteRepository,
+            m3uClassificationRepository = m3uClassificationRepository,
             preferencesRepository = preferencesRepository,
             epgRepository = epgRepository,
             playbackHistoryRepository = playbackHistoryRepository,

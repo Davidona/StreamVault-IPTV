@@ -63,7 +63,8 @@ internal class XtreamCatalogSyncExecutor(
     private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
     private val emitProgress: (Long, SyncProgress) -> Unit,
     private val sanitizeThrowableMessage: (Throwable?) -> String,
-    private val userMessage: (Throwable, String) -> String
+    private val userMessage: (Throwable, String) -> String,
+    private val requiredHiddenCategoryIds: suspend (Long, ContentType) -> Set<Long> = { _, _ -> emptySet() }
 ) {
     suspend fun syncFull(
         provider: Provider,
@@ -86,6 +87,7 @@ internal class XtreamCatalogSyncExecutor(
         val useTextClassification = preferencesRepository.useXtreamTextClassification.first()
         val enableBase64TextCompatibility = preferencesRepository.xtreamBase64TextCompatibility.first()
         val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
+        val requiredHiddenLiveCategoryIds = requiredHiddenCategoryIds(provider.id, ContentType.LIVE)
         val api = createProvider(provider, useTextClassification, enableBase64TextCompatibility)
         val runtimeProfile = CatalogSyncRuntimeProfile.from(applicationContext)
         val now = System.currentTimeMillis()
@@ -157,6 +159,7 @@ internal class XtreamCatalogSyncExecutor(
                 api = api,
                 existingMetadata = metadata,
                 hiddenLiveCategoryIds = hiddenLiveCategoryIds,
+                requiredHiddenLiveCategoryIds = requiredHiddenLiveCategoryIds,
                 onProgress = onProgress,
                 runtimeProfile = runtimeProfile,
                 trackInitialLiveOnboarding = trackInitialLiveOnboarding,
@@ -472,6 +475,7 @@ internal class XtreamCatalogSyncExecutor(
         val useTextClassification = preferencesRepository.useXtreamTextClassification.first()
         val enableBase64TextCompatibility = preferencesRepository.xtreamBase64TextCompatibility.first()
         val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
+        val requiredHiddenLiveCategoryIds = requiredHiddenCategoryIds(provider.id, ContentType.LIVE)
         val api = createProvider(provider, useTextClassification, enableBase64TextCompatibility)
         val currentMetadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
         val runtimeProfile = CatalogSyncRuntimeProfile.from(applicationContext)
@@ -481,6 +485,7 @@ internal class XtreamCatalogSyncExecutor(
             api,
             currentMetadata,
             hiddenLiveCategoryIds,
+            requiredHiddenLiveCategoryIds,
             onProgress,
             runtimeProfile,
             trackInitialLiveOnboarding = false,
@@ -602,6 +607,7 @@ internal class XtreamCatalogSyncExecutor(
         api: XtreamProvider,
         existingMetadata: SyncMetadata,
         hiddenLiveCategoryIds: Set<Long>,
+        requiredHiddenLiveCategoryIds: Set<Long>,
         onProgress: ((String) -> Unit)?,
         runtimeProfile: CatalogSyncRuntimeProfile,
         trackInitialLiveOnboarding: Boolean,
@@ -632,7 +638,8 @@ internal class XtreamCatalogSyncExecutor(
             onProgress,
             runtimeProfile,
             trackInitialLiveOnboarding,
-            effectiveMethod
+            effectiveMethod,
+            requiredHiddenLiveCategoryIds
         )
     }
 

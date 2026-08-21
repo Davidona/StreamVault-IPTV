@@ -1659,6 +1659,25 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate76To77_createsDurableBackupRestoreLedger() {
+        val name = "streamvault-76-77-backup-restore-ledger"
+        migrationTestHelper.createDatabase(name, 76).close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            77,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.all.toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='backup_restore_jobs'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='backup_restore_items'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_list('backup_restore_items') WHERE `table`='backup_restore_jobs' AND on_delete='CASCADE'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('backup_restore_items') WHERE name='index_backup_restore_items_job_id_section_stable_reference_key' AND `unique`=1"))
+        migrated.close()
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """
