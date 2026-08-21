@@ -999,29 +999,27 @@ class SeriesRepositoryImplTest {
     fun `browseSeries groups duplicate series when duplicate handling is enabled`() = runTest {
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(seriesDao.getCount(7L)).thenReturn(flowOf(2))
-        whenever(seriesDao.getByProviderPage(7L, 100, 0)).thenReturn(
-            flowOf(
-                listOf(
-                    SeriesBrowseEntity(
-                        id = 17L,
-                        seriesId = 1700L,
-                        providerSeriesId = "1700",
-                        name = "Drama HD",
-                        providerId = 7L,
-                        releaseDate = "2024-01-01",
-                        tmdbId = 5000L,
-                        lastModified = 10L
-                    ),
-                    SeriesBrowseEntity(
-                        id = 18L,
-                        seriesId = 1800L,
-                        providerSeriesId = "1800",
-                        name = "Drama 4K",
-                        providerId = 7L,
-                        releaseDate = "2024-02-01",
-                        tmdbId = 5000L,
-                        lastModified = 20L
-                    )
+        whenever(seriesDao.getFreshCursorPage(7L, 40)).thenReturn(
+            listOf(
+                SeriesBrowseEntity(
+                    id = 17L,
+                    seriesId = 1700L,
+                    providerSeriesId = "1700",
+                    name = "Drama HD",
+                    providerId = 7L,
+                    releaseDate = "2024-01-01",
+                    tmdbId = 5000L,
+                    lastModified = 10L
+                ),
+                SeriesBrowseEntity(
+                    id = 18L,
+                    seriesId = 1800L,
+                    providerSeriesId = "1800",
+                    name = "Drama 4K",
+                    providerId = 7L,
+                    releaseDate = "2024-02-01",
+                    tmdbId = 5000L,
+                    lastModified = 20L
                 )
             )
         )
@@ -1044,7 +1042,8 @@ class SeriesRepositoryImplTest {
         assertThat(result.items).hasSize(1)
         assertThat(result.items.single().selectedVariantId).isEqualTo(18L)
         assertThat(result.items.single().variants.map { it.rawSeriesId }).containsExactly(18L, 17L).inOrder()
-        verify(seriesDao, never()).getFreshCursorPage(any(), any())
+        verify(seriesDao).getFreshCursorPage(7L, 40)
+        verify(seriesDao, never()).getByProviderPage(any(), any(), any())
     }
 
     @Test

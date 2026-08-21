@@ -156,7 +156,8 @@ class MoviesViewModel @Inject constructor(
                         movieRepository.getCategoryItemCounts(provider.id),
                         movieRepository.getLibraryCount(provider.id),
                         preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.MOVIE),
-                        preferencesRepository.getCategorySortMode(provider.id, ContentType.MOVIE)
+                        preferencesRepository.getCategorySortMode(provider.id, ContentType.MOVIE),
+                        preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.MOVIE)
                     ) { values ->
                         val allFavorites = values[0] as List<com.streamvault.domain.model.Favorite>
                         val customCategories = values[1] as List<Category>
@@ -165,6 +166,7 @@ class MoviesViewModel @Inject constructor(
                         val libraryCount = values[4] as Int
                         val hiddenCategoryIds = values[5] as Set<Long>
                         val sortMode = values[6] as CategorySortMode
+                        val pinnedCategoryIds = values[7] as Set<Long>
                         val visibleProviderCategories = applyProviderCategoryDisplayPreferences(
                             categories = providerCategories,
                             hiddenCategoryIds = hiddenCategoryIds,
@@ -183,6 +185,7 @@ class MoviesViewModel @Inject constructor(
                             providerCategoryCounts = providerCategoryCounts,
                             libraryCount = libraryCount,
                             hiddenCategoryIds = hiddenCategoryIds,
+                            pinnedCategoryIds = pinnedCategoryIds,
                             categorySortMode = sortMode
                         )
                     }.combine(searchQueryForBrowse) { dependencies, query ->
@@ -194,6 +197,7 @@ class MoviesViewModel @Inject constructor(
                             providerCategoryCounts = dependencies.providerCategoryCounts,
                             libraryCount = dependencies.libraryCount,
                             hiddenCategoryIds = dependencies.hiddenCategoryIds,
+                            pinnedCategoryIds = dependencies.pinnedCategoryIds,
                             categorySortMode = dependencies.categorySortMode,
                             query = query
                         )
@@ -236,7 +240,8 @@ class MoviesViewModel @Inject constructor(
                                         allFavorites = params.allFavorites,
                                         customCategories = params.customCategories,
                                         providerCategories = params.providerCategories,
-                                        hiddenCategoryIds = params.hiddenCategoryIds
+                                        hiddenCategoryIds = params.hiddenCategoryIds,
+                                        pinnedCategoryIds = params.pinnedCategoryIds
                                     ).copy(libraryCount = 0),
                                     false, false
                                 ))
@@ -250,7 +255,8 @@ class MoviesViewModel @Inject constructor(
                                         allFavorites = params.allFavorites,
                                         customCategories = params.customCategories,
                                         providerCategories = params.providerCategories,
-                                        hiddenCategoryIds = params.hiddenCategoryIds
+                                        hiddenCategoryIds = params.hiddenCategoryIds,
+                                        pinnedCategoryIds = params.pinnedCategoryIds
                                     ).copy(libraryCount = searchResults.size),
                                     false, false
                                 ))
@@ -279,6 +285,7 @@ class MoviesViewModel @Inject constructor(
                             categoryCounts = snapshot.categoryCounts,
                             libraryCount = snapshot.libraryCount,
                             providerCategories = snapshot.providerCategories,
+                            pinnedCategoryIds = snapshot.pinnedCategoryIds,
                             selectedCategory = resolvedSelected,
                             selectedCategoryItems = if (resolvedSelected == null) emptyList() else it.selectedCategoryItems,
                             selectedCategoryLoadedCount = if (resolvedSelected == null) 0 else it.selectedCategoryLoadedCount,
@@ -530,6 +537,17 @@ class MoviesViewModel @Inject constructor(
                 .flatMapLatest { provider -> getCustomCategories(provider.id, ContentType.MOVIE) }
                 .collect { categories ->
                     _uiState.update { it.copy(categories = categories) }
+                }
+        }
+
+        viewModelScope.launch {
+            providerRepository.getActiveProvider()
+                .filterNotNull()
+                .flatMapLatest { provider ->
+                    preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.MOVIE)
+                }
+                .collect { pinnedIds ->
+                    _uiState.update { it.copy(pinnedCategoryIds = pinnedIds) }
                 }
         }
     }
@@ -898,6 +916,26 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
+    fun toggleCategoryPinned(category: Category) {
+        if (category.isVirtual) return
+        val providerId = activeProviderId ?: return
+        val shouldPin = category.id !in _uiState.value.pinnedCategoryIds
+        viewModelScope.launch {
+            preferencesRepository.setCategoryPinned(
+                providerId = providerId,
+                type = ContentType.MOVIE,
+                categoryId = category.id,
+                pinned = shouldPin
+            )
+            dismissCategoryOptions()
+            _uiState.update {
+                it.copy(
+                    userMessage = if (shouldPin) "Pinned ${category.name}" else "Unpinned ${category.name}"
+                )
+            }
+        }
+    }
+
     fun requestRenameGroup(category: Category) {
         if (!category.isVirtual || category.id == VodBrowseDefaults.FAVORITES_SENTINEL_ID) return
         _uiState.update {
@@ -1077,7 +1115,8 @@ class MoviesViewModel @Inject constructor(
             categoryNames = snapshot.categoryNames,
             categoryCounts = snapshot.categoryCounts,
             libraryCount = snapshot.libraryCount,
-            providerCategories = params.providerCategories
+            providerCategories = params.providerCategories,
+            pinnedCategoryIds = params.pinnedCategoryIds
         )
     }
 
@@ -1086,7 +1125,8 @@ class MoviesViewModel @Inject constructor(
         allFavorites: List<com.streamvault.domain.model.Favorite>,
         customCategories: List<Category>,
         providerCategories: List<Category>,
-        hiddenCategoryIds: Set<Long>
+        hiddenCategoryIds: Set<Long>,
+        pinnedCategoryIds: Set<Long>
     ): MovieCatalogSnapshot {
         val snapshot = buildVodSearchCatalog(
             items = movies,
@@ -1105,7 +1145,8 @@ class MoviesViewModel @Inject constructor(
             categoryNames = snapshot.categoryNames,
             categoryCounts = snapshot.categoryCounts,
             libraryCount = snapshot.libraryCount,
-            providerCategories = providerCategories
+            providerCategories = providerCategories,
+            pinnedCategoryIds = pinnedCategoryIds
         )
     }
 
@@ -1329,6 +1370,7 @@ private data class MovieCatalogParams(
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val categorySortMode: CategorySortMode,
     val query: String
 )
@@ -1340,6 +1382,7 @@ private data class MovieCatalogDependencies(
     val providerCategoryCounts: Map<Long, Int>,
     val libraryCount: Int,
     val hiddenCategoryIds: Set<Long>,
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val categorySortMode: CategorySortMode
 )
 
@@ -1348,7 +1391,8 @@ private data class MovieCatalogSnapshot(
     val categoryNames: List<String>,
     val categoryCounts: Map<String, Int>,
     val libraryCount: Int,
-    val providerCategories: List<Category>
+    val providerCategories: List<Category>,
+    val pinnedCategoryIds: Set<Long> = emptySet()
 )
 
 private data class MovieLibraryLensDependencies(
@@ -1430,6 +1474,7 @@ data class MoviesUiState(
     val selectedMovieForDialog: Movie? = null,
     val categories: List<Category> = emptyList(),
     val providerCategories: List<Category> = emptyList(),
+    val pinnedCategoryIds: Set<Long> = emptySet(),
     val dialogGroupMemberships: List<Long> = emptyList(),
     val userMessage: String? = null,
     val selectedCategoryForOptions: Category? = null,

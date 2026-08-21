@@ -6,6 +6,7 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodMovieVariant
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
+import com.streamvault.domain.util.BoundedExpiringCache
 import java.text.Normalizer
 import java.time.Year
 import java.util.Locale
@@ -71,6 +72,23 @@ private val QUALITY_CLEANUP_REGEX = Regex(
     RegexOption.IGNORE_CASE
 )
 private val NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")
+private val NON_ASCII_REGEX = Regex("[^\\u0000-\\u007F]")
+private val COMBINING_MARKS_REGEX = Regex("\\p{Mn}+")
+
+private data class MovieDisplayYearCacheKey(
+    val name: String,
+    val year: String?,
+    val releaseDate: String?
+)
+
+private val displayYearCache = BoundedExpiringCache<MovieDisplayYearCacheKey, Int>(
+    maxEntries = 512,
+    ttlMillis = 6L * 60L * 60L * 1000L
+)
+private val normalizedTitleCache = BoundedExpiringCache<String, String>(
+    maxEntries = 1_024,
+    ttlMillis = 6L * 60L * 60L * 1000L
+)
 
 data class MoviePresentationSettings(
     val duplicateHandlingMode: VodDuplicateHandlingMode,
@@ -299,19 +317,31 @@ private fun movieVariantLabel(movie: Movie): String {
 }
 
 private fun normalizedMovieTitle(value: String): String {
+    normalizedTitleCache.get(value)?.let { return it }
     val withoutProviderPrefix = value.substringAfter(" - ", value)
     val withoutYearSuffix = YEAR_SUFFIX_REGEX.replace(withoutProviderPrefix, "")
     val withoutQuality = QUALITY_CLEANUP_REGEX.replace(withoutYearSuffix, " ")
-    val normalized = Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}+"), "")
-        .lowercase(Locale.ROOT)
-    return NON_ALPHANUMERIC_REGEX.replace(normalized, "").trim()
+    // Most IPTV titles are ASCII. Avoid the expensive ICU normalization path for them.
+    val normalized = if (NON_ASCII_REGEX.containsMatchIn(withoutQuality)) {
+        Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
+            .replace(COMBINING_MARKS_REGEX, "")
+    } else {
+        withoutQuality
+    }
+    val result = NON_ALPHANUMERIC_REGEX.replace(normalized.lowercase(Locale.ROOT), "").trim()
+    normalizedTitleCache.put(value, result)
+    return result
 }
 
-private fun movieDisplayYear(movie: Movie): Int? =
-    movie.year?.trim()?.toIntOrNull()
+private fun movieDisplayYear(movie: Movie): Int? {
+    val key = MovieDisplayYearCacheKey(movie.name, movie.year, movie.releaseDate)
+    displayYearCache.get(key)?.let { return it }
+    val result = movie.year?.trim()?.toIntOrNull()
         ?: movie.releaseDate?.filter(Char::isDigit)?.take(4)?.toIntOrNull()
         ?: YEAR_REGEX.find(movie.name)?.value?.toIntOrNull()
+    if (result != null) displayYearCache.put(key, result)
+    return result
+}
 
 private fun reliabilityScore(movie: Movie, observations: Map<Long, VodVariantObservation>): Int {
     val observation = observations[movie.id] ?: return 0
@@ -346,8 +376,12 @@ private fun recencyBucket(movie: Movie): Int {
 }
 
 private fun normalizeTokenText(value: String): String {
-    val normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}+"), "")
+    val normalized = if (NON_ASCII_REGEX.containsMatchIn(value)) {
+        Normalizer.normalize(value, Normalizer.Form.NFD)
+            .replace(COMBINING_MARKS_REGEX, "")
+    } else {
+        value
+    }
         .lowercase(Locale.ROOT)
         .replace(Regex("""[^a-z0-9]+"""), " ")
         .replace(Regex("""\s+"""), " ")

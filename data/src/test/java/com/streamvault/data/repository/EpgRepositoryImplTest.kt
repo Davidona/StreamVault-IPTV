@@ -588,7 +588,7 @@ class EpgRepositoryImplTest {
         whenever(xmltvParser.parseStreaming(any(), anyOrNull(), any())).thenAnswer { invocation ->
             val onProgram = invocation.getArgument<suspend (Program) -> Unit>(2)
             runBlocking {
-                repeat(600) { index ->
+                repeat(5_001) { index ->
                     parserCallbackTransactionDepths += transactionDepth
                     onProgram(
                         Program(
@@ -619,9 +619,9 @@ class EpgRepositoryImplTest {
 
         assertThat(result.isSuccess).isTrue()
         assertThat(transactionCount).isEqualTo(4)
-        assertThat(parserCallbackTransactionDepths).hasSize(600)
+        assertThat(parserCallbackTransactionDepths).hasSize(5_001)
         assertThat(parserCallbackTransactionDepths.all { it == 0 }).isTrue()
-        assertThat(insertTransactionDepths).isNotEmpty()
+        assertThat(insertTransactionDepths).hasSize(2)
         assertThat(insertTransactionDepths.all { it > 0 }).isTrue()
     }
 

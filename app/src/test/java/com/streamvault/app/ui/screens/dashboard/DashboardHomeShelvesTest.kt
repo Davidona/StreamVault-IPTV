@@ -47,4 +47,15 @@ class DashboardHomeShelvesTest {
             AppHomeDashboardShelf.FAVORITE_MOVIES
         ).inOrder()
     }
+
+    @Test
+    fun `resolveVisibleDashboardShelves shows pinned categories when they have content`() {
+        val uiState = DashboardUiState(
+            homeDashboardShelves = listOf(AppHomeDashboardShelf.PINNED_CATEGORIES),
+            pinnedMovieCategories = mapOf("Action" to listOf(Movie(id = 20L, name = "Pinned Pick")))
+        )
+
+        assertThat(resolveVisibleDashboardShelves(uiState))
+            .containsExactly(AppHomeDashboardShelf.PINNED_CATEGORIES)
+    }
 }

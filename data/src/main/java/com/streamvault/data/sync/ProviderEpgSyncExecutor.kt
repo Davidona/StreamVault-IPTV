@@ -612,7 +612,7 @@ internal class ProviderEpgSyncExecutor(
 
     private companion object {
         const val TAG = "ProviderEpgSync"
-        const val STALKER_GUIDE_PROGRAM_BATCH_SIZE = 500
+        const val STALKER_GUIDE_PROGRAM_BATCH_SIZE = 5_000
         const val STALKER_MIN_HEALTHY_EPG_PROGRAMS = 3
         const val STALKER_PER_CHANNEL_RECORD_SANITY_CAP = 5_000
         const val STALKER_PER_CHANNEL_EPG_REQUESTS_PER_RUN = 48

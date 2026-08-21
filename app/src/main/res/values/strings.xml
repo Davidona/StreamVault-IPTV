@@ -110,6 +110,7 @@
     <string name="dashboard_favorite_movies">Favorite Movies</string>
     <string name="dashboard_favorite_series">Favorite Series</string>
     <string name="dashboard_recent_movies">Recently Added Movies</string>
+    <string name="dashboard_pinned_categories">Pinned Categories</string>
     <string name="dashboard_recent_series">Recently Updated Series</string>
     <string name="dashboard_top_rated_movies">Top Rated Movies</string>
     <string name="dashboard_recommended_movies">Recommended Movies</string>
@@ -179,6 +180,8 @@
     <string name="m3u_series_review_subtitle">Review the automatic suggestions or assign each entry to a series, season, and episode.</string>
     <string name="m3u_episode_unresolved">Episode number unresolved — it will remain flagged for correction.</string>
     <string name="category_pinned">Pinned %1$s.</string>
+    <string name="category_pin">Pin</string>
+    <string name="category_unpin">Unpin</string>
     <string name="category_unpinned">Unpinned %1$s.</string>
 
     <string name="add_group_manage_title">Manage: %1$s</string>

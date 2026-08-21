@@ -91,6 +91,23 @@ class VodMovieDeduplicationTest {
         assertThat(presented.single().duplicateConfidence).isEqualTo(VodDuplicateConfidence.STRONG)
     }
 
+    @Test
+    fun `accented title still groups with its ascii equivalent`() {
+        val accented = movie(id = 1L, name = "Café Society", year = "2024")
+        val ascii = movie(id = 2L, name = "Cafe Society", year = "2024")
+
+        val presented = buildPresentedMovies(
+            movies = listOf(accented, ascii),
+            settings = MoviePresentationSettings(
+                duplicateHandlingMode = VodDuplicateHandlingMode.SMART,
+                preferenceMode = VodVariantPreferenceMode.BALANCED
+            )
+        )
+
+        assertThat(presented).hasSize(1)
+        assertThat(presented.single().duplicateConfidence).isEqualTo(VodDuplicateConfidence.STRONG)
+    }
+
     private fun movie(
         id: Long,
         name: String,
