@@ -1,7 +1,7 @@
 # Compose Reduction Phase 2 Report
 
-Date: 2026-08-21  
-Status: Implementation slices complete; exit validation incomplete
+Date: 2026-08-22
+Status: Implementation slices complete; live-TV validation passed; performance comparison pending
 
 This report records the Phase 2 work against the goals in
 [`COMPOSE_REDUCTION_AND_UI_ARCHITECTURE_PLAN.md`](COMPOSE_REDUCTION_AND_UI_ARCHITECTURE_PLAN.md).
@@ -100,15 +100,26 @@ warnings; no new compilation or unit-test failure was observed.
 
 ## Runtime and benchmark evidence
 
+ADB is available at `E:\androidSdk`. Runtime validation used the connected
+`Television_1080p` emulator (`emulator-5554`, API 36) with the debug build and
+the documented public US M3U seed configured through `local.properties`.
+
 The Phase 0 baseline contains emulator macrobenchmark and long-run playback
 measurements. No comparable Phase 2 frame-cost or recomposition trace has been
 captured yet.
 
 The task `:benchmark:connectedBenchmarkAndroidTest` was started. It built the
-benchmark and release-like target artifacts, then waited for a connected
-instrumentation device. The run was terminated because ADB/device access is
-unavailable in this workspace. It is therefore an incomplete runtime attempt,
-not a benchmark result.
+benchmark and release-like target artifacts. The first run was rejected by the
+benchmark library because the target was an emulator and the seeded journeys
+target the debuggable debug APK. The benchmark configuration now suppresses
+only those known `EMULATOR` and `DEBUGGABLE` policy errors for diagnostic local
+runs. A rerun entered instrumentation but hung before completing a test or
+writing metrics and was terminated. It is therefore an incomplete runtime
+attempt, not a benchmark result.
+
+A manual release-target `am start -W` launch completed successfully with a
+single `TotalTime` of approximately 1.1 seconds. This is a smoke check only,
+not a comparable replacement for the Phase 0 macrobenchmark median.
 
 Compiler diagnostics are useful for identifying ownership and stability
 hotspots, but they do not replace recomposition tracing, frame-cost
@@ -116,8 +127,21 @@ measurement, or a before/after macrobenchmark.
 
 ## Live playback gate
 
-The required Phase 2 live-TV validation could not be run because ADB is
-unavailable. There is no Phase 2 result for the required protocol:
+The required Phase 2 live-TV validation passed on the connected emulator. Each
+channel was opened in the full player and captured at a two-second cadence for
+61 screenshots (roughly two minutes):
+
+| Channel | Screenshots | Unique hashes | Final media session | Healthy log evidence | Error/fallback evidence |
+| --- | ---: | ---: | --- | --- | --- |
+| 00s Replay | 61 | 61 | `PLAYING`, `error=null` | HLS prepare and first-frame success | No fatal error, stuck timeout, or MPEG-TS fallback |
+| 3ABN Dare To Dream Network | 61 | 61 | `PLAYING`, `error=null` | HLS prepare and first-frame success | No fatal error, stuck timeout, or MPEG-TS fallback |
+
+The raw screenshots, hashes, media-session dumps, and sanitized log captures
+are in the local `validation/phase2_live/` directory. The public playlist and
+provider streams can change independently of the application; these results
+are evidence for this build and validation window.
+
+The validation protocol covered:
 
 - two live channels;
 - 61 screenshots at a two-second cadence per channel;
@@ -133,14 +157,16 @@ results must not be reused as Phase 2 evidence.
 ## Exit assessment
 
 Phase 2 is implementation-complete for the state-isolation, shared-clock, and
-lazy-list slices, and the repository builds and tests successfully. It is not
-exit-ready yet. Completion still requires:
+lazy-list slices, and the repository builds and tests successfully. The live-TV
+runtime gate passed. It is not fully exit-ready yet because the performance
+comparison remains unmeasured. Completion still requires:
 
-1. a connected emulator or device for the Phase 2 macrobenchmark/recomposition
-   comparison;
-2. the full two-channel live-playback validation protocol; and
+1. a completing Phase 2 macrobenchmark or equivalent controlled frame-cost
+   measurement;
+2. a Phase 2 recomposition trace against the Phase 0 baseline; and
 3. before/after runtime evidence showing whether the isolated consumers reduce
    invalidated scopes or frame cost.
 
 Until those measurements are available, the correct status is **implementation
-complete, runtime validation pending**, not a claimed performance improvement.
+complete, live validation passed, performance comparison pending**, not a
+claimed performance improvement.

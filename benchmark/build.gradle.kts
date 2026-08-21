@@ -21,6 +21,10 @@ android {
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["androidx.benchmark.enabledRules"] = "Macrobenchmark"
+        // The local seeded journeys intentionally target the debuggable debug APK.
+        // Suppress only the known emulator/debug-target configuration errors; these
+        // measurements remain diagnostic and are not a physical-device benchmark.
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,DEBUGGABLE"
     }
 
     targetProjectPath = ":app"
