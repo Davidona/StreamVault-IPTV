@@ -52,7 +52,6 @@ class HomeViewModelTest {
     private val preferencesRepository: PreferencesRepository = mock()
     private val epgRepository: EpgRepository = mock()
     private val playbackHistoryRepository: PlaybackHistoryRepository = mock()
-    private val m3uClassificationRepository: M3uClassificationRepository = mock()
     private val getCustomCategories: GetCustomCategories = mock()
     private val unlockParentalCategory: UnlockParentalCategory = mock()
     private val parentalControlManager: ParentalControlManager = mock()
@@ -140,7 +139,6 @@ class HomeViewModelTest {
             preferencesRepository = preferencesRepository,
             epgRepository = epgRepository,
             playbackHistoryRepository = playbackHistoryRepository,
-            m3uClassificationRepository = m3uClassificationRepository,
             getCustomCategories = getCustomCategories,
             unlockParentalCategory = unlockParentalCategory,
             parentalControlManager = parentalControlManager,
