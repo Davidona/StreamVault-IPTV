@@ -24,9 +24,12 @@ otherwise difficult for Compose to classify.
 | Program history dialog | Channel/start/end/ID composite | `program` | Fixed; prevents index-key fallback when EPG data refreshes. |
 | Add-to-group dialog | Category ID | `category` | Fixed. |
 | M3U series-assignment dialog | Channel ID | `series_assignment` | Fixed. |
-| Player quick/action rows | Semantic `PlayerActionSpec.id` | `player_quick_action` / `channel_info_action` | Fixed; labels can change for mute, casting, playback speed, aspect ratio, or timer state without changing item identity. |
+| Player quick-action row | Semantic `PlayerActionSpec.id` | `player_quick_action` | Fixed; labels can change for mute, casting, playback speed, aspect ratio, or timer state without changing item identity. |
+| Channel-info action tray | Existing `label:index` composite | `channel_info_action` | Reviewed; the private action type has no semantic ID, so the short homogeneous tray retains its collision-safe composite key. |
 
-No display-text key was introduced where a stable domain ID was available.
+No display-text key was introduced where a stable domain ID was available. The
+private channel-info action type has no domain ID, so its short tray keeps the
+existing collision-safe `label:index` key.
 The channel progress clock is collected once by Dashboard, Home, and Search;
 `ChannelCard` and `LiveChannelRowCard` now receive the timestamp as a value and
 do not collect a flow from inside a lazy-list item.
