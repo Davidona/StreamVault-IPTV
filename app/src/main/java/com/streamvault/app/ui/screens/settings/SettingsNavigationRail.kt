@@ -18,6 +18,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.theme.Primary
 
 private data class SettingsNavEntry(
+    val id: String,
     val label: String,
     val icon: String,
     val accent: Color
@@ -31,41 +32,49 @@ internal fun SettingsNavigationRail(
 ) {
     val entries = listOf(
         SettingsNavEntry(
+            id = "providers",
             label = stringResource(R.string.settings_providers),
             icon = "P",
             accent = Primary
         ),
         SettingsNavEntry(
+            id = "playback",
             label = stringResource(R.string.settings_playback),
             icon = ">",
             accent = Color(0xFF9E8FFF)
         ),
         SettingsNavEntry(
+            id = "browsing",
             label = stringResource(R.string.settings_browsing),
             icon = "#",
             accent = Color(0xFF26A69A)
         ),
         SettingsNavEntry(
+            id = "privacy",
             label = stringResource(R.string.settings_privacy),
             icon = "L",
             accent = Color(0xFFFFB74D)
         ),
         SettingsNavEntry(
+            id = "recording",
             label = stringResource(R.string.settings_recording_title),
             icon = "R",
             accent = Color(0xFFEF5350)
         ),
         SettingsNavEntry(
+            id = "backup_restore",
             label = stringResource(R.string.settings_backup_restore),
             icon = "B",
             accent = Color(0xFF42A5F5)
         ),
         SettingsNavEntry(
+            id = "epg_sources",
             label = "EPG Sources",
             icon = "E",
             accent = Color(0xFF66BB6A)
         ),
         SettingsNavEntry(
+            id = "about",
             label = stringResource(R.string.settings_about),
             icon = "i",
             accent = Color(0xFF78909C)
@@ -80,7 +89,11 @@ internal fun SettingsNavigationRail(
         contentPadding = PaddingValues(top = 76.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        itemsIndexed(entries) { index, entry ->
+        itemsIndexed(
+            items = entries,
+            key = { _, entry -> entry.id },
+            contentType = { _, _ -> "settings_navigation_entry" }
+        ) { index, entry ->
             SettingsNavItem(
                 label = entry.label,
                 badgeChar = entry.icon,

@@ -50,7 +50,7 @@ fun <T : Any> CategoryRow(
     onSeeAll: (() -> Unit)? = null,
     onPinToggle: (() -> Unit)? = null,
     isPinned: Boolean = false,
-    keySelector: ((T) -> Any)? = null,
+    keySelector: (T) -> Any,
     contentTypeSelector: ((T) -> Any?)? = null,
     itemContent: @Composable (T) -> Unit
 ) {
@@ -153,7 +153,7 @@ fun <T : Any> CategoryRow(
         ) {
             items(
                 items = items,
-                key = keySelector,  // null = index-based keys (safe default)
+                key = keySelector,
                 contentType = resolvedContentTypeSelector
             ) { item ->
                 itemContent(item)

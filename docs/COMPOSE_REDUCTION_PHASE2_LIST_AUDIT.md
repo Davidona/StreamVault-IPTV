@@ -26,10 +26,12 @@ otherwise difficult for Compose to classify.
 | M3U series-assignment dialog | Channel ID | `series_assignment` | Fixed. |
 | Player quick-action row | Semantic `PlayerActionSpec.id` | `player_quick_action` | Fixed; labels can change for mute, casting, playback speed, aspect ratio, or timer state without changing item identity. |
 | Channel-info action tray | Existing `label:index` composite | `channel_info_action` | Reviewed; the private action type has no semantic ID, so the short homogeneous tray retains its collision-safe composite key. |
+| Settings navigation rail | Stable `SettingsNavEntry.id` | `settings_navigation_entry` | Fixed; the static rail now has explicit item identity and content type. |
 
 No display-text key was introduced where a stable domain ID was available. The
 private channel-info action type has no domain ID, so its short tray keeps the
 existing collision-safe `label:index` key.
 The channel progress clock is collected once by Dashboard, Home, and Search;
 `ChannelCard` and `LiveChannelRowCard` now receive the timestamp as a value and
-do not collect a flow from inside a lazy-list item.
+do not collect a flow from inside a lazy-list item. `CategoryRow` now requires a
+key selector, preventing future callers from silently opting into index keys.
