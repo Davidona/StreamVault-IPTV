@@ -175,6 +175,84 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `preview selection updates preview state without changing browse state`() = runTest {
+        whenever(preferencesRepository.liveTvChannelMode).thenReturn(flowOf("PRO"))
+        whenever(preferencesRepository.playerAudioDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerVideoDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerSurfaceMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlayerSurfaceMode.AUTO)
+        )
+        whenever(preferencesRepository.playerPlaybackBufferMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
+        )
+        whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        whenever(playerEngine.playbackState).thenReturn(
+            MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
+        )
+        whenever(playerEngine.isPlaying).thenReturn(MutableStateFlow(false))
+        whenever(playerEngine.playerStats).thenReturn(
+            MutableStateFlow(com.streamvault.player.PlayerStats())
+        )
+        whenever(playerEngine.error).thenReturn(flowOf(null))
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(
+            Result.Success(StreamInfo(url = "https://example.com/live.m3u8"))
+        )
+        val previewViewModel = createViewModel()
+        advanceUntilIdle()
+
+        val browseStateBeforePreview = previewViewModel.uiState.value
+        val channel = Channel(id = 42L, name = "Preview Channel", providerId = 7L)
+
+        previewViewModel.previewChannel(channel)
+
+        assertThat(previewViewModel.previewUiState.value.previewChannelId).isEqualTo(channel.id)
+        assertThat(previewViewModel.previewUiState.value.previewPlayerEngine).isSameInstanceAs(playerEngine)
+        assertThat(previewViewModel.previewUiState.value.isPreviewLoading).isTrue()
+        assertThat(previewViewModel.uiState.value).isEqualTo(browseStateBeforePreview)
+    }
+
+    @Test
+    fun `isPreviewing reports whether a channel owns the active preview`() = runTest {
+        whenever(preferencesRepository.liveTvChannelMode).thenReturn(flowOf("PRO"))
+        whenever(preferencesRepository.playerAudioDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerVideoDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerSurfaceMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlayerSurfaceMode.AUTO)
+        )
+        whenever(preferencesRepository.playerPlaybackBufferMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
+        )
+        whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        whenever(playerEngine.playbackState).thenReturn(
+            MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
+        )
+        whenever(playerEngine.isPlaying).thenReturn(MutableStateFlow(false))
+        whenever(playerEngine.playerStats).thenReturn(
+            MutableStateFlow(com.streamvault.player.PlayerStats())
+        )
+        whenever(playerEngine.error).thenReturn(flowOf(null))
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(
+            Result.Success(StreamInfo(url = "https://example.com/live.m3u8"))
+        )
+        val previewViewModel = createViewModel()
+        advanceUntilIdle()
+        val channel = Channel(id = 42L, name = "Preview Channel", providerId = 7L)
+
+        previewViewModel.previewChannel(channel)
+
+        assertThat(previewViewModel.isPreviewing(channel.id)).isTrue()
+        assertThat(previewViewModel.isPreviewing(channel.id + 1L)).isFalse()
+    }
+
+    @Test
     fun `updateCategorySearchQuery updates state`() = runTest {
         viewModel.updateCategorySearchQuery("News")
         assertThat(viewModel.uiState.value.categorySearchQuery).isEqualTo("News")

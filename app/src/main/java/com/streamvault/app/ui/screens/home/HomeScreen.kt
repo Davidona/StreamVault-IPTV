@@ -132,6 +132,40 @@ private fun HomeLoadingPane(
     }
 }
 
+@Composable
+private fun HomePreviewHost(
+    viewModel: HomeViewModel,
+    channels: List<Channel>,
+    modifier: Modifier = Modifier
+) {
+    val previewUiState by viewModel.previewUiState.collectAsStateWithLifecycle()
+    val previewChannel = remember(channels, previewUiState.previewChannelId) {
+        channels.firstOrNull { it.id == previewUiState.previewChannelId }
+    }
+    val hasActivePreview = previewUiState.previewPlayerEngine != null
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    DisposableEffect(hasActivePreview) {
+        val window = (context as? android.app.Activity)?.window
+        if (hasActivePreview) {
+            window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            if (hasActivePreview) {
+                window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
+    }
+
+    LivePreviewPane(
+        channel = previewChannel,
+        playerEngine = previewUiState.previewPlayerEngine,
+        isLoading = previewUiState.isPreviewLoading,
+        errorMessage = previewUiState.previewErrorMessage,
+        modifier = modifier
+    )
+}
+
 
 // ── Screen ─────────────────────────────────────────────────────────
 
@@ -191,9 +225,6 @@ fun HomeScreen(
         LiveTvChannelMode.COMPACT -> 2.dp
         LiveTvChannelMode.PRO -> 2.dp
     }
-    val previewChannel = remember(uiState.filteredChannels, uiState.previewChannelId) {
-        uiState.filteredChannels.firstOrNull { it.id == uiState.previewChannelId }
-    }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Split screen state
@@ -211,8 +242,6 @@ fun HomeScreen(
     var pendingUnlockChannel by remember { mutableStateOf<Channel?>(null) }
     var pendingLockToggleCategory by remember { mutableStateOf<Category?>(null) }
     val scope = rememberCoroutineScope()
-    val context = androidx.compose.ui.platform.LocalContext.current
-
     LaunchedEffect(initialCategoryId) {
         viewModel.setPreferredInitialCategory(initialCategoryId)
     }
@@ -231,19 +260,6 @@ fun HomeScreen(
     DisposableEffect(viewModel) {
         onDispose {
             viewModel.clearPreview()
-        }
-    }
-
-    val hasActivePreview = uiState.previewPlayerEngine != null
-    DisposableEffect(hasActivePreview) {
-        val window = (context as? android.app.Activity)?.window
-        if (hasActivePreview) {
-            window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            if (hasActivePreview) {
-                window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
         }
     }
 
@@ -1302,7 +1318,7 @@ fun HomeScreen(
                                                     pendingUnlockChannel = channel
                                                     showPinDialog = true
                                                 } else if (isProMode) {
-                                                    if (uiState.previewChannelId == channel.id) {
+                                                    if (viewModel.isPreviewing(channel.id)) {
                                                         val handedOff = viewModel.beginPreviewHandoff(channel)
                                                         if (!handedOff) {
                                                             viewModel.clearPreview()
@@ -1375,11 +1391,9 @@ fun HomeScreen(
                     }
 
                     if (isProMode) {
-                        LivePreviewPane(
-                            channel = previewChannel,
-                            playerEngine = uiState.previewPlayerEngine,
-                            isLoading = uiState.isPreviewLoading,
-                            errorMessage = uiState.previewErrorMessage,
+                        HomePreviewHost(
+                            viewModel = viewModel,
+                            channels = uiState.filteredChannels,
                             modifier = Modifier
                                 .weight(0.92f)
                                 .fillMaxHeight()

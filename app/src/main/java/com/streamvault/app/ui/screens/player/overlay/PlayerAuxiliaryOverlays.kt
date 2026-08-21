@@ -63,7 +63,10 @@ import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.design.AppColors
 import com.streamvault.app.ui.model.archivePlaybackCapability
+import com.streamvault.app.ui.screens.player.playerCategoryOverlayItemKey
+import com.streamvault.app.ui.screens.player.playerChannelOverlayItemKey
 import com.streamvault.app.ui.screens.player.PlayerDiagnosticsUiState
+import com.streamvault.app.ui.screens.player.playerProgramOverlayItemKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
 import com.streamvault.app.ui.interaction.TvClickableSurface
@@ -227,7 +230,8 @@ fun ChannelListOverlay(
                                             recentChannels,
                                             key = { index, channel ->
                                                 "recent:${channel.id}:${channel.streamId}:${channel.epgChannelId.orEmpty()}:${index}"
-                                            }
+                                            },
+                                            contentType = { _, _ -> "recent_channel" }
                                         ) { index, channel ->
                                             TvClickableSurface(
                                                 onClick = {
@@ -276,8 +280,11 @@ fun ChannelListOverlay(
                                 }
                             }
                         }
-                        items(channels.size) { index ->
-                            val channel = channels[index]
+                        itemsIndexed(
+                            channels,
+                            key = { _, channel -> playerChannelOverlayItemKey(channel) },
+                            contentType = { _, _ -> "channel" }
+                        ) { index, channel ->
                             val isSelected = channel.id == currentChannelId
                             val shouldRequestFocus = isSelected
                             val channelNumber = channel.number.takeIf { it > 0 } ?: (index + 1)
@@ -692,8 +699,11 @@ fun EpgOverlay(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        items(displayPrograms.size) { index ->
-                            val program = displayPrograms[index]
+                        itemsIndexed(
+                            displayPrograms,
+                            key = { _, program -> playerProgramOverlayItemKey(program) },
+                            contentType = { _, _ -> "program" }
+                        ) { index, program ->
                             val isNext = index == 0 && nextProgram != null
 
                             Box(
@@ -1072,8 +1082,11 @@ fun CategoryListOverlay(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
                             )
                         }
-                        items(categories.size) { index ->
-                            val category = categories[index]
+                        itemsIndexed(
+                            categories,
+                            key = { _, category -> playerCategoryOverlayItemKey(category) },
+                            contentType = { _, _ -> "category" }
+                        ) { index, category ->
                             val isSelected = category.id == currentCategoryId
                             val isLocked = isCategoryLocked(category)
                             var isFocused by remember { mutableStateOf(false) }
