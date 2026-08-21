@@ -69,6 +69,9 @@ android {
         buildConfigField("long", "BUILD_TIMESTAMP_UTC", "0L")
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            providers.gradleProperty("compatAbi").orNull
+                ?.takeIf(String::isNotBlank)
+                ?.let { abiFilters += it }
         }
         // Dev seeding hooks — populated from rootProject/local.properties in the
         // `debug` build type only. Release builds inherit these empty defaults so
@@ -160,6 +163,9 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
         warningsAsErrors = true
+        // Dependency freshness is tracked separately from the release gate. These checks are
+        // time-sensitive and would otherwise fail whenever Google publishes a newer version.
+        disable += setOf("AndroidGradlePluginVersion", "GradleDependency")
     }
 }
 

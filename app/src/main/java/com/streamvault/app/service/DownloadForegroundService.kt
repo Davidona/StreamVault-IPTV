@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.streamvault.app.MainActivity
 import com.streamvault.app.R
+import com.streamvault.data.local.dao.DownloadDao
 import com.streamvault.data.platform.DataSyncQuotaAcquireResult
 import com.streamvault.data.platform.DataSyncQuotaLease
 import com.streamvault.data.platform.DataSyncQuotaOwner
@@ -41,6 +42,7 @@ class DownloadForegroundService : Service() {
     interface DownloadServiceEntryPoint {
         fun downloadManager(): DownloadManager
         fun dataSyncQuotaOwner(): DataSyncQuotaOwner
+        fun downloadDao(): DownloadDao
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
