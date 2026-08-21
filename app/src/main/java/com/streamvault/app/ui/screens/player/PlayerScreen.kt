@@ -251,7 +251,7 @@ fun PlayerScreen(
 
     LaunchedEffect(audioVideoSyncEnabled) {
         if (!audioVideoSyncEnabled && modalState.showAudioVideoOffsetDialog) {
-            modalState = modalState.copy(showAudioVideoOffsetDialog = false)
+            modalState = modalState.dismiss()
             viewModel.dismissAudioVideoOffsetPreview()
         }
     }
@@ -330,16 +330,16 @@ fun PlayerScreen(
         isInPictureInPictureMode = isInPictureInPictureMode,
         showProgramHistory = modalState.showProgramHistory,
         programHistory = programHistory,
-        onDismissProgramHistory = { modalState = modalState.copy(showProgramHistory = false) },
+        onDismissProgramHistory = { modalState = modalState.dismiss() },
         onSelectProgramHistory = { program ->
             viewModel.playCatchUp(program)
-            modalState = modalState.copy(showProgramHistory = false)
+            modalState = modalState.dismiss()
         },
         showSplitDialog = modalState.showSplitDialog,
         currentChannel = currentChannel,
-        onDismissSplitDialog = { modalState = modalState.copy(showSplitDialog = false) },
+        onDismissSplitDialog = { modalState = modalState.dismiss() },
         onLaunchMultiView = {
-            modalState = modalState.copy(showSplitDialog = false)
+            modalState = modalState.dismiss()
             viewModel.handOffPlaybackToMultiView()
             onNavigate?.invoke(Routes.MULTI_VIEW)
         }
@@ -459,18 +459,18 @@ fun PlayerScreen(
                 PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT -> viewModel.clearNumericChannelInput()
                 PlayerBackAction.CANCEL_AUTO_PLAY -> viewModel.cancelAutoPlay()
                 PlayerBackAction.DISMISS_PLAYER_NOTICE -> viewModel.dismissPlayerNotice()
-                PlayerBackAction.CLOSE_PROGRAM_HISTORY -> modalState = modalState.copy(showProgramHistory = false)
-                PlayerBackAction.CLOSE_SPLIT_DIALOG -> modalState = modalState.copy(showSplitDialog = false)
-                PlayerBackAction.CLOSE_EPISODE_PICKER -> modalState = modalState.copy(showEpisodePicker = false)
-                PlayerBackAction.CLOSE_SPEED_SELECTION -> modalState = modalState.copy(showSpeedSelection = false)
+                PlayerBackAction.CLOSE_PROGRAM_HISTORY -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_SPLIT_DIALOG -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_EPISODE_PICKER -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_SPEED_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG -> {
-                    modalState = modalState.copy(showAudioVideoOffsetDialog = false)
+                    modalState = modalState.dismiss()
                     viewModel.dismissAudioVideoOffsetPreview()
                 }
-                PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER -> modalState = modalState.copy(showStopPlaybackTimerDialog = false)
-                PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> modalState = modalState.copy(showIdleStandbyTimerDialog = false)
-                PlayerBackAction.CLOSE_VARIANT_SELECTION -> modalState = modalState.copy(showVariantSelection = false)
-                PlayerBackAction.CLOSE_TRACK_SELECTION -> modalState = modalState.copy(trackSelection = null)
+                PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_VARIANT_SELECTION -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_TRACK_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.TOGGLE_DIAGNOSTICS -> viewModel.toggleDiagnostics()
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
@@ -587,24 +587,20 @@ fun PlayerScreen(
                         true
                     }
                     PlayerInputAction.DismissAudioVideoOffset -> {
-                        modalState = modalState.copy(showAudioVideoOffsetDialog = false)
+                        modalState = modalState.dismiss()
                         viewModel.dismissAudioVideoOffsetPreview()
                         true
                     }
                     PlayerInputAction.CloseSpeedSelection -> {
-                        modalState = modalState.copy(showSpeedSelection = false)
+                        modalState = modalState.dismiss()
                         true
                     }
                     PlayerInputAction.CloseVariantSelection -> {
-                        modalState = modalState.copy(showVariantSelection = false)
+                        modalState = modalState.dismiss()
                         true
                     }
                     PlayerInputAction.CloseStopIdleTimersAndTrackSelection -> {
-                        modalState = modalState.copy(
-                            showStopPlaybackTimerDialog = false,
-                            showIdleStandbyTimerDialog = false,
-                            trackSelection = null
-                        )
+                        modalState = modalState.dismiss()
                         true
                     }
                     PlayerInputAction.CommitNumericChannelInput -> {
@@ -664,7 +660,7 @@ fun PlayerScreen(
                         true
                     }
                     PlayerInputAction.ShowEpisodePicker -> {
-                        modalState = modalState.copy(showEpisodePicker = true)
+                        modalState = modalState.open(PlayerModal.EpisodePicker)
                         true
                     }
                     is PlayerInputAction.InputNumericDigit -> {
@@ -830,7 +826,7 @@ fun PlayerScreen(
             onSeekBackward = viewModel::seekBackward,
             onSeekForward = viewModel::seekForward,
             onRestartProgram = viewModel::restartCurrentProgram,
-            onOpenArchive = { modalState = modalState.copy(showProgramHistory = true) },
+            onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
             onStartRecording = {
                 notificationPermissionGate.runRecordingAction {
                     viewModel.startManualRecording()
@@ -853,17 +849,17 @@ fun PlayerScreen(
                 }
             },
             onToggleAspectRatio = viewModel::toggleAspectRatio,
-            onOpenSubtitleTracks = { modalState = modalState.copy(trackSelection = TrackType.TEXT) },
-            onOpenAudioTracks = { modalState = modalState.copy(trackSelection = TrackType.AUDIO) },
-            onOpenVideoTracks = { modalState = modalState.copy(trackSelection = TrackType.VIDEO) },
-            onOpenPlaybackSpeed = { modalState = modalState.copy(showSpeedSelection = true) },
-            onOpenStopPlaybackTimer = { modalState = modalState.copy(showStopPlaybackTimerDialog = true) },
-            onOpenIdleStandbyTimer = { modalState = modalState.copy(showIdleStandbyTimerDialog = true) },
-            onOpenAudioVideoSync = { modalState = modalState.copy(showAudioVideoOffsetDialog = true) },
+            onOpenSubtitleTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.TEXT)) },
+            onOpenAudioTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.AUDIO)) },
+            onOpenVideoTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.VIDEO)) },
+            onOpenPlaybackSpeed = { modalState = modalState.open(PlayerModal.SpeedSelection) },
+            onOpenStopPlaybackTimer = { modalState = modalState.open(PlayerModal.StopPlaybackTimer) },
+            onOpenIdleStandbyTimer = { modalState = modalState.open(PlayerModal.IdleStandbyTimer) },
+            onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
             audioVideoSyncEnabled = audioVideoSyncEnabled,
             showEpisodesAction = canOpenEpisodePicker,
-            onOpenEpisodes = { modalState = modalState.copy(showEpisodePicker = true) },
-            onOpenSplitScreen = { modalState = modalState.copy(showSplitDialog = true) },
+            onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
+            onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
             onToggleMute = viewModel::toggleMute,
             isCastConnected = castConnectionState == CastConnectionState.CONNECTED,
@@ -951,7 +947,7 @@ fun PlayerScreen(
             availableVideoQualities = availableVideoQualities,
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
-            onDismissTrackSelection = { modalState = modalState.copy(trackSelection = null) },
+            onDismissTrackSelection = { modalState = modalState.dismiss() },
             onSelectAudio = viewModel::selectAudioTrack,
             onSelectVideo = viewModel::selectVideoQuality,
             onSelectSubtitle = { trackId ->
@@ -964,29 +960,29 @@ fun PlayerScreen(
             },
             showVariantSelection = modalState.showVariantSelection,
             currentChannel = currentChannel,
-            onDismissVariantSelection = { modalState = modalState.copy(showVariantSelection = false) },
+            onDismissVariantSelection = { modalState = modalState.dismiss() },
             onSelectVariant = viewModel::selectLiveVariant,
             showSpeedSelection = modalState.showSpeedSelection,
             playbackSpeed = playbackSpeed,
-            onDismissSpeedSelection = { modalState = modalState.copy(showSpeedSelection = false) },
+            onDismissSpeedSelection = { modalState = modalState.dismiss() },
             onSelectSpeed = viewModel::setPlaybackSpeed,
             showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
             stopPlaybackTimerTitle = stringResource(R.string.player_stop_playback_after),
             stopPlaybackTimerMinutes = sleepTimerUiState.stopTimerMinutes,
-            onDismissStopPlaybackTimer = { modalState = modalState.copy(showStopPlaybackTimerDialog = false) },
+            onDismissStopPlaybackTimer = { modalState = modalState.dismiss() },
             onSelectStopPlaybackTimer = { minutes ->
                 viewModel.notifyUserActivity()
                 viewModel.setStopPlaybackTimer(minutes)
-                modalState = modalState.copy(showStopPlaybackTimerDialog = false)
+                modalState = modalState.dismiss()
             },
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
             idleStandbyTimerTitle = stringResource(R.string.player_idle_standby_after),
             idleStandbyTimerMinutes = sleepTimerUiState.idleTimerMinutes,
-            onDismissIdleStandbyTimer = { modalState = modalState.copy(showIdleStandbyTimerDialog = false) },
+            onDismissIdleStandbyTimer = { modalState = modalState.dismiss() },
             onSelectIdleStandbyTimer = { minutes ->
                 viewModel.notifyUserActivity()
                 viewModel.setIdleStandbyTimer(minutes)
-                modalState = modalState.copy(showIdleStandbyTimerDialog = false)
+                modalState = modalState.dismiss()
             },
             audioVideoOffsetVisible = modalState.showAudioVideoOffsetDialog &&
                 audioVideoSyncEnabled &&
@@ -994,7 +990,7 @@ fun PlayerScreen(
             audioVideoOffsetState = audioVideoOffsetState,
             canSaveChannel = currentChannel != null,
             onDismissAudioVideoOffset = {
-                modalState = modalState.copy(showAudioVideoOffsetDialog = false)
+                modalState = modalState.dismiss()
                 viewModel.dismissAudioVideoOffsetPreview()
             },
             onAdjustAudioVideoOffset = viewModel::adjustAudioVideoOffset,
@@ -1007,9 +1003,9 @@ fun PlayerScreen(
             seasons = currentSeriesSeasons.orEmpty(),
             currentEpisodeId = currentEpisode?.id ?: internalChannelId,
             currentSeasonNumber = currentEpisode?.seasonNumber ?: seasonNumber,
-            onDismissEpisodePicker = { modalState = modalState.copy(showEpisodePicker = false) },
+            onDismissEpisodePicker = { modalState = modalState.dismiss() },
             onSelectEpisode = { episode ->
-                modalState = modalState.copy(showEpisodePicker = false)
+                modalState = modalState.dismiss()
                 viewModel.playEpisode(episode)
             }
         )
@@ -1092,7 +1088,7 @@ fun PlayerScreen(
                     upcomingPrograms = upcomingPrograms,
                     onDismiss = { viewModel.closeOverlays() },
                     onOpenArchiveBrowser = {
-                        modalState = modalState.copy(showProgramHistory = true)
+                        modalState = modalState.open(PlayerModal.ProgramHistory)
                         viewModel.closeOverlays()
                     },
                     onOverlayInteracted = viewModel::onLiveOverlayInteraction
@@ -1148,7 +1144,7 @@ fun PlayerScreen(
                         }
                     },
                     onRestartProgram = { viewModel.restartCurrentProgram() },
-                    onOpenArchive = { modalState = modalState.copy(showProgramHistory = true) },
+                    onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
                     onToggleAspectRatio = { viewModel.toggleAspectRatio() },
                     onToggleDiagnostics = { viewModel.toggleDiagnostics() },
                     onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
@@ -1158,7 +1154,7 @@ fun PlayerScreen(
                     isPlaying = isPlaying,
                     currentAspectRatio = aspectRatio.modeName,
                     isDiagnosticsEnabled = showDiagnostics,
-                    onOpenSplitScreen = { modalState = modalState.copy(showSplitDialog = true) },
+                    onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
                     subtitleTrackCount = availableSubtitleTracks.size,
                     liveTranslationAvailable = liveTranslationAvailable,
                     audioTrackCount = availableAudioTracks.size,
@@ -1166,11 +1162,11 @@ fun PlayerScreen(
                     channelVariantCount = currentChannel?.variants?.size ?: 0,
                     isMuted = isMuted,
                     onToggleMute = viewModel::toggleMute,
-                    onOpenSubtitleTracks = { modalState = modalState.copy(trackSelection = TrackType.TEXT) },
-                    onOpenAudioTracks = { modalState = modalState.copy(trackSelection = TrackType.AUDIO) },
-                    onOpenVideoTracks = { modalState = modalState.copy(trackSelection = TrackType.VIDEO) },
-                    onOpenVariants = { modalState = modalState.copy(showVariantSelection = true) },
-                    onOpenAudioVideoSync = { modalState = modalState.copy(showAudioVideoOffsetDialog = true) },
+                    onOpenSubtitleTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.TEXT)) },
+                    onOpenAudioTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.AUDIO)) },
+                    onOpenVideoTracks = { modalState = modalState.open(PlayerModal.TrackSelection(TrackType.VIDEO)) },
+                    onOpenVariants = { modalState = modalState.open(PlayerModal.VariantSelection) },
+                    onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
                     audioVideoSyncEnabled = audioVideoSyncEnabled,
                     onEnterPictureInPicture = enterPictureInPicture,
                     isCastConnected = castConnectionState == CastConnectionState.CONNECTED,

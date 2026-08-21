@@ -55,34 +55,4 @@ internal data class PlayerModalState(
     fun open(modal: PlayerModal): PlayerModalState = PlayerModalState(active = modal)
 
     fun dismiss(): PlayerModalState = PlayerModalState()
-
-    /**
-     * Temporary compatibility overload for the Phase 1 call sites. It
-     * derives one active modal and stores no duplicate flags. Task 2 replaces
-     * these calls with open and dismiss.
-     */
-    fun copy(
-        trackSelection: TrackType? = this.trackSelection,
-        showVariantSelection: Boolean = this.showVariantSelection,
-        showSpeedSelection: Boolean = this.showSpeedSelection,
-        showAudioVideoOffsetDialog: Boolean = this.showAudioVideoOffsetDialog,
-        showStopPlaybackTimerDialog: Boolean = this.showStopPlaybackTimerDialog,
-        showIdleStandbyTimerDialog: Boolean = this.showIdleStandbyTimerDialog,
-        showProgramHistory: Boolean = this.showProgramHistory,
-        showSplitDialog: Boolean = this.showSplitDialog,
-        showEpisodePicker: Boolean = this.showEpisodePicker
-    ): PlayerModalState = PlayerModalState(
-        active = when {
-            trackSelection != null -> PlayerModal.TrackSelection(trackSelection)
-            showVariantSelection -> PlayerModal.VariantSelection
-            showSpeedSelection -> PlayerModal.SpeedSelection
-            showAudioVideoOffsetDialog -> PlayerModal.AudioVideoOffset
-            showStopPlaybackTimerDialog -> PlayerModal.StopPlaybackTimer
-            showIdleStandbyTimerDialog -> PlayerModal.IdleStandbyTimer
-            showProgramHistory -> PlayerModal.ProgramHistory
-            showSplitDialog -> PlayerModal.Split
-            showEpisodePicker -> PlayerModal.EpisodePicker
-            else -> null
-        }
-    )
 }

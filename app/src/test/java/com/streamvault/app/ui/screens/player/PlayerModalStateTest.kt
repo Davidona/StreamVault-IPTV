@@ -17,6 +17,16 @@ class PlayerModalStateTest {
     }
 
     @Test
+    fun `opening speed selection replaces active track selection`() {
+        val state = PlayerModalState()
+            .open(PlayerModal.TrackSelection(TrackType.AUDIO))
+            .open(PlayerModal.SpeedSelection)
+
+        assertThat(state.trackSelection).isNull()
+        assertThat(state.showSpeedSelection).isTrue()
+    }
+
+    @Test
     fun `track selection retains its track type`() {
         val state = PlayerModalState().open(PlayerModal.TrackSelection(TrackType.AUDIO))
 
