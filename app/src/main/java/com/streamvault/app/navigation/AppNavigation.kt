@@ -79,7 +79,7 @@ fun AppNavigation(mainActivity: MainActivity) {
             .first()
         loadedSplitPreferenceProviderId = providerId
     }
-    val externalNavigationRequest = mainActivity.externalNavigationRequestFlow.collectAsStateWithLifecycle().value
+    val pendingNavigationCommand = mainActivity.pendingNavigationCommand.collectAsStateWithLifecycle().value
     val topLevelDestinations = mainActivity.preferencesRepository.appTopLevelDestinations
         .collectAsStateWithLifecycle(initialValue = AppTopLevelDestination.defaultOrder)
         .value
@@ -140,12 +140,14 @@ fun AppNavigation(mainActivity: MainActivity) {
         }
     }
 
-    ExternalNavigationHost(
-        request = externalNavigationRequest,
-        currentBackStackEntry = currentBackStackEntry,
-        navigator = navigator,
-        onRequestHandled = mainActivity::clearExternalNavigationRequest
-    )
+    LaunchedEffect(pendingNavigationCommand, currentBackStackEntry) {
+        val pending = pendingNavigationCommand ?: return@LaunchedEffect
+        val entry = currentBackStackEntry ?: return@LaunchedEffect
+        entry.lifecycle.awaitResumed()
+        if (navigator.execute(pending.command)) {
+            mainActivity.acknowledgeNavigationCommand(pending.id)
+        }
+    }
 
     // NAV-M02/NAV-H02: Single helper replacing repeated tab lambdas without serializing
     // each tab's full UI tree into saved state on every switch.

@@ -1,6 +1,5 @@
 package com.streamvault.app
 
-import android.app.SearchManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -9,16 +8,17 @@ import android.os.StrictMode
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.core.view.doOnPreDraw
 import com.streamvault.app.cast.CastManager
 import com.streamvault.app.cast.CastRouteChooserActivity
-import com.streamvault.app.backup.BackupFileBridge
 import com.streamvault.app.device.isTelevisionDevice
 import com.streamvault.app.localization.resolveAppLocale
 import com.streamvault.app.navigation.AppNavigation
-import com.streamvault.app.navigation.ExternalDestination
-import com.streamvault.app.navigation.ExternalNavigationRequest
+import com.streamvault.app.navigation.AppNavigationCoordinator
+import com.streamvault.app.navigation.ExternalNavigationRequestParser
 import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.ExternalNavigationRequest
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.domain.repository.ChannelRepository
@@ -46,10 +46,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import java.util.Locale
 import android.content.Context
 import android.content.ContextWrapper
-import android.net.Uri
 import android.content.res.AssetManager
 import android.content.res.Resources
-import android.speech.RecognizerIntent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,9 +96,12 @@ class MainActivity : ComponentActivity() {
     private val _pictureInPictureModeFlow = MutableStateFlow(false)
     val pictureInPictureModeFlow: StateFlow<Boolean> = _pictureInPictureModeFlow.asStateFlow()
 
-    private val _externalNavigationRequestFlow = MutableStateFlow<ExternalNavigationRequest?>(null)
-    val externalNavigationRequestFlow: StateFlow<ExternalNavigationRequest?> =
-        _externalNavigationRequestFlow.asStateFlow()
+    private val appNavigationCoordinator: AppNavigationCoordinator by viewModels()
+
+    @Inject
+    lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
+
+    internal val pendingNavigationCommand = appNavigationCoordinator.pendingCommand
 
     private var playerPictureInPictureState = PlayerPictureInPictureState()
 
@@ -235,12 +236,14 @@ class MainActivity : ComponentActivity() {
         applyPlayerPictureInPictureParams()
     }
 
-    fun clearExternalNavigationRequest() {
-        _externalNavigationRequestFlow.value = null
+    internal fun acknowledgeNavigationCommand(id: Long) {
+        appNavigationCoordinator.acknowledge(id)
     }
 
     fun openPlayer(request: PlayerNavigationRequest) {
-        _externalNavigationRequestFlow.value = ExternalNavigationRequest.Player(request)
+        appNavigationCoordinator.submitExternalRequest(
+            ExternalNavigationRequest.Player(request)
+        )
     }
 
     fun enterPlayerPictureInPictureModeFromPlayer(): Boolean {
@@ -335,112 +338,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleExternalIntent(intent: Intent?) {
-        val request = intent?.toExternalNavigationRequest() ?: return
-        _externalNavigationRequestFlow.value = request
-    }
-
-    private fun Intent.toExternalNavigationRequest(): ExternalNavigationRequest? {
-        readPlayerRequestExtra()?.let { return ExternalNavigationRequest.Player(it) }
-        readExternalDestinationExtra()?.let { return ExternalNavigationRequest.Destination(it) }
-        getStringExtra(EXTRA_EXTERNAL_ROUTE)
-            ?.let(ExternalDestination::fromLegacyRoute)
-            ?.let { return ExternalNavigationRequest.Destination(it) }
-        if (hasExtra(EXTRA_EXTERNAL_ROUTE)) {
-            return ExternalNavigationRequest.Destination(ExternalDestination.Home)
-        }
-        readImportedPlaylistUri()?.let { return ExternalNavigationRequest.ImportM3u(it) }
-        readImportedBackupUri()?.let { return ExternalNavigationRequest.ImportBackup(it) }
-
-        val query = when (action) {
-            Intent.ACTION_SEARCH,
-            Intent.ACTION_ASSIST,
-            RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE -> {
-                getStringExtra(SearchManager.QUERY)
-                    ?: getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
-            }
-
-            else -> null
-        }?.trim().orEmpty()
-
-        query.takeIf { it.isNotBlank() }?.let(ExternalNavigationRequest::Search)?.let { return it }
-
-        return if (action == Intent.ACTION_VIEW) {
-            ExternalNavigationRequest.Destination(ExternalDestination.Home)
-        } else {
-            null
-        }
-    }
-
-    private fun Intent.readImportedPlaylistUri(): String? {
-        if (action != Intent.ACTION_VIEW) return null
-        val targetUri = data ?: return null
-        val normalizedPath = targetUri.toString().substringBefore('?').lowercase(Locale.ROOT)
-        val mimeType = type?.lowercase(Locale.ROOT).orEmpty()
-        val isPlaylistMime = mimeType in setOf(
-            "audio/x-mpegurl",
-            "audio/mpegurl",
-            "application/x-mpegurl",
-            "application/vnd.apple.mpegurl",
-            "application/mpegurl"
-        )
-        val isPlaylistPath = normalizedPath.endsWith(".m3u") || normalizedPath.endsWith(".m3u8")
-        if (!isPlaylistMime && !isPlaylistPath) return null
-        return when (targetUri.scheme?.lowercase(Locale.ROOT)) {
-            "content", "file" -> targetUri.toString()
-            else -> null
-        }
-    }
-
-    private fun Intent.readImportedBackupUri(): String? {
-        val targetUri = when (action) {
-            Intent.ACTION_VIEW -> data
-            Intent.ACTION_SEND -> readStreamUriExtra()
-            else -> null
-        } ?: return null
-        if (!isBackupJsonCandidate(targetUri)) return null
-        return BackupFileBridge.copyToImportInbox(this@MainActivity, targetUri)?.toString()
-            ?: targetUri.toString()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readStreamUriExtra(): Uri? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-        } else {
-            getParcelableExtra(Intent.EXTRA_STREAM) as? Uri
-        } ?: clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
-    }
-
-    private fun Intent.isBackupJsonCandidate(uri: Uri): Boolean {
-        val normalizedPath = uri.toString().substringBefore('?').lowercase(Locale.ROOT)
-        val mimeType = type?.lowercase(Locale.ROOT).orEmpty()
-        val isJsonMime = mimeType in setOf(
-            "application/json",
-            "text/json",
-            "application/x-json",
-            "application/octet-stream",
-            "text/plain",
-        )
-        val isJsonPath = normalizedPath.endsWith(".json")
-        if (!isJsonMime && !isJsonPath) return false
-        return uri.scheme?.lowercase(Locale.ROOT) in setOf("content", "file")
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readPlayerRequestExtra(): PlayerNavigationRequest? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getSerializableExtra(EXTRA_PLAYER_REQUEST, PlayerNavigationRequest::class.java)
-        } else {
-            getSerializableExtra(EXTRA_PLAYER_REQUEST) as? PlayerNavigationRequest
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readExternalDestinationExtra(): ExternalDestination? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getSerializableExtra(EXTRA_EXTERNAL_DESTINATION, ExternalDestination::class.java)
-        } else {
-            getSerializableExtra(EXTRA_EXTERNAL_DESTINATION) as? ExternalDestination
-        }
+        intent?.let(externalNavigationRequestParser::parse)
+            ?.let(appNavigationCoordinator::submitExternalRequest)
     }
 }
