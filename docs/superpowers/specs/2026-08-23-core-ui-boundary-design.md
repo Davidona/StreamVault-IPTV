@@ -43,6 +43,7 @@ core/
     src/main/res/font/inter_*.ttf
     src/main/java/com/streamvault/core/ui/
       components/shell/AppShellVisuals.kt
+      device/TelevisionDevice.kt
       design/AppColors.kt
       design/AppMotion.kt
       design/AppShapes.kt
@@ -63,6 +64,8 @@ Register `:core:ui` in `settings.gradle.kts`. The module uses the existing versi
 The core module may depend on Android framework APIs, Compose runtime/foundation/ui, TV Material, Material icons, and the lifecycle Compose API required by the existing focus helpers. It must not depend on `:app`, `:data`, `:domain`, `:player`, navigation, Hilt, repositories, or application implementation classes.
 
 The existing font resources used by `AppTypography` move with that implementation into `:core:ui`, so typography no longer references `com.streamvault.app.R`.
+
+`MouseSupport` currently uses the generic `Context.isTelevisionDevice()` predicate from the app device package. Extract only that platform-neutral TV classification predicate into `com.streamvault.core.ui.device.TelevisionDevice.kt`; keep Fire TV classification, removable-storage helpers, and the app-facing `rememberIsTelevisionDevice()` wrapper in `:app`.
 
 ## Core UI API
 
