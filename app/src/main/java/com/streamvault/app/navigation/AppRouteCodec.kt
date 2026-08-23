@@ -169,6 +169,59 @@ internal object AppRouteCodec {
     private fun Map<String, String>.longOrNull(key: String): Long? = this[key]?.toLongOrNull()
 }
 
+/** Temporary compatibility facade for route-based consumers during navigation migration. */
+internal object Routes {
+    const val PROVIDER_SETUP = AppRoutePatterns.PROVIDER_SETUP
+    const val HOME = AppRoutePatterns.HOME
+    const val LIVE_TV = AppRoutePatterns.LIVE_TV
+    const val LIVE_TV_DESTINATION = AppRoutePatterns.LIVE_TV_DESTINATION
+    const val MOVIES = AppRoutePatterns.MOVIES
+    const val SERIES = AppRoutePatterns.SERIES
+    const val VOD = AppRoutePatterns.VOD
+    const val DOWNLOADS = AppRoutePatterns.DOWNLOADS
+    const val EPG = AppRoutePatterns.EPG
+    const val EPG_DESTINATION = AppRoutePatterns.EPG_DESTINATION
+    const val SETTINGS = AppRoutePatterns.SETTINGS
+    const val SETTINGS_DESTINATION = AppRoutePatterns.SETTINGS_DESTINATION
+    const val PLUGINS = AppRoutePatterns.PLUGINS
+    const val PLAYER = AppRoutePatterns.PLAYER
+    const val SEARCH = AppRoutePatterns.SEARCH
+    const val SEARCH_DESTINATION = AppRoutePatterns.SEARCH_DESTINATION
+    const val MOVIE_DETAIL = AppRoutePatterns.MOVIE_DETAIL
+    const val SERIES_DETAIL = AppRoutePatterns.SERIES_DETAIL
+    const val WELCOME = AppRoutePatterns.WELCOME
+    const val PARENTAL_CONTROL_GROUPS = AppRoutePatterns.PARENTAL_CONTROL_GROUPS
+    const val MULTI_VIEW = AppRoutePatterns.MULTI_VIEW
+
+    fun providerSetup(providerId: Long? = null, importUri: String? = null): String =
+        AppRouteCodec.encode(AppDestination.ProviderSetup(providerId, importUri))
+
+    fun liveTv(categoryId: Long? = null): String =
+        AppRouteCodec.encode(AppDestination.LiveTv(categoryId))
+
+    fun epg(categoryId: Long? = null, anchorTime: Long? = null, favoritesOnly: Boolean? = null): String =
+        AppRouteCodec.encode(AppDestination.Guide(categoryId, anchorTime, favoritesOnly ?: false))
+
+    fun search(query: String? = null): String =
+        AppRouteCodec.encode(AppDestination.Search(query))
+
+    fun settings(backupUri: String? = null): String =
+        AppRouteCodec.encode(AppDestination.Settings(backupUri))
+
+    fun movieDetail(movieId: Long, returnRoute: String? = null): String =
+        AppRouteCodec.encode(
+            AppDestination.MovieDetail(movieId, returnRoute?.let(AppRouteCodec::decode))
+        )
+
+    fun seriesDetail(seriesId: Long, returnRoute: String? = null): String =
+        AppRouteCodec.encode(
+            AppDestination.SeriesDetail(seriesId, returnRoute?.let(AppRouteCodec::decode))
+        )
+
+    fun parentalControlGroups(providerId: Long): String =
+        AppRouteCodec.encode(AppDestination.ParentalControlGroups(providerId))
+}
+
 private fun String.queryParameters(): Map<String, String> {
     val query = substringAfter('?', missingDelimiterValue = "")
     if (query.isBlank()) return emptyMap()

@@ -3,7 +3,8 @@ package com.streamvault.app.ui.screens.settings
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import com.streamvault.app.MainActivity
-import com.streamvault.app.navigation.Routes
+import com.streamvault.app.navigation.AppRouteCodec
+import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.domain.model.RecordingStatus
 
 internal fun LazyListScope.settingsRecordingSection(
@@ -71,13 +72,13 @@ internal fun SettingsRecordingBrowserDialog(
             val playbackUrl = item.playbackUrl()
             if (!playbackUrl.isNullOrBlank()) {
                 mainActivity?.openPlayer(
-                    Routes.player(
+                    playerNavigationRequest(
                         streamUrl = playbackUrl,
                         title = item.programTitle ?: item.channelName,
                         internalId = item.id.hashCode().toLong().and(0x7FFFFFFFL),
                         providerId = item.providerId,
                         contentType = "MOVIE",
-                        returnRoute = currentRoute
+                        returnDestination = AppRouteCodec.decode(currentRoute)
                     )
                 )
             }

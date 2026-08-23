@@ -90,6 +90,7 @@ import com.streamvault.app.ui.screens.player.overlay.PlayerResolutionBadge
 import com.streamvault.app.ui.screens.player.overlay.PlayerSleepTimerWarningOverlay
 import com.streamvault.app.ui.screens.player.overlay.NextEpisodeCountdownOverlay
 import com.streamvault.app.navigation.Routes
+import com.streamvault.core.navigation.AppDestination
 
 
 
@@ -115,9 +116,9 @@ fun PlayerScreen(
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
     episodeId: Long? = null,
-    returnRoute: String? = null,
+    returnDestination: AppDestination? = null,
     onBack: () -> Unit,
-    onNavigate: ((String) -> Unit)? = null,
+    onNavigate: ((AppDestination) -> Unit)? = null,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -272,7 +273,7 @@ fun PlayerScreen(
         onLaunchMultiView = {
             modalState = modalState.dismiss()
             viewModel.handOffPlaybackToMultiView()
-            onNavigate?.invoke(Routes.MULTI_VIEW)
+            onNavigate?.invoke(AppDestination.MultiView)
         }
     )
 
@@ -353,11 +354,11 @@ fun PlayerScreen(
         }
     }
 
-    val handlePlayerNoticeAction: (PlayerNoticeAction) -> Unit = remember(returnRoute, onNavigate) {
+    val handlePlayerNoticeAction: (PlayerNoticeAction) -> Unit = remember(returnDestination, onNavigate) {
         { action ->
-            if (action == PlayerNoticeAction.OPEN_GUIDE && !returnRoute.isNullOrBlank() && onNavigate != null) {
+            if (action == PlayerNoticeAction.OPEN_GUIDE && returnDestination != null && onNavigate != null) {
                 viewModel.dismissPlayerNotice()
-                onNavigate(returnRoute)
+                onNavigate(returnDestination)
             } else {
                 viewModel.runPlayerNoticeAction(action)
             }

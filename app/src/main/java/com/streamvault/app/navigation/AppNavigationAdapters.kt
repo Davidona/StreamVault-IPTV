@@ -1,5 +1,6 @@
 package com.streamvault.app.navigation
 
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable

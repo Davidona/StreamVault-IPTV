@@ -1,6 +1,7 @@
 package com.streamvault.app.navigation
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import org.junit.Test
 
 class PlayerNavigationRequestTest {

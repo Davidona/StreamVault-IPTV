@@ -1,5 +1,7 @@
 package com.streamvault.app.navigation
 
+import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.app.MainActivity
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.AppLandingDestination
@@ -66,13 +68,12 @@ private suspend fun resolveStartupChannelTarget(
         val channel = mainActivity.channelRepository.getChannel(channelId) ?: continue
         if (channel.providerId !in sourceContext.providerIds) continue
         if (channel.id in hiddenChannelIdsByProvider[channel.providerId].orEmpty()) continue
-        return Routes.livePlayer(
-            channel = channel,
+        return channel.toLivePlayerRequest(
             categoryId = virtualCategoryId,
             providerId = channel.providerId,
             isVirtual = true,
             combinedProfileId = (sourceContext as? LiveStartupContext.Combined)?.profileId,
-            returnRoute = Routes.LIVE_TV
+            returnDestination = AppDestination.LiveTv()
         )
     }
     return null

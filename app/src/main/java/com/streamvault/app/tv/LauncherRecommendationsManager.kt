@@ -16,7 +16,7 @@ import com.streamvault.app.MainActivity
 import com.streamvault.app.R
 import com.streamvault.app.device.isTelevisionDevice
 import com.streamvault.app.navigation.ExternalDestination
-import com.streamvault.app.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.app.navigation.toPlayerNavigationRequest
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ContentType

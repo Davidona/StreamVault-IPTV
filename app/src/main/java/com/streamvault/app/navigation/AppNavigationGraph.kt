@@ -23,10 +23,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
-import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.app.ui.screens.dashboard.DashboardScreen
 import com.streamvault.app.ui.screens.multiview.MultiViewScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
@@ -110,25 +111,23 @@ internal fun AppNavigationGraph(
                 },
                 onRecentChannelClick = { channel, combinedProfileId ->
                     navController.navigateToPlayer(
-                        Routes.livePlayer(
-                            channel = channel,
+                        channel.toLivePlayerRequest(
                             categoryId = com.streamvault.domain.model.VirtualCategoryIds.RECENT,
                             providerId = channel.providerId,
                             isVirtual = true,
                             combinedProfileId = combinedProfileId,
-                            returnRoute = Routes.HOME
+                            returnDestination = AppDestination.Home
                         )
                     )
                 },
                 onFavoriteChannelClick = { channel, combinedProfileId ->
                     navController.navigateToPlayer(
-                        Routes.livePlayer(
-                            channel = channel,
+                        channel.toLivePlayerRequest(
                             categoryId = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
                             providerId = channel.providerId,
                             isVirtual = true,
                             combinedProfileId = combinedProfileId,
-                            returnRoute = Routes.HOME
+                            returnDestination = AppDestination.Home
                         )
                     )
                 },
@@ -141,41 +140,17 @@ internal fun AppNavigationGraph(
                 onPlaybackHistoryClick = { history ->
                     val route = when (history.contentType) {
                         com.streamvault.domain.model.ContentType.LIVE -> {
-                            Routes.player(
-                                streamUrl = history.streamUrl,
-                                title = history.title,
-                                internalId = history.contentId,
-                                providerId = history.providerId,
-                                contentType = history.contentType.name,
-                                returnRoute = Routes.HOME
-                            )
+                            history.toPlayerNavigationRequest(AppDestination.Home)
                         }
                         com.streamvault.domain.model.ContentType.MOVIE,
                         com.streamvault.domain.model.ContentType.VOD -> {
-                            Routes.player(
-                                streamUrl = history.streamUrl,
-                                title = history.title,
-                                internalId = history.contentId,
-                                providerId = history.providerId,
-                                contentType = history.contentType.name,
-                                returnRoute = Routes.HOME
-                            )
+                            history.toPlayerNavigationRequest(AppDestination.Home)
                         }
                         com.streamvault.domain.model.ContentType.SERIES -> {
                             Routes.seriesDetail(history.contentId, Routes.HOME)
                         }
                         com.streamvault.domain.model.ContentType.SERIES_EPISODE -> {
-                            Routes.player(
-                                streamUrl = history.streamUrl,
-                                title = history.title,
-                                internalId = history.contentId,
-                                providerId = history.providerId,
-                                contentType = history.contentType.name,
-                                returnRoute = Routes.HOME,
-                                seriesId = history.seriesId,
-                                seasonNumber = history.seasonNumber,
-                                episodeNumber = history.episodeNumber
-                            )
+                            history.toPlayerNavigationRequest(AppDestination.Home)
                         }
                     }
                     if (route is PlayerNavigationRequest) {
@@ -198,14 +173,13 @@ internal fun AppNavigationGraph(
             HomeScreen(
                 onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
                     navController.navigateToPlayer(
-                        Routes.livePlayer(
-                            channel = channel,
+                        channel.toLivePlayerRequest(
                             categoryId = category?.id,
                             providerId = provider?.id,
                             isVirtual = category?.isVirtual == true,
                             combinedProfileId = combinedProfileId,
                             combinedSourceFilterProviderId = combinedSourceFilterProviderId,
-                            returnRoute = Routes.liveTv(category?.id)
+                            returnDestination = AppDestination.LiveTv(category?.id)
                         )
                     )
                 },
@@ -223,7 +197,7 @@ internal fun AppNavigationGraph(
                 },
                 onContinueWatchingPlay = { history ->
                     navController.navigateToPlayer(
-                        history.toPlayerNavigationRequest().copy(returnRoute = Routes.MOVIES)
+                        history.toPlayerNavigationRequest().copy(returnDestination = AppDestination.Movies)
                     )
                 },
                 onNavigate = { route -> tabNavigate(route) },
@@ -282,13 +256,12 @@ internal fun AppNavigationGraph(
                 initialFavoritesOnly = epgFavoritesOnly,
                 onPlayChannel = { channel, categoryId, isVirtual, combinedProfileId, returnRoute ->
                     navController.navigateToPlayer(
-                        Routes.livePlayer(
-                            channel = channel,
+                        channel.toLivePlayerRequest(
                             categoryId = categoryId,
                             providerId = channel.providerId,
                             isVirtual = isVirtual,
                             combinedProfileId = combinedProfileId,
-                            returnRoute = returnRoute
+                            returnDestination = AppRouteCodec.decode(returnRoute)
                         )
                     )
                 },
@@ -297,7 +270,7 @@ internal fun AppNavigationGraph(
                         return@FullEpgScreen
                     }
                     navController.navigateToPlayer(
-                        Routes.player(
+                        playerNavigationRequest(
                             streamUrl = channel.streamUrl,
                             title = channel.name,
                             channelId = channel.epgChannelId,
@@ -310,7 +283,7 @@ internal fun AppNavigationGraph(
                             archiveStartMs = program.startTime,
                             archiveEndMs = program.endTime,
                             archiveTitle = "${channel.name}: ${program.title}",
-                            returnRoute = returnRoute
+                            returnDestination = AppRouteCodec.decode(returnRoute)
                         )
                     )
                 },
@@ -371,12 +344,11 @@ internal fun AppNavigationGraph(
                 initialQuery = backStackEntry.arguments?.getString("query").orEmpty(),
                 onChannelClick = { channel ->
                     navController.navigateToPlayer(
-                        Routes.livePlayer(
-                            channel = channel,
-                            categoryId = channel.categoryId ?: ChannelRepository.ALL_CHANNELS_ID,
+                        channel.toLivePlayerRequest(
+                            categoryId = channel.categoryId,
                             providerId = channel.providerId,
                             isVirtual = false,
-                            returnRoute = Routes.search(backStackEntry.arguments?.getString("query").orEmpty())
+                            returnDestination = AppDestination.Search(backStackEntry.arguments?.getString("query").orEmpty())
                         )
                     )
                 },
@@ -429,13 +401,13 @@ internal fun AppNavigationGraph(
                     archiveStartMs = safePlayerRequest.archiveStartMs,
                     archiveEndMs = safePlayerRequest.archiveEndMs,
                     archiveTitle = safePlayerRequest.archiveTitle,
-                    returnRoute = safePlayerRequest.returnRoute,
+                    returnDestination = safePlayerRequest.returnDestination,
                     seriesId = safePlayerRequest.seriesId,
                     seasonNumber = safePlayerRequest.seasonNumber,
                     episodeNumber = safePlayerRequest.episodeNumber,
                     episodeId = safePlayerRequest.episodeId,
                     onBack = {
-                        val route = safePlayerRequest.returnRoute
+                        val route = safePlayerRequest.returnDestination?.let(AppRouteCodec::encode)
                         if (!route.isNullOrBlank() && navController.popBackStack(route, false)) {
                             // Popped back to the exact route already in the backstack (same VM, handoff works)
                             Unit
@@ -455,7 +427,8 @@ internal fun AppNavigationGraph(
                         }
                         // else: plain popBackStack() succeeded — returns to existing Guide entry, preserving EpgViewModel
                     },
-                    onNavigate = { route ->
+                    onNavigate = { destination ->
+                        val route = AppRouteCodec.encode(destination)
                         navController.navigateIfResumed(route) {
                             launchSingleTop = true
                             if (route == Routes.MULTI_VIEW) {
@@ -483,10 +456,10 @@ internal fun AppNavigationGraph(
             com.streamvault.app.ui.screens.movies.MovieDetailScreen(
                 onPlay = { movie ->
                     navController.navigateToPlayer(
-                        Routes.moviePlayer(movie).copy(
-                            returnRoute = Routes.movieDetail(
+                        movie.toPlayerNavigationRequest(
+                            returnDestination = AppDestination.MovieDetail(
                                 movieId = movie.id.takeIf { it > 0L } ?: movieId,
-                                returnRoute = returnRoute
+                                returnDestination = returnRoute?.let(AppRouteCodec::decode)
                             )
                         )
                     )
@@ -520,10 +493,10 @@ internal fun AppNavigationGraph(
             com.streamvault.app.ui.screens.series.SeriesDetailScreen(
                 onEpisodeClick = { episode ->
                      navController.navigateToPlayer(
-                         Routes.episodePlayer(episode).copy(
-                             returnRoute = Routes.seriesDetail(
+                         episode.toPlayerNavigationRequest(
+                             returnDestination = AppDestination.SeriesDetail(
                                  seriesId = episode.seriesId.takeIf { it > 0L } ?: seriesId,
-                                 returnRoute = returnRoute
+                                 returnDestination = returnRoute?.let(AppRouteCodec::decode)
                              )
                          )
                      )

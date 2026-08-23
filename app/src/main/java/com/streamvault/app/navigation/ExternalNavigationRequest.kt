@@ -1,5 +1,6 @@
 package com.streamvault.app.navigation
 
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import java.io.Serializable
 import java.net.URLDecoder
 
