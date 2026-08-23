@@ -88,9 +88,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvIconButton
 
 private data class PlayerActionSpec(
     val id: String,

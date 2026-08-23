@@ -69,7 +69,7 @@ import com.streamvault.app.ui.screens.player.PlayerDiagnosticsUiState
 import com.streamvault.app.ui.screens.player.playerProgramOverlayItemKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.player.PlayerStats
@@ -1146,7 +1146,7 @@ fun CategoryListOverlay(
                                     }
                                     if (isSelected) {
                                         Text(
-                                            text = "●",
+                                            text = "ג—",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.White.copy(alpha = 0.8f),
                                             modifier = Modifier.padding(start = 8.dp)

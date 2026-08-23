@@ -25,7 +25,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnBackground

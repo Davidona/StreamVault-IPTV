@@ -53,8 +53,8 @@ import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.FocusedMarqueeText
 import com.streamvault.app.ui.components.PlayerRenderView
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface

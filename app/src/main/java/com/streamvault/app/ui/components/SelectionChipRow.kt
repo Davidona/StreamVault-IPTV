@@ -32,8 +32,8 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 
 data class SelectionChip(
     val key: String,

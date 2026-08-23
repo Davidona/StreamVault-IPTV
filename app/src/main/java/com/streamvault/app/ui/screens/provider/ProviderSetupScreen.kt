@@ -16,7 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,8 +78,8 @@ import com.streamvault.app.pairing.ProviderQrPairingStatus
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.extractProgressFraction
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.screens.settings.BackupImportPreviewDialog
 import com.streamvault.core.ui.theme.*
@@ -715,15 +715,15 @@ uiState.stalkerTransportChallenge?.let { challenge ->
 
 
 
-// ??? Source type selector ׳ֲ¿ֲ½ wide layout (left sidebar) ????????????????????????
+// ??? Source type selector ׳³ֲײ²ֲ¿ײ²ֲ½ wide layout (left sidebar) ????????????????????????
 
 
-// ??? Source type row ׳ֲ¿ֲ½ narrow layout (top tabs) ???????????????????????????????
+// ??? Source type row ׳³ֲײ²ֲ¿ײ²ֲ½ narrow layout (top tabs) ???????????????????????????????
 
 // ??? ProviderTextField ????????????????????????????????????????????????????????
 //
 // Key fix: uses BasicTextField with decorationBox and tracks focus via
-// onFocusEvent { it.hasFocus } ׳ֲ¿ֲ½ hasFocus is true when this node OR any
+// onFocusEvent { it.hasFocus } ׳³ֲײ²ֲ¿ײ²ֲ½ hasFocus is true when this node OR any
 // descendant (the actual cursor/text composable) has focus. The old approach
 // used onFocusChanged { isFocused } on an outer Box, which became false the
 // moment the inner BasicTextField took focus, breaking keyboard scroll.
@@ -733,9 +733,9 @@ uiState.stalkerTransportChallenge?.let { challenge ->
 
 // ??? TabButton (used by SourceTypeTabRow) ?????????????????????????????????????
 
-// ג”€ג”€ג”€ Revealing password visual transformation ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
+// ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬ Revealing password visual transformation ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 
 
-// ג”€ג”€ג”€ File cleanup helpers ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
+// ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬ File cleanup helpers ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 
 // ??? Jellyfin form ?????????????????????????????????????????????????????????????

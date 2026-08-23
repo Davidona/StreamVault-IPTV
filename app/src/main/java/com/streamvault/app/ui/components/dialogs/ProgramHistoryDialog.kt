@@ -51,9 +51,9 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvIconButton
 
 @Composable
 fun ProgramHistoryDialog(

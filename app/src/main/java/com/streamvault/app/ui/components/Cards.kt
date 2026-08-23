@@ -72,8 +72,8 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 
 @Composable
 fun FocusableCard(

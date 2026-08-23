@@ -37,9 +37,9 @@ import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 
-// ── Netflix-style horizontal category row ─────────────────────────
+// ג”€ג”€ Netflix-style horizontal category row ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

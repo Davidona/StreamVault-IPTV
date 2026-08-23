@@ -17,7 +17,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.PrimaryLight
@@ -29,14 +29,14 @@ import com.streamvault.domain.model.Channel
  * Quick-action dialog that lists the currently-hidden Live channels and lets
  * the user restore them one by one (tap-immediate) or in bulk via "Unhide all".
  *
- * Each row is a full-width [TvClickableSurface] — tapping it restores the
+ * Each row is a full-width [TvClickableSurface] ג€” tapping it restores the
  * channel immediately. Pattern mirrors `HiddenCategoriesDialog` (M5) so the
  * affordance is consistent across the app.
  *
  * Hosted by `HomeScreen` from the Live TV *Filtres rapides* block (M4). Backend
  * mutations are routed through `HomeViewModel.unhideChannel` /
  * `unhideAllChannels`, which in turn call `PreferencesRepository.setChannelHidden`
- * / `setHiddenChannelIds` — no schema change, just a new entry point into the
+ * / `setHiddenChannelIds` ג€” no schema change, just a new entry point into the
  * existing visibility plumbing.
  *
  * Channels are items (not containers) so the row has no count badge.

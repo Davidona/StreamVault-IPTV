@@ -86,9 +86,9 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.player.PlayerRenderSurfaceType
 import com.streamvault.player.PlayerSurfaceResizeMode
 import kotlinx.coroutines.launch
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvIconButton
 
 @Composable
 fun MultiViewScreen(
@@ -659,7 +659,7 @@ private fun MultiViewControlHud(
                 color = Color.White.copy(alpha = 0.86f),
                 style = MaterialTheme.typography.labelMedium
             )
-            Text(text = "Γאó", color = Color.White.copy(alpha = 0.42f))
+            Text(text = "־“׳ֳ³", color = Color.White.copy(alpha = 0.42f))
             Text(
                 text = stringResource(
                     R.string.multiview_telemetry_snapshot,

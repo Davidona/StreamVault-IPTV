@@ -41,7 +41,7 @@ import com.streamvault.app.ui.components.TvEmptyState
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary

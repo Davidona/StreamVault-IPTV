@@ -38,7 +38,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface
@@ -107,8 +107,8 @@ internal fun CombinedM3uProfilesCard(
                             title = profile.name,
                             subtitle = buildString {
                                 append("${profile.members.count { it.enabled }}/${profile.members.size} playlist(s)")
-                                if (isActive) append(" • Active")
-                                if (profile.members.none { it.enabled }) append(" • Empty")
+                                if (isActive) append(" ג€¢ Active")
+                                if (profile.members.none { it.enabled }) append(" ג€¢ Empty")
                             },
                             isSelected = selectedProfileId == profile.id,
                             isActive = isActive,
@@ -485,7 +485,7 @@ private fun ProviderChip(
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(title, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
             Text(
-                if (isActive) "$subtitle • Active" else subtitle,
+                if (isActive) "$subtitle ג€¢ Active" else subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isActive) Primary else OnSurfaceDim
             )

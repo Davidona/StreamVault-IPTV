@@ -40,9 +40,9 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.*
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createDateTimeFormat
@@ -172,7 +172,7 @@ internal fun ProviderSettingsCard(
             Text(
                 text = listOf(model.sourceLabel, model.connectionSummary, model.expirySummary)
                     .filter { it.isNotBlank() }
-                    .joinToString(" • "),
+                    .joinToString(" ג€¢ "),
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurface
             )

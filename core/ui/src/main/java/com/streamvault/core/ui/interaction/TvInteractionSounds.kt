@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.interaction
+package com.streamvault.core.ui.interaction
 
 import android.view.SoundEffectConstants
 import android.view.View

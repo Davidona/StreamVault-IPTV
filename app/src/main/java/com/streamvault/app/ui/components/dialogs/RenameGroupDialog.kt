@@ -44,7 +44,7 @@ import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim

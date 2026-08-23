@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.interaction
+package com.streamvault.core.ui.interaction
 
 import android.view.InputDevice
 import android.view.MotionEvent
@@ -13,7 +13,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
-import com.streamvault.app.device.isTelevisionDevice
+import com.streamvault.core.ui.device.isTelevisionDevice
 
 /**
  * Makes a TV-Surface-wrapped composable respond correctly to both remote-pointer

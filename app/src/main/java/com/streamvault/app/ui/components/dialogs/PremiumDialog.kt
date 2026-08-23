@@ -46,7 +46,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.FocusSpec
 
@@ -283,9 +283,9 @@ private fun ColumnScope.PremiumDialogScrollableBody(
 
         if (!scrollHint.isNullOrBlank() && (canScrollUp || canScrollDown)) {
             val arrow = when {
-                canScrollUp && canScrollDown -> "↕"
-                canScrollDown -> "↓"
-                else -> "↑"
+                canScrollUp && canScrollDown -> "ג†•"
+                canScrollDown -> "ג†“"
+                else -> "ג†‘"
             }
             Text(
                 text = "$arrow  $scrollHint",

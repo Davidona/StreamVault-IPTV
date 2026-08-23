@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.Primary
@@ -34,7 +34,7 @@ import com.streamvault.core.ui.design.FocusSpec
 import androidx.tv.material3.Border
 
 /**
- * PIN entry dialog with a D-pad-navigable numeric keypad — no hidden text field.
+ * PIN entry dialog with a D-pad-navigable numeric keypad ג€” no hidden text field.
  * Each digit button is a full TV-focusable surface, so users can navigate with
  * the remote directional pad even without a software keyboard.
  */
@@ -120,10 +120,10 @@ fun PinDialog(
                         )
                     }
 
-                    val keys = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫")
+                    val keys = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "ג«")
                     val handleKeyPress: (String) -> Unit = { key ->
                         if (canInteract) {
-                            if (key == "⌫") {
+                            if (key == "ג«") {
                                 if (pin.isNotEmpty()) pin = pin.dropLast(1)
                             } else if (pin.length < 4) {
                                 pin += key

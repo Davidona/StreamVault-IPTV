@@ -17,7 +17,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
@@ -30,14 +30,14 @@ import com.streamvault.domain.model.Category
  * Quick-action dialog that lists the currently-hidden Live categories and lets
  * the user restore them one by one (tap-immediate) or in bulk via "Unhide all".
  *
- * Each row is a full-width [TvClickableSurface] — tapping it restores the
+ * Each row is a full-width [TvClickableSurface] ג€” tapping it restores the
  * category immediately. Pattern mirrors David's `CategoryVisibilityCard` in
  * `ParentalControlGroupScreen` so the affordance is consistent across the app.
  *
  * Hosted by `HomeScreen` from the Live TV *Filtres rapides* block (M5). Backend
  * mutations are routed through `HomeViewModel.unhideCategory` /
  * `unhideAllLiveCategories`, which in turn call David's existing
- * `PreferencesRepository.setCategoryHidden` / `setHiddenCategoryIds` — no schema
+ * `PreferencesRepository.setCategoryHidden` / `setHiddenCategoryIds` ג€” no schema
  * change, just a new entry point into the existing visibility plumbing.
  */
 @Composable

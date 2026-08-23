@@ -1,7 +1,7 @@
 package com.streamvault.app.ui.screens.search
 
 import androidx.annotation.StringRes
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -54,7 +54,7 @@ import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
@@ -277,7 +277,7 @@ class SearchViewModel @Inject constructor(
         parentalControlManager.unlockCategory(providerId, resolvedCategoryId)
     }
 
-    // ── Search item long-press actions ────────────────────────────────
+    // ג”€ג”€ Search item long-press actions ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
 
     fun toggleFavorite(contentId: Long, contentType: ContentType, currentlyFavorite: Boolean) {
         viewModelScope.launch {
@@ -390,7 +390,7 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     val selectedStateLabel = stringResource(R.string.a11y_selected)
 
-    // ── Long-press actions dialog state ───────────────────────────────
+    // ג”€ג”€ Long-press actions dialog state ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
     var showActionsDialog by remember { mutableStateOf(false) }
     var actionsChannel by remember { mutableStateOf<Channel?>(null) }
     var actionsMovie by remember { mutableStateOf<Movie?>(null) }
@@ -498,7 +498,7 @@ fun SearchScreen(
 
     val selectedTabDescription = selectedStateLabel
 
-    // ── Long-press actions dialog ─────────────────────────────────────
+    // ג”€ג”€ Long-press actions dialog ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
     if (showActionsDialog) {
         val actionsTitle = actionsChannel?.name ?: actionsMovie?.name ?: actionsSeries?.name ?: ""
         val actionsCategoryId = actionsChannel?.categoryId ?: actionsMovie?.categoryId ?: actionsSeries?.categoryId
@@ -1145,7 +1145,7 @@ private fun SearchResultsSummaryRow(
         stringResource(R.string.search_results_count, stringResource(R.string.search_live_tv), uiState.channels.size),
         stringResource(R.string.search_results_count, stringResource(R.string.search_movies), uiState.movies.size),
         stringResource(R.string.search_results_count, stringResource(R.string.search_series), uiState.series.size)
-    ).joinToString("  •  ")
+    ).joinToString("  ג€¢  ")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1201,7 +1201,7 @@ private fun SearchMessageState(
     )
 }
 
-// ── Long-press actions dialog ─────────────────────────────────────────────
+// ג”€ג”€ Long-press actions dialog ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -1263,7 +1263,7 @@ private fun SearchItemActionsDialog(
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // ── Favorite toggle ──────────────────────────────
+                    // ג”€ג”€ Favorite toggle ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                     SearchActionButton(
                         icon = Icons.Default.Star,
                         label = if (isFavorite) stringResource(R.string.search_actions_remove_favorite)
@@ -1273,7 +1273,7 @@ private fun SearchItemActionsDialog(
                         onClick = { if (canInteract) onToggleFavorite() }
                     )
 
-                    // ── Hide category ────────────────────────────────
+                    // ג”€ג”€ Hide category ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                     if (onHide != null) {
                         SearchActionButton(
                             icon = Icons.Default.Close,
@@ -1291,7 +1291,7 @@ private fun SearchItemActionsDialog(
                         )
                     }
 
-                    // ── Parental lock toggle ─────────────────────────
+                    // ג”€ג”€ Parental lock toggle ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                     if (onToggleLock != null) {
                         SearchActionButton(
                             icon = Icons.Default.Lock,

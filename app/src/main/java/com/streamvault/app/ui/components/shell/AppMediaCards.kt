@@ -58,8 +58,8 @@ import com.streamvault.app.ui.components.rememberCrossfadeImageModel
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppMotion
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 import com.streamvault.app.ui.model.archivePlaybackCapability
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode

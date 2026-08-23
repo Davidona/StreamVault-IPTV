@@ -50,8 +50,8 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
 import com.streamvault.core.ui.theme.FocusBorder
@@ -502,7 +502,7 @@ internal fun EpgOverrideDialog(
         }
     }
     val currentDescriptor = currentCandidate?.let {
-        "${it.displayName}  •  ${it.epgSourceName}  •  ${it.xmltvChannelId}"
+        "${it.displayName}  ג€¢  ${it.epgSourceName}  ג€¢  ${it.xmltvChannelId}"
     } ?: (state.currentMapping?.xmltvChannelId ?: unknownValue)
     val currentSummary = when {
         state.currentMapping == null || state.currentMapping.sourceType == EpgSourceType.NONE ->
@@ -650,7 +650,7 @@ internal fun EpgOverrideDialog(
                                         }
                                     }
                                     Text(
-                                        text = "${candidate.epgSourceName}  •  ${candidate.xmltvChannelId}",
+                                        text = "${candidate.epgSourceName}  ג€¢  ${candidate.xmltvChannelId}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = OnSurfaceDim,
                                         maxLines = 2,

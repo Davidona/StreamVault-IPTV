@@ -21,7 +21,7 @@ import androidx.tv.material3.Text
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.streamvault.app.R
-import com.streamvault.app.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.theme.AccentCyan
 import com.streamvault.core.ui.theme.TextPrimary
 import com.streamvault.core.ui.theme.TextSecondary

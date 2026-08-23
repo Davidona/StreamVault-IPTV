@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.EpgSource
@@ -57,7 +57,7 @@ internal fun ProviderEpgAssignmentsCard(
                     if (resolutionSummary.rematchCandidateChannels > 0) add("${resolutionSummary.rematchCandidateChannels} need review")
                 }
                 Text(
-                    text = summaryParts.joinToString(" • "),
+                    text = summaryParts.joinToString(" ג€¢ "),
                     style = MaterialTheme.typography.bodySmall,
                     color = OnSurfaceDim
                 )

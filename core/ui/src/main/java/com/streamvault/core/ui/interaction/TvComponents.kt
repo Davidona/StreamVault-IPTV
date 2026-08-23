@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.interaction
+package com.streamvault.core.ui.interaction
 
 import android.view.KeyEvent
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -147,13 +147,21 @@ fun TvIconButton(
     )
 }
 
-private fun Modifier.activateOnRemoteKey(
+internal enum class RemoteActivationHandling {
+    Ignore,
+    Consume,
+    Activate,
+}
+
+internal fun remoteActivationHandling(
     enabled: Boolean,
-    onClick: () -> Unit
-): Modifier = onPreviewKeyEvent { event ->
-    if (!enabled) return@onPreviewKeyEvent false
-    val nativeEvent = event.nativeKeyEvent
-    val isActivationKey = when (nativeEvent.keyCode) {
+    keyCode: Int,
+    action: Int,
+    hasLongClick: Boolean,
+): RemoteActivationHandling {
+    if (!enabled || hasLongClick) return RemoteActivationHandling.Ignore
+
+    val isActivationKey = when (keyCode) {
         KeyEvent.KEYCODE_DPAD_CENTER,
         KeyEvent.KEYCODE_ENTER,
         KeyEvent.KEYCODE_NUMPAD_ENTER,
@@ -161,9 +169,33 @@ private fun Modifier.activateOnRemoteKey(
         KeyEvent.KEYCODE_BUTTON_A -> true
         else -> false
     }
-    if (!isActivationKey) return@onPreviewKeyEvent false
-    if (nativeEvent.action == KeyEvent.ACTION_UP) {
-        onClick()
+    if (!isActivationKey) return RemoteActivationHandling.Ignore
+
+    return when (action) {
+        KeyEvent.ACTION_UP -> RemoteActivationHandling.Activate
+        KeyEvent.ACTION_DOWN -> RemoteActivationHandling.Consume
+        else -> RemoteActivationHandling.Ignore
     }
-    nativeEvent.action == KeyEvent.ACTION_DOWN || nativeEvent.action == KeyEvent.ACTION_UP
+}
+
+private fun Modifier.activateOnRemoteKey(
+    enabled: Boolean,
+    onClick: () -> Unit
+): Modifier = onPreviewKeyEvent { event ->
+    val nativeEvent = event.nativeKeyEvent
+    when (
+        remoteActivationHandling(
+            enabled = enabled,
+            keyCode = nativeEvent.keyCode,
+            action = nativeEvent.action,
+            hasLongClick = false,
+        )
+    ) {
+        RemoteActivationHandling.Ignore -> false
+        RemoteActivationHandling.Consume -> true
+        RemoteActivationHandling.Activate -> {
+            onClick()
+            true
+        }
+    }
 }

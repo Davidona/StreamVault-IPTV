@@ -81,9 +81,9 @@ import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppMotion
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.design.LocalAppShapes
 import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.domain.model.AppTopLevelDestination

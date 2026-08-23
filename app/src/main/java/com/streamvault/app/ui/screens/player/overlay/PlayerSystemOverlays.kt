@@ -89,9 +89,9 @@ import com.streamvault.player.TrackType
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import java.util.Locale
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvIconButton
 
 @Composable
 fun PlayerNoticeBanner(
@@ -1346,8 +1346,8 @@ private fun buildVariantSelectionLabel(variant: LiveChannelVariant): String {
     return buildString {
         append(variant.originalName)
         if (metaParts.isNotEmpty()) {
-            append(" • ")
-            append(metaParts.joinToString(" • "))
+            append(" ג€¢ ")
+            append(metaParts.joinToString(" ג€¢ "))
         }
     }
 }
@@ -1404,7 +1404,7 @@ private fun buildEpisodeCodeLabel(episode: Episode): String = buildString {
 private fun buildEpisodeMetaLabel(episode: Episode): String = buildString {
     append(stringResourceFallbackEpisode(episode.episodeNumber))
     episode.duration?.takeIf { it.isNotBlank() }?.let {
-        append(" • ")
+        append(" ג€¢ ")
         append(it)
     }
 }
@@ -1600,7 +1600,7 @@ fun NextEpisodeCountdownOverlay(
                 Column(modifier = Modifier.weight(1f)) {
                     val episodeLabel = buildString {
                         append("S${nextEpisode.seasonNumber}E${nextEpisode.episodeNumber}")
-                        if (nextEpisode.title.isNotBlank()) append(" · ${nextEpisode.title}")
+                        if (nextEpisode.title.isNotBlank()) append(" ֲ· ${nextEpisode.title}")
                     }
                     Text(
                         text = episodeLabel,

@@ -125,9 +125,9 @@ import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.max
-import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvIconButton
 
 private sealed interface LockedGuideAction {
     data class SelectCategory(val category: Category) : LockedGuideAction
@@ -493,7 +493,7 @@ fun FullEpgScreen(
                                     requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
                                 } else {
                                     val program = currentProgram ?: run {
-                                        // No EPG match — synthesize a 1-hour "now" program so
+                                        // No EPG match ג€” synthesize a 1-hour "now" program so
                                         // the dialog still shows Record / Record Daily / Weekly.
                                         val now = System.currentTimeMillis()
                                         Program(

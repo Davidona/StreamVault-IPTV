@@ -45,7 +45,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.ChannelLogoBadge
 import com.streamvault.app.ui.components.PlayerRenderView
 import com.streamvault.app.ui.model.isArchivePlayable
-import com.streamvault.app.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.model.guideLookupKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
@@ -409,7 +409,7 @@ internal fun GuidePreviewPane(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "${timeFormat.format(Date(program.startTime))} – ${timeFormat.format(Date(program.endTime))}",
+                            text = "${timeFormat.format(Date(program.startTime))} ג€“ ${timeFormat.format(Date(program.endTime))}",
                             style = MaterialTheme.typography.labelSmall,
                             color = OnSurfaceDim
                         )
