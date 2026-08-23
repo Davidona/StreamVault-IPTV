@@ -17,6 +17,7 @@ import com.streamvault.app.localization.resolveAppLocale
 import com.streamvault.app.navigation.AppNavigation
 import com.streamvault.app.navigation.AppNavigationCoordinator
 import com.streamvault.app.navigation.ExternalNavigationRequestParser
+import com.streamvault.app.navigation.StartupNavigationResolver
 import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.ExternalNavigationRequest
 import com.streamvault.core.ui.theme.StreamVaultTheme
@@ -100,6 +101,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
+
+    @Inject
+    internal lateinit var startupNavigationResolver: StartupNavigationResolver
 
     internal val pendingNavigationCommand = appNavigationCoordinator.pendingCommand
 
