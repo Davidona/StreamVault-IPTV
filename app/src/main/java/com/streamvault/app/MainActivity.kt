@@ -17,15 +17,10 @@ import com.streamvault.app.localization.resolveAppLocale
 import com.streamvault.app.navigation.AppNavigation
 import com.streamvault.app.navigation.AppNavigationCoordinator
 import com.streamvault.app.navigation.ExternalNavigationRequestParser
-import com.streamvault.app.navigation.StartupNavigationResolver
 import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.ExternalNavigationRequest
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.domain.repository.ChannelRepository
-import com.streamvault.domain.repository.CombinedM3uRepository
-import com.streamvault.domain.repository.FavoriteRepository
-import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -74,18 +69,6 @@ class MainActivity : ComponentActivity() {
     lateinit var preferencesRepository: PreferencesRepository
 
     @Inject
-    lateinit var combinedM3uRepository: CombinedM3uRepository
-
-    @Inject
-    lateinit var favoriteRepository: FavoriteRepository
-
-    @Inject
-    lateinit var playbackHistoryRepository: PlaybackHistoryRepository
-
-    @Inject
-    lateinit var channelRepository: ChannelRepository
-
-    @Inject
     lateinit var providerRepository: ProviderRepository
 
     @Inject
@@ -101,11 +84,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
-
-    @Inject
-    internal lateinit var startupNavigationResolver: StartupNavigationResolver
-
-    internal val pendingNavigationCommand = appNavigationCoordinator.pendingCommand
 
     private var playerPictureInPictureState = PlayerPictureInPictureState()
 
@@ -176,7 +154,7 @@ class MainActivity : ComponentActivity() {
                 LocalAppTimeFormat provides appTimeFormat
             ) {
                 StreamVaultTheme {
-                    AppNavigation(mainActivity = this@MainActivity)
+                    AppNavigation(coordinator = appNavigationCoordinator)
                 }
             }
         }
@@ -238,10 +216,6 @@ class MainActivity : ComponentActivity() {
         if (!supportsPictureInPicture()) return
         playerPictureInPictureState = PlayerPictureInPictureState()
         applyPlayerPictureInPictureParams()
-    }
-
-    internal fun acknowledgeNavigationCommand(id: Long) {
-        appNavigationCoordinator.acknowledge(id)
     }
 
     fun openPlayer(request: PlayerNavigationRequest) {
