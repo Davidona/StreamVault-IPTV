@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
@@ -186,6 +187,44 @@ class ChannelCategoryFlowCacheTest {
         assertThat(firstResult.await()).containsExactly(category(1L, "News"))
 
         verify(traceReporter, times(1)).onUpstreamStart(7L)
+        cacheScope.cancel()
+    }
+
+    @Test
+    fun `cached upstream stop is reported when the shared flow is cancelled`() = runTest {
+        whenever(providerDao.getAll()).thenReturn(flowOf(listOf(provider(7L))))
+        val cacheScope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+        val cache = ChannelCategoryFlowCache(providerDao, cacheScope, traceReporter)
+        val upstream = flow<List<Category>> { awaitCancellation() }
+        val subscription = launch { cache.getOrCreate(7L) { upstream }.collect() }
+        advanceUntilIdle()
+
+        subscription.cancel()
+        advanceUntilIdle()
+
+        verify(traceReporter, times(1)).onUpstreamStop(7L)
+        cacheScope.cancel()
+    }
+
+    @Test
+    fun `quick subscriber reentry keeps the shared upstream alive`() = runTest {
+        whenever(providerDao.getAll()).thenReturn(flowOf(listOf(provider(7L))))
+        val cacheScope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+        val cache = ChannelCategoryFlowCache(providerDao, cacheScope, traceReporter)
+        val upstream = flow<List<Category>> { awaitCancellation() }
+        val cached = cache.getOrCreate(7L) { upstream }
+
+        val firstSubscription = launch { cached.collect() }
+        advanceUntilIdle()
+        firstSubscription.cancel()
+        advanceTimeBy(ChannelCategoryFlowCache.UPSTREAM_STOP_TIMEOUT_MILLIS - 1L)
+
+        val secondSubscription = launch { cached.collect() }
+        advanceUntilIdle()
+
+        verify(traceReporter, times(1)).onUpstreamStart(7L)
+        verify(traceReporter, times(0)).onUpstreamStop(7L)
+        secondSubscription.cancel()
         cacheScope.cancel()
     }
 

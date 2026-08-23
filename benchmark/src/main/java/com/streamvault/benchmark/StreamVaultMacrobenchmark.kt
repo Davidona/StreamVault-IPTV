@@ -77,31 +77,41 @@ class StreamVaultMacrobenchmark {
     fun liveTvCategoryReentryCategoryBuild() = benchmarkRule.measureRepeated(
         packageName = SEEDED_DEBUG_PACKAGE,
         metrics = listOf(
+            // Interaction journeys launch the separately seeded .debug package while the
+            // macrobenchmark's tested APK remains the release package. Keep these trace metrics
+            // process-agnostic so the lifecycle sections from that fixture are observable.
             TraceSectionMetric(
                 sectionName = "StreamVault.CategoryFlow.Build",
                 mode = TraceSectionMetric.Mode.Count,
-                label = "categoryBuildCount",
-                targetPackageOnly = true
+                label = "categoryBuildCount"
             ),
             TraceSectionMetric(
                 sectionName = "StreamVault.CategoryFlow.UpstreamStart",
                 mode = TraceSectionMetric.Mode.Count,
-                label = "categoryUpstreamStartCount",
-                targetPackageOnly = true
+                label = "categoryUpstreamStartCount"
+            ),
+            TraceSectionMetric(
+                sectionName = "StreamVault.CategoryFlow.UpstreamStop",
+                mode = TraceSectionMetric.Mode.Count,
+                label = "categoryUpstreamStopCount"
             ),
             FrameTimingMetric()
         ),
         startupMode = StartupMode.WARM,
         iterations = BENCHMARK_ITERATIONS,
         setupBlock = {
-            openTopLevelDestination("Live TV")
-            waitForLiveCategoryAvailability()
+            startSeededDebugAppPreservingProcess()
+            navigateToTopLevelDestination("Home")
+            assertDestination("Home")
         }
     ) {
-        // Leave and re-enter the same route inside the measured block. The trace count records
-        // category construction separately from frame timing, so a replay hit is observable
-        // even when UI rendering is noisy on an emulator.
-        navigateToTopLevelDestination("Home")
+        // Enter Live TV inside the measured block so the initial category subscription and any
+        // later upstream restart are included in the trace window. The setup leaves the process
+        // alive, allowing the application-lifetime cache to survive between iterations.
+        navigateToTopLevelDestination("Live TV")
+        assertDestination("Live TV")
+        waitForLiveCategoryAvailability()
+        restartSeededDebugTaskPreservingProcess()
         assertDestination("Home")
         navigateToTopLevelDestination("Live TV")
         assertDestination("Live TV")

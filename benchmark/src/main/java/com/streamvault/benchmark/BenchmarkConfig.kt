@@ -12,6 +12,7 @@ import java.util.regex.Pattern
 internal const val RELEASE_TARGET_PACKAGE = "com.streamvault.app"
 internal const val SEEDED_DEBUG_PACKAGE = "com.streamvault.app.debug"
 private const val SEEDED_DEBUG_ACTIVITY = "$SEEDED_DEBUG_PACKAGE/com.streamvault.app.MainActivity"
+private const val CLEAR_TASK_NEW_TASK_FLAGS = "0x10008000"
 internal const val BENCHMARK_ITERATIONS = 5
 internal const val STARTUP_BENCHMARK_ITERATIONS = 10
 internal const val UI_TIMEOUT_MS = 20_000L
@@ -57,6 +58,28 @@ internal fun MacrobenchmarkScope.startSeededDebugApp() {
     pressHome()
     device.executeShellCommand("am force-stop $SEEDED_DEBUG_PACKAGE")
     device.executeShellCommand("am start -W -n $SEEDED_DEBUG_ACTIVITY")
+    device.waitForIdle()
+}
+
+/**
+ * Brings the seeded debug fixture to the foreground without killing its process.
+ *
+ * Re-entry measurements use this setup so the application-lifetime category cache can survive
+ * between iterations while the measured block still owns the first Live TV subscription.
+ */
+internal fun MacrobenchmarkScope.startSeededDebugAppPreservingProcess() {
+    pressHome()
+    device.executeShellCommand(
+        "am start -W -f $CLEAR_TASK_NEW_TASK_FLAGS -n $SEEDED_DEBUG_ACTIVITY"
+    )
+    device.waitForIdle()
+}
+
+/** Recreates the seeded Activity task without stopping the application process or its cache. */
+internal fun MacrobenchmarkScope.restartSeededDebugTaskPreservingProcess() {
+    device.executeShellCommand(
+        "am start -W -a android.intent.action.VIEW -f $CLEAR_TASK_NEW_TASK_FLAGS -n $SEEDED_DEBUG_ACTIVITY"
+    )
     device.waitForIdle()
 }
 

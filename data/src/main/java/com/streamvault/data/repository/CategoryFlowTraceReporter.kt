@@ -18,7 +18,13 @@ class CategoryFlowTraceReporter @Inject constructor() {
         Trace.endSection()
     }
 
+    fun onUpstreamStop(_providerId: Long) {
+        Trace.beginSection(UPSTREAM_STOP_TRACE)
+        Trace.endSection()
+    }
+
     companion object {
         const val UPSTREAM_START_TRACE = "StreamVault.CategoryFlow.UpstreamStart"
+        const val UPSTREAM_STOP_TRACE = "StreamVault.CategoryFlow.UpstreamStop"
     }
 }

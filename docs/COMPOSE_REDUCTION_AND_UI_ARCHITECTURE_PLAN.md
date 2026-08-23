@@ -1168,12 +1168,24 @@ diagnostic startup benefit. The Phase 2.5B physical-device and release-APK-size
 gates remain open; generated profile output is therefore not yet a
 release-approved artifact.
 
-Phase 2.5A measurement update (2026-08-22): the category re-entry
-Macrobenchmark now counts both category presentation builds and shared-flow
-upstream starts. Five seeded emulator iterations observed 0/0/0 for build and
-upstream-start min/median/max, with frame counts of 49/51/53. This confirms no
-restart in that journey but is not yet a quantified pre/post cache comparison;
-the direct Room-query and physical-device gates remain open.
+Phase 2.5A measurement update (2026-08-23): the category re-entry
+Macrobenchmark now counts category presentation builds plus shared-flow
+upstream starts and stops. The cache keeps each provider's Room observation
+alive for 30 seconds after its last subscriber, while provider removal cancels
+the entry immediately. The deterministic unit test confirms that a subscriber
+returning within that window replays the latest value without a second upstream
+start.
+
+The connected seeded-emulator task-reset journey was rerun after a clean debug
+process reset. Five iterations captured `2/2/1` for build/upstream-start/
+upstream-stop (min/median/max) and 83/87/90 frames. A controlled diagnostic run
+with the stop timeout set to zero captured the same `2/2/1` lifecycle counts,
+so this Activity-task boundary did not demonstrate a measurable cache win. The
+result is useful lifecycle evidence but not a quantified runtime reduction; a
+direct Room query-count or category-ready-latency benchmark remains open. The
+emulator and debuggable seeded target are diagnostic only, and the separate
+`.debug` interaction package is intentionally used to provide deterministic
+seeded data.
 
 ### 19.1 Baseline profile maintenance policy
 

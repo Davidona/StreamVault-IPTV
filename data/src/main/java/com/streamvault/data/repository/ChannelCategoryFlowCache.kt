@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
@@ -80,13 +81,24 @@ class ChannelCategoryFlowCache @Inject constructor(
         return CacheEntry(
             flow = builder()
                 .onStart { traceReporter.onUpstreamStart(providerId) }
+                .onCompletion { traceReporter.onUpstreamStop(providerId) }
                 .distinctUntilChanged()
                 .shareIn(
                     scope = entryScope,
-                    started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 0L),
+                    started = SharingStarted.WhileSubscribed(
+                        stopTimeoutMillis = UPSTREAM_STOP_TIMEOUT_MILLIS
+                    ),
                     replay = 1
                 ),
             scope = entryScope
         )
+    }
+
+    companion object {
+        /**
+         * Keeps Room observation alive across the short Activity/navigation gaps used by TV
+         * re-entry while still releasing an idle provider flow promptly.
+         */
+        const val UPSTREAM_STOP_TIMEOUT_MILLIS = 30_000L
     }
 }

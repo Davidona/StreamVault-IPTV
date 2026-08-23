@@ -1,6 +1,6 @@
 # Compose Reduction Phase 2.5A Report
 
-Date: 2026-08-22
+Date: 2026-08-23
 
 ## Scope
 
@@ -17,6 +17,9 @@ included.
   `ConcurrentHashMap`, uses the application repository scope, applies
   `distinctUntilChanged()`, and observes `ProviderDao.getAll()` to evict deleted
   providers.
+- The shared flow uses a 30-second `WhileSubscribed` stop timeout. That keeps
+  the Room observation alive across a short screen/task re-entry gap while
+  provider deletion still cancels the per-provider scope immediately.
 - `ChannelRepositoryImpl` now keeps the original Room-backed category
   construction in `buildCategoriesFlow(providerId)`. `getCategories()` uses the
   shared replaying flow, while `getCategoriesSnapshot()` builds a fresh flow and
@@ -31,10 +34,11 @@ included.
 - Added a separate `liveTvCategoryReentryCategoryBuild` journey. It leaves and
   re-enters Live TV inside the measured block and reports both the
   `StreamVault.CategoryFlow.Build` trace-section count and the new
-  `StreamVault.CategoryFlow.UpstreamStart` count alongside frame timing. The
-  latter is emitted at the shared-flow upstream boundary, so a non-zero value
-  means that Room-backed category work restarted during re-entry. These traces
-  are still not a substitute for a direct Room query-count measurement.
+  `StreamVault.CategoryFlow.UpstreamStart` and
+  `StreamVault.CategoryFlow.UpstreamStop` counts alongside frame timing. The
+  lifecycle hooks are emitted at the shared-flow upstream boundary, so they can
+  distinguish a restart from a retained subscription. These traces are still
+  not a substitute for a direct Room query-count measurement.
 
 ## Test coverage
 
@@ -48,6 +52,8 @@ Focused tests cover:
 - provider deletion eviction and recreation without the old replay;
 - fresh snapshot reads after the replayed result has become stale;
 - category visibility/count changes after parental-control preference changes;
+- quick subscriber re-entry inside the stop timeout, proving that it does not
+  start a second Room observation;
 - existing grouping, count, parental-filtering, and decorative-row behavior.
 
 Validation completed:
@@ -99,23 +105,35 @@ emulator/debug target. The benchmark also carries the standard warnings that
 an emulator and debuggable target are diagnostic only, not representative
 release-device performance.
 
-The strengthened re-entry benchmark was run on
+The strengthened re-entry benchmark was rerun on
 `Television_1080p(AVD) - 16` with five iterations using
 `:benchmark:connectedBenchmarkBenchmarkAndroidTest` and the seeded debug
-fixture. The result was stable across all runs:
+fixture. The harness starts from Home without killing the debug process,
+performs the first Live TV entry inside the measured block, and leaves
+`targetPackageOnly` disabled because the interaction fixture is the separate
+`.debug` package. The latest run used the 30-second stop timeout and captured:
 
 | Metric | Min | Median | Max |
 | --- | ---: | ---: | ---: |
-| `categoryBuildCountCount` | 0 | 0 | 0 |
-| `categoryUpstreamStartCountCount` | 0 | 0 | 0 |
-| `frameCount` | 49 | 51 | 53 |
+| `categoryBuildCountCount` | 2 | 2 | 2 |
+| `categoryUpstreamStartCountCount` | 2 | 2 | 2 |
+| `categoryUpstreamStopCountCount` | 1 | 1 | 1 |
+| `frameCount` | 83 | 87 | 90 |
 
-The trace evidence shows no category recomputation or upstream restart during
-the measured re-entry journey. This is stronger than frame timing alone, but
-it is an after-only observation: a controlled no-cache/pre-2.5A run and direct
-Room query-count or category-ready-latency evidence are still required before
-claiming a quantified caching improvement. The result is also diagnostic only
-because it uses an emulator and a debuggable seeded target.
+For comparison, the same task-reset journey with the stop timeout temporarily
+set to zero also captured `2/2/1` for build/start/stop in every iteration. The
+30-second setting therefore did not produce a measurable reduction in this
+specific Activity-task reset; the boundary is longer or otherwise different
+from the short subscriber gap covered by the deterministic unit test. This is
+useful lifecycle evidence, but it is not a quantified cache win. A direct Room
+query-count or category-ready-latency benchmark remains open before claiming a
+runtime reduction. Both runs are diagnostic only because they use an emulator
+and a debuggable seeded target.
+
+The focused unit test is the stronger proof for the cache contract: a second
+subscriber arriving before the timeout observes the replay without a second
+upstream start or stop. Provider deletion and preference changes remain covered
+by the same test suite.
 
 The benchmark harness now explicitly launches `com.streamvault.app.debug` for
 interaction journeys while leaving release startup/profile checks on the
