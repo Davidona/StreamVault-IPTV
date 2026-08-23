@@ -77,6 +77,7 @@ class PremiumRouteGoldenTest {
                                 SeriesPosterCard(series = TestFixtures.series, modifier = Modifier.width(160.dp).height(240.dp))
                                 LiveChannelRowSurface(
                                     channel = TestFixtures.liveChannel,
+                                    nowMs = TestFixtures.currentProgram.startTime,
                                     onClick = {},
                                     modifier = Modifier.weight(1f)
                                 )
@@ -138,7 +139,11 @@ class PremiumRouteGoldenTest {
                                     subtitle = "Find channels, categories, or program titles without leaving the live surface.",
                                     onClick = {}
                                 )
-                                LiveChannelRowSurface(channel = TestFixtures.liveChannel, onClick = {})
+                                LiveChannelRowSurface(
+                                    channel = TestFixtures.liveChannel,
+                                    nowMs = TestFixtures.currentProgram.startTime,
+                                    onClick = {}
+                                )
                                 LiveChannelRowSurface(
                                     channel = TestFixtures.liveChannel.copy(
                                         id = 8L,
@@ -147,6 +152,7 @@ class PremiumRouteGoldenTest {
                                         catchUpSupported = false,
                                         currentProgram = TestFixtures.currentProgram.copy(title = "Global Briefing")
                                     ),
+                                    nowMs = TestFixtures.currentProgram.startTime,
                                     onClick = {}
                                 )
                             }

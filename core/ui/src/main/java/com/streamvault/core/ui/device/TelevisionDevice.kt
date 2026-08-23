@@ -23,13 +23,26 @@ internal fun classifyTelevisionDevice(
 
 fun Context.isTelevisionDevice(): Boolean {
     val packageManager = packageManager
+
+    if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+        packageManager.hasSystemFeature("android.software.leanback_only") ||
+        packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION) ||
+        packageManager.hasSystemFeature("amazon.hardware.fire_tv")
+    ) {
+        return true
+    }
+
     val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+    if (uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION) {
+        return true
+    }
+
     return classifyTelevisionDevice(
-        hasLeanback = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK),
-        hasLeanbackOnly = packageManager.hasSystemFeature("android.software.leanback_only"),
-        hasTelevision = packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION),
-        hasFireTv = packageManager.hasSystemFeature("amazon.hardware.fire_tv"),
-        uiModeType = uiModeManager?.currentModeType,
+        hasLeanback = false,
+        hasLeanbackOnly = false,
+        hasTelevision = false,
+        hasFireTv = false,
+        uiModeType = null,
         screenWidthDp = resources.configuration.screenWidthDp,
         hasTouchscreen = packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
     )

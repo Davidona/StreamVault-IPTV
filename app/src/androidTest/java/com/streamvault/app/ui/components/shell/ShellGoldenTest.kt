@@ -67,6 +67,7 @@ class ShellGoldenTest {
                             isFavorite = true,
                             catchUpSupported = true
                         ),
+                        nowMs = 0L,
                         onClick = {},
                         onLongClick = {}
                     )
