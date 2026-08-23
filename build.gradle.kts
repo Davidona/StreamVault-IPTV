@@ -71,6 +71,12 @@ tasks.register("verifyLintBaseline") {
     }
 }
 
+tasks.register("verifyCoreUiBoundary") {
+    group = "verification"
+    description = "Verifies that :core:ui remains independent from app and feature implementations."
+    dependsOn(":core:ui:verifyCoreUiBoundary")
+}
+
 abstract class VerifyBaselineProfileSourcesTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
