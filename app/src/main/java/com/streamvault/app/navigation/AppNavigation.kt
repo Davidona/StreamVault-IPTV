@@ -24,6 +24,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.streamvault.app.ui.model.isArchivePlayable
 import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.NavigationCommand
+import com.streamvault.core.navigation.NavigationOptions
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
@@ -60,6 +63,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @Composable
 fun AppNavigation(mainActivity: MainActivity) {
     val navController = rememberNavController()
+    val navigator = remember(navController) { NavControllerNavigator(navController) }
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val activeProvider = mainActivity.providerRepository.getActiveProvider()
         .collectAsStateWithLifecycle(initialValue = null)
@@ -112,9 +116,12 @@ fun AppNavigation(mainActivity: MainActivity) {
 
     fun navigateToStartupTarget(popUpRoute: String): Boolean {
         val route = startupRoute ?: return false
-        return navController.navigateIfResumed(route) {
-            popUpTo(popUpRoute) { inclusive = true }
-        }
+        val destination = AppRouteCodec.decode(route) ?: return false
+        val popUpDestination = AppRouteCodec.decode(popUpRoute)
+        return navigator.navigateIfResumed(
+            destination,
+            NavigationOptions(popUpTo = popUpDestination, inclusive = true)
+        )
     }
 
     // Once the live landing has placed us on the Live TV tab, open the resolved channel on top of it.
@@ -128,7 +135,7 @@ fun AppNavigation(mainActivity: MainActivity) {
         val route = entry.destination?.route
         if (route != Routes.LIVE_TV_DESTINATION && route != Routes.LIVE_TV) return@LaunchedEffect
         entry.lifecycle.awaitResumed()
-        if (navController.navigateToPlayer(request)) {
+        if (navigator.execute(NavigationCommand.OpenPlayer(request))) {
             startupPlayerHandled = true
         }
     }
@@ -136,7 +143,7 @@ fun AppNavigation(mainActivity: MainActivity) {
     ExternalNavigationHost(
         request = externalNavigationRequest,
         currentBackStackEntry = currentBackStackEntry,
-        navController = navController,
+        navigator = navigator,
         onRequestHandled = mainActivity::clearExternalNavigationRequest
     )
 
@@ -165,12 +172,16 @@ fun AppNavigation(mainActivity: MainActivity) {
         )
         if (currentRoute == resolvedRoute || currentRoute?.startsWith("$resolvedRoute?") == true) return
 
-        navController.navigate(resolvedRoute) {
-            popUpTo(navController.graph.startDestinationId) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
+        AppRouteCodec.decode(resolvedRoute)?.let { destination ->
+            navigator.navigateIfResumed(
+                destination,
+                NavigationOptions(
+                    launchSingleTop = true,
+                    restoreState = true,
+                    saveState = true,
+                    popUpTo = AppDestination.Welcome
+                )
+            )
         }
     }
 
@@ -190,6 +201,7 @@ fun AppNavigation(mainActivity: MainActivity) {
 
     AppNavigationGraph(
         navController = navController,
+        navigator = navigator,
         startupRoute = startupRoute,
         navigateToStartupTarget = { popUpRoute -> navigateToStartupTarget(popUpRoute) },
         tabNavigate = { route -> tabNavigate(route) }

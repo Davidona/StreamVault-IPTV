@@ -25,6 +25,8 @@ import androidx.navigation.navArgument
 import com.streamvault.app.ui.model.isArchivePlayable
 import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.core.navigation.NavigationOptions
+import com.streamvault.core.navigation.NavigationCommand
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
@@ -45,10 +47,8 @@ import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.CatalogLayout
-import com.streamvault.domain.model.MovieDetailPresentationHint
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Series
-import com.streamvault.domain.model.SeriesDetailPresentationHint
 import com.streamvault.domain.model.VirtualCategoryIds
 import java.io.Serializable
 import kotlin.coroutines.resume
@@ -60,6 +60,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @Composable
 internal fun AppNavigationGraph(
     navController: NavHostController,
+    navigator: NavControllerNavigator,
     startupRoute: String?,
     navigateToStartupTarget: (String) -> Boolean,
     tabNavigate: (String) -> Unit
@@ -75,9 +76,10 @@ internal fun AppNavigationGraph(
                 },
                 startupReady = startupRoute != null,
                 onNavigateToSetup = dropUnlessResumed {
-                    navController.navigate(Routes.providerSetup()) {
-                        popUpTo(Routes.WELCOME) { inclusive = true }
-                    }
+                    navigator.navigateIfResumed(
+                        AppDestination.ProviderSetup(),
+                        NavigationOptions(popUpTo = AppDestination.Welcome, inclusive = true)
+                    )
                 }
             )
         }
@@ -95,7 +97,7 @@ internal fun AppNavigationGraph(
             ProviderSetupScreen(
                 editProviderId = providerId,
                 initialImportUri = importUri,
-                onBack = { navController.popBackStack() },
+                onBack = { navigator.back() },
                 onProviderAdded = dropUnlessResumed {
                     navigateToStartupTarget(Routes.PROVIDER_SETUP)
                 }
@@ -107,10 +109,10 @@ internal fun AppNavigationGraph(
             DashboardScreen(
                 onNavigate = { route -> tabNavigate(route) },
                 onAddProvider = dropUnlessResumed {
-                    navController.navigate(Routes.providerSetup(null))
+                    navigator.navigateIfResumed(AppDestination.ProviderSetup())
                 },
                 onRecentChannelClick = { channel, combinedProfileId ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         channel.toLivePlayerRequest(
                             categoryId = com.streamvault.domain.model.VirtualCategoryIds.RECENT,
                             providerId = channel.providerId,
@@ -121,7 +123,7 @@ internal fun AppNavigationGraph(
                     )
                 },
                 onFavoriteChannelClick = { channel, combinedProfileId ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         channel.toLivePlayerRequest(
                             categoryId = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
                             providerId = channel.providerId,
@@ -132,10 +134,10 @@ internal fun AppNavigationGraph(
                     )
                 },
                 onMovieClick = { movie ->
-                    navController.navigateToMovieDetail(movie, Routes.HOME)
+                    navigator.openMovieDetail(movie, AppDestination.Home)
                 },
                 onSeriesClick = { series ->
-                    navController.navigateToSeriesDetail(series, Routes.HOME)
+                    navigator.openSeriesDetail(series, AppDestination.Home)
                 },
                 onPlaybackHistoryClick = { history ->
                     val route = when (history.contentType) {
@@ -154,9 +156,14 @@ internal fun AppNavigationGraph(
                         }
                     }
                     if (route is PlayerNavigationRequest) {
-                        navController.navigateToPlayer(route)
+                        navigator.openPlayer(route)
                     } else {
-                        navController.navigateIfResumed(route as String) { launchSingleTop = true }
+                        AppRouteCodec.decode(route as String)?.let { destination ->
+                            navigator.navigateIfResumed(
+                                destination,
+                                NavigationOptions(launchSingleTop = true)
+                            )
+                        }
                     }
                 },
                 currentRoute = Routes.HOME
@@ -172,7 +179,7 @@ internal fun AppNavigationGraph(
             val initialCategoryId = backStackEntry.arguments?.getLong("categoryId")?.takeIf { it != -1L }
             HomeScreen(
                 onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         channel.toLivePlayerRequest(
                             categoryId = category?.id,
                             providerId = provider?.id,
@@ -193,10 +200,10 @@ internal fun AppNavigationGraph(
         composable(Routes.MOVIES) {
             MoviesScreen(
                 onMovieClick = { movie ->
-                    navController.navigateToMovieDetail(movie, Routes.MOVIES)
+                    navigator.openMovieDetail(movie, AppDestination.Movies)
                 },
                 onContinueWatchingPlay = { history ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         history.toPlayerNavigationRequest().copy(returnDestination = AppDestination.Movies)
                     )
                 },
@@ -208,10 +215,13 @@ internal fun AppNavigationGraph(
         composable(Routes.SERIES) {
             SeriesScreen(
                 onSeriesClick = { series ->
-                    navController.navigateToSeriesDetail(series, Routes.SERIES)
+                    navigator.openSeriesDetail(series, AppDestination.Series)
                 },
                 onSeriesIdClick = { seriesId ->
-                    navController.navigateIfResumed(Routes.seriesDetail(seriesId, Routes.SERIES))
+                    navigator.navigateIfResumed(
+                        AppDestination.SeriesDetail(seriesId, AppDestination.Series),
+                        NavigationOptions(launchSingleTop = true)
+                    )
                 },
                 onNavigate = { route -> tabNavigate(route) },
                 currentRoute = Routes.SERIES
@@ -221,10 +231,10 @@ internal fun AppNavigationGraph(
         composable(Routes.VOD) {
             VodScreen(
                 onMovieClick = { movie ->
-                    navController.navigateToMovieDetail(movie, Routes.VOD)
+                    navigator.openMovieDetail(movie, AppDestination.Vod)
                 },
                 onSeriesClick = { series ->
-                    navController.navigateToSeriesDetail(series, Routes.VOD)
+                    navigator.openSeriesDetail(series, AppDestination.Vod)
                 },
                 onNavigate = { route -> tabNavigate(route) },
                 currentRoute = Routes.VOD
@@ -255,7 +265,7 @@ internal fun AppNavigationGraph(
                 initialAnchorTime = epgAnchorTime,
                 initialFavoritesOnly = epgFavoritesOnly,
                 onPlayChannel = { channel, categoryId, isVirtual, combinedProfileId, returnRoute ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         channel.toLivePlayerRequest(
                             categoryId = categoryId,
                             providerId = channel.providerId,
@@ -269,7 +279,7 @@ internal fun AppNavigationGraph(
                     if (!channel.isArchivePlayable(program)) {
                         return@FullEpgScreen
                     }
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         playerNavigationRequest(
                             streamUrl = channel.streamUrl,
                             title = channel.name,
@@ -301,13 +311,19 @@ internal fun AppNavigationGraph(
             SettingsScreen(
                 onNavigate = { route -> tabNavigate(route) },
                 onAddProvider = dropUnlessResumed {
-                    navController.navigate(Routes.providerSetup(null))
+                    navigator.navigateIfResumed(AppDestination.ProviderSetup())
                 },
                 onEditProvider = { provider ->
-                    navController.navigateIfResumed(Routes.providerSetup(provider.id))
+                    navigator.navigateIfResumed(
+                        AppDestination.ProviderSetup(providerId = provider.id),
+                        NavigationOptions(launchSingleTop = true)
+                    )
                 },
                 onNavigateToParentalControl = { providerId ->
-                    navController.navigateIfResumed(Routes.parentalControlGroups(providerId))
+                    navigator.navigateIfResumed(
+                        AppDestination.ParentalControlGroups(providerId),
+                        NavigationOptions(launchSingleTop = true)
+                    )
                 },
                 currentRoute = Routes.SETTINGS,
                 initialBackupImportUri = backupUri
@@ -330,7 +346,7 @@ internal fun AppNavigationGraph(
             com.streamvault.app.ui.screens.settings.parental.ParentalControlGroupScreen(
                 currentRoute = Routes.SETTINGS,
                 onNavigate = { route -> tabNavigate(route) },
-                onBack = { navController.popBackStack() }
+                onBack = { navigator.back() }
             )
         }
 
@@ -343,7 +359,7 @@ internal fun AppNavigationGraph(
             com.streamvault.app.ui.screens.search.SearchScreen(
                 initialQuery = backStackEntry.arguments?.getString("query").orEmpty(),
                 onChannelClick = { channel ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         channel.toLivePlayerRequest(
                             categoryId = channel.categoryId,
                             providerId = channel.providerId,
@@ -353,15 +369,15 @@ internal fun AppNavigationGraph(
                     )
                 },
                 onMovieClick = { movie ->
-                     navController.navigateToMovieDetail(
+                     navigator.openMovieDetail(
                          movie,
-                         Routes.search(backStackEntry.arguments?.getString("query").orEmpty())
+                         AppDestination.Search(backStackEntry.arguments?.getString("query").orEmpty())
                      )
                 },
                 onSeriesClick = { series ->
-                     navController.navigateToSeriesDetail(
+                     navigator.openSeriesDetail(
                          series,
-                         Routes.search(backStackEntry.arguments?.getString("query").orEmpty())
+                         AppDestination.Search(backStackEntry.arguments?.getString("query").orEmpty())
                      )
                 },
                 onNavigate = { route -> tabNavigate(route) },
@@ -370,19 +386,22 @@ internal fun AppNavigationGraph(
         }
 
         composable(route = Routes.PLAYER) { backStackEntry ->
-            val playerRequest = backStackEntry.savedStateHandle.get<PlayerNavigationRequest>(PLAYER_REQUEST_KEY)
-                ?: navController.previousBackStackEntry?.savedStateHandle?.get<PlayerNavigationRequest>(PLAYER_REQUEST_KEY)?.also {
-                    backStackEntry.savedStateHandle[PLAYER_REQUEST_KEY] = it
-                }
+            val playerRequest = navigator.consumePlayerRequest(backStackEntry)
             val safePlayerRequest = safePlayerNavigationRequest(playerRequest)
             if (safePlayerRequest == null) {
                 LaunchedEffect(playerRequest) {
                     Log.w(APP_NAVIGATION_TAG, "Missing or invalid player request; returning to previous destination")
-                    if (!navController.popBackStack()) {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.PLAYER) { inclusive = true }
-                            launchSingleTop = true
-                        }
+                    if (!navigator.execute(NavigationCommand.Back)) {
+                        navigator.execute(
+                            NavigationCommand.Navigate(
+                                AppDestination.Home,
+                                NavigationOptions(
+                                    launchSingleTop = true,
+                                    popUpTo = AppDestination.Player,
+                                    inclusive = true
+                                )
+                            )
+                        )
                     }
                 }
             } else {
@@ -406,35 +425,16 @@ internal fun AppNavigationGraph(
                     seasonNumber = safePlayerRequest.seasonNumber,
                     episodeNumber = safePlayerRequest.episodeNumber,
                     episodeId = safePlayerRequest.episodeId,
-                    onBack = {
-                        val route = safePlayerRequest.returnDestination?.let(AppRouteCodec::encode)
-                        if (!route.isNullOrBlank() && navController.popBackStack(route, false)) {
-                            // Popped back to the exact route already in the backstack (same VM, handoff works)
-                            Unit
-                        } else if (!route.isNullOrBlank()) {
-                            // Nothing left to pop — navigate to the return route or home as a last resort
-                            navController.navigate(route) {
-                                popUpTo(Routes.PLAYER) { inclusive = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        } else if (!navController.popBackStack()) {
-                            navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.PLAYER) { inclusive = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                        // else: plain popBackStack() succeeded — returns to existing Guide entry, preserving EpgViewModel
-                    },
+                    onBack = { navigator.returnTo(safePlayerRequest.returnDestination) },
                     onNavigate = { destination ->
-                        val route = AppRouteCodec.encode(destination)
-                        navController.navigateIfResumed(route) {
-                            launchSingleTop = true
-                            if (route == Routes.MULTI_VIEW) {
-                                popUpTo(Routes.PLAYER) { inclusive = true }
-                            }
-                        }
+                        navigator.navigateIfResumed(
+                            destination,
+                            NavigationOptions(
+                                launchSingleTop = true,
+                                popUpTo = AppDestination.Player.takeIf { destination == AppDestination.MultiView },
+                                inclusive = destination == AppDestination.MultiView
+                            )
+                        )
                     }
                 )
             }
@@ -447,33 +447,22 @@ internal fun AppNavigationGraph(
                 navArgument("returnRoute") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
-            val moviePresentationHint = backStackEntry.savedStateHandle.get<MovieDetailPresentationHint>(MOVIE_DETAIL_PRESENTATION_HINT_KEY)
-                ?: navController.previousBackStackEntry?.savedStateHandle?.get<MovieDetailPresentationHint>(MOVIE_DETAIL_PRESENTATION_HINT_KEY)?.also {
-                    backStackEntry.savedStateHandle[MOVIE_DETAIL_PRESENTATION_HINT_KEY] = it
-                }
+            navigator.consumeMoviePresentationHint(backStackEntry)
             val returnRoute = backStackEntry.arguments?.getString("returnRoute").orEmpty().takeIf { it.isNotBlank() }
+            val returnDestination = returnRoute?.let(AppRouteCodec::decode)
             val movieId = backStackEntry.arguments?.getLong("movieId") ?: -1L
             com.streamvault.app.ui.screens.movies.MovieDetailScreen(
                 onPlay = { movie ->
-                    navController.navigateToPlayer(
+                    navigator.openPlayer(
                         movie.toPlayerNavigationRequest(
                             returnDestination = AppDestination.MovieDetail(
                                 movieId = movie.id.takeIf { it > 0L } ?: movieId,
-                                returnDestination = returnRoute?.let(AppRouteCodec::decode)
+                                returnDestination = returnDestination
                             )
                         )
                     )
                 },
-                onBack = {
-                    if (!returnRoute.isNullOrBlank()) {
-                        navController.navigate(returnRoute) {
-                            popUpTo(backStackEntry.destination.route ?: Routes.MOVIE_DETAIL) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    } else {
-                        navController.popBackStack()
-                    }
-                }
+                onBack = { navigator.returnTo(returnDestination) }
             )
         }
 
@@ -484,39 +473,28 @@ internal fun AppNavigationGraph(
                 navArgument("returnRoute") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
-            val seriesPresentationHint = backStackEntry.savedStateHandle.get<SeriesDetailPresentationHint>(SERIES_DETAIL_PRESENTATION_HINT_KEY)
-                ?: navController.previousBackStackEntry?.savedStateHandle?.get<SeriesDetailPresentationHint>(SERIES_DETAIL_PRESENTATION_HINT_KEY)?.also {
-                    backStackEntry.savedStateHandle[SERIES_DETAIL_PRESENTATION_HINT_KEY] = it
-                }
+            navigator.consumeSeriesPresentationHint(backStackEntry)
             val returnRoute = backStackEntry.arguments?.getString("returnRoute").orEmpty().takeIf { it.isNotBlank() }
+            val returnDestination = returnRoute?.let(AppRouteCodec::decode)
             val seriesId = backStackEntry.arguments?.getLong("seriesId") ?: -1L
             com.streamvault.app.ui.screens.series.SeriesDetailScreen(
                 onEpisodeClick = { episode ->
-                     navController.navigateToPlayer(
+                     navigator.openPlayer(
                          episode.toPlayerNavigationRequest(
                              returnDestination = AppDestination.SeriesDetail(
                                  seriesId = episode.seriesId.takeIf { it > 0L } ?: seriesId,
-                                 returnDestination = returnRoute?.let(AppRouteCodec::decode)
+                                 returnDestination = returnDestination
                              )
                          )
                      )
                 },
-                onBack = {
-                    if (!returnRoute.isNullOrBlank()) {
-                        navController.navigate(returnRoute) {
-                            popUpTo(backStackEntry.destination.route ?: Routes.SERIES_DETAIL) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    } else {
-                        navController.popBackStack()
-                    }
-                }
+                onBack = { navigator.returnTo(returnDestination) }
             )
         }
 
         composable(Routes.MULTI_VIEW) {
             MultiViewScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navigator.back() }
             )
         }
     }}
