@@ -18,6 +18,7 @@ rootProject.name = "StreamVault"
 
 include(":app")
 include(":benchmark")
+include(":core:navigation")
 include(":core:ui")
 include(":domain")
 include(":data")

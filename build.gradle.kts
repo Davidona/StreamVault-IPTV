@@ -77,6 +77,12 @@ tasks.register("verifyCoreUiBoundary") {
     dependsOn(":core:ui:verifyCoreUiBoundary")
 }
 
+tasks.register("verifyCoreNavigationBoundary") {
+    group = "verification"
+    description = "Verifies that :core:navigation remains contract-only."
+    dependsOn(":core:navigation:verifyCoreNavigationBoundary")
+}
+
 abstract class VerifyBaselineProfileSourcesTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
