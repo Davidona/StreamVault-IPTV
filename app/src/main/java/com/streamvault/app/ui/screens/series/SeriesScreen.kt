@@ -68,10 +68,10 @@ import com.streamvault.app.ui.components.dialogs.DeleteGroupDialog
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.shell.BrowseHeroPanel
 import com.streamvault.app.ui.components.shell.BrowseSearchLaunchCard
-import com.streamvault.app.ui.components.shell.LoadMoreCard
+import com.streamvault.core.ui.components.shell.LoadMoreCard
 import com.streamvault.app.ui.components.shell.InfiniteScrollEffect
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.shell.VodActionChip
 import com.streamvault.app.ui.components.shell.VodActionChipRow

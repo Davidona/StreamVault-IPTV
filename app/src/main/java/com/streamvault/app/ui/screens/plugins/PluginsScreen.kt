@@ -61,7 +61,7 @@ import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
@@ -411,7 +411,7 @@ private fun PluginCard(
                 )
                 val version = plugin.manifest.versionName.ifBlank { "unknown" }
                 Text(
-                    text = "${plugin.packageName} ֲ· v$version",
+                    text = "${plugin.packageName} ײ²ֲ· v$version",
                     style = MaterialTheme.typography.bodySmall,
                     color = AppColors.TextTertiary,
                     maxLines = 1,
@@ -421,7 +421,7 @@ private fun PluginCard(
                     Text(
                         text = listOf(plugin.statusLabel, plugin.lastMessage)
                             .filter { it.isNotBlank() }
-                            .joinToString(" ֲ· "),
+                            .joinToString(" ײ²ֲ· "),
                         style = MaterialTheme.typography.bodySmall,
                         color = AppColors.TextTertiary,
                         maxLines = 2,
@@ -726,7 +726,7 @@ private fun PluginConfigurationSelectField(
                     onClick = { onValueChange(option.value) }
                 ) {
                     Text(
-                        text = if (option.value == value) "${option.label} ג“" else option.label,
+                        text = if (option.value == value) "${option.label} ׳’ֲג€" else option.label,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

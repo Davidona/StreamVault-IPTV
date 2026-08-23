@@ -35,11 +35,11 @@ import com.streamvault.app.ui.components.MovieCard
 import com.streamvault.app.ui.components.SearchInput
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SeriesCard
-import com.streamvault.app.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.shell.InfiniteScrollEffect
-import com.streamvault.app.ui.components.shell.LoadMoreCard
+import com.streamvault.core.ui.components.shell.LoadMoreCard
 import com.streamvault.app.ui.components.shell.VodActionChip
 import com.streamvault.app.ui.components.shell.VodActionChipRow
 import com.streamvault.app.ui.components.shell.VodBrowseOptionsDialog

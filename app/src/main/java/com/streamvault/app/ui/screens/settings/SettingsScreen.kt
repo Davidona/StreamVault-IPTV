@@ -28,7 +28,7 @@ import com.streamvault.app.device.removableAppStorageDirs
 import java.io.File
 import com.streamvault.app.diagnostics.CrashReportStore
 import com.streamvault.app.util.OfficialBuildVerifier
-import com.streamvault.app.ui.components.shell.AppTopBarCloseAction
+import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.theme.*
@@ -362,7 +362,8 @@ fun SettingsScreen(
             showScreenHeader = false,
             topBarActions = {
                 AppTopBarCloseAction(
-                    onClick = { mainActivity?.finishAffinity() }
+                    onClick = { mainActivity?.finishAffinity() },
+                    contentDescription = stringResource(R.string.settings_close_app)
                 )
             }
         ) {

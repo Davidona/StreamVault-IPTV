@@ -66,10 +66,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import com.streamvault.app.ui.components.shell.BrowseSearchLaunchCard
-import com.streamvault.app.ui.components.shell.LoadMoreCard
+import com.streamvault.core.ui.components.shell.LoadMoreCard
 import com.streamvault.app.ui.components.shell.InfiniteScrollEffect
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import androidx.tv.material3.Border
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog

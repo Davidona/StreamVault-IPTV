@@ -1,17 +1,16 @@
-package com.streamvault.app.ui.components.shell
+package com.streamvault.core.ui.components.shell
 
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,26 +20,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,25 +37,21 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
@@ -74,34 +59,35 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.MainActivity
-import com.streamvault.app.navigation.toAppRoute
-import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppMotion
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.design.LocalAppShapes
 import com.streamvault.core.ui.design.LocalAppSpacing
-import com.streamvault.domain.model.AppTopLevelDestination
-import com.streamvault.domain.model.CatalogLayout
+import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 
-enum class AppNavigationChrome {
+enum class NavigationChrome {
     Rail,
     TopBar
 }
 
+data class UiDestination(
+    val id: String,
+    val label: String,
+    val icon: ImageVector
+)
+
 @Composable
-fun AppScreenScaffold(
-    currentRoute: String,
-    onNavigate: (String) -> Unit,
+fun CoreAppScreenScaffold(
+    currentDestinationId: String,
+    destinations: List<UiDestination>,
+    onDestinationSelected: (String) -> Unit,
     title: String,
     subtitle: String? = null,
     modifier: Modifier = Modifier,
-    navigationChrome: AppNavigationChrome = AppNavigationChrome.Rail,
+    navigationChrome: NavigationChrome = NavigationChrome.Rail,
     topBarVisible: Boolean = true,
     compactHeader: Boolean = false,
     showScreenHeader: Boolean = true,
@@ -116,7 +102,7 @@ fun AppScreenScaffold(
         modifier = modifier
             .fillMaxSize()
             .semantics {
-                contentDescription = "streamvault.destination:$currentRoute"
+                contentDescription = "streamvault.destination:$currentDestinationId"
             }
             .background(
                 Brush.linearGradient(
@@ -128,11 +114,12 @@ fun AppScreenScaffold(
                 )
             )
     ) {
-        if (navigationChrome == AppNavigationChrome.Rail) {
+        if (navigationChrome == NavigationChrome.Rail) {
             Row(modifier = Modifier.fillMaxSize()) {
                 DestinationRail(
-                    currentRoute = currentRoute,
-                    onNavigate = onNavigate,
+                    currentDestinationId = currentDestinationId,
+                    destinations = destinations,
+                    onDestinationSelected = onDestinationSelected,
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(spacing.railWidth)
@@ -176,15 +163,13 @@ fun AppScreenScaffold(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        horizontal = 14.dp,
-                        vertical = 10.dp
-                    )
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
                 if (topBarVisible) {
                     TopNavigationBar(
-                        currentRoute = currentRoute,
-                        onNavigate = onNavigate,
+                        currentDestinationId = currentDestinationId,
+                        destinations = destinations,
+                        onDestinationSelected = onDestinationSelected,
                         actions = topBarActions,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -258,21 +243,20 @@ fun AppScreenHeader(
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 private fun TopNavigationBar(
-    currentRoute: String,
-    onNavigate: (String) -> Unit,
+    currentDestinationId: String,
+    destinations: List<UiDestination>,
+    onDestinationSelected: (String) -> Unit,
     actions: (@Composable RowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val items = rememberDestinationItems()
     val scrollState = rememberScrollState()
-
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
-    
+
     Surface(
         modifier = modifier.focusProperties {
             onEnter = {
-                val activeItem = findActiveDestinationItem(items, currentRoute)
-                focusRequesters[activeItem?.route] ?: FocusRequester.Default
+                val activeItem = findActiveDestination(destinations, currentDestinationId)
+                focusRequesters[activeItem?.id] ?: FocusRequester.Default
             }
         },
         shape = RoundedCornerShape(18.dp),
@@ -287,12 +271,12 @@ private fun TopNavigationBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(R.string.app_name),
+                text = "StreamVault",
                 style = MaterialTheme.typography.titleSmall,
                 color = AppColors.TextPrimary,
                 modifier = Modifier.wrapContentWidth(Alignment.Start)
             )
-            Spacer(modifier = Modifier.width(32.dp)) // Increased spacing to prevent overlap
+            Spacer(modifier = Modifier.width(32.dp))
             Row(
                 modifier = Modifier
                     .weight(1f)
@@ -300,16 +284,15 @@ private fun TopNavigationBar(
                     .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items.forEach { item ->
-                    val requester = focusRequesters.getOrPut(item.route) { FocusRequester() }
+                destinations.forEach { destination ->
+                    val requester = focusRequesters.getOrPut(destination.id) { FocusRequester() }
                     TopNavigationButton(
-                        label = stringResource(item.labelRes),
-                        icon = item.icon,
-                        selected = currentRoute.startsWith(item.route),
+                        destination = destination,
+                        selected = currentDestinationId.startsWith(destination.id),
                         focusRequester = requester,
                         onClick = {
-                            if (!currentRoute.startsWith(item.route)) {
-                                onNavigate(item.route)
+                            if (!currentDestinationId.startsWith(destination.id)) {
+                                onDestinationSelected(destination.id)
                             }
                         }
                     )
@@ -329,8 +312,8 @@ private fun TopNavigationBar(
 @Composable
 fun AppTopBarCloseAction(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    contentDescription: String = stringResource(R.string.settings_close_app)
+    contentDescription: String,
+    modifier: Modifier = Modifier
 ) {
     TvIconButton(
         onClick = onClick,
@@ -358,8 +341,7 @@ fun AppTopBarCloseAction(
 
 @Composable
 private fun TopNavigationButton(
-    label: String,
-    icon: ImageVector,
+    destination: UiDestination,
     selected: Boolean,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
@@ -387,15 +369,12 @@ private fun TopNavigationButton(
                     onClick()
                 }
             )
-            .zIndex(if (isFocused) 1f else 0f) // Keep focused button on top
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
             .onFocusChanged {
-                if (it.isFocused && !isFocused) {
-                    sounds.playNavigate()
-                }
+                if (it.isFocused && !isFocused) sounds.playNavigate()
                 isFocused = it.isFocused
             },
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
@@ -416,13 +395,13 @@ private fun TopNavigationButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
-                contentDescription = label,
+                imageVector = destination.icon,
+                contentDescription = destination.label,
                 tint = if (selected) AppColors.Brand else AppColors.TextSecondary,
                 modifier = Modifier.size(14.dp)
             )
             Text(
-                text = label,
+                text = destination.label,
                 style = MaterialTheme.typography.labelSmall,
                 color = if (selected) AppColors.TextPrimary else AppColors.TextSecondary
             )
@@ -450,21 +429,13 @@ fun AppHeroHeader(
                 .clip(RoundedCornerShape(28.dp))
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(
-                            AppColors.Canvas,
-                            AppColors.SurfaceAccent,
-                            AppColors.SurfaceEmphasis
-                        )
+                        colors = listOf(AppColors.Canvas, AppColors.SurfaceAccent, AppColors.SurfaceEmphasis)
                     )
                 )
                 .padding(32.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                AppScreenHeader(
-                    title = title,
-                    subtitle = subtitle,
-                    eyebrow = eyebrow
-                )
+                AppScreenHeader(title = title, subtitle = subtitle, eyebrow = eyebrow)
                 if (actions != null) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -472,9 +443,7 @@ fun AppHeroHeader(
                         content = actions
                     )
                 }
-                if (footer != null) {
-                    footer()
-                }
+                if (footer != null) footer()
             }
         }
     }
@@ -506,24 +475,16 @@ fun AppSectionHeader(
                 modifier = Modifier.semantics { heading() }
             )
             if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = AppColors.TextTertiary
-                )
+                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = AppColors.TextTertiary)
             }
         }
-
         if (onActionClick != null && !actionLabel.isNullOrBlank()) {
             val actionFocusRequester = remember { FocusRequester() }
             Surface(
                 onClick = onActionClick,
                 modifier = Modifier
                     .focusRequester(actionFocusRequester)
-                    .mouseClickable(
-                        focusRequester = actionFocusRequester,
-                        onClick = onActionClick
-                    ),
+                    .mouseClickable(focusRequester = actionFocusRequester, onClick = onActionClick),
                 shape = ClickableSurfaceDefaults.shape(shapes.pill),
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = AppColors.Brand.copy(alpha = 0.12f),
@@ -531,11 +492,7 @@ fun AppSectionHeader(
                     contentColor = actionContentColor
                 )
             ) {
-                Text(
-                    text = actionLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                )
+                Text(text = actionLabel, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
             }
         }
     }
@@ -557,11 +514,7 @@ fun StatusPill(
             .background(containerColor)
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = contentColor
-        )
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = contentColor)
     }
 }
 
@@ -586,10 +539,7 @@ fun AppMessageState(
         modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
         shape = resolvedShape,
         border = Border(
-            border = BorderStroke(
-                width = if (borderColor != null) 1.dp else 0.dp,
-                color = borderColor ?: Color.Transparent
-            ),
+            border = BorderStroke(if (borderColor != null) 1.dp else 0.dp, borderColor ?: Color.Transparent),
             shape = resolvedShape
         ),
         colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated)
@@ -600,20 +550,8 @@ fun AppMessageState(
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = title,
-                style = titleStyle,
-                color = titleColor,
-                textAlign = titleTextAlign,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = subtitle,
-                style = subtitleStyle,
-                color = subtitleColor,
-                textAlign = subtitleTextAlign,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text(text = title, style = titleStyle, color = titleColor, textAlign = titleTextAlign, modifier = Modifier.fillMaxWidth())
+            Text(text = subtitle, style = subtitleStyle, color = subtitleColor, textAlign = subtitleTextAlign, modifier = Modifier.fillMaxWidth())
             if (action != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 action()
@@ -634,10 +572,7 @@ fun LoadMoreCard(
         onClick = onClick,
         modifier = modifier
             .focusRequester(focusRequester)
-            .mouseClickable(
-                focusRequester = focusRequester,
-                onClick = onClick
-            ),
+            .mouseClickable(focusRequester = focusRequester, onClick = onClick),
         shape = ClickableSurfaceDefaults.shape(shapes.medium),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
@@ -655,17 +590,8 @@ fun LoadMoreCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = label,
-                tint = AppColors.Brand,
-                modifier = Modifier.size(18.dp)
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium,
-                color = AppColors.TextPrimary
-            )
+            Icon(imageVector = Icons.Default.Info, contentDescription = label, tint = AppColors.Brand, modifier = Modifier.size(18.dp))
+            Text(text = label, style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary)
         }
     }
 }
@@ -682,11 +608,7 @@ fun ContentMetadataStrip(
         verticalAlignment = Alignment.CenterVertically
     ) {
         filteredValues.forEachIndexed { index, value ->
-            Text(
-                text = value,
-                style = MaterialTheme.typography.labelMedium,
-                color = AppColors.TextSecondary
-            )
+            Text(text = value, style = MaterialTheme.typography.labelMedium, color = AppColors.TextSecondary)
             if (index < filteredValues.lastIndex) {
                 Box(
                     modifier = Modifier
@@ -702,30 +624,23 @@ fun ContentMetadataStrip(
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 private fun DestinationRail(
-    currentRoute: String,
-    onNavigate: (String) -> Unit,
+    currentDestinationId: String,
+    destinations: List<UiDestination>,
+    onDestinationSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalAppSpacing.current
-    val items = rememberDestinationItems()
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
 
     Box(
         modifier = modifier
             .padding(start = spacing.lg, top = spacing.safeTop, bottom = spacing.safeBottom)
             .clip(RoundedCornerShape(28.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        AppColors.SurfaceElevated,
-                        AppColors.Surface
-                    )
-                )
-            )
+            .background(Brush.verticalGradient(colors = listOf(AppColors.SurfaceElevated, AppColors.Surface)))
             .focusProperties {
                 onEnter = {
-                    val activeItem = findActiveDestinationItem(items, currentRoute)
-                    focusRequesters[activeItem?.route] ?: FocusRequester.Default
+                    val activeItem = findActiveDestination(destinations, currentDestinationId)
+                    focusRequesters[activeItem?.id] ?: FocusRequester.Default
                 }
             }
     ) {
@@ -735,27 +650,18 @@ private fun DestinationRail(
                 .padding(horizontal = 12.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
-                color = AppColors.TextPrimary
-            )
-            Text(
-                text = stringResource(R.string.label_tv),
-                style = MaterialTheme.typography.labelSmall,
-                color = AppColors.TextTertiary
-            )
+            Text(text = "StreamVault", style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary)
+            Text(text = "TV", style = MaterialTheme.typography.labelSmall, color = AppColors.TextTertiary)
             Spacer(modifier = Modifier.height(10.dp))
-            items.forEach { item ->
-                val requester = focusRequesters.getOrPut(item.route) { FocusRequester() }
+            destinations.forEach { destination ->
+                val requester = focusRequesters.getOrPut(destination.id) { FocusRequester() }
                 RailButton(
-                    label = stringResource(item.labelRes),
-                    icon = item.icon,
-                    selected = currentRoute.startsWith(item.route),
+                    destination = destination,
+                    selected = currentDestinationId.startsWith(destination.id),
                     modifier = Modifier.focusRequester(requester),
                     onClick = {
-                        if (!currentRoute.startsWith(item.route)) {
-                            onNavigate(item.route)
+                        if (!currentDestinationId.startsWith(destination.id)) {
+                            onDestinationSelected(destination.id)
                         }
                     }
                 )
@@ -766,8 +672,7 @@ private fun DestinationRail(
 
 @Composable
 private fun RailButton(
-    label: String,
-    icon: ImageVector,
+    destination: UiDestination,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -783,11 +688,15 @@ private fun RailButton(
     Surface(
         onClick = onClick,
         modifier = modifier
+            .semantics {
+                contentDescription = destination.label
+                onClick(label = destination.label) {
+                    onClick()
+                    true
+                }
+            }
             .focusRequester(focusRequester)
-            .mouseClickable(
-                focusRequester = focusRequester,
-                onClick = onClick
-            )
+            .mouseClickable(focusRequester = focusRequester, onClick = onClick)
             .fillMaxWidth()
             .graphicsLayer {
                 scaleX = scale
@@ -814,13 +723,13 @@ private fun RailButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
-                contentDescription = label,
+                imageVector = destination.icon,
+                contentDescription = destination.label,
                 tint = if (selected) AppColors.Brand else AppColors.TextSecondary,
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                text = label,
+                text = destination.label,
                 style = MaterialTheme.typography.titleSmall,
                 color = if (selected) AppColors.TextPrimary else AppColors.TextSecondary,
                 maxLines = 1,
@@ -830,112 +739,10 @@ private fun RailButton(
     }
 }
 
-private data class DestinationItem(
-    val route: String,
-    @param:StringRes val labelRes: Int,
-    val icon: ImageVector
-)
-
-private fun findActiveDestinationItem(
-    items: List<DestinationItem>,
-    currentRoute: String
-): DestinationItem? =
-    items
-        .filter { currentRoute.startsWith(it.route) }
-        .maxByOrNull { it.route.length }
-        ?: items.firstOrNull { it.route == currentRoute }
-
-private fun buildDestinationItems(): List<DestinationItem> =
-    AppTopLevelDestination.defaultOrder.map { it.toDestinationItem() }
-
-private fun buildDestinationItems(
-    configured: List<AppTopLevelDestination>,
-    layout: CatalogLayout
-): List<DestinationItem> {
-    if (layout == CatalogLayout.SPLIT) return configured.map { it.toDestinationItem() }
-    var insertedVod = false
-    return buildList {
-        configured.forEach { destination ->
-            when (destination) {
-                AppTopLevelDestination.MOVIES,
-                AppTopLevelDestination.SERIES -> if (!insertedVod) {
-                    add(DestinationItem(Routes.VOD, R.string.nav_vod, Icons.Default.Star))
-                    insertedVod = true
-                }
-                else -> add(destination.toDestinationItem())
-            }
-        }
-    }
-}
-
-@Composable
-private fun rememberDestinationItems(): List<DestinationItem> {
-    val context = LocalContext.current
-    val mainActivity = remember(context) { context.findMainActivity() }
-    val configuredDestinations = mainActivity?.preferencesRepository?.appTopLevelDestinations
-        ?.collectAsStateWithLifecycle(initialValue = AppTopLevelDestination.defaultOrder)
-        ?.value
-        ?: AppTopLevelDestination.defaultOrder
-    val catalogLayout = mainActivity?.providerRepository?.getActiveProvider()
-        ?.collectAsStateWithLifecycle(initialValue = null)
-        ?.value
-        ?.catalogLayout
-        ?: CatalogLayout.SPLIT
-    return remember(configuredDestinations, catalogLayout) {
-        buildDestinationItems(configuredDestinations, catalogLayout)
-    }
-}
-
-private fun AppTopLevelDestination.toDestinationItem(): DestinationItem = when (this) {
-    AppTopLevelDestination.HOME -> DestinationItem(Routes.HOME, R.string.nav_home, Icons.Default.Home)
-    AppTopLevelDestination.LIVE_TV -> DestinationItem(Routes.LIVE_TV, R.string.nav_live_tv, Icons.Default.PlayArrow)
-    AppTopLevelDestination.MOVIES -> DestinationItem(Routes.MOVIES, R.string.nav_movies, Icons.Default.Star)
-    AppTopLevelDestination.SERIES -> DestinationItem(Routes.SERIES, R.string.nav_series, Icons.Default.Menu)
-    AppTopLevelDestination.DOWNLOADS -> DestinationItem(Routes.DOWNLOADS, R.string.nav_downloads, Icons.Default.Download)
-    AppTopLevelDestination.GUIDE -> DestinationItem(Routes.EPG, R.string.nav_epg, Icons.Default.Info)
-    AppTopLevelDestination.SEARCH -> DestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search)
-    AppTopLevelDestination.PLUGINS -> DestinationItem(Routes.PLUGINS, R.string.nav_plugins, PluginBlocksIcon)
-    AppTopLevelDestination.SETTINGS -> DestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)
-}
-
-private fun Context.findMainActivity(): MainActivity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is MainActivity) return current
-        current = current.baseContext
-    }
-    return null
-}
-
-private val PluginBlocksIcon: ImageVector
-    get() {
-        if (_pluginBlocksIcon != null) return _pluginBlocksIcon!!
-        _pluginBlocksIcon = ImageVector.Builder(
-            name = "PluginBlocks",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            path(fill = SolidColor(Color.Black)) {
-                moveTo(3f, 4f)
-                horizontalLineTo(10f)
-                verticalLineTo(11f)
-                horizontalLineTo(3f)
-                close()
-                moveTo(14f, 4f)
-                horizontalLineTo(21f)
-                verticalLineTo(11f)
-                horizontalLineTo(14f)
-                close()
-                moveTo(8.5f, 13f)
-                horizontalLineTo(15.5f)
-                verticalLineTo(20f)
-                horizontalLineTo(8.5f)
-                close()
-            }
-        }.build()
-        return _pluginBlocksIcon!!
-    }
-
-private var _pluginBlocksIcon: ImageVector? = null
+private fun findActiveDestination(
+    destinations: List<UiDestination>,
+    currentDestinationId: String
+): UiDestination? = destinations
+    .filter { currentDestinationId.startsWith(it.id) }
+    .maxByOrNull { it.id.length }
+    ?: destinations.firstOrNull { it.id == currentDestinationId }

@@ -31,7 +31,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
@@ -39,7 +39,7 @@ import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.core.ui.interaction.mouseClickable
 
-// ג”€ג”€ Netflix-style horizontal category row ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
+// ׳’ג€ג‚¬׳’ג€ג‚¬ Netflix-style horizontal category row ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

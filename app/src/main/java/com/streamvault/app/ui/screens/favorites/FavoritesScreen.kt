@@ -61,10 +61,10 @@ import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppHeroHeader
+import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.components.shell.AppSectionHeader
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnPrimary
 import com.streamvault.core.ui.theme.OnSurface

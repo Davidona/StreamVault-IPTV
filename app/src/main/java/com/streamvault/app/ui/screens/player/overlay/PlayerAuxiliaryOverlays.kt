@@ -60,7 +60,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.model.archivePlaybackCapability
 import com.streamvault.app.ui.screens.player.playerCategoryOverlayItemKey
@@ -1146,7 +1146,7 @@ fun CategoryListOverlay(
                                     }
                                     if (isSelected) {
                                         Text(
-                                            text = "ג—",
+                                            text = "׳’ג€”ֲ",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.White.copy(alpha = 0.8f),
                                             modifier = Modifier.padding(start = 8.dp)

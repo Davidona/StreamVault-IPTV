@@ -11,21 +11,21 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.SearchInput
-import com.streamvault.app.ui.components.shell.AppHeroHeader
-import com.streamvault.app.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.components.shell.AppHeroHeader
+import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.app.ui.components.shell.BrowseHeroPanel
 import com.streamvault.app.ui.components.shell.BrowseSearchLaunchCard
 import com.streamvault.app.ui.components.shell.CategoryRailPanel
-import com.streamvault.app.ui.components.shell.ContentMetadataStrip
+import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.EpisodeRowCard
 import com.streamvault.app.ui.components.shell.LibraryBrowseScaffold
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
-import com.streamvault.app.ui.components.shell.LoadMoreCard
+import com.streamvault.core.ui.components.shell.LoadMoreCard
 import com.streamvault.app.ui.components.shell.MoviePosterCard
 import com.streamvault.app.ui.components.shell.SeriesPosterCard
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.test.TestFixtures
 import com.streamvault.app.ui.test.assertAgainstGolden
@@ -309,7 +309,7 @@ class PremiumRouteGoldenTest {
                                     }
                                     AppMessageState(
                                         title = TestFixtures.currentProgram.title,
-                                        subtitle = "21:00 - 22:00 · Focused details stay visible while the timeline scrolls."
+                                        subtitle = "21:00 - 22:00 ֲ· Focused details stay visible while the timeline scrolls."
                                     )
                                 }
                             }
@@ -324,7 +324,7 @@ class PremiumRouteGoldenTest {
                                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                                     AppHeroHeader(
                                         title = "Pulse IPTV",
-                                        subtitle = "1 active provider · Locked groups enabled · System language"
+                                        subtitle = "1 active provider ֲ· Locked groups enabled ֲ· System language"
                                     )
                                     AppMessageState(
                                         title = "Provider Sync Healthy",

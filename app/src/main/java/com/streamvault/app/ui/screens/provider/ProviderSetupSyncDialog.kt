@@ -30,7 +30,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.extractProgressFraction
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.theme.*
 
 @Composable

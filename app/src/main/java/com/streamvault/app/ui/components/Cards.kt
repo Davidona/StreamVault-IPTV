@@ -53,7 +53,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.rememberCrossfadeImageModel
 import com.streamvault.app.ui.components.shell.MoviePosterCard
 import com.streamvault.app.ui.components.shell.SeriesPosterCard
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.app.ui.model.formatVodRatingLabel
 import com.streamvault.app.ui.model.archivePlaybackCapability
 import com.streamvault.core.ui.theme.AccentAmber

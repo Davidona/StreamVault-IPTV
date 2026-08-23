@@ -48,7 +48,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.ChannelLogoBadge
-import com.streamvault.app.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.model.archivePlaybackCapability
