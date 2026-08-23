@@ -1,39 +1,16 @@
 package com.streamvault.app.device
 
-import android.app.UiModeManager
 import android.content.Context
-import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Environment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.streamvault.core.ui.device.isTelevisionDevice as coreIsTelevisionDevice
 import java.io.File
 
-fun Context.isTelevisionDevice(): Boolean {
-    val packageManager = packageManager
-    if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
-        return true
-    }
-    if (packageManager.hasSystemFeature("android.software.leanback_only")) {
-        return true
-    }
-    if (packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)) {
-        return true
-    }
-    if (packageManager.hasSystemFeature("amazon.hardware.fire_tv")) {
-        return true
-    }
-    val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
-    if (uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION) {
-        return true
-    }
-
-    val screenWidthDp = resources.configuration.screenWidthDp
-    return !packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN) && screenWidthDp >= 900
-}
+fun Context.isTelevisionDevice(): Boolean = coreIsTelevisionDevice()
 
 @Composable
 fun rememberIsTelevisionDevice(): Boolean {
