@@ -2,9 +2,18 @@ import java.util.Properties
 import java.io.FileInputStream
 import java.security.KeyStore
 import java.security.MessageDigest
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Copy
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -132,6 +141,24 @@ android {
             }
             matchingFallbacks += listOf("release")
         }
+        create("nonMinifiedRelease") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
+            // This build type exists only for local baseline-profile generation. It is the sole
+            // release-like target permitted to consume local.properties development seed values.
+            buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
+            buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")
+            buildConfigField("String", "XTREAM_DEV_PASSWORD", "\"${localProp("xtream.dev.password")}\"")
+            buildConfigField("String", "XTREAM_DEV_NAME", "\"${localProp("xtream.dev.name")}\"")
+            buildConfigField("String", "M3U_DEV_URL", "\"${localProp("m3u.dev.url")}\"")
+            buildConfigField("String", "M3U_DEV_NAME", "\"${localProp("m3u.dev.name")}\"")
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            matchingFallbacks += listOf("release")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -143,6 +170,149 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
+    }
+
+    baselineProfile {
+        mergeIntoMain = true
+        saveInSrc = true
+        automaticGenerationDuringBuild = false
+    }
+
+    /**
+     * AGP emits startup and general profile captures as separate source files. Startup rules
+     * are also baseline rules, so keep the maintained baseline source as their union while
+     * preserving startup-prof.txt as the startup-only subset consumed for DEX layout.
+     */
+    abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val baselineProfile: RegularFileProperty
+
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val startupProfile: RegularFileProperty
+
+        @get:OutputFile
+        abstract val mergedProfile: RegularFileProperty
+
+        @get:OutputFile
+        abstract val mergedStartupProfile: RegularFileProperty
+
+        @TaskAction
+        fun merge() {
+            fun normalizeRule(rule: String): String = rule
+                .replace("\$app_nonMinifiedRelease", "\$streamvault_app")
+                .replace("\$app_beta", "\$streamvault_app")
+                .replace("\$app_release", "\$streamvault_app")
+
+            fun rules(file: java.io.File): List<String> = file.readLines()
+                .map(String::trim)
+                .filter { it.isNotEmpty() && !it.startsWith("#") }
+                .map(::normalizeRule)
+
+            fun ruleKey(rule: String): String {
+                val descriptorStart = rule.indexOf('L')
+                return if (descriptorStart >= 0 && rule.substring(0, descriptorStart)
+                        .all { it in "HSP" }
+                ) {
+                    rule.substring(descriptorStart)
+                } else {
+                    rule
+                }
+            }
+
+            fun mergeFlags(first: String, second: String): String {
+                val descriptorStart = first.indexOf('L')
+                if (descriptorStart < 0 || ruleKey(first) != ruleKey(second)) return first
+                val flags = (first.substring(0, descriptorStart) +
+                    second.substring(0, second.indexOf('L')))
+                    .toSet()
+                return buildString {
+                    "HSP".forEach { flag -> if (flag in flags) append(flag) }
+                    append(first.substring(descriptorStart))
+                }
+            }
+
+            fun deduplicate(input: List<String>): List<String> {
+                val output = ArrayList<String>(input.size)
+                val indexByKey = LinkedHashMap<String, Int>(input.size)
+                input.forEach { rule ->
+                    val key = ruleKey(rule)
+                    val existingIndex = indexByKey[key]
+                    if (existingIndex == null) {
+                        indexByKey[key] = output.size
+                        output += rule
+                    } else {
+                        output[existingIndex] = mergeFlags(output[existingIndex], rule)
+                    }
+                }
+                return output
+            }
+
+            val baselineRules = deduplicate(rules(baselineProfile.get().asFile))
+            val startupRules = deduplicate(rules(startupProfile.get().asFile))
+            val mergedRules = ArrayList<String>(baselineRules.size + startupRules.size)
+            val indexByKey = LinkedHashMap<String, Int>(baselineRules.size)
+            baselineRules.forEach { rule ->
+                val key = ruleKey(rule)
+                val existingIndex = indexByKey[key]
+                if (existingIndex == null) {
+                    indexByKey[key] = mergedRules.size
+                    mergedRules += rule
+                } else {
+                    mergedRules[existingIndex] = mergeFlags(mergedRules[existingIndex], rule)
+                }
+            }
+            startupRules.forEach { startupRule ->
+                val key = ruleKey(startupRule)
+                val existingIndex = indexByKey[key]
+                if (existingIndex == null) {
+                    indexByKey[key] = mergedRules.size
+                    mergedRules += startupRule
+                } else {
+                    mergedRules[existingIndex] = mergeFlags(mergedRules[existingIndex], startupRule)
+                }
+            }
+            val output = mergedProfile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(mergedRules.joinToString(separator = "\n", postfix = "\n"))
+            val normalizedStartupOutput = mergedStartupProfile.get().asFile
+            normalizedStartupOutput.parentFile.mkdirs()
+            normalizedStartupOutput.writeText(startupRules.joinToString(separator = "\n", postfix = "\n"))
+            logger.lifecycle(
+                "Merged startup rules into baseline source: " +
+                    "baseline=${baselineRules.size}, startup=${startupRules.size}, " +
+                    "merged=${mergedRules.size}."
+            )
+        }
+    }
+
+    val generatedProfileDirectory = layout.projectDirectory.dir("src/main/generated/baselineProfiles")
+    val mergeStartupRulesIntoBaselineProfile = tasks.register<MergeStartupRulesIntoBaselineProfileTask>(
+        "mergeStartupRulesIntoBaselineProfile"
+    ) {
+        baselineProfile.set(generatedProfileDirectory.file("baseline-prof.txt"))
+        startupProfile.set(generatedProfileDirectory.file("startup-prof.txt"))
+        mergedProfile.set(layout.buildDirectory.file("intermediates/merged-generated-baseline-profile/baseline-prof.txt"))
+        mergedStartupProfile.set(
+            layout.buildDirectory.file("intermediates/merged-generated-baseline-profile/startup-prof.txt")
+        )
+    }
+    val installMergedBaselineProfile = tasks.register<Copy>("installMergedBaselineProfile") {
+        dependsOn(mergeStartupRulesIntoBaselineProfile)
+        from(mergeStartupRulesIntoBaselineProfile.flatMap { it.mergedProfile }) {
+            rename { "baseline-prof.txt" }
+        }
+        from(mergeStartupRulesIntoBaselineProfile.flatMap { it.mergedStartupProfile }) {
+            rename { "startup-prof.txt" }
+        }
+        into(generatedProfileDirectory)
+    }
+    tasks.matching { it.name == "copyBaselineProfileIntoSrc" }.configureEach {
+        // The profile plugin owns this task and registers it after the app script is evaluated.
+        // Declare ordering explicitly so Gradle knows the merge consumes its copied outputs.
+        mergeStartupRulesIntoBaselineProfile.get().mustRunAfter(this)
+        finalizedBy(installMergedBaselineProfile)
     }
 
     compileOptions {
@@ -172,6 +342,13 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        // Keep Kotlin `internal` JVM names stable across release-like variants. Baseline
+        // profiles are collected from nonMinifiedRelease and packaged into both release and
+        // beta; variant-derived module names would otherwise make profile rules miss in beta.
+        // KGP/AGP supplies a variant-derived moduleName by default. Keep this explicit compiler
+        // argument last so profile rules collected from one variant match the internal JVM
+        // names packaged by every release-like variant.
+        freeCompilerArgs.add("-module-name=streamvault_app")
     }
 }
 
@@ -197,6 +374,8 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":player"))
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":benchmark"))
 
     // Compose BOM
     val composeBom = platform(libs.compose.bom)

@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -114,6 +115,9 @@ fun AppScreenScaffold(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .semantics {
+                contentDescription = "streamvault.destination:$currentRoute"
+            }
             .background(
                 Brush.linearGradient(
                     colors = listOf(

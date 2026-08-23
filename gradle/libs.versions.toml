@@ -9,6 +9,7 @@ compose-tv-foundation = "1.0.0-beta01"
 # Remaining experimental TV Material usage is limited to FilterChip in SearchScreen.
 compose-tv-material = "1.0.1"
 benchmark = "1.4.1"
+baselineprofile = "1.4.1"
 uiautomator = "2.3.0"
 arch-core = "2.2.0"
 profileinstaller = "1.4.1"
@@ -151,6 +152,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -527,7 +527,7 @@ class MultiViewViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(
                 pickerState = MultiViewPickerState(isLoading = true)
             )
-            val categories = channelRepository.getCategories(providerId).first()
+            val categories = channelRepository.getCategoriesSnapshot(providerId)
             _uiState.value = _uiState.value.copy(
                 pickerState = MultiViewPickerState(categories = categories)
             )

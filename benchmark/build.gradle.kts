@@ -9,6 +9,7 @@ if (keystorePropertiesFile.exists()) {
 
 plugins {
     alias(libs.plugins.android.test)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.android)
 }
 
@@ -29,6 +30,10 @@ android {
 
     targetProjectPath = ":app"
     experimentalProperties["android.experimental.self-instrumenting"] = true
+
+    baselineProfile {
+        useConnectedDevices = true
+    }
 
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
@@ -75,4 +80,10 @@ dependencies {
     implementation(libs.startup.runtime)
     implementation(libs.errorprone.annotations)
     implementation(libs.tracing)
+}
+
+// The baseline-profile plugin creates several target/build-type variants. Keep the validation
+// command from the architecture plan usable as a stable alias for the macrobenchmark variant.
+tasks.register("compileBenchmarkKotlin") {
+    dependsOn("compileBenchmarkBenchmarkKotlin")
 }

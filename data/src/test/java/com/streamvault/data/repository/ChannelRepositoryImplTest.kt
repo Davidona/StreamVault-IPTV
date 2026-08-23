@@ -17,6 +17,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -27,20 +29,26 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ChannelRepositoryImplTest {
 
     private val channelDao: ChannelDao = mock()
     private val categoryDao: CategoryDao = mock()
     private val favoriteDao: FavoriteDao = mock()
+    private val categoryFlowCache: ChannelCategoryFlowCache = mock()
     private val preferencesRepository: PreferencesRepository = mock()
     private val parentalControlManager: ParentalControlManager = mock()
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver = mock()
 
     @Before
     fun setUpDefaults() {
+        whenever(categoryFlowCache.getOrCreate(any(), any())).thenAnswer { invocation ->
+            invocation.getArgument<() -> Flow<List<com.streamvault.domain.model.Category>>>(1).invoke()
+        }
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(preferencesRepository.liveChannelNumberingMode).thenReturn(flowOf(ChannelNumberingMode.PROVIDER))
         whenever(preferencesRepository.liveChannelGroupingMode).thenReturn(flowOf(LiveChannelGroupingMode.GROUPED))
@@ -167,6 +175,65 @@ class ChannelRepositoryImplTest {
         val result = repository.getCategories(7L).first()
 
         assertThat(result.map { it.name to it.count }).containsExactly(
+            "All Channels" to 3,
+            "Kids" to 3
+        ).inOrder()
+    }
+
+    @Test
+    fun `getCategoriesSnapshot bypasses the category flow cache`() = runTest {
+        val categoryEntities = kotlinx.coroutines.flow.MutableStateFlow(
+            listOf(categoryEntity(id = 10L, name = "Old"))
+        )
+        val categoryCounts = kotlinx.coroutines.flow.MutableStateFlow(
+            listOf(CategoryCount(categoryId = 10L, item_count = 1))
+        )
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.LIVE.name)).thenReturn(categoryEntities)
+        whenever(channelDao.getGroupedCategoryCounts(7L)).thenReturn(categoryCounts)
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+
+        val repository = createRepository()
+        assertThat(repository.getCategories(7L).first().map { it.name }).containsExactly("All Channels", "Old")
+        verify(categoryFlowCache, times(1)).getOrCreate(eq(7L), any())
+
+        categoryEntities.value = listOf(categoryEntity(id = 20L, name = "New"))
+        categoryCounts.value = listOf(CategoryCount(categoryId = 20L, item_count = 2))
+
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name })
+            .containsExactly("All Channels", "New")
+        verify(categoryFlowCache, times(1)).getOrCreate(eq(7L), any())
+    }
+
+    @Test
+    fun `category visibility and counts update when parental preference changes`() = runTest {
+        val parentalLevel = MutableStateFlow(0)
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(parentalLevel)
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.LIVE.name)).thenReturn(
+            flowOf(
+                listOf(
+                    categoryEntity(id = 10L, name = "Kids"),
+                    categoryEntity(id = 20L, name = "Adults", isUserProtected = true)
+                )
+            )
+        )
+        whenever(channelDao.getGroupedCategoryCounts(7L)).thenReturn(
+            flowOf(
+                listOf(
+                    CategoryCount(categoryId = 10L, item_count = 3),
+                    CategoryCount(categoryId = 20L, item_count = 5)
+                )
+            )
+        )
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+
+        val repository = createRepository()
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name to it.count }).containsExactly(
+            "All Channels" to 8,
+            "Kids" to 3,
+            "Adults" to 5
+        ).inOrder()
+        parentalLevel.value = 3
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name to it.count }).containsExactly(
             "All Channels" to 3,
             "Kids" to 3
         ).inOrder()
@@ -411,6 +478,7 @@ class ChannelRepositoryImplTest {
         channelDao = channelDao,
         categoryDao = categoryDao,
         favoriteDao = favoriteDao,
+        categoryFlowCache = categoryFlowCache,
         preferencesRepository = preferencesRepository,
         parentalControlManager = parentalControlManager,
         xtreamStreamUrlResolver = xtreamStreamUrlResolver

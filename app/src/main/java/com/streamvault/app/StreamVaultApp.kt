@@ -10,64 +10,33 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import com.streamvault.app.diagnostics.CrashReportStore
 import com.streamvault.app.diagnostics.RuntimeDiagnosticsManager
-import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.ui.accessibility.isReducedMotionEnabled
 import com.streamvault.data.remote.jellyfin.JellyfinImageAuthInterceptor
-import com.streamvault.domain.repository.DownloadManager
-import com.streamvault.domain.manager.ProgramReminderManager
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import okio.Path.Companion.toOkioPath
 
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.streamvault.data.manager.recording.RecordingReconcileWorker
-import com.streamvault.data.manager.PendingBackupRestoreCoordinator
-import com.streamvault.data.sync.ProviderSyncWorker
-import com.streamvault.data.sync.XtreamIndexWorker
-import com.streamvault.data.sync.ProviderSyncLifecycle
-import com.streamvault.player.timeshift.TimeshiftDiskManager
 import javax.inject.Inject
+import javax.inject.Provider
 import okhttp3.OkHttpClient
 
 @HiltAndroidApp
 class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     private val runtimeDiagnosticsManager by lazy { RuntimeDiagnosticsManager(this) }
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Inject
-    lateinit var okHttpClient: OkHttpClient
+    lateinit var okHttpClient: Provider<OkHttpClient>
 
     @Inject
-    lateinit var jellyfinImageAuthInterceptor: JellyfinImageAuthInterceptor
+    lateinit var jellyfinImageAuthInterceptor: Provider<JellyfinImageAuthInterceptor>
 
     @Inject
-    lateinit var providerSyncLifecycle: ProviderSyncLifecycle
-
-    @Inject
-    lateinit var downloadManager: DownloadManager
-
-    @Inject
-    lateinit var streamVaultPluginManager: StreamVaultPluginManager
-
-    @Inject
-    lateinit var programReminderManager: ProgramReminderManager
-
-    @Inject
-    lateinit var startupWorkRegistry: StartupWorkRegistry
-
-    @Inject
-    lateinit var pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator
+    internal lateinit var appStartupCoordinator: AppStartupCoordinator
 
     private val imageOkHttpClient: OkHttpClient by lazy {
-        okHttpClient.newBuilder()
-            .addInterceptor(jellyfinImageAuthInterceptor)
+        okHttpClient.get().newBuilder()
+            .addInterceptor(jellyfinImageAuthInterceptor.get())
             .build()
     }
 
@@ -75,28 +44,7 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         CrashReportStore.install(this)
         runtimeDiagnosticsManager.start()
-        applicationScope.launch {
-            // Clean up any timeshift temp directories left behind by crashes, OOM kills, or
-            // force-stops from the previous run. activeSessionDir = null means wipe everything.
-            TimeshiftDiskManager(applicationContext).cleanupStaleDirectories(activeSessionDir = null)
-        }
-        applicationScope.launch {
-            downloadManager.recoverInterruptedDownloads()
-        }
-        applicationScope.launch {
-            streamVaultPluginManager.reconcilePluginProviders()
-        }
-        applicationScope.launch {
-            programReminderManager.restoreScheduledReminders()
-        }
-        applicationScope.launch {
-            providerSyncLifecycle.reconcileStalkerIndexWorkAtStartup()
-        }
-        applicationScope.launch {
-            pendingBackupRestoreCoordinator.applyAllAvailable()
-        }
-        
-        startupWorkRegistry.register()
+        appStartupCoordinator.startProcessMaintenance()
     }
 
     override fun onTerminate() {

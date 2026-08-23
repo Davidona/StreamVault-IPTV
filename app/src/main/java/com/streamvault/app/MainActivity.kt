@@ -9,7 +9,7 @@ import android.os.StrictMode
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.doOnPreDraw
 import com.streamvault.app.cast.CastManager
 import com.streamvault.app.cast.CastRouteChooserActivity
 import com.streamvault.app.backup.BackupFileBridge
@@ -19,9 +19,6 @@ import com.streamvault.app.navigation.AppNavigation
 import com.streamvault.app.navigation.ExternalDestination
 import com.streamvault.app.navigation.ExternalNavigationRequest
 import com.streamvault.app.navigation.PlayerNavigationRequest
-import com.streamvault.app.tv.LauncherRecommendationsManager
-import com.streamvault.app.tv.WatchNextManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.app.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.domain.repository.ChannelRepository
@@ -56,7 +53,6 @@ import android.speech.RecognizerIntent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -94,13 +90,7 @@ class MainActivity : ComponentActivity() {
     lateinit var providerRepository: ProviderRepository
 
     @Inject
-    lateinit var watchNextManager: WatchNextManager
-
-    @Inject
-    lateinit var launcherRecommendationsManager: LauncherRecommendationsManager
-
-    @Inject
-    lateinit var tvInputChannelSyncManager: TvInputChannelSyncManager
+    internal lateinit var appStartupCoordinator: AppStartupCoordinator
 
     @Inject
     lateinit var castManager: CastManager
@@ -135,11 +125,6 @@ class MainActivity : ComponentActivity() {
             // Lock TVs to landscape — the manifest uses "unspecified" so phones/tablets
             // can freely rotate, but TV UI is designed for landscape only.
             requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-            lifecycleScope.launch {
-                watchNextManager.refreshWatchNext()
-                launcherRecommendationsManager.refreshRecommendations()
-                tvInputChannelSyncManager.refreshTvInputCatalog()
-            }
         }
         setContent {
             val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
@@ -188,6 +173,11 @@ class MainActivity : ComponentActivity() {
                 StreamVaultTheme {
                     AppNavigation(mainActivity = this@MainActivity)
                 }
+            }
+        }
+        window.decorView.doOnPreDraw {
+            window.decorView.post {
+                appStartupCoordinator.onFirstUiFrameDrawn(isTelevisionDevice())
             }
         }
     }

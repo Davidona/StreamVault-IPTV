@@ -759,6 +759,86 @@ Exit criteria:
 - Measurable reduction in recomposed scopes or frame cost on at least one identified hot flow.
 - No material regression on reference devices.
 
+### Phase 2.5A - Hardened live-category flow caching
+
+Purpose: isolate the live-category replay optimization from Compose state
+isolation and preserve fresh command-style reads.
+
+Deliverables:
+
+- Cache one replayed `ChannelRepository.getCategories(providerId)` flow per
+  provider in the data layer, backed by Room and evicted when the provider is
+  removed.
+- Keep `getCategoriesSnapshot(providerId)` as an explicit fresh one-shot API
+  for command-style callers; do not make `first()` read from the replay cache.
+- Cover replay, active Room updates, duplicate suppression, preference changes,
+  provider deletion/recreation, and fresh snapshot behavior with focused tests.
+- Measure category entry/re-entry or query work separately from Phase 2
+  recomposition and frame-cost evidence.
+
+Exit criteria:
+
+- No stale one-shot category reads or cached data surviving provider deletion.
+- Shared collectors reuse one upstream category computation.
+- Existing grouping, counts, parental filtering, and decorative-row behavior
+  remain unchanged.
+- Benchmark evidence demonstrates reduced repeated category work or faster
+  category re-entry. If the available emulator cannot measure query work
+  reliably, record the limitation rather than treating rendering metrics as a
+  cache win.
+
+Implementation/report: [`COMPOSE_REDUCTION_PHASE2_5A_REPORT.md`](COMPOSE_REDUCTION_PHASE2_5A_REPORT.md).
+
+### Phase 2.5B - Baseline-profile and startup optimization
+
+Purpose: separate startup refactoring from baseline-profile generation and
+measure each benefit independently. This is the maintained replacement for the
+baseline-profile portion of PR #162; PR #162's generated files are not reused.
+
+Deliverables:
+
+- Capture a ten-iteration cold-start `CompilationMode.None()` baseline before
+  the startup refactor, including TTID, artifacts, DEX counts, device details,
+  and trace references.
+- Move process maintenance behind an internal singleton
+  `AppStartupCoordinator`: process-only work starts once from
+  `StreamVaultApp`, while Watch Next, launcher recommendations, and TV-input
+  refresh wait for a one-shot `MainActivity` first-frame signal on televisions.
+  Expensive dependencies are injected through `Provider<T>`, task failures are
+  isolated with supervisor semantics, and coordinator/task trace sections are
+  named.
+- Use the existing `:benchmark` module as the only profile producer. Apply the
+  AndroidX Baseline Profile plugin at `1.4.1` to `:app` and `:benchmark`, merge
+  one maintained profile into the main app, save generated sources only under
+  `app/src/main/generated/baselineProfiles/`, and keep ordinary builds from
+  generating profiles automatically.
+- Guard profile collection with seeded Home and `All Channels` assertions.
+  Keep `startup` limited to cold launch and ready Home; keep Home, Live TV,
+  EPG, and player-control traversal in the independently collected
+  `criticalJourneys` profile.
+- Provide controlled `coldStartupNoCompilation()` and
+  `coldStartupWithBaselineProfile()` benchmarks with ten iterations and
+  `StartupTimingMetric`; the treatment must use
+  `BaselineProfileMode.Require`.
+- Verify source separation/subset rules, compiled beta/release profiles,
+  startup-optimized R8 metadata, secret-free shipping artifacts, and the
+  artifact-size budget.
+
+Exit criteria:
+
+- Code and tooling checks pass, generated sources are nonempty and distinct,
+  and profile packaging is proven for beta and release.
+- Post-refactor/no-profile and with-profile measurements are compared against
+  the pre-2.5B baseline. Emulator results are diagnostic only.
+- A constrained physical TV completes two ten-iteration comparisons: no
+  profile does not regress median/P90 TTID by more than 5%, with-profile median
+  is at least 5% faster in both comparisons, with-profile P90 is not more than
+  5% slower, and traces show TV integration work after the first UI frame.
+- Keep generated profile output uncommitted until packaging and the physical
+  performance gate succeed. Record open gates in the phase report.
+
+Implementation/report: [`COMPOSE_REDUCTION_PHASE2_5B_REPORT.md`](COMPOSE_REDUCTION_PHASE2_5B_REPORT.md).
+
 ### Phase 3 - Core UI boundary
 
 Purpose: create a stable reusable presentation foundation.
@@ -1066,7 +1146,7 @@ PR [#162](https://github.com/Davidona/StreamVault-IPTV/pull/162) is directionall
 | Split Home preview state from `HomeUiState` | Directly advances Phase 2 runtime state isolation and the current route/state boundary work | Good merge candidate after Home preview, fullscreen handoff, cleanup, and loading/error tests pass |
 | Cache live category flows per provider | Useful data/runtime optimization, but not specifically a Compose refactor | Keep as a separate data-layer change; add replay, refresh, preference-change, provider-removal, and one-shot `first()` tests before merging |
 | `compose-stability.conf` for all `domain.model` classes | Supports the stability goal, but the wildcard is broader than the proof currently provides | Do not accept unchanged; audit every UI-facing model and replace the wildcard with a verified allowlist or genuinely immutable UI models |
-| Baseline profile module and generated profiles | Fits Phase 0/benchmark infrastructure and later startup optimization | Keep the tooling concept, but do not reuse the generated files unchanged; redesign the journeys, regenerate on current `develop`, and validate release/beta behavior before committing output |
+| Baseline profile module and generated profiles | Fits Phase 2.5B startup/profile optimization | Keep the Gradle/profile-installation concept, but use the existing `:benchmark` producer, separate startup from critical journeys, regenerate on current code, and validate release/beta behavior before committing output |
 
 The Home preview split is the part most directly connected to this Compose plan. The stability configuration is the highest correctness risk because Kotlin `List`/`Map` properties are not immutable by type, even when the containing model uses `val` properties. The category cache also needs explicit freshness tests because `shareIn(replay = 1)` changes the behavior of callers that use `first()`.
 
@@ -1079,6 +1159,21 @@ Recommended integration order:
 3. Narrow and validate the stability configuration separately.
 4. Add baseline-profile generation separately after the benchmark/device setup is available.
 5. Synchronize `feature/improveCompose` with the resulting `develop` and rerun Phase 0 measurements.
+
+Execution update (2026-08-22): the category cache is implemented and reported
+as Phase 2.5A, and the startup coordinator/profile tooling is implemented and
+reported as Phase 2.5B. The API 36 TV emulator proves profile collection and
+shipping packaging for beta, release APK, and release AAB, and provides a
+diagnostic startup benefit. The Phase 2.5B physical-device and release-APK-size
+gates remain open; generated profile output is therefore not yet a
+release-approved artifact.
+
+Phase 2.5A measurement update (2026-08-22): the category re-entry
+Macrobenchmark now counts both category presentation builds and shared-flow
+upstream starts. Five seeded emulator iterations observed 0/0/0 for build and
+upstream-start min/median/max, with frame counts of 49/51/53. This confirms no
+restart in that journey but is not yet a quantified pre/post cache comparison;
+the direct Room-query and physical-device gates remain open.
 
 ### 19.1 Baseline profile maintenance policy
 

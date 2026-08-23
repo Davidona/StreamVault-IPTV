@@ -92,6 +92,7 @@ dependencies {
     // Core
     implementation(libs.core.ktx)
     implementation(libs.documentfile)
+    implementation(libs.tracing)
 
     // Unit tests
     testImplementation(libs.junit)

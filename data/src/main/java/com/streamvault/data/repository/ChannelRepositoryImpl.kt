@@ -2,6 +2,7 @@ package com.streamvault.data.repository
 
 import android.database.sqlite.SQLiteException
 import android.util.Log
+import androidx.tracing.Trace
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.FavoriteDao
@@ -51,12 +52,14 @@ class ChannelRepositoryImpl @Inject constructor(
     private val channelDao: ChannelDao,
     private val categoryDao: CategoryDao,
     private val favoriteDao: FavoriteDao,
+    private val categoryFlowCache: ChannelCategoryFlowCache,
     private val preferencesRepository: PreferencesRepository,
     private val parentalControlManager: com.streamvault.domain.manager.ParentalControlManager,
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver
 ) : ChannelRepository {
     private companion object {
         const val TAG = "ChannelRepository"
+        const val CATEGORY_FLOW_BUILD_TRACE = "StreamVault.CategoryFlow.Build"
         const val GLOBAL_SEARCH_LIMIT = 500
         const val CATEGORY_SEARCH_LIMIT = 300
         const val MIN_SEARCH_QUERY_LENGTH = 2
@@ -165,37 +168,48 @@ class ChannelRepositoryImpl @Inject constructor(
             .let { flow -> observeChannels(flow, providerId) }
 
     override fun getCategories(providerId: Long): Flow<List<Category>> =
+        categoryFlowCache.getOrCreate(providerId) { buildCategoriesFlow(providerId) }
+
+    override suspend fun getCategoriesSnapshot(providerId: Long): List<Category> =
+        buildCategoriesFlow(providerId).first()
+
+    private fun buildCategoriesFlow(providerId: Long): Flow<List<Category>> =
         combine(
             categoryDao.getByProviderAndType(providerId, ContentType.LIVE.name),
             decorativeAwareCategoryCountFlow(providerId),
             preferencesRepository.parentalControlLevel,
             parentalControlManager.unlockedCategoriesForProvider(providerId)
         ) { categories: List<CategoryEntity>, categoryCounts: List<CategoryCount>, level: Int, unlockedCats: Set<Long> ->
-            val countMap = categoryCounts.associate { count -> count.categoryId to count.item_count }
-            val countedCategories = categories.map { entity ->
-                entity.toDomain().copy(count = countMap[entity.categoryId] ?: 0)
-            }
-            val visibleCategories = if (level >= 3) {
-                countedCategories.filter { category -> !category.isAdult && !category.isUserProtected }
-            } else {
-                countedCategories
-            }
-            val filteredCategories = visibleCategories.map { category ->
-                if (level < 3 && unlockedCats.contains(category.id)) {
-                    category.copy(isUserProtected = false)
-                } else {
-                    category
+            Trace.beginSection(CATEGORY_FLOW_BUILD_TRACE)
+            try {
+                val countMap = categoryCounts.associate { count -> count.categoryId to count.item_count }
+                val countedCategories = categories.map { entity ->
+                    entity.toDomain().copy(count = countMap[entity.categoryId] ?: 0)
                 }
+                val visibleCategories = if (level >= 3) {
+                    countedCategories.filter { category -> !category.isAdult && !category.isUserProtected }
+                } else {
+                    countedCategories
+                }
+                val filteredCategories = visibleCategories.map { category ->
+                    if (level < 3 && unlockedCats.contains(category.id)) {
+                        category.copy(isUserProtected = false)
+                    } else {
+                        category
+                    }
+                }
+
+                val allChannelsCategory = Category(
+                    id = ChannelRepository.ALL_CHANNELS_ID,
+                    name = "All Channels",
+                    type = ContentType.LIVE,
+                    count = filteredCategories.sumOf(Category::count)
+                )
+
+                listOf(allChannelsCategory) + filteredCategories
+            } finally {
+                Trace.endSection()
             }
-
-            val allChannelsCategory = Category(
-                id = ChannelRepository.ALL_CHANNELS_ID,
-                name = "All Channels",
-                type = ContentType.LIVE,
-                count = filteredCategories.sumOf(Category::count)
-            )
-
-            listOf(allChannelsCategory) + filteredCategories
         }.flowOn(Dispatchers.Default)
 
     override fun searchChannels(providerId: Long, query: String): Flow<List<Channel>> {

@@ -1,8 +1,12 @@
 package com.streamvault.benchmark
 
 import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
+import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -12,17 +16,32 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalMetricApi::class)
 class StreamVaultMacrobenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun coldStartup() = benchmarkRule.measureRepeated(
+    fun coldStartupNoCompilation() = benchmarkRule.measureRepeated(
         packageName = RELEASE_TARGET_PACKAGE,
         metrics = listOf(StartupTimingMetric()),
+        compilationMode = CompilationMode.None(),
         startupMode = StartupMode.COLD,
-        iterations = BENCHMARK_ITERATIONS
+        iterations = STARTUP_BENCHMARK_ITERATIONS
+    ) {
+        startTargetApp()
+    }
+
+    @Test
+    fun coldStartupWithBaselineProfile() = benchmarkRule.measureRepeated(
+        packageName = RELEASE_TARGET_PACKAGE,
+        metrics = listOf(StartupTimingMetric()),
+        compilationMode = CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Require
+        ),
+        startupMode = StartupMode.COLD,
+        iterations = STARTUP_BENCHMARK_ITERATIONS
     ) {
         startTargetApp()
     }
@@ -48,9 +67,45 @@ class StreamVaultMacrobenchmark {
         iterations = BENCHMARK_ITERATIONS,
         setupBlock = {
             openTopLevelDestination("Live TV")
+            waitForLiveCategoryAvailability()
         }
     ) {
         devicePressDPadNavigation()
+    }
+
+    @Test
+    fun liveTvCategoryReentryCategoryBuild() = benchmarkRule.measureRepeated(
+        packageName = SEEDED_DEBUG_PACKAGE,
+        metrics = listOf(
+            TraceSectionMetric(
+                sectionName = "StreamVault.CategoryFlow.Build",
+                mode = TraceSectionMetric.Mode.Count,
+                label = "categoryBuildCount",
+                targetPackageOnly = true
+            ),
+            TraceSectionMetric(
+                sectionName = "StreamVault.CategoryFlow.UpstreamStart",
+                mode = TraceSectionMetric.Mode.Count,
+                label = "categoryUpstreamStartCount",
+                targetPackageOnly = true
+            ),
+            FrameTimingMetric()
+        ),
+        startupMode = StartupMode.WARM,
+        iterations = BENCHMARK_ITERATIONS,
+        setupBlock = {
+            openTopLevelDestination("Live TV")
+            waitForLiveCategoryAvailability()
+        }
+    ) {
+        // Leave and re-enter the same route inside the measured block. The trace count records
+        // category construction separately from frame timing, so a replay hit is observable
+        // even when UI rendering is noisy on an emulator.
+        navigateToTopLevelDestination("Home")
+        assertDestination("Home")
+        navigateToTopLevelDestination("Live TV")
+        assertDestination("Live TV")
+        waitForLiveCategoryAvailability()
     }
 
     @Test
@@ -93,7 +148,7 @@ class StreamVaultMacrobenchmark {
     }
 }
 
-private fun devicePressDPadNavigation() {
+internal fun devicePressDPadNavigation() {
     val device = androidx.test.uiautomator.UiDevice.getInstance(
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
     )
