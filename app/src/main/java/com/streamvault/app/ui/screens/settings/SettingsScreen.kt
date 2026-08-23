@@ -31,11 +31,11 @@ import com.streamvault.app.util.OfficialBuildVerifier
 import com.streamvault.app.ui.components.shell.AppTopBarCloseAction
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.LegacyProvider as Provider
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.requestFocusSafely
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

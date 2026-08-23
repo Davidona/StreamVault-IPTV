@@ -101,15 +101,15 @@ import kotlinx.coroutines.launch
 import com.streamvault.app.ui.components.dialogs.PinDialog
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnBackground
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.OnSurfaceDim
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.SurfaceElevated
-import com.streamvault.app.ui.theme.SurfaceHighlight
-import com.streamvault.app.ui.theme.TextPrimary
-import com.streamvault.app.ui.theme.TextSecondary
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.theme.TextPrimary
+import com.streamvault.core.ui.theme.TextSecondary
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.EpgMatchType
@@ -271,7 +271,7 @@ fun FullEpgScreen(
             title = {
                 androidx.compose.material3.Text(
                     text = stringResource(R.string.epg_recording_conflict_title),
-                    color = com.streamvault.app.ui.theme.OnSurface
+                    color = com.streamvault.core.ui.theme.OnSurface
                 )
             },
             text = {
@@ -280,7 +280,7 @@ fun FullEpgScreen(
                 }
                 androidx.compose.material3.Text(
                     text = stringResource(R.string.epg_recording_conflict_body, conflict.programTitle, conflictNames),
-                    color = com.streamvault.app.ui.theme.TextSecondary
+                    color = com.streamvault.core.ui.theme.TextSecondary
                 )
             },
             confirmButton = {
@@ -293,7 +293,7 @@ fun FullEpgScreen(
                 ) {
                     androidx.compose.material3.Text(
                         text = stringResource(R.string.epg_recording_conflict_replace),
-                        color = com.streamvault.app.ui.theme.Primary
+                        color = com.streamvault.core.ui.theme.Primary
                     )
                 }
             },
@@ -301,13 +301,13 @@ fun FullEpgScreen(
                 androidx.compose.material3.TextButton(onClick = { viewModel.dismissRecordingConflict() }) {
                     androidx.compose.material3.Text(
                         text = stringResource(R.string.epg_recording_conflict_cancel),
-                        color = com.streamvault.app.ui.theme.OnSurface
+                        color = com.streamvault.core.ui.theme.OnSurface
                     )
                 }
             },
-            containerColor = com.streamvault.app.ui.theme.SurfaceElevated,
-            titleContentColor = com.streamvault.app.ui.theme.OnSurface,
-            textContentColor = com.streamvault.app.ui.theme.TextSecondary
+            containerColor = com.streamvault.core.ui.theme.SurfaceElevated,
+            titleContentColor = com.streamvault.core.ui.theme.OnSurface,
+            textContentColor = com.streamvault.core.ui.theme.TextSecondary
         )
     }
 

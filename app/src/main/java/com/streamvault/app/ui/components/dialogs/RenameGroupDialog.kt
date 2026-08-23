@@ -1,4 +1,4 @@
-﻿package com.streamvault.app.ui.components.dialogs
+package com.streamvault.app.ui.components.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.text.KeyboardActions
@@ -40,16 +40,16 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.ui.design.requestFocusSafely
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.OnSurfaceDim
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
 
 @Composable
 fun RenameGroupDialog(

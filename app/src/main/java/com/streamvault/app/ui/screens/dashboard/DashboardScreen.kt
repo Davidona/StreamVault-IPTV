@@ -65,17 +65,17 @@ import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppHeroHeader
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createDateTimeFormat
-import com.streamvault.app.ui.design.AppColors.Brand as Primary
-import com.streamvault.app.ui.design.AppColors.Focus as FocusBorder
-import com.streamvault.app.ui.design.AppColors.SurfaceElevated as SurfaceElevated
-import com.streamvault.app.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
-import com.streamvault.app.ui.design.AppColors.TextPrimary as OnBackground
-import com.streamvault.app.ui.design.AppColors.TextPrimary as TextPrimary
-import com.streamvault.app.ui.design.AppColors.TextTertiary as OnSurfaceDim
-import com.streamvault.app.ui.design.AppColors.TextTertiary as TextTertiary
+import com.streamvault.core.ui.design.AppColors.Brand as Primary
+import com.streamvault.core.ui.design.AppColors.Focus as FocusBorder
+import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceElevated
+import com.streamvault.core.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
+import com.streamvault.core.ui.design.AppColors.TextPrimary as OnBackground
+import com.streamvault.core.ui.design.AppColors.TextPrimary as TextPrimary
+import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.AppColors.TextTertiary as TextTertiary
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel

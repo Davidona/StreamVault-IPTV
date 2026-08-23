@@ -39,11 +39,11 @@ import androidx.tv.material3.*
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createDateTimeFormat
 import com.streamvault.domain.model.ActiveLiveSource

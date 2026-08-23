@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

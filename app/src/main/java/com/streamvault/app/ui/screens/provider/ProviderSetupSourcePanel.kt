@@ -18,7 +18,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 
 @Composable
 internal fun SourceTypeSelectorPanel(

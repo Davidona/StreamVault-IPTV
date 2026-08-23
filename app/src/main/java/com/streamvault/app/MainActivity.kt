@@ -19,7 +19,7 @@ import com.streamvault.app.navigation.AppNavigation
 import com.streamvault.app.navigation.ExternalDestination
 import com.streamvault.app.navigation.ExternalNavigationRequest
 import com.streamvault.app.navigation.PlayerNavigationRequest
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.CombinedM3uRepository

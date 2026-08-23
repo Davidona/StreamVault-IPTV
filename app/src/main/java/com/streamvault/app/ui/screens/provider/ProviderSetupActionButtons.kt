@@ -19,11 +19,11 @@ import androidx.tv.material3.Glow
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnBackground
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.PrimaryLight
-import com.streamvault.app.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.PrimaryLight
+import com.streamvault.core.ui.theme.SurfaceHighlight
 
 @Composable
 internal fun ActionButton(

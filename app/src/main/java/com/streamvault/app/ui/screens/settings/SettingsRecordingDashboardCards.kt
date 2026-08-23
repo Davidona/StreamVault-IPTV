@@ -26,14 +26,14 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.theme.ErrorColor
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnBackground
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.OnSurfaceDim
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.Secondary
-import com.streamvault.app.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.Secondary
+import com.streamvault.core.ui.theme.SurfaceElevated
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

@@ -24,7 +24,7 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Category
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.shape.CircleShape

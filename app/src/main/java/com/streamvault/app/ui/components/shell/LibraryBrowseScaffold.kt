@@ -39,9 +39,9 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.ui.components.SearchInput
 import com.streamvault.app.ui.components.rememberCrossfadeImageModel
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.FocusSpec
-import com.streamvault.app.ui.design.LocalAppSpacing
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.interaction.TvIconButton

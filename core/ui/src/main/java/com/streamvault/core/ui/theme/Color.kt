@@ -1,7 +1,7 @@
-package com.streamvault.app.ui.theme
+package com.streamvault.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 
 val Primary = AppColors.Brand
 val PrimaryLight = AppColors.BrandStrong

@@ -61,7 +61,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.model.archivePlaybackCapability
 import com.streamvault.app.ui.screens.player.playerCategoryOverlayItemKey
 import com.streamvault.app.ui.screens.player.playerChannelOverlayItemKey
@@ -75,10 +75,10 @@ import com.streamvault.domain.model.Program
 import com.streamvault.player.PlayerStats
 import java.util.Date
 import kotlinx.coroutines.launch
-import com.streamvault.app.ui.design.AppColors.Brand as Primary
-import com.streamvault.app.ui.design.AppColors.SurfaceElevated as SurfaceVariant
-import com.streamvault.app.ui.design.AppColors.TextSecondary as TextSecondary
-import com.streamvault.app.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.AppColors.Brand as Primary
+import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceVariant
+import com.streamvault.core.ui.design.AppColors.TextSecondary as TextSecondary
+import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
 
 @Composable
 fun ChannelListOverlay(

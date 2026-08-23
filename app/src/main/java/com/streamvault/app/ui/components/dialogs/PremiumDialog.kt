@@ -45,10 +45,10 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.FocusSpec
 
 internal val LocalDialogCanInteract = compositionLocalOf { true }
 

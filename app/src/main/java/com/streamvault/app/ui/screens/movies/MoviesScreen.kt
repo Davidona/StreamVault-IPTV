@@ -48,7 +48,7 @@ import com.streamvault.app.ui.components.SelectionChipRow
 import com.streamvault.app.ui.components.SavedCategoryContextCard
 import com.streamvault.app.ui.components.SavedCategoryShortcut
 import com.streamvault.app.ui.components.SavedCategoryShortcutsRow
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
@@ -83,8 +83,8 @@ import com.streamvault.app.ui.components.shell.VodClassicContentHeader
 import com.streamvault.app.ui.components.shell.VodClassicSplitLayout
 import com.streamvault.app.ui.components.shell.VodHeroStrip
 import com.streamvault.app.ui.components.shell.VodSectionHeader
-import com.streamvault.app.ui.design.FocusRestoreHost
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.FocusRestoreHost
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.app.ui.model.VodViewMode
 import com.streamvault.app.ui.screens.vod.HandleVodUserMessage
 import com.streamvault.app.ui.screens.vod.ProtectedVodPinDialog

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.design
+package com.streamvault.core.ui.design
 
 import android.os.Build
 import androidx.compose.runtime.Composable
@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Typography
-import com.streamvault.app.R
+import com.streamvault.core.ui.R
 import java.util.Locale
 
 val InterFamily = FontFamily(

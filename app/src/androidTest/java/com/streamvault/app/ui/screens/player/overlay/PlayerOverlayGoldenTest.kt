@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.ui.test.TestFixtures
 import com.streamvault.app.ui.test.assertAgainstGolden
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.player.PlayerError
 import com.streamvault.player.TrackType
 import org.junit.Rule

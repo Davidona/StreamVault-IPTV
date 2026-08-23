@@ -17,7 +17,7 @@ import com.streamvault.app.ui.components.shell.CategoryRailPanel
 import com.streamvault.app.ui.screens.player.overlay.PlayerControlsOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.app.ui.test.TestFixtures
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.player.TrackType
 import org.junit.Rule
 import org.junit.Test

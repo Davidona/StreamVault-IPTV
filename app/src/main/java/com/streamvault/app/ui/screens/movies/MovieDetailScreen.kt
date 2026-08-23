@@ -63,8 +63,8 @@ import com.streamvault.app.util.formatPositionMs
 import com.streamvault.app.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.ExternalRatingsStrip
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.app.ui.model.formatVodRatingLabel
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie

@@ -77,8 +77,8 @@ import com.streamvault.app.ui.screens.player.SeekPreviewState
 import com.streamvault.app.ui.screens.player.SleepTimerUiState
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
-import com.streamvault.app.ui.theme.ErrorColor
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus

@@ -10,7 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.tv.material3.MaterialTheme
 import com.streamvault.app.R
 import com.streamvault.app.pairing.ProviderQrPairingState
-import com.streamvault.app.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.domain.model.StalkerAuthMode
 
 @Composable

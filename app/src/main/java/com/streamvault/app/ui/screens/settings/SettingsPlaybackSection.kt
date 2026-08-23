@@ -26,9 +26,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.theme.OnBackground
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.LiveStreamFormatMode
 
 internal fun LazyListScope.settingsPlaybackSection(

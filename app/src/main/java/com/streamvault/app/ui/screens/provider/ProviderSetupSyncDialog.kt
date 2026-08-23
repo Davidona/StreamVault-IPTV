@@ -31,7 +31,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.extractProgressFraction
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 
 @Composable
 fun SyncProgressDialog(

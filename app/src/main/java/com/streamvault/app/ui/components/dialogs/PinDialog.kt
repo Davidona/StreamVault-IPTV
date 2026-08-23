@@ -22,15 +22,15 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.ErrorColor
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.SurfaceElevated
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.requestFocusSafely
 import kotlinx.coroutines.delay
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.FocusSpec
 import androidx.tv.material3.Border
 
 /**

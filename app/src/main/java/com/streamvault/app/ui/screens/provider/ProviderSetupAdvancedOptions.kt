@@ -27,7 +27,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy

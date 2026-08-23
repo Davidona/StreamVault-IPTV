@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import java.util.Locale
 
 @Composable

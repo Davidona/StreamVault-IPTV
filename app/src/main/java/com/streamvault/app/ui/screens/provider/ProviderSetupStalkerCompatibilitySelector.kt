@@ -11,8 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.ui.theme.AccentAmber
-import com.streamvault.app.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.AccentAmber
+import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProfileVerification

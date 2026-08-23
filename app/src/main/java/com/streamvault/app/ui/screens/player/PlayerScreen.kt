@@ -42,7 +42,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.*
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.StreamInfo
@@ -74,7 +74,7 @@ import com.streamvault.app.R
 import com.streamvault.app.MainActivity
 import com.streamvault.app.cast.CastConnectionState
 import com.streamvault.app.ui.components.PlayerRenderView
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.app.ui.notifications.rememberNotificationPermissionGate
 import com.streamvault.app.ui.screens.player.overlay.ChannelInfoOverlay
 import com.streamvault.app.ui.screens.player.overlay.CategoryListOverlay

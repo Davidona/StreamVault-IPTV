@@ -22,10 +22,10 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.streamvault.app.R
 import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.theme.AccentCyan
-import com.streamvault.app.ui.theme.TextPrimary
-import com.streamvault.app.ui.theme.TextSecondary
-import com.streamvault.app.ui.theme.TextTertiary
+import com.streamvault.core.ui.theme.AccentCyan
+import com.streamvault.core.ui.theme.TextPrimary
+import com.streamvault.core.ui.theme.TextSecondary
+import com.streamvault.core.ui.theme.TextTertiary
 
 @Composable
 internal fun JellyfinProviderForm(

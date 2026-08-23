@@ -20,7 +20,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.EpgSource
 import com.streamvault.domain.model.ProviderEpgSourceAssignment

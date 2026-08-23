@@ -37,7 +37,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.BuildConfig
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.data.sync.SyncProgressBus
 import com.streamvault.data.sync.SyncProgressAggregate

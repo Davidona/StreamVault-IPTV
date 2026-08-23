@@ -78,14 +78,14 @@ import com.streamvault.app.R
 import com.streamvault.app.MainActivity
 import com.streamvault.app.navigation.toAppRoute
 import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.AppMotion
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.AppMotion
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.mouseClickable
 import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
 import com.streamvault.app.ui.interaction.TvIconButton
-import com.streamvault.app.ui.design.LocalAppShapes
-import com.streamvault.app.ui.design.LocalAppSpacing
+import com.streamvault.core.ui.design.LocalAppShapes
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.CatalogLayout
 

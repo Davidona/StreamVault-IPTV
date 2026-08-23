@@ -55,9 +55,9 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.ChannelLogoBadge
 import com.streamvault.app.ui.components.channelProgressFraction
 import com.streamvault.app.ui.components.rememberCrossfadeImageModel
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.AppMotion
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.AppMotion
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.mouseClickable
 import com.streamvault.app.ui.interaction.rememberTvInteractionSounds
 import com.streamvault.app.ui.model.archivePlaybackCapability

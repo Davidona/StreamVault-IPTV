@@ -42,8 +42,8 @@ import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.domain.model.Channel
 import kotlinx.coroutines.delay
 import com.streamvault.app.ui.interaction.TvClickableSurface

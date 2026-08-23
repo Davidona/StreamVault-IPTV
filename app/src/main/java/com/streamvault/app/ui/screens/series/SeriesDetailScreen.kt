@@ -67,7 +67,7 @@ import com.streamvault.app.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.EpisodeRowCard
 import com.streamvault.app.ui.components.shell.ExternalRatingsStrip
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.model.formatVodRatingLabel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings

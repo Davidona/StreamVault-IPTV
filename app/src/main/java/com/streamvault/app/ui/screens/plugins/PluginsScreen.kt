@@ -62,12 +62,12 @@ import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.TvButton
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.Primary
 
 @Composable
 fun PluginsScreen(

@@ -49,7 +49,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.ChannelLogoBadge
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.model.archivePlaybackCapability
 import com.streamvault.app.ui.model.isArchivePlayable
@@ -61,8 +61,8 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.player.timeshift.LiveTimeshiftStatus
 import java.util.Date
-import com.streamvault.app.ui.design.AppColors.Brand as Primary
-import com.streamvault.app.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.AppColors.Brand as Primary
+import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
 
 @Composable
 fun ChannelInfoOverlay(

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.design
+package com.streamvault.core.ui.design
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.staticCompositionLocalOf

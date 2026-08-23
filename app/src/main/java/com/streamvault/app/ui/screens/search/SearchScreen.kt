@@ -52,10 +52,10 @@ import com.streamvault.app.ui.components.SeriesCard
 import com.streamvault.app.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.design.AppColors
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.CatalogCompleteness

@@ -22,7 +22,7 @@ import com.streamvault.app.R
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.Primary
 
 internal fun formatPlaybackTimerMinutesLabel(minutes: Int, context: Context): String {
     return if (minutes <= 0) {

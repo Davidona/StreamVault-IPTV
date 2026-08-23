@@ -66,11 +66,11 @@ import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.ReorderTopBar
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.design.FocusRestoreHost
-import com.streamvault.app.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.FocusRestoreHost
+import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
 import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel

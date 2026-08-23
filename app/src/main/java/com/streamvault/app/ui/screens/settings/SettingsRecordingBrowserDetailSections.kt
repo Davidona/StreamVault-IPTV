@@ -10,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.streamvault.app.R
-import com.streamvault.app.ui.theme.ErrorColor
-import com.streamvault.app.ui.theme.OnBackground
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.Secondary
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStatus
 

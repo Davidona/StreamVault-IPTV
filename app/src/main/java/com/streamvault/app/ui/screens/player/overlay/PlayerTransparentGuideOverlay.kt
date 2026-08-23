@@ -41,8 +41,8 @@ import com.streamvault.app.ui.screens.epg.GuideSearchOverlay
 import com.streamvault.app.ui.screens.epg.GuideToolbarButton
 import com.streamvault.app.ui.screens.epg.currentGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
-import com.streamvault.app.ui.theme.OnSurfaceDim
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program

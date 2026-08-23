@@ -22,13 +22,13 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.interaction.mouseClickable
-import com.streamvault.app.ui.theme.AccentAmber
-import com.streamvault.app.ui.theme.FocusBorder
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.Surface as SurfaceColor
-import com.streamvault.app.ui.theme.SurfaceHighlight
-import com.streamvault.app.ui.theme.TextPrimary
+import com.streamvault.core.ui.theme.AccentAmber
+import com.streamvault.core.ui.theme.FocusBorder
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.Surface as SurfaceColor
+import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.theme.TextPrimary
 
 internal enum class SourceType { XTREAM, STALKER, M3U_URL, M3U_FILE, JELLYFIN }
 

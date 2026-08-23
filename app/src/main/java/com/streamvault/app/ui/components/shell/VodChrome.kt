@@ -37,15 +37,15 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.components.ChipRowItem
 import com.streamvault.app.ui.components.ChipRowSection
-import com.streamvault.app.ui.design.AppColors.Brand as Primary
-import com.streamvault.app.ui.design.AppColors.Focus as FocusBorder
-import com.streamvault.app.ui.design.AppColors.SurfaceElevated as SurfaceElevated
-import com.streamvault.app.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
-import com.streamvault.app.ui.design.AppColors.TextPrimary as TextPrimary
-import com.streamvault.app.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.AppColors.Brand as Primary
+import com.streamvault.core.ui.design.AppColors.Focus as FocusBorder
+import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceElevated
+import com.streamvault.core.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
+import com.streamvault.core.ui.design.AppColors.TextPrimary as TextPrimary
+import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
 import androidx.compose.foundation.BorderStroke
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.SearchInput

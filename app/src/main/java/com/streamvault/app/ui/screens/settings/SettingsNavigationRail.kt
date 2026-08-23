@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.streamvault.app.R
-import com.streamvault.app.ui.theme.Primary
+import com.streamvault.core.ui.theme.Primary
 
 private data class SettingsNavEntry(
     val id: String,

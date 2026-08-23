@@ -21,7 +21,7 @@ import com.streamvault.app.R
 import com.streamvault.app.pairing.ProviderQrPairingState
 import com.streamvault.app.pairing.ProviderQrPairingStatus
 import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.theme.*
+import com.streamvault.core.ui.theme.*
 
 @Composable
 internal fun PhonePairingCard(
