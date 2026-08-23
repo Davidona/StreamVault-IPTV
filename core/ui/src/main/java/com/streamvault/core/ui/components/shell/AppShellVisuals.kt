@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
@@ -373,6 +374,7 @@ private fun TopNavigationButton(
                 scaleX = scale
                 scaleY = scale
             }
+            .zIndex(if (isFocused) 1f else 0f)
             .onFocusChanged {
                 if (it.isFocused && !isFocused) sounds.playNavigate()
                 isFocused = it.isFocused
