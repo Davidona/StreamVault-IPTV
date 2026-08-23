@@ -201,11 +201,17 @@ fun AppNavigation(mainActivity: MainActivity) {
         }
     }
 
-    AppNavigationGraph(
+    AppNavHost(
         navController = navController,
-        navigator = navigator,
-        startupRoute = startupRoute,
-        navigateToStartupTarget = { popUpRoute -> navigateToStartupTarget(popUpRoute) },
-        tabNavigate = { route -> tabNavigate(route) }
+        actions = navigator,
+        catalogDetailActions = navigator,
+        payloads = navigator,
+        startupReady = startupRoute != null,
+        onStartupNavigationRequested = { popUpDestination ->
+            navigateToStartupTarget(AppRouteCodec.encode(popUpDestination))
+        },
+        onTopLevelDestinationRequested = { destination ->
+            tabNavigate(AppRouteCodec.encode(destination))
+        }
     )
 }

@@ -4,7 +4,9 @@ import java.security.KeyStore
 import java.security.MessageDigest
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -183,7 +185,7 @@ android {
      * are also baseline rules, so keep the maintained baseline source as their union while
      * preserving startup-prof.txt as the startup-only subset consumed for DEX layout.
      */
-    abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
+abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
         @get:InputFile
         @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val baselineProfile: RegularFileProperty
@@ -337,6 +339,49 @@ android {
         // time-sensitive and would otherwise fail whenever Google publishes a newer version.
         disable += setOf("AndroidGradlePluginVersion", "GradleDependency")
     }
+}
+
+abstract class VerifyFeatureNavigationBoundaryTask : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sourceRoot: DirectoryProperty
+
+    @TaskAction
+    fun verify() {
+        val expectedFiles = setOf(
+            "WelcomeGraph.kt",
+            "ProviderGraph.kt",
+            "HomeGraph.kt",
+            "LiveGraph.kt",
+            "CatalogGraph.kt",
+            "PlayerGraph.kt",
+            "SystemGraph.kt"
+        )
+        val files = sourceRoot.get().asFile.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .toList()
+        check(files.map { it.name }.containsAll(expectedFiles)) {
+            "Missing feature graph registrations: ${expectedFiles - files.map { it.name }.toSet()}"
+        }
+        val violations = files
+            .filter { source ->
+                val text = source.readText()
+                "NavHostController" in text || "NavController" in text
+            }
+            .map { it.name }
+        check(violations.isEmpty()) {
+            "Feature graph registrations must not reference a root navigation controller: $violations"
+        }
+    }
+}
+
+val verifyFeatureNavigationBoundary = tasks.register<VerifyFeatureNavigationBoundaryTask>(
+    "verifyFeatureNavigationBoundary"
+) {
+    sourceRoot.set(layout.projectDirectory.dir("src/main/java/com/streamvault/app/navigation/graph"))
+}
+tasks.named("check") {
+    dependsOn(verifyFeatureNavigationBoundary)
 }
 
 kotlin {
