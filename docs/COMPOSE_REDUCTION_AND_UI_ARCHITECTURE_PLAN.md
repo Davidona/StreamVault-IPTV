@@ -873,6 +873,8 @@ Exit criteria:
 - Features do not access the root `NavController` directly.
 - Deep links, startup player requests, return routes, and external navigation are covered by tests.
 
+Completed report: [COMPOSE_REDUCTION_PHASE4_REPORT.md](COMPOSE_REDUCTION_PHASE4_REPORT.md)
+
 ### Phase 5 - Feature module extraction
 
 Recommended extraction order:
