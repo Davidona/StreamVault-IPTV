@@ -1,7 +1,4 @@
-package com.streamvault.app.di
-
-import com.streamvault.app.cast.CastPlaybackCoordinator
-import com.streamvault.app.cast.DefaultCastPlaybackCoordinator
+package com.streamvault.feature.playback.cast
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

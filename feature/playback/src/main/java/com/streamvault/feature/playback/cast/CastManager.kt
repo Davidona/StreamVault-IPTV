@@ -1,4 +1,4 @@
-package com.streamvault.app.cast
+package com.streamvault.feature.playback.cast
 
 import android.content.Context
 import android.net.Uri
@@ -13,7 +13,8 @@ import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
-import com.streamvault.app.plugins.StreamVaultPluginManager
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.api.CastUrlRewriter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class CastManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val pluginManager: StreamVaultPluginManager
+    private val castUrlRewriter: CastUrlRewriter
 ) {
 
     private val _connectionState = MutableStateFlow(CastConnectionState.UNAVAILABLE)
@@ -122,7 +123,7 @@ class CastManager @Inject constructor(
         if (!isRequestSupported(request)) {
             return CastStartResult.UNSUPPORTED
         }
-        val rewrittenUrl = pluginManager.rewriteCastUrl(request) ?: return CastStartResult.UNSUPPORTED
+        val rewrittenUrl = castUrlRewriter.rewrite(request) ?: return CastStartResult.UNSUPPORTED
         if (request.requiresCastRewrite && rewrittenUrl.trim() == request.url.trim()) {
             Log.w(TAG, "Cast request requires URL rewrite but no receiver-safe URL was returned")
             return CastStartResult.UNSUPPORTED

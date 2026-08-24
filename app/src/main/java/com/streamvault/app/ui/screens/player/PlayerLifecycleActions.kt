@@ -196,7 +196,7 @@ internal fun PlayerViewModel.cleanupAfterCleared(mainPlayerEngine: PlayerEngine)
             channel = channel!!,
             streamInfo = streamInfo!!,
             engine = activeEngine,
-            source = com.streamvault.app.player.PreviewHandoffSource.HOME
+            source = com.streamvault.feature.playback.preview.PreviewHandoffSource.HOME
         )
         mainPlayerEngine.resetForReuse()
     } else {

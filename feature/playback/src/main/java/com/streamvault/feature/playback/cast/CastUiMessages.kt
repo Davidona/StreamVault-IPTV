@@ -1,6 +1,8 @@
-package com.streamvault.app.cast
+package com.streamvault.feature.playback.cast
 
-import com.streamvault.app.R
+import com.streamvault.feature.playback.R
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.api.CastRewriteRequiredReason
 
 fun CastMediaRequestUnsupportedReason.toCastBuildFailureMessageRes(): Int = when (this) {
     CastMediaRequestUnsupportedReason.STREAM_UNAVAILABLE,

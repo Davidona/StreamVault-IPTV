@@ -59,7 +59,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.MainActivity
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastUiEvent
+import com.streamvault.feature.playback.cast.CastUiEvent
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.app.util.formatPositionMs

@@ -1,4 +1,4 @@
-package com.streamvault.app.player
+package com.streamvault.feature.playback.translation
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

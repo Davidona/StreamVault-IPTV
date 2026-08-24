@@ -1,5 +1,6 @@
-package com.streamvault.app.cast
+package com.streamvault.feature.playback.cast
 
+import com.streamvault.feature.playback.api.CastMediaRequest
 import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject
 import javax.inject.Singleton

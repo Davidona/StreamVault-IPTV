@@ -2,19 +2,22 @@ package com.streamvault.app.ui.screens.player
 
 import androidx.lifecycle.viewModelScope
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastMediaRequest
-import com.streamvault.app.cast.CastMediaRequestBuildResult
-import com.streamvault.app.cast.CastMediaRequestUnsupportedReason
-import com.streamvault.app.cast.CastPlaybackEvent
-import com.streamvault.app.cast.CastPlaybackReportMode
-import com.streamvault.app.cast.CastRewriteRequiredReason
-import com.streamvault.app.cast.CastStartResult
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingRequest
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.usecase.ScheduleRecordingCommand
+import com.streamvault.feature.playback.R as PlaybackFeatureR
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.cast.CastMediaRequestBuildResult
+import com.streamvault.feature.playback.cast.CastMediaRequestUnsupportedReason
+import com.streamvault.feature.playback.cast.CastPlaybackEvent
+import com.streamvault.feature.playback.cast.CastPlaybackReportMode
+import com.streamvault.feature.playback.cast.CastStartResult
+import com.streamvault.feature.playback.cast.toCastBuildFailureMessageRes
+import com.streamvault.feature.playback.cast.toCastPlaybackMessageRes
+import com.streamvault.feature.playback.cast.toCastUnsupportedMessageRes
 import kotlinx.coroutines.launch
 
 fun PlayerViewModel.castCurrentMedia(onRouteSelectionRequired: () -> Unit) {
@@ -35,7 +38,7 @@ fun PlayerViewModel.castCurrentMedia(onRouteSelectionRequired: () -> Unit) {
             CastStartResult.STARTED -> {
                 castPlaybackReportMode = CastPlaybackReportMode.SUCCESS_AND_FAILURE
                 showPlayerNotice(
-                    message = appContext.getString(R.string.cast_started),
+                    message = appContext.getString(PlaybackFeatureR.string.cast_started),
                     recoveryType = PlayerRecoveryType.NETWORK
                 )
             }
@@ -48,7 +51,7 @@ fun PlayerViewModel.castCurrentMedia(onRouteSelectionRequired: () -> Unit) {
             CastStartResult.UNAVAILABLE -> {
                 castPlaybackReportMode = CastPlaybackReportMode.NONE
                 showPlayerNotice(
-                    message = appContext.getString(R.string.cast_unavailable),
+                    message = appContext.getString(PlaybackFeatureR.string.cast_unavailable),
                     recoveryType = PlayerRecoveryType.SOURCE
                 )
             }
@@ -311,33 +314,10 @@ sealed interface PlayerCastRequestResult {
 
 private fun PlayerViewModel.toPlayerCastMessage(
     reason: CastMediaRequestUnsupportedReason
-): String = appContext.getString(
-    when (reason) {
-        CastMediaRequestUnsupportedReason.STREAM_UNAVAILABLE,
-        CastMediaRequestUnsupportedReason.EMPTY_URL -> R.string.cast_item_unavailable
-        CastMediaRequestUnsupportedReason.UNSUPPORTED_PROTOCOL -> R.string.cast_protocol_unsupported
-        CastMediaRequestUnsupportedReason.DRM_PROTECTED -> R.string.cast_drm_unsupported
-    }
-)
+): String = appContext.getString(reason.toCastBuildFailureMessageRes())
 
-private fun PlayerViewModel.toPlayerCastUnsupportedMessage(request: CastMediaRequest): String = appContext.getString(
-    when (request.rewriteRequiredReason) {
-        CastRewriteRequiredReason.LOCAL_URI -> R.string.cast_local_url_unsupported
-        CastRewriteRequiredReason.CUSTOM_HEADERS -> R.string.cast_headers_unsupported
-        CastRewriteRequiredReason.CUSTOM_USER_AGENT -> R.string.cast_user_agent_unsupported
-        CastRewriteRequiredReason.PROXY -> R.string.cast_proxy_unsupported
-        CastRewriteRequiredReason.INVALID_SSL,
-        CastRewriteRequiredReason.SCOPED_TRANSPORT -> R.string.cast_invalid_ssl_unsupported
-        null -> R.string.cast_stream_unsupported
-    }
-)
+private fun PlayerViewModel.toPlayerCastUnsupportedMessage(request: CastMediaRequest): String =
+    appContext.getString(request.toCastUnsupportedMessageRes())
 
-private fun PlayerViewModel.toPlayerCastPlaybackMessage(event: CastPlaybackEvent): String = appContext.getString(
-    when (event) {
-        is CastPlaybackEvent.MediaLoadSucceeded -> R.string.cast_started
-        is CastPlaybackEvent.MediaLoadFailed -> R.string.cast_load_failed
-        is CastPlaybackEvent.SessionStartFailed -> R.string.cast_session_failed
-        is CastPlaybackEvent.ReceiverUnavailable -> R.string.cast_receiver_unavailable
-        CastPlaybackEvent.RouteSelectionCancelled -> R.string.cast_selection_cancelled
-    }
-)
+private fun PlayerViewModel.toPlayerCastPlaybackMessage(event: CastPlaybackEvent): String =
+    appContext.getString(event.toCastPlaybackMessageRes())

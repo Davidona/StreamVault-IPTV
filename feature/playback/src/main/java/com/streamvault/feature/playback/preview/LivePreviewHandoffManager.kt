@@ -1,4 +1,4 @@
-package com.streamvault.app.player
+package com.streamvault.feature.playback.preview
 
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.StreamInfo

@@ -1,7 +1,9 @@
-package com.streamvault.app.cast
+package com.streamvault.feature.playback.cast
 
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.api.CastRewriteRequiredReason
 import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton

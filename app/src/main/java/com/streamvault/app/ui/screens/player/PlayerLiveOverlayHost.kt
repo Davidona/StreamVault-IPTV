@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.streamvault.app.cast.CastConnectionState
+import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.app.ui.screens.player.overlay.ChannelInfoOverlay
 import com.streamvault.app.ui.screens.player.overlay.ChannelListOverlay
 import com.streamvault.app.ui.screens.player.overlay.CategoryListOverlay

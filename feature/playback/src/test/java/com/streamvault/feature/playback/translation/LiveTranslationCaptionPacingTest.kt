@@ -1,4 +1,4 @@
-package com.streamvault.app.player
+package com.streamvault.feature.playback.translation
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.channels.Channel

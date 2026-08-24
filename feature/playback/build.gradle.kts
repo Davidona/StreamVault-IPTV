@@ -172,12 +172,14 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.mediarouter)
     implementation(libs.play.services.cast.framework)
+    implementation(libs.media3.exoplayer)
     implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.robolectric)
+    testImplementation(libs.mockito.kotlin)
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

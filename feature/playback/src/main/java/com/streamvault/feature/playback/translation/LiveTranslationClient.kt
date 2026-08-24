@@ -1,4 +1,4 @@
-package com.streamvault.app.player
+package com.streamvault.feature.playback.translation
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

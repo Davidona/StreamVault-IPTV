@@ -67,8 +67,8 @@ import javax.inject.Inject
 import android.app.Application
 import com.streamvault.app.R
 import com.streamvault.player.di.AuxiliaryPlayerEngine
-import com.streamvault.app.player.LivePreviewHandoffManager
-import com.streamvault.app.player.PreviewHandoffSource
+import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
+import com.streamvault.feature.playback.preview.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine

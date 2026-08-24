@@ -3,8 +3,8 @@ package com.streamvault.app.ui.screens.player
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.cast.CastConnectionState
-import com.streamvault.app.cast.CastPlaybackReportMode
+import com.streamvault.feature.playback.cast.CastConnectionState
+import com.streamvault.feature.playback.cast.CastPlaybackReportMode
 import com.streamvault.domain.playback.isPlaybackComplete
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ChannelNumberingMode

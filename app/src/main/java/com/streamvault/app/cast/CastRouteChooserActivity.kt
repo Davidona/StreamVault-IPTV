@@ -3,6 +3,7 @@ package com.streamvault.app.cast
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.mediarouter.app.MediaRouteChooserDialog
+import com.streamvault.feature.playback.cast.CastManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

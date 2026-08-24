@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.view.doOnPreDraw
-import com.streamvault.app.cast.CastManager
 import com.streamvault.app.cast.CastRouteChooserActivity
 import com.streamvault.app.device.isTelevisionDevice
 import com.streamvault.app.localization.resolveAppLocale
@@ -19,6 +18,7 @@ import com.streamvault.app.navigation.AppNavigationCoordinator
 import com.streamvault.app.navigation.ExternalNavigationRequestParser
 import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.ExternalNavigationRequest
+import com.streamvault.feature.playback.cast.CastManager
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.toUiTimeFormat

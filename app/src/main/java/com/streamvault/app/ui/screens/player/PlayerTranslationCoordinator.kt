@@ -1,7 +1,7 @@
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.player.LiveTranslationClient
-import com.streamvault.app.player.LiveTranslationSession
+import com.streamvault.feature.playback.translation.LiveTranslationClient
+import com.streamvault.feature.playback.translation.LiveTranslationSession
 import com.streamvault.player.PlayerEngine
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.OkHttpClient

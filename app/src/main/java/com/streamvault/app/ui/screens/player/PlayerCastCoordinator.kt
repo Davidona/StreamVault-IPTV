@@ -1,14 +1,14 @@
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.cast.CastConnectionState
-import com.streamvault.app.cast.CastManager
-import com.streamvault.app.cast.CastMediaRequest
-import com.streamvault.app.cast.CastMediaRequestBuildResult
-import com.streamvault.app.cast.CastMediaRequestFactory
-import com.streamvault.app.cast.CastPlaybackCoordinator
-import com.streamvault.app.cast.CastPlaybackEvent
-import com.streamvault.app.cast.CastStartResult
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.cast.CastConnectionState
+import com.streamvault.feature.playback.cast.CastManager
+import com.streamvault.feature.playback.cast.CastMediaRequestBuildResult
+import com.streamvault.feature.playback.cast.CastMediaRequestFactory
+import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
+import com.streamvault.feature.playback.cast.CastPlaybackEvent
+import com.streamvault.feature.playback.cast.CastStartResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject

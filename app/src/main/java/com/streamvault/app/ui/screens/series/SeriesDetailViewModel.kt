@@ -6,17 +6,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastMediaRequest
-import com.streamvault.app.cast.CastMediaRequestFactory
-import com.streamvault.app.cast.CastMediaRequestBuildResult
-import com.streamvault.app.cast.CastPlaybackEvent
-import com.streamvault.app.cast.CastPlaybackCoordinator
-import com.streamvault.app.cast.CastPlaybackReportMode
-import com.streamvault.app.cast.CastStartResult
-import com.streamvault.app.cast.CastUiEvent
-import com.streamvault.app.cast.toCastBuildFailureMessageRes
-import com.streamvault.app.cast.toCastPlaybackMessageRes
-import com.streamvault.app.cast.toCastUnsupportedMessageRes
+import com.streamvault.feature.playback.R as PlaybackFeatureR
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.cast.CastMediaRequestFactory
+import com.streamvault.feature.playback.cast.CastMediaRequestBuildResult
+import com.streamvault.feature.playback.cast.CastPlaybackEvent
+import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
+import com.streamvault.feature.playback.cast.CastPlaybackReportMode
+import com.streamvault.feature.playback.cast.CastStartResult
+import com.streamvault.feature.playback.cast.CastUiEvent
+import com.streamvault.feature.playback.cast.toCastBuildFailureMessageRes
+import com.streamvault.feature.playback.cast.toCastPlaybackMessageRes
+import com.streamvault.feature.playback.cast.toCastUnsupportedMessageRes
 import com.streamvault.app.navigation.SERIES_DETAIL_PRESENTATION_HINT_KEY
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.service.DownloadForegroundService
@@ -286,11 +287,11 @@ class SeriesDetailViewModel @Inject constructor(
                 val streamInfo = when (val result = seriesRepository.getEpisodeStreamInfo(episode)) {
                     is Result.Success -> result.data
                     is Result.Error -> {
-                        _castEvents.emit(CastUiEvent.ShowMessage(R.string.cast_item_unavailable))
+                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
                         return@launch
                     }
                     Result.Loading -> {
-                        _castEvents.emit(CastUiEvent.ShowMessage(R.string.cast_item_unavailable))
+                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
                         return@launch
                     }
                 }
@@ -349,13 +350,13 @@ class SeriesDetailViewModel @Inject constructor(
             when (result) {
                 CastStartResult.STARTED -> {
                     castPlaybackReportMode = CastPlaybackReportMode.FAILURES_ONLY
-                    CastUiEvent.ShowMessage(R.string.cast_started)
+                    CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started)
                 }
                 CastStartResult.ROUTE_SELECTION_REQUIRED -> {
                     castPlaybackReportMode = CastPlaybackReportMode.SUCCESS_AND_FAILURE
                     CastUiEvent.OpenRouteChooser
                 }
-                CastStartResult.UNAVAILABLE -> CastUiEvent.ShowMessage(R.string.cast_unavailable)
+                CastStartResult.UNAVAILABLE -> CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_unavailable)
                 CastStartResult.UNSUPPORTED -> CastUiEvent.ShowMessage(request.toCastUnsupportedMessageRes())
             }
         )

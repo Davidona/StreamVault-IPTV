@@ -8,7 +8,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.dialogs.ProgramHistoryDialog
+import com.streamvault.feature.playback.ui.components.dialogs.ProgramHistoryDialog
 import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
 import com.streamvault.app.ui.screens.multiview.MultiViewViewModel
 import com.streamvault.app.ui.screens.player.overlay.ChannelVariantSelectionDialog
@@ -84,7 +84,7 @@ internal fun PlayerControlsModalHost(
         }
         if (!isInPictureInPictureMode) {
             PlayerAudioVideoOffsetDialog(
-                visible = audioVideoSyncEnabled && castConnectionState != com.streamvault.app.cast.CastConnectionState.CONNECTED,
+                visible = audioVideoSyncEnabled && castConnectionState != com.streamvault.feature.playback.cast.CastConnectionState.CONNECTED,
                 state = audioVideoOffsetState,
                 canSaveChannel = canSaveChannel,
                 onDismiss = {

@@ -5,12 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.app.MainDispatcherRule
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastMediaRequest
-import com.streamvault.app.cast.CastMediaRequestFactory
-import com.streamvault.app.cast.CastPlaybackEvent
-import com.streamvault.app.cast.CastPlaybackCoordinator
-import com.streamvault.app.cast.CastStartResult
-import com.streamvault.app.cast.CastUiEvent
+import com.streamvault.feature.playback.R as PlaybackFeatureR
+import com.streamvault.feature.playback.api.CastMediaRequest
+import com.streamvault.feature.playback.cast.CastMediaRequestFactory
+import com.streamvault.feature.playback.cast.CastPlaybackEvent
+import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
+import com.streamvault.feature.playback.cast.CastStartResult
+import com.streamvault.feature.playback.cast.CastUiEvent
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ExternalRatings
@@ -77,7 +78,7 @@ class MovieDetailViewModelCastingTest {
             viewModel.castMovie()
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(R.string.cast_stream_unsupported))
+                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_stream_unsupported))
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -97,7 +98,7 @@ class MovieDetailViewModelCastingTest {
             coordinator.emit(CastPlaybackEvent.MediaLoadSucceeded("Movie"))
 
             assertThat(withTimeout(5_000L) { lifecycleEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(R.string.cast_started))
+                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started))
             assertThat(viewModel.uiState.value.isCasting).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -113,13 +114,13 @@ class MovieDetailViewModelCastingTest {
             val startEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
             assertThat(withTimeout(5_000L) { startEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(R.string.cast_started))
+                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started))
 
             val lifecycleEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             coordinator.emit(CastPlaybackEvent.MediaLoadFailed(title = "Movie", statusCode = 2100))
 
             assertThat(withTimeout(5_000L) { lifecycleEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(R.string.cast_load_failed))
+                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_load_failed))
             assertThat(viewModel.uiState.value.isCasting).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -180,7 +181,7 @@ class MovieDetailViewModelCastingTest {
             viewModel.castMovie()
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(R.string.cast_headers_unsupported))
+                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_headers_unsupported))
             assertThat(coordinator.lastRequest?.requiresCastRewrite).isTrue()
         } finally {
             viewModel.viewModelScope.cancel()

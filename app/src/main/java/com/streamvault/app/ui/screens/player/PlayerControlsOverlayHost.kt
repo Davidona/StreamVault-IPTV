@@ -28,7 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastConnectionState
+import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.app.ui.screens.player.overlay.PlayerControlsOverlay
 import com.streamvault.app.ui.screens.player.overlay.PlayerResolutionBadge
 import com.streamvault.app.ui.screens.player.overlay.PlayerSleepTimerWarningOverlay

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.components.dialogs
+package com.streamvault.feature.playback.ui.components.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,14 +38,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.streamvault.app.R
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormatter
+import com.streamvault.core.ui.time.LocalUiTimeFormat
+import com.streamvault.core.ui.time.createTimeFormatter
+import com.streamvault.feature.playback.R
 import com.streamvault.domain.model.Program
 import java.time.Instant
 import java.time.ZoneId
@@ -66,7 +66,7 @@ fun ProgramHistoryDialog(
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val locale = Locale.getDefault()
     val zoneId = remember { ZoneId.systemDefault() }
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat, locale) { appTimeFormat.createTimeFormatter(locale) }
     val dayFormat = remember(locale) { DateTimeFormatter.ofPattern("EEE, MMM d", locale) }
 

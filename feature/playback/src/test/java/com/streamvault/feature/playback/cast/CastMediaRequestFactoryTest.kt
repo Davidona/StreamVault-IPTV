@@ -1,10 +1,11 @@
-package com.streamvault.app.cast
+package com.streamvault.feature.playback.cast
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.model.DrmInfo
 import com.streamvault.domain.model.DrmScheme
+import com.streamvault.feature.playback.api.CastRewriteRequiredReason
 import org.junit.Test
 
 class CastMediaRequestFactoryTest {

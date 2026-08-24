@@ -1,6 +1,6 @@
 @file:androidx.media3.common.util.UnstableApi
 
-package com.streamvault.app.player
+package com.streamvault.feature.playback.translation
 
 import androidx.media3.common.C
 import androidx.media3.common.text.Cue

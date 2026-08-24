@@ -1,7 +1,4 @@
-package com.streamvault.app.cast
-
-typealias CastMediaRequest = com.streamvault.feature.playback.api.CastMediaRequest
-typealias CastRewriteRequiredReason = com.streamvault.feature.playback.api.CastRewriteRequiredReason
+package com.streamvault.feature.playback.cast
 
 enum class CastConnectionState {
     UNAVAILABLE,

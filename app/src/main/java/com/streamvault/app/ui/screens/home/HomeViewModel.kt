@@ -3,8 +3,8 @@ package com.streamvault.app.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.player.di.AuxiliaryPlayerEngine
-import com.streamvault.app.player.LivePreviewHandoffManager
-import com.streamvault.app.player.PreviewHandoffSource
+import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
+import com.streamvault.feature.playback.preview.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.app.ui.screens.multiview.MultiViewManager

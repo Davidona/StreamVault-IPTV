@@ -1,8 +1,8 @@
 package com.streamvault.app.ui.screens.player
 
 import android.os.Build
-import com.streamvault.app.player.LivePreviewHandoffManager
-import com.streamvault.app.player.PreviewHandoffSource
+import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
+import com.streamvault.feature.playback.preview.PreviewHandoffSource
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.StreamInfo

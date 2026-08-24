@@ -69,7 +69,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.cast.CastConnectionState
+import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.feature.playback.api.PlaybackPictureInPictureState
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.player.ui.PlayerRenderView
