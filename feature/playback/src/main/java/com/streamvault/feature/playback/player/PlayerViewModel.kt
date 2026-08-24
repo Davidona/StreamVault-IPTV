@@ -477,7 +477,7 @@ class PlayerViewModel @Inject constructor(
                     it.copy(
                         available = true,
                         enabledForSession = true,
-                        statusMessage = "Preparing local live rewindג€¦",
+                        statusMessage = "Preparing local live rewind…",
                         bufferDepthMs = timeshiftConfig.depthMs
                     )
                 }

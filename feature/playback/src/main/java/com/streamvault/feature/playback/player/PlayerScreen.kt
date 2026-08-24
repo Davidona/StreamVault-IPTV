@@ -679,7 +679,7 @@ fun PlayerScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     CircularProgressIndicator(color = Primary)
-                    Text("Resolving playbackג€¦", color = Color.White)
+                    Text("Resolving playback…", color = Color.White)
                 }
             }
             is PlaybackResolutionUiState.Failure -> PlayerErrorOverlay(

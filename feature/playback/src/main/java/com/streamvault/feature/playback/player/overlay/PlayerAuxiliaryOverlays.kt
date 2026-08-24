@@ -1146,7 +1146,7 @@ fun CategoryListOverlay(
                                     }
                                     if (isSelected) {
                                         Text(
-                                            text = "׳³ג€™׳’ג‚¬ג€ײ²ֲ",
+                                            text = "׳’ג€”ֲ",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.White.copy(alpha = 0.8f),
                                             modifier = Modifier.padding(start = 8.dp)

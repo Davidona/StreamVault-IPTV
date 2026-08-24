@@ -1346,8 +1346,8 @@ private fun buildVariantSelectionLabel(variant: LiveChannelVariant): String {
     return buildString {
         append(variant.originalName)
         if (metaParts.isNotEmpty()) {
-            append(" ׳’ג‚¬ֲ¢ ")
-            append(metaParts.joinToString(" ׳’ג‚¬ֲ¢ "))
+            append(" ג€¢ ")
+            append(metaParts.joinToString(" ג€¢ "))
         }
     }
 }
