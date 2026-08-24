@@ -877,6 +877,12 @@ Completed report: [COMPOSE_REDUCTION_PHASE4_REPORT.md](COMPOSE_REDUCTION_PHASE4_
 
 ### Phase 5 - Feature module extraction
 
+Detailed delivery artifacts:
+
+- [Phase 5 feature extraction roadmap](COMPOSE_REDUCTION_PHASE5_ROADMAP.md)
+- [Phase 5 accepted architecture design](superpowers/specs/2026-08-24-phase-5-feature-module-extraction-design.md)
+- [Playback feature extraction implementation plan](superpowers/plans/2026-08-24-playback-feature-extraction.md)
+
 Recommended extraction order:
 
 1. `:feature:playback` because it has the highest runtime and state-isolation value.
