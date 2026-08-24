@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.multiview
+package com.streamvault.feature.playback.multiview
 
 import com.streamvault.domain.model.Channel
 import com.streamvault.player.PlayerEngine

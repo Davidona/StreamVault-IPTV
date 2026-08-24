@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.multiview
+package com.streamvault.feature.playback.multiview
 
 import android.app.Activity
 import android.view.View
@@ -76,7 +76,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import com.streamvault.app.R
+import com.streamvault.feature.playback.R
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.components.dialogs.PinEntryDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog

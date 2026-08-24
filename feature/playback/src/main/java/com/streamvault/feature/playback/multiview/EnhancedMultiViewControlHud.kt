@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.multiview
+package com.streamvault.feature.playback.multiview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +22,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.playback.R
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton

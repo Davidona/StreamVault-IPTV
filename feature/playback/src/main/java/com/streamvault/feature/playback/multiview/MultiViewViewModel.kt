@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.multiview
+package com.streamvault.feature.playback.multiview
 
 import android.app.ActivityManager
 import android.content.Context

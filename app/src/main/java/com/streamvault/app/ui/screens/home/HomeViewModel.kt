@@ -7,7 +7,7 @@ import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
 import com.streamvault.feature.playback.preview.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.app.ui.screens.multiview.MultiViewManager
+import com.streamvault.feature.playback.multiview.MultiViewManager
 import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.app.ui.model.guideLookupKey

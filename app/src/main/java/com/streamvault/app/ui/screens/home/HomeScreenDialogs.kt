@@ -24,8 +24,8 @@ import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog
 import com.streamvault.app.ui.components.dialogs.M3uSeriesAssignmentDialog
-import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
-import com.streamvault.app.ui.screens.multiview.MultiViewViewModel
+import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
+import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel

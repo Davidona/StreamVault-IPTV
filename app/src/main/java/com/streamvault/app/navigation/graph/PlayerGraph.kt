@@ -8,8 +8,8 @@ import com.streamvault.app.navigation.APP_NAVIGATION_TAG
 import com.streamvault.app.navigation.AppNavigationPayloads
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.safePlayerNavigationRequest
-import com.streamvault.app.ui.screens.multiview.MultiViewScreen
-import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
+import com.streamvault.feature.playback.multiview.MultiViewScreen
+import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions

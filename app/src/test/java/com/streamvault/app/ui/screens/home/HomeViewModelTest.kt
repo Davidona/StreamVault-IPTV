@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.app.ui.screens.multiview.MultiViewManager
+import com.streamvault.feature.playback.multiview.MultiViewManager
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.manager.ParentalControlManager

@@ -81,8 +81,8 @@ import kotlinx.coroutines.flow.filter
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.app.ui.model.LiveTvChannelMode
-import com.streamvault.app.ui.screens.multiview.MultiViewViewModel
-import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
+import com.streamvault.feature.playback.multiview.MultiViewViewModel
+import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.app.navigation.Routes
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.repository.ChannelRepository
