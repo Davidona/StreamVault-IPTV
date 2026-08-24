@@ -9,11 +9,12 @@ import com.streamvault.app.navigation.AppNavigationPayloads
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.safePlayerNavigationRequest
 import com.streamvault.app.ui.screens.multiview.MultiViewScreen
-import com.streamvault.app.ui.screens.player.PlayerScreen
+import com.streamvault.app.ui.screens.multiview.MultiViewPlannerDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
+import com.streamvault.feature.playback.player.PlayerScreen
 
 internal fun NavGraphBuilder.registerPlayerGraph(
     actions: NavigationActions,
@@ -60,6 +61,13 @@ internal fun NavGraphBuilder.registerPlayerGraph(
                 episodeId = safePlayerRequest.episodeId,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
                 playbackPlatformHost = playbackPlatformHost,
+                splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->
+                    MultiViewPlannerDialog(
+                        pendingChannel = pendingChannel,
+                        onDismiss = onDismiss,
+                        onLaunch = onLaunch
+                    )
+                },
                 onNavigate = { destination ->
                     actions.navigate(
                         destination,

@@ -14,8 +14,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.ui.components.shell.CategoryRailPanel
-import com.streamvault.app.ui.screens.player.overlay.PlayerControlsOverlay
-import com.streamvault.app.ui.screens.player.overlay.PlayerTrackSelectionDialog
+import com.streamvault.feature.playback.player.overlay.PlayerControlsOverlay
+import com.streamvault.feature.playback.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.app.ui.test.TestFixtures
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.player.TrackType

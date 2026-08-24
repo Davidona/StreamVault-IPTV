@@ -1,9 +1,9 @@
 package com.streamvault.app.ui.test
 
-import com.streamvault.app.ui.screens.player.NumericChannelInputState
-import com.streamvault.app.ui.screens.player.PlayerNoticeAction
-import com.streamvault.app.ui.screens.player.PlayerNoticeState
-import com.streamvault.app.ui.screens.player.PlayerRecoveryType
+import com.streamvault.feature.playback.player.NumericChannelInputState
+import com.streamvault.feature.playback.player.PlayerNoticeAction
+import com.streamvault.feature.playback.player.PlayerNoticeState
+import com.streamvault.feature.playback.player.PlayerRecoveryType
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
