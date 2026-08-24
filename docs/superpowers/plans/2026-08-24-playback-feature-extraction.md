@@ -33,6 +33,16 @@
   error=null, healthy HLS evidence, and no fatal/stuck/MPEG-TS fallback.
 - Run graphify update . after code changes.
 
+## Execution-order correction
+
+The numbered tasks describe ownership, but the playback graph cannot be moved
+before its host contract and feature-owned destinations exist. Execute the
+implementation in this order: Tasks 1, 2, 3, 5, 6, 7, 8, 4, 9, and 10. Task 4
+still owns the complete controller-free graph extraction and final AppNavHost
+wiring; it is intentionally deferred until the Player and MultiView destinations
+compile inside :feature:playback. No temporary app-to-feature rendering seam is
+allowed.
+
 ## Planned file structure
 
 ~~~text
@@ -352,6 +362,10 @@ git commit -m "build: add playback feature module"
 
 ### Task 4: Extract playback navigation registration
 
+Execute this task after Tasks 5–8. The graph move depends on the playback host
+contract and feature-owned Player/MultiView destinations; importing their old
+app implementations would violate the boundary guard.
+
 **Files:**
 
 - Create: feature/playback/src/main/java/com/streamvault/feature/playback/navigation/PlaybackRoutePatterns.kt
@@ -611,13 +625,12 @@ git commit -m "refactor: move player presentation to playback feature"
 - Move: app/src/main/java/com/streamvault/app/ui/screens/multiview/*.kt to feature/playback/src/main/java/com/streamvault/feature/playback/multiview/
 - Create: feature/playback/src/test/java/com/streamvault/feature/playback/multiview/MultiViewManagerTest.kt
 - Create: feature/playback/src/test/java/com/streamvault/feature/playback/multiview/MultiViewViewModelTest.kt
-- Modify: feature/playback/src/main/java/com/streamvault/feature/playback/navigation/PlaybackGraph.kt
 - Modify: app/src/androidTest/java/com/streamvault/app/ui/PlayerSmokeTest.kt
 
 **Interfaces:**
 
-- Produces: playback graph whose Player and MultiView destinations render
-  feature-owned screens.
+- Produces: feature-owned MultiView destination ready for the playback graph
+  extracted in Task 4.
 
 - [ ] **Step 1: Add MultiView tests before production move**
 
@@ -631,10 +644,11 @@ Use feature Cast/dialog/player imports. Inject
 concrete Media3 cast with PlayerEngine configuration methods while preserving
 stagger delay, generation checks, cleanup, and focus.
 
-- [ ] **Step 3: Wire feature graph**
+- [ ] **Step 3: Preserve graph wiring for Task 4**
 
-Import the feature MultiView screen. Preserve Player-to-MultiView inclusive
-replacement and Back behavior.
+Do not modify the graph in this task; Task 4 performs the final graph move and
+wiring after the feature-owned Player and MultiView destinations exist. Keep
+the destination behavior requirements visible in the tests and report.
 
 - [ ] **Step 4: Run independent and app compilation**
 
