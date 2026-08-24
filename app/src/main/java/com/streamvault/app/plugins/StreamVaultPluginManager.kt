@@ -15,7 +15,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
 import com.streamvault.app.BuildConfig
-import com.streamvault.app.cast.CastMediaRequest
+import com.streamvault.feature.playback.api.CastMediaRequest
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.data.local.dao.PluginProviderOwnershipDao
 import com.streamvault.data.local.entity.PluginProviderOwnershipEntity

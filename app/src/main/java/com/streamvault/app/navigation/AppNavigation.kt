@@ -11,6 +11,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.streamvault.app.playback.rememberPlaybackPlatformHost
 import com.streamvault.core.navigation.AppDestination
 
 @Composable
@@ -22,6 +23,7 @@ fun AppNavigation(
     val state by coordinator.state.collectAsStateWithLifecycle()
     val pending by coordinator.pendingCommand.collectAsStateWithLifecycle()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val playbackPlatformHost = rememberPlaybackPlatformHost()
 
     NavigationCommandEffect(
         pending = pending,
@@ -36,6 +38,7 @@ fun AppNavigation(
         actions = navigator,
         catalogDetailActions = navigator,
         payloads = navigator,
+        playbackPlatformHost = playbackPlatformHost,
         startupReady = state.startupTarget != null,
         onStartupNavigationRequested = coordinator::requestStartupNavigation,
         onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation

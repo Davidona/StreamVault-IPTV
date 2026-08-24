@@ -12,6 +12,7 @@ import com.streamvault.app.navigation.graph.registerSystemGraph
 import com.streamvault.app.navigation.graph.registerWelcomeGraph
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.feature.playback.api.PlaybackPlatformHost
 
 @Composable
 internal fun AppNavHost(
@@ -19,6 +20,7 @@ internal fun AppNavHost(
     actions: NavigationActions,
     catalogDetailActions: CatalogDetailNavigationActions,
     payloads: AppNavigationPayloads,
+    playbackPlatformHost: PlaybackPlatformHost?,
     startupReady: Boolean,
     onStartupNavigationRequested: (popUpTo: AppDestination) -> Unit,
     onTopLevelDestinationRequested: (AppDestination) -> Unit
