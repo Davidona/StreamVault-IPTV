@@ -4,6 +4,9 @@ import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 
 internal fun classifyTelevisionDevice(
     hasLeanback: Boolean,
@@ -46,4 +49,10 @@ fun Context.isTelevisionDevice(): Boolean {
         screenWidthDp = resources.configuration.screenWidthDp,
         hasTouchscreen = packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
     )
+}
+
+@Composable
+fun rememberIsTelevisionDevice(): Boolean {
+    val context = LocalContext.current
+    return remember(context) { context.isTelevisionDevice() }
 }

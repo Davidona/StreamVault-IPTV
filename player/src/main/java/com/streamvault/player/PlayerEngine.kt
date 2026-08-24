@@ -77,6 +77,8 @@ interface PlayerEngine {
     fun setSurfaceMode(mode: PlayerSurfaceMode)
     fun setVodHttpProtocolMode(mode: VodHttpProtocolMode)
     fun setMediaSessionEnabled(enabled: Boolean)
+    fun setAudioFocusBypassed(bypassed: Boolean) {}
+    fun setResolutionConstrainedForMultiView(constrained: Boolean) {}
     fun setFastRetryOnTransientFailures(enabled: Boolean)
     fun setVolume(volume: Float)
     fun setMuted(muted: Boolean)

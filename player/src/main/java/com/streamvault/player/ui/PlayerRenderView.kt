@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.components
+package com.streamvault.player.ui
 
 import android.view.View
 import androidx.compose.runtime.Composable

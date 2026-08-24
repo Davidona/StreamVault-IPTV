@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.notifications
+package com.streamvault.core.ui.platform
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
-internal class NotificationPermissionGate(
+class NotificationPermissionGate(
     private val runReminderActionImpl: (() -> Unit) -> Unit,
     private val runRecordingActionImpl: (() -> Unit) -> Unit,
 ) {
@@ -33,7 +33,7 @@ private enum class NotificationPermissionRequestType {
 }
 
 @Composable
-internal fun rememberNotificationPermissionGate(
+fun rememberNotificationPermissionGate(
     onNotificationsBlocked: (String) -> Unit,
     reminderBlockedMessage: String,
     recordingBlockedMessage: String,

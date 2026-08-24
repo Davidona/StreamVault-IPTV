@@ -2,7 +2,7 @@ package com.streamvault.app.ui.screens.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.ui.model.orderedByRequestedRawIds
+import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.ProviderSyncStateSource
 import com.streamvault.app.update.AppUpdateActionState

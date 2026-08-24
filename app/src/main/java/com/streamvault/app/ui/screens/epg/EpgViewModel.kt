@@ -1,11 +1,11 @@
 package com.streamvault.app.ui.screens.epg
 
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.model.guideLookupKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
-import com.streamvault.app.ui.model.orderedByRequestedRawIds
+import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.manager.ProgramReminderManager
 import com.streamvault.domain.model.ActiveLiveSource
@@ -66,7 +66,7 @@ import java.time.ZoneId
 import javax.inject.Inject
 import android.app.Application
 import com.streamvault.app.R
-import com.streamvault.app.di.AuxiliaryPlayerEngine
+import com.streamvault.player.di.AuxiliaryPlayerEngine
 import com.streamvault.app.player.LivePreviewHandoffManager
 import com.streamvault.app.player.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
@@ -500,10 +500,8 @@ class EpgViewModel @Inject constructor(
         previewPlayerEngine?.stop()
         previewPlayerEngine?.release()
         previewPlayerEngine = engine
-        (engine as? com.streamvault.player.Media3PlayerEngine)?.let {
-            it.enableMediaSession = false
-            it.bypassAudioFocus = true
-        }
+        engine.setMediaSessionEnabled(false)
+        engine.setAudioFocusBypassed(true)
         engine.play()
         livePreviewHandoffManager.registerPreviewSession(
             channelId = session.channelId,

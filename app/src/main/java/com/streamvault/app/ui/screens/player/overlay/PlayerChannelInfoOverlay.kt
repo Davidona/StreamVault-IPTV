@@ -47,15 +47,15 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.model.archivePlaybackCapability
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.archivePlaybackCapability
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.screens.player.PlayerTimeshiftUiState
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.core.ui.time.LocalUiTimeFormat
+import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
@@ -117,7 +117,7 @@ fun ChannelInfoOverlay(
     onTransientPanelVisibilityChanged: (Boolean) -> Unit = {},
     resolutionLabel: String? = null
 ) {
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val showTimeshiftControls = timeshiftUiState.available && !isCastConnected
     val archiveCapability = currentChannel?.archivePlaybackCapability()

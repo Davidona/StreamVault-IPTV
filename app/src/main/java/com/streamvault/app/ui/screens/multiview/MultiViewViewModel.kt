@@ -6,8 +6,8 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.di.AuxiliaryPlayerEngine
-import com.streamvault.app.ui.model.associateByAnyRawId
+import com.streamvault.player.di.AuxiliaryPlayerEngine
+import com.streamvault.domain.playback.associateByAnyRawId
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Category
@@ -265,12 +265,9 @@ class MultiViewViewModel @Inject constructor(
                     try {
                         localEngine = playerEngineProvider.get()
                         // Cap each multi-view slot to 720p so slots don't compete for 4K bandwidth
-                        (localEngine as? com.streamvault.player.Media3PlayerEngine)
-                            ?.let {
-                                it.constrainResolutionForMultiView = true
-                                it.bypassAudioFocus = true
-                                it.enableMediaSession = false
-                            }
+                        localEngine.setResolutionConstrainedForMultiView(true)
+                        localEngine.setAudioFocusBypassed(true)
+                        localEngine.setMediaSessionEnabled(false)
                         if (initVersion != slotInitVersion || slotGen != slotGenerations.getOrDefault(index, 0L)) {
                             return@launch
                         }

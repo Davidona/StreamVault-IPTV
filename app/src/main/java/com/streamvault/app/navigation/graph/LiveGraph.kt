@@ -8,7 +8,7 @@ import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
 import com.streamvault.core.navigation.AppDestination

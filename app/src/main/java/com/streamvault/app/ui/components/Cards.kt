@@ -50,12 +50,13 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.rememberCrossfadeImageModel
+import com.streamvault.core.ui.image.rememberCrossfadeImageModel
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.app.ui.components.shell.MoviePosterCard
 import com.streamvault.app.ui.components.shell.SeriesPosterCard
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.app.ui.model.formatVodRatingLabel
-import com.streamvault.app.ui.model.archivePlaybackCapability
+import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.core.ui.theme.AccentAmber
 import com.streamvault.core.ui.theme.AccentCyan
 import com.streamvault.core.ui.theme.AccentRed

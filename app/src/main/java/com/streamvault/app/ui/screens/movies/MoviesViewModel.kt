@@ -43,7 +43,7 @@ import com.streamvault.app.ui.screens.vod.setVodSearchQuery
 import com.streamvault.app.ui.screens.vod.setVodFavorite
 import com.streamvault.app.ui.screens.vod.updateVodGroupMembership
 import com.streamvault.app.ui.screens.vod.VodBrowseDefaults
-import com.streamvault.app.util.isPlaybackComplete
+import com.streamvault.domain.playback.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi

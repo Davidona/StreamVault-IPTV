@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.components.dialogs
+package com.streamvault.core.ui.components.dialogs
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
@@ -44,7 +44,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.design.AppColors
@@ -53,7 +53,7 @@ import com.streamvault.core.ui.design.FocusSpec
 internal val LocalDialogCanInteract = compositionLocalOf { true }
 
 @Composable
-internal fun rememberDialogOpenGestureBlocker(canInteract: Boolean): (KeyEvent) -> Boolean = remember(canInteract) {
+fun rememberDialogOpenGestureBlocker(canInteract: Boolean): (KeyEvent) -> Boolean = remember(canInteract) {
     { event ->
         !canInteract &&
             event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_UP &&

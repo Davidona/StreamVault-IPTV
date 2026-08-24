@@ -7,7 +7,6 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
-import com.streamvault.player.Media3PlayerEngine
 import com.streamvault.player.PlayerEngine
 import android.util.Log
 import kotlinx.coroutines.flow.first
@@ -67,11 +66,9 @@ class PlayerPreviewCoordinator @Inject constructor(
             adoptedEngine.clearRenderBinding()
             engineCoordinator.mainEngine.setMediaSessionEnabled(false)
             engineCoordinator.switchTo(adoptedEngine)
-            (adoptedEngine as? Media3PlayerEngine)?.let {
-                it.bypassAudioFocus = false
-                it.enableMediaSession = preferencesCoordinator.playerMediaSessionEnabled.first()
-                it.constrainResolutionForMultiView = false
-            }
+            adoptedEngine.setAudioFocusBypassed(false)
+            adoptedEngine.setMediaSessionEnabled(preferencesCoordinator.playerMediaSessionEnabled.first())
+            adoptedEngine.setResolutionConstrainedForMultiView(false)
             preparationCoordinator.applyPlaybackPreferences(
                 engine = adoptedEngine,
                 contentType = contentType,

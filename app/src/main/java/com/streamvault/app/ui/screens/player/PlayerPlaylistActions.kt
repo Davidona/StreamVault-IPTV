@@ -2,7 +2,7 @@
 
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.ui.model.orderedByRequestedRawIds
+import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelNumberingMode

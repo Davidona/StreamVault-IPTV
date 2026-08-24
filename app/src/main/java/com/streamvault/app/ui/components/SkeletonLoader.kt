@@ -18,7 +18,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.dp
-import com.streamvault.app.ui.accessibility.rememberReducedMotionEnabled
+import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch

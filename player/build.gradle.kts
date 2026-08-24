@@ -12,6 +12,7 @@ import org.gradle.api.tasks.TaskAction
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kover)
@@ -149,6 +150,10 @@ android {
         baseline = file("lint-baseline.xml")
         warningsAsErrors = true
     }
+
+    buildFeatures {
+        compose = true
+    }
 }
 
 kotlin {
@@ -181,6 +186,9 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(project(":domain"))
+
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
 
     // Media3
     implementation(libs.media3.exoplayer)

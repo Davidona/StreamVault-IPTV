@@ -1,6 +1,6 @@
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.ui.model.archivePlaybackCapability
+import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.model.Channel
 import java.util.Locale
 

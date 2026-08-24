@@ -1,4 +1,4 @@
-package com.streamvault.app.util
+package com.streamvault.domain.playback
 
 import com.streamvault.domain.util.isPlaybackComplete as domainIsPlaybackComplete
 

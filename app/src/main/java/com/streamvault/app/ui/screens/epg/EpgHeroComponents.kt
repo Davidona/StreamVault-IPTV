@@ -42,9 +42,9 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.ChannelLogoBadge
-import com.streamvault.app.ui.components.PlayerRenderView
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.player.ui.PlayerRenderView
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.model.guideLookupKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat

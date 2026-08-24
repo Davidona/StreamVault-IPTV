@@ -21,6 +21,8 @@ import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.ExternalNavigationRequest
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
+import com.streamvault.app.ui.time.toUiTimeFormat
+import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.domain.repository.ProviderRepository
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -151,7 +153,8 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
                 LocalLayoutDirection provides layoutDirection,
-                LocalAppTimeFormat provides appTimeFormat
+                LocalAppTimeFormat provides appTimeFormat,
+                LocalUiTimeFormat provides appTimeFormat.toUiTimeFormat()
             ) {
                 StreamVaultTheme {
                     AppNavigation(coordinator = appNavigationCoordinator)

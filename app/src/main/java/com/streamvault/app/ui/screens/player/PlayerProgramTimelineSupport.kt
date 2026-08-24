@@ -1,6 +1,6 @@
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 

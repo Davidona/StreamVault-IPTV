@@ -10,7 +10,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import com.streamvault.app.diagnostics.CrashReportStore
 import com.streamvault.app.diagnostics.RuntimeDiagnosticsManager
-import com.streamvault.app.ui.accessibility.isReducedMotionEnabled
+import com.streamvault.core.ui.accessibility.isReducedMotionEnabled
 import com.streamvault.data.remote.jellyfin.JellyfinImageAuthInterceptor
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.model
+package com.streamvault.domain.playback
 
 import com.streamvault.domain.model.Channel
 

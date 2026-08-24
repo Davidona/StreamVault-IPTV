@@ -69,14 +69,14 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.components.rememberCrossfadeImageModel
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.core.ui.image.rememberCrossfadeImageModel
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.screens.player.NumericChannelInputState
 import com.streamvault.app.ui.screens.player.PlayerTimeshiftUiState
 import com.streamvault.app.ui.screens.player.SeekPreviewState
 import com.streamvault.app.ui.screens.player.SleepTimerUiState
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.core.ui.time.LocalUiTimeFormat
+import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.Channel
@@ -424,7 +424,7 @@ private fun PlayerTopBar(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isTelevisionDevice = rememberIsTelevisionDevice()
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val topBarHeight = when {
         screenWidth < 700.dp -> 100.dp
@@ -779,7 +779,7 @@ private fun PlayerLiveInfo(
     onOpenExternalPlayer: () -> Unit
 ) {
     val showTimeshiftControls = timeshiftUiState.available && !isCastConnected
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val canRestartProgram = currentChannel != null &&
         currentProgram != null &&
@@ -1701,7 +1701,7 @@ private fun LiveTimeshiftScrubber(
 
     val engineState = timeshiftUiState.engineState
     val oldestWallMs = engineState.bufferStartMs
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val oldestLabel = if (oldestWallMs > 0L) {
         timeFormat.format(Date(oldestWallMs))

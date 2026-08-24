@@ -52,7 +52,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.FocusedMarqueeText
-import com.streamvault.app.ui.components.PlayerRenderView
+import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.FocusBorder

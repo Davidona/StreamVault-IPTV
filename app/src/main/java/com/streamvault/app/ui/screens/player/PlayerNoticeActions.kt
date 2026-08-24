@@ -1,7 +1,7 @@
 package com.streamvault.app.ui.screens.player
 
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.domain.model.ContentType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

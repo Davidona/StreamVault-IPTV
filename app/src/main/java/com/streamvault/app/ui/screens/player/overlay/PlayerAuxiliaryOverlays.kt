@@ -62,13 +62,13 @@ import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
-import com.streamvault.app.ui.model.archivePlaybackCapability
+import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.app.ui.screens.player.playerCategoryOverlayItemKey
 import com.streamvault.app.ui.screens.player.playerChannelOverlayItemKey
 import com.streamvault.app.ui.screens.player.PlayerDiagnosticsUiState
 import com.streamvault.app.ui.screens.player.playerProgramOverlayItemKey
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.core.ui.time.LocalUiTimeFormat
+import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
@@ -478,7 +478,7 @@ fun EpgOverlay(
     onOpenArchiveBrowser: (() -> Unit)? = null,
     onOverlayInteracted: () -> Unit = {}
 ) {
-    val appTimeFormat = LocalAppTimeFormat.current
+    val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()

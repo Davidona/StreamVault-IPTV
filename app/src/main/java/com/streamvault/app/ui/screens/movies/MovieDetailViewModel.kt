@@ -20,7 +20,7 @@ import com.streamvault.app.cast.toCastUnsupportedMessageRes
 import com.streamvault.app.navigation.MOVIE_DETAIL_PRESENTATION_HINT_KEY
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.service.DownloadForegroundService
-import com.streamvault.app.util.isPlaybackComplete
+import com.streamvault.domain.playback.isPlaybackComplete
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.DownloadContentType

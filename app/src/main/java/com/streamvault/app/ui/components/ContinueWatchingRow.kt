@@ -31,7 +31,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.rememberCrossfadeImageModel
+import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.theme.AccentCyan
 import com.streamvault.core.ui.theme.GradientOverlayBottom
 import com.streamvault.core.ui.theme.SurfaceElevated

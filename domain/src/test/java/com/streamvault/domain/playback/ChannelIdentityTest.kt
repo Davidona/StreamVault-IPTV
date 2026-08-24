@@ -1,11 +1,11 @@
-package com.streamvault.app.ui.model
+package com.streamvault.domain.playback
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.LiveChannelVariant
 import org.junit.Test
 
-class ChannelVariantUiHelpersTest {
+class ChannelIdentityTest {
 
     @Test
     fun `orderedByRequestedRawIds preserves raw variants from same logical group`() {

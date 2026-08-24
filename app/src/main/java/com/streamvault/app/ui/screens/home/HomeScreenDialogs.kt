@@ -17,9 +17,9 @@ import com.streamvault.app.ui.components.SearchInput
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
 import com.streamvault.app.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.dialogs.PremiumDialog
-import com.streamvault.app.ui.components.dialogs.PremiumDialogActionButton
-import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog

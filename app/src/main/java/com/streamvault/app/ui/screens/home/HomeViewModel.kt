@@ -2,14 +2,14 @@ package com.streamvault.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.di.AuxiliaryPlayerEngine
+import com.streamvault.player.di.AuxiliaryPlayerEngine
 import com.streamvault.app.player.LivePreviewHandoffManager
 import com.streamvault.app.player.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.app.ui.screens.multiview.MultiViewManager
 import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
-import com.streamvault.app.ui.model.orderedByRequestedRawIds
+import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.app.ui.model.guideLookupKey
 import com.streamvault.app.ui.model.LiveTvChannelMode
 import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
@@ -1180,10 +1180,8 @@ class HomeViewModel @Inject constructor(
         previewPlayerEngine?.release()
         previewPlayerEngine = engine
         // Restore auxiliary-engine defaults that the fullscreen handoff flipped.
-        (engine as? com.streamvault.player.Media3PlayerEngine)?.let {
-            it.enableMediaSession = false
-            it.bypassAudioFocus = true
-        }
+        engine.setMediaSessionEnabled(false)
+        engine.setAudioFocusBypassed(true)
         engine.play()
         // Re-register the forward-handoff slot so a subsequent click can open fullscreen again.
         livePreviewHandoffManager.registerPreviewSession(

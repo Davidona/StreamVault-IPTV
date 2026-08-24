@@ -1,6 +1,6 @@
 package com.streamvault.app.ui.screens.player
 
-import com.streamvault.app.di.MainPlayerEngine
+import com.streamvault.player.di.MainPlayerEngine
 import com.streamvault.player.PlayerEngine
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.MutableStateFlow

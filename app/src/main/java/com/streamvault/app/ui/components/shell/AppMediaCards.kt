@@ -52,9 +52,9 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.app.ui.components.channelProgressFraction
-import com.streamvault.app.ui.components.rememberCrossfadeImageModel
+import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppMotion
 import com.streamvault.core.ui.design.FocusSpec
@@ -62,7 +62,7 @@ import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.app.ui.model.archivePlaybackCapability
+import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie

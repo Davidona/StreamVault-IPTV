@@ -585,6 +585,14 @@ class Media3PlayerEngine @Inject constructor(
         enableMediaSession = enabled
     }
 
+    override fun setAudioFocusBypassed(bypassed: Boolean) {
+        bypassAudioFocus = bypassed
+    }
+
+    override fun setResolutionConstrainedForMultiView(constrained: Boolean) {
+        constrainResolutionForMultiView = constrained
+    }
+
     override fun setFastRetryOnTransientFailures(enabled: Boolean) {
         fastRetryOnTransientFailures = enabled
     }

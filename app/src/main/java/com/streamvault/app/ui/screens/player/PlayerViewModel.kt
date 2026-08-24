@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.app.cast.CastConnectionState
 import com.streamvault.app.cast.CastPlaybackReportMode
-import com.streamvault.app.util.isPlaybackComplete
+import com.streamvault.domain.playback.isPlaybackComplete
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.CombinedCategory

@@ -73,9 +73,9 @@ import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.app.MainActivity
 import com.streamvault.app.cast.CastConnectionState
-import com.streamvault.app.ui.components.PlayerRenderView
+import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.app.ui.notifications.rememberNotificationPermissionGate
+import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.app.ui.screens.player.overlay.ChannelInfoOverlay
 import com.streamvault.app.ui.screens.player.overlay.CategoryListOverlay
 import com.streamvault.app.ui.screens.player.overlay.ChannelListOverlay

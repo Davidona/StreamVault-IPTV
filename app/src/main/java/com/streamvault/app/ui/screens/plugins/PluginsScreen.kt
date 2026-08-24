@@ -57,8 +57,8 @@ import com.streamvault.app.plugins.PluginConfigurationAction
 import com.streamvault.app.plugins.PluginConfigurationField
 import com.streamvault.app.plugins.PluginConfigurationSection
 import com.streamvault.app.plugins.owner
-import com.streamvault.app.ui.components.dialogs.PremiumDialog
-import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.components.shell.StatusPill

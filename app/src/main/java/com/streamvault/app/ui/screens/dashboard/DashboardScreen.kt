@@ -52,14 +52,14 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.app.ui.components.ChannelProgressTicker
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
 import com.streamvault.app.ui.components.ContinueWatchingRow
 import com.streamvault.app.ui.components.MovieCard
-import com.streamvault.app.ui.components.rememberCrossfadeImageModel
+import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.app.ui.components.SeriesCard
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.core.ui.components.shell.AppHeroHeader

@@ -20,6 +20,8 @@ import com.streamvault.player.AudioCompatibilityMemoryStore
 import com.streamvault.player.Media3PlayerEngine
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.PlaybackSupportSnapshotStore
+import com.streamvault.player.di.AuxiliaryPlayerEngine
+import com.streamvault.player.di.MainPlayerEngine
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

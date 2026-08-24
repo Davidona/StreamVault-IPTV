@@ -1,4 +1,4 @@
-package com.streamvault.app.di
+package com.streamvault.player.di
 
 import javax.inject.Qualifier
 

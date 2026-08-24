@@ -1,9 +1,9 @@
 package com.streamvault.app.ui.screens.epg
 
 import android.view.inputmethod.InputMethodManager
-import com.streamvault.app.ui.model.ArchiveReplayMechanism
-import com.streamvault.app.ui.model.archivePlaybackCapability
-import com.streamvault.app.ui.model.isArchivePlayable
+import com.streamvault.domain.playback.ArchiveReplayMechanism
+import com.streamvault.domain.playback.archivePlaybackCapability
+import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.model.guideLookupKey
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -92,9 +92,9 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.components.ChannelLogoBadge
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.notifications.rememberNotificationPermissionGate
+import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SelectionChipRow
 import kotlinx.coroutines.launch

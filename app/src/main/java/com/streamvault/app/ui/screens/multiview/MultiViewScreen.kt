@@ -77,11 +77,11 @@ import androidx.tv.material3.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.PlayerRenderView
-import com.streamvault.app.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.dialogs.PremiumDialog
-import com.streamvault.app.ui.components.dialogs.PremiumDialogActionButton
-import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
+import com.streamvault.player.ui.PlayerRenderView
+import com.streamvault.core.ui.components.dialogs.PinEntryDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.player.PlayerRenderSurfaceType
 import com.streamvault.player.PlayerSurfaceResizeMode
@@ -877,7 +877,9 @@ private fun ReplaceSlotDialog(
     )
 
     if (showPinDialog) {
-        PinDialog(
+        PinEntryDialog(
+            title = stringResource(R.string.pin_dialog_title),
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
             onDismissRequest = {
                 showPinDialog = false
                 pinError = null
@@ -899,7 +901,6 @@ private fun ReplaceSlotDialog(
                     }
                 }
             },
-            title = stringResource(R.string.pin_dialog_title),
             error = pinError
         )
     }
