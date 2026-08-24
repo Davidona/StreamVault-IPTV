@@ -13,10 +13,12 @@ import com.streamvault.app.ui.screens.player.PlayerScreen
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
+import com.streamvault.feature.playback.api.PlaybackPlatformHost
 
 internal fun NavGraphBuilder.registerPlayerGraph(
     actions: NavigationActions,
-    payloads: AppNavigationPayloads
+    payloads: AppNavigationPayloads,
+    playbackPlatformHost: PlaybackPlatformHost?
 ) {
     composable(AppRoutePatterns.PLAYER) { backStackEntry ->
         val playerRequest = payloads.consumePlayerRequest(backStackEntry)
@@ -57,6 +59,7 @@ internal fun NavGraphBuilder.registerPlayerGraph(
                 episodeNumber = safePlayerRequest.episodeNumber,
                 episodeId = safePlayerRequest.episodeId,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
+                playbackPlatformHost = playbackPlatformHost,
                 onNavigate = { destination ->
                     actions.navigate(
                         destination,

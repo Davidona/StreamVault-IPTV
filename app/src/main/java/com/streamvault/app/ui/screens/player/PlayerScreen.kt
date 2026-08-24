@@ -1,6 +1,5 @@
 package com.streamvault.app.ui.screens.player
 
-import android.app.Activity
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -15,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -71,8 +69,9 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.MainActivity
 import com.streamvault.app.cast.CastConnectionState
+import com.streamvault.feature.playback.api.PlaybackPictureInPictureState
+import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
@@ -119,6 +118,7 @@ fun PlayerScreen(
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
+    playbackPlatformHost: PlaybackPlatformHost? = null,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -137,15 +137,14 @@ fun PlayerScreen(
     } else {
         400.dp
     }
-    val mainActivity = LocalContext.current.findMainActivity()
     val notificationPermissionGate = rememberNotificationPermissionGate(
         onNotificationsBlocked = { message -> viewModel.showPlayerNotice(message = message) },
         reminderBlockedMessage = stringResource(R.string.notification_permission_reminder_required),
         recordingBlockedMessage = stringResource(R.string.notification_permission_recording_alert_required)
     )
-    val isInPictureInPictureMode = mainActivity
-        ?.pictureInPictureModeFlow
-        ?.collectAsState(initial = mainActivity.isInPictureInPictureMode)
+    val isInPictureInPictureMode = playbackPlatformHost
+        ?.pictureInPictureMode
+        ?.collectAsState(initial = false)
         ?.value
         ?: false
     val playerEngine by viewModel.activePlayerEngine.collectAsStateWithLifecycle()
@@ -183,9 +182,9 @@ fun PlayerScreen(
     val channelInfoFocusRequester = remember { FocusRequester() }
     val layoutDirection = LocalLayoutDirection.current
     val isRtl = layoutDirection == LayoutDirection.Rtl
-    val enterPictureInPicture = remember(mainActivity) {
+    val enterPictureInPicture = remember(playbackPlatformHost) {
         {
-            mainActivity?.enterPlayerPictureInPictureModeFromPlayer()
+            playbackPlatformHost?.enterPictureInPicture()
             Unit
         }
     }
@@ -194,15 +193,17 @@ fun PlayerScreen(
         focusRequester.requestFocus()
     }
 
-    LaunchedEffect(mainActivity, streamUrl, playbackState, isPlaying, videoFormat.width, videoFormat.height, videoFormat.pixelWidthHeightRatio) {
-        mainActivity?.updatePlayerPictureInPictureState(
-            enabled = streamUrl.isNotBlank()
-                && playbackState != PlaybackState.ERROR
-                && (isPlaying || playbackState == PlaybackState.READY || playbackState == PlaybackState.BUFFERING),
-            isPlaying = isPlaying,
-            videoWidth = videoFormat.width,
-            videoHeight = videoFormat.height,
-            pixelWidthHeightRatio = videoFormat.pixelWidthHeightRatio
+    LaunchedEffect(playbackPlatformHost, streamUrl, playbackState, isPlaying, videoFormat.width, videoFormat.height, videoFormat.pixelWidthHeightRatio) {
+        playbackPlatformHost?.updatePictureInPictureState(
+            PlaybackPictureInPictureState(
+                enabled = streamUrl.isNotBlank()
+                    && playbackState != PlaybackState.ERROR
+                    && (isPlaying || playbackState == PlaybackState.READY || playbackState == PlaybackState.BUFFERING),
+                isPlaying = isPlaying,
+                videoWidth = videoFormat.width,
+                videoHeight = videoFormat.height,
+                pixelWidthHeightRatio = videoFormat.pixelWidthHeightRatio
+            )
         )
     }
 
@@ -214,7 +215,7 @@ fun PlayerScreen(
     }
 
     PlayerLifecycleHost(
-        mainActivity = mainActivity,
+        playbackPlatformHost = playbackPlatformHost,
         playbackState = playbackState,
         isPlaying = isPlaying,
         isInPictureInPictureMode = isInPictureInPictureMode,
@@ -730,7 +731,7 @@ fun PlayerScreen(
             onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
             onRunRecordingAction = notificationPermissionGate::runRecordingAction,
-            onOpenCastRouteChooser = { mainActivity?.openCastRouteChooser() }
+            onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() }
         )
 
         PlayerNumericInputOverlayHost(
@@ -841,7 +842,7 @@ fun PlayerScreen(
                 onOpenModal = { modal -> modalState = modalState.open(modal) },
                 onEnterPictureInPicture = enterPictureInPicture,
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
-                onOpenCastRouteChooser = { mainActivity?.openCastRouteChooser() },
+                onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
                 onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
             )
         }
@@ -878,10 +879,4 @@ private fun AspectRatio.toPlayerSurfaceResizeMode(): PlayerSurfaceResizeMode = w
     AspectRatio.FIT -> PlayerSurfaceResizeMode.FIT
     AspectRatio.FILL -> PlayerSurfaceResizeMode.FILL
     AspectRatio.ZOOM -> PlayerSurfaceResizeMode.ZOOM
-}
-
-private tailrec fun android.content.Context.findMainActivity(): MainActivity? = when (this) {
-    is MainActivity -> this
-    is android.content.ContextWrapper -> baseContext.findMainActivity()
-    else -> null
 }

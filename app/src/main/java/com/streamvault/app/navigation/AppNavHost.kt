@@ -39,7 +39,7 @@ internal fun AppNavHost(
             payloads,
             onTopLevelDestinationRequested
         )
-        registerPlayerGraph(actions, payloads)
+        registerPlayerGraph(actions, payloads, playbackPlatformHost)
         registerSystemGraph(actions, onTopLevelDestinationRequested)
     }
 }

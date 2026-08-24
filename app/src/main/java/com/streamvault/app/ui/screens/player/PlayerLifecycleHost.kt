@@ -1,6 +1,5 @@
 package com.streamvault.app.ui.screens.player
 
-import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -8,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.streamvault.app.MainActivity
+import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.player.PlaybackState
 
 /**
@@ -21,7 +20,7 @@ import com.streamvault.player.PlaybackState
  */
 @Composable
 internal fun PlayerLifecycleHost(
-    mainActivity: MainActivity?,
+    playbackPlatformHost: PlaybackPlatformHost?,
     playbackState: PlaybackState,
     isPlaying: Boolean,
     isInPictureInPictureMode: Boolean,
@@ -52,26 +51,25 @@ internal fun PlayerLifecycleHost(
         }
     }
 
-    DisposableEffect(mainActivity) {
+    DisposableEffect(playbackPlatformHost) {
         onDispose {
-            mainActivity?.clearPlayerPictureInPictureState()
+            playbackPlatformHost?.clearPictureInPictureState()
             viewModel.onPlayerScreenDisposed()
         }
     }
 
-    val playerWindow = mainActivity?.window
     DisposableEffect(Unit) {
-        onDispose { playerWindow?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
+        onDispose { playbackPlatformHost?.setKeepScreenOn(false) }
     }
 
     LaunchedEffect(preventStandbyDuringPlayback, isPlaying, playbackState) {
         if (preventStandbyDuringPlayback) {
             // Keep screen always on while in player — prevents TV OS standby nag
-            playerWindow?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            playbackPlatformHost?.setKeepScreenOn(true)
         } else if (isPlaying || playbackState == PlaybackState.BUFFERING) {
-            playerWindow?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            playbackPlatformHost?.setKeepScreenOn(true)
         } else {
-            playerWindow?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            playbackPlatformHost?.setKeepScreenOn(false)
         }
     }
 }
