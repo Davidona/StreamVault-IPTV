@@ -421,6 +421,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":player"))
+    implementation(project(":feature:playback"))
     implementation(libs.profileinstaller)
     baselineProfile(project(":benchmark"))
 
