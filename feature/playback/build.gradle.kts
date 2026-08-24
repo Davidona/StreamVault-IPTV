@@ -50,9 +50,35 @@ val allowedProjectDependencies = setOf(
     ":data"
 )
 
+val forbiddenFeaturePlaybackSourceTokens = listOf(
+    "import com.streamvault.app",
+    "com.streamvault.app",
+    "MainActivity",
+    "NavHostController",
+    "NavController"
+)
+
+fun findForbiddenFeaturePlaybackSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
+    .walkTopDown()
+    .filter { it.isFile && it.extension in setOf("kt", "java") }
+    .flatMap { file ->
+        file.readLines().flatMapIndexed { index, line ->
+            forbiddenFeaturePlaybackSourceTokens.filter(line::contains).map { token ->
+                "${file.relativeTo(sourceRoot)}:${index + 1}: $token"
+            }
+        }
+    }
+    .toList()
+
+val featurePlaybackBoundaryReport = layout.buildDirectory.file(
+    "reports/feature-playback-boundary/report.txt"
+)
+
 val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundary") {
     group = "verification"
     description = "Verifies that playback feature source and dependencies remain app-independent."
+    outputs.file(featurePlaybackBoundaryReport)
+    outputs.upToDateWhen { false }
     notCompatibleWithConfigurationCache(
         "The boundary scan reads resolved Gradle model state at execution time."
     )
@@ -73,32 +99,49 @@ val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundar
         }
 
         val sourceRoot = layout.projectDirectory.asFile.resolve("src/main")
-        val forbiddenTokens = listOf(
-            "import com.streamvault.app",
-            "NavHostController",
-            "NavController"
-        )
-        val violations = sourceRoot.walkTopDown()
-            .filter { it.isFile && it.extension == "kt" }
-            .flatMap { file ->
-                file.readLines().flatMapIndexed { index, line ->
-                    forbiddenTokens.filter(line::contains).map { token ->
-                        "${file.relativeTo(sourceRoot)}:${index + 1}: $token"
-                    }
-                }
-            }
-            .toList()
+        val violations = findForbiddenFeaturePlaybackSourceReferences(sourceRoot)
 
         check(violations.isEmpty()) {
             ":feature:playback contains forbidden app or root navigation references:\n" +
                 violations.joinToString("\n")
         }
 
-        println("Verified :feature:playback boundary: approved dependencies and no forbidden source references.")
+        val fixtureRoot = layout.projectDirectory.asFile.resolve("src/test/resources/boundary-fixtures")
+        val fixtureViolations = findForbiddenFeaturePlaybackSourceReferences(fixtureRoot)
+        val requiredFixtureViolations = setOf(
+            "AppPackageImport.kt:3: import com.streamvault.app",
+            "FullyQualifiedAppReference.kt:3: com.streamvault.app",
+            "MainActivityReference.java:4: MainActivity",
+            "RootNavigation.kt:3: NavHostController",
+            "RootNavigation.java:4: NavController"
+        )
+        check(fixtureViolations.containsAll(requiredFixtureViolations)) {
+            ":feature:playback boundary fixtures are not detected: " +
+                "${requiredFixtureViolations - fixtureViolations.toSet()}"
+        }
+
+        val reportFile = featurePlaybackBoundaryReport.get().asFile
+        reportFile.parentFile.mkdirs()
+        reportFile.writeText(
+            listOf(
+                "projectDependencies=${projectDependencyPaths.sorted().joinToString(",")}",
+                "mainSourceViolations=${violations.joinToString("|")}",
+                "fixtureViolations=${fixtureViolations.joinToString("|")}"
+            ).joinToString("\n")
+        )
+
+        println(
+            "Verified :feature:playback boundary: approved dependencies, no forbidden source references, " +
+                "and Kotlin/Java fixture coverage."
+        )
     }
 }
 
 tasks.named("check") {
+    dependsOn(verifyFeaturePlaybackBoundary)
+}
+
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
     dependsOn(verifyFeaturePlaybackBoundary)
 }
 
