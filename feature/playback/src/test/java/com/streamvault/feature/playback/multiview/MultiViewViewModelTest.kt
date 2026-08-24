@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.After
 import org.junit.Before
 import org.mockito.kotlin.any
+import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -104,6 +105,46 @@ class MultiViewViewModelTest {
         clear(viewModel)
     }
 
+    @Test
+    fun setFocus_makesTheFocusedEngineAudibleAndTheOtherEngineSilent() {
+        val viewModel = createViewModel()
+        dispatcher.scheduler.runCurrent()
+        val firstEngine: PlayerEngine = mock()
+        val secondEngine: PlayerEngine = mock()
+        attachEngine(viewModel, 0, firstEngine)
+        attachEngine(viewModel, 1, secondEngine)
+
+        viewModel.setFocus(1)
+
+        verify(secondEngine).setVolume(1f)
+        verify(firstEngine).setVolume(0f)
+        clear(viewModel)
+    }
+
+    @Test
+    fun pinnedAudio_overridesFocusAndClearingPinReturnsAudioToFocusedSlot() {
+        val viewModel = createViewModel()
+        dispatcher.scheduler.runCurrent()
+        val firstEngine: PlayerEngine = mock()
+        val secondEngine: PlayerEngine = mock()
+        attachEngine(viewModel, 0, firstEngine)
+        attachEngine(viewModel, 1, secondEngine)
+
+        viewModel.pinAudioToFocusedSlot()
+        clearInvocations(firstEngine, secondEngine)
+        viewModel.setFocus(1)
+
+        verify(firstEngine).setVolume(1f)
+        verify(secondEngine).setVolume(0f)
+
+        clearInvocations(firstEngine, secondEngine)
+        viewModel.clearPinnedAudio()
+
+        verify(firstEngine).setVolume(0f)
+        verify(secondEngine).setVolume(1f)
+        clear(viewModel)
+    }
+
     private fun createViewModel() = MultiViewViewModel(
         context = context,
         multiViewManager = manager,
@@ -122,6 +163,14 @@ class MultiViewViewModelTest {
         name = "Channel $id",
         streamUrl = "https://example.test/$id.m3u8"
     )
+
+    private fun attachEngine(viewModel: MultiViewViewModel, slotIndex: Int, engine: PlayerEngine) {
+        val field = MultiViewViewModel::class.java.getDeclaredField("playerEngines")
+        field.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val engines = field.get(viewModel) as MutableMap<Int, PlayerEngine>
+        engines[slotIndex] = engine
+    }
 
     private fun clear(viewModel: ViewModel) {
         val clearMethod = ViewModel::class.java.declaredMethods.first { method ->
