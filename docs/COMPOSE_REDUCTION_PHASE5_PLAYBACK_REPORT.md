@@ -163,6 +163,19 @@ failure rather than an empty catalog or navigation failure. Raw local
 artifacts are under `validation/phase5_playback/live-validation/` and remain
 uncommitted.
 
+### Attribution boundary
+
+The Phase 5 extraction is not the source-level change that introduced this
+behavior. `git diff --name-status 3b1becba..HEAD --
+player/src/main/java/com/streamvault/player/Media3PlayerEngine.kt
+player/src/main/java/com/streamvault/player/playback` is empty: the
+`Media3PlayerEngine` and retry-policy implementations were not modified by
+the Phase 5 extraction commits. The observed path is the existing
+`onPlayerError` → `handlePlaybackError` → live-window retry flow in `:player`.
+The two tested channels are also related streams from the same public 3ABN
+source, so a source-window interaction remains possible; this evidence does
+not yet justify changing the recovery policy.
+
 ## Graph and final status
 
 `graphify update .` was run after this report and plan update. It rebuilt
