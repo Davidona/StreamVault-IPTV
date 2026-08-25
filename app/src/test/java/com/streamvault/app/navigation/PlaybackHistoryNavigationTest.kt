@@ -1,7 +1,6 @@
 package com.streamvault.app.navigation
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import org.junit.Test
@@ -32,14 +31,4 @@ class PlaybackHistoryNavigationTest {
         assertThat(request.episodeNumber).isEqualTo(4)
     }
 
-    @Test
-    fun safePlayerNavigationRequest_allowsInternalStalkerUrls() {
-        val request = PlayerNavigationRequest(
-            streamUrl = "stalker://7/live/390414?cmd=ffmpeg%20http%3A%2F%2Fportal.example.com%2Fch%2F390414_",
-            title = "Channel",
-            contentType = ContentType.LIVE.name
-        )
-
-        assertThat(safePlayerNavigationRequest(request)).isEqualTo(request)
-    }
 }

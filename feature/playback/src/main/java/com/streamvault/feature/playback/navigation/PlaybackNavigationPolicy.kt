@@ -1,4 +1,4 @@
-package com.streamvault.app.navigation
+package com.streamvault.feature.playback.navigation
 
 import com.streamvault.core.navigation.PlayerNavigationRequest
 

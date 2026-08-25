@@ -6,13 +6,13 @@ import androidx.navigation.compose.NavHost
 import com.streamvault.app.navigation.graph.registerCatalogGraph
 import com.streamvault.app.navigation.graph.registerHomeGraph
 import com.streamvault.app.navigation.graph.registerLiveGraph
-import com.streamvault.app.navigation.graph.registerPlayerGraph
 import com.streamvault.app.navigation.graph.registerProviderGraph
 import com.streamvault.app.navigation.graph.registerSystemGraph
 import com.streamvault.app.navigation.graph.registerWelcomeGraph
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
+import com.streamvault.feature.playback.navigation.registerPlaybackGraph
 
 @Composable
 internal fun AppNavHost(
@@ -39,7 +39,7 @@ internal fun AppNavHost(
             payloads,
             onTopLevelDestinationRequested
         )
-        registerPlayerGraph(actions, payloads, playbackPlatformHost)
+        registerPlaybackGraph(actions, playbackPlatformHost, payloads::consumePlayerRequest)
         registerSystemGraph(actions, onTopLevelDestinationRequested)
     }
 }

@@ -1,32 +1,35 @@
-package com.streamvault.app.navigation.graph
+package com.streamvault.feature.playback.navigation
 
 import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.streamvault.app.navigation.APP_NAVIGATION_TAG
-import com.streamvault.app.navigation.AppNavigationPayloads
-import com.streamvault.app.navigation.AppRoutePatterns
-import com.streamvault.app.navigation.safePlayerNavigationRequest
-import com.streamvault.feature.playback.multiview.MultiViewScreen
-import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
+import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
+import com.streamvault.feature.playback.multiview.MultiViewScreen
 import com.streamvault.feature.playback.player.PlayerScreen
 
-internal fun NavGraphBuilder.registerPlayerGraph(
+private const val PLAYBACK_NAVIGATION_TAG = "PlaybackNavigation"
+
+fun NavGraphBuilder.registerPlaybackGraph(
     actions: NavigationActions,
-    payloads: AppNavigationPayloads,
-    playbackPlatformHost: PlaybackPlatformHost?
+    platformHost: PlaybackPlatformHost?,
+    consumePlayerRequest: (NavBackStackEntry) -> PlayerNavigationRequest?
 ) {
-    composable(AppRoutePatterns.PLAYER) { backStackEntry ->
-        val playerRequest = payloads.consumePlayerRequest(backStackEntry)
+    composable(PlaybackRoutePatterns.PLAYER) { backStackEntry ->
+        val playerRequest = consumePlayerRequest(backStackEntry)
         val safePlayerRequest = safePlayerNavigationRequest(playerRequest)
         if (safePlayerRequest == null) {
             LaunchedEffect(playerRequest) {
-                Log.w(APP_NAVIGATION_TAG, "Missing or invalid player request; returning to previous destination")
+                Log.w(
+                    PLAYBACK_NAVIGATION_TAG,
+                    "Missing or invalid player request; returning to previous destination"
+                )
                 if (!actions.back()) {
                     actions.navigate(
                         AppDestination.Home,
@@ -60,7 +63,7 @@ internal fun NavGraphBuilder.registerPlayerGraph(
                 episodeNumber = safePlayerRequest.episodeNumber,
                 episodeId = safePlayerRequest.episodeId,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
-                playbackPlatformHost = playbackPlatformHost,
+                playbackPlatformHost = platformHost,
                 splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->
                     MultiViewPlannerDialog(
                         pendingChannel = pendingChannel,
@@ -82,7 +85,7 @@ internal fun NavGraphBuilder.registerPlayerGraph(
         }
     }
 
-    composable(AppRoutePatterns.MULTI_VIEW) {
+    composable(PlaybackRoutePatterns.MULTI_VIEW) {
         MultiViewScreen(onBack = { actions.back() })
     }
 }

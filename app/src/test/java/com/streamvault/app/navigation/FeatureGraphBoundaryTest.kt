@@ -17,9 +17,9 @@ class FeatureGraphBoundaryTest {
             "HomeGraph.kt",
             "LiveGraph.kt",
             "CatalogGraph.kt",
-            "PlayerGraph.kt",
             "SystemGraph.kt"
         )
+        assertThat(files.map { it.name }).doesNotContain("PlayerGraph.kt")
         val violations = files
             .filter { "NavHostController" in it.readText() || "NavController" in it.readText() }
             .map { it.name }

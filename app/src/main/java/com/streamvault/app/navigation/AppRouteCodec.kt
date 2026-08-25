@@ -2,6 +2,7 @@ package com.streamvault.app.navigation
 
 import android.net.Uri
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
@@ -19,14 +20,14 @@ internal object AppRoutePatterns {
     const val SETTINGS = "settings"
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
     const val PLUGINS = "plugins"
-    const val PLAYER = "player"
+    const val PLAYER = PlaybackRoutePatterns.PLAYER
     const val SEARCH = "search"
     const val SEARCH_DESTINATION = "search?query={query}"
     const val PROVIDER_SETUP = "provider_setup?providerId={providerId}&importUri={importUri}"
     const val MOVIE_DETAIL = "movie_detail/{movieId}?returnRoute={returnRoute}"
     const val SERIES_DETAIL = "series_detail/{seriesId}?returnRoute={returnRoute}"
     const val PARENTAL_CONTROL_GROUPS = "parental_control_groups/{providerId}"
-    const val MULTI_VIEW = "multi_view"
+    const val MULTI_VIEW = PlaybackRoutePatterns.MULTI_VIEW
 }
 
 internal object AppRouteCodec {
