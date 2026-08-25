@@ -906,6 +906,16 @@ Exit criteria:
 - Feature tests can run independently.
 - `:app` contains orchestration and platform entry points, not feature presentation implementations.
 
+Phase 5 execution status (2026-08-25): the structural playback extraction and
+feature-boundary work through Task 9 is complete, and the Task 10 report is
+recorded in [COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md](COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md).
+Feature overlay connected coverage passed 6/6; the app connected suite passed
+22/27, with five existing fixture/provider/focus failures recorded in the
+report. The fresh ADB startup check confirms the current app's horizontal top
+navbar. Full provider-dependent manual journeys, two-channel long-duration
+playback, and baseline-profile generation remain open because the fresh
+emulator has no seeded provider or channels; these are not counted as passes.
+
 ### Phase 6 - Optional Views migrations
 
 Purpose: reduce Compose where evidence and maintenance characteristics support it.
