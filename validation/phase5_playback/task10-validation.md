@@ -21,10 +21,19 @@ successful playback coverage.
 
 ## Provider-dependent gates
 
-The fresh emulator has no seeded provider, channel list, or release-like
-benchmark target. Consequently, provider-dependent manual journeys, two
-61-frame/two-second live-TV sequences, media-session evidence, HLS log
-evidence, and baseline-profile generation are **unavailable**, not passed.
+The debug APK was rebuilt with the configured public M3U seed and synced 1,459
+channels. Two-channel live validation is now attempted and recorded locally:
+
+| Channel | Frames | Unique hashes | Final session | HLS prepares / first frames | Retries / `state=ERROR` | Result |
+|---|---:|---:|---|---:|---:|---|
+| 3ABN English | 61 | 61 | `PLAYING`, `error=null` | 8 / 6 | 5 / 35 | Not accepted |
+| 3ABN French | 61 | 61 | `PLAYING`, `error=null` | 4 / 4 | 3 / 21 | Not accepted |
+
+Both streams rendered video but repeatedly hit recoverable HLS
+`BehindLiveWindowException`/`Source error` transitions during the capture
+window. Neither log contained fatal-error, stuck-player, MPEG-TS fallback, or
+malformed-HLS fallback markers. Baseline-profile generation remains open until
+the runtime stability gate is resolved.
 
 ## ADB artifact
 

@@ -912,9 +912,11 @@ recorded in [COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md](COMPOSE_REDUCTION_PHAS
 Feature overlay connected coverage passed 6/6; the app connected suite passed
 22/27, with five existing fixture/provider/focus failures recorded in the
 report. The fresh ADB startup check confirms the current app's horizontal top
-navbar. Full provider-dependent manual journeys, two-channel long-duration
-playback, and baseline-profile generation remain open because the fresh
-emulator has no seeded provider or channels; these are not counted as passes.
+navbar. Seeded two-channel playback produced real video and 61 unique frames
+per channel, but both channels hit repeated recoverable HLS live-window source
+errors during the required window, so runtime acceptance remains open. Full
+manual journey coverage and release-like baseline-profile generation also
+remain open.
 
 ### Phase 6 - Optional Views migrations
 

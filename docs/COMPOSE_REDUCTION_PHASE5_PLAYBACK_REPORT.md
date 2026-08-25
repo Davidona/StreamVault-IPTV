@@ -128,17 +128,40 @@ it does not validate player playback.
 
 - Provider-dependent manual journeys (player launch, return/Back priority,
   controls, seeking, overlays, numeric entry, zapping, PiP, Cast, MultiView,
-  touch/mouse, RTL, and reduced motion) were not marked passed because the
-  fresh emulator contains no provider data or channels.
-- Two-channel live validation was not run. Therefore there are no channel
-  names, 61-frame sequences, unique-hash counts, media-session playback
-  result, or HLS log evidence to report. This is an unavailable gate, not a
-  pass.
+  touch/mouse, RTL, and reduced motion) were not fully accepted; the seeded
+  ADB run covered channel launch and sustained video, while the remaining
+  journeys still need explicit manual coverage.
+- Two-channel live validation was run and is recorded below. Both channels
+  rendered video and recovered to final `PLAYING`, but neither passed the
+  stability gate because repeated live-window source-error transitions were
+  observed during the required window.
 - `:benchmark:compileBenchmarkKotlin` passed. Profile generation itself was
-  not run because the benchmark requires a seeded development provider and a
-  release-like target with Home, Live TV, and All Channels data; the fresh
-  emulator has neither. Generated baseline-profile output remains
-  uncommitted.
+  not run because the benchmark still requires a separate release-like target
+  with Home, Live TV, and All Channels data. The debug target was seeded, but
+  the required release-like target was not installed. Generated baseline-
+  profile output remains uncommitted.
+
+### Fresh seeded-provider ADB validation (2026-08-26)
+
+The configured public M3U seed was rebuilt into the debug APK, installed with
+`E:\androidSdk\platform-tools\adb.exe`, and allowed to sync 1,459 channels.
+Both channels below rendered real video and produced 61 unique screenshots at
+two-second cadence. Neither is an acceptance pass because the stream entered
+repeated recoverable `BehindLiveWindowException`/`Source error` transitions
+during the two-minute window; the final media session recovered to
+`PLAYING` with `error=null`.
+
+| Channel | Frames / unique SHA-256 | Final media session | HLS evidence | Recovery/error evidence | Result |
+|---|---:|---|---|---|---|
+| 3ABN English | 61 / 61 | `PLAYING`, `error=null` | 8 prepares, 6 first frames | 5 live-window retries, 35 `state=ERROR` records | Open/fail |
+| 3ABN French | 61 / 61 | `PLAYING`, `error=null` | 4 prepares, 4 first frames | 3 live-window retries, 21 `state=ERROR` records | Open/fail |
+
+No `fatal-error`, stuck-player timeout, MPEG-TS fallback, or malformed-HLS
+fallback marker appeared in either isolated log. The captured frames visibly
+contain the two live broadcasts, so this is a playback-recovery stability
+failure rather than an empty catalog or navigation failure. Raw local
+artifacts are under `validation/phase5_playback/live-validation/` and remain
+uncommitted.
 
 ## Graph and final status
 
@@ -149,4 +172,5 @@ feature sources and no longer places Player/MultiView implementation under
 the app source tree.
 
 Phase 5 structural extraction: **complete**.
-Runtime playback acceptance: **open pending seeded-provider/device validation**.
+Runtime playback acceptance: **open pending live-recovery stability and
+release-like profile validation**.
