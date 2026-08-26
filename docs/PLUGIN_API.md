@@ -63,7 +63,9 @@ Example manifest for host-rendered configuration:
     "playback.prepare",
     "cast.rewriteUrl",
     "configuration.schema"
-  ]
+  ],
+  "playbackUrlSchemes": ["http", "https"],
+  "playbackUrlHosts": ["127.0.0.1", "cdn.example.com"]
 }
 ```
 
@@ -103,6 +105,30 @@ Recommended fallback metadata:
 
 For Activity configuration, set `CONFIGURATION_MODE` to `activity`, set
 `CONFIGURATION_ACTIVITY_ACTION`, and advertise `configuration.activity`.
+
+### `playbackUrlSchemes` / `playbackUrlHosts`
+
+Required for `playback.prepare` and `cast.rewriteUrl` to ever be invoked.
+StreamVault only calls a plugin for these capabilities if the plugin's manifest
+declares the URL's scheme and host — an absent or empty list means the plugin
+owns **no** URLs, it is not treated as a wildcard match. Use `"*"` in either
+list to explicitly opt into matching every scheme or every host.
+
+This is a separate, earlier filter than the `handled` field described below:
+StreamVault first narrows to plugins whose declared scheme/host own the URL,
+then sends `MSG_PREPARE_PLAYBACK` only to that narrowed set. A plugin that
+advertises `playback.prepare` but never declares `playbackUrlSchemes` /
+`playbackUrlHosts` will never receive `MSG_PREPARE_PLAYBACK` at all, even for
+URLs it generated itself (for example, its own `provider.m3u` playlist
+pointing back at a local `http://127.0.0.1:<port>/...` proxy).
+
+These fields are only read from `manifest_json` (live `MSG_GET_MANIFEST`
+response or the static `MANIFEST_JSON` fallback metadata) — there is no
+individual fallback `meta-data` field for them, unlike `CAPABILITIES` or
+`DESCRIPTION`, so a plugin relying purely on individual fallback metadata
+fields (no `MANIFEST_JSON`) cannot declare playback URL ownership at all and
+must supply a full `MANIFEST_JSON` value to use `playback.prepare` or
+`cast.rewriteUrl`.
 
 Capability names:
 
@@ -145,9 +171,12 @@ Messages:
 | 9 | `MSG_SET_CONFIGURATION_VALUES` | Persist `configuration_values_json`. |
 | 10 | `MSG_RUN_CONFIGURATION_ACTION` | Run `configuration_action_id`. |
 
-For `playback.prepare` and `cast.rewriteUrl`, plugins should set
-`handled=false` when the URL is not theirs. StreamVault then continues with other
-enabled plugins or the original URL.
+For `playback.prepare` and `cast.rewriteUrl`, StreamVault only sends the message
+to plugins whose manifest already owns the URL (see `playbackUrlSchemes` /
+`playbackUrlHosts` above). Within that narrowed set, plugins should still set
+`handled=false` when the specific URL is not one they can actually prepare.
+StreamVault then continues with other matching enabled plugins or the original
+URL.
 
 `MSG_REWRITE_CAST_URL` is Cast-specific. StreamVault sends the stream context that
 made direct receiver playback unsafe:
