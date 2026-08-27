@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.settings.R
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -42,7 +42,7 @@ import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupPreview
 
 @Composable
-internal fun BackupImportPreviewDialog(
+fun BackupImportPreviewDialog(
     preview: BackupPreview,
     plan: BackupImportPlan,
     onDismiss: () -> Unit,

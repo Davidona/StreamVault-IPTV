@@ -8,7 +8,7 @@ import com.streamvault.app.navigation.graph.registerHomeGraph
 import com.streamvault.app.navigation.graph.registerLiveGraph
 import com.streamvault.app.navigation.graph.registerSystemGraph
 import com.streamvault.app.navigation.graph.registerWelcomeGraph
-import com.streamvault.app.ui.screens.settings.BackupImportPreviewDialog
+import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.feature.playback.api.PlaybackPlatformHost

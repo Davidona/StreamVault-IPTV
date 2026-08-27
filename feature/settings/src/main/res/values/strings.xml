@@ -27,4 +27,21 @@
     <string name="settings_cancel">Cancel</string>
     <string name="settings_reset">Reset</string>
     <string name="action_save_order">Save Order</string>
+    <string name="settings_backup_preview_title">Review Backup Import</string>
+    <string name="settings_backup_preview_subtitle">Backup version %1$d detected. Choose what to import before making changes.</string>
+    <string name="settings_backup_preview_scroll_hint">Use ↑/↓ on the remote to scroll</string>
+    <string name="settings_backup_conflict_strategy">Conflict strategy</string>
+    <string name="settings_backup_keep_existing">Keep Existing</string>
+    <string name="settings_backup_replace_existing">Replace Existing</string>
+    <string name="settings_backup_import_sections">Import sections</string>
+    <string name="settings_backup_import_confirm">Import Backup</string>
+    <string name="settings_backup_section_preferences">Preferences</string>
+    <string name="settings_backup_section_providers">Providers</string>
+    <string name="settings_backup_section_saved">Saved Library</string>
+    <string name="settings_backup_section_history">Playback History</string>
+    <string name="settings_backup_section_multiview">Split Screen Presets</string>
+    <string name="settings_backup_section_recordings">Recording Schedules</string>
+    <string name="settings_backup_conflict_count">%1$d conflicts</string>
+    <string name="settings_backup_no_conflicts">No conflicts</string>
+    <string name="settings_backup_item_count">%1$d items</string>
 </resources>
