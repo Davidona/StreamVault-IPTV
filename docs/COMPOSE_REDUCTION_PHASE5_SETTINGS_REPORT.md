@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,171 nodes, 29,515 edges, and 425 communities. `SettingsViewModel` remains
+  15,177 nodes, 29,531 edges, and 416 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -96,6 +96,8 @@ provider runtime gates remain open under their respective reports.
   catalog helpers, and feature-local time formatting
 - `b67ef1ae` — moved recording settings dashboard/actions cards and shared
   recording presentation primitives
+- `34cf974f` — moved recording metric/status display primitives and retained
+  the app-owned time-window adapter for browser orchestration
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -453,6 +455,19 @@ Recording storage/status cards, action-button focus styling, Wi-Fi-only toggle
 callbacks, output-path summarization, recording source/failure labels, and
 browser/detail call sites remain behavior-compatible; recording launchers and
 persistence remain app-owned.
+
+The recording-display-primitive batch was verified with focused compilation and
+the settings feature check:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 42s
+```
+
+Metric cards, recording title/subtitle fallback, status labels, status colors,
+and browser/sidebar/detail call sites remain unchanged. The browser time-window
+line continues to use the app's `LocalAppTimeFormat` adapter until the remaining
+recording browser orchestration is moved.
 
 ## Open work and gates
 
