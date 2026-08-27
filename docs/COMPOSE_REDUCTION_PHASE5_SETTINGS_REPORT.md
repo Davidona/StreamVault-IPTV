@@ -84,6 +84,7 @@ provider runtime gates remain open under their respective reports.
 - `d5ea4004` — moved player preference dialog orchestration into the feature
 - `5aa18484` — made player preference dialog entry point public at the boundary
 - `25c22123` — moved external playback mode dialog presentation into the feature
+- `431a543b` — removed the app-side update-model typealias and updated its test
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -341,6 +342,16 @@ BUILD SUCCESSFUL in 1m 45s
 Internal/external option ordering, selected-state handling for the legacy
 ask-every-time value, focus/click behavior, and dismissal callbacks remain
 unchanged.
+
+The app-update-model ownership cleanup was verified with:
+
+```text
+gradlew.bat :feature:settings:check :app:testDebugUnitTest --tests "com.streamvault.app.ui.screens.settings.SettingsAppUpdateModelsTest" --no-daemon
+BUILD SUCCESSFUL in 54s
+```
+
+The app test now imports `AppUpdateUiModel` directly from the settings feature;
+the feature remains the sole production owner of that presentation model.
 
 ## Open work and gates
 
