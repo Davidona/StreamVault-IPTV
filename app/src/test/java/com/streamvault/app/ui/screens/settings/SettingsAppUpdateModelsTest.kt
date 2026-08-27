@@ -7,6 +7,7 @@ import com.streamvault.app.update.AppUpdateDownloadStatus
 import com.streamvault.app.update.isRemoteVersionNewerForBuild
 import com.streamvault.feature.settings.api.SettingsUpdateActionState
 import com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus
+import com.streamvault.feature.settings.presentation.AppUpdateUiModel
 import com.streamvault.feature.settings.presentation.latestActionState
 import org.junit.Test
 
