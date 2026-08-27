@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,14 +29,14 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.remember
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.progress.extractProgressFraction
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 
 @Composable
-internal fun SyncingOverlay(
+public fun SyncingOverlay(
     isSyncing: Boolean,
     providerName: String? = null,
     progress: String? = null,
