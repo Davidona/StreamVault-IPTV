@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,117 nodes, 29,360 edges, and 384 communities. `SettingsViewModel` remains
+  15,120 nodes, 29,378 edges, and 380 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -86,6 +86,7 @@ provider runtime gates remain open under their respective reports.
 - `25c22123` — moved external playback mode dialog presentation into the feature
 - `431a543b` — removed the app-side update-model typealias and updated its test
 - `014e4c84` — moved provider action, warning, and M3U classification cards
+- `d176dbc1` — moved settings preference-dialog orchestration and labels
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -364,6 +365,18 @@ BUILD SUCCESSFUL in 1m 53s
 Provider connect/sync/edit/delete/category-control actions, warning filtering
 and retry actions, M3U classification toggle/refresh behavior, focus styling,
 and busy-state disabling remain unchanged.
+
+The preference-dialog batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 2m 19s
+```
+
+Landing-screen availability, guide-category selection, language/audio/subtitle
+options, quality-cap selection, remote shortcut mapping, category-sort state,
+and all player-dialog delegation remain unchanged; state mutations continue
+through `SettingsViewModel`.
 
 ## Open work and gates
 
