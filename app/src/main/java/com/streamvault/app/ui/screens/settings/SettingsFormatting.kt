@@ -9,14 +9,11 @@ import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ContentType
-import com.streamvault.domain.model.DecoderMode
-import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodVariantPreferenceMode
-import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutAction
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -24,91 +21,6 @@ import com.streamvault.domain.model.RemoteShortcutSelection
 import com.streamvault.domain.model.RemoteShortcutSelectionMode
 import java.text.DateFormat
 import java.util.Locale
-
-internal data class SubtitleScaleOption(
-    val scale: Float,
-    val label: (android.content.Context) -> String
-)
-
-internal data class SubtitleColorOption(
-    val colorArgb: Int,
-    val label: String
-)
-
-internal fun subtitleSizeOptions(): List<SubtitleScaleOption> {
-    return listOf(
-        SubtitleScaleOption(0.85f) { it.getString(R.string.settings_subtitle_size_small) },
-        SubtitleScaleOption(1f) { it.getString(R.string.settings_subtitle_size_default) },
-        SubtitleScaleOption(1.15f) { it.getString(R.string.settings_subtitle_size_large) },
-        SubtitleScaleOption(1.3f) { it.getString(R.string.settings_subtitle_size_extra_large) }
-    )
-}
-
-internal fun subtitleTextColorOptions(context: android.content.Context): List<SubtitleColorOption> {
-    return listOf(
-        SubtitleColorOption(0xFFFFFFFF.toInt(), context.getString(R.string.settings_subtitle_color_white)),
-        SubtitleColorOption(0xFFFFEB3B.toInt(), context.getString(R.string.settings_subtitle_color_yellow)),
-        SubtitleColorOption(0xFF80DEEA.toInt(), context.getString(R.string.settings_subtitle_color_cyan)),
-        SubtitleColorOption(0xFFA5D6A7.toInt(), context.getString(R.string.settings_subtitle_color_green))
-    )
-}
-
-internal fun subtitleBackgroundColorOptions(context: android.content.Context): List<SubtitleColorOption> {
-    return listOf(
-        SubtitleColorOption(0x00000000, context.getString(R.string.settings_subtitle_background_transparent)),
-        SubtitleColorOption(0x80000000.toInt(), context.getString(R.string.settings_subtitle_background_dim)),
-        SubtitleColorOption(0xCC000000.toInt(), context.getString(R.string.settings_subtitle_background_black)),
-        SubtitleColorOption(0xCC102A43.toInt(), context.getString(R.string.settings_subtitle_background_blue))
-    )
-}
-
-internal fun formatDecoderModeLabel(mode: DecoderMode, context: android.content.Context): String {
-    return when (mode) {
-        DecoderMode.AUTO -> context.getString(R.string.settings_decoder_auto)
-        DecoderMode.HARDWARE -> context.getString(R.string.settings_decoder_hardware)
-        DecoderMode.SOFTWARE -> context.getString(R.string.settings_decoder_software)
-        DecoderMode.COMPATIBILITY -> context.getString(R.string.settings_decoder_compatibility)
-    }
-}
-
-internal fun formatAudioOutputPreferenceLabel(
-    preference: AudioOutputPreference,
-    context: android.content.Context
-): String = when (preference) {
-    AudioOutputPreference.AUTO -> context.getString(R.string.settings_audio_output_auto)
-    AudioOutputPreference.PREFER_PASSTHROUGH -> context.getString(R.string.settings_audio_output_prefer_passthrough)
-    AudioOutputPreference.DISABLE_PASSTHROUGH -> context.getString(R.string.settings_audio_output_disable_passthrough)
-}
-
-internal fun formatSurfaceModeLabel(
-    mode: PlayerSurfaceMode,
-    context: android.content.Context
-): String = when (mode) {
-    PlayerSurfaceMode.AUTO -> context.getString(R.string.settings_surface_auto)
-    PlayerSurfaceMode.SURFACE_VIEW -> context.getString(R.string.settings_surface_surface_view)
-    PlayerSurfaceMode.TEXTURE_VIEW -> context.getString(R.string.settings_surface_texture_view)
-}
-
-internal fun formatTimeoutSecondsLabel(seconds: Int, context: android.content.Context): String {
-    return context.resources.getQuantityString(
-        R.plurals.settings_timeout_seconds,
-        seconds,
-        seconds
-    )
-}
-
-internal fun formatSubtitleSizeLabel(scale: Float, context: android.content.Context): String {
-    return subtitleSizeOptions().firstOrNull { it.scale == scale }?.label?.invoke(context)
-        ?: context.getString(R.string.settings_subtitle_size_default)
-}
-
-internal fun formatSubtitleColorLabel(colorArgb: Int, options: List<SubtitleColorOption>): String {
-    return options.firstOrNull { it.colorArgb == colorArgb }?.label ?: options.first().label
-}
-
-internal fun formatQualityCapLabel(maxHeight: Int?, autoLabel: String): String {
-    return maxHeight?.let { "${it}p" } ?: autoLabel
-}
 
 internal fun formatSpeedTestValueLabel(speedTest: InternetSpeedTestUiModel): String {
     return String.format(Locale.getDefault(), "%.1f Mbps", speedTest.megabitsPerSecond)
