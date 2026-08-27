@@ -1,12 +1,10 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.DecoderMode
@@ -16,7 +14,7 @@ import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodHttpProtocolMode
 
 @Composable
-internal fun SettingsPlayerPreferenceDialogs(
+public fun SettingsPlayerPreferenceDialogs(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     context: Context,
