@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,022 nodes, 29,114 edges, and 425 communities. `SettingsViewModel` remains
+  15,024 nodes, 29,117 edges, and 421 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -66,6 +66,7 @@ provider runtime gates remain open under their respective reports.
 - `55642c6a` ג€” feature-owned Live TV/parental strings and enum label formatters
 - `b00eb575` ג€” moved the sync progress overlay and its feature-owned strings
 - `3a1e264a` ג€” moved the app-update label and action-state formatters
+- `19ffbe42` ג€” moved the Internet Speed Test card and feature-owned labels
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -157,6 +158,16 @@ BUILD SUCCESSFUL in 1m 25s
 
 The pure formatters now resolve feature resources while the app update adapter
 and launch/install callbacks remain in the composition root.
+
+The Internet Speed Test card batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 29s
+```
+
+The card remains callback-driven; speed-test execution and persistence stay
+outside the presentation module.
 
 ## Open work and gates
 
