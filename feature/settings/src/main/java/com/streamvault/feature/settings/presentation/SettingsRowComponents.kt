@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
@@ -48,7 +46,7 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 
 @Composable
-internal fun SettingsSectionHeader(
+public fun SettingsSectionHeader(
     title: String,
     subtitle: String
 ) {
@@ -70,7 +68,7 @@ internal fun SettingsSectionHeader(
 }
 
 @Composable
-internal fun SettingsRow(label: String, value: String) {
+public fun SettingsRow(label: String, value: String) {
     val focusRequester = remember { FocusRequester() }
     TvClickableSurface(
         onClick = {},
@@ -102,7 +100,7 @@ internal fun SettingsRow(label: String, value: String) {
 }
 
 @Composable
-internal fun ClickableSettingsRow(
+public fun ClickableSettingsRow(
     label: String,
     value: String,
     onClick: () -> Unit,
@@ -148,7 +146,7 @@ internal fun ClickableSettingsRow(
 }
 
 @Composable
-internal fun SwitchSettingsRow(
+public fun SwitchSettingsRow(
     label: String,
     value: String,
     checked: Boolean,
@@ -198,7 +196,7 @@ internal fun SwitchSettingsRow(
 }
 
 @Composable
-internal fun LiveTvQuickFiltersDialog(
+public fun LiveTvQuickFiltersDialog(
     filters: List<String>,
     onDismiss: () -> Unit,
     onAddFilter: (String) -> Unit,
@@ -277,7 +275,7 @@ internal fun LiveTvQuickFiltersDialog(
     )
 }
 
-internal fun formatLiveTvQuickFiltersValue(filters: List<String>, context: android.content.Context): String {
+public fun formatLiveTvQuickFiltersValue(filters: List<String>, context: android.content.Context): String {
     if (filters.isEmpty()) {
         return context.getString(R.string.settings_live_tv_quick_filters_none)
     }

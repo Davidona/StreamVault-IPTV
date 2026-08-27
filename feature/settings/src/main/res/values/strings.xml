@@ -42,6 +42,18 @@
     <string name="settings_xtream_text_classification_subtitle">Use category name keywords to flag adult content when the provider doesn\'t set the adult flag explicitly</string>
     <string name="settings_xtream_base64_compatibility">Xtream Base64 Text Compatibility</string>
     <string name="settings_xtream_base64_compatibility_subtitle">Broadly decode Xtream names and categories when a provider stores them as Base64. Leave this off unless text looks encoded.</string>
+    <string name="settings_live_tv_quick_filters_none">None</string>
+    <plurals name="settings_live_tv_quick_filters_count">
+        <item quantity="one">%1$d saved</item>
+        <item quantity="other">%1$d saved</item>
+    </plurals>
+    <string name="settings_live_tv_quick_filters_dialog_title">Manage Live TV Quick Filters</string>
+    <string name="settings_live_tv_quick_filters_dialog_subtitle">Save literal search terms like |AR| or Sports so they appear under the Live TV category search bar.</string>
+    <string name="settings_live_tv_quick_filters_placeholder">Add a quick filter</string>
+    <string name="settings_live_tv_quick_filters_add">Add Filter</string>
+    <string name="settings_live_tv_quick_filters_empty">No quick filters saved yet.</string>
+    <string name="settings_live_tv_quick_filters_saved">Saved filters</string>
+    <string name="settings_live_tv_quick_filters_remove">Remove</string>
     <string name="settings_sync_elapsed">Elapsed: %1$s</string>
     <string name="settings_speed_test_title">Internet Speed Test</string>
     <string name="settings_speed_test_recommendation">Recommended quality cap: %1$s</string>
