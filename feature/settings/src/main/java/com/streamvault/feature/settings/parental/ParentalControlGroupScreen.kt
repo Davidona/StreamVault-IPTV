@@ -35,7 +35,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -86,7 +85,6 @@ fun ParentalControlGroupScreen(
     }
     val backButtonFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var currentMode by rememberSaveable { mutableStateOf(CategoryControlsMode.PROTECTION) }
@@ -94,6 +92,7 @@ fun ParentalControlGroupScreen(
     var showPinDialog by rememberSaveable { mutableStateOf(false) }
     var pinAction by rememberSaveable { mutableStateOf<CategoryPinAction?>(null) }
     var pinError by rememberSaveable { mutableStateOf<String?>(null) }
+    val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
     val selectedTypeLabel = contentTypeTabLabel(selectedType)
     val filteredCategories = uiState.categories.filter { item ->
         item.category.type == selectedType &&
@@ -255,7 +254,7 @@ fun ParentalControlGroupScreen(
                                 pinAction = null
                                 pinError = null
                             } else {
-                                pinError = context.getString(R.string.home_incorrect_pin)
+                                pinError = incorrectPinMessage
                             }
                         }
                         null -> Unit
