@@ -41,6 +41,11 @@ provider runtime gates remain open under their respective reports.
   14,994 nodes, 29,048 edges, and 378 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
+- The moved shared widget's default overview values match the app catalog
+  exactly. Locale catalogs remain app-owned until the full settings resource
+  batch moves them together; a partial locale copy would trigger the feature's
+  existing MissingTranslation lint set and is therefore intentionally not
+  treated as complete resource extraction.
 
 ## Delivered commits
 
