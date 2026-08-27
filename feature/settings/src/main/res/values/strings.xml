@@ -72,6 +72,8 @@
     <string name="settings_category_type_live_description">Sort and hide provider live groups while keeping All Channels, Favorites, Recent, and custom groups in their pinned positions.</string>
     <string name="settings_category_type_movies_description">Sort and hide provider movie categories without affecting Favorites, Resume, or custom shelves.</string>
     <string name="settings_category_type_series_description">Sort and hide provider series categories without affecting Favorites, Continue Watching, or custom shelves.</string>
+    <string name="settings_timer_off">Off</string>
+    <string name="settings_save">Save</string>
     <string name="settings_protection_level">Protection Level</string>
     <string name="settings_level_off">OFF</string>
     <string name="settings_level_locked">LOCKED</string>

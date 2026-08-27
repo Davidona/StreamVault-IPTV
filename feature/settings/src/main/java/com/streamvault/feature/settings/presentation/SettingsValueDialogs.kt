@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -20,13 +20,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.theme.Primary
 
-internal fun formatPlaybackTimerMinutesLabel(minutes: Int, context: Context): String {
+public fun formatPlaybackTimerMinutesLabel(minutes: Int, context: Context): String {
     return if (minutes <= 0) {
         context.getString(R.string.settings_timer_off)
     } else {
@@ -35,7 +35,7 @@ internal fun formatPlaybackTimerMinutesLabel(minutes: Int, context: Context): St
 }
 
 @Composable
-internal fun PlaybackTimerPresetDialog(
+public fun PlaybackTimerPresetDialog(
     title: String,
     selectedMinutes: Int,
     onDismiss: () -> Unit,
@@ -59,14 +59,14 @@ internal fun PlaybackTimerPresetDialog(
     }
 }
 
-internal fun formatAudioVideoOffsetLabel(offsetMs: Int): String = when {
+public fun formatAudioVideoOffsetLabel(offsetMs: Int): String = when {
     offsetMs > 0 -> "+$offsetMs ms"
     offsetMs < 0 -> "$offsetMs ms"
     else -> "0 ms"
 }
 
 @Composable
-internal fun AudioVideoOffsetValueDialog(
+public fun AudioVideoOffsetValueDialog(
     title: String,
     subtitle: String,
     initialValue: Int,
@@ -122,7 +122,7 @@ internal fun AudioVideoOffsetValueDialog(
 }
 
 @Composable
-internal fun SimpleTextValueDialog(
+public fun SimpleTextValueDialog(
     title: String,
     subtitle: String,
     initialValue: String,
