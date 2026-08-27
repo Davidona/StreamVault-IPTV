@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -34,7 +34,7 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodVariantPreferenceMode
 
 @Composable
-internal fun VodViewModeDialog(
+public fun VodViewModeDialog(
     selectedMode: VodViewMode,
     onDismiss: () -> Unit,
     onModeSelected: (VodViewMode) -> Unit
@@ -85,7 +85,7 @@ internal fun VodViewModeDialog(
 }
 
 @Composable
-internal fun LiveChannelNumberingModeDialog(
+public fun LiveChannelNumberingModeDialog(
     selectedMode: ChannelNumberingMode,
     onDismiss: () -> Unit,
     onModeSelected: (ChannelNumberingMode) -> Unit
@@ -136,7 +136,7 @@ internal fun LiveChannelNumberingModeDialog(
 }
 
 @Composable
-internal fun LiveChannelGroupingModeDialog(
+public fun LiveChannelGroupingModeDialog(
     selectedMode: LiveChannelGroupingMode,
     onDismiss: () -> Unit,
     onModeSelected: (LiveChannelGroupingMode) -> Unit
@@ -187,7 +187,7 @@ internal fun LiveChannelGroupingModeDialog(
 }
 
 @Composable
-internal fun GroupedChannelLabelModeDialog(
+public fun GroupedChannelLabelModeDialog(
     selectedMode: GroupedChannelLabelMode,
     onDismiss: () -> Unit,
     onModeSelected: (GroupedChannelLabelMode) -> Unit
@@ -238,7 +238,7 @@ internal fun GroupedChannelLabelModeDialog(
 }
 
 @Composable
-internal fun VodDuplicateHandlingModeDialog(
+public fun VodDuplicateHandlingModeDialog(
     selectedMode: VodDuplicateHandlingMode,
     onDismiss: () -> Unit,
     onModeSelected: (VodDuplicateHandlingMode) -> Unit
@@ -289,7 +289,7 @@ internal fun VodDuplicateHandlingModeDialog(
 }
 
 @Composable
-internal fun VodVariantPreferenceModeDialog(
+public fun VodVariantPreferenceModeDialog(
     selectedMode: VodVariantPreferenceMode,
     onDismiss: () -> Unit,
     onModeSelected: (VodVariantPreferenceMode) -> Unit
@@ -340,7 +340,7 @@ internal fun VodVariantPreferenceModeDialog(
 }
 
 @Composable
-internal fun LiveVariantPreferenceModeDialog(
+public fun LiveVariantPreferenceModeDialog(
     selectedMode: LiveVariantPreferenceMode,
     onDismiss: () -> Unit,
     onModeSelected: (LiveVariantPreferenceMode) -> Unit
@@ -391,7 +391,7 @@ internal fun LiveVariantPreferenceModeDialog(
 }
 
 @Composable
-internal fun RemoteShortcutSelectionDialog(
+public fun RemoteShortcutSelectionDialog(
     target: RemoteShortcutDialogTarget,
     selectedSelection: RemoteShortcutSelection,
     onDismiss: () -> Unit,
