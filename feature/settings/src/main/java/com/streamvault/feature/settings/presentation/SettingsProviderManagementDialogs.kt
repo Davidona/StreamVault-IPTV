@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,12 +15,12 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 
 @Composable
-internal fun SettingsProviderManagementDialogs(
+public fun SettingsProviderManagementDialogs(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     providerState: SettingsProviderSectionState
