@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -10,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-internal class SettingsScreenDialogState(
+class SettingsScreenDialogState(
     private val showPinDialogState: MutableState<Boolean>,
     private val showLevelDialogState: MutableState<Boolean>,
     private val showLanguageDialogState: MutableState<Boolean>,
@@ -142,7 +140,7 @@ internal class SettingsScreenDialogState(
     var pendingDeleteProviderId by pendingDeleteProviderIdState
 }
 
-internal class SettingsProviderSectionState(
+class SettingsProviderSectionState(
     private val dialogState: SettingsScreenDialogState
 ) {
     var showProviderSyncDialog: Boolean
@@ -201,14 +199,14 @@ internal class SettingsProviderSectionState(
 }
 
 @Composable
-internal fun rememberSettingsProviderSectionState(
+fun rememberSettingsProviderSectionState(
     dialogState: SettingsScreenDialogState
 ): SettingsProviderSectionState = remember(dialogState) {
     SettingsProviderSectionState(dialogState)
 }
 
 @Composable
-internal fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
+fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
     val showPinDialogState = rememberSaveable { mutableStateOf(false) }
     val showLevelDialogState = rememberSaveable { mutableStateOf(false) }
     val showLanguageDialogState = rememberSaveable { mutableStateOf(false) }

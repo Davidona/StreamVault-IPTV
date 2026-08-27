@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -42,7 +42,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnBackground
@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
-internal fun SettingsOverviewCard(
+fun SettingsOverviewCard(
     activeProviderName: String,
     providerCount: Int,
     protectionSummary: String,
@@ -109,7 +109,7 @@ internal fun SettingsOverviewCard(
 }
 
 @Composable
-internal fun SettingsOverviewStat(
+fun SettingsOverviewStat(
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -135,7 +135,7 @@ internal fun SettingsOverviewStat(
 }
 
 @Composable
-internal fun CompactSettingsActionChip(
+fun CompactSettingsActionChip(
     label: String,
     accent: Color,
     enabled: Boolean = true,
@@ -175,12 +175,12 @@ internal fun CompactSettingsActionChip(
 }
 
 @Composable
-internal fun EpgSourceTextField(
+fun EpgSourceTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String
 ) {
-    val isTelevisionDevice = com.streamvault.app.device.rememberIsTelevisionDevice()
+    val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val bringIntoViewRequester = remember { BringIntoViewRequester() }

@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,7 +41,7 @@ import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderType
 
-internal fun LazyListScope.epgSourcesSection(
+fun LazyListScope.epgSourcesSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel
 ) {

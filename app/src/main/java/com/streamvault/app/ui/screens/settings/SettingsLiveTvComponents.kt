@@ -30,10 +30,6 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
 
-internal enum class ParentalAction {
-    ChangeLevel, ChangePin, SetNewPin
-}
-
 @Composable
 internal fun ParentalControlCard(
     level: Int,
