@@ -1,12 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.CompactRecordingActionChip
-import com.streamvault.feature.settings.presentation.formatBytes
-import com.streamvault.feature.settings.presentation.RecordingMetaPill
-import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
-import com.streamvault.feature.settings.presentation.formatRecordingSourceType
-import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
-import com.streamvault.feature.settings.presentation.formatTimestamp
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -31,17 +23,15 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createDateTimeFormat
+import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingRecurrence
@@ -49,8 +39,9 @@ import com.streamvault.domain.model.RecordingStatus
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun RecordingItemCard(
+public fun RecordingItemCard(
     item: RecordingItem,
+    appTimeFormat: AppTimeFormat,
     onPlay: () -> Unit,
     onStop: () -> Unit,
     onCancel: () -> Unit,
@@ -114,8 +105,7 @@ internal fun RecordingItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val appTimeFormat = LocalAppTimeFormat.current
-                val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createDateTimeFormat() }
+                val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createSettingsDateTimeFormat() }
                 Text(
                     text = stringResource(
                         R.string.settings_recording_time_window,
@@ -251,7 +241,7 @@ internal fun RecordingItemCard(
     }
 }
 
-internal fun RecordingItem.playbackUrl(): String? {
+public fun RecordingItem.playbackUrl(): String? {
     val persistedUri = outputUri?.trim()?.takeIf { it.isNotBlank() }
     if (persistedUri != null) {
         return persistedUri

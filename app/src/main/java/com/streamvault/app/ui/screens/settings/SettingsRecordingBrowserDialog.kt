@@ -12,6 +12,7 @@ import com.streamvault.feature.settings.presentation.RecordingDetailMetricsRow
 import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
 import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
 import com.streamvault.feature.settings.presentation.formatTimestamp
+import com.streamvault.feature.settings.presentation.recordingListSecondaryLine
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -67,6 +68,7 @@ import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingStatus
+import com.streamvault.domain.model.AppTimeFormat
 import androidx.compose.foundation.border
 @Composable
 internal fun RecordingBrowserDialog(
@@ -228,7 +230,8 @@ private fun RecordingBrowserPanel(
                         RecordingPickerRow(
                             item = item,
                             selected = item.id == selectedItem.id,
-                            onSelected = { onSelectedRecordingChange(item.id) }
+                            onSelected = { onSelectedRecordingChange(item.id) },
+                            appTimeFormat = LocalAppTimeFormat.current
                         )
                     }
                 }
@@ -255,7 +258,8 @@ private fun RecordingBrowserPanel(
 private fun RecordingPickerRow(
     item: RecordingItem,
     selected: Boolean,
-    onSelected: () -> Unit
+    onSelected: () -> Unit,
+    appTimeFormat: AppTimeFormat
 ) {
     val accent = recordingStatusAccent(item.status)
     TvClickableSurface(
@@ -311,7 +315,7 @@ private fun RecordingPickerRow(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = recordingListSecondaryLine(item),
+                    text = recordingListSecondaryLine(item, appTimeFormat),
                     style = MaterialTheme.typography.labelSmall,
                     color = OnSurfaceDim,
                     maxLines = 1,
