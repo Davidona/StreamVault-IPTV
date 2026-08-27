@@ -60,6 +60,8 @@ provider runtime gates remain open under their respective reports.
 - `3a9dda13` — settings ViewModel and operational observer/action ownership
 - `296bb639` — shared settings widgets, EPG source/assignment presentation,
   dialog state, and the parental action model
+- `4c814fe1` — selection dialog primitives, timeout dialog/formatter, and
+  top-navigation dialog presentation
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -107,6 +109,19 @@ were still internal or lacked feature imports); those integration points were
 made explicit and the subsequent feature check and app unit-test compile both
 passed. The settings feature still has no app, navigation-controller, or
 activity references.
+
+The follow-up dialog batch also passed:
+
+```text
+gradlew.bat :feature:settings:check --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 54s
+
+gradlew.bat :app:compileDebugKotlin --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 12s
+
+gradlew.bat :app:compileDebugUnitTestKotlin --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 5s
+```
 
 ## Open work and gates
 
