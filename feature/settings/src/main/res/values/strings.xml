@@ -567,4 +567,9 @@
     <string name="settings_recording_reconcile">Repair Schedule</string>
     <string name="settings_recording_padding_title">Recording Padding</string>
     <string name="settings_recording_wifi_only">Record on Wi-Fi only</string>
+    <string name="settings_recording_status_scheduled">Scheduled</string>
+    <string name="settings_recording_status_recording">Recording</string>
+    <string name="settings_recording_status_completed">Completed</string>
+    <string name="settings_recording_status_failed">Failed</string>
+    <string name="settings_recording_status_cancelled">Cancelled</string>
 </resources>

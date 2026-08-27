@@ -2,6 +2,10 @@ package com.streamvault.app.ui.screens.settings
 
 import com.streamvault.feature.settings.presentation.StatusTonePill
 import com.streamvault.feature.settings.presentation.RecordingMetaPill
+import com.streamvault.feature.settings.presentation.recordingDisplaySubtitle
+import com.streamvault.feature.settings.presentation.recordingDisplayTitle
+import com.streamvault.feature.settings.presentation.recordingStatusAccent
+import com.streamvault.feature.settings.presentation.recordingStatusLabel
 import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
 import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
 import com.streamvault.feature.settings.presentation.formatTimestamp
