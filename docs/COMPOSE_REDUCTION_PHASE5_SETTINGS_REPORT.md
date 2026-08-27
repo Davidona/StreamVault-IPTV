@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,160 nodes, 29,489 edges, and 418 communities. `SettingsViewModel` remains
+  15,171 nodes, 29,515 edges, and 425 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -94,6 +94,8 @@ provider runtime gates remain open under their respective reports.
 - `20244227` — moved provider-management dialog orchestration
 - `dfb4449f` — moved provider settings section, provider card, diagnostics panel,
   catalog helpers, and feature-local time formatting
+- `b67ef1ae` — moved recording settings dashboard/actions cards and shared
+  recording presentation primitives
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -439,6 +441,18 @@ diagnostic counts, diagnostics/database-health panels, M3U controls, warning
 actions, and provider callbacks remain unchanged. `AppTimeFormat` is passed
 through the feature boundary and uses feature-local equivalents of the former
 date/time adapters; no app package dependency was introduced.
+
+The recording-card batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 55s
+```
+
+Recording storage/status cards, action-button focus styling, Wi-Fi-only toggle
+callbacks, output-path summarization, recording source/failure labels, and
+browser/detail call sites remain behavior-compatible; recording launchers and
+persistence remain app-owned.
 
 ## Open work and gates
 
