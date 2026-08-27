@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,066 nodes, 29,221 edges, and 382 communities. `SettingsViewModel` remains
+  15,071 nodes, 29,229 edges, and 378 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -75,6 +75,7 @@ provider runtime gates remain open under their respective reports.
 - `3f2c490d` — moved the settings navigation rail and shared navigation item
 - `eaff72a5` — moved Privacy presentation behind explicit action callbacks
 - `8ef92853` — moved shared settings rows and Live TV quick-filter presentation
+- `47553c08` — moved resource-free settings primitive formatters
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -257,6 +258,16 @@ BUILD SUCCESSFUL in 1m 18s
 
 Row focus/click behavior and quick-filter add/remove/empty-state behavior remain
 unchanged.
+
+The resource-free formatter batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 4s
+```
+
+Byte/timestamp formatting, playback-speed labels, timeout preset ordering, and
+recording presentation call sites remain unchanged.
 
 ## Open work and gates
 
