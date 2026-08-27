@@ -544,4 +544,27 @@
     <string name="settings_add_provider">Add Provider</string>
     <string name="settings_provider_selector_hint">Select a provider to view details and actions.</string>
     <string name="settings_no_providers_subtitle">Add a provider to unlock playback, guide data, and the rest of the TV experience.</string>
+    <string name="settings_recording_storage_title">Recording Storage</string>
+    <string name="settings_recording_storage_unknown">Storage unavailable</string>
+    <string name="settings_recording_storage_ready">Storage ready for local live recording</string>
+    <string name="settings_recording_storage_unavailable">Storage is not writable for recording</string>
+    <string name="settings_recording_active_label">Active</string>
+    <string name="settings_recording_scheduled_label">Scheduled</string>
+    <string name="settings_recording_space_label">Free Space</string>
+    <string name="settings_recording_pattern_title">Filename Pattern</string>
+    <string name="settings_recording_retention_title">Retention Policy</string>
+    <string name="settings_recording_retention_days">%1$d days</string>
+    <string name="settings_recording_retention_keep_all">Keep until deleted</string>
+    <string name="settings_recording_concurrency_title">Max Simultaneous Recordings</string>
+    <string name="settings_recording_padding_before">Start Early</string>
+    <string name="settings_recording_padding_minutes">%1$d min</string>
+    <string name="settings_recording_padding_none">None</string>
+    <string name="settings_recording_padding_after">End Late</string>
+    <string name="settings_recording_choose_folder">Choose Folder</string>
+    <string name="settings_recording_use_app_storage">Use App Storage</string>
+    <string name="settings_recording_use_usb_storage">Use USB Drive</string>
+    <string name="settings_recording_open_browser">Open Recordings</string>
+    <string name="settings_recording_reconcile">Repair Schedule</string>
+    <string name="settings_recording_padding_title">Recording Padding</string>
+    <string name="settings_recording_wifi_only">Record on Wi-Fi only</string>
 </resources>

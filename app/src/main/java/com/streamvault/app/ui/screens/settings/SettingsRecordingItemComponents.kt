@@ -1,6 +1,10 @@
 package com.streamvault.app.ui.screens.settings
 
 import com.streamvault.feature.settings.presentation.formatBytes
+import com.streamvault.feature.settings.presentation.RecordingMetaPill
+import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
+import com.streamvault.feature.settings.presentation.formatRecordingSourceType
+import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
 import com.streamvault.feature.settings.presentation.formatTimestamp
 
 import androidx.compose.foundation.BorderStroke

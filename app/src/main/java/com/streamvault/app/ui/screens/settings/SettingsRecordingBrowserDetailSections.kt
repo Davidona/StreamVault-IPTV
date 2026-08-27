@@ -1,6 +1,7 @@
 package com.streamvault.app.ui.screens.settings
 
 import com.streamvault.feature.settings.presentation.formatBytes
+import com.streamvault.feature.settings.presentation.formatRecordingSourceType
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

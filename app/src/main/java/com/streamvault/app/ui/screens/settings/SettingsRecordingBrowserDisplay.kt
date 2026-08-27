@@ -1,10 +1,10 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.StatusTonePill
 import com.streamvault.feature.settings.presentation.formatTimestamp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,24 +51,6 @@ internal fun RecordingMetricCard(
             color = OnBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-internal fun StatusTonePill(
-    label: String,
-    accent: Color
-) {
-    Box(
-        modifier = Modifier
-            .background(accent.copy(alpha = 0.14f), RoundedCornerShape(999.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = accent
         )
     }
 }
