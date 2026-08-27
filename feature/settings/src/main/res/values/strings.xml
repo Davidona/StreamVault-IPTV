@@ -27,6 +27,12 @@
     <string name="settings_cancel">Cancel</string>
     <string name="settings_syncing_title">Syncing data...</string>
     <string name="settings_sync_elapsed">Elapsed: %1$s</string>
+    <string name="settings_speed_test_title">Internet Speed Test</string>
+    <string name="settings_speed_test_recommendation">Recommended quality cap: %1$s</string>
+    <string name="settings_speed_test_run_action">Run Test</string>
+    <string name="settings_speed_test_running_action">Testing…</string>
+    <string name="settings_speed_test_apply_wifi">Apply to Wi-Fi</string>
+    <string name="settings_speed_test_apply_ethernet">Apply to Ethernet</string>
     <string name="settings_protection_level">Protection Level</string>
     <string name="settings_level_off">OFF</string>
     <string name="settings_level_locked">LOCKED</string>

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.OnBackground
@@ -33,7 +33,7 @@ import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
 
 @Composable
-internal fun InternetSpeedTestCard(
+public fun InternetSpeedTestCard(
     valueLabel: String,
     summary: String,
     recommendationLabel: String,
