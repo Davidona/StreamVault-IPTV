@@ -7,13 +7,13 @@ Date: 2026-08-27
 The settings slice is **in progress**. A compilable, independently checked
 `:feature:settings` module now owns the first behavior-preserving presentation
 layers: shared settings contracts, backup-preview rendering, parental controls,
-settings state models, preference mapping, backup/restore and EPG actions, and
-the related feature tests. `:app` remains the composition root and continues to
-own the platform adapters and the portions of the Settings screen that have
-not yet moved.
+settings state/models/actions/observers, preference mapping, backup/restore and
+EPG actions, the Hilt `SettingsViewModel`, and the related feature tests.
+`:app` remains the composition root and continues to own the platform adapters
+and the portions of the Settings screen that have not yet moved.
 
-This is not Phase 5 completion. Settings ViewModel orchestration, the remaining
-screen/dialog/resource extraction, app adapter cleanup, full graph registration,
+This is not Phase 5 completion. The remaining screen/dialog/resource
+extraction, app adapter cleanup, full graph registration,
 and runtime/manual acceptance are still open. The existing playback and
 provider runtime gates remain open under their respective reports.
 
@@ -26,8 +26,8 @@ provider runtime gates remain open under their respective reports.
 - The feature source has no `com.streamvault.app`, `NavController`,
   `NavHostController`, `MainActivity`, `:feature:provider`, or
   `:feature:playback` references.
-- Feature-defined ports cover backup/restore, diagnostics, sync, pairing,
-  update checks/downloads, and external settings actions. App adapters remain
+- Feature-defined ports cover backup/restore, diagnostics, TV-surface refresh,
+  sync, pairing, update checks/downloads, and external settings actions. App adapters remain
   responsible for Android intents, workers, installers, and other platform
   operations.
 - `ProviderBackupPreviewRequest` and `ProviderBackupPreviewContent` remain
@@ -48,9 +48,10 @@ provider runtime gates remain open under their respective reports.
 - `0441d1e6` — parental controls extraction
 - `20a3f3f5` — settings state and actions extraction
 - `3090ad75` — feature lint fixes (network permission and Compose resource lookup)
+- `3a9dda13` — settings ViewModel and operational observer/action ownership
 
-The design/spec and detailed implementation plan are intentionally kept as
-working-tree documentation for the ongoing slice:
+The design/spec and detailed implementation plan are tracked documentation for
+the ongoing slice:
 
 - `docs/superpowers/specs/2026-08-27-phase-5-settings-feature-extraction-design.md`
 - `docs/superpowers/plans/2026-08-27-settings-feature-extraction.md`
@@ -82,9 +83,9 @@ device claim is implied by these commands.
 
 ## Open work and gates
 
-- Move the remaining Settings presentation and ViewModel orchestration while
-  keeping routes, focus restoration, semantics, callbacks, persistence,
-  launcher ordering, and error text unchanged.
+- Move the remaining Settings presentation and resources while keeping routes,
+  focus restoration, semantics, callbacks, persistence, launcher ordering, and
+  error text unchanged.
 - Finish feature resource/locale ownership and the settings graph registration;
   remove transitional app wildcard imports once all consumers move.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
@@ -94,4 +95,3 @@ device claim is implied by these commands.
   restoration when the required emulator/accounts/files are available.
 - Do not treat the still-open playback/provider acceptance and performance
   gates as closed by this settings report.
-
