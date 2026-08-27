@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -17,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.SurfaceDefaults
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.pairing.ProviderQrPairingState
+import com.streamvault.feature.provider.R
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
+import com.streamvault.feature.provider.pairing.ProviderQrPairingState
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.ChannelLogoSourcePolicy

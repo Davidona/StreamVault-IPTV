@@ -28,6 +28,7 @@ dependencies {
     kover(project(":domain"))
     kover(project(":player"))
     kover(project(":feature:playback"))
+    kover(project(":feature:provider"))
 }
 
 tasks.register("verifyLintBaseline") {
@@ -88,6 +89,12 @@ tasks.register("verifyFeaturePlaybackBoundary") {
     group = "verification"
     description = "Verifies that :feature:playback remains independent from :app and root navigation controllers."
     dependsOn(":feature:playback:verifyFeaturePlaybackBoundary")
+}
+
+tasks.register("verifyFeatureProviderBoundary") {
+    group = "verification"
+    description = "Verifies that :feature:provider remains independent from :app and root navigation controllers."
+    dependsOn(":feature:provider:verifyFeatureProviderBoundary")
 }
 
 abstract class VerifyBaselineProfileSourcesTask : DefaultTask() {

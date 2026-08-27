@@ -78,8 +78,12 @@ out of :app without behavior or stability regressions.
   docs/superpowers/plans/2026-08-24-playback-feature-extraction.md
 - Playback execution report:
   docs/COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md
+- Provider extraction implementation plan:
+  docs/superpowers/plans/2026-08-26-provider-feature-extraction.md
+- Provider execution report:
+  docs/COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 
-Provider, settings, live, and catalog receive separate implementation plans
-after the previous feature report confirms the reusable module pattern.
+Settings, live, and catalog receive separate implementation plans after the
+current provider/runtime gates confirm the reusable module pattern.

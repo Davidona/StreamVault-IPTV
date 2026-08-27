@@ -32,6 +32,11 @@ fun AppNavigation(
         acknowledge = coordinator::acknowledge
     )
     DestinationResumedEffect(currentBackStackEntry, coordinator::onDestinationResumed)
+    CatalogLayoutReconciliationEffect(
+        state = state,
+        currentBackStackEntry = currentBackStackEntry,
+        onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation
+    )
 
     AppNavHost(
         navController = navController,
@@ -43,6 +48,34 @@ fun AppNavigation(
         onStartupNavigationRequested = coordinator::requestStartupNavigation,
         onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation
     )
+}
+
+@Composable
+internal fun CatalogLayoutReconciliationEffect(
+    state: AppNavigationState,
+    currentBackStackEntry: NavBackStackEntry?,
+    onTopLevelDestinationRequested: (AppDestination) -> Unit
+) {
+    LaunchedEffect(
+        state.catalogLayout,
+        state.lastSplitCatalogType,
+        state.splitPreferenceReady,
+        currentBackStackEntry?.destination?.route
+    ) {
+        val layout = state.catalogLayout ?: return@LaunchedEffect
+        val currentDestination = currentBackStackEntry?.destination?.route
+            ?.let(AppRouteCodec::decode)
+            ?: return@LaunchedEffect
+        val resolvedDestination = resolveCatalogDestination(
+            layout = layout,
+            requested = currentDestination,
+            lastSplitCatalogType = state.lastSplitCatalogType,
+            splitPreferenceReady = state.splitPreferenceReady
+        )
+        if (resolvedDestination != currentDestination) {
+            onTopLevelDestinationRequested(resolvedDestination)
+        }
+    }
 }
 
 @Composable

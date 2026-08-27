@@ -2,6 +2,7 @@ package com.streamvault.benchmark
 
 import android.os.SystemClock
 import android.app.Instrumentation
+import android.view.KeyEvent
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -11,6 +12,7 @@ import java.util.regex.Pattern
 
 internal const val RELEASE_TARGET_PACKAGE = "com.streamvault.app"
 internal const val SEEDED_DEBUG_PACKAGE = "com.streamvault.app.debug"
+private const val RELEASE_TARGET_ACTIVITY = "$RELEASE_TARGET_PACKAGE/com.streamvault.app.MainActivity"
 private const val SEEDED_DEBUG_ACTIVITY = "$SEEDED_DEBUG_PACKAGE/com.streamvault.app.MainActivity"
 private const val CLEAR_TASK_NEW_TASK_FLAGS = "0x10008000"
 internal const val BENCHMARK_ITERATIONS = 5
@@ -19,6 +21,11 @@ internal const val UI_TIMEOUT_MS = 20_000L
 internal const val BASELINE_PROFILE_SEED_TIMEOUT_MS = 120_000L
 private const val LIVE_CATEGORY_TIMEOUT_MS = 20_000L
 private const val DPAD_SETTLE_MS = 40L
+private const val PLAYER_CONTROL_PROBE_INTERVAL_MS = 1_000L
+private const val PLAYER_CONTROL_RETRY_SETTLE_MS = 250L
+private val PLAYER_CONTROL_LABEL_PATTERN = Pattern.compile(
+    "(?i)^(playback|mute|unmute|play|pause|dvr|live)$"
+)
 private val SEEDED_TOP_LEVEL_DESTINATIONS = listOf(
     "Home",
     "Live TV",
@@ -86,10 +93,18 @@ internal fun MacrobenchmarkScope.restartSeededDebugTaskPreservingProcess() {
 internal fun MacrobenchmarkScope.openTopLevelDestination(
     label: String,
     destinationTimeoutMs: Long = UI_TIMEOUT_MS,
-    categoryTimeoutMs: Long = LIVE_CATEGORY_TIMEOUT_MS
+    categoryTimeoutMs: Long = LIVE_CATEGORY_TIMEOUT_MS,
+    targetPackage: String = SEEDED_DEBUG_PACKAGE
 ) {
-    startSeededDebugApp()
-    navigateToTopLevelDestination(label)
+    if (targetPackage == RELEASE_TARGET_PACKAGE) {
+        startTargetApp()
+    } else {
+        check(targetPackage == SEEDED_DEBUG_PACKAGE) {
+            "Unsupported benchmark target package '$targetPackage'."
+        }
+        startSeededDebugApp()
+    }
+    navigateToTopLevelDestination(label, targetPackage)
     assertDestination(label, destinationTimeoutMs)
     if (label == "Live TV") {
         waitForLiveCategoryAvailability(categoryTimeoutMs)
@@ -112,25 +127,46 @@ internal fun MacrobenchmarkScope.assertDestination(
 internal fun MacrobenchmarkScope.verifySeededReleaseTarget() {
     startTargetApp()
     assertDestination("Home")
-    navigateToTopLevelDestination("Live TV")
+    navigateToTopLevelDestination("Live TV", targetPackage = RELEASE_TARGET_PACKAGE)
     assertDestination("Live TV")
     waitForLiveCategoryAvailability()
 }
 
-internal fun MacrobenchmarkScope.assertPlayerControlsAvailable() {
-    // Media3 may still be showing the controller after the fullscreen transition. Only send an
-    // OK press when the overlay is absent; pressing OK while it is already visible would hide it
-    // again. PLAYBACK is the stable label for the app's visible player-control surface; the
-    // transport label itself varies between Play and Pause.
-    if (!device.hasObject(By.text("PLAYBACK")) && !device.hasObject(By.text("MUTE"))) {
-        device.pressDPadCenter()
+internal fun MacrobenchmarkScope.assertPlayerControlsAvailable(
+    timeoutMs: Long = UI_TIMEOUT_MS
+) {
+    val playbackSelector = By.text(PLAYER_CONTROL_LABEL_PATTERN)
+    val playbackDescriptionSelector = By.desc(PLAYER_CONTROL_LABEL_PATTERN)
+    val deadline = SystemClock.uptimeMillis() + timeoutMs
+
+    // Opening a live channel can spend several seconds in HLS preparation/recovery. DPAD_CENTER
+    // intentionally opens the live channel-info overlay, so use the app's MENU shortcut to show
+    // playback controls. Probe in short cycles because the first MENU event can arrive while the
+    // fullscreen transition is still handing focus to the player root. The guard before every
+    // press prevents toggling an already-visible overlay back off.
+    while (SystemClock.uptimeMillis() < deadline) {
+        if (device.hasObject(playbackSelector) || device.hasObject(playbackDescriptionSelector)) {
+            return
+        }
+
+        device.pressKeyCode(KeyEvent.KEYCODE_MENU)
+        val remainingMs = (deadline - SystemClock.uptimeMillis()).coerceAtLeast(1L)
+        val probeMs = minOf(PLAYER_CONTROL_PROBE_INTERVAL_MS, remainingMs)
+        if (device.wait(Until.hasObject(playbackSelector), probeMs) ||
+            device.hasObject(playbackDescriptionSelector)
+        ) {
+            return
+        }
+        SystemClock.sleep(PLAYER_CONTROL_RETRY_SETTLE_MS)
     }
-    check(device.wait(Until.hasObject(By.text("PLAYBACK")), UI_TIMEOUT_MS)) {
-        "Expected visible player controls after opening a seeded live channel."
-    }
+
+    check(false) { "Expected visible player controls after opening a seeded live channel." }
 }
 
-internal fun MacrobenchmarkScope.navigateToTopLevelDestination(label: String) {
+internal fun MacrobenchmarkScope.navigateToTopLevelDestination(
+    label: String,
+    targetPackage: String = SEEDED_DEBUG_PACKAGE
+) {
     val destinationIndex = SEEDED_TOP_LEVEL_DESTINATIONS.indexOf(label)
     check(destinationIndex >= 0) {
         "Unknown seeded top-level destination '$label'."
@@ -140,7 +176,12 @@ internal fun MacrobenchmarkScope.navigateToTopLevelDestination(label: String) {
     // external navigation intent is deterministic even when a previous content surface retained
     // TV focus; it preserves the process and cache while changing only the route.
     if (label == "Home") {
-        device.executeShellCommand("am start -W -a android.intent.action.VIEW -n $SEEDED_DEBUG_ACTIVITY")
+        val targetActivity = when (targetPackage) {
+            RELEASE_TARGET_PACKAGE -> RELEASE_TARGET_ACTIVITY
+            SEEDED_DEBUG_PACKAGE -> SEEDED_DEBUG_ACTIVITY
+            else -> error("Unsupported benchmark target package '$targetPackage'.")
+        }
+        device.executeShellCommand("am start -W -a android.intent.action.VIEW -n $targetActivity")
         device.waitForIdle()
         return
     }
@@ -182,9 +223,14 @@ internal fun MacrobenchmarkScope.swipeContent(repetitions: Int = 3) {
 }
 
 internal fun MacrobenchmarkScope.navigateLiveAndOpenFocusedChannel(
-    categoryTimeoutMs: Long = LIVE_CATEGORY_TIMEOUT_MS
+    categoryTimeoutMs: Long = LIVE_CATEGORY_TIMEOUT_MS,
+    targetPackage: String = SEEDED_DEBUG_PACKAGE
 ) {
-    openTopLevelDestination("Live TV", categoryTimeoutMs = categoryTimeoutMs)
+    openTopLevelDestination(
+        "Live TV",
+        categoryTimeoutMs = categoryTimeoutMs,
+        targetPackage = targetPackage
+    )
     waitForLiveCategoryAvailability(categoryTimeoutMs)
 
     // The seeded provider exposes Favorites and Recent before All Channels. The Live TV route

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
@@ -17,9 +17,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.pairing.ProviderQrPairingState
-import com.streamvault.app.pairing.ProviderQrPairingStatus
+import com.streamvault.feature.provider.R
+import com.streamvault.feature.provider.pairing.ProviderQrPairingState
+import com.streamvault.feature.provider.pairing.ProviderQrPairingStatus
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.theme.*
 

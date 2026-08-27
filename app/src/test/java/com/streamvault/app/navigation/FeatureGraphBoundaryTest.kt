@@ -7,10 +7,12 @@ import org.junit.Test
 class FeatureGraphBoundaryTest {
     @Test
     fun featureGraphsDoNotReferenceRootController() {
-        val graphRoot = File("src/main/java/com/streamvault/app/navigation/graph")
-        val files = graphRoot.walkTopDown()
-            .filter { it.extension == "kt" }
-            .toList()
+        val graphRoots = listOf(
+            File("src/main/java/com/streamvault/app/navigation/graph"),
+            File("../feature/provider/src/main/java/com/streamvault/feature/provider/navigation")
+        )
+        val files = graphRoots
+            .flatMap { root -> root.walkTopDown().filter { it.extension == "kt" }.toList() }
         assertThat(files.map { it.name }).containsAtLeast(
             "WelcomeGraph.kt",
             "ProviderGraph.kt",

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement

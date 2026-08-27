@@ -1,6 +1,6 @@
 @file:Suppress("UseKtx")
 
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -20,7 +20,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
-import com.streamvault.app.R
+import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.theme.AccentCyan
 import com.streamvault.core.ui.theme.TextPrimary

@@ -456,7 +456,6 @@
     <string name="settings_update_current_message">Vous avez déjà la dernière version de StreamVault.</string>
     <string name="settings_syncing">Synchronisation des données, veuillez patienter...</string>
     <string name="settings_syncing_title">Synchronisation des données...</string>
-    <string name="settings_syncing_subtitle">Veuillez patienter pendant que votre liste de lecture est importée.</string>
     <string name="settings_enter_new_pin">Entrez le nouveau code PIN</string>
     <string name="settings_enter_pin">Entrez le code PIN</string>
     <string name="settings_select_level">Sélectionnez le niveau de protection</string>
@@ -716,61 +715,6 @@
     <string name="a11y_catch_up_available">Rattrapage disponible</string>
     <string name="a11y_now_playing">Je joue actuellement à %1$s</string>
     <string name="a11y_channel_with_number">Canal %1$d, %2$s</string>
-    <string name="setup_title_streamvault">StreamVault</string>
-    <string name="setup_provider_title">Ajouter un fournisseur</string>
-    <string name="setup_edit_provider">Modifier le fournisseur</string>
-    <string name="setup_update_desc">Mettez à jour les détails de votre fournisseur IPTV</string>
-    <string name="setup_add_desc">Ajoutez votre fournisseur IPTV</string>
-    <string name="setup_shell_eyebrow">Intégration des fournisseurs</string>
-    <string name="setup_shell_subtitle">Utilisez Xtream ou M3U. Vous pourrez le modifier plus tard.</string>
-    <string name="setup_form_subtitle">Choisissez une source, saisissez les détails, puis continuez. Vous pourrez la gérer plus tard dans les Paramètres.</string>
-    <string name="setup_source_type_label">Type de source</string>
-    <string name="setup_info_xtream_title">Utilisez Xtream lorsque les informations d’identification sont disponibles</string>
-    <string name="setup_info_xtream_body">Mieux encore, lorsque vous disposez d’un serveur, d’un utilisateur et d’un mot de passe.</string>
-    <string name="setup_info_m3u_title">Utiliser M3U pour les listes de lecture basées sur des URL ou des fichiers</string>
-    <string name="setup_info_m3u_body">Utilisez un lien de playlist ou importez un fichier local.</string>
-    <string name="setup_info_manage_title">Vous pourrez gérer les fournisseurs plus tard</string>
-    <string name="setup_info_manage_body">Actualisez-la, modifiez-la ou remplacez-la plus tard dans les Paramètres.</string>
-    <string name="setup_xtream">Codes Xtream</string>
-    <string name="setup_m3u">Liste de lecture M3U</string>
-    <string name="setup_name_hint">Nom de la liste de lecture (facultatif)</string>
-    <string name="setup_server_hint">URL du serveur</string>
-    <string name="setup_user_hint">Nom d’utilisateur</string>
-    <string name="setup_pass_hint">Mot de passe</string>
-    <string name="setup_show_password">Afficher le mot de passe</string>
-    <string name="setup_hide_password">Masquer le mot de passe</string>
-    <string name="setup_connecting">Connexion...</string>
-    <string name="setup_save">Enregistrer les modifications</string>
-    <string name="setup_login">Connexion</string>
-    <string name="setup_advanced_options_label">Options avancées</string>
-    <string name="setup_advanced_options_helper">Contrôlez la façon dont les données du guide sont récupérées lors de la configuration et de l’actualisation du fournisseur.</string>
-    <string name="setup_advanced_options_show">Afficher</string>
-    <string name="setup_advanced_options_hide">Masquer</string>
-    <string name="setup_m3u_vod_classification_label">Classification VOD M3U</string>
-    <string name="setup_m3u_vod_classification_helper">M3U uniquement. Utilise l’URL de la playlist et les heuristiques group-title pour classer les entrées correspondantes dans Films au lieu de TV en direct.</string>
-    <string name="setup_epg_sync_mode_label">Synchronisation EPG</string>
-    <string name="setup_epg_sync_mode_helper">Le mode Immédiat conserve le comportement actuel. En arrière-plan termine d’abord la configuration, et Ignorer laisse l’actualisation du guide pour plus tard.</string>
-    <string name="setup_epg_sync_mode_upfront_title">EPG complet maintenant</string>
-    <string name="setup_epg_sync_mode_upfront_description">Télécharge les données du fournisseur et du guide externe pendant la configuration, avant la fin.</string>
-    <string name="setup_epg_sync_mode_background_title">Charger l’EPG en arrière-plan</string>
-    <string name="setup_epg_sync_mode_background_description">Terminez d’abord la configuration, puis récupérez automatiquement les données du guide en arrière-plan.</string>
-    <string name="setup_epg_sync_mode_skip_title">Ignorer l’EPG pour l’instant</string>
-    <string name="setup_epg_sync_mode_skip_description">Ne pas récupérer automatiquement les données du guide. Vous pourrez actualiser l’EPG plus tard dans les Paramètres.</string>
-    <string name="setup_stalker_epg_sync_mode_helper">Stalker peut utiliser le guide natif du portail lorsque XMLTV est absent ou indisponible. Le chargement immédiat l’importe pendant la configuration, le chargement en arrière-plan le reporte et l’option d’ignorer laisse le guide se charger à la demande.</string>
-    <string name="setup_stalker_epg_sync_mode_upfront_description">Téléchargez les chaînes en direct et importez le guide du portail Stalker pendant la configuration. Si XMLTV est configuré et fonctionne, il est utilisé en priorité.</string>
-    <string name="setup_stalker_epg_sync_mode_background_description">Terminez d’abord la configuration, puis importez le guide du portail Stalker en arrière-plan. Si XMLTV est configuré et fonctionne, il est utilisé en priorité.</string>
-    <string name="setup_stalker_epg_sync_mode_skip_description">N’importez pas automatiquement les données du guide en bloc. Les données du guide en direct peuvent toujours se charger à la demande lorsque vous parcourez les chaînes.</string>
-    <string name="setup_m3u_hint">URL M3U</string>
-    <string name="setup_tab_url">URL</string>
-    <string name="setup_tab_file">Fichier</string>
-    <string name="setup_choose_file">Choisissez le fichier M3U</string>
-    <string name="setup_file_replace_hint">Appuyez pour remplacer le fichier</string>
-    <string name="setup_file_select_title">Sélectionnez le fichier M3U</string>
-    <string name="setup_file_browse_hint">Parcourir le stockage local ou USB</string>
-    <string name="setup_file_import_failed">Impossible d’importer le fichier de liste de lecture. Veuillez réessayer.</string>
-    <string name="setup_file_import_storage_full">Le stockage est plein. Libérez de l’espace et réessayez d’importer.</string>
-    <string name="setup_validating">Validation...</string>
-    <string name="setup_add">Ajouter une liste de lecture</string>
     <string name="player_buffering">Mise en mémoire tampon...</string>
     <string name="player_error_title">Erreur de lecture</string>
     <string name="player_error_network">Flux indisponible : vérifiez votre connexion Internet</string>
@@ -1156,7 +1100,6 @@
     <string name="tv_input_setup_try_scan_again">Réessayer l’analyse automatique</string>
     <string name="tv_input_setup_retry_scan">Relancer l’analyse automatique</string>
     <string name="tv_input_setup_success_hint">Android TV TV en direct peut maintenant ouvrir vos chaînes StreamVault.</string>
-    <string name="badge_beta">Bêta</string>
     <string name="badge_recording">REC</string>
     <string name="badge_scheduled">SCHED</string>
     <string name="category_options_clear_recent">Effacer tout le récent</string>
@@ -1392,13 +1335,6 @@
     <string name="settings_xtream_base64_compatibility_subtitle">Décoder largement les noms et catégories Xtream stockés en Base64. Laisser désactivé sauf si le texte semble encodé.</string>
     <string name="settings_zap_auto_revert">Retour auto sur mauvaise chaîne</string>
     <string name="settings_zap_auto_revert_subtitle">Revenir automatiquement à la chaîne précédente si une chaîne se bloque ou ne se charge pas.</string>
-    <string name="setup_discard_draft_body">Cette configuration de fournisseur est incomplète. Revenir en arrière et perdre le brouillon actuel ?</string>
-    <string name="setup_discard_draft_cancel">Continuer l’édition</string>
-    <string name="setup_discard_draft_confirm">Supprimer</string>
-    <string name="setup_discard_draft_title">Supprimer le brouillon de configuration ?</string>
-    <string name="setup_import_backup">Importer la sauvegarde</string>
-    <string name="setup_info_stalker_body">URL du portail et une adresse MAC approuvée par le fournisseur.</string>
-    <string name="setup_stalker">Stalker</string>
     <string name="vod_sync_needed_subtitle">Actualisez ce fournisseur pour importer des films et séries dans la bibliothèque.</string>
     <string name="vod_sync_needed_title">Synchronisation requise</string>
 
@@ -1423,14 +1359,6 @@
     <string name="settings_crash_report_exception">Exception</string>
 
     <!-- Xtream Live Sync Mode -->
-    <string name="setup_xtream_live_sync_mode_label">Synchronisation Live Xtream</string>
-    <string name="setup_xtream_live_sync_mode_helper">Choisissez comment les chaînes TV en direct sont récupérées. Auto protège les appareils peu puissants et les actualisations de routine tout en conservant les catégories à jour.</string>
-    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
-    <string name="setup_xtream_live_sync_mode_auto_description">Recommandé. Utilise la synchronisation par catégorie sur les appareils à mémoire limitée, les actualisations en arrière-plan, les actualisations de catégories masquées et les fournisseurs surchargés.</string>
-    <string name="setup_xtream_live_sync_mode_category_title">Catégorie par catégorie</string>
-    <string name="setup_xtream_live_sync_mode_category_description">Toujours récupérer la TV en direct une catégorie à la fois. Plus sûr pour les fournisseurs volumineux et les appareils Android TV peu puissants.</string>
-    <string name="setup_xtream_live_sync_mode_stream_all_title">Mode global</string>
-    <string name="setup_xtream_live_sync_mode_stream_all_description">Essaie le point de terminaison Live global du fournisseur via l’analyseur en flux continu. Retourne à la synchronisation par catégorie si non sûr ou en cas d’échec.</string>
 
     <!-- M2 : sauvegarde Google Drive -->
     <string name="settings_drive_section_title">Sauvegarde Google Drive</string>
@@ -1445,7 +1373,6 @@
     <string name="settings_drive_last_push">Envoyé : %1$s</string>
     <string name="settings_drive_last_pull">Récupéré : %1$s</string>
     <string name="settings_drive_never_synced">Jamais synchronisé</string>
-    <string name="setup_import_from_drive">Importer depuis Drive</string>
     <string name="settings_remote_shortcuts_title">Colored Remote Buttons</string>
     <string name="settings_remote_shortcuts_subtitle">Works on remotes that send the Android red, green, yellow, and blue color key codes.</string>
     <string name="settings_remote_button_red">Red button</string>

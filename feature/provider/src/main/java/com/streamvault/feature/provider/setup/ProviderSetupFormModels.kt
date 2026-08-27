@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import com.streamvault.data.remote.stalker.StalkerParamOverride
 import com.streamvault.data.remote.stalker.StalkerRequestRule

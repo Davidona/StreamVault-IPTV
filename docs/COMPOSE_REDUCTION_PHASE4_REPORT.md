@@ -90,3 +90,32 @@ The long-duration live-TV playback protocol and manual player behavior matrix we
 ## Phase 5 handoff
 
 Phase 5 can extract feature modules behind the established typed contracts. The first extraction should preserve `registerPlayerGraph` and the player request/return contracts as the seam, then move the provider, settings, live/EPG, and catalog registration units without reintroducing root-controller access.
+
+## Review hardening follow-up (2026-08-25)
+
+The Phase 4 review found two navigation regressions that the original report did
+not cover:
+
+- startup landing routes were held behind the optional favorite/history player
+  lookup; landing navigation is now published immediately and the player
+  request is completed asynchronously;
+- typed detail returns used a `popUpTo(Player)` fallback even when the deep-link
+  stack contained no Player destination; the fallback now replaces the current
+  detail entry and navigates to the typed target (or Home).
+
+The review also found that the app and extracted playback golden helpers were
+accepting a first-run screenshot as its own baseline. Both helpers now require
+checked-in `androidTest/assets/ui-goldens/*.png` files unless the explicit
+`recordGoldens=true` instrumentation argument is supplied. The app and playback
+baseline PNGs are present in the current hardening working tree, and the
+recording-disabled shell, premium-route, navigation-contract, missing-baseline,
+and playback-overlay runs previously passed on the API 36
+`Television_1080p` emulator. The hardening files still need their own commit;
+once committed, this makes the golden and connected navigation gates
+reproducible for future reviewers.
+
+The follow-up also hardens startup player delivery against event ordering: a
+Live TV destination resume is recorded even if startup navigation acknowledgement
+arrives later, and acknowledgement retries the deferred player enqueue. Focused
+coordinator coverage now includes resume-before-acknowledgement, deferred player
+lookup completion, and catalog-layout route reconciliation.

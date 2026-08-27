@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.ChannelLogoSourcePolicy

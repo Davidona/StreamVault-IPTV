@@ -52,6 +52,9 @@ class AppNavigationCoordinator @Inject constructor(
     private var startupNavigationCommandId: Long? = null
     private var startupPlayerRequest: PlayerNavigationRequest? = null
     private var startupPlayerEnqueued = false
+    private var startupLiveDestinationResumed = false
+    private var resolvedStartupKey: StartupResolutionKey? = null
+    private var startupResolutionKey: StartupResolutionKey? = null
 
     init {
         observeStartupState()
@@ -79,13 +82,35 @@ class AppNavigationCoordinator @Inject constructor(
                         preferred = inputs.preferredLanding,
                         destinations = inputs.topLevelDestinations
                     )
-                    val startupTarget = startupResolver.resolve(landingDestination)
+                    val resolutionKey = StartupResolutionKey(landingDestination)
+                    val landingRoute = startupResolver.destinationFor(landingDestination)
+                    if (!startupNavigationRequested) {
+                        resolvedStartupKey = resolutionKey
+                    }
                     _state.update {
-                        it.copy(
-                            startupTarget = startupTarget,
-                            topLevelDestinations = inputs.topLevelDestinations,
-                            catalogLayout = inputs.catalogLayout
-                        )
+                        if (!startupNavigationRequested) {
+                            it.copy(
+                                startupTarget = StartupNavigationTarget(landingRoute),
+                                topLevelDestinations = inputs.topLevelDestinations,
+                                catalogLayout = inputs.catalogLayout
+                            )
+                        } else {
+                            it.copy(
+                                topLevelDestinations = inputs.topLevelDestinations,
+                                catalogLayout = inputs.catalogLayout
+                            )
+                        }
+                    }
+                    val playerRequest = startupResolver.resolvePlayerRequest(landingDestination)
+                    if (!startupNavigationRequested || startupResolutionKey == resolutionKey) {
+                        startupPlayerRequest = playerRequest
+                        _state.update {
+                            it.copy(
+                                startupTarget = it.startupTarget?.copy(playerRequest = playerRequest)
+                                    ?: StartupNavigationTarget(landingRoute, playerRequest)
+                            )
+                        }
+                        enqueueStartupPlayerIfReady()
                     }
                 }
         }
@@ -133,7 +158,9 @@ class AppNavigationCoordinator @Inject constructor(
         if (startupNavigationRequested) return
         val target = state.value.startupTarget ?: return
         startupNavigationRequested = true
+        startupResolutionKey = resolvedStartupKey
         startupPlayerRequest = target.playerRequest
+        startupLiveDestinationResumed = false
         startupNavigationCommandId = enqueue(
             NavigationCommand.Navigate(
                 destination = target.destination,
@@ -143,9 +170,16 @@ class AppNavigationCoordinator @Inject constructor(
     }
 
     fun onDestinationResumed(destination: AppDestination) {
-        if (!startupNavigationAcknowledged || destination !is AppDestination.LiveTv) return
+        if (destination !is AppDestination.LiveTv) return
+        startupLiveDestinationResumed = true
+        enqueueStartupPlayerIfReady()
+    }
+
+    private fun enqueueStartupPlayerIfReady() {
+        if (!startupNavigationAcknowledged || !startupLiveDestinationResumed || startupPlayerEnqueued) {
+            return
+        }
         val request = startupPlayerRequest ?: return
-        if (startupPlayerEnqueued) return
         startupPlayerEnqueued = true
         submit(NavigationCommand.OpenPlayer(request))
     }
@@ -200,6 +234,7 @@ class AppNavigationCoordinator @Inject constructor(
         if (startupNavigationCommandId == id) {
             startupNavigationAcknowledged = true
             startupNavigationCommandId = null
+            enqueueStartupPlayerIfReady()
         }
         _pendingCommand.value = commandQueue.firstOrNull()
     }
@@ -209,6 +244,10 @@ class AppNavigationCoordinator @Inject constructor(
         val topLevelDestinations: List<AppTopLevelDestination>,
         val providerId: Long?,
         val catalogLayout: CatalogLayout?
+    )
+
+    private data class StartupResolutionKey(
+        val landingDestination: AppLandingDestination
     )
 
     private data class CatalogState(

@@ -1,22 +1,23 @@
-package com.streamvault.app.navigation.graph
+package com.streamvault.feature.provider.navigation
 
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.streamvault.app.navigation.AppRoutePatterns
-import com.streamvault.app.ui.screens.provider.ProviderSetupScreen
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.feature.provider.api.ProviderBackupPreviewContent
+import com.streamvault.feature.provider.setup.ProviderSetupScreen
 
-internal fun NavGraphBuilder.registerProviderGraph(
+fun NavGraphBuilder.registerProviderGraph(
     actions: NavigationActions,
     startupReady: Boolean,
-    onStartupNavigationRequested: (AppDestination) -> Unit
+    onStartupNavigationRequested: (AppDestination) -> Unit,
+    backupPreviewContent: ProviderBackupPreviewContent,
 ) {
     composable(
-        route = AppRoutePatterns.PROVIDER_SETUP,
+        route = ProviderRoutePatterns.PROVIDER_SETUP,
         arguments = listOf(
             navArgument("providerId") { type = NavType.LongType; defaultValue = -1L },
             navArgument("importUri") { type = NavType.StringType; defaultValue = "" }
@@ -28,6 +29,7 @@ internal fun NavGraphBuilder.registerProviderGraph(
             editProviderId = providerId,
             initialImportUri = importUri,
             onBack = { actions.back() },
+            backupPreviewContent = backupPreviewContent,
             onProviderAdded = dropUnlessResumed {
                 onStartupNavigationRequested(AppDestination.ProviderSetup())
             }

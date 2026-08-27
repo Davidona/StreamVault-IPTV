@@ -17,7 +17,7 @@ The ProviderSetup slice now also places the source selector panel, provider-spec
 
 The AppNavigation split is now complete for Phase 1: startup resolution, route/request contracts, navigation adapters, external-navigation dispatch, and graph registration are in dedicated same-package files; `AppNavigation.kt` retains state collection and orchestration only. No typed-route or module boundary was introduced.
 
-The review follow-up also closed player input freshness regressions: input and Back decisions now build their snapshots at event time, including the ViewModel-backed numeric-channel buffer, with regression tests covering digit-entry updates followed by immediate confirmation or Back. Focused player, provider, and navigation unit tests pass. Long-duration live playback and manual TV smoke checks remain required Phase 1 gates whenever the environment is available; this workspace currently has no `adb` executable/device, so those gates remain explicitly unvalidated.
+The review follow-up also closed player input freshness regressions: input and Back decisions now build their snapshots at event time, including the ViewModel-backed numeric-channel buffer, with regression tests covering digit-entry updates followed by immediate confirmation or Back. Focused player, provider, and navigation unit tests pass. Long-duration live playback and manual TV smoke checks remain required gates. The later API 36 emulator pass is recorded in the Phase 5 playback report; it covers seeded startup, preview, fullscreen, controls, and Back, while the full stability/manual matrix remains open.
 
 This branch was synchronized with the current local `develop` in merge commit `c2a2658f`, and synchronized again after `develop` advanced in merge commit `6e85d5c7` from local `develop` `5294fbd5`. Both merges were conflict-free. The second merge brought the backup/restore ledger, database migration, TV-input synchronization, and related settings/data changes. No production compatibility changes were needed for the Phase 1 extraction; the only adaptation was removing a duplicate `m3uClassificationRepository` field and constructor argument from `HomeViewModelTest` created by overlapping test-fixture changes. The merged tree passes `:app:testDebugUnitTest`, the focused backup/sync data tests, and `:app:assembleDebug`. The full `:data:testDebugUnitTest` suite runs 1,060 tests but retains the `ProviderExecutionArchitectureTest` failure at `data/src/test/java/com/streamvault/data/provider/ProviderExecutionArchitectureTest.kt:276` (expected dependency budget 40, actual 42).
 
@@ -854,7 +854,8 @@ Exit criteria:
 
 - `:core:ui` does not depend on `:app`, `:data`, or feature implementations.
 - A core UI change intentionally recompiles dependents; a feature UI change does not recompile unrelated features.
-- Golden coverage exists for critical shared TV components.
+- Golden coverage exists for critical shared TV components, with committed
+  baselines rather than a first-run self-baseline.
 
 ### Phase 4 - Navigation contracts
 
@@ -875,6 +876,15 @@ Exit criteria:
 
 Completed report: [COMPOSE_REDUCTION_PHASE4_REPORT.md](COMPOSE_REDUCTION_PHASE4_REPORT.md)
 
+Review hardening note (2026-08-25): startup landing navigation no longer waits
+for optional player-target lookup, deep-link detail returns replace the current
+detail entry when their typed target is absent from the back stack, catalog
+layout changes reconcile the current top-level route, and golden helpers now
+require checked-in assets. App and playback baseline assets are present in the
+current hardening working tree; recording-disabled golden, navigation-contract,
+and playback-overlay runs previously passed on the API 36
+`Television_1080p` emulator. The hardening slice remains pending its own commit.
+
 ### Phase 5 - Feature module extraction
 
 Detailed delivery artifacts:
@@ -882,6 +892,7 @@ Detailed delivery artifacts:
 - [Phase 5 feature extraction roadmap](COMPOSE_REDUCTION_PHASE5_ROADMAP.md)
 - [Phase 5 accepted architecture design](superpowers/specs/2026-08-24-phase-5-feature-module-extraction-design.md)
 - [Playback feature extraction implementation plan](superpowers/plans/2026-08-24-playback-feature-extraction.md)
+- [Provider feature extraction implementation plan](superpowers/plans/2026-08-26-provider-feature-extraction.md)
 
 Recommended extraction order:
 
@@ -906,17 +917,42 @@ Exit criteria:
 - Feature tests can run independently.
 - `:app` contains orchestration and platform entry points, not feature presentation implementations.
 
-Phase 5 execution status (2026-08-25): the structural playback extraction and
+Phase 5 execution status (2026-08-27): the structural playback extraction and
 feature-boundary work through Task 9 is complete, and the Task 10 report is
 recorded in [COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md](COMPOSE_REDUCTION_PHASE5_PLAYBACK_REPORT.md).
-Feature overlay connected coverage passed 6/6; the app connected suite passed
-22/27, with five existing fixture/provider/focus failures recorded in the
-report. The fresh ADB startup check confirms the current app's horizontal top
+Feature overlay connected coverage passed 7/7 (six golden cases plus the
+missing-golden guard); the app connected suite passed 22/27, with five existing
+fixture/provider/focus failures recorded in the report. The fresh ADB startup
+check confirms the current app's horizontal top
 navbar. Seeded two-channel playback produced real video and 61 unique frames
 per channel, but both channels hit repeated recoverable HLS live-window source
 errors during the required window, so runtime acceptance remains open. Full
-manual journey coverage and release-like baseline-profile generation also
-remain open.
+manual journey coverage, macrobenchmark performance comparison, and physical-
+device validation also remain open. The release-like profile gate itself passed
+after correcting the live-controls probe: the full
+`generateBaselineProfile` collection, merge, source copy, and install completed
+successfully on 2026-08-26; the focused `criticalJourneys` run also passed.
+An isolated rerun added a clean 61/61-frame Dare To Dream HLS window, but the
+French channel reproduced stalls, an unintended MPEG-TS fallback to a malformed
+URL, and a final source error (56 unique frames); the two-channel stability
+gate remains open. Detailed evidence is in the linked playback report.
+
+Provider execution status (2026-08-27): the provider module, setup/edit/import/
+pairing presentation state, resources, tests, graph registration, ownership
+cleanup, boundary checks, feature lint, unit tests, and debug assembly are
+complete. SDK-local ADB reached the connected API 36 TV emulator: focused
+  provider completion (1/1), app navigation (3/3), platform compatibility
+  (4/4), golden (1/1), and playback overlay (7/7) checks passed. Manual source switching, D-pad focus, document
+choosers, Drive account-picker handoff, QR pairing start/stop, and a sanitized
+cold-start route smoke check, and seeded existing-provider edit/cancel journey
+also passed without a fatal app error; full provider completion journeys remain
+open. The release-like profile regeneration was rerun successfully on the now-idle
+host (10 profile tests passed, eight unrelated macrobenchmarks skipped, stale
+app-provider paths removed, and `:app:assembleRelease` passed). Paired
+incremental-performance samples are still open because the provider extraction
+and related navigation/golden changes are uncommitted; a valid before/after
+comparison requires a committed post-extraction ref. See
+[COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md](COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md).
 
 ### Phase 6 - Optional Views migrations
 

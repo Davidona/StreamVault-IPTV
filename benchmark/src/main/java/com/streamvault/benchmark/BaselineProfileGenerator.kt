@@ -52,23 +52,28 @@ class BaselineProfileGenerator {
         openTopLevelDestination(
             label = "Home",
             destinationTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS,
-            categoryTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS
+            categoryTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS,
+            targetPackage = RELEASE_TARGET_PACKAGE
         )
         swipeContent()
 
         openTopLevelDestination(
             label = "Live TV",
             destinationTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS,
-            categoryTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS
+            categoryTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS,
+            targetPackage = RELEASE_TARGET_PACKAGE
         )
         waitForLiveCategoryAvailability(BASELINE_PROFILE_SEED_TIMEOUT_MS)
         devicePressDPadNavigation()
 
-        openTopLevelDestination("Guide")
+        openTopLevelDestination("Guide", targetPackage = RELEASE_TARGET_PACKAGE)
         devicePressDPadNavigation()
 
-        navigateLiveAndOpenFocusedChannel(BASELINE_PROFILE_SEED_TIMEOUT_MS)
-        assertPlayerControlsAvailable()
+        navigateLiveAndOpenFocusedChannel(
+            categoryTimeoutMs = BASELINE_PROFILE_SEED_TIMEOUT_MS,
+            targetPackage = RELEASE_TARGET_PACKAGE
+        )
+        assertPlayerControlsAvailable(BASELINE_PROFILE_SEED_TIMEOUT_MS)
         devicePressDPadNavigation()
     }
 

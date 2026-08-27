@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString

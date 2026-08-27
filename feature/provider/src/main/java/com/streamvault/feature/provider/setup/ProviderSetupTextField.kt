@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.foundation.*
 import androidx.compose.animation.animateColorAsState
@@ -24,8 +24,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.*
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.provider.R
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.*
 import kotlinx.coroutines.delay

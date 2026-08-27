@@ -28,14 +28,22 @@ class StartupNavigationResolver @Inject constructor(
     private val channelRepository: ChannelRepository,
     private val providerRepository: ProviderRepository
 ) {
+    fun destinationFor(landingDestination: AppLandingDestination): AppDestination =
+        landingDestination.toAppDestination()
+
+    suspend fun resolvePlayerRequest(
+        landingDestination: AppLandingDestination
+    ): PlayerNavigationRequest? = when (landingDestination) {
+        AppLandingDestination.FIRST_FAVORITE_LIVE -> resolveFirstFavoriteStartupTarget()
+        AppLandingDestination.LAST_WATCHED_LIVE -> resolveLastWatchedStartupTarget()
+        else -> null
+    }
+
     suspend fun resolve(landingDestination: AppLandingDestination): StartupNavigationTarget {
-        val destination = landingDestination.toAppDestination()
-        val playerRequest = when (landingDestination) {
-            AppLandingDestination.FIRST_FAVORITE_LIVE -> resolveFirstFavoriteStartupTarget()
-            AppLandingDestination.LAST_WATCHED_LIVE -> resolveLastWatchedStartupTarget()
-            else -> null
-        }
-        return StartupNavigationTarget(destination, playerRequest)
+        return StartupNavigationTarget(
+            destination = destinationFor(landingDestination),
+            playerRequest = resolvePlayerRequest(landingDestination)
+        )
     }
 
     private suspend fun resolveFirstFavoriteStartupTarget(): PlayerNavigationRequest? {

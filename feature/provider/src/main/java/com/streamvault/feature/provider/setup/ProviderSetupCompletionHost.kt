@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable

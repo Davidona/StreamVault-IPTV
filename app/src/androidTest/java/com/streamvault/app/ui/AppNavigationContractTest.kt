@@ -143,6 +143,44 @@ class AppNavigationContractTest {
         }
     }
 
+    @Test
+    fun missingDetailReturnTargetRemovesDetailBeforeNavigating() {
+        lateinit var navController: TestNavHostController
+
+        composeRule.setContent {
+            navController = rememberTestNavController()
+            val currentEntry by navController.currentBackStackEntryAsState()
+            NavHost(navController = navController, startDestination = "welcome") {
+                composable("welcome") {}
+                composable(
+                    route = "movie_detail/{movieId}?returnRoute={returnRoute}",
+                    arguments = listOf(
+                        navArgument("movieId") { type = NavType.LongType },
+                        navArgument("returnRoute") { type = NavType.StringType; defaultValue = "" }
+                    )
+                ) {}
+                composable("home") {}
+            }
+            LaunchedEffect(Unit) {
+                navController.navigate("movie_detail/42?returnRoute=home")
+            }
+        }
+
+        composeRule.waitUntil(5_000) {
+            navController.currentBackStackEntry?.destination?.route?.startsWith("movie_detail") == true
+        }
+        composeRule.runOnIdle {
+            assertThat(NavControllerNavigator(navController).returnTo(AppDestination.Home))
+                .isTrue()
+        }
+        composeRule.waitUntil(5_000) {
+            navController.currentBackStackEntry?.destination?.route == "home"
+        }
+
+        assertThat(navController.previousBackStackEntry?.destination?.route)
+            .isEqualTo("welcome")
+    }
+
     @androidx.compose.runtime.Composable
     private fun rememberTestNavController(): TestNavHostController {
         val context = LocalContext.current

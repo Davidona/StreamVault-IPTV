@@ -1,8 +1,8 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.pairing.ProviderQrPairingManager
-import com.streamvault.app.pairing.ProviderQrPairingState
+import com.streamvault.feature.provider.pairing.ProviderQrPairingManager
+import com.streamvault.feature.provider.pairing.ProviderQrPairingState
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.CombinedM3uProfile
 import com.streamvault.domain.model.LegacyProvider as Provider

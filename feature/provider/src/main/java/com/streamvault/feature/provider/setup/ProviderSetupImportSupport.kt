@@ -1,7 +1,7 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import android.content.Context
-import com.streamvault.app.R
+import com.streamvault.feature.provider.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -102,6 +102,16 @@ stream recovery, or Live TV playback behavior; the long-duration Live TV
 validation protocol was therefore not newly required for this structural UI
 move.
 
+## Review hardening follow-up (2026-08-25)
+
+The original golden result above was produced by a helper that silently recorded
+the first screenshot when no baseline existed. The helper is now strict and
+loads committed assets from `app/src/androidTest/assets/ui-goldens/`. The
+app shell and premium-route PNG baselines are now checked in and were
+revalidated with recording disabled on the API 36 `Television_1080p` emulator.
+This prevents a clean emulator from accepting a visual regression as its own
+baseline.
+
 Implementation commits:
 
 - `ef421345` — add core UI module boundary

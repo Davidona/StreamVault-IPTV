@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
@@ -71,17 +71,18 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.tv.material3.*
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.pairing.ProviderQrPairingState
-import com.streamvault.app.pairing.ProviderQrPairingStatus
+import com.streamvault.feature.provider.R
+import com.streamvault.feature.provider.api.ProviderBackupPreviewContent
+import com.streamvault.feature.provider.api.ProviderBackupPreviewRequest
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
+import com.streamvault.feature.provider.pairing.ProviderQrPairingState
+import com.streamvault.feature.provider.pairing.ProviderQrPairingStatus
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.components.extractProgressFraction
+import com.streamvault.core.ui.progress.extractProgressFraction
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.app.ui.screens.settings.BackupImportPreviewDialog
 import com.streamvault.core.ui.theme.*
 import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
 import com.streamvault.data.remote.stalker.StalkerAdvancedOptionsCodec
@@ -123,12 +124,14 @@ fun ProviderSetupScreen(
     onBack: () -> Unit,
     editProviderId: Long? = null,
     initialImportUri: String? = null,
+    backupPreviewContent: ProviderBackupPreviewContent,
     viewModel: ProviderSetupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val knownLocalM3uUrls by viewModel.knownLocalM3uUrls.collectAsStateWithLifecycle()
     val pairingState by viewModel.pairingState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val fileImportFailedMessage = stringResource(R.string.setup_file_import_failed)
     val coroutineScope = rememberCoroutineScope()
 
     // ?? Local form state ??????????????????????????????????????????????????????
@@ -171,7 +174,7 @@ fun ProviderSetupScreen(
                 val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
                     withContext(Dispatchers.Main) {
-                        fileImportError = context.getString(R.string.setup_file_import_failed)
+                        fileImportError = fileImportFailedMessage
                     }
                     return@launch
                 }
@@ -576,7 +579,8 @@ fun ProviderSetupScreen(
 
     val backupPreview = uiState.backupPreview
     if (backupPreview != null && uiState.pendingBackupUri != null) {
-        BackupImportPreviewDialog(
+        backupPreviewContent(
+            ProviderBackupPreviewRequest(
             preview = backupPreview,
             plan = uiState.backupImportPlan,
             onDismiss = { viewModel.dismissBackupPreview() },
@@ -589,6 +593,7 @@ fun ProviderSetupScreen(
             onImportRecordingSchedulesChanged = { viewModel.setImportRecordingSchedules(it) },
             isImporting = uiState.isImportingBackup,
             onConfirm = { viewModel.confirmBackupImport() }
+            )
         )
     }
 

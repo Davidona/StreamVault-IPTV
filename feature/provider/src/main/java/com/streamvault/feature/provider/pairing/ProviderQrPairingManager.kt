@@ -1,4 +1,4 @@
-package com.streamvault.app.pairing
+package com.streamvault.feature.provider.pairing
 
 import android.content.Context
 import android.graphics.Bitmap

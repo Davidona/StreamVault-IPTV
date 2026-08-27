@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.provider
+package com.streamvault.feature.provider.setup
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -8,8 +8,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.tv.material3.MaterialTheme
-import com.streamvault.app.R
-import com.streamvault.app.pairing.ProviderQrPairingState
+import com.streamvault.feature.provider.R
+import com.streamvault.feature.provider.pairing.ProviderQrPairingState
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.domain.model.StalkerAuthMode
 

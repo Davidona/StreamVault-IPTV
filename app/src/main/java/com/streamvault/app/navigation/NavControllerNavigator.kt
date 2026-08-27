@@ -41,25 +41,9 @@ internal class NavControllerNavigator(
         val hasTargetInBackStack = hasReturnTarget && hasBackStackEntry(route!!)
         return when (planReturnNavigation(hasReturnTarget, hasTargetInBackStack, navController.previousBackStackEntry != null)) {
             ReturnNavigationPlan.PopToTarget -> navController.popBackStack(route!!, false)
-            ReturnNavigationPlan.NavigateToTarget -> navigateIfResumed(
-                destination!!,
-                NavigationOptions(
-                    launchSingleTop = true,
-                    restoreState = true,
-                    popUpTo = AppDestination.Player,
-                    inclusive = true
-                )
-            )
+            ReturnNavigationPlan.NavigateToTarget -> navigateReplacingCurrent(destination!!)
             ReturnNavigationPlan.PopPrevious -> navController.popBackStack()
-            ReturnNavigationPlan.NavigateHome -> navigateIfResumed(
-                AppDestination.Home,
-                NavigationOptions(
-                    launchSingleTop = true,
-                    restoreState = true,
-                    popUpTo = AppDestination.Player,
-                    inclusive = true
-                )
-            )
+            ReturnNavigationPlan.NavigateHome -> navigateReplacingCurrent(AppDestination.Home)
         }
     }
 
@@ -126,6 +110,22 @@ internal class NavControllerNavigator(
 
     private fun isResumed(): Boolean =
         navController.currentBackStackEntry?.lifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) == true
+
+    private fun navigateReplacingCurrent(destination: AppDestination): Boolean {
+        if (!isResumed()) return false
+        val currentDestinationId = navController.currentBackStackEntry?.destination?.id
+        navController.navigate(AppRouteCodec.encode(destination)) {
+            launchSingleTop = true
+            restoreState = true
+            currentDestinationId?.let { destinationId ->
+                popUpTo(destinationId) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        }
+        return true
+    }
 
     private fun NavOptionsBuilder.apply(options: NavigationOptions) {
         launchSingleTop = options.launchSingleTop

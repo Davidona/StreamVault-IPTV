@@ -1,6 +1,6 @@
 # Phase 5 Playback Feature Extraction Report
 
-Date: 2026-08-25
+Date: 2026-08-27
 Branch: `feature/improveCompose`
 Implementation endpoint: `7df21b86` (`refactor: move playback graph registration to feature`)
 
@@ -13,9 +13,11 @@ adapters and registers the feature graph through
 `registerPlaybackGraph(...)`.
 
 The structural Phase 5 work is complete through Task 9 and the Task 10
-connected checks that are available in this environment. The full live-TV
-acceptance gate remains open because the fresh emulator has no seeded provider
-or channels. No live-playback pass is claimed below.
+connected checks that were available in the initial environment. That initial
+emulator session had no seeded provider or channels; a later seeded-provider
+run is recorded below. The full live-TV acceptance gate remains open because
+the seeded run encountered repeated recoverable live-window source errors. No
+live-playback acceptance pass is claimed.
 
 ## Ownership and public boundary
 
@@ -82,8 +84,11 @@ Feature playback overlay goldens:
 
 ```text
 :feature:playback:connectedDebugAndroidTest
-6 tests, 6 passed
+7 tests, 7 passed
 ```
+
+The seven tests include the six checked-in overlay baselines and the
+recording-disabled missing-baseline guard.
 
 App connected suite:
 
@@ -111,6 +116,27 @@ Relevant passing connected coverage included the app navigation contracts
 disabled golden capture. The XML result is retained at
 `app/build/outputs/androidTest-results/connected/debug/TEST-Television_1080p(AVD) - 16-_app-.xml`.
 
+The connected suite was rerun on 2026-08-26 after the navigation hardening;
+it reproduced the same 22/27 result and the same five failures above. The
+focused navigation-contract (3/3) and app golden-capture (1/1) runs passed,
+and the full playback overlay suite passed 7/7.
+
+The release-like profile gate was rerun with the seeded debug fixture installed
+alongside `com.streamvault.app`. The benchmark helpers now drive the release
+target during baseline collection (ordinary macrobenchmarks retain the debug
+fixture), and player-control detection uses the app's `MENU` control-toggle
+shortcut rather than the live channel-info `DPAD_CENTER` shortcut. The earlier
+full `:app:generateBaselineProfile` attempt failed at the one-shot player
+controls assertion; after this harness correction, the focused connected
+`BaselineProfileGenerator#criticalJourneys` test passed (1/1, 2026-08-26).
+The clean full `:app:generateBaselineProfile` rerun then passed on 2026-08-26
+in 39m28s: 10 profile-collection tests passed, 8 unrelated macrobenchmark
+tests were skipped, generated beta profiles were copied, startup rules were
+merged, and the merged profile was installed. The separate macrobenchmark
+performance and physical-device gates remain open. Follow-up
+`verifyBaselineProfileSources`, `:app:assembleBeta`, `:app:assembleRelease`,
+and `:app:bundleRelease` checks also passed.
+
 ## ADB smoke evidence
 
 The fresh APK was installed with `E:\androidSdk\platform-tools\adb.exe` and
@@ -135,11 +161,13 @@ it does not validate player playback.
   rendered video and recovered to final `PLAYING`, but neither passed the
   stability gate because repeated live-window source-error transitions were
   observed during the required window.
-- `:benchmark:compileBenchmarkKotlin` passed. Profile generation itself was
-  not run because the benchmark still requires a separate release-like target
-  with Home, Live TV, and All Channels data. The debug target was seeded, but
-  the required release-like target was not installed. Generated baseline-
-  profile output remains uncommitted.
+- `:benchmark:compileBenchmarkKotlin` passed. The focused release-like
+  `criticalJourneys` connected run and the subsequent full
+  `:app:generateBaselineProfile` generation/merge/install task passed after the
+  benchmark key/selector fix (10 profile tests passed, 8 unrelated
+  macrobenchmarks skipped). `verifyBaselineProfileSources`, beta/release APK
+  assembly, and release AAB bundling passed afterward. A macrobenchmark
+  performance comparison and physical-device validation remain open.
 
 ### Fresh seeded-provider ADB validation (2026-08-26)
 
@@ -163,6 +191,101 @@ failure rather than an empty catalog or navigation failure. Raw local
 artifacts are under `validation/phase5_playback/live-validation/` and remain
 uncommitted.
 
+### Cross-upstream ADB validation follow-up (2026-08-26)
+
+The capture transport was then moved onto the emulator so screenshot timing
+was not dominated by Windows-side ADB startup. Each run captured 61 frames and
+recorded on-device timestamps; the frame hashes and final media-session state
+were checked after pulling the completed directory.
+
+| Channel | Upstream family | Frames / unique SHA-256 | Timestamp intervals | Final media session | HLS/recovery evidence | Result |
+|---|---|---:|---|---|---|---|
+| 00s Replay | Pluto HLS | 61 / 61 | 1.41–2.74s, avg 2.09s | `PLAYING`, `error=null` | Continuous HLS playlist responses; 0 fatal/stuck/live-window/MPEG-TS markers | Stability pass |
+| 3ABN Dare To Dream Network | 3ABN HLS | 61 / 61 | 1.23–6.08s, avg 2.08s | `PLAYING`, `error=null` | 3 HLS prepares, 2 first frames, 1 live-window retry, 7 `state=ERROR`, 9 source-error records; no fatal/stuck/MPEG-TS fallback | Not accepted |
+
+The two channels use different upstream families, so the live-window behavior
+is not limited to the earlier English/French pair. The 3ABN run still renders
+video and recovers, but the repeated source-error transitions keep the Phase 5
+stability gate open. The long startup gaps on that run also make it unsuitable
+as a clean cadence pass. The raw local artifacts remain uncommitted under
+`validation/phase5_playback/live-validation/`.
+
+### Isolated two-channel rerun (2026-08-27)
+
+Each channel was isolated with `adb logcat -c` before launch and captured at
+the requested two-second cadence for 61 screenshots. Raw screenshots were
+transient and removed after hashing; no credentials, tokens, or other private
+payloads were retained.
+
+| Channel | Screenshots | Unique hashes | Final media session | Log findings | Result |
+|---|---:|---:|---|---|---|
+| 3ABN Dare To Dream Network | 61 | 61 | `PLAYING`, `error=null` | HLS prepare/first-frame; recoverable video-stall/reprepare and release-timeout retry; no fatal error, `BehindLiveWindowException`, MPEG-TS fallback, or stuck-player marker | Stability pass for this window |
+| 3ABN French | 61 | 56 | `ERROR`, `error=Source error` | Video stalls selected `XTREAM_TS_FALLBACK`; subsequent `MPEG_TS_LIVE` prepares targeted a malformed `1/live/...` URL and ended in `fatal-error` | Not accepted |
+
+The Dare-to-Dream run satisfies the screenshot, final-session, and no-fatal/
+no-fallback criteria for its isolated window. The French run does not: it
+reproduces the source/recovery failure and loses frame progression before the
+window ends. The two-channel Phase 5 stability gate therefore remains open;
+the recovery-policy implementation was not changed in this validation slice.
+
+### Manual seeded playback journey (2026-08-26)
+
+On the same debug APK/emulator, a manual remote-input pass completed the
+provider-backed route handoff: Home → Live TV → All Channels → `00s Replay`
+preview → fullscreen player. The fullscreen player rendered video, the MENU
+shortcut opened the extracted controls chrome (including Mute, PiP, Audio,
+Video Quality, and Split Screen), and the controls auto-hide returned to an
+unobstructed video frame after the configured timeout. BACK returned to the
+Live TV route with the channel preview still present; the media session was
+left in a recoverable paused state after leaving fullscreen.
+
+Captured evidence is under
+`validation/phase5_playback/manual-validation/20260826/`, including
+`manual-00s-controls-last.png` (controls visible),
+`manual-controls-autohide-end.png` (video after auto-hide),
+`manual-preview.xml`/`manual-full.xml` (preview/fullscreen route checks), and
+`manual-back-route.xml` (return to Live TV). This is partial manual coverage;
+seeking, numeric entry/zapping, track/quality dialogs, PiP, Cast, MultiView,
+touch/mouse, RTL, and reduced-motion journeys remain unaccepted.
+
+### Connected smoke and macrobenchmark follow-up (2026-08-26)
+
+The focused `:app:connectedDebugAndroidTest` rerun of `PlayerSmokeTest` used
+the same seeded emulator and reproduced the three known fixture/focus failures
+(controls play-button focus, category-rail search-field focus, and audio-track
+fixture setup); the mute-action test passed. This matches the previously
+recorded baseline and is not attributed to the extraction.
+
+The two playback-relevant Macrobenchmark journeys also completed five of five
+iterations on `Television_1080p(AVD) - 16`:
+
+| Journey | Frame-count runs | Frame-count median | CPU frame P50/P90 | Overrun P50/P90 |
+|---|---|---:|---:|---:|
+| `liveTvCategoryAndChannelNavigation` | 30, 31, 30, 30, 31 | 30 | 606.8 / 939.8 ms | 922.4 / 1,278.7 ms |
+| `playerControlsOpenAndNavigate` | 21, 31, 22, 32, 27 | 27 | 804.7 / 2,476.7 ms | 1,313.2 / 4,890.4 ms |
+
+The JSON and Perfetto artifacts are under
+`benchmark/build/outputs/connected_android_test_additional_output/` (the exact
+device directory is ignored build output). These runs prove that the seeded
+journeys execute after extraction, but the emulator timings are materially
+noisier than the earlier 2.5A snapshot and include live HLS preparation and
+decoder work. They are therefore diagnostic rather than a clean before/after
+performance comparison; the Phase 5 performance gate remains open pending a
+controlled paired baseline and, ideally, a constrained physical-TV run. Because
+the host was under heavy load during this capture, no performance conclusion
+should be drawn from these numbers; repeat the paired run on an idle host.
+
+### Navigation and golden hardening follow-up (2026-08-26)
+
+The in-progress review-hardening slice adds coordinator coverage for startup
+resume-before-acknowledgement, deferred player lookup completion, and
+catalog-layout route reconciliation. It also corrects the startup handoff so a
+resume event recorded before acknowledgement still triggers the deferred player
+command after acknowledgement. These changes are separate from the playback
+extraction endpoint and do not alter player preparation or recovery policy.
+The focused app unit rerun for this hardening slice passed 8/8 tests
+(`AppNavigationCoordinatorTest` 7/7 and `PlaybackProgressGuardrailTest` 1/1).
+
 ### Attribution boundary
 
 The Phase 5 extraction is not the source-level change that introduced this
@@ -179,11 +302,13 @@ not yet justify changing the recovery policy.
 ## Graph and final status
 
 `graphify update .` was run after this report and plan update. It rebuilt
-`graphify-out/graph.json` and `GRAPH_REPORT.md` with 14,269 nodes, 27,905
-edges, and 364 communities; the refreshed graph includes the extracted
+`graphify-out/graph.json` and `GRAPH_REPORT.md` with 14,272 nodes, 27,916
+edges, and 362 communities; the refreshed graph includes the extracted
 feature sources and no longer places Player/MultiView implementation under
 the app source tree.
 
 Phase 5 structural extraction: **complete**.
-Runtime playback acceptance: **open pending live-recovery stability and
-release-like profile validation**.
+Runtime playback acceptance: **open pending live-recovery stability, manual
+journeys, and macrobenchmark/physical-device validation**. The focused and full
+release-like profile journeys passed after the benchmark harness fix, including
+baseline-profile generation, merge, and installation.
