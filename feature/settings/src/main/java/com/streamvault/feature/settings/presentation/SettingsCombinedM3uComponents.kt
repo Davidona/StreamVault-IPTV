@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +34,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.design.FocusSpec
@@ -53,7 +51,7 @@ import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 
 @Composable
-internal fun CombinedM3uProfilesCard(
+public fun CombinedM3uProfilesCard(
     profiles: List<CombinedM3uProfile>,
     availableProviders: List<Provider>,
     selectedProfileId: Long?,
@@ -219,7 +217,7 @@ internal fun CombinedM3uProfilesCard(
 }
 
 @Composable
-internal fun RenameCombinedM3uDialog(
+public fun RenameCombinedM3uDialog(
     profile: CombinedM3uProfile,
     isSubmitting: Boolean = false,
     onDismiss: () -> Unit,
@@ -256,7 +254,7 @@ internal fun RenameCombinedM3uDialog(
 }
 
 @Composable
-internal fun CreateCombinedM3uDialog(
+public fun CreateCombinedM3uDialog(
     providers: List<Provider>,
     isSubmitting: Boolean = false,
     onDismiss: () -> Unit,
@@ -373,7 +371,7 @@ internal fun CreateCombinedM3uDialog(
 }
 
 @Composable
-internal fun AddCombinedProviderDialog(
+public fun AddCombinedProviderDialog(
     profile: CombinedM3uProfile,
     availableProviders: List<Provider>,
     isSubmitting: Boolean = false,
