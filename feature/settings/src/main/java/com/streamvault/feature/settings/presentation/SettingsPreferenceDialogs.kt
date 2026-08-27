@@ -1,13 +1,10 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
-import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
@@ -18,7 +15,7 @@ import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.RemoteShortcutSelection
 
 @Composable
-internal fun SettingsPreferenceDialogs(
+public fun SettingsPreferenceDialogs(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     context: Context,

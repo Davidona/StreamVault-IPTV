@@ -131,6 +131,17 @@
     <string name="settings_m3u_vod_classification_title">M3U VOD Classification</string>
     <string name="settings_provider_category_controls_action">Category Controls</string>
     <string name="settings_provider_warnings">Warnings: %1$s</string>
+    <string name="settings_audio_language_auto">Automatic (App or Device Language)</string>
+    <string name="settings_select_audio_language">Select Preferred Audio Language</string>
+    <string name="settings_select_default_landing_screen">Select default landing screen</string>
+    <string name="settings_select_ethernet_quality_cap">Select Ethernet Quality Preference</string>
+    <string name="settings_select_guide_default_category">Select guide default category</string>
+    <string name="settings_select_language">Select Language</string>
+    <string name="settings_select_subtitle_background">Select Subtitle Background</string>
+    <string name="settings_select_subtitle_size">Select Subtitle Size</string>
+    <string name="settings_select_subtitle_text_color">Select Subtitle Text Color</string>
+    <string name="settings_select_wifi_quality_cap">Select Wi-Fi Quality Preference</string>
+    <string name="settings_system_default">System Default</string>
     <string name="settings_retry_epg">Retry EPG</string>
     <string name="settings_retry_movies">Retry Movies</string>
     <string name="settings_retry_series">Retry Series</string>
