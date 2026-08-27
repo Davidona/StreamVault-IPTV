@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,182 nodes, 29,543 edges, and 424 communities. `SettingsViewModel` remains
+  15,187 nodes, 29,555 edges, and 377 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -100,6 +100,8 @@ provider runtime gates remain open under their respective reports.
   the app-owned time-window adapter for browser orchestration
 - `5407ced4` — moved recording browser detail metrics/actions and the shared
   compact recording action chip
+- `0d8b6046` — moved recording browser display/item helpers and playback URL
+  normalization into the settings feature
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -468,8 +470,8 @@ BUILD SUCCESSFUL in 42s
 
 Metric cards, recording title/subtitle fallback, status labels, status colors,
 and browser/sidebar/detail call sites remain unchanged. The browser time-window
-line continues to use the app's `LocalAppTimeFormat` adapter until the remaining
-recording browser orchestration is moved.
+line now uses the feature's date/time formatter with `AppTimeFormat` supplied by
+the app composition layer.
 
 The recording-browser-detail batch was verified with:
 
@@ -482,6 +484,18 @@ Detail metric cards, play/stop/cancel/skip/delete/retry actions, schedule-toggle
 behavior, compact-chip focus styling, and browser/sidebar call sites remain
 unchanged; recording dialog orchestration and time-window formatting remain in
 the app composition root.
+
+The recording-browser display/helper batch was then verified with:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 33s
+```
+
+The standalone recording item card, playback-URL normalization helper, and
+browser secondary-line formatter now live in `:feature:settings`; the app still
+owns the dialog orchestration, platform time provider, playback launcher, and
+recording persistence callbacks.
 
 ## Open work and gates
 
