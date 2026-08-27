@@ -120,6 +120,10 @@
     <string name="settings_remote_selection_profile_default">Profile default: %1$s</string>
     <string name="settings_remote_selection_global_default">Use global default: %1$s</string>
     <string name="settings_delete">Delete</string>
+    <string name="settings_external_playback">Default playback app</string>
+    <string name="settings_external_playback_subtitle">Choose which app opens streams when you play a channel or title.</string>
+    <string name="settings_external_playback_mode_internal">Internal player</string>
+    <string name="settings_external_playback_mode_external">External player</string>
     <string name="settings_backup_delete_title">Delete backup?</string>
     <string name="settings_backup_delete_body">Delete “%1$s” permanently?</string>
     <string name="settings_subtitle_size_small">Small</string>
