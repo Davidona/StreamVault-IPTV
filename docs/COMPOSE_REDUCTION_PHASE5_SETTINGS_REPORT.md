@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,139 nodes, 29,441 edges, and 378 communities. `SettingsViewModel` remains
+  15,160 nodes, 29,489 edges, and 418 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -92,6 +92,8 @@ provider runtime gates remain open under their respective reports.
 - `854fffde` — moved browsing/navigation preference section presentation
 - `3e26db98` — moved combined-M3U profile card and dialog presentation
 - `20244227` — moved provider-management dialog orchestration
+- `dfb4449f` — moved provider settings section, provider card, diagnostics panel,
+  catalog helpers, and feature-local time formatting
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -424,6 +426,19 @@ BUILD SUCCESSFUL in 2m 8s
 Combined-profile create/rename/member flows, provider sync/custom-sync
 selection, delete confirmation/progress, busy-state disabling, and dialog-state
 reset behavior remain unchanged.
+
+The provider-presentation batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 31s
+```
+
+Provider selection/empty states, expiration and onboarding messaging, catalog
+diagnostic counts, diagnostics/database-health panels, M3U controls, warning
+actions, and provider callbacks remain unchanged. `AppTimeFormat` is passed
+through the feature boundary and uses feature-local equivalents of the former
+date/time adapters; no app package dependency was introduced.
 
 ## Open work and gates
 
