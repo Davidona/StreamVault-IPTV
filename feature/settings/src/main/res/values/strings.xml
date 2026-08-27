@@ -589,4 +589,13 @@
     <string name="settings_recording_output_label">Output</string>
     <string name="settings_recording_failure_label">Failure</string>
     <string name="settings_recording_retry_count_label">Retries</string>
+    <string name="settings_speed_test_not_run">Not tested yet</string>
+    <string name="settings_speed_test_summary_default">Run a quick download test and use the result to pick stable playback quality limits.</string>
+    <string name="settings_speed_test_summary_measured">Measured on %1$s at %2$s.</string>
+    <string name="settings_speed_test_summary_estimated">Estimated on %1$s at %2$s because the active network did not complete the download probe.</string>
+    <string name="settings_speed_test_transport_wifi">Wi-Fi</string>
+    <string name="settings_speed_test_transport_ethernet">Ethernet</string>
+    <string name="settings_speed_test_transport_cellular">Cellular</string>
+    <string name="settings_speed_test_transport_other">Other network</string>
+    <string name="settings_speed_test_transport_unknown">Unknown network</string>
 </resources>
