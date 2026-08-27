@@ -166,10 +166,10 @@
     <string name="nav_downloads">Downloads</string>
     <string name="nav_plugins">Plugins</string>
     <string name="nav_settings">Settings</string>
-    <string name="settings_overview_title">Settings overview</string>
-    <string name="settings_overview_subtitle">Review the active source, protection, and language configuration.</string>
+    <string name="settings_overview_title">Control Center</string>
+    <string name="settings_overview_subtitle">Review your provider, protection, and playback setup at a glance.</string>
     <string name="settings_overview_provider_label">Provider</string>
-    <string name="settings_overview_count_label">Providers</string>
+    <string name="settings_overview_count_label">Sources</string>
     <string name="settings_overview_protection_label">Protection</string>
     <string name="settings_overview_language_label">Language</string>
 </resources>
