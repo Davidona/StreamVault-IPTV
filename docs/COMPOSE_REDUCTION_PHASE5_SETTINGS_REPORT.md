@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  14,994 nodes, 29,048 edges, and 378 communities. `SettingsViewModel` remains
+  15,014 nodes, 29,101 edges, and 418 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -62,6 +62,8 @@ provider runtime gates remain open under their respective reports.
   dialog state, and the parental action model
 - `4c814fe1` — selection dialog primitives, timeout dialog/formatter, and
   top-navigation dialog presentation
+- `39cf0532` ג€” moved Live TV/parental presentation into the feature source set
+- `55642c6a` ג€” feature-owned Live TV/parental strings and enum label formatters
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -122,6 +124,17 @@ BUILD SUCCESSFUL in 12s
 gradlew.bat :app:compileDebugUnitTestKotlin --console=plain --warning-mode=none
 BUILD SUCCESSFUL in 5s
 ```
+
+The Live TV/parental presentation batch was then checked as one focused build:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 44s
+```
+
+This run included the feature boundary task, feature debug/release unit tests,
+lint, app Kotlin compilation, and app unit-test compilation. The feature source
+still has no app, navigation-controller, or activity references.
 
 ## Open work and gates
 
