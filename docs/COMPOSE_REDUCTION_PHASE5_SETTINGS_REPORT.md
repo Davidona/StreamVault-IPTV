@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,014 nodes, 29,101 edges, and 418 communities. `SettingsViewModel` remains
+  15,016 nodes, 29,104 edges, and 418 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -64,6 +64,7 @@ provider runtime gates remain open under their respective reports.
   top-navigation dialog presentation
 - `39cf0532` ג€” moved Live TV/parental presentation into the feature source set
 - `55642c6a` ג€” feature-owned Live TV/parental strings and enum label formatters
+- `b00eb575` ג€” moved the sync progress overlay and its feature-owned strings
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -135,6 +136,16 @@ BUILD SUCCESSFUL in 1m 44s
 This run included the feature boundary task, feature debug/release unit tests,
 lint, app Kotlin compilation, and app unit-test compilation. The feature source
 still has no app, navigation-controller, or activity references.
+
+The sync-overlay batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 35s
+```
+
+The check preserved the overlay's cancel-focus behavior and confirmed the
+feature boundary and app integration remain clean.
 
 ## Open work and gates
 
