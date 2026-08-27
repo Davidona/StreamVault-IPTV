@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -34,7 +32,7 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 
-internal fun LazyListScope.providerSection(
+public fun LazyListScope.providerSection(
     uiState: SettingsUiState,
     onAddProvider: () -> Unit,
     onEditProvider: (Provider) -> Unit,
@@ -89,6 +87,7 @@ internal fun LazyListScope.providerSection(
                 provider = selectedProvider,
                 isActive = selectedProvider.id == uiState.activeProviderId,
                 isSyncing = uiState.isSyncing,
+                appTimeFormat = uiState.appTimeFormat,
                 xtreamLiveOnboardingPhase = uiState.xtreamLiveOnboardingPhaseByProvider[selectedProvider.id],
                 xtreamLiveOnboarding = uiState.xtreamLiveOnboardingByProvider[selectedProvider.id],
                 xtreamIndexSectionStatuses = uiState.xtreamIndexSectionStatusByProvider[selectedProvider.id].orEmpty(),

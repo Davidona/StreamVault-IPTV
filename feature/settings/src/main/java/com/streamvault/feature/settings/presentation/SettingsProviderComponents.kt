@@ -1,67 +1,29 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.*
-import com.streamvault.app.R
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.theme.*
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createDateTimeFormat
-import com.streamvault.domain.model.ActiveLiveSource
-import com.streamvault.domain.model.CombinedM3uProfile
+import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.ProviderType
-import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.util.Locale
 
 @Composable
-internal fun ProviderSettingsCard(
+public fun ProviderSettingsCard(
     provider: Provider,
     isActive: Boolean,
     isSyncing: Boolean,
+    appTimeFormat: AppTimeFormat,
     xtreamLiveOnboardingPhase: String?,
     xtreamLiveOnboarding: XtreamLiveOnboardingUiModel?,
     xtreamIndexSectionStatuses: Map<String, ProviderCatalogCountStatus>,
@@ -77,7 +39,6 @@ internal fun ProviderSettingsCard(
     onToggleM3uVodClassification: (Boolean) -> Unit,
     onRefreshM3uClassification: () -> Unit
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
     val liveOnboardingIncomplete = provider.type == ProviderType.XTREAM_CODES &&
         provider.status == ProviderStatus.PARTIAL &&
         !isActive
@@ -142,12 +103,14 @@ internal fun ProviderSettingsCard(
 
         // Expiration Date
         val expDate = provider.expirationDate
-        val expirationText = remember(expDate) {
-            when (expDate) {
-                null -> context.getString(R.string.settings_expiration_unknown)
-                Long.MAX_VALUE -> context.getString(R.string.settings_expiration_never)
-                else -> context.getString(R.string.settings_expires, java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale.getDefault()).format(java.util.Date(expDate)))
-            }
+        val expirationText = when (expDate) {
+            null -> stringResource(R.string.settings_expiration_unknown)
+            Long.MAX_VALUE -> stringResource(R.string.settings_expiration_never)
+            else -> stringResource(
+                R.string.settings_expires,
+                java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale.getDefault())
+                    .format(java.util.Date(expDate))
+            )
         }
         Text(
             text = expirationText,
@@ -205,6 +168,7 @@ internal fun ProviderSettingsCard(
             ProviderDiagnosticsPanel(
                 provider = provider,
                 diagnostics = model,
+                appTimeFormat = appTimeFormat,
                 movieIndexInProgress = xtreamIndexSectionStatuses["MOVIE"] in setOf(
                     ProviderCatalogCountStatus.QUEUED,
                     ProviderCatalogCountStatus.SYNCING
@@ -247,7 +211,7 @@ internal fun ProviderSettingsCard(
 
 
 
-internal fun xtreamLiveOnboardingMessageRes(phase: String?): Int = when (phase?.uppercase()) {
+public fun xtreamLiveOnboardingMessageRes(phase: String?): Int = when (phase?.uppercase()) {
     "STARTING" -> R.string.settings_provider_live_onboarding_starting
     "FETCHING" -> R.string.settings_provider_live_onboarding_fetching
     "RECOVERING" -> R.string.settings_provider_live_onboarding_recovering
@@ -257,7 +221,7 @@ internal fun xtreamLiveOnboardingMessageRes(phase: String?): Int = when (phase?.
     else -> R.string.settings_provider_live_onboarding_incomplete
 }
 
-internal fun ProviderDiagnosticsUiModel.liveCatalogCount(
+public fun ProviderDiagnosticsUiModel.liveCatalogCount(
     liveOnboardingIncomplete: Boolean,
     xtreamLiveOnboardingPhase: String?
 ): ProviderCatalogCountUiModel {
@@ -278,7 +242,7 @@ internal fun ProviderDiagnosticsUiModel.liveCatalogCount(
     }
 }
 
-internal fun ProviderDiagnosticsUiModel.movieCatalogCount(
+public fun ProviderDiagnosticsUiModel.movieCatalogCount(
     jobStatus: ProviderCatalogCountStatus?
 ): ProviderCatalogCountUiModel = sectionCatalogCount(
     count = movieCount,
@@ -286,7 +250,7 @@ internal fun ProviderDiagnosticsUiModel.movieCatalogCount(
     jobStatus = jobStatus
 )
 
-internal fun ProviderDiagnosticsUiModel.seriesCatalogCount(
+public fun ProviderDiagnosticsUiModel.seriesCatalogCount(
     jobStatus: ProviderCatalogCountStatus?
 ): ProviderCatalogCountUiModel = sectionCatalogCount(
     count = seriesCount,
@@ -294,7 +258,7 @@ internal fun ProviderDiagnosticsUiModel.seriesCatalogCount(
     jobStatus = jobStatus
 )
 
-internal fun ProviderDiagnosticsUiModel.epgCatalogCount(
+public fun ProviderDiagnosticsUiModel.epgCatalogCount(
     jobStatus: ProviderCatalogCountStatus?
 ): ProviderCatalogCountUiModel = sectionCatalogCount(
     count = epgCount,
@@ -302,7 +266,7 @@ internal fun ProviderDiagnosticsUiModel.epgCatalogCount(
     jobStatus = jobStatus
 )
 
-internal fun sectionCatalogCount(
+public fun sectionCatalogCount(
     count: Int,
     lastSuccess: Long,
     jobStatus: ProviderCatalogCountStatus?

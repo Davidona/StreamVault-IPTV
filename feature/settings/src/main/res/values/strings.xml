@@ -522,4 +522,26 @@
     <string name="settings_timeout_apply">Apply</string>
     <string name="settings_timeout_validation">Enter a value between 2 and 60 seconds.</string>
     <string name="search_title">Search</string>
+    <string name="settings_provider_diagnostics_title">Provider Diagnostics</string>
+    <string name="settings_diagnostic_live">Live</string>
+    <string name="settings_diagnostic_movies">Movies</string>
+    <string name="settings_diagnostic_series">Series</string>
+    <string name="settings_diagnostic_epg">EPG</string>
+    <string name="settings_catalog_count_indexing">Indexing</string>
+    <string name="settings_diagnostic_status">Last sync status: %1$s</string>
+    <string name="diagnostics_summary_format">%1$s | %2$s</string>
+    <string name="settings_expiration_unknown">Expiration: Unknown</string>
+    <string name="settings_expiration_never">Expiration: Never</string>
+    <string name="settings_expires">Expires: %1$s</string>
+    <string name="settings_provider_live_onboarding_incomplete">Live setup is still completing in the background. Sync this provider to resume setup; it will become active after channels are ready.</string>
+    <string name="settings_provider_live_onboarding_starting">Live setup is preparing. Sync this provider to continue setup.</string>
+    <string name="settings_provider_live_onboarding_fetching">Live channels are still importing. Sync this provider to resume setup.</string>
+    <string name="settings_provider_live_onboarding_recovering">A saved Live import is ready to recover. Sync this provider to finish setup.</string>
+    <string name="settings_provider_live_onboarding_staged">Live channels are staged and waiting to be finalized. Sync this provider to finish setup.</string>
+    <string name="settings_provider_live_onboarding_committing">Live channels are being finalized. Keep sync running until this provider becomes active.</string>
+    <string name="settings_provider_live_onboarding_failed">Live setup needs retry. Sync this provider to try again.</string>
+    <string name="settings_no_providers">No providers configured</string>
+    <string name="settings_add_provider">Add Provider</string>
+    <string name="settings_provider_selector_hint">Select a provider to view details and actions.</string>
+    <string name="settings_no_providers_subtitle">Add a provider to unlock playback, guide data, and the rest of the TV experience.</string>
 </resources>

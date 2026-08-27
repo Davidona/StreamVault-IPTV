@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,22 +15,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createDateTimeFormat
+import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 import java.text.DateFormat
 import java.util.Locale
 
 @Composable
-internal fun ProviderDiagnosticsPanel(
+public fun ProviderDiagnosticsPanel(
     provider: Provider,
     diagnostics: ProviderDiagnosticsUiModel,
+    appTimeFormat: AppTimeFormat,
     movieIndexInProgress: Boolean,
     databaseMaintenance: DatabaseMaintenanceUiModel?
 ) {
@@ -151,15 +149,17 @@ internal fun ProviderDiagnosticsPanel(
             )
         }
         databaseMaintenance?.let { report ->
-            DatabaseMaintenancePanel(report = report)
+            DatabaseMaintenancePanel(report = report, appTimeFormat = appTimeFormat)
         }
     }
 }
 
 @Composable
-private fun DatabaseMaintenancePanel(report: DatabaseMaintenanceUiModel) {
-    val appTimeFormat = LocalAppTimeFormat.current
-    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createDateTimeFormat() }
+private fun DatabaseMaintenancePanel(
+    report: DatabaseMaintenanceUiModel,
+    appTimeFormat: AppTimeFormat
+) {
+    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createSettingsDateTimeFormat() }
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -3,7 +3,7 @@ package com.streamvault.app.ui.screens.settings
 import com.streamvault.feature.settings.presentation.*
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import org.junit.Test
 
 class SettingsXtreamLiveOnboardingMessageTest {
