@@ -32,7 +32,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.MovieCard
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SeriesCard
 import com.streamvault.core.ui.components.shell.AppMessageState
@@ -46,7 +46,7 @@ import com.streamvault.app.ui.components.shell.VodBrowseOptionsDialog
 import com.streamvault.app.ui.components.shell.VodCategoryOption
 import com.streamvault.app.ui.components.shell.VodCategoryPickerDialog
 import com.streamvault.app.ui.components.shell.VodSectionHeader
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie

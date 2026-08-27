@@ -1,11 +1,11 @@
 package com.streamvault.app.ui.screens.settings
 
 import com.streamvault.app.R
-import com.streamvault.app.localization.localeForLanguageTag
-import com.streamvault.app.localization.supportedAppLanguageTags
-import com.streamvault.app.ui.model.LiveTvChannelMode
-import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.core.ui.localization.localeForLanguageTag
+import com.streamvault.core.ui.localization.supportedAppLanguageTags
+import com.streamvault.domain.model.LiveTvChannelMode
+import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ContentType

@@ -2,8 +2,8 @@ package com.streamvault.app.ui.screens.series
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Category

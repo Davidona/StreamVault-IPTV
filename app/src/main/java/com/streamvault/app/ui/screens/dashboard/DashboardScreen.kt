@@ -64,6 +64,7 @@ import com.streamvault.app.ui.components.SeriesCard
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.time.LocalAppTimeFormat

@@ -36,7 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.*
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.TvEmptyState
+import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton

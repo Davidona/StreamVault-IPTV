@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.components
+package com.streamvault.core.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface

@@ -44,12 +44,12 @@ import androidx.compose.material.icons.filled.Star
 import androidx.tv.material3.*
 import com.streamvault.app.R
 import com.streamvault.app.ui.components.CategoryRow
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.ChannelCard
 import com.streamvault.app.ui.components.ChannelProgressTicker
 import com.streamvault.app.ui.components.MovieCard
 import com.streamvault.app.ui.components.SeriesCard
-import com.streamvault.app.ui.components.TvEmptyState
+import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.AppColors
@@ -449,7 +449,9 @@ fun SearchScreen(
     }
 
     if (showPinDialog) {
-        com.streamvault.app.ui.components.dialogs.PinDialog(
+        com.streamvault.core.ui.components.dialogs.PinDialog(
+            title = stringResource(R.string.pin_dialog_title),
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
             onDismissRequest = {
                 showPinDialog = false
                 pinError = null

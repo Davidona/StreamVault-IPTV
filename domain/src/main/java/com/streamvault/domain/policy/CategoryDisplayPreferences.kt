@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.model
+package com.streamvault.domain.policy
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.CategorySortMode

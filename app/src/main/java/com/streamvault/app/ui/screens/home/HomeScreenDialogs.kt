@@ -13,10 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
-import com.streamvault.app.ui.components.dialogs.PinDialog
+import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
@@ -74,6 +74,8 @@ internal fun HomeDialogsHost(
 
     if (showPinDialog) {
         PinDialog(
+            title = stringResource(R.string.pin_dialog_title),
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
             onDismissRequest = {
                 onShowPinDialogChange(false)
                 onPinErrorChange(null)

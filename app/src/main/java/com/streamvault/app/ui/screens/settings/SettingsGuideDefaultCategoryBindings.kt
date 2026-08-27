@@ -1,6 +1,6 @@
 package com.streamvault.app.ui.screens.settings
 
-import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
+import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category

@@ -19,7 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SelectionChipRow
 import androidx.compose.ui.focus.onFocusChanged
@@ -54,11 +54,11 @@ import com.streamvault.app.ui.components.LiveSourceSwitcher
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.app.ui.components.TvEmptyState
+import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
 import com.streamvault.app.ui.components.dialogs.HiddenCategoriesDialog
 import com.streamvault.app.ui.components.dialogs.HiddenChannelsDialog
-import com.streamvault.app.ui.components.dialogs.PinDialog
+import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
@@ -69,7 +69,7 @@ import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
-import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
+import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
@@ -80,7 +80,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.model.LiveTvChannelMode
+import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.app.navigation.Routes

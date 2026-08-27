@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_favorite_channels">Favorite Channels</string>
+    <string name="dashboard_recent_channels">Recent Channels</string>
+    <string name="dashboard_live_shortcuts">Live Shortcuts</string>
+    <string name="dashboard_continue_watching">Continue Watching</string>
+    <string name="dashboard_recent_movies">Recently Added Movies</string>
+    <string name="dashboard_recent_series">Recently Updated Series</string>
+    <string name="dashboard_pinned_categories">Pinned Categories</string>
+    <string name="dashboard_favorite_movies">Favorite Movies</string>
+    <string name="dashboard_favorite_series">Favorite Series</string>
+    <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
+    <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+    <string name="dashboard_top_rated_movies">Top Rated Movies</string>
+    <string name="dashboard_recommended_movies">Recommended Movies</string>
+    <string name="settings_top_navigation_visible">Visible</string>
+    <string name="settings_top_navigation_hidden">Hidden</string>
+    <string name="settings_top_navigation_move_up">Up</string>
+    <string name="settings_top_navigation_move_down">Down</string>
+    <string name="settings_home_dashboard_dialog_title">Customize Home</string>
+    <string name="settings_home_dashboard_dialog_subtitle">Choose which shelves appear on Home and arrange them in the order you want. Empty shelves stay hidden until they have content.</string>
+    <string name="settings_home_dashboard_enabled_section">Visible on Home</string>
+    <string name="settings_home_dashboard_available_section">Available to add</string>
+    <string name="settings_home_dashboard_enabled_empty">Home is currently empty. Add shelves below to build your layout.</string>
+    <string name="settings_home_dashboard_add">Add</string>
+    <string name="settings_home_dashboard_remove">Remove</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_reset">Reset</string>
+    <string name="action_save_order">Save Order</string>
+</resources>

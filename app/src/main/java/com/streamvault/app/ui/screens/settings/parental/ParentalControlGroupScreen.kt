@@ -49,8 +49,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.SearchInput
-import com.streamvault.app.ui.components.dialogs.PinDialog
+import com.streamvault.core.ui.components.SearchInput
+import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.domain.model.ContentType
@@ -229,6 +229,7 @@ fun ParentalControlGroupScreen(
 
     if (showPinDialog && pinAction != null) {
         PinDialog(
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
             onDismissRequest = {
                 showPinDialog = false
                 pinAction = null

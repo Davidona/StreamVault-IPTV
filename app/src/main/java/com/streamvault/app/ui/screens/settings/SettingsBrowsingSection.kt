@@ -29,7 +29,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.core.ui.theme.AccentAmber
 import com.streamvault.core.ui.theme.AccentCyan
 import com.streamvault.core.ui.theme.AccentGreen

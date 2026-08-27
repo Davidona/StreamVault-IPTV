@@ -4,7 +4,7 @@ import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.model.guideLookupKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
+import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.manager.ProgramReminderManager

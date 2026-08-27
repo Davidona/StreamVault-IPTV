@@ -8,11 +8,11 @@ import com.streamvault.feature.playback.preview.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.feature.playback.multiview.MultiViewManager
-import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
+import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.app.ui.model.guideLookupKey
-import com.streamvault.app.ui.model.LiveTvChannelMode
-import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
+import com.streamvault.domain.model.LiveTvChannelMode
+import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.ProviderSyncStateSource
 import com.streamvault.domain.manager.ParentalControlManager

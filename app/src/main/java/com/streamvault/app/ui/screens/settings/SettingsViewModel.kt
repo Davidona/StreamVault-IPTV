@@ -11,9 +11,9 @@ import com.streamvault.app.diagnostics.CrashReportStore
 import com.streamvault.app.tv.LauncherRecommendationsManager
 import com.streamvault.app.tv.WatchNextManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.app.ui.model.LiveTvChannelMode
-import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.LiveTvChannelMode
+import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.app.update.AppUpdateInstaller
 import com.streamvault.app.update.GitHubReleaseChecker
 import com.streamvault.app.update.isRemoteVersionNewer

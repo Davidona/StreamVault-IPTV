@@ -1,8 +1,8 @@
 package com.streamvault.app.ui.screens.settings
 
-import com.streamvault.app.ui.model.LiveTvChannelMode
-import com.streamvault.app.ui.model.LiveTvQuickFilterVisibilityMode
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.LiveTvChannelMode
+import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupPreview
 import com.streamvault.domain.manager.BackupProviderReference

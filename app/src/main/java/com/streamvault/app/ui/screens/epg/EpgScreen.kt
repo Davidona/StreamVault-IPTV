@@ -98,7 +98,7 @@ import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SelectionChipRow
 import kotlinx.coroutines.launch
-import com.streamvault.app.ui.components.dialogs.PinDialog
+import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.theme.FocusBorder
@@ -602,6 +602,8 @@ fun FullEpgScreen(
 
     if (showPinDialog) {
         PinDialog(
+            title = stringResource(R.string.pin_dialog_title),
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
             onDismissRequest = {
                 showPinDialog = false
                 pinError = null

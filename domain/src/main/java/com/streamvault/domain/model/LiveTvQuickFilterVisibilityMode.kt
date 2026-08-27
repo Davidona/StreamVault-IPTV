@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.model
+package com.streamvault.domain.model
 
 enum class LiveTvQuickFilterVisibilityMode(val storageValue: String) {
     HIDE("hide"),

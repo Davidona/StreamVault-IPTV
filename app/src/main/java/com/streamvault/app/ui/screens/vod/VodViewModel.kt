@@ -2,7 +2,7 @@ package com.streamvault.app.ui.screens.vod
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.Category

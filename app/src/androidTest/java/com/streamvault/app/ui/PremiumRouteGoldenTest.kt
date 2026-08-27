@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppScreenScaffold

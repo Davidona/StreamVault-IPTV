@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.screens.dashboard.DashboardShelfCustomizationDialog
+import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination

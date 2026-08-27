@@ -48,7 +48,7 @@ import com.streamvault.core.ui.design.AppColors.TextPrimary as TextPrimary
 import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
 import androidx.compose.foundation.BorderStroke
 import com.streamvault.app.R
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SelectionChipRow
 import com.streamvault.core.ui.components.dialogs.PremiumDialog

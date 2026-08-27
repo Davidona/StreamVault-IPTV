@@ -4,7 +4,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import com.streamvault.app.ui.components.dialogs.PinDialog
+import androidx.compose.ui.res.stringResource
+import com.streamvault.app.R
+import com.streamvault.core.ui.components.dialogs.PinDialog
 import kotlinx.coroutines.launch
 
 object VodBrowseDefaults {
@@ -43,6 +45,8 @@ fun ProtectedVodPinDialog(
 
     val scope = rememberCoroutineScope()
     PinDialog(
+        title = stringResource(R.string.pin_dialog_title),
+        cancelLabel = stringResource(R.string.pin_dialog_cancel),
         onDismissRequest = onDismissRequest,
         onPinEntered = { pin ->
             scope.launch {

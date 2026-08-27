@@ -1,4 +1,4 @@
-package com.streamvault.app.localization
+package com.streamvault.core.ui.localization
 
 import android.os.Build
 import android.content.res.Configuration

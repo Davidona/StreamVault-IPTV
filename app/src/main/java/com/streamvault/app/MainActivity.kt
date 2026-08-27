@@ -12,7 +12,7 @@ import androidx.activity.viewModels
 import androidx.core.view.doOnPreDraw
 import com.streamvault.app.cast.CastRouteChooserActivity
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.localization.resolveAppLocale
+import com.streamvault.core.ui.localization.resolveAppLocale
 import com.streamvault.app.navigation.AppNavigation
 import com.streamvault.app.navigation.AppNavigationCoordinator
 import com.streamvault.app.navigation.ExternalNavigationRequestParser

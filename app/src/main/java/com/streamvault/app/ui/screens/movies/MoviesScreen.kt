@@ -34,7 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import com.streamvault.app.ui.components.SearchInput
+import com.streamvault.core.ui.components.SearchInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -85,7 +85,7 @@ import com.streamvault.app.ui.components.shell.VodHeroStrip
 import com.streamvault.app.ui.components.shell.VodSectionHeader
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.app.ui.model.VodViewMode
+import com.streamvault.domain.model.VodViewMode
 import com.streamvault.app.ui.screens.vod.HandleVodUserMessage
 import com.streamvault.app.ui.screens.vod.ProtectedVodPinDialog
 import com.streamvault.app.ui.screens.vod.VodBrowseDefaults
