@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -21,15 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
 
-internal fun LazyListScope.settingsPrivacySection(
+public fun LazyListScope.settingsPrivacySection(
     uiState: SettingsUiState,
-    viewModel: SettingsViewModel,
+    onToggleIncognitoMode: () -> Unit,
+    onToggleXtreamTextClassification: () -> Unit,
+    onToggleXtreamBase64TextCompatibility: () -> Unit,
     onPendingProtectionLevelChange: (Int?) -> Unit,
     onPendingActionChange: (ParentalAction?) -> Unit,
     onShowPinDialogChange: (Boolean) -> Unit,
@@ -66,7 +68,7 @@ internal fun LazyListScope.settingsPrivacySection(
     item {
         HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
         TvClickableSurface(
-            onClick = { viewModel.toggleIncognitoMode() },
+            onClick = onToggleIncognitoMode,
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = Color.Transparent,
@@ -89,7 +91,7 @@ internal fun LazyListScope.settingsPrivacySection(
         }
         Spacer(Modifier.height(2.dp))
         TvClickableSurface(
-            onClick = { viewModel.toggleXtreamTextClassification() },
+            onClick = onToggleXtreamTextClassification,
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = Color.Transparent,
@@ -112,7 +114,7 @@ internal fun LazyListScope.settingsPrivacySection(
         }
         Spacer(Modifier.height(2.dp))
         TvClickableSurface(
-            onClick = { viewModel.toggleXtreamBase64TextCompatibility() },
+            onClick = onToggleXtreamBase64TextCompatibility,
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = Color.Transparent,

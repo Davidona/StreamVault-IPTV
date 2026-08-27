@@ -33,6 +33,15 @@
     <string name="settings_recording_title">Recording</string>
     <string name="settings_backup_restore">Backup &amp; Restore</string>
     <string name="settings_about">About</string>
+    <string name="settings_incognito_mode">Incognito Mode</string>
+    <string name="settings_incognito_mode_subtitle">Don\'t save watch history or recently visited categories while active.</string>
+    <string name="settings_clear_history">Clear Watch History</string>
+    <string name="settings_clear_history_subtitle">Wipe all watch progress and recents for all providers.</string>
+    <string name="settings_clear_history_confirm">Clear History</string>
+    <string name="settings_xtream_text_classification">Xtream Name-Based Adult Detection</string>
+    <string name="settings_xtream_text_classification_subtitle">Use category name keywords to flag adult content when the provider doesn\'t set the adult flag explicitly</string>
+    <string name="settings_xtream_base64_compatibility">Xtream Base64 Text Compatibility</string>
+    <string name="settings_xtream_base64_compatibility_subtitle">Broadly decode Xtream names and categories when a provider stores them as Base64. Leave this off unless text looks encoded.</string>
     <string name="settings_sync_elapsed">Elapsed: %1$s</string>
     <string name="settings_speed_test_title">Internet Speed Test</string>
     <string name="settings_speed_test_recommendation">Recommended quality cap: %1$s</string>

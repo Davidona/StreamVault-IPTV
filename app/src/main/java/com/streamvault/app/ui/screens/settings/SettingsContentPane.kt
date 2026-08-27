@@ -150,7 +150,9 @@ internal fun SettingsContentPane(
         } else if (dialogState.selectedCategory == 3) {
             settingsPrivacySection(
                 uiState = uiState,
-                viewModel = viewModel,
+                onToggleIncognitoMode = viewModel::toggleIncognitoMode,
+                onToggleXtreamTextClassification = viewModel::toggleXtreamTextClassification,
+                onToggleXtreamBase64TextCompatibility = viewModel::toggleXtreamBase64TextCompatibility,
                 onPendingProtectionLevelChange = { dialogState.pendingProtectionLevel = it },
                 onPendingActionChange = { dialogState.pendingAction = it },
                 onShowPinDialogChange = { dialogState.showPinDialog = it },
