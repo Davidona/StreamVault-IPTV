@@ -119,6 +119,9 @@
     <string name="settings_remote_action_hide_category">Hide category</string>
     <string name="settings_remote_selection_profile_default">Profile default: %1$s</string>
     <string name="settings_remote_selection_global_default">Use global default: %1$s</string>
+    <string name="settings_delete">Delete</string>
+    <string name="settings_backup_delete_title">Delete backup?</string>
+    <string name="settings_backup_delete_body">Delete “%1$s” permanently?</string>
     <string name="settings_subtitle_size_small">Small</string>
     <string name="settings_subtitle_size_default">Default</string>
     <string name="settings_subtitle_size_large">Large</string>

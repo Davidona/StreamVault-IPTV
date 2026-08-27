@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -30,14 +30,14 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 
-internal data class BackupDialogItem(
+public data class BackupDialogItem(
     val id: String,
     val title: String,
     val subtitle: String = "",
 )
 
 @Composable
-internal fun BackupSelectionDialog(
+public fun BackupSelectionDialog(
     title: String,
     subtitle: String,
     items: List<BackupDialogItem>,
@@ -87,7 +87,7 @@ internal fun BackupSelectionDialog(
 }
 
 @Composable
-internal fun BackupManagementDialog(
+public fun BackupManagementDialog(
     title: String,
     subtitle: String,
     items: List<BackupDialogItem>,
