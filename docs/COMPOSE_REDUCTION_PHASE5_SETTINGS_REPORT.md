@@ -49,6 +49,8 @@ provider runtime gates remain open under their respective reports.
 - `20a3f3f5` — settings state and actions extraction
 - `3090ad75` — feature lint fixes (network permission and Compose resource lookup)
 - `3a9dda13` — settings ViewModel and operational observer/action ownership
+- `296bb639` — shared settings widgets, EPG source/assignment presentation,
+  dialog state, and the parental action model
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -80,6 +82,22 @@ BUILD SUCCESSFUL in 5s
 These checks cover the fail-closed source boundary, feature debug unit tests,
 app Kotlin compilation, and app unit-test compilation. No runtime or connected
 device claim is implied by these commands.
+
+The shared/EPG presentation batch was rechecked after the move with:
+
+```text
+gradlew.bat :feature:settings:check --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 8s
+
+gradlew.bat :app:compileDebugUnitTestKotlin --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 13s
+```
+
+The app compile initially found the expected cross-module seam (moved symbols
+were still internal or lacked feature imports); those integration points were
+made explicit and the subsequent feature check and app unit-test compile both
+passed. The settings feature still has no app, navigation-controller, or
+activity references.
 
 ## Open work and gates
 
