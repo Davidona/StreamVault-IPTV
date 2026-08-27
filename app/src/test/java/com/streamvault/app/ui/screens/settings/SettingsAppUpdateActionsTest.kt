@@ -2,9 +2,10 @@ package com.streamvault.app.ui.screens.settings
 
 import android.app.Application
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.app.update.AppUpdateInstaller
 import com.streamvault.app.update.GitHubReleaseChecker
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.feature.settings.presentation.SettingsUiState
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

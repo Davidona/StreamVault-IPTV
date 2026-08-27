@@ -5,6 +5,7 @@ import com.streamvault.app.update.AppUpdateInstaller
 import com.streamvault.app.update.GitHubReleaseChecker
 import com.streamvault.app.update.GitHubReleaseInfo
 import com.streamvault.app.update.isRemoteVersionNewer
+import com.streamvault.app.update.AppUpdateCheckPolicy
 import com.streamvault.domain.model.Result
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
 import com.streamvault.feature.settings.api.SettingsReleaseInfo
@@ -36,6 +37,15 @@ class AppSettingsUpdateAdapter @Inject constructor(
     }
 
     override val downloadState: StateFlow<SettingsUpdateDownloadState> = mappedDownloadState
+
+    override fun shouldAutoCheckForUpdates(
+        lastSuccessfulCheckAt: Long?,
+        lastFailedCheckAt: Long?,
+    ): Boolean = AppUpdateCheckPolicy.shouldAutoCheck(
+        System.currentTimeMillis(),
+        lastSuccessfulCheckAt,
+        lastFailedCheckAt,
+    )
 
     override fun isRemoteVersionNewer(
         remoteVersionCode: Int?,

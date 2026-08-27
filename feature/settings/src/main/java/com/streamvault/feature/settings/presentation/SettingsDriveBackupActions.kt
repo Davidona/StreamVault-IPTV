@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.activity.result.ActivityResultLauncher
 import android.content.Intent
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
  * calling [com.streamvault.domain.manager.BackupManager.inspectBackup] directly,
  * so the existing David SAF preview dialog is reused unchanged (decision D2).
  */
-internal class SettingsDriveBackupActions(
+class SettingsDriveBackupActions(
     private val driveManager: DriveBackupSyncManager,
     private val importBackup: ImportBackup,
     private val providerRepository: ProviderRepository,

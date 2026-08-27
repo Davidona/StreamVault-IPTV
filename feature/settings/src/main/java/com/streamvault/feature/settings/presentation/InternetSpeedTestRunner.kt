@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import android.net.ConnectivityManager

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.manager.BackupPreview

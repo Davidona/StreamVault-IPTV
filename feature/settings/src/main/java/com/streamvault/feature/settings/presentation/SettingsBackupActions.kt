@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-internal class SettingsBackupActions(
+class SettingsBackupActions(
     private val exportBackup: ExportBackup,
     private val importBackup: ImportBackup,
     private val uiState: MutableStateFlow<SettingsUiState>

@@ -1,5 +1,7 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.*
+
 import android.app.Application
 import com.streamvault.app.update.isRemoteVersionNewer
 import com.streamvault.app.update.AppUpdateInstaller
@@ -57,7 +59,7 @@ internal fun registerSettingsAppUpdateObservers(
     scope.launch {
         appUpdateInstaller.downloadState.collect { downloadState ->
             uiState.update {
-                it.copy(appUpdate = it.appUpdate.withDownloadState(downloadState))
+                it.copy(appUpdate = it.appUpdate.withDownloadState(downloadState.toSettingsDownloadState()))
             }
         }
     }

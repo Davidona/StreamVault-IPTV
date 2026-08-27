@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.data.preferences.PreferencesRepository
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal fun observeGuideDefaultCategoryOptions(
+fun observeGuideDefaultCategoryOptions(
     combinedM3uRepository: CombinedM3uRepository,
     channelRepository: ChannelRepository,
     preferencesRepository: PreferencesRepository,
@@ -82,7 +82,7 @@ internal fun observeGuideDefaultCategoryOptions(
     }
 }
 
-internal fun buildGuideDefaultCategoryOptions(
+fun buildGuideDefaultCategoryOptions(
     physicalCategories: List<Category>,
     customCategories: List<Category>
 ): List<Category> {

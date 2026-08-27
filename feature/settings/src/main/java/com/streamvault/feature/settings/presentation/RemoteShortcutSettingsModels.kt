@@ -1,9 +1,9 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutProfile
 
-internal data class RemoteShortcutDialogTarget(
+data class RemoteShortcutDialogTarget(
     val profile: RemoteShortcutProfile,
     val button: RemoteColorButton
 ) {

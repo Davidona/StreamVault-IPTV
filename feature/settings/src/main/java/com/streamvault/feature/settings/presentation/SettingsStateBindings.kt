@@ -1,6 +1,6 @@
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
@@ -29,7 +29,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
-internal fun observeSettingsPreferenceSnapshot(
+fun observeSettingsPreferenceSnapshot(
     providerRepository: ProviderRepository,
     activeProviderIdFlow: Flow<Long?>,
     preferencesRepository: PreferencesRepository

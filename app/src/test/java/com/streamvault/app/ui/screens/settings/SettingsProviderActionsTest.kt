@@ -14,6 +14,7 @@ import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
 import com.streamvault.domain.usecase.SyncProvider
+import com.streamvault.feature.settings.presentation.SettingsUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher

@@ -1,6 +1,6 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-internal fun SettingsUiState.applyPreferenceSnapshot(snapshot: SettingsPreferenceSnapshot): SettingsUiState {
+fun SettingsUiState.applyPreferenceSnapshot(snapshot: SettingsPreferenceSnapshot): SettingsUiState {
     val cachedAppUpdate = snapshot.toCachedAppUpdateUiModel()
     return copy(
         providers = snapshot.providers,

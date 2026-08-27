@@ -1,7 +1,7 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import android.app.Application
-import com.streamvault.app.R
+import android.content.Context
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
@@ -42,7 +42,7 @@ enum class ProviderSyncSelection {
     EPG
 }
 
-internal data class SettingsPreferenceSnapshot(
+data class SettingsPreferenceSnapshot(
     val providers: List<Provider>,
     val activeProviderId: Long?,
     val parentalControlLevel: Int,
@@ -127,11 +127,11 @@ internal data class SettingsPreferenceSnapshot(
     val cachedAppUpdatePublishedAt: String?
 )
 
-internal fun ProviderSyncSelection.label(application: Application): String = when (this) {
-    ProviderSyncSelection.SYNC_NOW -> application.getString(R.string.settings_sync_option_sync_now)
-    ProviderSyncSelection.REBUILD_INDEX -> application.getString(R.string.settings_sync_option_rebuild_index)
-    ProviderSyncSelection.TV -> application.getString(R.string.settings_sync_option_tv)
-    ProviderSyncSelection.MOVIES -> application.getString(R.string.settings_sync_option_movies)
-    ProviderSyncSelection.SERIES -> application.getString(R.string.settings_sync_option_series)
-    ProviderSyncSelection.EPG -> application.getString(R.string.settings_sync_option_epg)
+fun ProviderSyncSelection.label(context: Context): String = when (this) {
+    ProviderSyncSelection.SYNC_NOW -> context.getString(R.string.settings_sync_option_sync_now)
+    ProviderSyncSelection.REBUILD_INDEX -> context.getString(R.string.settings_sync_option_rebuild_index)
+    ProviderSyncSelection.TV -> context.getString(R.string.settings_sync_option_tv)
+    ProviderSyncSelection.MOVIES -> context.getString(R.string.settings_sync_option_movies)
+    ProviderSyncSelection.SERIES -> context.getString(R.string.settings_sync_option_series)
+    ProviderSyncSelection.EPG -> context.getString(R.string.settings_sync_option_epg)
 }

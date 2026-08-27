@@ -1,10 +1,10 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.model.RemoteShortcutAction
 import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.domain.model.RemoteShortcutSelection
 
-internal fun availableRemoteShortcutActions(profile: RemoteShortcutProfile): List<RemoteShortcutAction> =
+fun availableRemoteShortcutActions(profile: RemoteShortcutProfile): List<RemoteShortcutAction> =
     when (profile) {
         RemoteShortcutProfile.GLOBAL -> listOf(
             RemoteShortcutAction.NONE,
@@ -47,7 +47,7 @@ internal fun availableRemoteShortcutActions(profile: RemoteShortcutProfile): Lis
         )
     }
 
-internal fun remoteShortcutSelectionOptions(profile: RemoteShortcutProfile): List<RemoteShortcutSelection> {
+fun remoteShortcutSelectionOptions(profile: RemoteShortcutProfile): List<RemoteShortcutSelection> {
     val options = mutableListOf(RemoteShortcutSelection.profileDefault())
     if (profile != RemoteShortcutProfile.GLOBAL) {
         options += RemoteShortcutSelection.globalDefault()

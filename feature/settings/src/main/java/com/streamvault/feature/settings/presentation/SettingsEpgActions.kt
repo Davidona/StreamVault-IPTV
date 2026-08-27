@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.XmltvTimezonePolicy
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
-internal class SettingsEpgActions(
+class SettingsEpgActions(
     private val epgSourceRepository: EpgSourceRepository,
     private val uiState: MutableStateFlow<SettingsUiState>
 ) {

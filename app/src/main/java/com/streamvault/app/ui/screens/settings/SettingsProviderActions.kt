@@ -1,5 +1,7 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.SettingsUiState
+
 import com.streamvault.app.tv.LauncherRecommendationsManager
 import com.streamvault.app.tv.WatchNextManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager

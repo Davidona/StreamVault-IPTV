@@ -12,6 +12,15 @@ import com.streamvault.app.update.AppUpdateCheckPolicy
 import com.streamvault.app.update.GitHubReleaseChecker
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.Result
+import com.streamvault.feature.settings.api.SettingsReleaseInfo
+import com.streamvault.feature.settings.api.SettingsUpdateActionState
+import com.streamvault.feature.settings.api.SettingsUpdateDownloadState
+import com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus
+import com.streamvault.feature.settings.presentation.SettingsUiState
+import com.streamvault.feature.settings.presentation.latestActionState
+import com.streamvault.feature.settings.presentation.toDownloadState
+import com.streamvault.feature.settings.presentation.toReleaseInfoOrNull
+import com.streamvault.feature.settings.presentation.withDownloadState
 
 internal class SettingsAppUpdateActions(
     private val appContext: Application,
@@ -104,12 +113,12 @@ internal class SettingsAppUpdateActions(
                             appUpdate = latestUpdateModel.withDownloadState(it.appUpdate.toDownloadState())
                         )
                     }
-                    val refreshedDownloadState = appUpdateInstaller.refreshState()
+                    val refreshedDownloadState = appUpdateInstaller.refreshState().toSettingsDownloadState()
                     latestUpdateModel = latestUpdateModel.withDownloadState(refreshedDownloadState)
                     uiState.update { it.copy(appUpdate = latestUpdateModel) }
                     if (autoDownload &&
                         updateAvailable &&
-                        latestUpdateModel.latestActionState() == AppUpdateActionState.DownloadLatest
+                        latestUpdateModel.latestActionState() == SettingsUpdateActionState.DOWNLOAD_LATEST
                     ) {
                         downloadLatestUpdate(scope)
                     }
@@ -131,7 +140,7 @@ internal class SettingsAppUpdateActions(
         }
 
         scope.launch {
-            when (val result = appUpdateInstaller.startDownload(latestRelease)) {
+            when (val result = appUpdateInstaller.startDownload(latestRelease.toGitHubReleaseInfo())) {
                 is Result.Error -> uiState.update { it.copy(userMessage = result.message) }
                 is Result.Success -> uiState.update {
                     it.copy(userMessage = appContext.getString(R.string.settings_update_download_started))
@@ -153,3 +162,26 @@ internal class SettingsAppUpdateActions(
         }
     }
 }
+
+internal fun com.streamvault.app.update.AppUpdateDownloadState.toSettingsDownloadState() =
+    SettingsUpdateDownloadState(
+        status = when (status) {
+            com.streamvault.app.update.AppUpdateDownloadStatus.Idle -> SettingsUpdateDownloadStatus.IDLE
+            com.streamvault.app.update.AppUpdateDownloadStatus.Downloading -> SettingsUpdateDownloadStatus.DOWNLOADING
+            com.streamvault.app.update.AppUpdateDownloadStatus.Downloaded -> SettingsUpdateDownloadStatus.DOWNLOADED
+            com.streamvault.app.update.AppUpdateDownloadStatus.Failed -> SettingsUpdateDownloadStatus.FAILED
+        },
+        versionName = versionName,
+        downloadId = downloadId,
+        installPermissionRequired = installPermissionRequired,
+    )
+
+private fun SettingsReleaseInfo.toGitHubReleaseInfo() = com.streamvault.app.update.GitHubReleaseInfo(
+    versionName = versionName,
+    versionCode = versionCode,
+    releaseUrl = releaseUrl,
+    downloadUrl = downloadUrl,
+    downloadSha256 = downloadSha256,
+    releaseNotes = releaseNotes,
+    publishedAt = publishedAt,
+)

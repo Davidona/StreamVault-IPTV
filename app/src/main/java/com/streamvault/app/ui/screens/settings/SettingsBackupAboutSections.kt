@@ -1,5 +1,7 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.*
+
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -395,7 +397,7 @@ internal fun LazyListScope.settingsAboutSection(
     item {
         val downloadStatus = uiState.appUpdate.downloadStatus
         LaunchedEffect(downloadStatus) {
-            if (downloadStatus == com.streamvault.app.update.AppUpdateDownloadStatus.Downloading) {
+            if (downloadStatus == com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus.DOWNLOADING) {
                 while (true) {
                     kotlinx.coroutines.delay(2000L)
                     onRefreshDownloadState()
@@ -454,11 +456,11 @@ internal fun LazyListScope.settingsAboutSection(
                 value = formatUpdateDownloadLabel(uiState.appUpdate, context),
                 onClick = {
                     when (uiState.appUpdate.latestActionState()) {
-                        AppUpdateActionState.InstallLatest,
-                        AppUpdateActionState.InstallPermissionRequired -> onInstallDownloadedUpdate()
-                        AppUpdateActionState.DownloadLatest -> onDownloadLatestUpdate()
-                        AppUpdateActionState.Downloading,
-                        AppUpdateActionState.None -> Unit
+                        com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_LATEST,
+                        com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_PERMISSION_REQUIRED -> onInstallDownloadedUpdate()
+                        com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOAD_LATEST -> onDownloadLatestUpdate()
+                        com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOADING,
+                        com.streamvault.feature.settings.api.SettingsUpdateActionState.NONE -> Unit
                     }
                 }
             )

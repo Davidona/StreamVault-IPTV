@@ -1,5 +1,7 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.SettingsUiState
+
 import android.app.Application
 import com.streamvault.app.R
 import com.streamvault.domain.manager.RecordingManager

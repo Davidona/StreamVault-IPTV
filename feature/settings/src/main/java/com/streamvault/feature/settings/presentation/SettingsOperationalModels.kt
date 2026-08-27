@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.data.local.entity.XtreamLiveOnboardingStateEntity
 import com.streamvault.data.preferences.DatabaseMaintenanceSnapshot
@@ -89,7 +89,7 @@ data class XtreamLiveOnboardingUiModel(
         }.joinToString(" • ")
 }
 
-internal fun XtreamLiveOnboardingStateEntity.toUiModel(): XtreamLiveOnboardingUiModel =
+fun XtreamLiveOnboardingStateEntity.toUiModel(): XtreamLiveOnboardingUiModel =
     XtreamLiveOnboardingUiModel(
         phase = phase,
         importStrategy = importStrategy.orEmpty(),
@@ -125,7 +125,7 @@ data class DatabaseMaintenanceUiModel(
     val favoriteRows: Long
 )
 
-internal fun DatabaseMaintenanceSnapshot.toUiModel(): DatabaseMaintenanceUiModel =
+fun DatabaseMaintenanceSnapshot.toUiModel(): DatabaseMaintenanceUiModel =
     DatabaseMaintenanceUiModel(
         ranAt = ranAt,
         deletedPrograms = deletedPrograms,
@@ -154,7 +154,7 @@ data class InternetSpeedTestUiModel(
     val isEstimated: Boolean
 )
 
-internal data class CategoryManagementSnapshot(
+data class CategoryManagementSnapshot(
     val categorySortModes: Map<ContentType, CategorySortMode> = emptyMap(),
     val hiddenCategories: List<Category> = emptyList()
 )

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
