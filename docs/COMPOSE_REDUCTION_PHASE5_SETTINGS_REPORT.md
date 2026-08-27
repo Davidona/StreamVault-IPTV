@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,100 nodes, 29,316 edges, and 377 communities. `SettingsViewModel` remains
+  15,106 nodes, 29,332 edges, and 373 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -79,6 +79,8 @@ provider runtime gates remain open under their respective reports.
 - `5d60ea1b` — moved mode-selection dialogs and enum/remote label formatters
 - `32e716a6` — moved resource-free language option and locale label formatters
 - `0e496921` — moved subtitle/player option models and label formatters
+- `7692681c` — moved backup selection/management dialogs into the feature
+- `0e309e15` — made backup dialog models and composables public at the boundary
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -302,6 +304,17 @@ BUILD SUCCESSFUL in 1m 41s
 Subtitle size/color option ordering, decoder/audio-output/surface labels, and
 fallback labels remain unchanged while these resource-backed formatters now
 resolve feature-owned strings.
+
+The backup-dialog batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 2m 14s
+```
+
+Backup item ordering, initial-body focus, D-pad/click behavior, delete
+confirmation, busy-state disabling, and dismissal callbacks remain unchanged;
+candidate discovery and deletion persistence stay in the app composition root.
 
 ## Open work and gates
 
