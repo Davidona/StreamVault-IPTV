@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvButton
@@ -36,7 +36,7 @@ private fun availableSyncSelections(provider: Provider): List<ProviderSyncSelect
 }
 
 @Composable
-internal fun ProviderSyncOptionsDialog(
+public fun ProviderSyncOptionsDialog(
     provider: Provider,
     onDismiss: () -> Unit,
     onSelect: (ProviderSyncSelection?) -> Unit
@@ -76,7 +76,7 @@ internal fun ProviderSyncOptionsDialog(
 }
 
 @Composable
-internal fun ProviderCustomSyncDialog(
+public fun ProviderCustomSyncDialog(
     provider: Provider,
     selected: Set<ProviderSyncSelection>,
     onToggle: (ProviderSyncSelection) -> Unit,
