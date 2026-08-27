@@ -51,6 +51,15 @@
     <string name="settings_status_expired">Expired</string>
     <string name="settings_status_disabled">Disabled</string>
     <string name="settings_status_unknown">Unknown</string>
+    <string name="settings_select_level">Select Protection Level</string>
+    <string name="settings_level_off_desc">OFF - No restrictions</string>
+    <string name="settings_level_off_subtitle">Adult content appears everywhere.</string>
+    <string name="settings_level_locked_desc">LOCKED - Content visible, PIN required</string>
+    <string name="settings_level_locked_subtitle">Categories visible with PIN. Adult content shown in all views.</string>
+    <string name="settings_level_private_desc">PRIVATE - Categories locked, hidden from feeds</string>
+    <string name="settings_level_private_subtitle">Categories visible with PIN. Hidden from Search, EPG, All Channels and Recent.</string>
+    <string name="settings_level_hidden_desc">HIDDEN - Content hidden from all lists</string>
+    <string name="settings_level_hidden_subtitle">Adult categories not shown anywhere.</string>
     <string name="settings_protection_level">Protection Level</string>
     <string name="settings_level_off">OFF</string>
     <string name="settings_level_locked">LOCKED</string>

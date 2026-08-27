@@ -1,17 +1,17 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun SettingsProtectionDialogs(
+public fun SettingsProtectionDialogs(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     context: Context,
