@@ -1,0 +1,12 @@
+app/src/test/java/com/streamvault/app/ui/screens/settings\InternetDownloadSpeedProbeTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsAppUpdateActionsTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsAppUpdateModelsTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsBackupActionsTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsDecoderModeTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsDerivedStateObserversTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsDriveBackupActionsTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsPlaybackBufferModeTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsProviderActionsTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsProviderCatalogCountTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsTimeshiftBackendPreferenceTest.kt
+app/src/test/java/com/streamvault/app/ui/screens/settings\SettingsXtreamLiveOnboardingMessageTest.kt

@@ -57,3 +57,26 @@ and must be removed only after an equivalent domain-facing contract exists.
 | provider | `data.remote.xtream.XtreamRequestException` | setup ViewModel | domain-owned provider-access error | Phase 7 |
 | provider | `data.remote.xtream.XtreamResponseTooLargeException` | setup ViewModel | domain-owned provider-access error | Phase 7 |
 | provider | `data.security.CredentialDecryptionException` | setup ViewModel | domain-owned provider-access/setup error | Phase 7 |
+
+## Settings extraction inventory (Task 0, 2026-08-27)
+
+The settings slice retains a temporary `:data` dependency while DAO and
+concrete persistence contracts are audited. These imports are presentation
+consumers only; each is a Phase 7 removal candidate after an equivalent
+domain-facing contract exists.
+
+| Feature | Imported implementation | Current consumer | Removal direction | Owner |
+|---|---|---|---|---|
+| settings | `data.local.dao.ProgramDao` | parental controls/settings state | domain-owned program query contract | Phase 7 |
+| settings | `data.local.dao.XtreamIndexJobDao` | diagnostics/settings state | domain-owned indexing status contract | Phase 7 |
+| settings | `data.local.dao.XtreamLiveOnboardingDao` | diagnostics/settings state | domain-owned onboarding status contract | Phase 7 |
+| settings | `data.local.entity.XtreamIndexJobEntity` | diagnostics formatting/state | domain-owned indexing status model | Phase 7 |
+| settings | `data.local.entity.XtreamLiveOnboardingStateEntity` | diagnostics formatting/state | domain-owned onboarding status model | Phase 7 |
+| settings | `data.local.model.DatabaseMaintenanceSnapshot` | database maintenance UI/state | domain-owned maintenance snapshot | Phase 7 |
+| settings | `data.preferences.PreferencesRepository` | settings/preferences state | domain-owned settings preference contract | Phase 7 |
+| settings | `data.sync.ProviderSyncCommands` | sync actions/state | domain-owned provider sync command contract | Phase 7 |
+| settings | `data.sync.SyncRepairSection` | sync repair UI/state | domain-owned sync repair model | Phase 7 |
+
+`player.AudioCompatibilityMemoryStore` is a separate concrete dependency
+audit candidate. It is not included in the nine-entry `:data` ledger above and
+must not become a feature-to-feature implementation dependency.
