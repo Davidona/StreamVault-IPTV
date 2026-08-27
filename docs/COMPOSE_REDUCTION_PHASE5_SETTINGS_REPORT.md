@@ -37,6 +37,10 @@ provider runtime gates remain open under their respective reports.
   `docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md`; the separate
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
+- Graphify was refreshed after the presentation move; the current corpus has
+  14,994 nodes, 29,048 edges, and 378 communities. `SettingsViewModel` remains
+  a high-connectivity coordination node while moved presentation nodes now
+  resolve under `feature/settings`.
 
 ## Delivered commits
 
