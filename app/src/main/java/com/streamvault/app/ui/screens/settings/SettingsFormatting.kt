@@ -3,8 +3,6 @@ package com.streamvault.app.ui.screens.settings
 import com.streamvault.feature.settings.presentation.*
 
 import com.streamvault.app.R
-import com.streamvault.core.ui.localization.localeForLanguageTag
-import com.streamvault.core.ui.localization.supportedAppLanguageTags
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
@@ -26,41 +24,6 @@ import com.streamvault.domain.model.RemoteShortcutSelection
 import com.streamvault.domain.model.RemoteShortcutSelectionMode
 import java.text.DateFormat
 import java.util.Locale
-
-internal data class AppLanguageOption(
-    val tag: String,
-    val label: String
-)
-
-internal fun supportedAppLanguages(systemDefaultLabel: String): List<AppLanguageOption> {
-    val localeTags = listOf("system") + supportedAppLanguageTags()
-
-    return localeTags.map { tag ->
-        AppLanguageOption(
-            tag = tag,
-            label = if (tag == "system") {
-                systemDefaultLabel
-            } else {
-                val locale = localeForLanguageTag(tag)
-                locale.getDisplayLanguage(locale)
-                    .replaceFirstChar { character ->
-                        if (character.isLowerCase()) {
-                            character.titlecase(locale)
-                        } else {
-                            character.toString()
-                        }
-                    }
-            }
-        )
-    }
-}
-
-internal fun supportedAudioLanguages(autoLabel: String): List<AppLanguageOption> {
-    return buildList {
-        add(AppLanguageOption(tag = "auto", label = autoLabel))
-        addAll(supportedAppLanguages(autoLabel).filterNot { it.tag == "system" })
-    }
-}
 
 internal data class SubtitleScaleOption(
     val scale: Float,
@@ -97,20 +60,6 @@ internal fun subtitleBackgroundColorOptions(context: android.content.Context): L
         SubtitleColorOption(0xCC000000.toInt(), context.getString(R.string.settings_subtitle_background_black)),
         SubtitleColorOption(0xCC102A43.toInt(), context.getString(R.string.settings_subtitle_background_blue))
     )
-}
-
-internal fun displayLanguageLabel(languageTag: String, defaultLabel: String): String {
-    if (languageTag.isBlank() || languageTag == "system" || languageTag == "auto") return defaultLabel
-    val locale = localeForLanguageTag(languageTag)
-    if (locale.language.isBlank()) return defaultLabel
-    return locale.getDisplayLanguage(Locale.getDefault())
-        .replaceFirstChar { character ->
-            if (character.isLowerCase()) {
-                character.titlecase(Locale.getDefault())
-            } else {
-                character.toString()
-            }
-        }
 }
 
 internal fun formatDecoderModeLabel(mode: DecoderMode, context: android.content.Context): String {
