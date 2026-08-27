@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -29,14 +29,14 @@ import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.ContentType
 
 @Composable
-internal fun QualityCapSelectionDialog(
+public fun QualityCapSelectionDialog(
     title: String,
     currentValue: Int?,
     onDismiss: () -> Unit,
     onSelect: (Int?) -> Unit
 ) {
-    val context = LocalContext.current
-    val options = remember(context) {
+    val autoLabel = stringResource(R.string.settings_quality_cap_auto)
+    val options = remember {
         listOf<Int?>(null, 2160, 1080, 720, 480)
     }
     PremiumSelectionDialog(
@@ -46,7 +46,7 @@ internal fun QualityCapSelectionDialog(
         options.forEachIndexed { index, option ->
             LevelOption(
                 level = index,
-                text = formatQualityCapLabel(option, context.getString(R.string.settings_quality_cap_auto)),
+                text = formatQualityCapLabel(option, autoLabel),
                 currentLevel = if (option == currentValue) index else -1,
                 onSelect = { onSelect(option) }
             )
@@ -55,7 +55,7 @@ internal fun QualityCapSelectionDialog(
 }
 
 @Composable
-internal fun CategorySortModeDialog(
+public fun CategorySortModeDialog(
     type: ContentType,
     currentMode: CategorySortMode,
     onDismiss: () -> Unit,
