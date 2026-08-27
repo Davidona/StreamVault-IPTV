@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings.parental
+package com.streamvault.feature.settings.parental
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,11 +48,12 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
+import com.streamvault.core.ui.components.shell.NavigationChrome
+import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.ContentType
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -73,6 +74,7 @@ fun ParentalControlGroupScreen(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     onBack: () -> Unit,
+    navigationDestinations: List<UiDestination> = emptyList(),
     viewModel: ParentalControlGroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -115,12 +117,13 @@ fun ParentalControlGroupScreen(
         }
     }
 
-    AppScreenScaffold(
-        currentRoute = currentRoute,
-        onNavigate = onNavigate,
+    CoreAppScreenScaffold(
+        currentDestinationId = currentRoute,
+        destinations = navigationDestinations,
+        onDestinationSelected = onNavigate,
         title = stringResource(R.string.settings_provider_category_controls_title),
         subtitle = stringResource(R.string.settings_provider_category_controls_subtitle),
-        navigationChrome = AppNavigationChrome.TopBar,
+        navigationChrome = NavigationChrome.TopBar,
         compactHeader = true,
         showScreenHeader = false,
         header = {

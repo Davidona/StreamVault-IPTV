@@ -10,7 +10,7 @@ import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.ui.screens.downloads.DownloadsScreen
 import com.streamvault.app.ui.screens.plugins.PluginsScreen
 import com.streamvault.app.ui.screens.settings.SettingsScreen
-import com.streamvault.app.ui.screens.settings.parental.ParentalControlGroupScreen
+import com.streamvault.feature.settings.parental.ParentalControlGroupScreen
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
