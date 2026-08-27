@@ -27,26 +27,6 @@ import com.streamvault.domain.model.RemoteShortcutSelectionMode
 import java.text.DateFormat
 import java.util.Locale
 
-internal fun formatBytes(bytes: Long): String {
-    val kb = 1024.0
-    val mb = kb * 1024.0
-    val gb = mb * 1024.0
-    return when {
-        bytes >= gb -> String.format(Locale.getDefault(), "%.1f GB", bytes / gb)
-        bytes >= mb -> String.format(Locale.getDefault(), "%.1f MB", bytes / mb)
-        bytes >= kb -> String.format(Locale.getDefault(), "%.1f KB", bytes / kb)
-        else -> "$bytes B"
-    }
-}
-
-internal fun formatTimestamp(
-    timestampMs: Long,
-    dateTimeFormat: DateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-): String {
-    if (timestampMs <= 0L) return "--:--"
-    return dateTimeFormat.format(java.util.Date(timestampMs))
-}
-
 internal data class AppLanguageOption(
     val tag: String,
     val label: String
@@ -132,16 +112,6 @@ internal fun displayLanguageLabel(languageTag: String, defaultLabel: String): St
             }
         }
 }
-
-internal fun formatPlaybackSpeedLabel(speed: Float): String {
-    return if (speed % 1f == 0f) {
-        "${speed.toInt()}x"
-    } else {
-        "${("%.2f".format(Locale.US, speed)).trimEnd('0').trimEnd('.')}x"
-    }
-}
-
-internal fun playerTimeoutOptions(): List<Int> = listOf(2, 3, 4, 5, 6, 8, 10, 15, 20, 30)
 
 internal fun formatDecoderModeLabel(mode: DecoderMode, context: android.content.Context): String {
     return when (mode) {
