@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,7 +21,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.ErrorColor
@@ -36,7 +34,7 @@ import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.ProviderType
 
 @Composable
-internal fun ProviderM3uOptionsPanel(
+public fun ProviderM3uOptionsPanel(
     m3uVodClassificationEnabled: Boolean,
     isSyncing: Boolean,
     onToggleM3uVodClassification: (Boolean) -> Unit,
@@ -98,7 +96,7 @@ internal fun ProviderM3uOptionsPanel(
 }
 
 @Composable
-internal fun ProviderSyncWarningsPanel(
+public fun ProviderSyncWarningsPanel(
     providerType: ProviderType,
     syncWarnings: List<String>,
     isSyncing: Boolean,
@@ -164,7 +162,7 @@ private fun ProviderWarningRetryButton(
 }
 
 @Composable
-internal fun ProviderActionButtons(
+public fun ProviderActionButtons(
     isActive: Boolean,
     isSyncing: Boolean,
     liveOnboardingIncomplete: Boolean,

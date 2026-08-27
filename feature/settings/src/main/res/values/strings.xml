@@ -124,6 +124,17 @@
     <string name="settings_external_playback_subtitle">Choose which app opens streams when you play a channel or title.</string>
     <string name="settings_external_playback_mode_internal">Internal player</string>
     <string name="settings_external_playback_mode_external">External player</string>
+    <string name="settings_connect">Connect</string>
+    <string name="settings_edit">Edit</string>
+    <string name="settings_m3u_vod_classification_refresh">Refresh Classification</string>
+    <string name="settings_m3u_vod_classification_summary">Uses decoded URL evidence first, then localized group and title hints. Live-stream URLs stay in Live TV. Refresh after changing this to reclassify the playlist.</string>
+    <string name="settings_m3u_vod_classification_title">M3U VOD Classification</string>
+    <string name="settings_provider_category_controls_action">Category Controls</string>
+    <string name="settings_provider_warnings">Warnings: %1$s</string>
+    <string name="settings_retry_epg">Retry EPG</string>
+    <string name="settings_retry_movies">Retry Movies</string>
+    <string name="settings_retry_series">Retry Series</string>
+    <string name="settings_syncing_btn">Syncing...</string>
     <string name="settings_backup_delete_title">Delete backup?</string>
     <string name="settings_backup_delete_body">Delete “%1$s” permanently?</string>
     <string name="settings_subtitle_size_small">Small</string>
