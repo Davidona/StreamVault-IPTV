@@ -1,5 +1,6 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.CompactRecordingActionChip
 import com.streamvault.feature.settings.presentation.formatBytes
 import com.streamvault.feature.settings.presentation.RecordingMetaPill
 import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
@@ -247,32 +248,6 @@ internal fun RecordingItemCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-internal fun CompactRecordingActionChip(label: String, accent: Color, onClick: () -> Unit) {
-    TvClickableSurface(
-        onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = accent.copy(alpha = 0.14f),
-            focusedContainerColor = accent.copy(alpha = 0.3f)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
-                shape = RoundedCornerShape(8.dp)
-            )
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-    ) {
-        Text(
-            text = label,
-            color = accent,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
-        )
     }
 }
 

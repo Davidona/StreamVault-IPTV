@@ -572,4 +572,14 @@
     <string name="settings_recording_status_completed">Completed</string>
     <string name="settings_recording_status_failed">Failed</string>
     <string name="settings_recording_status_cancelled">Cancelled</string>
+    <string name="settings_recording_source_label">Source</string>
+    <string name="settings_recording_bytes_label">Written</string>
+    <string name="settings_recording_speed_label">Avg Speed</string>
+    <string name="settings_recording_stop">Stop</string>
+    <string name="settings_recording_disable">Disable</string>
+    <string name="settings_recording_enable">Enable</string>
+    <string name="settings_recording_skip">Skip Occurrence</string>
+    <string name="settings_recording_cancel">Cancel Recording</string>
+    <string name="settings_recording_retry">Retry</string>
+    <string name="settings_recording_delete">Delete</string>
 </resources>

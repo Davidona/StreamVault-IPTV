@@ -1,5 +1,6 @@
 package com.streamvault.app.ui.screens.settings
 
+import com.streamvault.feature.settings.presentation.CompactRecordingActionChip
 import com.streamvault.feature.settings.presentation.recordingStatusAccent
 import com.streamvault.feature.settings.presentation.recordingStatusLabel
 
