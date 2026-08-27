@@ -172,4 +172,13 @@
     <string name="settings_overview_count_label">Sources</string>
     <string name="settings_overview_protection_label">Protection</string>
     <string name="settings_overview_language_label">Language</string>
+    <string name="settings_top_navigation_dialog_title">Customize top navigation</string>
+    <string name="settings_top_navigation_dialog_subtitle">Choose which tabs appear and arrange them in the order you want. Settings always stays available.</string>
+    <string name="settings_top_navigation_landing_note">Only visible tabs can be used as the startup landing screen.</string>
+    <string name="settings_top_navigation_required">Always visible</string>
+    <string name="settings_timeout_seconds_label">Seconds</string>
+    <string name="settings_timeout_seconds_placeholder">Enter 2-60</string>
+    <string name="settings_timeout_apply">Apply</string>
+    <string name="settings_timeout_validation">Enter a value between 2 and 60 seconds.</string>
+    <string name="search_title">Search</string>
 </resources>

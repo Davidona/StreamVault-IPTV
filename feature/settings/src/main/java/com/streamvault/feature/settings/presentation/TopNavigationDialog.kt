@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,7 +23,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvButton
@@ -35,7 +35,7 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.AppTopLevelDestination
 
 @Composable
-internal fun TopNavigationDialog(
+fun TopNavigationDialog(
     currentDestinations: List<AppTopLevelDestination>,
     onDismiss: () -> Unit,
     onSave: (List<AppTopLevelDestination>) -> Unit

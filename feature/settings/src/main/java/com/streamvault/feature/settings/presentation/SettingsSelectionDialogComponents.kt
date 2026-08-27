@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,7 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.rememberDialogOpenGestureBlocker
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnBackground
@@ -42,12 +42,12 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 
 @Composable
-internal fun PremiumSelectionDialog(
+fun PremiumSelectionDialog(
     title: String,
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val isTelevisionDevice = com.streamvault.app.device.rememberIsTelevisionDevice()
+    val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
     var canInteract by remember { mutableStateOf(false) }
     val blockOpenGesture = rememberDialogOpenGestureBlocker(canInteract)
     LaunchedEffect(Unit) {
@@ -127,7 +127,7 @@ internal fun PremiumSelectionDialog(
 }
 
 @Composable
-internal fun LevelOption(
+fun LevelOption(
     level: Int,
     text: String,
     currentLevel: Int,

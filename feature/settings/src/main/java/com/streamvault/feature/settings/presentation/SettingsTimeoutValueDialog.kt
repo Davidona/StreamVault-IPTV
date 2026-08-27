@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -45,7 +45,7 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 
 @Composable
-internal fun TimeoutValueDialog(
+fun TimeoutValueDialog(
     title: String,
     subtitle: String,
     initialValue: Int,
@@ -109,7 +109,7 @@ private fun NumericSettingsTextField(
     onValueChange: (String) -> Unit,
     placeholder: String
 ) {
-    val isTelevisionDevice = com.streamvault.app.device.rememberIsTelevisionDevice()
+    val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var hasContainerFocus by remember { mutableStateOf(false) }
