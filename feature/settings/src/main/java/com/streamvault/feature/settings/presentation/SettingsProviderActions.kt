@@ -1,10 +1,6 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.SettingsUiState
-
-import com.streamvault.app.tv.LauncherRecommendationsManager
-import com.streamvault.app.tv.WatchNextManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
+import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
@@ -42,9 +38,7 @@ internal class SettingsProviderActions(
     private val syncProvider: SyncProvider,
     private val syncManager: ProviderSyncCommands,
     private val syncMetadataRepository: SyncMetadataRepository,
-    private val watchNextManager: WatchNextManager,
-    private val launcherRecommendationsManager: LauncherRecommendationsManager,
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager,
+    private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
     private val uiState: MutableStateFlow<SettingsUiState>
 ) {
     private companion object {
@@ -70,9 +64,9 @@ internal class SettingsProviderActions(
             // Repository write succeeded – now persist the UI-layer preferences and refresh.
             preferencesRepository.setLastActiveProviderId(providerId)
             combinedM3uRepository.setActiveLiveSource(ActiveLiveSource.ProviderSource(providerId))
-            watchNextManager.refreshWatchNext()
-            launcherRecommendationsManager.refreshRecommendations(force = true)
-            tvInputChannelSyncManager.refreshTvInputCatalog()
+            surfaceRefreshPort.refreshWatchNext()
+            surfaceRefreshPort.refreshRecommendations()
+            surfaceRefreshPort.refreshTvInputCatalog()
             val shouldAutoSync = shouldAutoSyncProvider(
                 lastSyncedAt = provider.lastSyncedAt,
                 now = System.currentTimeMillis(),
@@ -104,7 +98,7 @@ internal class SettingsProviderActions(
                     uiState.update { it.copy(userMessage = "Enable at least one playlist in this combined source before activating it") }
                 else -> when (combinedM3uRepository.setActiveLiveSource(ActiveLiveSource.CombinedM3uSource(profileId))) {
                     is Result.Success -> {
-                        launcherRecommendationsManager.refreshRecommendations(force = true)
+                        surfaceRefreshPort.refreshRecommendations()
                         uiState.update { it.copy(userMessage = "Combined M3U source activated") }
                     }
                     is Result.Error -> uiState.update { it.copy(userMessage = "Could not activate combined source") }
@@ -375,7 +369,7 @@ internal class SettingsProviderActions(
                         syncingProviderName = providerName
                     )
                 }
-                tvInputChannelSyncManager.refreshTvInputCatalog()
+                surfaceRefreshPort.refreshTvInputCatalog()
             } else if (!catalogRefreshed) {
                 uiState.update { state ->
                     state.copy(
@@ -522,9 +516,9 @@ internal class SettingsProviderActions(
                         )
                     }
                     onSuccess()
-                    runCatching { watchNextManager.refreshWatchNext() }
-                    runCatching { launcherRecommendationsManager.refreshRecommendations(force = true) }
-                    runCatching { tvInputChannelSyncManager.refreshTvInputCatalog() }
+                    runCatching { surfaceRefreshPort.refreshWatchNext() }
+                    runCatching { surfaceRefreshPort.refreshRecommendations() }
+                    runCatching { surfaceRefreshPort.refreshTvInputCatalog() }
                 }
                 is Result.Error -> uiState.update {
                     it.copy(

@@ -1,24 +1,18 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import android.app.Application
+import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.R
-import com.streamvault.app.BuildConfig
-import com.streamvault.app.diagnostics.CrashReportStore
-import com.streamvault.app.tv.LauncherRecommendationsManager
-import com.streamvault.app.tv.WatchNextManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
+import com.streamvault.feature.settings.R
+import com.streamvault.feature.settings.api.SettingsAppUpdatePort
+import com.streamvault.feature.settings.api.SettingsDiagnosticsPort
+import com.streamvault.feature.settings.api.SettingsCrashReport
+import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
-import com.streamvault.app.update.AppUpdateInstaller
-import com.streamvault.app.update.GitHubReleaseChecker
-import com.streamvault.app.update.isRemoteVersionNewer
 import com.streamvault.data.local.dao.ProgramDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.dao.XtreamLiveOnboardingDao
@@ -90,6 +84,7 @@ import com.streamvault.domain.usecase.SyncProviderCommand
 import com.streamvault.domain.usecase.SyncProviderResult
 import com.streamvault.player.AudioCompatibilityMemoryStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -101,7 +96,7 @@ private const val BACKGROUND_INDEX_STATUS_PREFIX = "Background index:"
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModel @Inject constructor(
-    application: Application,
+    @ApplicationContext application: Context,
     private val providerRepository: ProviderRepository,
     private val combinedM3uRepository: CombinedM3uRepository,
     private val categoryRepository: CategoryRepository,
@@ -121,13 +116,11 @@ class SettingsViewModel @Inject constructor(
     private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
     private val syncMetadataRepository: SyncMetadataRepository,
     private val playbackHistoryRepository: com.streamvault.domain.repository.PlaybackHistoryRepository,
-    private val watchNextManager: WatchNextManager,
-    private val launcherRecommendationsManager: LauncherRecommendationsManager,
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager,
+    private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
+    private val diagnosticsPort: SettingsDiagnosticsPort,
     private val syncProvider: SyncProvider,
     private val epgSourceRepository: com.streamvault.domain.repository.EpgSourceRepository,
-    private val gitHubReleaseChecker: GitHubReleaseChecker,
-    private val appUpdateInstaller: AppUpdateInstaller,
+    private val appUpdatePort: SettingsAppUpdatePort,
     private val getCustomCategories: GetCustomCategories,
     private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore
 ) : ViewModel() {
@@ -147,8 +140,7 @@ class SettingsViewModel @Inject constructor(
     private val appUpdateActions = SettingsAppUpdateActions(
         appContext = application,
         preferencesRepository = preferencesRepository,
-        gitHubReleaseChecker = gitHubReleaseChecker,
-        appUpdateInstaller = appUpdateInstaller,
+        appUpdatePort = appUpdatePort,
         uiState = _uiState
     )
     private val backupActions = SettingsBackupActions(
@@ -174,15 +166,13 @@ class SettingsViewModel @Inject constructor(
         syncProvider = syncProvider,
         syncManager = syncManager,
         syncMetadataRepository = syncMetadataRepository,
-        watchNextManager = watchNextManager,
-        launcherRecommendationsManager = launcherRecommendationsManager,
-        tvInputChannelSyncManager = tvInputChannelSyncManager,
+        surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState
     )
     private val syncActions = SettingsSyncActions(
         appContext = application,
         syncManager = syncManager,
-        tvInputChannelSyncManager = tvInputChannelSyncManager,
+        surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState,
         refreshProvider = { scope, providerId, syncMode, progressPrefix, startedAt, sectionLabel, isCancelable ->
             providerActions.refreshProvider(
@@ -210,7 +200,7 @@ class SettingsViewModel @Inject constructor(
             scope = viewModelScope,
             preferencesRepository = preferencesRepository,
             appUpdateActions = appUpdateActions,
-            appUpdateInstaller = appUpdateInstaller,
+            appUpdatePort = appUpdatePort,
             uiState = _uiState
         )
         registerCombinedProfileObservers(
@@ -255,7 +245,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun refreshCrashReport() {
-        val report = CrashReportStore.latestReport(appContext)
+        val report = diagnosticsPort.latestReport()
         _uiState.update { state ->
             state.copy(
                 crashReport = report?.toUiModel() ?: CrashReportUiModel(),
@@ -276,7 +266,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun deleteCrashReport() {
-        val deleted = CrashReportStore.deleteLatestReport(appContext)
+        val deleted = diagnosticsPort.deleteLatestReport()
         _uiState.update {
             it.copy(
                 crashReport = CrashReportUiModel(),
@@ -290,7 +280,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun com.streamvault.app.diagnostics.CrashReportSummary.toUiModel(): CrashReportUiModel =
+    private fun SettingsCrashReport.toUiModel(): CrashReportUiModel =
         CrashReportUiModel(
             timestamp = timestamp,
             exception = exception,
@@ -694,7 +684,7 @@ class SettingsViewModel @Inject constructor(
 
     fun refreshDownloadState() {
         viewModelScope.launch {
-            appUpdateInstaller.refreshState()
+            appUpdatePort.refreshDownloadState()
         }
     }
 
@@ -702,7 +692,7 @@ class SettingsViewModel @Inject constructor(
         appUpdateActions.checkForAppUpdates(
             scope = viewModelScope,
             manual = true,
-            isRemoteVersionNewer = ::isRemoteVersionNewer
+            isRemoteVersionNewer = appUpdatePort::isRemoteVersionNewer
         )
     }
 

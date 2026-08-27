@@ -1,11 +1,11 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import android.app.Application
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.preferences.PreferencesRepository
-import com.streamvault.app.update.AppUpdateInstaller
-import com.streamvault.app.update.GitHubReleaseChecker
-import com.streamvault.feature.settings.presentation.SettingsUiState
+import com.streamvault.feature.settings.api.SettingsAppUpdatePort
+import com.streamvault.feature.settings.api.SettingsReleaseInfo
+import com.streamvault.feature.settings.api.SettingsUpdateDownloadState
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,18 +24,16 @@ import org.mockito.kotlin.whenever
 class SettingsAppUpdateActionsTest {
     @Test
     fun `failed check records failure without replacing cached release`() = runTest(StandardTestDispatcher()) {
-        val application = mock<Application>()
+        val application = mock<Context>()
         val preferences = mock<PreferencesRepository>()
-        val checker = mock<GitHubReleaseChecker>()
-        val installer = mock<AppUpdateInstaller>()
+        val updatePort = mock<SettingsAppUpdatePort>()
         val uiState = MutableStateFlow(SettingsUiState())
-        whenever(checker.fetchLatestRelease()).thenReturn(Result.error("HTTP 500"))
+        whenever(updatePort.fetchLatestRelease()).thenReturn(Result.error("HTTP 500"))
 
         val actions = SettingsAppUpdateActions(
             appContext = application,
             preferencesRepository = preferences,
-            gitHubReleaseChecker = checker,
-            appUpdateInstaller = installer,
+            appUpdatePort = updatePort,
             uiState = uiState
         )
 

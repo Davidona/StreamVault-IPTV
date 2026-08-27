@@ -1,10 +1,7 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import android.app.Application
-import com.streamvault.app.update.isRemoteVersionNewer
-import com.streamvault.app.update.AppUpdateInstaller
+import android.content.Context
+import com.streamvault.feature.settings.api.SettingsAppUpdatePort
 import com.streamvault.data.local.dao.ProgramDao
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.RecordingManager
@@ -30,7 +27,7 @@ internal fun registerSettingsAppUpdateObservers(
     scope: CoroutineScope,
     preferencesRepository: PreferencesRepository,
     appUpdateActions: SettingsAppUpdateActions,
-    appUpdateInstaller: AppUpdateInstaller,
+    appUpdatePort: SettingsAppUpdatePort,
     uiState: MutableStateFlow<SettingsUiState>
 ) {
     scope.launch {
@@ -49,7 +46,7 @@ internal fun registerSettingsAppUpdateObservers(
                 appUpdateActions.checkForAppUpdates(
                     scope = scope,
                     manual = false,
-                    isRemoteVersionNewer = ::isRemoteVersionNewer,
+                    isRemoteVersionNewer = appUpdatePort::isRemoteVersionNewer,
                     autoDownload = preferences.autoDownload
                 )
             }
@@ -57,15 +54,15 @@ internal fun registerSettingsAppUpdateObservers(
     }
 
     scope.launch {
-        appUpdateInstaller.downloadState.collect { downloadState ->
+        appUpdatePort.downloadState.collect { downloadState ->
             uiState.update {
-                it.copy(appUpdate = it.appUpdate.withDownloadState(downloadState.toSettingsDownloadState()))
+                it.copy(appUpdate = it.appUpdate.withDownloadState(downloadState))
             }
         }
     }
 
     scope.launch {
-        appUpdateInstaller.refreshState()
+        appUpdatePort.refreshDownloadState()
     }
 }
 
@@ -162,7 +159,7 @@ internal fun registerDerivedStateObservers(
     movieRepository: MovieRepository,
     seriesRepository: SeriesRepository,
     programDao: ProgramDao,
-    application: Application,
+    application: Context,
     preferencesRepository: PreferencesRepository,
     activeProviderIdFlow: Flow<Long?>,
     categoryRepository: CategoryRepository,

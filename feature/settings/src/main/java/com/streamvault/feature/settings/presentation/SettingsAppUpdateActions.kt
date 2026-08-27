@@ -1,38 +1,26 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import android.app.Application
+import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.streamvault.app.R
-import com.streamvault.app.update.AppUpdateActionState
-import com.streamvault.app.update.AppUpdateInstaller
-import com.streamvault.app.update.AppUpdateCheckPolicy
-import com.streamvault.app.update.GitHubReleaseChecker
+import com.streamvault.feature.settings.R
+import com.streamvault.feature.settings.api.SettingsAppUpdatePort
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.Result
-import com.streamvault.feature.settings.api.SettingsReleaseInfo
 import com.streamvault.feature.settings.api.SettingsUpdateActionState
-import com.streamvault.feature.settings.api.SettingsUpdateDownloadState
-import com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus
-import com.streamvault.feature.settings.presentation.SettingsUiState
-import com.streamvault.feature.settings.presentation.latestActionState
-import com.streamvault.feature.settings.presentation.toDownloadState
-import com.streamvault.feature.settings.presentation.toReleaseInfoOrNull
-import com.streamvault.feature.settings.presentation.withDownloadState
 
 internal class SettingsAppUpdateActions(
-    private val appContext: Application,
+    private val appContext: Context,
     private val preferencesRepository: PreferencesRepository,
-    private val gitHubReleaseChecker: GitHubReleaseChecker,
-    private val appUpdateInstaller: AppUpdateInstaller,
+    private val appUpdatePort: SettingsAppUpdatePort,
     private val uiState: MutableStateFlow<SettingsUiState>
 ) {
     private var updateCheckInFlight = false
 
     fun shouldAutoCheckForUpdates(lastSuccessfulCheckAt: Long?, lastFailedCheckAt: Long?): Boolean =
-        AppUpdateCheckPolicy.shouldAutoCheck(System.currentTimeMillis(), lastSuccessfulCheckAt, lastFailedCheckAt)
+        appUpdatePort.shouldAutoCheckForUpdates(lastSuccessfulCheckAt, lastFailedCheckAt)
 
     fun checkForAppUpdates(
         scope: CoroutineScope,
@@ -52,7 +40,7 @@ internal class SettingsAppUpdateActions(
                     appUpdate = it.appUpdate.copy(errorMessage = null)
                 )
             }
-            when (val result = gitHubReleaseChecker.fetchLatestRelease()) {
+            when (val result = appUpdatePort.fetchLatestRelease()) {
                 is Result.Error -> {
                     preferencesRepository.setLastAppUpdateFailureTimestamp(checkedAt)
                     preferencesRepository.setLastAppUpdateOutcome("FAILURE: ${result.message}")
@@ -113,7 +101,7 @@ internal class SettingsAppUpdateActions(
                             appUpdate = latestUpdateModel.withDownloadState(it.appUpdate.toDownloadState())
                         )
                     }
-                    val refreshedDownloadState = appUpdateInstaller.refreshState().toSettingsDownloadState()
+                    val refreshedDownloadState = appUpdatePort.refreshDownloadState()
                     latestUpdateModel = latestUpdateModel.withDownloadState(refreshedDownloadState)
                     uiState.update { it.copy(appUpdate = latestUpdateModel) }
                     if (autoDownload &&
@@ -140,7 +128,7 @@ internal class SettingsAppUpdateActions(
         }
 
         scope.launch {
-            when (val result = appUpdateInstaller.startDownload(latestRelease.toGitHubReleaseInfo())) {
+            when (val result = appUpdatePort.startDownload(latestRelease)) {
                 is Result.Error -> uiState.update { it.copy(userMessage = result.message) }
                 is Result.Success -> uiState.update {
                     it.copy(userMessage = appContext.getString(R.string.settings_update_download_started))
@@ -152,7 +140,7 @@ internal class SettingsAppUpdateActions(
 
     fun installDownloadedUpdate(scope: CoroutineScope) {
         scope.launch {
-            when (val result = appUpdateInstaller.installDownloadedUpdate(uiState.value.appUpdate.downloadSha256)) {
+            when (val result = appUpdatePort.installDownloadedUpdate(uiState.value.appUpdate.downloadSha256)) {
                 is Result.Error -> uiState.update { it.copy(userMessage = result.message) }
                 is Result.Success -> uiState.update {
                     it.copy(userMessage = appContext.getString(R.string.settings_update_install_started))
@@ -162,26 +150,3 @@ internal class SettingsAppUpdateActions(
         }
     }
 }
-
-internal fun com.streamvault.app.update.AppUpdateDownloadState.toSettingsDownloadState() =
-    SettingsUpdateDownloadState(
-        status = when (status) {
-            com.streamvault.app.update.AppUpdateDownloadStatus.Idle -> SettingsUpdateDownloadStatus.IDLE
-            com.streamvault.app.update.AppUpdateDownloadStatus.Downloading -> SettingsUpdateDownloadStatus.DOWNLOADING
-            com.streamvault.app.update.AppUpdateDownloadStatus.Downloaded -> SettingsUpdateDownloadStatus.DOWNLOADED
-            com.streamvault.app.update.AppUpdateDownloadStatus.Failed -> SettingsUpdateDownloadStatus.FAILED
-        },
-        versionName = versionName,
-        downloadId = downloadId,
-        installPermissionRequired = installPermissionRequired,
-    )
-
-private fun SettingsReleaseInfo.toGitHubReleaseInfo() = com.streamvault.app.update.GitHubReleaseInfo(
-    versionName = versionName,
-    versionCode = versionCode,
-    releaseUrl = releaseUrl,
-    downloadUrl = downloadUrl,
-    downloadSha256 = downloadSha256,
-    releaseNotes = releaseNotes,
-    publishedAt = publishedAt,
-)

@@ -1,11 +1,11 @@
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
-import android.app.Application
-import com.streamvault.app.R
+import android.content.Context
+import com.streamvault.feature.settings.R
 import com.streamvault.data.local.dao.ProgramDao
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.CategorySortMode
@@ -34,7 +34,7 @@ internal fun observeProviderDiagnostics(
     movieRepository: MovieRepository,
     seriesRepository: SeriesRepository,
     programDao: ProgramDao,
-    application: Application
+    application: Context
 ): Flow<Map<Long, ProviderDiagnosticsUiModel>> {
     return providerRepository.getProviders()
         .flatMapLatest { providers ->
@@ -148,7 +148,7 @@ private fun observeHiddenCategoryIdsByType(
     }
 }
 
-private fun buildCapabilitySummary(application: Application, provider: Provider): String {
+private fun buildCapabilitySummary(application: Context, provider: Provider): String {
     return when (provider.type) {
         ProviderType.XTREAM_CODES -> {
             if (provider.epgUrl.isNotBlank()) {

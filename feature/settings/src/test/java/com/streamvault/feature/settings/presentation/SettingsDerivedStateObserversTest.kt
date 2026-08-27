@@ -1,8 +1,8 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import android.app.Application
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.data.local.dao.ProgramDao
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
@@ -24,7 +24,7 @@ class SettingsDerivedStateObserversTest {
     private val movieRepository: MovieRepository = mock()
     private val seriesRepository: SeriesRepository = mock()
     private val programDao: ProgramDao = mock()
-    private val application: Application = mock()
+    private val application: Context = mock()
 
     @Test
     fun `observeProviderDiagnostics uses live movie and series library counts over metadata counts`() = runTest {

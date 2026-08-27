@@ -1,9 +1,6 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.tv.LauncherRecommendationsManager
-import com.streamvault.app.tv.WatchNextManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.model.ActiveLiveSource
@@ -14,7 +11,7 @@ import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
 import com.streamvault.domain.usecase.SyncProvider
-import com.streamvault.feature.settings.presentation.SettingsUiState
+import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,9 +35,7 @@ class SettingsProviderActionsTest {
     private val syncProvider: SyncProvider = mock()
     private val syncManager: SyncManager = mock()
     private val syncMetadataRepository: SyncMetadataRepository = mock()
-    private val watchNextManager: WatchNextManager = mock()
-    private val launcherRecommendationsManager: LauncherRecommendationsManager = mock()
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager = mock()
+    private val surfaceRefreshPort: SettingsSurfaceRefreshPort = mock()
     private val uiState = MutableStateFlow(SettingsUiState())
 
     private val actions = SettingsProviderActions(
@@ -50,9 +45,7 @@ class SettingsProviderActionsTest {
         syncProvider = syncProvider,
         syncManager = syncManager,
         syncMetadataRepository = syncMetadataRepository,
-        watchNextManager = watchNextManager,
-        launcherRecommendationsManager = launcherRecommendationsManager,
-        tvInputChannelSyncManager = tvInputChannelSyncManager,
+        surfaceRefreshPort = surfaceRefreshPort,
         uiState = uiState
     )
 
@@ -84,9 +77,9 @@ class SettingsProviderActionsTest {
         verify(preferencesRepository).setLastActiveProviderId(7L)
         verify(combinedM3uRepository).setActiveLiveSource(ActiveLiveSource.ProviderSource(7L))
         verify(providerRepository).setActiveProvider(7L)
-        verify(watchNextManager).refreshWatchNext()
-        verify(launcherRecommendationsManager).refreshRecommendations(force = true)
-        verify(tvInputChannelSyncManager).refreshTvInputCatalog()
+        verify(surfaceRefreshPort).refreshWatchNext()
+        verify(surfaceRefreshPort).refreshRecommendations()
+        verify(surfaceRefreshPort).refreshTvInputCatalog()
         verify(syncProvider, never()).invoke(any(), any())
     }
 
@@ -106,9 +99,9 @@ class SettingsProviderActionsTest {
         advanceUntilIdle()
 
         verify(providerRepository).deleteProvider(eq(7L), any())
-        verify(watchNextManager).refreshWatchNext()
-        verify(launcherRecommendationsManager).refreshRecommendations(force = true)
-        verify(tvInputChannelSyncManager).refreshTvInputCatalog()
+        verify(surfaceRefreshPort).refreshWatchNext()
+        verify(surfaceRefreshPort).refreshRecommendations()
+        verify(surfaceRefreshPort).refreshTvInputCatalog()
         assertThat(uiState.value.userMessage).isEqualTo("Provider deleted")
     }
 
@@ -142,17 +135,17 @@ class SettingsProviderActionsTest {
                 )
             )
         )
-        doThrow(IllegalStateException("refresh boom")).whenever(launcherRecommendationsManager)
-            .refreshRecommendations(force = true)
+        doThrow(IllegalStateException("refresh boom")).whenever(surfaceRefreshPort)
+            .refreshRecommendations()
         var onSuccessCalled = false
 
         actions.deleteProvider(this, 7L, onSuccess = { onSuccessCalled = true })
         advanceUntilIdle()
 
         verify(providerRepository).deleteProvider(eq(7L), any())
-        verify(watchNextManager).refreshWatchNext()
-        verify(launcherRecommendationsManager).refreshRecommendations(force = true)
-        verify(tvInputChannelSyncManager).refreshTvInputCatalog()
+        verify(surfaceRefreshPort).refreshWatchNext()
+        verify(surfaceRefreshPort).refreshRecommendations()
+        verify(surfaceRefreshPort).refreshTvInputCatalog()
         assertThat(onSuccessCalled).isTrue()
         assertThat(uiState.value.isDeletingProvider).isFalse()
         assertThat(uiState.value.userMessage).isEqualTo("Provider deleted")

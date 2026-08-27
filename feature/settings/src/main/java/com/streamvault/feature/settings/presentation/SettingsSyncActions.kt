@@ -1,11 +1,8 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import android.app.Application
-import com.streamvault.app.R
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.app.tvinput.TvInputCatalogRefreshWorker
+import android.content.Context
+import com.streamvault.feature.settings.R
+import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.SyncRepairSection
 import com.streamvault.domain.model.ProviderType
@@ -18,9 +15,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class SettingsSyncActions(
-    private val appContext: Application,
+    private val appContext: Context,
     private val syncManager: ProviderSyncCommands,
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager,
+    private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
     private val uiState: MutableStateFlow<SettingsUiState>,
     private val refreshProvider: (CoroutineScope, Long, SettingsProviderSyncMode, String?, Long, String?, Boolean) -> Job
 ) {
@@ -235,7 +232,7 @@ internal class SettingsSyncActions(
                     it == appContext.getString(R.string.settings_sync_option_tv)
                 }
             ) {
-                TvInputCatalogRefreshWorker.enqueue(appContext)
+                surfaceRefreshPort.enqueueTvInputCatalogRefresh()
             }
 
             uiState.update { state ->

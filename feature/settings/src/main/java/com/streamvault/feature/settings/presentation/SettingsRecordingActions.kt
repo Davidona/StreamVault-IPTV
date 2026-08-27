@@ -1,9 +1,7 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.SettingsUiState
-
-import android.app.Application
-import com.streamvault.app.R
+import android.content.Context
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStorageConfig
 import com.streamvault.domain.model.RecordingReconciliationResult
@@ -16,7 +14,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class SettingsRecordingActions(
-    private val appContext: Application,
+    private val appContext: Context,
     private val recordingManager: RecordingManager,
     private val uiState: MutableStateFlow<SettingsUiState>
 ) {
