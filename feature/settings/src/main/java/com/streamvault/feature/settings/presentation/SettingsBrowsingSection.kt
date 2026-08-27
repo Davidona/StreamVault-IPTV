@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.core.ui.theme.AccentAmber
@@ -47,7 +45,7 @@ import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 
-internal fun LazyListScope.settingsBrowsingSection(
+public fun LazyListScope.settingsBrowsingSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     context: android.content.Context,
