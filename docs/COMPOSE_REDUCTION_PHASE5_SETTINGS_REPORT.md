@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,016 nodes, 29,104 edges, and 418 communities. `SettingsViewModel` remains
+  15,022 nodes, 29,114 edges, and 425 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -65,6 +65,7 @@ provider runtime gates remain open under their respective reports.
 - `39cf0532` ג€” moved Live TV/parental presentation into the feature source set
 - `55642c6a` ג€” feature-owned Live TV/parental strings and enum label formatters
 - `b00eb575` ג€” moved the sync progress overlay and its feature-owned strings
+- `3a1e264a` ג€” moved the app-update label and action-state formatters
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -146,6 +147,16 @@ BUILD SUCCESSFUL in 1m 35s
 
 The check preserved the overlay's cancel-focus behavior and confirmed the
 feature boundary and app integration remain clean.
+
+The app-update formatter batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 25s
+```
+
+The pure formatters now resolve feature resources while the app update adapter
+and launch/install callbacks remain in the composition root.
 
 ## Open work and gates
 
