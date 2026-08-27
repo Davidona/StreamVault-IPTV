@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,187 nodes, 29,555 edges, and 377 communities. `SettingsViewModel` remains
+  15,190 nodes, 29,566 edges, and 378 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -102,6 +102,8 @@ provider runtime gates remain open under their respective reports.
   compact recording action chip
 - `0d8b6046` — moved recording browser display/item helpers and playback URL
   normalization into the settings feature
+- `4d06b695` — moved speed-test summary/value formatting and labels into the
+  settings feature, removing the duplicate app formatter file
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -496,6 +498,17 @@ The standalone recording item card, playback-URL normalization helper, and
 browser secondary-line formatter now live in `:feature:settings`; the app still
 owns the dialog orchestration, platform time provider, playback launcher, and
 recording persistence callbacks.
+
+The speed-test-formatting batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 39s
+```
+
+Speed-test value/transport/summary formatting now resolves feature resources;
+the app state builder continues to supply its existing context and date-time
+format, while test execution and persistence remain outside presentation.
 
 ## Open work and gates
 
