@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
@@ -22,7 +22,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.ErrorColor
@@ -38,7 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 
 @Composable
-internal fun ProviderSelectorTab(
+public fun ProviderSelectorTab(
     provider: Provider,
     isSelected: Boolean,
     isActive: Boolean,
@@ -108,7 +108,7 @@ internal fun ProviderSelectorTab(
 }
 
 @Composable
-internal fun ProviderCompactStat(
+public fun ProviderCompactStat(
     title: String,
     count: Int
 ) {
@@ -119,7 +119,7 @@ internal fun ProviderCompactStat(
 }
 
 @Composable
-internal fun ProviderCompactStat(
+public fun ProviderCompactStat(
     title: String,
     value: ProviderCatalogCountUiModel,
     syncingLabel: String = stringResource(R.string.settings_catalog_count_syncing)
@@ -166,11 +166,11 @@ private fun providerCatalogStatusTagText(
     ProviderCatalogCountStatus.READY -> null
 }
 
-internal fun ProviderCatalogCountUiModel.shouldShowCatalogStatusTag(): Boolean =
+public fun ProviderCatalogCountUiModel.shouldShowCatalogStatusTag(): Boolean =
     status != ProviderCatalogCountStatus.PENDING && status != ProviderCatalogCountStatus.READY
 
 @Composable
-internal fun ProviderStatusBadge(
+public fun ProviderStatusBadge(
     status: ProviderStatus,
     requiresAttention: Boolean = false
 ) {
