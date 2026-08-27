@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,131 nodes, 29,409 edges, and 379 communities. `SettingsViewModel` remains
+  15,137 nodes, 29,432 edges, and 370 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -90,6 +90,7 @@ provider runtime gates remain open under their respective reports.
 - `40cd49df` — moved the settings playback section into the feature
 - `0eb55acf` — moved live-stream-format label formatting to the feature
 - `854fffde` — moved browsing/navigation preference section presentation
+- `3e26db98` — moved combined-M3U profile card and dialog presentation
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -400,6 +401,17 @@ BUILD SUCCESSFUL in 1m 57s
 
 Browsing toggle persistence, category-sort and mode row ordering, remote
 shortcut interactions, and all dialog-open callbacks remain unchanged.
+
+The combined-M3U presentation batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 2m 16s
+```
+
+Combined-profile selection, activation, rename/create/member dialogs,
+provider ordering/toggle/remove behavior, selected-state styling, and callback
+sequencing remain unchanged.
 
 ## Open work and gates
 
