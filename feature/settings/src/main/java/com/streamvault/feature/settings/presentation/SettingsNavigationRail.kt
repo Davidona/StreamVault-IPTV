@@ -1,21 +1,37 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.streamvault.app.R
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.feature.settings.R
 
 private data class SettingsNavEntry(
     val id: String,
@@ -25,7 +41,7 @@ private data class SettingsNavEntry(
 )
 
 @Composable
-internal fun SettingsNavigationRail(
+public fun SettingsNavigationRail(
     selectedCategory: Int,
     focusRequester: FocusRequester,
     onCategorySelected: (Int) -> Unit
@@ -101,6 +117,68 @@ internal fun SettingsNavigationRail(
                 isSelected = selectedCategory == index,
                 modifier = if (selectedCategory == index) Modifier.focusRequester(focusRequester) else Modifier,
                 onClick = { onCategorySelected(index) }
+            )
+        }
+    }
+}
+
+@Composable
+public fun SettingsNavItem(
+    label: String,
+    badgeChar: String,
+    accentColor: Color,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    TvClickableSurface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(0.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (isSelected) Primary.copy(alpha = 0.11f) else Color.Transparent,
+            focusedContainerColor = Primary.copy(alpha = 0.22f)
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+        modifier = modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester)
+            .mouseClickable(focusRequester = focusRequester, onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                Modifier
+                    .width(3.dp)
+                    .height(22.dp)
+                    .background(
+                        color = if (isSelected) Primary else Color.Transparent,
+                        shape = RoundedCornerShape(2.dp)
+                    )
+            )
+            Box(
+                Modifier
+                    .size(28.dp)
+                    .background(accentColor.copy(alpha = 0.18f), RoundedCornerShape(7.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = badgeChar,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = accentColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isSelected) Primary else OnBackground,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
             )
         }
     }
