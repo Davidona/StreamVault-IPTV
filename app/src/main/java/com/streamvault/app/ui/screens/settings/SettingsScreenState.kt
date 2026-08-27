@@ -15,7 +15,6 @@ import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AudioOutputPreference
-import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodHttpProtocolMode
@@ -327,12 +326,6 @@ internal fun formatTimeshiftBackendPreferenceLabel(
     TimeshiftBackendPreference.AUTOMATIC -> context.getString(R.string.settings_live_timeshift_backend_auto)
     TimeshiftBackendPreference.STORAGE -> context.getString(R.string.settings_live_timeshift_backend_storage)
     TimeshiftBackendPreference.MEMORY -> context.getString(R.string.settings_live_timeshift_backend_memory)
-}
-
-internal fun formatLiveStreamFormatModeLabel(mode: LiveStreamFormatMode): String = when (mode) {
-    LiveStreamFormatMode.AUTO -> "Auto"
-    LiveStreamFormatMode.HLS -> "HLS (m3u8)"
-    LiveStreamFormatMode.MPEG_TS -> "MPEG-TS (ts)"
 }
 
 private fun formatExternalPlaybackModeLabel(

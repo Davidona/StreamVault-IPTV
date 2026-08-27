@@ -3,6 +3,7 @@ package com.streamvault.feature.settings.presentation
 import android.content.Context
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.DecoderMode
+import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.feature.settings.R
 
@@ -65,3 +66,9 @@ public fun formatSubtitleSizeLabel(scale: Float, context: Context): String =
 
 public fun formatSubtitleColorLabel(colorArgb: Int, options: List<SubtitleColorOption>): String =
     options.firstOrNull { it.colorArgb == colorArgb }?.label ?: options.first().label
+
+public fun formatLiveStreamFormatModeLabel(mode: LiveStreamFormatMode): String = when (mode) {
+    LiveStreamFormatMode.AUTO -> "Auto"
+    LiveStreamFormatMode.HLS -> "HLS (m3u8)"
+    LiveStreamFormatMode.MPEG_TS -> "MPEG-TS (ts)"
+}
