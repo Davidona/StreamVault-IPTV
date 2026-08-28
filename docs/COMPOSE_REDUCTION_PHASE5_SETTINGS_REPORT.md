@@ -693,10 +693,10 @@ exercises app update implementation types.
 
 ## Open work and gates
 
-- Complete the resource-usage audit and remove only confirmed-obsolete app
-  locale/default entries, wildcard imports, and duplicate defaults; the feature
-  now owns the Settings and parental route registration contract and carries
-  the translated locale batch.
+- The resource-usage audit and confirmed-obsolete app locale/default cleanup
+  are complete: 646 feature-only candidate entries were removed while 40
+  shared/app-consumed names remain. Detailed evidence is in
+  `validation/phase5_settings/task10-resource-cleanup.md`.
 - Remove the remaining app-side settings test/resource compatibility seams only
   after the app-owned update-model test and shared navigation/resource usages
   have explicit owners.

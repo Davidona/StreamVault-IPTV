@@ -6,7 +6,9 @@ The Settings feature now carries the translated resource catalogs for the
 existing feature-owned default catalog. The extraction was generated from the
 app locale files by matching resource names against
 `feature/settings/src/main/res/values/strings.xml` and
-`feature/settings/src/main/res/values/plurals.xml`.
+`feature/settings/src/main/res/values/plurals.xml`. The app's supplemental
+`strings_missing.xml` files are included when a primary locale does not carry a
+translation.
 
 ## Catalog coverage
 
@@ -35,4 +37,3 @@ BUILD SUCCESSFUL in 1m 22s
 
 The feature lint run completes with the complete locale set and no errors.
 The existing warnings/hints are unchanged; no new baseline was added.
-

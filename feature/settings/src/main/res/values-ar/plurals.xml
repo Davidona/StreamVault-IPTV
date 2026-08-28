@@ -25,11 +25,19 @@
         <item quantity="other">%1$d دقيقة</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="zero">لا توجد تبويبات</item>
+        <item quantity="one">تبويب واحد</item>
+        <item quantity="two">تبويبان</item>
+        <item quantity="few">%d تبويبات</item>
+        <item quantity="many">%d تبويبًا</item>
+        <item quantity="other">%d تبويب</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="zero">لا توجد أرفف</item>
+        <item quantity="one">رفّ واحد</item>
+        <item quantity="two">رفّان</item>
+        <item quantity="few">%d أرفف</item>
+        <item quantity="many">%d رفًّا</item>
+        <item quantity="other">%d رفّ</item>
     </plurals>
 </resources>
