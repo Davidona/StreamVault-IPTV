@@ -82,8 +82,15 @@ out of :app without behavior or stability regressions.
   docs/superpowers/plans/2026-08-26-provider-feature-extraction.md
 - Provider execution report:
   docs/COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md
+- Settings extraction implementation plan:
+  docs/superpowers/plans/2026-08-27-settings-feature-extraction.md
+- Settings execution report:
+  docs/COMPOSE_REDUCTION_PHASE5_SETTINGS_REPORT.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 
-Settings, live, and catalog receive separate implementation plans after the
-current provider/runtime gates confirm the reusable module pattern.
+The settings implementation plan and execution report now document the
+structural extraction, resource ownership cleanup, dependency audit, and open
+runtime gates. Live and catalog still receive separate implementation plans
+only after the current provider/runtime gates confirm the reusable module
+pattern; no later slice is started by the settings work.
