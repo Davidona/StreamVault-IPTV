@@ -1,5 +1,7 @@
 package com.streamvault.app.ui.screens.epg
 
+import com.streamvault.feature.live.presentation.epg.LiveGuideProgramSearchRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideSearchField
 import com.streamvault.feature.live.presentation.epg.LiveGuideShortcutChip
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -166,10 +168,13 @@ internal fun GuideSearchOverlay(
                         )
                     }
                 }
-                GuideProgramSearchRow(
+                LiveGuideProgramSearchRow(
                     query = query,
                     onQueryChange = onQueryChange,
                     onClear = onClear,
+                    searchLabel = stringResource(R.string.epg_search_label),
+                    searchPlaceholder = stringResource(R.string.epg_search_placeholder),
+                    clearLabel = stringResource(R.string.epg_clear_search),
                     onSearch = applySearchAndClose,
                     focusRequester = searchFocusRequester,
                     autoRequestFocus = true,
@@ -572,7 +577,7 @@ internal fun EpgOverrideDialog(
                         trackColor = SurfaceHighlight
                     )
                 }
-                GuideSearchField(
+                LiveGuideSearchField(
                     value = state.searchQuery,
                     onValueChange = onQueryChange,
                     placeholder = stringResource(R.string.epg_override_search_placeholder),
@@ -759,10 +764,13 @@ internal fun GuideCategoryPickerDialog(
                     )
                 }
 
-                GuideProgramSearchRow(
+                LiveGuideProgramSearchRow(
                     query = query,
                     onQueryChange = { query = it },
                     onClear = { query = "" },
+                    searchLabel = stringResource(R.string.epg_search_label),
+                    searchPlaceholder = stringResource(R.string.epg_search_placeholder),
+                    clearLabel = stringResource(R.string.epg_clear_search),
                     focusRequester = searchFocusRequester,
                     contentPadding = PaddingValues(0.dp),
                     showLabel = false,

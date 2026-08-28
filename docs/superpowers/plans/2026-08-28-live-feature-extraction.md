@@ -20,8 +20,8 @@ claim the Live slice or Phase 5 complete.
 Status update (2026-08-29): `HomeViewModel`, the sidebar/preview surface, the
 loading/preview host supporting composables, the live source switcher, Home
 quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
-EPG guide-now ticker/provider, Home reorder top bar, and Home channel row
-surface are now feature-owned
+EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar, and
+Home channel row surface are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -657,7 +657,8 @@ Move `HomeScreen.kt`, `HomeScreenDialogs.kt`, and `HomeSidebarComponents.kt`. Re
 
 The first screen wiring checkpoint is complete: Home now calls the
 feature-owned `LiveSourceSwitcher`, `LiveQuickFiltersPanel` (including its
-`LiveSelectionChipRow`), `LiveGuideShortcutChip`, `LiveReorderTopBar`, and
+`LiveSelectionChipRow`), `LiveGuideShortcutChip`, `LiveGuideSearchField` /
+`LiveGuideProgramSearchRow`, `LiveReorderTopBar`, and
 `LiveGuideNowProvider`/`currentLiveGuideNow`, and `LiveChannelRowSurface`,
 passing app-localized labels/title formatting/accessibility text through
 explicit presentation parameters. The quick-filter key/selection rules are
