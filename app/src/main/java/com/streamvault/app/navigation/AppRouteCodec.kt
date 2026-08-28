@@ -5,20 +5,20 @@ import com.streamvault.feature.provider.navigation.ProviderRoutePatterns
 import android.net.Uri
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
+import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
     const val WELCOME = "welcome"
     const val HOME = "home"
-    const val LIVE_TV = "live_tv"
-    const val LIVE_TV_DESTINATION = "live_tv?categoryId={categoryId}"
+    const val LIVE_TV = LiveRoutePatterns.LIVE_TV
+    const val LIVE_TV_DESTINATION = LiveRoutePatterns.LIVE_TV_DESTINATION
     const val MOVIES = "movies"
     const val SERIES = "series"
     const val VOD = "vod"
     const val DOWNLOADS = "downloads"
-    const val EPG = "epg"
-    const val EPG_DESTINATION =
-        "epg?categoryId={categoryId}&anchorTime={anchorTime}&favoritesOnly={favoritesOnly}"
+    const val EPG = LiveRoutePatterns.EPG
+    const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
     const val PLUGINS = "plugins"
