@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,216 nodes, 29,666 edges, and 380 communities. `SettingsViewModel` remains
+  15,230 nodes, 29,706 edges, and 372 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -119,6 +119,9 @@ provider runtime gates remain open under their respective reports.
   report dialogs, and clear-history presentation into the feature
 - `8f47d919` — moved the settings overlay host into the feature and injected
   the app-owned recording-browser launcher as a composable callback
+- `7975802c` — moved settings screen label/state composition and its resource
+  formatters into the feature; app build verification is mapped to the neutral
+  feature status type
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -604,6 +607,18 @@ BUILD SUCCESSFUL in 1m 33s
 Snackbar, recording-browser visibility, and dialog-overlay ordering remain
 unchanged. The feature now hosts the overlay composition while the app retains
 the recording playback/navigation adapter through the injected callback.
+
+The settings-label-state batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 37s
+```
+
+Settings label derivation, time-format handling, build-verification mapping,
+plural summaries, and existing formatter test expectations remain unchanged;
+the app retains only its platform `MainActivity` lookup and build-verifier
+adapter.
 
 ## Open work and gates
 
