@@ -49,3 +49,16 @@ The generated profile changes are paired with the app build-script guard that
 keeps release/beta assembly validation explicit while avoiding a cycle during
 profile collection. Physical-device and performance comparisons remain
 separate Phase 5 gates.
+
+The exact roadmap invocation (generation, source verification, and both
+assemblies in one request) was also dry-run after that guard change. Its task
+graph resolved successfully without a cycle; the real collection and the
+release-like assemblies were executed as separate commands above to avoid
+repeating the 12-minute connected collection solely for graph validation.
+
+```text
+gradlew.bat :app:generateBaselineProfile verifyBaselineProfileSources \
+  :app:assembleBeta :app:assembleRelease --dry-run \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 34s
+```
