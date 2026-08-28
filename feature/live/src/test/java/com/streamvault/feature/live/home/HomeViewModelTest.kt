@@ -6,6 +6,7 @@ import com.streamvault.feature.live.api.LiveMultiViewStatus
 import com.streamvault.feature.live.api.LiveMultiViewStatusPort
 import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewOrigin
+import com.streamvault.feature.live.api.LivePreviewSession
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.data.preferences.PreferencesRepository
@@ -66,6 +67,7 @@ class HomeViewModelTest {
     private val playerEngine: PlayerEngine = mock()
     private val playerEngineProvider: InjectProvider<PlayerEngine> = mock()
     private val application: Application = mock()
+    private lateinit var reverseHandoffOrigin: MutableStateFlow<LivePreviewOrigin?>
     private val createdViewModels = mutableListOf<HomeViewModel>()
 
     private lateinit var viewModel: HomeViewModel
@@ -82,7 +84,8 @@ class HomeViewModelTest {
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSourceOptions()).thenReturn(flowOf(emptyList()))
-        whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(MutableStateFlow(null))
+        reverseHandoffOrigin = MutableStateFlow(null)
+        whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(reverseHandoffOrigin)
         whenever(multiViewStatusPort.status).thenReturn(flowOf(LiveMultiViewStatus()))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(favoriteRepository.getFavorites(any<Long>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
@@ -329,6 +332,63 @@ class HomeViewModelTest {
 
         assertThat(viewModel.uiState.value.multiviewChannelCount).isEqualTo(3)
         assertThat(viewModel.uiState.value.multiviewSlotCapacity).isEqualTo(6)
+    }
+
+    @Test
+    fun `reverse HOME handoff resumes preview while GUIDE notifications are ignored`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(livePreviewHandoffManager.consumeReverseHandoff(LivePreviewOrigin.HOME)).thenReturn(
+            LivePreviewSession(
+                engine = playerEngine,
+                channelId = 104L,
+                providerId = 7L,
+                streamInfo = streamInfo
+            )
+        )
+        clearViewModel(viewModel)
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        reverseHandoffOrigin.value = LivePreviewOrigin.GUIDE
+        advanceUntilIdle()
+        verify(livePreviewHandoffManager, never()).consumeReverseHandoff(LivePreviewOrigin.GUIDE)
+
+        reverseHandoffOrigin.value = LivePreviewOrigin.HOME
+        advanceUntilIdle()
+
+        verify(livePreviewHandoffManager).consumeReverseHandoff(LivePreviewOrigin.HOME)
+        verify(livePreviewHandoffManager).registerPreviewSession(
+            eq(104L),
+            eq(7L),
+            eq(streamInfo),
+            same(playerEngine),
+            eq(LivePreviewOrigin.HOME)
+        )
+        assertThat(viewModel.previewUiState.value.previewChannelId).isEqualTo(104L)
+        assertThat(viewModel.previewUiState.value.previewPlayerEngine).isSameInstanceAs(playerEngine)
+    }
+
+    @Test
+    fun `clearing preview delegates release and clears local ownership`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        val channel = Channel(id = 105L, name = "Clear Channel", providerId = 7L)
+        viewModel.previewChannel(channel)
+        advanceUntilIdle()
+
+        clearInvocations(livePreviewHandoffManager, playerEngine)
+        viewModel.clearPreview()
+
+        verify(livePreviewHandoffManager).clear(same(playerEngine))
+        verify(playerEngine).stop()
+        verify(playerEngine).release()
+        assertThat(viewModel.previewUiState.value.previewChannelId).isNull()
+        assertThat(viewModel.previewUiState.value.previewPlayerEngine).isNull()
     }
 
     private fun configurePreviewDependencies() {
