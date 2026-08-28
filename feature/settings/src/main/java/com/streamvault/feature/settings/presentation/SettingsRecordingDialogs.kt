@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -11,11 +9,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.theme.OnSurfaceDim
 
 @Composable
-internal fun SettingsRecordingDialogs(
+public fun SettingsRecordingDialogs(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     showRecordingPatternDialog: Boolean,

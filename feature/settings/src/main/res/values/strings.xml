@@ -589,6 +589,7 @@
     <string name="settings_recording_output_label">Output</string>
     <string name="settings_recording_failure_label">Failure</string>
     <string name="settings_recording_retry_count_label">Retries</string>
+    <string name="settings_recording_pattern_hint">Use tokens like ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_speed_test_not_run">Not tested yet</string>
     <string name="settings_speed_test_summary_default">Run a quick download test and use the result to pick stable playback quality limits.</string>
     <string name="settings_speed_test_summary_measured">Measured on %1$s at %2$s.</string>
