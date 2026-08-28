@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,230 nodes, 29,706 edges, and 372 communities. `SettingsViewModel` remains
+  15,232 nodes, 29,717 edges, and 380 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -122,6 +122,8 @@ provider runtime gates remain open under their respective reports.
 - `7975802c` — moved settings screen label/state composition and its resource
   formatters into the feature; app build verification is mapped to the neutral
   feature status type
+- `5fe8a42b` — moved the settings content pane renderer into the feature and
+  kept the app version label as an explicit composition-root input
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -619,6 +621,17 @@ Settings label derivation, time-format handling, build-verification mapping,
 plural summaries, and existing formatter test expectations remain unchanged;
 the app retains only its platform `MainActivity` lookup and build-verifier
 adapter.
+
+The settings-content-pane batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 34s
+```
+
+Category routing, section ordering, row/dialog callbacks, and feature-owned
+labels remain unchanged; the app now supplies only the version label alongside
+its existing platform and navigation callbacks.
 
 ## Open work and gates
 
