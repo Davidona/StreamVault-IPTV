@@ -10,18 +10,20 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-28-phase-5-live-feature-extraction-design.md`
 
-**Implementation status (2026-08-28):** Tasks 0–1 and the preview/platform
-port portion of Tasks 2–4 are complete and committed. Home/Guide presentation
-files, feature-owned resources, graph registration, integration cleanup, and
-runtime/performance gates remain open; this plan does not claim the Live slice
-or Phase 5 complete.
+**Implementation status (2026-08-28):** Tasks 0–1, the preview/platform port
+portion of Tasks 2–4, the Live presentation primitive set, HomeUiState, and
+the pure Guide presentation models are complete and committed. Home/Guide
+screen and ViewModel ownership, feature-owned resources, golden/runtime/
+performance gates, and legacy app cleanup remain open; this plan does not
+claim the Live slice or Phase 5 complete.
 
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument
 registration; the app graph supplies existing screen content and performs
-typed player-request mapping. Pure guide lookup/time-format seams are also
-feature-owned. Screen/resource ownership is still open.
+typed player-request mapping. Pure guide lookup/time-format and Guide
+mode/density/reminder-message seams are also feature-owned. Screen/resource
+ownership is still open.
 
 ## Global Constraints
 
@@ -501,7 +503,7 @@ git commit -m "feat(live): adapt app preview and multiview services"
 - Consumes: existing app component behavior plus app-independent Core UI primitives.
 - Produces: live-local presentation APIs with no app or Catalog dependency; app originals remain for their current non-live consumers.
 
-- [ ] **Step 1: Write failing pure model and remote-policy tests**
+- [x] **Step 1: Write failing pure model and remote-policy tests**
 
 Copy the current guide-key and remote-dispatch expectations before copying production code. Tests must cover provider/channel EPG lookup identity, red/green/yellow/blue key mapping, unmapped keys, and the existing shortcut profile behavior.
 
@@ -513,7 +515,7 @@ Run:
 
 Expected: FAIL because live-owned implementations do not exist.
 
-- [ ] **Step 2: Move live-only policies and run GREEN**
+- [x] **Step 2: Move live-only policies and run GREEN**
 
 Move `GuideLookupKey.kt` and the Live browse portion of `RemoteShortcutDispatch.kt` mechanically into the feature packages. Leave non-live remote helpers in `:app`. Preserve every key code and action result.
 
@@ -529,7 +531,7 @@ Run:
 
 Expected: FAIL on missing live presentation functions or missing checked-in goldens; never self-approve first-run images.
 
-- [ ] **Step 4: Implement distinct live-local presentation equivalents**
+- [x] **Step 4: Implement distinct live-local presentation equivalents**
 
 Copy rendering/focus/key/callback behavior from the app components, rename the public functions with the `Live` prefix shown in the file list, replace app shell/time/device/image imports with existing Core UI APIs, and reference `com.streamvault.feature.live.R`.
 
@@ -539,7 +541,7 @@ Keep app originals unchanged for Dashboard, Movies, Series, Favorites, Search, a
 
 Render at 1920x1080, compare against pre-move screenshots, inspect focus borders/text/spacing manually, then add the reviewed PNGs. Rerun the connected class; expected PASS with the repository missing-golden guard still active.
 
-- [ ] **Step 6: Verify source boundary and app consumers**
+- [x] **Step 6: Verify source boundary and app consumers**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:testDebugUnitTest :feature:live:lintDebug :app:compileDebugKotlin --no-daemon --console=plain --warning-mode=none
@@ -547,7 +549,7 @@ Render at 1920x1080, compare against pre-move screenshots, inspect focus borders
 
 Expected: PASS; Catalog/System app sources still compile against their existing app components.
 
-- [ ] **Step 7: Commit presentation seams**
+- [x] **Step 7: Commit presentation seams**
 
 ```powershell
 git add feature/live/src/main feature/live/src/test feature/live/src/androidTest

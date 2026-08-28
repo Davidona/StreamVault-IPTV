@@ -127,5 +127,8 @@ These are transitional adapters, not new policy owners:
 The `:feature:live` module itself depends only on `:core:navigation`, `:core:ui`,
 `:domain`, `:data`, and `:player`; its boundary verifier rejects app and
 feature-to-feature imports. Home and Guide ViewModels currently remain in
-`:app` while their preview and platform dependencies are ported, so no live
-slice acceptance gate is claimed yet.
+`:app` while their preview and platform dependencies are ported. Live-owned
+presentation primitives, `HomeUiState`, and Guide mode/density/reminder
+presentation models are now independent of app code; screen/resource moves,
+golden/runtime/performance gates, and legacy app cleanup remain open, so no
+live slice acceptance gate is claimed yet.
