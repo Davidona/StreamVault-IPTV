@@ -56,7 +56,7 @@ import com.streamvault.feature.live.home.CategoryItem
 import com.streamvault.feature.live.home.CompactSplitLauncherButton
 import com.streamvault.feature.live.home.LivePreviewPane
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
-import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
+import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
@@ -89,6 +89,7 @@ import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.app.navigation.Routes
 import com.streamvault.domain.model.VirtualCategoryIds
+import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.repository.ChannelRepository
 import androidx.compose.ui.viewinterop.AndroidView
 import com.streamvault.player.PlayerSurfaceResizeMode
@@ -1323,6 +1324,32 @@ fun HomeScreen(
                                         isReorderMode = uiState.isChannelReorderMode,
                                         isDragging = isDraggingThis,
                                         rowHeight = channelRowHeight,
+                                        liveLabel = stringResource(R.string.card_live_badge),
+                                        noScheduleLabel = stringResource(R.string.label_no_schedule),
+                                        lockedLabel = stringResource(R.string.a11y_locked),
+                                        movingLabel = stringResource(R.string.badge_moving),
+                                        savedLabel = stringResource(R.string.badge_saved),
+                                        catchUpLabel = stringResource(R.string.badge_catch_up),
+                                        accessibilityDescription = buildString {
+                                            val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+                                            append(
+                                                channel.number.takeIf { it > 0 }?.let {
+                                                    stringResource(R.string.a11y_channel_with_number, it, channel.name)
+                                                } ?: channel.name
+                                            )
+                                            channel.currentProgram?.title?.takeIf { it.isNotBlank() }?.let {
+                                                append(". ")
+                                                append(stringResource(R.string.a11y_now_playing, it))
+                                            }
+                                            if (channel.isFavorite) {
+                                                append(". ")
+                                                append(stringResource(R.string.a11y_favorite))
+                                            }
+                                            if (hasUsableArchive) {
+                                                append(". ")
+                                                append(stringResource(R.string.a11y_catch_up_available))
+                                            }
+                                        },
                                         onClick = {
                                             if (isReorderMode) {
                                                 draggingChannel = if (isDraggingThis) null else channel

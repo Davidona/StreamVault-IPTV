@@ -128,9 +128,9 @@ The `:feature:live` module itself depends only on `:core:navigation`, `:core:ui`
 `:domain`, `:data`, and `:player`; its boundary verifier rejects app and
 feature-to-feature imports. Home and Guide ViewModels are being moved behind
 the live boundary incrementally: `HomeViewModel`, the sidebar/preview surface,
-the live source switcher, Home quick-filter chip row, and Home reorder top bar
-are now feature-owned while the Home screen/dialog composition remains in
-`:app`.
+the live source switcher, Home quick-filter chip row, Home reorder top bar, and
+Home channel row surface are now feature-owned while the Home screen/dialog
+composition remains in `:app`.
 The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned
 presentation primitives, `HomeUiState`, `HomePreviewUiState`, and Guide

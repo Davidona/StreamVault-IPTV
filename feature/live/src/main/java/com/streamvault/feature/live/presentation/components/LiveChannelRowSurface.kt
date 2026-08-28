@@ -33,6 +33,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,12 +69,21 @@ fun LiveChannelRowSurface(
     liveLabel: String = "LIVE",
     noScheduleLabel: String = "No schedule",
     lockedLabel: String = "Locked",
-    movingLabel: String = "Moving"
+    movingLabel: String = "Moving",
+    savedLabel: String = "Saved",
+    catchUpLabel: String = "Catch-up",
+    accessibilityDescription: String? = null
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val sounds = rememberTvInteractionSounds()
     val focusRequester = remember { FocusRequester() }
     val hasArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val resolvedAccessibilityDescription = accessibilityDescription ?: buildString {
+        append(channel.number.takeIf { it > 0 }?.let { "Channel $it, ${channel.name}" } ?: channel.name)
+        channel.currentProgram?.title?.takeIf { it.isNotBlank() }?.let { append(". Now playing $it") }
+        if (channel.isFavorite) append(". Favorite")
+        if (hasArchive) append(". Catch-up available")
+    }
     val scale by animateFloatAsState(
         targetValue = if (isDragging) FocusSpec.FocusedScale else 1f,
         animationSpec = AppMotion.FocusSpec,
@@ -91,6 +103,10 @@ fun LiveChannelRowSurface(
             .fillMaxWidth()
             .mouseClickable(focusRequester = focusRequester, onLongClick = onLongClick, onClick = { sounds.playSelect(); onClick() })
             .graphicsLayer { scaleX = scale; scaleY = scale }
+            .semantics(mergeDescendants = true) {
+                contentDescription = resolvedAccessibilityDescription
+                if (isLocked) stateDescription = lockedLabel
+            }
             .onFocusChanged { if (it.isFocused && !isFocused) sounds.playNavigate(); isFocused = it.isFocused },
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
@@ -110,7 +126,9 @@ fun LiveChannelRowSurface(
                 modifier = Modifier.fillMaxWidth(),
                 rowHeight = rowHeight,
                 liveLabel = liveLabel,
-                noScheduleLabel = noScheduleLabel
+                noScheduleLabel = noScheduleLabel,
+                savedLabel = savedLabel,
+                catchUpLabel = catchUpLabel
             )
             if (isLocked) {
                 Box(modifier = Modifier.fillMaxSize().background(AppColors.HeroBottom.copy(alpha = 0.82f)), contentAlignment = Alignment.Center) {
@@ -139,7 +157,9 @@ fun LiveChannelRowCard(
     modifier: Modifier = Modifier,
     rowHeight: Dp = 68.dp,
     liveLabel: String = "LIVE",
-    noScheduleLabel: String = "No schedule"
+    noScheduleLabel: String = "No schedule",
+    savedLabel: String = "Saved",
+    catchUpLabel: String = "Catch-up"
 ) {
     val dense = rowHeight <= 56.dp
     val ultraCompact = rowHeight <= 60.dp
@@ -155,8 +175,8 @@ fun LiveChannelRowCard(
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         StatusPill(label = liveLabel, containerColor = AppColors.Live)
                         sourceBadgeLabel?.takeIf { it.isNotBlank() }?.let { StatusPill(label = it, containerColor = AppColors.SurfaceEmphasis, contentColor = AppColors.TextPrimary) }
-                        if (channel.isFavorite) StatusPill(label = "Saved", containerColor = AppColors.Warning, contentColor = Color.Black)
-                        if (hasArchive) StatusPill(label = "Catch-up", containerColor = AppColors.Brand)
+                        if (channel.isFavorite) StatusPill(label = savedLabel, containerColor = AppColors.Warning, contentColor = Color.Black)
+                        if (hasArchive) StatusPill(label = catchUpLabel, containerColor = AppColors.Brand)
                     }
                 }
                 Text(text = buildString { channel.number.takeIf { it > 0 }?.let { append(it.toString().padStart(2, '0')); append("  ") } ?: append("--  "); append(channel.name) }, style = if (dense) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.titleSmall, color = AppColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
