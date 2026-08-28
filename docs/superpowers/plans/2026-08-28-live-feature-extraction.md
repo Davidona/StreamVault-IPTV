@@ -18,6 +18,10 @@ or Phase 5 complete.
 
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
+The feature-owned `registerLiveGraph` now owns Live destination argument
+registration; the app graph supplies existing screen content and performs
+typed player-request mapping. Pure guide lookup/time-format seams are also
+feature-owned. Screen/resource ownership is still open.
 
 ## Global Constraints
 
@@ -764,7 +768,7 @@ Use `TestNavHostController`/Navigation testing to assert:
 
 Run the focused test; expected missing `registerLiveGraph` failure.
 
-- [ ] **Step 2: Implement feature graph registration minimally**
+- [x] **Step 2: Implement feature graph registration minimally**
 
 Use the exact signature from the spec. Construct both `composable` destinations with current `NavType` and defaults. Call `HomeScreen` and `FullEpgScreen` directly. Do not import app route codecs or construct `PlayerNavigationRequest` in the feature.
 
@@ -778,7 +782,7 @@ For archive assert archive start/end/title, category/provider identity,
 `contentType = "LIVE"`, and Guide return destination. Include the existing
 `isArchivePlayable` rejection at the app callback boundary.
 
-- [ ] **Step 4: Implement app request mapping and run GREEN**
+- [x] **Step 4: Implement app request mapping and run GREEN**
 
 Delegate to the existing `playerNavigationRequest`/`toLivePlayerRequest`
 helpers so payload behavior stays app-owned. Do not duplicate codec or payload
@@ -792,7 +796,7 @@ and renders `MultiViewPlannerDialog(pendingChannel, onDismiss, onLaunch,
 viewModel)`. The feature supplies the state-clearing callbacks; the app content
 only renders Playback presentation.
 
-- [ ] **Step 6: Wire `AppNavHost` and verify RED-to-GREEN integration**
+- [x] **Step 6: Wire `AppNavHost` and verify RED-to-GREEN integration**
 
 Replace the app graph call with `com.streamvault.feature.live.navigation.registerLiveGraph`, pass `rememberAppDestinationItems(...)`, app player mapping callbacks, `onTopLevelDestinationRequested`, and planner content.
 
