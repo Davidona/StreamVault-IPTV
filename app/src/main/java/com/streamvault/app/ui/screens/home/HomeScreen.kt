@@ -49,7 +49,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
-import com.streamvault.app.ui.components.ChannelProgressTicker
+import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
 import com.streamvault.app.ui.components.LiveSourceSwitcher
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
@@ -186,7 +186,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val remoteShortcutPreferences by viewModel.remoteShortcutPreferences.collectAsStateWithLifecycle()
-    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
+    val nowMs by LiveChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val providerNameById = remember(uiState.allProviders) {
         uiState.allProviders.associateBy({ it.id }, { it.name })
     }
