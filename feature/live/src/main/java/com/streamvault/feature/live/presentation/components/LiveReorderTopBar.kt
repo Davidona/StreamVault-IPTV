@@ -40,7 +40,7 @@ fun LiveReorderTopBar(
     visible: Boolean = true,
     subtitle: String? = null,
     modifier: Modifier = Modifier,
-    titleFormat: (String) -> String = { "Reordering $it" },
+    titleFormat: @Composable (String) -> String = { "Reordering $it" },
     cancelLabel: String = "Cancel",
     saveLabel: String = "Save order"
 ) {

@@ -67,7 +67,7 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
-import com.streamvault.app.ui.components.ReorderTopBar
+import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
@@ -371,11 +371,14 @@ fun HomeScreen(
             showScreenHeader = false
         ) {
             if (isReorderMode) {
-                ReorderTopBar(
+                LiveReorderTopBar(
                     categoryName = uiState.reorderCategory?.name ?: uiState.selectedCategory?.name ?: "Channels",
                     onSave = { viewModel.saveChannelReorder() },
                     onCancel = { viewModel.exitChannelReorderMode() },
-                    subtitle = stringResource(R.string.live_reorder_subtitle)
+                    subtitle = stringResource(R.string.live_reorder_subtitle),
+                    titleFormat = { categoryName -> stringResource(R.string.label_reordering, categoryName) },
+                    cancelLabel = stringResource(R.string.action_cancel),
+                    saveLabel = stringResource(R.string.action_save_order)
                 )
             }
 
