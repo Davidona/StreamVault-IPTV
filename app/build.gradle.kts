@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kover)
+    alias(libs.plugins.baselineprofile)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -165,6 +166,13 @@ kotlin {
     }
 }
 
+composeCompiler {
+    // Marks cross-module immutable classes (domain models, java.time) as stable so
+    // composables taking them as parameters can skip recomposition. See
+    // compose-stability.conf at the repo root.
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose-stability.conf"))
+}
+
 kover {
     currentProject {
         createVariant("ci") {
@@ -175,6 +183,11 @@ kover {
 
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    // Installs the baseline profile (app + androidx library rules) at install time so
+    // sideloaded builds (Fire TV) get AOT-compiled hot paths instead of cold JIT.
+    implementation(libs.profileinstaller)
+    // Profile generator module; run ./gradlew :app:generateBaselineProfile to refresh.
+    baselineProfile(project(":baselineprofile"))
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":player"))

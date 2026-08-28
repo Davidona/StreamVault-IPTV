@@ -191,9 +191,11 @@ fun HomeScreen(
         LiveTvChannelMode.COMPACT -> 2.dp
         LiveTvChannelMode.PRO -> 2.dp
     }
-    val previewChannel = remember(uiState.filteredChannels, uiState.previewChannelId) {
-        uiState.filteredChannels.firstOrNull { it.id == uiState.previewChannelId }
-    }
+    // Preview state is collected as a State object (not delegated) so the screen
+    // body only subscribes to the derived "is a preview active" boolean; the
+    // full preview state is read inside HomeLivePreviewHost, keeping playback
+    // ticks from recomposing this whole scope.
+    val previewUiState = viewModel.previewUiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Split screen state
@@ -234,7 +236,7 @@ fun HomeScreen(
         }
     }
 
-    val hasActivePreview = uiState.previewPlayerEngine != null
+    val hasActivePreview by remember { derivedStateOf { previewUiState.value.playerEngine != null } }
     DisposableEffect(hasActivePreview) {
         val window = (context as? android.app.Activity)?.window
         if (hasActivePreview) {
@@ -1302,7 +1304,7 @@ fun HomeScreen(
                                                     pendingUnlockChannel = channel
                                                     showPinDialog = true
                                                 } else if (isProMode) {
-                                                    if (uiState.previewChannelId == channel.id) {
+                                                    if (previewUiState.value.channelId == channel.id) {
                                                         val handedOff = viewModel.beginPreviewHandoff(channel)
                                                         if (!handedOff) {
                                                             viewModel.clearPreview()
@@ -1375,11 +1377,9 @@ fun HomeScreen(
                     }
 
                     if (isProMode) {
-                        LivePreviewPane(
-                            channel = previewChannel,
-                            playerEngine = uiState.previewPlayerEngine,
-                            isLoading = uiState.isPreviewLoading,
-                            errorMessage = uiState.previewErrorMessage,
+                        HomeLivePreviewHost(
+                            previewUiState = previewUiState,
+                            channels = uiState.filteredChannels,
                             modifier = Modifier
                                 .weight(0.92f)
                                 .fillMaxHeight()
@@ -1399,6 +1399,31 @@ fun HomeScreen(
         )
     }
 
+}
+
+/**
+ * Isolated recomposition scope for the live preview pane. Reads [previewUiState]
+ * here (not in the HomeScreen body) so preview playback ticks — loading and
+ * error transitions while a stream spins up or rebuffers — only recompose this
+ * host instead of the entire Home screen.
+ */
+@Composable
+private fun HomeLivePreviewHost(
+    previewUiState: State<HomePreviewUiState>,
+    channels: List<Channel>,
+    modifier: Modifier = Modifier
+) {
+    val preview = previewUiState.value
+    val channel = remember(channels, preview.channelId) {
+        channels.firstOrNull { it.id == preview.channelId }
+    }
+    LivePreviewPane(
+        channel = channel,
+        playerEngine = preview.playerEngine,
+        isLoading = preview.isLoading,
+        errorMessage = preview.errorMessage,
+        modifier = modifier
+    )
 }
 
 // SearchInput moved to its own component file
