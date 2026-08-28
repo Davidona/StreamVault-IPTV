@@ -42,13 +42,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.streamvault.app.ui.components.CategoryRow
-import com.streamvault.app.ui.components.ChannelCard
 import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
 import com.streamvault.feature.live.presentation.components.LiveSourceSwitcher
 import com.streamvault.feature.live.home.HomeViewModel
