@@ -697,9 +697,9 @@ exercises app update implementation types.
   are complete: 646 feature-only candidate entries were removed while 40
   shared/app-consumed names remain. Detailed evidence is in
   `validation/phase5_settings/task10-resource-cleanup.md`.
-- Remove the remaining app-side settings test/resource compatibility seams only
-  after the app-owned update-model test and shared navigation/resource usages
-  have explicit owners.
+- Keep the remaining app-owned update-model test and shared
+  navigation/dashboard/platform-label resources in `:app` until their future
+  owners are explicit; the feature-only settings resource cleanup is complete.
 - Remove any remaining app-side settings compatibility shims only after their
   platform responsibilities have domain-facing contracts and the app root no
   longer needs them.
