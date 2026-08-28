@@ -17,9 +17,10 @@ Home/Guide screen and ViewModel ownership, feature-owned resource migration,
 golden/runtime/performance gates, and legacy app cleanup remain open; this plan does not
 claim the Live slice or Phase 5 complete.
 
-Status update (2026-08-29): `HomeViewModel` is now feature-owned and its
-relocated test suite is green. Home screen/dialog/sidebar composition,
-feature-owned resource migration, and acceptance gates remain open.
+Status update (2026-08-29): `HomeViewModel` and the sidebar/preview surface
+components are now feature-owned and their feature checks are green. Home
+screen/dialog composition, complete locale resource migration, and acceptance
+gates remain open.
 
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.

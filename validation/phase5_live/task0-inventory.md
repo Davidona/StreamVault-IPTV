@@ -21,7 +21,7 @@ The current production move unit contains 13 Kotlin files and 10,156 lines:
 app/src/main/java/com/streamvault/app/ui/screens/home/HomePreviewUiState.kt
 app/src/main/java/com/streamvault/app/ui/screens/home/HomeScreen.kt
 app/src/main/java/com/streamvault/app/ui/screens/home/HomeScreenDialogs.kt
-app/src/main/java/com/streamvault/app/ui/screens/home/HomeSidebarComponents.kt
+feature/live/src/main/java/com/streamvault/feature/live/home/HomeSidebarComponents.kt
 feature/live/src/main/java/com/streamvault/feature/live/home/HomeViewModel.kt
 app/src/main/java/com/streamvault/app/ui/screens/epg/EpgControlComponents.kt
 app/src/main/java/com/streamvault/app/ui/screens/epg/EpgGridComponents.kt

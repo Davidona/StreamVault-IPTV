@@ -16,4 +16,19 @@
     <string name="home_group_deleted">Group \'%1$s\' deleted</string>
     <string name="category_pinned">Pinned %1$s.</string>
     <string name="category_unpinned">Unpinned %1$s.</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_move">MOVE</string>
+    <string name="action_save">Save</string>
+    <string name="action_split">SPLIT</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="home_reorder_channels">Reorder Channels</string>
+    <string name="label_slots_count_dynamic">%1$d/%2$d slots</string>
+    <string name="live_preview_loading">Loading previewג€¦</string>
+    <string name="live_preview_no_epg">No schedule information</string>
+    <string name="live_preview_open_hint">Press OK again to open this channel</string>
+    <string name="live_preview_placeholder_subtitle">In Pro mode, first click previews the stream and second click opens full playback.</string>
+    <string name="live_preview_placeholder_title">Select a channel to preview</string>
+    <string name="live_preview_title">Channel Preview</string>
+    <string name="time_range_format">%1$s ג€“ %2$s</string>
 </resources>

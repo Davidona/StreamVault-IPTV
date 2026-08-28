@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -49,8 +49,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.live.R
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.live.presentation.components.LiveFocusedMarqueeText
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.interaction.TvButton
@@ -73,7 +73,7 @@ import com.streamvault.player.PlayerSurfaceResizeMode
 import java.util.Date
 
 @Composable
-internal fun CompactSplitLauncherButton(
+fun CompactSplitLauncherButton(
     slotCount: Int,
     slotLimit: Int,
     onClick: () -> Unit,
@@ -120,7 +120,7 @@ internal fun CompactSplitLauncherButton(
 }
 
 @Composable
-internal fun LivePreviewPane(
+fun LivePreviewPane(
     channel: Channel?,
     playerEngine: PlayerEngine?,
     isLoading: Boolean,
@@ -264,7 +264,7 @@ internal fun LivePreviewPane(
 }
 
 @Composable
-internal fun CategoryItem(
+fun CategoryItem(
     category: Category,
     isSelected: Boolean,
     isLocked: Boolean = false,
@@ -383,7 +383,7 @@ private fun PinnedCategoryGlyph(
 }
 
 @Composable
-internal fun ReorderSidePanel(
+fun ReorderSidePanel(
     channels: List<Channel>,
     onMoveUp: (Channel) -> Unit,
     onMoveDown: (Channel) -> Unit,

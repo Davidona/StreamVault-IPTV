@@ -127,8 +127,9 @@ These are transitional adapters, not new policy owners:
 The `:feature:live` module itself depends only on `:core:navigation`, `:core:ui`,
 `:domain`, `:data`, and `:player`; its boundary verifier rejects app and
 feature-to-feature imports. Home and Guide ViewModels are being moved behind
-the live boundary incrementally: `HomeViewModel` is now feature-owned while
-the Home screen/dialog/sidebar composition remains in `:app`. Live-owned
+the live boundary incrementally: `HomeViewModel` and the sidebar/preview
+surface components are now feature-owned while the Home screen/dialog
+composition remains in `:app`. Live-owned
 presentation primitives, `HomeUiState`, `HomePreviewUiState`, and Guide
 mode/density/reminder presentation models are independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
