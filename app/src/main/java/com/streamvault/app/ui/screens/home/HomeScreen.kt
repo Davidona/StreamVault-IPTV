@@ -1,7 +1,6 @@
 package com.streamvault.app.ui.screens.home
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,17 +24,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.Icons
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -48,8 +42,8 @@ import com.streamvault.feature.live.home.HomeLoadingPane
 import com.streamvault.feature.live.home.HomePreviewHost
 import com.streamvault.feature.live.home.LiveChannelResultsHeader
 import com.streamvault.feature.live.home.LiveCategorySidebarHeader
+import com.streamvault.feature.live.home.LiveChannelContentHost
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
-import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
 import com.streamvault.app.ui.components.dialogs.HiddenCategoriesDialog
@@ -82,11 +76,6 @@ import com.streamvault.app.navigation.Routes
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.repository.ChannelRepository
-import androidx.compose.ui.viewinterop.AndroidView
-import com.streamvault.player.PlayerSurfaceResizeMode
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.streamvault.app.ui.remote.LiveBrowseRemoteShortcutHandler
 import com.streamvault.app.ui.remote.dispatchLiveBrowseRemoteShortcut
 import com.streamvault.app.ui.remote.remoteColorButtonForKeyCode
@@ -848,92 +837,24 @@ fun HomeScreen(
                             animationSpec = tween(durationMillis = 200),
                             label = "category_content_transition"
                         ) { _ ->
-                        if (uiState.isLoading) {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    CircularProgressIndicator(color = Color.White)
-                                    Text(
-                                        text = stringResource(R.string.home_loading_channels),
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
+                        val selectedCategory = uiState.selectedCategory
+                        LiveChannelContentHost(
+                            isLoading = uiState.isLoading,
+                            errorMessage = uiState.errorMessage,
+                            hasChannels = uiState.hasChannels,
+                            isBlockedCategorySearch = hasBlockedCategorySearch,
+                            loadingLabel = stringResource(R.string.home_loading_channels),
+                            lockedLabel = stringResource(R.string.home_locked_short),
+                            noChannelsLabel = stringResource(R.string.home_no_channels_found),
+                            noChannelsSubtitle = stringResource(R.string.home_no_channels_found_subtitle),
+                            additionalEmptyHint = when {
+                                selectedCategory?.isVirtual == true && selectedCategory.id == VirtualCategoryIds.FAVORITES ->
+                                    stringResource(R.string.home_add_favorites_hint)
+                                selectedCategory?.isVirtual == true && selectedCategory.id == VirtualCategoryIds.RECENT ->
+                                    stringResource(R.string.home_recent_channels_hint)
+                                else -> null
                             }
-                        } else if (uiState.errorMessage != null) {
-                            val errorMsg = uiState.errorMessage
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = errorMsg ?: "",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = OnBackground
-                                    )
-                                }
-                            }
-                        } else if (!uiState.hasChannels) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    if (hasBlockedCategorySearch) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Lock,
-                                            contentDescription = null,
-                                            tint = OnBackground,
-                                            modifier = Modifier.size(34.dp)
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.home_locked_short),
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = OnBackground
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.home_no_channels_found_subtitle),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = OnSurfaceDim
-                                        )
-                                    } else {
-                                        Text(
-                                            text = stringResource(R.string.home_no_channels_found),
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = OnBackground
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.home_no_channels_found_subtitle),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = OnSurfaceDim
-                                        )
-                                        val selectedCategory = uiState.selectedCategory
-                                        if (selectedCategory?.isVirtual == true && selectedCategory.id == VirtualCategoryIds.FAVORITES) {
-                                            Text(
-                                                text = stringResource(R.string.home_add_favorites_hint),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = OnSurfaceDim
-                                            )
-                                        } else if (selectedCategory?.isVirtual == true && selectedCategory.id == VirtualCategoryIds.RECENT) {
-                                            Text(
-                                                text = stringResource(R.string.home_recent_channels_hint),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = OnSurfaceDim
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
+                        ) {
                             var ignoreNextClick by remember { mutableStateOf(false) }
                             val channelListState = rememberLazyListState()
 

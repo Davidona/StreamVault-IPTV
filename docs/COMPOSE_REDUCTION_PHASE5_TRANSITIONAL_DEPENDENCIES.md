@@ -131,8 +131,8 @@ the live boundary incrementally: `HomeViewModel`, the sidebar/preview surface,
 the loading/preview host supporting composables, the live source switcher, Home
 quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar, and
-Home channel row surface, Home channel-results header, and the Home category
-sidebar header are now feature-owned while the Home and EPG
+Home channel row surface, Home channel-results header, Home category sidebar
+header, and channel-content state host are now feature-owned while the Home and EPG
 screen/dialog composition remains in `:app`.
 The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned

@@ -21,8 +21,8 @@ Status update (2026-08-29): `HomeViewModel`, the sidebar/preview surface, the
 loading/preview host supporting composables, the live source switcher, Home
 quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar,
-Home channel row surface, Home channel-results header, and the Home category
-sidebar header are now feature-owned
+Home channel row surface, Home channel-results header, Home category sidebar
+header, and channel-content state host are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -665,6 +665,9 @@ feature-owned `LiveSourceSwitcher`, `LiveQuickFiltersPanel` (including its
 formatting/accessibility text through explicit presentation parameters. Home
 also calls `LiveCategorySidebarHeader`, which owns source-switcher/search/
 quick-filter layout while receiving app callbacks and localized labels. The
+channel content state now calls `LiveChannelContentHost` for loading, error,
+locked-empty, and no-channel presentation while keeping the channel-list slot
+in the app. The
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.
