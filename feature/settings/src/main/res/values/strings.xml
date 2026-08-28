@@ -641,6 +641,9 @@
     <string name="settings_build">Build</string>
     <string name="settings_build_desc">StreamVault for Android TV</string>
     <string name="settings_build_verification">Build Verification</string>
+    <string name="settings_build_verification_official">Official build</string>
+    <string name="settings_build_verification_unofficial">Unofficial build</string>
+    <string name="settings_build_verification_unavailable">Verification unavailable</string>
     <string name="settings_developed_by">Developed by</string>
     <string name="settings_developer_name">David Nashash</string>
     <string name="settings_github">GitHub</string>
@@ -649,6 +652,7 @@
     <string name="settings_donate_url">https://ko-fi.com/davidona</string>
     <string name="settings_clear_history_dialog_title">Clear Watch History?</string>
     <string name="settings_clear_history_dialog_body">This will permanently delete all watch history, continue watching progress, and last visited categories across all providers.</string>
+    <string name="settings_guide_default_category_fallback">All Channels</string>
     <string name="settings_speed_test_not_run">Not tested yet</string>
     <string name="settings_speed_test_summary_default">Run a quick download test and use the result to pick stable playback quality limits.</string>
     <string name="settings_speed_test_summary_measured">Measured on %1$s at %2$s.</string>

@@ -1,15 +1,10 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.streamvault.app.MainActivity
-import com.streamvault.app.R
-import com.streamvault.app.ui.time.createDateTimeFormat
-import com.streamvault.app.util.OfficialBuildStatus
+import com.streamvault.feature.settings.R
+import com.streamvault.feature.settings.api.SettingsOfficialBuildStatus
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
@@ -19,7 +14,7 @@ import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodHttpProtocolMode
 
-internal data class SettingsScreenLabels(
+public data class SettingsScreenLabels(
     val buildVerificationLabel: String,
     val appLanguageLabel: String,
     val appLandingDestinationLabel: String,
@@ -58,10 +53,10 @@ internal data class SettingsScreenLabels(
 )
 
 @Composable
-internal fun rememberSettingsScreenLabels(
+public fun rememberSettingsScreenLabels(
     uiState: SettingsUiState,
     context: Context,
-    officialBuildStatus: OfficialBuildStatus
+    officialBuildStatus: SettingsOfficialBuildStatus
 ): SettingsScreenLabels {
     val buildVerificationLabel = remember(officialBuildStatus, context) {
         formatOfficialBuildStatusLabel(officialBuildStatus, context)
@@ -81,7 +76,7 @@ internal fun rememberSettingsScreenLabels(
     val timeFormatLabel = remember(uiState.appTimeFormat, context) {
         formatAppTimeFormatLabel(uiState.appTimeFormat, context)
     }
-    val dateTimeFormat = remember(uiState.appTimeFormat) { uiState.appTimeFormat.createDateTimeFormat() }
+    val dateTimeFormat = remember(uiState.appTimeFormat) { uiState.appTimeFormat.createSettingsDateTimeFormat() }
     val preferredAudioLanguageLabel = remember(uiState.preferredAudioLanguage, context) {
         displayLanguageLabel(uiState.preferredAudioLanguage, context.getString(R.string.settings_audio_language_auto))
     }
@@ -227,15 +222,6 @@ internal fun rememberSettingsScreenLabels(
     )
 }
 
-internal fun Context.findMainActivity(): MainActivity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is MainActivity) return current
-        current = current.baseContext
-    }
-    return null
-}
-
 private fun formatAppLandingDestinationLabel(
     destination: AppLandingDestination,
     context: Context
@@ -273,12 +259,12 @@ private fun formatHomeDashboardSummaryLabel(
 )
 
 private fun formatOfficialBuildStatusLabel(
-    status: OfficialBuildStatus,
+    status: SettingsOfficialBuildStatus,
     context: Context
 ): String = when (status) {
-    OfficialBuildStatus.OFFICIAL -> context.getString(R.string.settings_build_verification_official)
-    OfficialBuildStatus.UNOFFICIAL -> context.getString(R.string.settings_build_verification_unofficial)
-    OfficialBuildStatus.VERIFICATION_UNAVAILABLE -> context.getString(R.string.settings_build_verification_unavailable)
+    SettingsOfficialBuildStatus.OFFICIAL -> context.getString(R.string.settings_build_verification_official)
+    SettingsOfficialBuildStatus.UNOFFICIAL -> context.getString(R.string.settings_build_verification_unofficial)
+    SettingsOfficialBuildStatus.VERIFICATION_UNAVAILABLE -> context.getString(R.string.settings_build_verification_unavailable)
 }
 
 private fun formatAppTimeFormatLabel(
@@ -301,7 +287,7 @@ private fun formatTimeshiftDepthLabel(
     else -> context.getString(R.string.settings_live_timeshift_depth_30)
 }
 
-internal fun formatVodHttpProtocolModeLabel(
+public fun formatVodHttpProtocolModeLabel(
     mode: VodHttpProtocolMode,
     context: Context
 ): String = when (mode) {
@@ -309,7 +295,7 @@ internal fun formatVodHttpProtocolModeLabel(
     VodHttpProtocolMode.AUTO -> context.getString(R.string.settings_vod_http_protocol_auto)
 }
 
-internal fun formatPlaybackBufferModeLabel(
+public fun formatPlaybackBufferModeLabel(
     mode: PlaybackBufferMode,
     context: Context
 ): String = when (mode) {
@@ -319,7 +305,7 @@ internal fun formatPlaybackBufferModeLabel(
     PlaybackBufferMode.LARGE -> context.getString(R.string.settings_live_buffer_large)
 }
 
-internal fun formatTimeshiftBackendPreferenceLabel(
+public fun formatTimeshiftBackendPreferenceLabel(
     preference: TimeshiftBackendPreference,
     context: Context
 ): String = when (preference) {

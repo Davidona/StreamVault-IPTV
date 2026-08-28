@@ -4,6 +4,7 @@ import com.streamvault.feature.settings.presentation.*
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.streamvault.app.backup.BackupFileBridge
+import com.streamvault.app.MainActivity
 import com.streamvault.app.device.isFireTvDevice
 import com.streamvault.app.device.isTelevisionDevice
 import com.streamvault.app.device.removableAppStorageDirs
@@ -38,6 +40,7 @@ import com.streamvault.domain.model.LegacyProvider as Provider
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.feature.settings.api.SettingsOfficialBuildStatus
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -52,6 +55,15 @@ private fun buildBackupFileName(): String =
 // of launching an external picker that may show "you need an app".
 private fun Context.isFireTv(): Boolean =
     packageManager.hasSystemFeature("amazon.hardware.fire_tv")
+
+private fun Context.findMainActivity(): MainActivity? {
+    var current: Context? = this
+    while (current is ContextWrapper) {
+        if (current is MainActivity) return current
+        current = current.baseContext
+    }
+    return null
+}
 
 
 @Composable
@@ -75,7 +87,12 @@ fun SettingsScreen(
     val screenLabels = rememberSettingsScreenLabels(
         uiState = uiState,
         context = context,
-        officialBuildStatus = officialBuildVerification.status
+        officialBuildStatus = when (officialBuildVerification.status) {
+            com.streamvault.app.util.OfficialBuildStatus.OFFICIAL -> SettingsOfficialBuildStatus.OFFICIAL
+            com.streamvault.app.util.OfficialBuildStatus.UNOFFICIAL -> SettingsOfficialBuildStatus.UNOFFICIAL
+            com.streamvault.app.util.OfficialBuildStatus.VERIFICATION_UNAVAILABLE ->
+                SettingsOfficialBuildStatus.VERIFICATION_UNAVAILABLE
+        }
     )
     val dialogState = rememberSettingsScreenDialogState()
     val providerState = rememberSettingsProviderSectionState(dialogState)
