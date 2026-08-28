@@ -12,9 +12,10 @@ EPG actions, the Hilt `SettingsViewModel`, and the related feature tests.
 `:app` remains the composition root and continues to own the platform adapters
 and the portions of the Settings screen that have not yet moved.
 
-This is not Phase 5 completion. The remaining screen/dialog/resource
-extraction, app adapter cleanup, full graph registration,
-and runtime/manual acceptance are still open. The existing playback and
+This is not Phase 5 completion. The remaining root-screen/platform-adapter and
+locale resource extraction, app adapter cleanup, and runtime/manual acceptance
+are still open. The Settings/parental route registration contract is now
+feature-owned. The existing playback and
 provider runtime gates remain open under their respective reports.
 
 ## Ownership and boundary evidence
