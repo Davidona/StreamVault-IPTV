@@ -19,8 +19,8 @@ claim the Live slice or Phase 5 complete.
 
 Status update (2026-08-29): `HomeViewModel`, the sidebar/preview surface, the
 loading/preview host supporting composables, the live source switcher, Home
-quick-filter chip row, Home reorder top bar, and Home channel row surface are
-now feature-owned
+quick-filter panel/chip row, Home reorder top bar, and Home channel row surface
+are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -655,11 +655,13 @@ Run `HomeScreenBehaviorTest`; expected missing-screen failure.
 Move `HomeScreen.kt`, `HomeScreenDialogs.kt`, and `HomeSidebarComponents.kt`. Replace app navigation strings with typed `AppDestination`, app shell with `CoreAppScreenScaffold`/`UiDestination`, device/time helpers with Core UI, and direct MultiView composables with `LiveMultiViewPlannerContent`.
 
 The first screen wiring checkpoint is complete: Home now calls the
-feature-owned `LiveSourceSwitcher`, `LiveSelectionChipRow`,
-`LiveReorderTopBar`, and `LiveChannelRowSurface`, passing app-localized
-labels/title formatting/accessibility text through explicit presentation
-parameters. The remaining app-owned live cards and shell/dialog composition still require
-compatibility seams before the full Home move.
+feature-owned `LiveSourceSwitcher`, `LiveQuickFiltersPanel` (including its
+`LiveSelectionChipRow`), `LiveReorderTopBar`, and `LiveChannelRowSurface`,
+passing app-localized labels/title formatting/accessibility text through
+explicit presentation parameters. The quick-filter key/selection rules are
+covered by `LiveQuickFiltersTest`. The remaining app-owned live cards and
+shell/dialog composition still require compatibility seams before the full
+Home move.
 
 Preserve planner callback order:
 

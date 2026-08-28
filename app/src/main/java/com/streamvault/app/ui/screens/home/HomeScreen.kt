@@ -2,7 +2,6 @@ package com.streamvault.app.ui.screens.home
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,8 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.streamvault.core.ui.components.SearchInput
-import com.streamvault.feature.live.presentation.components.LiveSelectionChip
-import com.streamvault.feature.live.presentation.components.LiveSelectionChipRow
+import com.streamvault.feature.live.presentation.components.LiveQuickFiltersPanel
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
@@ -95,8 +93,6 @@ import com.streamvault.player.PlayerSurfaceResizeMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.app.ui.remote.LiveBrowseRemoteShortcutHandler
 import com.streamvault.app.ui.remote.dispatchLiveBrowseRemoteShortcut
 import com.streamvault.app.ui.remote.remoteColorButtonForKeyCode
@@ -111,8 +107,6 @@ private sealed interface FocusedRemoteShortcutTarget {
     data class CategoryTarget(val category: Category) : FocusedRemoteShortcutTarget
     data class ChannelTarget(val channel: Channel) : FocusedRemoteShortcutTarget
 }
-
-private const val HOME_ALL_FILTER_KEY = "__all_categories__"
 
 // ׳’ג€ג‚¬׳’ג€ג‚¬ Screen ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 
@@ -693,9 +687,6 @@ fun HomeScreen(
                     ) {
                         // Sticky Header Part
                         Column(modifier = Modifier.padding(horizontal = 10.dp)) {
-                            var showQuickFiltersDrawer by rememberSaveable(uiState.savedCategoryFilters) {
-                                mutableStateOf(false)
-                            }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -741,160 +732,43 @@ fun HomeScreen(
                                 LiveTvQuickFilterVisibilityMode.ALWAYS_VISIBLE -> true
                             }
                             if (shouldShowQuickFiltersControl) {
-                                val activeSavedFilter = uiState.activeCategoryFilter
+                                val activeFilter = uiState.activeCategoryFilter
                                 val filterSubtitle = when {
-                                    uiState.categorySearchQuery.isBlank() -> {
-                                        stringResource(R.string.home_quick_filters_showing_all)
-                                    }
-                                    activeSavedFilter != null -> {
-                                        stringResource(
-                                            R.string.home_quick_filters_active,
-                                            activeSavedFilter
-                                        )
-                                    }
-                                    else -> {
-                                        stringResource(
-                                            R.string.home_quick_filters_manual_search,
-                                            uiState.categorySearchQuery
-                                        )
-                                    }
+                                    uiState.categorySearchQuery.isBlank() -> stringResource(R.string.home_quick_filters_showing_all)
+                                    activeFilter != null -> stringResource(
+                                        R.string.home_quick_filters_active,
+                                        activeFilter
+                                    )
+                                    else -> stringResource(
+                                        R.string.home_quick_filters_manual_search,
+                                        uiState.categorySearchQuery
+                                    )
                                 }
-                                TvClickableSurface(
-                                    onClick = { if (!isReorderMode) showQuickFiltersDrawer = !showQuickFiltersDrawer },
-                                    enabled = !isReorderMode,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 10.dp),
-                                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
-                                    colors = ClickableSurfaceDefaults.colors(
-                                        containerColor = SurfaceElevated,
-                                        focusedContainerColor = SurfaceHighlight.copy(alpha = 0.9f)
-                                    ),
-                                    border = ClickableSurfaceDefaults.border(
-                                        focusedBorder = Border(
-                                            border = BorderStroke(2.dp, Primary.copy(alpha = 0.85f)),
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                    ),
-                                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.home_quick_filters_button),
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = OnSurface
-                                            )
-                                            Text(
-                                                text = if (showQuickFiltersDrawer) {
-                                                    stringResource(R.string.home_quick_filters_hide)
-                                                } else {
-                                                    stringResource(R.string.home_quick_filters_show)
-                                                },
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = Primary
-                                            )
-                                        }
-                                        Text(
-                                            text = filterSubtitle,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = OnSurfaceDim
-                                        )
-                                    }
-                                }
-                                if (showQuickFiltersDrawer) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        if (uiState.hiddenLiveCategories.isNotEmpty()) {
-                                            TvButton(
-                                                onClick = { showHiddenCategoriesDialog = true },
-                                                enabled = !isReorderMode,
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                Text(
-                                                    text = stringResource(
-                                                        R.string.live_quick_filter_hidden_categories,
-                                                        uiState.hiddenLiveCategories.size
-                                                    )
-                                                )
-                                            }
-                                        }
-                                        if (hiddenChannelsLiveTv.isNotEmpty()) {
-                                            TvButton(
-                                                onClick = { showHiddenChannelsDialog = true },
-                                                enabled = !isReorderMode,
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                Text(
-                                                    text = stringResource(
-                                                        R.string.live_quick_filter_hidden_channels,
-                                                        hiddenChannelsLiveTv.size
-                                                    )
-                                                )
-                                            }
-                                        }
-                                        TvButton(
-                                            onClick = { showAddQuickFilterDialog = true },
-                                            enabled = !isReorderMode,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Text(stringResource(R.string.home_quick_filters_add_chip))
-                                        }
-                                    }
-                                    if (uiState.savedCategoryFilters.isNotEmpty() || uiState.categorySearchQuery.isNotBlank()) {
-                                        LiveSelectionChipRow(
-                                            title = stringResource(R.string.home_quick_filters_title),
-                                            chips = buildList {
-                                                add(
-                                                    LiveSelectionChip(
-                                                        key = HOME_ALL_FILTER_KEY,
-                                                        label = stringResource(R.string.home_quick_filters_all)
-                                                    )
-                                                )
-                                                addAll(
-                                                    uiState.savedCategoryFilters.map { filter ->
-                                                        LiveSelectionChip(key = filter, label = filter)
-                                                    }
-                                                )
-                                            },
-                                            selectedKey = uiState.activeCategoryFilter ?: HOME_ALL_FILTER_KEY.takeIf {
-                                                uiState.categorySearchQuery.isBlank()
-                                            },
-                                            onChipSelected = { filter ->
-                                                if (!isReorderMode) {
-                                                    if (filter == HOME_ALL_FILTER_KEY) {
-                                                        viewModel.clearCategorySearchQuery()
-                                                    } else {
-                                                        viewModel.applySavedCategoryFilter(filter)
-                                                    }
-                                                    showQuickFiltersDrawer = false
-                                                }
-                                            },
-                                            modifier = Modifier.padding(bottom = 10.dp),
-                                            contentPadding = PaddingValues(horizontal = 0.dp)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = stringResource(R.string.home_quick_filters_empty),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = OnSurfaceDim,
-                                            modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)
-                                        )
-                                    }
-                                }
+                                LiveQuickFiltersPanel(
+                                    savedFilters = uiState.savedCategoryFilters,
+                                    categorySearchQuery = uiState.categorySearchQuery,
+                                    activeFilter = activeFilter,
+                                    hiddenCategoriesButtonLabel = uiState.hiddenLiveCategories
+                                        .takeIf { it.isNotEmpty() }
+                                        ?.let { stringResource(R.string.live_quick_filter_hidden_categories, it.size) },
+                                    hiddenChannelsButtonLabel = hiddenChannelsLiveTv
+                                        .takeIf { it.isNotEmpty() }
+                                        ?.let { stringResource(R.string.live_quick_filter_hidden_channels, it.size) },
+                                    buttonTitle = stringResource(R.string.home_quick_filters_button),
+                                    chipTitle = stringResource(R.string.home_quick_filters_title),
+                                    showLabel = stringResource(R.string.home_quick_filters_show),
+                                    hideLabel = stringResource(R.string.home_quick_filters_hide),
+                                    filterSubtitle = filterSubtitle,
+                                    allLabel = stringResource(R.string.home_quick_filters_all),
+                                    emptyLabel = stringResource(R.string.home_quick_filters_empty),
+                                    addChipLabel = stringResource(R.string.home_quick_filters_add_chip),
+                                    isReorderMode = isReorderMode,
+                                    onShowHiddenCategories = { showHiddenCategoriesDialog = true },
+                                    onShowHiddenChannels = { showHiddenChannelsDialog = true },
+                                    onAddFilter = { showAddQuickFilterDialog = true },
+                                    onAllSelected = viewModel::clearCategorySearchQuery,
+                                    onSavedFilterSelected = viewModel::applySavedCategoryFilter
+                                )
                             }
                         }
 
