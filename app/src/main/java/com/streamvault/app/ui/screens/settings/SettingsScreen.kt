@@ -605,15 +605,3 @@ internal fun formatLocalBackupDetails(candidate: BackupFileBridge.BackupFileCand
     )
 }
 
-internal fun formatBackupTimestamp(lastModifiedMs: Long, unknownDate: String): String {
-    val date = if (lastModifiedMs > 0L) {
-        java.text.DateFormat.getDateTimeInstance(
-            java.text.DateFormat.SHORT,
-            java.text.DateFormat.SHORT,
-        ).format(java.util.Date(lastModifiedMs))
-    } else {
-        unknownDate
-    }
-    return date
-}
-
