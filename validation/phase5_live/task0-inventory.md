@@ -36,7 +36,7 @@ app/src/main/java/com/streamvault/app/ui/screens/epg/PlayerTransparentGuideOverl
 Focused tests are:
 
 ```text
-app/src/test/java/com/streamvault/app/ui/screens/home/HomeViewModelTest.kt
+feature/live/src/test/java/com/streamvault/feature/live/home/HomeViewModelTest.kt
 app/src/test/java/com/streamvault/app/ui/screens/epg/EpgViewModelTest.kt
 app/src/test/java/com/streamvault/app/ui/screens/epg/GuideDateTimeTest.kt
 app/src/test/java/com/streamvault/app/ui/screens/epg/ProgramReminderIssueMessageTest.kt
