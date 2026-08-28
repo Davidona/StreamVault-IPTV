@@ -452,6 +452,7 @@ dependencies {
     implementation(project(":feature:playback"))
     implementation(project(":feature:provider"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:live"))
     implementation(libs.profileinstaller)
     baselineProfile(project(":benchmark"))
 
