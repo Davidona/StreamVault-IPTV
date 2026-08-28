@@ -710,24 +710,39 @@ BUILD SUCCESSFUL in 25s
 ```
 
 This confirms the fail-closed boundary, feature unit tests/lint, connected-test
-source compilation, and app compile/unit-test integration. No connected device
-was available (`adb devices` returned an empty device list), so connected and
-manual acceptance remain open.
+source compilation, and app compile/unit-test integration. At the time of this
+earlier run no connected device was available (`adb devices` returned an empty
+device list); the later emulator-backed settings run is recorded below. Manual
+acceptance remains open.
 
 The profile-source check plus beta/release assembly was then re-run together:
 
 ```text
 gradlew.bat verifyBaselineProfileSources :app:assembleBeta :app:assembleRelease \
   --no-daemon --console=plain --warning-mode=none
-BUILD SUCCESSFUL in 3m 43s
+BUILD SUCCESSFUL in 6m 17s
 ```
 
 Release-like profile merge tasks now explicitly depend on the normalized
 profile installer, avoiding Gradle's implicit-output validation failure when
-verification and assembly share one invocation. The committed profile source
-still contains 24 pre-extraction settings descriptor lines and no feature
-settings descriptors; safe replacement remains dependent on fresh seeded-target
-profile generation.
+verification and assembly share one invocation. The dependency is disabled
+only when `generateBaselineProfile` is requested, because the producer must
+package the non-minified release before it copies its newly collected profile.
+
+The seeded-target profile producer was then run on the API 36 TV emulator:
+
+```text
+gradlew.bat :app:generateBaselineProfile --no-daemon \
+  --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 12m 37s
+10 profile tests passed; 8 ordinary macrobenchmarks skipped by selector
+```
+
+It generated and installed `baseline-prof.txt` (46,249 rules) and
+`startup-prof.txt` (30,093 rules). The generated source scan has zero
+pre-extraction `com/streamvault/app/ui/screens/settings` descriptors and
+includes feature/settings descriptors. Full evidence is in
+`validation/phase5_settings/profile-validation.md`.
 
 The final neighboring-feature/debug assembly gate was also attempted:
 
@@ -780,11 +795,10 @@ gates and are not being counted as settings failures.
   longer needs them.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
-- Capture the five paired before/after incremental build samples and regenerate
-  the baseline/profile descriptors; paired performance samples and fresh
-  seeded-target profile generation remain open. The existing source scan found
-  24 stale pre-extraction settings descriptor lines, which were not hand-edited.
-- Add/refresh focused settings connected checks and perform manual TV journeys
+- Capture the five paired before/after incremental build samples; the profile
+  descriptors have been regenerated, but paired performance samples remain
+  open.
+- The focused settings connected checks pass; perform manual TV journeys
   for parental controls, backup/restore, update, diagnostics, sync, and focus
   restoration when the required emulator/accounts/files are available.
 - The focused connected settings result, plus the neighboring provider/app

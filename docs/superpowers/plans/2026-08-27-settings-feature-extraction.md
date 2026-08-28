@@ -735,7 +735,7 @@ git commit -m "chore: verify settings feature ownership"
 - Consumes: installed debug app, feature/app connected suites, pre/post refs, baseline-profile producer, all prior evidence.
 - Produces: honest Settings extraction status, rollback SHA/commits, automated/runtime/performance/profile evidence, and explicit open gates.
 
-- [ ] **Step 1: Run focused connected suites on the TV emulator**
+- [x] **Step 1: Run focused connected suites on the TV emulator**
 
 ```powershell
 .\gradlew.bat :feature:settings:connectedDebugAndroidTest :feature:provider:connectedDebugAndroidTest :app:connectedDebugAndroidTest --console=plain --warning-mode=none
@@ -759,7 +759,7 @@ Record parental search/protection/hide/PIN/save/reset, recording folder/browser/
 
 Follow `performance-protocol.md` on clean committed pre/post refs with identical commands and host state. Report all samples, median, p95, task sets, daemon/cache state, and whether the 25% source-edit / 20% test-compile targets were demonstrated. If a comparable pre-ref cannot be constructed, keep the performance gate open.
 
-- [ ] **Step 6: Run profile regeneration and stale-descriptor checks**
+- [x] **Step 6: Run profile regeneration and stale-descriptor checks**
 
 ```powershell
 .\gradlew.bat :app:generateBaselineProfile verifyBaselineProfileSources :app:assembleBeta :app:assembleRelease --console=plain --warning-mode=none
@@ -768,15 +768,15 @@ rg -n 'com/streamvault/app/ui/screens/settings|com\.streamvault\.app\.ui\.screen
 
 Expected: profile tasks pass and stale app-settings descriptors are absent. Preserve the existing physical-device/release-approval caveats.
 
-- [ ] **Step 7: Write the settings report**
+- [x] **Step 7: Write the settings report**
 
 `COMPOSE_REDUCTION_PHASE5_SETTINGS_REPORT.md` must include ownership, public boundary, source/resource/test counts, exact ledger entries, automated commands/results, connected/manual results, provider preview compatibility, performance samples, profile status, rollback instructions, Graphify counts, known existing failures, and every open gate. State structural completion separately from runtime/performance acceptance.
 
-- [ ] **Step 8: Update roadmap/grand-plan status without closing unrelated gates**
+- [x] **Step 8: Update roadmap/grand-plan status without closing unrelated gates**
 
 Link the settings plan/report. Preserve the playback and provider open-gate text. Do not mark Phase 5 complete because settings structure passes.
 
-- [ ] **Step 9: Run final verification before any completion claim**
+- [x] **Step 9: Run final verification before any completion claim**
 
 ```powershell
 git diff --check
@@ -787,7 +787,7 @@ git status --short
 
 Read the full output and report the actual result. Do not claim a pass for any command not run fresh.
 
-- [ ] **Step 10: Commit report and final evidence**
+- [x] **Step 10: Commit report and final evidence**
 
 ```powershell
 git add docs/COMPOSE_REDUCTION_PHASE5_SETTINGS_REPORT.md docs/COMPOSE_REDUCTION_PHASE5_ROADMAP.md docs/COMPOSE_REDUCTION_AND_UI_ARCHITECTURE_PLAN.md validation/phase5_settings graphify-out

@@ -317,22 +317,30 @@ abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
         finalizedBy(installMergedBaselineProfile)
     }
 
-    // Release-like art-profile merge tasks consume the normalized files written by the custom
+    // Release-like art/startup merge tasks consume the normalized files written by the custom
     // installer above. Keep the dependency explicit so Gradle's task validation remains sound
-    // when profile verification and a beta/release assembly are requested together.
-    setOf(
-        "mergeBetaArtProfile",
-        "mergeReleaseArtProfile",
-        "mergeNonMinifiedReleaseArtProfile",
-        "mergeBetaStartupProfile",
-        "mergeReleaseStartupProfile",
-        "mergeNonMinifiedReleaseStartupProfile",
-    )
-        .forEach { mergeTaskName ->
-            tasks.matching { it.name == mergeTaskName }.configureEach {
-                dependsOn(installMergedBaselineProfile)
+    // when profile verification and a beta/release assembly are requested together. During
+    // `generateBaselineProfile`, however, the profile producer must package the non-minified
+    // release before the producer's copy task can install the newly collected files; adding
+    // this dependency to that task graph would create a cycle.
+    val profileGenerationRequested = gradle.startParameter.taskNames.any { taskName ->
+        taskName.substringAfterLast(':') == "generateBaselineProfile"
+    }
+    if (!profileGenerationRequested) {
+        setOf(
+            "mergeBetaArtProfile",
+            "mergeReleaseArtProfile",
+            "mergeNonMinifiedReleaseArtProfile",
+            "mergeBetaStartupProfile",
+            "mergeReleaseStartupProfile",
+            "mergeNonMinifiedReleaseStartupProfile",
+        )
+            .forEach { mergeTaskName ->
+                tasks.matching { it.name == mergeTaskName }.configureEach {
+                    dependsOn(installMergedBaselineProfile)
+                }
             }
-        }
+    }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
