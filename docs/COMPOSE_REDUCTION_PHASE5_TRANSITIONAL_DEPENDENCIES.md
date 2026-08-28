@@ -108,3 +108,24 @@ distinct type names:
 
 No row is removal-ready in this slice. The audit therefore produces no source
 or Gradle dependency changes; each row remains explicitly owned by Phase 7.
+
+## Live extraction inventory (Task 0/4, 2026-08-28)
+
+The live presentation seam now consumes narrow app-host ports while the
+existing implementations remain in the composition root or Playback feature.
+These are transitional adapters, not new policy owners:
+
+| Feature | Imported implementation | Current consumer | Removal direction | Owner |
+|---|---|---|---|---|
+| live | `data.preferences.PreferencesRepository` | Home live preferences and MultiView status adapter | domain-owned live presentation preference contract | Phase 7 |
+| live | `data.sync.ProviderSyncStateSource` | Home provider synchronization state | domain-owned provider sync state contract | Phase 7 |
+| live | `app.plugins.StreamVaultPluginManager` | `AppLivePreviewStreamPreparer` | host-provided stream preparation contract | Phase 5/7 |
+| live | `app.tvinput.TvInputChannelSyncManager` | `AppLiveSurfaceRefreshAdapter` | host-provided TV-input refresh contract | Phase 5/7 |
+| live | `feature.playback.preview.LivePreviewHandoffManager` | `AppLivePreviewHandoffAdapter` | keep lifecycle/release ownership in Playback | Phase 5 |
+| live | `feature.playback.multiview.MultiViewManager` | `AppLiveMultiViewStatusAdapter` | keep slot ownership in Playback; expose status only | Phase 5 |
+
+The `:feature:live` module itself depends only on `:core:navigation`, `:core:ui`,
+`:domain`, `:data`, and `:player`; its boundary verifier rejects app and
+feature-to-feature imports. Home and Guide ViewModels currently remain in
+`:app` while their preview and platform dependencies are ported, so no live
+slice acceptance gate is claimed yet.

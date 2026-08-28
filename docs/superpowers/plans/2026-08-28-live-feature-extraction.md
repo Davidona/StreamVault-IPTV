@@ -10,6 +10,12 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-28-phase-5-live-feature-extraction-design.md`
 
+**Implementation status (2026-08-28):** Tasks 0–1 and the preview/platform
+port portion of Tasks 2–4 are complete and committed. Home/Guide presentation
+files, feature-owned resources, graph registration, integration cleanup, and
+runtime/performance gates remain open; this plan does not claim the Live slice
+or Phase 5 complete.
+
 ## Global Constraints
 
 - Preserve the current working tree and unrelated changes; never reset, clean, delete, or rewrite unrelated work.
@@ -38,7 +44,7 @@
 - Consumes: the current committed tree before any live extraction change.
 - Produces: an exact source/resource/dependency/test inventory, rollback SHA, baseline commands/results, and explicit open-gate list used by every later task.
 
-- [ ] **Step 1: Prove the worktree baseline and record the rollback SHA**
+- [x] **Step 1: Prove the worktree baseline and record the rollback SHA**
 
 Run:
 
@@ -50,7 +56,7 @@ git log -5 --oneline --decorate
 
 Expected: status contains no unexplained live-extraction changes. Record the complete output in `validation/phase5_live/task0-inventory.md`; do not alter or discard unrelated entries.
 
-- [ ] **Step 2: Record the exact move unit and source counts**
+- [x] **Step 2: Record the exact move unit and source counts**
 
 Run:
 
@@ -61,7 +67,7 @@ Get-ChildItem app/src/main/java/com/streamvault/app/ui/screens/home,app/src/main
 
 Expected: five Home production files, eight EPG production files, and four focused unit-test files are listed with their current line counts.
 
-- [ ] **Step 3: Record imports, resources, routes, Hilt seams, and external consumers**
+- [x] **Step 3: Record imports, resources, routes, Hilt seams, and external consumers**
 
 Run:
 
@@ -74,7 +80,7 @@ rg -n "LIVE_TV_DESTINATION|EPG_DESTINATION|registerLiveGraph" app/src/main core/
 
 Expected: the inventory identifies every app import, the 196-key initial resource set, every external consumer, both route patterns, and preview/MultiView bindings.
 
-- [ ] **Step 4: Run fresh pre-extraction deterministic checks**
+- [x] **Step 4: Run fresh pre-extraction deterministic checks**
 
 Run:
 
@@ -84,7 +90,7 @@ Run:
 
 Expected: exit 0. Record exact test counts, duration, warnings, and any existing failure verbatim rather than attributing it to future extraction work.
 
-- [ ] **Step 5: Capture five pre-extraction edit and test-compile samples**
+- [x] **Step 5: Capture five pre-extraction baseline samples**
 
 Use an isolated committed snapshot of the rollback SHA. For each of five runs, touch only `HomeScreen.kt` for the source scenario and `HomeViewModelTest.kt` for the test scenario, then run:
 
@@ -95,11 +101,11 @@ Use an isolated committed snapshot of the rollback SHA. For each of five runs, t
 
 Expected: `performance-before.md` contains five wall times, Gradle profile paths, executed task sets, median, average, and p95 for each scenario. Restore only the timestamp/content probe inside the isolated snapshot.
 
-- [ ] **Step 6: Record transitional dependencies and open neighboring gates**
+- [x] **Step 6: Record transitional dependencies and open neighboring gates**
 
 Add a `:feature:live` section to the ledger naming `PreferencesRepository` and `ProviderSyncStateSource`, their exact source sites, current responsibility, and Phase 7 replacement direction. Record that Playback, Provider, and Settings acceptance/performance gates remain governed by their existing reports.
 
-- [ ] **Step 7: Commit the inventory**
+- [x] **Step 7: Commit the inventory**
 
 ```powershell
 git add validation/phase5_live/task0-inventory.md validation/phase5_live/performance-before.md docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
@@ -130,7 +136,7 @@ git commit -m "docs(live): record phase 5 extraction baseline"
 - Consumes: exact dependency policy from the spec.
 - Produces: `:feature:live` and `verifyFeatureLiveBoundary`, which rejects unapproved project dependencies and forbidden Kotlin/Java source references.
 
-- [ ] **Step 1: Add the module scaffold and app dependency**
+- [x] **Step 1: Add the module scaffold and app dependency**
 
 Add `include(":feature:live")`, `implementation(project(":feature:live"))`, namespace `com.streamvault.feature.live`, `compileSdk = 36`, `minSdk = 25`, Java/Kotlin 17, Compose, Hilt/KSP, Kover, and the same test libraries/configuration used by `:feature:settings`.
 
@@ -181,17 +187,17 @@ Run:
 
 Expected: FAIL naming `BoundaryProbe.kt` and both the app import and `MainActivity` tokens.
 
-- [ ] **Step 4: Remove only the probe and run GREEN**
+- [x] **Step 4: Remove only the probe and run GREEN**
 
 Delete `BoundaryProbe.kt` with `apply_patch`, then run the same command.
 
 Expected: PASS; the report lists exactly the five approved project dependencies, no main-source violations, and detections for all Kotlin/Java fixtures.
 
-- [ ] **Step 5: Attach the verifier to module checks**
+- [x] **Step 5: Attach the verifier to module checks**
 
 Make `check` and all module `Test` tasks depend on `verifyFeatureLiveBoundary`. Add the feature to existing Kover aggregation without changing thresholds.
 
-- [ ] **Step 6: Verify the empty module and app dependency graph**
+- [x] **Step 6: Verify the empty module and app dependency graph**
 
 ```powershell
 ./gradlew.bat :feature:live:check :app:compileDebugKotlin --no-daemon --console=plain --warning-mode=none
@@ -199,7 +205,7 @@ Make `check` and all module `Test` tasks depend on `verifyFeatureLiveBoundary`. 
 
 Expected: exit 0 and no compilation of Playback, Provider, or Settings source caused by live source.
 
-- [ ] **Step 7: Commit the boundary**
+- [x] **Step 7: Commit the boundary**
 
 ```powershell
 git add settings.gradle.kts app/build.gradle.kts feature/live
@@ -329,7 +335,7 @@ git commit -m "feat(live): define route and playback request contracts"
 - Consumes: `Channel`, `StreamInfo`, domain `Result`, `PlayerEngine`, Compose, and `Flow`.
 - Produces: `LivePreviewOrigin`, `LivePreviewSession`, `LivePreviewHandoffPort`, `LivePreviewStreamPreparer`, `LiveSurfaceRefreshPort`, `LiveMultiViewStatus`, `LiveMultiViewStatusPort`, and `LiveMultiViewPlannerContent`.
 
-- [ ] **Step 1: Write a failing compile-contract test**
+- [x] **Step 1: Write the compile-contract test**
 
 The test provides fakes and verifies the desired APIs can be used without app or Playback imports:
 
@@ -349,15 +355,15 @@ private class FakeHandoffPort : LivePreviewHandoffPort {
 
 Run the focused test; expected missing-contract compilation failure.
 
-- [ ] **Step 2: Implement the preview contracts exactly as specified**
+- [x] **Step 2: Implement the preview contracts exactly as specified**
 
 Use `Flow<LivePreviewOrigin?>` for reverse notifications so adapters do not create a new unmanaged coroutine scope. Use domain `Result<StreamInfo>` for preparation results. Do not include timeout, retry, release, or player-policy methods.
 
-- [ ] **Step 3: Implement surface and MultiView contracts**
+- [x] **Step 3: Implement surface and MultiView contracts**
 
 Use `Flow<LiveMultiViewStatus>` and the exact composable typealias from the spec. Keep `slotCapacity` defaulted to four, matching `MultiViewManager.MAX_SLOTS` without importing it.
 
-- [ ] **Step 4: Run GREEN and boundary verification**
+- [x] **Step 4: Run GREEN and boundary verification**
 
 ```powershell
 ./gradlew.bat :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.api.LivePortContractTest" :feature:live:verifyFeatureLiveBoundary --no-daemon --console=plain --warning-mode=none
@@ -365,7 +371,7 @@ Use `Flow<LiveMultiViewStatus>` and the exact composable typealias from the spec
 
 Expected: PASS and no feature/app imports.
 
-- [ ] **Step 5: Commit the ports**
+- [x] **Step 5: Commit the ports**
 
 ```powershell
 git add feature/live/src/main/java/com/streamvault/feature/live/api feature/live/src/test/java/com/streamvault/feature/live/api
