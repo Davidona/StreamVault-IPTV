@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.streamvault.app.BuildConfig
 import com.streamvault.domain.model.LegacyProvider as Provider
 
 @Composable
@@ -199,6 +200,7 @@ internal fun SettingsContentPane(
             settingsAboutSection(
                 uiState = uiState,
                 context = context,
+                appVersionLabel = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                 buildVerificationLabel = screenLabels.buildVerificationLabel,
                 onOpenUri = onOpenUri,
                 onCheckForUpdates = viewModel::checkForAppUpdates,

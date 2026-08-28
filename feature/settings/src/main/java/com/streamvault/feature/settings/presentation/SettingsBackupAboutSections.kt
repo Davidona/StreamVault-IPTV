@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -21,9 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.BuildConfig
-import com.streamvault.app.R
-import com.streamvault.app.update.AppUpdateActionState
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -31,7 +27,7 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.domain.manager.DriveAuthState
 
-internal fun LazyListScope.settingsBackupSection(
+public fun LazyListScope.settingsBackupSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     onCreateBackup: () -> Unit,
@@ -179,7 +175,7 @@ internal fun LazyListScope.settingsBackupSection(
     }
 }
 
-internal fun LazyListScope.settingsDriveBackupSection(
+public fun LazyListScope.settingsDriveBackupSection(
     uiState: SettingsUiState,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,
@@ -253,7 +249,7 @@ internal fun LazyListScope.settingsDriveBackupSection(
 }
 
 @androidx.compose.runtime.Composable
-internal fun formatSnapshotDetails(snapshot: com.streamvault.domain.manager.DriveBackupSnapshot): String {
+public fun formatSnapshotDetails(snapshot: com.streamvault.domain.manager.DriveBackupSnapshot): String {
     val date = snapshot.modifiedAtMs?.let {
         java.text.DateFormat.getDateTimeInstance(
             java.text.DateFormat.SHORT,
@@ -379,9 +375,10 @@ private fun BackupActionCard(
     }
 }
 
-internal fun LazyListScope.settingsAboutSection(
+public fun LazyListScope.settingsAboutSection(
     uiState: SettingsUiState,
     context: Context,
+    appVersionLabel: String,
     buildVerificationLabel: String,
     onOpenUri: (String) -> Unit,
     onCheckForUpdates: () -> Unit,
@@ -408,7 +405,7 @@ internal fun LazyListScope.settingsAboutSection(
             title = stringResource(R.string.settings_updates_title),
             subtitle = stringResource(R.string.settings_updates_subtitle)
         )
-        SettingsRow(label = stringResource(R.string.settings_app_version), value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        SettingsRow(label = stringResource(R.string.settings_app_version), value = appVersionLabel)
         SwitchSettingsRow(
             label = stringResource(R.string.settings_update_auto_check),
             value = stringResource(
