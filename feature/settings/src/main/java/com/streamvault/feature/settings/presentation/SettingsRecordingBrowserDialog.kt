@@ -1,19 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.StatusTonePill
-import com.streamvault.feature.settings.presentation.CompactRecordingActionChip
-import com.streamvault.feature.settings.presentation.RecordingMetaPill
-import com.streamvault.feature.settings.presentation.recordingDisplaySubtitle
-import com.streamvault.feature.settings.presentation.recordingDisplayTitle
-import com.streamvault.feature.settings.presentation.recordingStatusAccent
-import com.streamvault.feature.settings.presentation.recordingStatusLabel
-import com.streamvault.feature.settings.presentation.RecordingDetailActions
-import com.streamvault.feature.settings.presentation.RecordingDetailMetricsRow
-import com.streamvault.feature.settings.presentation.formatRecordingFailureCategory
-import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
-import com.streamvault.feature.settings.presentation.formatTimestamp
-import com.streamvault.feature.settings.presentation.recordingListSecondaryLine
-import com.streamvault.feature.settings.presentation.RecordingBrowserSidebarControls
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -51,7 +36,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnBackground
@@ -62,9 +47,6 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createDateTimeFormat
-import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
@@ -73,7 +55,7 @@ import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.AppTimeFormat
 import androidx.compose.foundation.border
 @Composable
-internal fun RecordingBrowserDialog(
+public fun RecordingBrowserDialog(
     recordingItems: List<RecordingItem>,
     selectedRecordingId: String?,
     onSelectedRecordingChange: (String) -> Unit,
@@ -84,7 +66,9 @@ internal fun RecordingBrowserDialog(
     onSkipOccurrence: (RecordingItem) -> Unit,
     onDelete: (RecordingItem) -> Unit,
     onRetry: (RecordingItem) -> Unit,
-    onToggleSchedule: (RecordingItem, Boolean) -> Unit
+    onToggleSchedule: (RecordingItem, Boolean) -> Unit,
+    appTimeFormat: AppTimeFormat,
+    isTelevisionDevice: Boolean
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -162,7 +146,9 @@ internal fun RecordingBrowserDialog(
                             onSkipOccurrence = onSkipOccurrence,
                             onDelete = onDelete,
                             onRetry = onRetry,
-                            onToggleSchedule = onToggleSchedule
+                            onToggleSchedule = onToggleSchedule,
+                            appTimeFormat = appTimeFormat,
+                            isTelevisionDevice = isTelevisionDevice
                         )
                     }
                 }
@@ -182,10 +168,11 @@ private fun RecordingBrowserPanel(
     onSkipOccurrence: (RecordingItem) -> Unit,
     onDelete: (RecordingItem) -> Unit,
     onRetry: (RecordingItem) -> Unit,
-    onToggleSchedule: (RecordingItem, Boolean) -> Unit
+    onToggleSchedule: (RecordingItem, Boolean) -> Unit,
+    appTimeFormat: AppTimeFormat,
+    isTelevisionDevice: Boolean
 ) {
     val selectedItem = recordingItems.firstOrNull { it.id == selectedRecordingId } ?: recordingItems.first()
-    val isTelevisionDevice = rememberIsTelevisionDevice()
     var searchQuery by remember { mutableStateOf("") }
     var statusFilter by remember { mutableStateOf<RecordingStatus?>(null) }
     val filteredItems = remember(recordingItems, searchQuery, statusFilter) {
@@ -235,7 +222,7 @@ private fun RecordingBrowserPanel(
                             item = item,
                             selected = item.id == selectedItem.id,
                             onSelected = { onSelectedRecordingChange(item.id) },
-                            appTimeFormat = LocalAppTimeFormat.current
+                            appTimeFormat = appTimeFormat
                         )
                     }
                 }
@@ -253,7 +240,8 @@ private fun RecordingBrowserPanel(
             onSkipOccurrence = { onSkipOccurrence(selectedItem) },
             onDelete = { onDelete(selectedItem) },
             onRetry = { onRetry(selectedItem) },
-            onToggleSchedule = { enabled -> onToggleSchedule(selectedItem, enabled) }
+            onToggleSchedule = { enabled -> onToggleSchedule(selectedItem, enabled) },
+            appTimeFormat = appTimeFormat
         )
     }
 }
@@ -346,11 +334,11 @@ private fun RecordingDetailPanel(
     onSkipOccurrence: () -> Unit,
     onDelete: () -> Unit,
     onRetry: () -> Unit,
-    onToggleSchedule: (Boolean) -> Unit
+    onToggleSchedule: (Boolean) -> Unit,
+    appTimeFormat: AppTimeFormat
 ) {
     val accent = recordingStatusAccent(item.status)
-    val appTimeFormat = LocalAppTimeFormat.current
-    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createDateTimeFormat() }
+    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createSettingsDateTimeFormat() }
     Surface(
         modifier = modifier,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),

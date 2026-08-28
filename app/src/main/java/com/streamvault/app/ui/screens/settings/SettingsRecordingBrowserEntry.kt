@@ -2,12 +2,15 @@ package com.streamvault.app.ui.screens.settings
 
 import com.streamvault.feature.settings.presentation.SettingsUiState
 import com.streamvault.feature.settings.presentation.SettingsViewModel
+import com.streamvault.feature.settings.presentation.RecordingBrowserDialog
 import com.streamvault.feature.settings.presentation.playbackUrl
 
 import androidx.compose.runtime.Composable
 import com.streamvault.app.MainActivity
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.playerNavigationRequest
+import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.app.ui.time.LocalAppTimeFormat
 
 @Composable
 internal fun SettingsRecordingBrowserDialog(
@@ -49,6 +52,8 @@ internal fun SettingsRecordingBrowserDialog(
         onRetry = { item -> viewModel.retryRecording(item.id) },
         onToggleSchedule = { item, enabled ->
             viewModel.setRecordingScheduleEnabled(item.id, enabled)
-        }
+        },
+        appTimeFormat = LocalAppTimeFormat.current,
+        isTelevisionDevice = rememberIsTelevisionDevice()
     )
 }
