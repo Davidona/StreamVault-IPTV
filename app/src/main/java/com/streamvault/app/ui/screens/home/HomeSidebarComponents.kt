@@ -51,7 +51,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.components.FocusedMarqueeText
+import com.streamvault.feature.live.presentation.components.LiveFocusedMarqueeText
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -325,7 +325,7 @@ internal fun CategoryItem(
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
-            FocusedMarqueeText(
+            LiveFocusedMarqueeText(
                 text = category.name,
                 isFocused = isFocused,
                 style = MaterialTheme.typography.bodyMedium,
