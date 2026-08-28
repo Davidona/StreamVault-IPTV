@@ -1,6 +1,7 @@
 package com.streamvault.app
 
 import android.app.Application
+import android.util.Log
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -13,7 +14,12 @@ import com.streamvault.app.diagnostics.RuntimeDiagnosticsManager
 import com.streamvault.core.ui.accessibility.isReducedMotionEnabled
 import com.streamvault.data.remote.jellyfin.JellyfinImageAuthInterceptor
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import okio.Path.Companion.toOkioPath
 
 import androidx.work.Constraints
@@ -24,6 +30,7 @@ import okhttp3.OkHttpClient
 @HiltAndroidApp
 class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     private val runtimeDiagnosticsManager by lazy { RuntimeDiagnosticsManager(this) }
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Inject
     lateinit var okHttpClient: Provider<OkHttpClient>
@@ -33,6 +40,9 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
 
     @Inject
     internal lateinit var appStartupCoordinator: AppStartupCoordinator
+
+    @Inject
+    lateinit var databaseStartupCoordinator: DatabaseStartupCoordinator
 
     private val imageOkHttpClient: OkHttpClient by lazy {
         okHttpClient.get().newBuilder()
@@ -44,7 +54,15 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         CrashReportStore.install(this)
         runtimeDiagnosticsManager.start()
-        appStartupCoordinator.startProcessMaintenance()
+        // Open Room once the process has completed lightweight setup, then admit
+        // database-backed maintenance through the Phase 5 startup coordinator.
+        databaseStartupCoordinator.start()
+        applicationScope.launch {
+            databaseStartupCoordinator.state
+                .filterIsInstance<DatabaseStartupState.Ready>()
+                .first()
+            appStartupCoordinator.startProcessMaintenance()
+        }
     }
 
     override fun onTerminate() {

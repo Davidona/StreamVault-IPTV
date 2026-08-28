@@ -6,7 +6,6 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import org.json.JSONObject
 import java.net.URI
-import java.security.MessageDigest
 
 /** Provider runtime, workflow, backup, plugin ownership, and typed-configuration migrations (v49 through v75). Executable bodies live here, outside the Room schema declaration. */
 internal object FeatureMigrationsV49To75 {
@@ -115,6 +114,19 @@ internal object FeatureMigrationsV49To75 {
             }
     
             private fun backfillTypedProviderSnapshots(database: SupportSQLiteDatabase) {
+                val canonicalTypes = mutableListOf<Pair<Long, String>>()
+                database.query("SELECT id, type FROM providers ORDER BY id").use { cursor ->
+                    while (cursor.moveToNext()) {
+                        canonicalTypes += cursor.getLong(0) to canonicalLegacyProviderType(cursor.getString(1))
+                    }
+                }
+                canonicalTypes.forEach { (providerId, type) ->
+                    database.execSQL(
+                        "UPDATE providers SET type=? WHERE id=?",
+                        arrayOf<Any?>(type, providerId)
+                    )
+                }
+
                 database.query("SELECT * FROM providers ORDER BY id").use { cursor ->
                     fun text(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name)) ?: ""
                     fun long(name: String): Long = cursor.getLong(cursor.getColumnIndexOrThrow(name))
@@ -185,7 +197,7 @@ internal object FeatureMigrationsV49To75 {
                                 .put("username", text("username"))
                                 .put("credential", text("password"))
                                 .put("schemaVersion", 1)
-                            else -> throw IllegalStateException("Unknown provider type during migration: $type")
+                            else -> error("Provider type was not canonicalized: $type")
                         }
                         val identity = when (type) {
                             "XTREAM_CODES", "JELLYFIN" -> listOf(type, migrationNormalizeOrigin(text("server_url")), text("username").trim())
@@ -198,10 +210,19 @@ internal object FeatureMigrationsV49To75 {
                                 text("username").trim()
                             )
                             else -> error("unreachable")
-                        }.joinToString("\u0000")
-                        val identityKey = MessageDigest.getInstance("SHA-256")
-                            .digest(identity.toByteArray(Charsets.UTF_8))
-                            .joinToString("") { "%02x".format(it) }
+                        }
+                        val canonicalIdentityKey = migrationIdentityKey(identity)
+                        val identityOwner = database.query(
+                            "SELECT provider_id FROM provider_configs WHERE identity_key=? LIMIT 1",
+                            arrayOf(canonicalIdentityKey)
+                        ).use { ownerCursor ->
+                            if (ownerCursor.moveToFirst()) ownerCursor.getLong(0) else null
+                        }
+                        val identityKey = if (identityOwner == null || identityOwner == providerId) {
+                            canonicalIdentityKey
+                        } else {
+                            disambiguatedMigrationIdentityKey(canonicalIdentityKey, providerId)
+                        }
                         val updatedAt = long("last_synced_at").takeIf { it > 0L } ?: long("created_at")
     
                         database.execSQL(
@@ -1092,7 +1113,10 @@ internal object FeatureMigrationsV49To75 {
                     database.execSQL("CREATE INDEX IF NOT EXISTS index_providers_type ON providers(type)")
                     database.execSQL("CREATE INDEX IF NOT EXISTS index_providers_is_active ON providers(is_active)")
                     restoreProviderDependentTables(database, providerDependents)
-                    validateAllForeignKeys(database)
+                    validateForeignKeys(
+                        database,
+                        *providerDependents.map { it.table }.toTypedArray()
+                    )
                 }
             }
     
@@ -1274,20 +1298,6 @@ internal object FeatureMigrationsV49To75 {
     
             private fun quoteSqlIdentifier(value: String): String =
                 "\"${value.replace("\"", "\"\"")}\""
-    
-            private fun validateAllForeignKeys(database: SupportSQLiteDatabase) {
-                database.query("PRAGMA foreign_key_check").use { cursor ->
-                    if (cursor.moveToFirst()) {
-    
-                        val table = if (!cursor.isNull(0)) cursor.getString(0) else "<unknown>"
-                        val rowId = if (!cursor.isNull(1)) cursor.getLong(1) else -1L
-                        val parent = if (!cursor.isNull(2)) cursor.getString(2) else "<unknown>"
-                        throw IllegalStateException(
-                            "Foreign key violation after provider rebuild: table=$table rowId=$rowId parent=$parent"
-                        )
-                    }
-                }
-            }
     
             private fun imageUrlMigrationSql(table: String, column: String): String = """
                 UPDATE $table SET $column = CASE

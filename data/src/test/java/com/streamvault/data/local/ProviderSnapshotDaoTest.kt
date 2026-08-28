@@ -39,9 +39,7 @@ class ProviderSnapshotDaoTest {
             ProviderEntity(
                 id = 7,
                 name = "Portal",
-                type = ProviderType.STALKER_PORTAL,
-                serverUrl = "https://portal.test",
-                stalkerMacAddress = "00:11:22:33:44:55"
+                type = ProviderType.STALKER_PORTAL
             )
         )
         val dao = database.providerSnapshotDao()
@@ -75,9 +73,7 @@ class ProviderSnapshotDaoTest {
             ProviderEntity(
                 id = 7,
                 name = "Portal",
-                type = ProviderType.STALKER_PORTAL,
-                serverUrl = "https://portal.test",
-                stalkerMacAddress = "00:11:22:33:44:55"
+                type = ProviderType.STALKER_PORTAL
             )
         )
         val dao = database.providerSnapshotDao()
@@ -102,12 +98,68 @@ class ProviderSnapshotDaoTest {
         assertThat(database.stalkerPortalStateDao().get(7)?.workingEndpoint).isEqualTo("new")
     }
 
-    private fun config(generation: Long) = ProviderConfigEntity(
-        providerId = 7,
+    @Test
+    fun `new provider cannot replace another provider that owns the canonical identity`() = runTest {
+        insertProvider(7, "First")
+        insertProvider(8, "Second")
+        val dao = database.providerSnapshotDao()
+        assertThat(dao.commitConfiguration(config(providerId = 7, generation = 1, identityKey = "canonical")))
+            .isTrue()
+
+        assertThat(dao.commitConfiguration(config(providerId = 8, generation = 1, identityKey = "canonical")))
+            .isFalse()
+
+        assertThat(dao.getConfig(7)?.identityKey).isEqualTo("canonical")
+        assertThat(dao.getConfig(8)).isNull()
+    }
+
+    @Test
+    fun `migrated duplicate keeps its disambiguated identity when edited`() = runTest {
+        insertProvider(7, "First")
+        insertProvider(8, "Migrated duplicate")
+        val dao = database.providerSnapshotDao()
+        dao.commitConfiguration(config(providerId = 7, generation = 1, identityKey = "canonical"))
+        val migratedIdentity = disambiguatedMigrationIdentityKey("canonical", providerId = 8)
+        dao.commitConfiguration(config(providerId = 8, generation = 1, identityKey = migratedIdentity))
+
+        assertThat(dao.commitConfiguration(config(providerId = 8, generation = 2, identityKey = "canonical")))
+            .isTrue()
+
+        assertThat(dao.getConfig(7)?.identityKey).isEqualTo("canonical")
+        assertThat(dao.getConfig(8)?.identityKey).isEqualTo(migratedIdentity)
+        assertThat(dao.getConfig(8)?.configurationGeneration).isEqualTo(2)
+    }
+
+    @Test
+    fun `ordinary existing provider cannot change to another providers identity`() = runTest {
+        insertProvider(7, "First")
+        insertProvider(8, "Second")
+        val dao = database.providerSnapshotDao()
+        dao.commitConfiguration(config(providerId = 7, generation = 1, identityKey = "first"))
+        dao.commitConfiguration(config(providerId = 8, generation = 1, identityKey = "second"))
+
+        assertThat(dao.commitConfiguration(config(providerId = 8, generation = 2, identityKey = "first")))
+            .isFalse()
+        assertThat(dao.getConfig(8)?.identityKey).isEqualTo("second")
+        assertThat(dao.getConfig(8)?.configurationGeneration).isEqualTo(1)
+    }
+
+    private suspend fun insertProvider(id: Long, name: String) {
+        database.providerDao().insert(
+            ProviderEntity(id = id, name = name, type = ProviderType.STALKER_PORTAL)
+        )
+    }
+
+    private fun config(
+        generation: Long,
+        providerId: Long = 7,
+        identityKey: String = "identity"
+    ) = ProviderConfigEntity(
+        providerId = providerId,
         type = ProviderType.STALKER_PORTAL,
         schemaVersion = 1,
         configurationGeneration = generation,
-        identityKey = "identity",
+        identityKey = identityKey,
         encryptedConfigJson = "{}",
         updatedAt = generation
     )

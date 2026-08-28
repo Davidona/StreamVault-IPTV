@@ -23,6 +23,20 @@ class StreamVaultPluginOwnerTest {
     }
 
     @Test
+    fun `plugin owner lazy list key is a bundle safe string`() {
+        val owner = StreamVaultPluginOwner(
+            "com.streamvault.plugin.adaptivebridge",
+            "com.streamvault.plugin.adaptivebridge.StreamVaultAdaptiveBridgePluginService",
+            "com.streamvault.plugins.adaptivebridge"
+        )
+
+        val key: String = owner.toBundleSafeKey()
+
+        assertThat(key).isNotEmpty()
+        assertThat(key).isNotEqualTo(owner.copy(manifestId = "com.streamvault.plugins.other").toBundleSafeKey())
+    }
+
+    @Test
     fun `manifest rename retains sole provider owned by the same component`() {
         val ownership = ownership(
             packageName = "com.example.plugin",

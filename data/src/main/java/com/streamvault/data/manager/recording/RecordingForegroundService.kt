@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.content.Intent
 import android.util.Log
 import android.os.Build
@@ -60,8 +61,7 @@ class RecordingForegroundService : Service() {
             beginPendingCommand()
         }
         runCatching {
-            startForeground(
-                NOTIFICATION_ID,
+            startDataSyncForeground(
                 buildNotification(
                     activeCount = idleGate.activeRecordingCount,
                     pendingCommand = idleGate.hasPendingCommands
@@ -200,6 +200,18 @@ class RecordingForegroundService : Service() {
 
     private fun entryPoint(): RecordingServiceEntryPoint =
         EntryPointAccessors.fromApplication(applicationContext, RecordingServiceEntryPoint::class.java)
+
+    private fun startDataSyncForeground(notification: Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
 
     private fun ensureDataSyncQuotaLease() {
         if (dataSyncQuotaLease != null) return

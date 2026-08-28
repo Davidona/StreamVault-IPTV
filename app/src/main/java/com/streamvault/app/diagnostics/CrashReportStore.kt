@@ -78,6 +78,17 @@ object CrashReportStore {
     fun deleteLatestReport(context: Context): Boolean =
         latestReportFile(context).delete()
 
+    fun recordHandledFailure(context: Context, operation: String, throwable: Throwable) {
+        runCatching {
+            latestReportFile(context).writeText(
+                buildReport(context, Thread.currentThread(), throwable)
+                    .replaceFirst("StreamVault Crash Report", "StreamVault Failure Report")
+                    .plus("\nOperation: ${sanitize(operation)}\n"),
+                Charsets.UTF_8
+            )
+        }
+    }
+
     fun providerUriForFile(context: Context, file: File): Uri =
         FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.fileprovider", file)
 

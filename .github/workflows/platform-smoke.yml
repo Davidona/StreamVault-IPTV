@@ -1,0 +1,111 @@
+name: Android Platform Smoke
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  platform-smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api-level: 25
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: ''
+          - api-level: 26
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: ''
+          - api-level: 28
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: ''
+          - api-level: 32
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: ''
+          - api-level: 33
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: ''
+          - api-level: 35
+            runner: ubuntu-latest
+            arch: x86_64
+            target: default
+            gpu: swiftshader_indirect
+            adb_delay: -delay-adb
+          - api-level: 36
+            runner: ubuntu-latest
+            arch: x86
+            target: android-tv
+            gpu: software
+            adb_delay: -delay-adb
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Enable and verify KVM acceleration
+        run: |
+          if ! test -e /dev/kvm; then
+            echo '::error::This runner does not expose /dev/kvm; hardware-accelerated Android tests cannot run reliably.'
+            lscpu
+            exit 1
+          fi
+          sudo chmod 0666 /dev/kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+
+      - name: Run compatibility instrumentation suite
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: ${{ matrix.arch }}
+          target: ${{ matrix.target }}
+          emulator-boot-timeout: 900
+          disable-linux-hw-accel: false
+          emulator-options: -no-window -gpu ${{ matrix.gpu }} -no-snapshot -noaudio -no-boot-anim -no-metrics ${{ matrix.adb_delay }}
+          profile: tv_1080p
+          script: |
+            chmod +x gradlew tools/run-platform-smoke.sh tools/wait-for-emulator.sh
+            ./tools/run-platform-smoke.sh "${{ matrix.api-level }}" "${{ matrix.arch }}"
+
+      - name: Upload platform smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-smoke-api-${{ matrix.api-level }}-diagnostics
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            build/platform-smoke-diagnostics/
+            app/build/outputs/androidTest-results/
+            app/build/reports/androidTests/
+            data/build/outputs/androidTest-results/
+            data/build/reports/androidTests/

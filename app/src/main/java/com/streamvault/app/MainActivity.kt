@@ -31,6 +31,22 @@ import com.streamvault.data.preferences.PreferencesRepository
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.tv.material3.Button
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
@@ -49,6 +65,9 @@ import android.content.res.Resources
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.streamvault.app.diagnostics.CrashReportStore
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -79,10 +98,15 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var castManager: CastManager
 
+    @Inject
+    lateinit var databaseStartupCoordinator: DatabaseStartupCoordinator
+
     private val _pictureInPictureModeFlow = MutableStateFlow(false)
     val pictureInPictureModeFlow: StateFlow<Boolean> = _pictureInPictureModeFlow.asStateFlow()
 
     private val appNavigationCoordinator: AppNavigationCoordinator by viewModels()
+
+    private val pendingExternalNavigationRequests = ArrayDeque<ExternalNavigationRequest>()
 
     @Inject
     lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
@@ -114,6 +138,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
             val appTimeFormat by preferencesRepository.appTimeFormat.collectAsState(initial = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
+            val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
             val configuration = remember(appLanguage) {
@@ -157,15 +182,31 @@ class MainActivity : ComponentActivity() {
                 LocalUiTimeFormat provides appTimeFormat.toUiTimeFormat()
             ) {
                 StreamVaultTheme {
-                    AppNavigation(coordinator = appNavigationCoordinator)
+                    when (val state = databaseStartupState) {
+                        DatabaseStartupState.Opening -> DatabaseStartupScreen(state = state)
+                        is DatabaseStartupState.Failed -> DatabaseStartupScreen(
+                            state = state,
+                            onRetry = {
+                                lifecycleScope.launch { databaseStartupCoordinator.open() }
+                            },
+                            onShareReport = ::shareLatestFailureReport
+                        )
+                        DatabaseStartupState.Ready -> {
+                            AppNavigation(coordinator = appNavigationCoordinator)
+                            LaunchedEffect(Unit) {
+                                dispatchPendingExternalNavigationRequests()
+                                window.decorView.doOnPreDraw {
+                                    window.decorView.post {
+                                        appStartupCoordinator.onFirstUiFrameDrawn(isTelevisionDevice())
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        window.decorView.doOnPreDraw {
-            window.decorView.post {
-                appStartupCoordinator.onFirstUiFrameDrawn(isTelevisionDevice())
-            }
-        }
+        databaseStartupCoordinator.start()
     }
 
     override fun onResume() {
@@ -319,7 +360,73 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleExternalIntent(intent: Intent?) {
-        intent?.let(externalNavigationRequestParser::parse)
-            ?.let(appNavigationCoordinator::submitExternalRequest)
+        intent?.let(externalNavigationRequestParser::parse)?.let {
+            pendingExternalNavigationRequests += it
+            dispatchPendingExternalNavigationRequests()
+        }
+    }
+
+    private fun dispatchPendingExternalNavigationRequests() {
+        if (databaseStartupCoordinator.state.value != DatabaseStartupState.Ready) return
+        while (pendingExternalNavigationRequests.isNotEmpty()) {
+            appNavigationCoordinator.submitExternalRequest(
+                pendingExternalNavigationRequests.removeFirst()
+            )
+        }
+    }
+
+    private fun shareLatestFailureReport() {
+        val file = CrashReportStore.latestReportFile(this)
+        if (!file.isFile || file.length() <= 0L) return
+        runCatching {
+            val uri = CrashReportStore.providerUriForFile(this, file)
+            startActivity(CrashReportStore.buildShareIntent(uri))
+        }
+    }
+}
+
+@Composable
+private fun DatabaseStartupScreen(
+    state: DatabaseStartupState,
+    onRetry: () -> Unit = {},
+    onShareReport: () -> Unit = {}
+) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(48.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            when (state) {
+                DatabaseStartupState.Opening -> {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Preparing your library…",
+                        modifier = Modifier.padding(top = 24.dp),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+                is DatabaseStartupState.Failed -> {
+                    Text(
+                        text = "StreamVault couldn't open your library",
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "${state.userMessage}\nError: ${state.errorType}",
+                        modifier = Modifier.padding(top = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    Row(
+                        modifier = Modifier.padding(top = 28.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(onClick = onRetry) { Text("Retry") }
+                        Button(onClick = onShareReport) { Text("Share report") }
+                    }
+                }
+                DatabaseStartupState.Ready -> Unit
+            }
+        }
     }
 }

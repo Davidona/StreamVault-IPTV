@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.content.Intent
 import android.util.Log
 import android.os.Build
@@ -60,12 +61,10 @@ class DownloadForegroundService : Service() {
         val downloadId = intent?.getStringExtra(EXTRA_DOWNLOAD_ID)
         val startMode = resolveDownloadServiceStartMode(downloadId)
         currentDownloadId = downloadId
-        val entryPoint = entryPoint()
         beginPendingCommand()
 
         val foregroundStarted = runCatching {
-            startForeground(
-                NOTIFICATION_ID,
+            startDataSyncForeground(
                 buildNotification(
                     downloadItem = null,
                     pendingCommand = true
@@ -79,6 +78,11 @@ class DownloadForegroundService : Service() {
             stopSelf(startId)
             return START_NOT_STICKY
         }
+        // Promote the service before touching the Hilt graph/Room. Opening the database can
+        // block during a migration, and Android's FGS startup deadline applies until this call
+        // completes. A slow migration must not make the system believe this service never
+        // entered the foreground (which also prevents dataSync timeout callbacks on API 35+).
+        val entryPoint = entryPoint()
         ensureDataSyncQuotaLease()
 
         observeJob?.cancel()
@@ -231,6 +235,18 @@ class DownloadForegroundService : Service() {
 
     private fun entryPoint(): DownloadServiceEntryPoint =
         EntryPointAccessors.fromApplication(applicationContext, DownloadServiceEntryPoint::class.java)
+
+    private fun startDataSyncForeground(notification: Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
 
     private fun ensureDataSyncQuotaLease() {
         if (dataSyncQuotaLease != null) return
