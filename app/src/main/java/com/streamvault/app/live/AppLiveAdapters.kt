@@ -111,12 +111,12 @@ class AppLivePreviewHandoffAdapter @Inject constructor(
     }
 }
 
-private fun LivePreviewOrigin.toPreviewHandoffSource(): PreviewHandoffSource = when (this) {
+internal fun LivePreviewOrigin.toPreviewHandoffSource(): PreviewHandoffSource = when (this) {
     LivePreviewOrigin.HOME -> PreviewHandoffSource.HOME
     LivePreviewOrigin.GUIDE -> PreviewHandoffSource.GUIDE
 }
 
-private fun PreviewHandoffSource.toLivePreviewOrigin(): LivePreviewOrigin = when (this) {
+internal fun PreviewHandoffSource.toLivePreviewOrigin(): LivePreviewOrigin = when (this) {
     PreviewHandoffSource.HOME -> LivePreviewOrigin.HOME
     PreviewHandoffSource.GUIDE -> LivePreviewOrigin.GUIDE
 }
