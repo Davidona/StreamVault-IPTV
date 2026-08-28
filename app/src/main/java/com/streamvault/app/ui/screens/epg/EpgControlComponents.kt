@@ -64,6 +64,7 @@ import com.streamvault.app.ui.components.SelectionChipRow
 import com.streamvault.feature.live.presentation.epg.dayRelativeOffset
 import com.streamvault.feature.live.presentation.epg.shiftGuideDayStart
 import com.streamvault.feature.live.presentation.epg.startOfGuideDay
+import com.streamvault.feature.live.presentation.epg.LiveGuideShortcutChip
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
@@ -200,7 +201,7 @@ internal fun GuideProgramSearchRow(
             )
             Box(modifier = Modifier.widthIn(min = 104.dp), contentAlignment = Alignment.CenterEnd) {
                 if (localQuery.isNotBlank()) {
-                    GuideShortcutChip(
+                    LiveGuideShortcutChip(
                         label = stringResource(R.string.epg_clear_search),
                         onClick = {
                             localQuery = ""
@@ -500,22 +501,22 @@ internal fun GuideTimeControlsRow(
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             item {
-                GuideShortcutChip(
+                LiveGuideShortcutChip(
                     modifier = firstChipFocusRequester?.let { Modifier.focusRequester(it) } ?: Modifier,
                     label = stringResource(R.string.epg_previous_day),
                     onClick = onJumpToPreviousDay
                 )
             }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_page_back), onClick = onPageBackward) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_back_half_hour), onClick = onJumpBackwardHalfHour) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_back), onClick = onJumpBackward) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_now), onClick = onJumpToNow) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_forward_half_hour), onClick = onJumpForwardHalfHour) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_forward), onClick = onJumpForward) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_page_forward), onClick = onPageForward) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_prime_time), onClick = onJumpToPrimeTime) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_jump_tomorrow), onClick = onJumpToTomorrow) }
-            item { GuideShortcutChip(label = stringResource(R.string.epg_next_day), onClick = onJumpToNextDay) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_page_back), onClick = onPageBackward) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_back_half_hour), onClick = onJumpBackwardHalfHour) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_back), onClick = onJumpBackward) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_now), onClick = onJumpToNow) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_forward_half_hour), onClick = onJumpForwardHalfHour) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_forward), onClick = onJumpForward) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_page_forward), onClick = onPageForward) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_prime_time), onClick = onJumpToPrimeTime) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_jump_tomorrow), onClick = onJumpToTomorrow) }
+            item { LiveGuideShortcutChip(label = stringResource(R.string.epg_next_day), onClick = onJumpToNextDay) }
         }
     }
 }
@@ -672,39 +673,6 @@ internal fun GuideFavoritesRow(
 }
 
 @Composable
-internal fun GuideShortcutChip(
-    modifier: Modifier = Modifier,
-    label: String,
-    onClick: () -> Unit,
-    isSelected: Boolean = false
-) {
-    TvClickableSurface(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (isSelected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-            focusedContainerColor = SurfaceHighlight,
-            contentColor = if (isSelected) Primary else OnSurface,
-            focusedContentColor = OnSurface
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(999.dp)
-            )
-        )
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-            style = MaterialTheme.typography.labelMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
 internal fun startOfDay(timestamp: Long): Long {
     return startOfGuideDay(timestamp)
 }

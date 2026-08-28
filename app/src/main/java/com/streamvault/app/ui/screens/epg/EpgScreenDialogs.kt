@@ -1,5 +1,6 @@
 package com.streamvault.app.ui.screens.epg
 
+import com.streamvault.feature.live.presentation.epg.LiveGuideShortcutChip
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -155,11 +156,11 @@ internal fun GuideSearchOverlay(
                         color = OnSurface
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        GuideShortcutChip(
+                        LiveGuideShortcutChip(
                             label = stringResource(R.string.epg_search_apply),
                             onClick = { applySearchAndClose(query.trim()) }
                         )
-                        GuideShortcutChip(
+                        LiveGuideShortcutChip(
                             label = stringResource(R.string.epg_clear_search_close),
                             onClick = clearAndClose
                         )
@@ -237,11 +238,11 @@ internal fun GuideOptionsOverlay(
                         color = OnSurface
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        GuideShortcutChip(
+                        LiveGuideShortcutChip(
                             label = stringResource(R.string.epg_show_app_navigation),
                             onClick = onShowAppNavigation
                         )
-                        GuideShortcutChip(
+                        LiveGuideShortcutChip(
                             label = stringResource(R.string.settings_cancel),
                             onClick = onDismiss
                         )
@@ -288,12 +289,12 @@ internal fun GuideOptionsOverlay(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
                     if (onManageEpgMatch != null) {
-                        GuideShortcutChip(
+                        LiveGuideShortcutChip(
                             label = stringResource(R.string.epg_override_manage),
                             onClick = onManageEpgMatch
                         )
                     }
-                    GuideShortcutChip(
+                    LiveGuideShortcutChip(
                         label = stringResource(R.string.epg_refresh_guide),
                         onClick = onRefresh
                     )
@@ -752,7 +753,7 @@ internal fun GuideCategoryPickerDialog(
                             color = OnSurfaceDim
                         )
                     }
-                    GuideShortcutChip(
+                    LiveGuideShortcutChip(
                         label = stringResource(R.string.settings_cancel),
                         onClick = onDismiss
                     )
