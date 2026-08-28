@@ -37,6 +37,11 @@ runtime gates remain open under their respective reports.
   `docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md`; the separate
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
+- The 2026-08-28 audit enumerated exact Settings source sites for all nine
+  `:data` types and the separate `AudioCompatibilityMemoryStore` dependency.
+  None has a complete domain-facing replacement, so no dependency was removed
+  in this slice; exact locations and replacement readiness are recorded in the
+  transitional dependency ledger.
 - Graphify was refreshed after the locale and test ownership moves; the current
   corpus has 15,325 nodes, 29,893 edges, and 378 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
@@ -789,6 +794,167 @@ round-trip schema, and three PlayerSmoke focus/track cases). These failures are
 outside `:feature:settings`; they remain open under the neighboring acceptance
 gates and are not being counted as settings failures.
 
+## Expanded behavior-focused connected evidence (2026-08-28)
+
+The Settings connected suite now includes ten new behavior-focused cases plus
+the two existing feature cases. It passed on the API 36
+`Television_1080p(AVD)` emulator with `E:\androidSdk`:
+
+```text
+gradlew.bat :feature:settings:connectedDebugAndroidTest \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 43s
+12 tests, 0 failures, 0 errors, 0 skipped
+```
+
+The result XML is
+`feature/settings/build/outputs/androidTest-results/connected/debug/TEST-Television_1080p(AVD) - 16-_feature_settings-.xml`
+(`tests=12`, `failures=0`, `errors=0`, `skipped=0`, `time=62.167`). Coverage
+now includes section navigation, D-pad focus restoration, dialog open/dismiss
+and Back behavior, parental/PIN state, backup/restore callbacks and state,
+route argument compatibility, accessibility semantics, and RTL navigation.
+The shared `PremiumDialog` host also registers a guarded activity Back callback
+so Back dismisses a Settings dialog instead of finishing the host activity.
+
+Exact failures in the accepted run: none. The captured artifacts are:
+
+The connected suite was rerun after the workstation Gradle path change. A
+first attempt hit the emulator's boot/service race (`emulator-5554` was not
+visible to ADB and installation reported `cmd: Can't find service: package`).
+After the existing emulator reported boot completion and the package service
+was available, the same command passed without clearing or uninstalling app
+data:
+
+```text
+BUILD SUCCESSFUL in 58s
+12 tests, 0 failures, 0 errors, 0 skipped
+```
+
+The refreshed XML at the same path reports `tests=12`, `failures=0`,
+`errors=0`, `skipped=0`, `time=23.957`, timestamp
+`2026-08-28T17:45:10`. The earlier XML timing remains historical evidence;
+the latest rerun is the current connected gate result.
+
+- `validation/phase5_settings/task11_screenshots/settings_navigation_dpad.png`
+- `validation/phase5_settings/task11_screenshots/settings_navigation_rtl.png`
+- `validation/phase5_settings/task11_screenshots/settings_backup_preview.png`
+
+Full runtime evidence, dimensions, hashes, and the exact XML path are in
+`validation/phase5_settings/task11-runtime-validation.md`.
+
+## Production-shell manual journey evidence (2026-08-28)
+
+Safe TV journeys were run on the API 36 `AOSP_TV_on_x86` emulator
+(`emulator-5554`) after installing `:app:installDebug`. The app was launched
+through `com.streamvault.app.debug/com.streamvault.app.MainActivity` and its
+existing data was preserved. Settings entry, section navigation, Playback,
+Privacy, Recording, Backup & Restore, EPG Sources, and About all rendered in
+the production shell. The protection-level dialog opened and platform Back
+dismissed it while leaving `MainActivity` foregrounded. Enter New PIN opened
+without entering a value. Manage local backups and Import Data followed their
+no-fixture safe paths; no restore, external account, credential, USB/Drive, or
+destructive operation was used. EPG Sources correctly reported no configured
+external sources.
+
+The first About → Check now action found a real app-owned seam defect:
+
+```text
+08-28 14:15:31.963 FATAL EXCEPTION: main
+java.lang.StackOverflowError: stack size 8188KB
+at com.streamvault.app.settings.AppSettingsUpdateAdapter.isRemoteVersionNewer(AppSettingsUpdateAdapter.kt:54)
+(the adapter frame repeated recursively)
+```
+
+The adapter's unqualified policy call resolved to its own override. The minimal
+fix aliases the top-level policy import in
+`app/src/main/java/com/streamvault/app/settings/AppSettingsUpdateAdapter.kt`.
+`app/src/test/java/com/streamvault/app/settings/AppSettingsUpdateAdapterTest.kt`
+reproduces the delegation contract and passed after the fix. The patched APK
+was reinstalled without clearing data; the same D-pad route then kept the
+activity alive, advanced `Last checked` to `Aug 28, 2026 2:29 PM`, and left
+`Update status` as `Up to date`. The screen still shows the saved pre-fix crash
+report, which is expected with preserved data. Screenshots and the detailed
+failure/log evidence are recorded in
+`validation/phase5_settings/task11-runtime-validation.md`, including
+`manual_journeys/update-check-post-fix.png`.
+
+The seeded public `iptv-org US validation` provider was synced without
+credentials. The M3U request returned HTTP 200 with a 327,094-byte body and
+1,467 Live channels were staged. The final UI status was `ERROR` only because
+the fixture had no movie entries and no EPG URL:
+
+```text
+Section retry failed ... [MOVIES]: Playlist contains no movie entries
+Section retry failed ... [EPG]: No EPG URL configured for this provider
+```
+
+This is recorded as provider fixture evidence, not attributed to the Settings
+extraction. A focus attempt for Provider Diagnostics opened Add a provider;
+no credentials were entered. Recording storage was inspected without starting
+a recording or player handoff.
+
+The remaining safe TV pass then exercised the Settings shell again from a
+fresh direct launch. Providers, parental controls, and Backup & Restore were
+entered with the D-pad. Opening parental controls showed the existing
+`Unlocked` category state without changing it; Back returned to the Providers
+section with the Settings rail focus restored. The Backup & Restore section
+opened its export and local-backup paths. On this TV the Export Data action
+used the picker-free Downloads path and reported:
+
+```text
+Backup saved locally. On supported TVs it is in Downloads/StreamVault; open it with a file manager.
+```
+
+Manage local backups then listed the generated files without selecting Delete
+or Restore:
+
+```text
+streamvault_backup_20260828_150353_675.json
+streamvault_backup_20260828_150322_143.json
+```
+
+The paired screenshots are under
+`validation/phase5_settings/manual_journeys/`: `remaining-settings-screen.png`,
+`remaining-parental-screen.png`, `remaining-settings-return.png`,
+`remaining-backup-screen.png`, `remaining-export-result.png`, and
+`remaining-local-backups.png`. They are 1920x1080 captures from
+`com.streamvault.app.debug/com.streamvault.app.MainActivity`; SHA-256 hashes
+are recorded in the validation report. No picker location, external account,
+credential, USB/Drive flow, import, restore, or delete action was used.
+
+## Incremental build performance evidence
+
+The required five-pair measurements were captured in isolated detached
+snapshots at pre-extraction ref `e12f816f` and post-extraction ref `cf468d3e`,
+using the same repository wrapper, `E:\androidSdk`, dedicated E: Gradle/temp
+paths, and command flags. Full raw samples and every profile path are in
+`validation/phase5_settings/performance-samples-2026-08-28.md`.
+
+The source-edit commands were `:app:compileDebugKotlin` before extraction and
+`:feature:settings:compileDebugKotlin` after extraction. The five-sample median
+was `16926 ms` before versus `8858 ms` after (47.7% faster), but a one-time
+feature/KSP setup outlier made the five-sample averages `19032 ms` versus
+`19432 ms` and the p95 `34946 ms` versus `60017 ms`. Excluding that first setup
+sample, the four-sample averages were `15053 ms` versus `9286 ms` (38.3%
+faster).
+
+The moved-test commands were `:app:compileDebugUnitTestKotlin` before and
+`:feature:settings:compileDebugUnitTestKotlin` after. Five-sample averages were
+`22852 ms` versus `14915 ms` (34.7% faster), while medians were `11324 ms`
+versus `9889 ms` (12.7% faster) and p95 values were `60069 ms` versus
+`35141 ms` (41.5% faster). These mixed cache/setup states do not support a
+formal claim that the 20% steady-state test target is closed.
+
+The clean guardrail passed in both snapshots: pre `9m27s` (154 actionable;
+123 executed; 31 cached) and post `4m55s` (176 actionable; 119 executed; 57
+cached). Warm no-change runs also passed: pre `10s` and post `12s`, each with
+one executed task and the remainder up to date. The Phase 0 clean reference
+(`2m15.47s`) was recorded under a different cache/storage state, so it is not
+a comparable clean baseline; the observed post clean value is above it. The
+warm post value is below the Phase 0 warm reference (`36.264s`). Accordingly,
+the Settings performance gate remains open pending a comparable clean baseline
+and steadier test-compile comparison; no target closure is claimed.
+
 ## Open work and gates
 
 - The resource-usage audit and confirmed-obsolete app locale/default cleanup
@@ -803,15 +969,20 @@ gates and are not being counted as settings failures.
   longer needs them.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
-- Capture the five paired before/after incremental build samples; the profile
-  descriptors have been regenerated, but paired performance samples remain
-  open.
-- The focused settings connected checks pass; perform manual TV journeys
-  for parental controls, backup/restore, update, diagnostics, sync, and focus
-  restoration when the required emulator/accounts/files are available.
+- The five paired incremental source/test samples and clean/warm guardrails are
+  recorded in `validation/phase5_settings/performance-samples-2026-08-28.md`.
+  Steady-state source compilation improved, but setup outliers and the
+  non-comparable Phase 0 clean reference keep the formal performance gate open.
+- Safe manual TV journeys for Settings navigation, parental PIN dialogs,
+  backup export/local listing and no-fixture import, EPG Sources, update
+  checking, and provider sync have evidence. Fixture-dependent restore,
+  diagnostics action routing, credentialed provider flows, recording/player
+  handoff, and the remaining full-shell accessibility/reduced-motion coverage
+  remain open.
 - The focused connected settings result, plus the neighboring provider/app
   result and failure inventory, are recorded in
-  `validation/phase5_settings/task11-runtime-validation.md`. The full manual
-  settings journey remains open until suitable fixtures and time are available.
+  `validation/phase5_settings/task11-runtime-validation.md`. The safe
+  Settings shell journey is evidenced; fixture-dependent and full-shell gates
+  remain open until suitable fixtures and time are available.
 - Do not treat the still-open playback/provider acceptance and performance
   gates as closed by this settings report.

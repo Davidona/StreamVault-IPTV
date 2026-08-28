@@ -1,6 +1,7 @@
 package com.streamvault.core.ui.components.dialogs
 
 import android.view.KeyEvent as AndroidKeyEvent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -85,6 +86,7 @@ fun PremiumDialog(
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val blockOpenGesture = rememberDialogOpenGestureBlocker(canInteract)
     LaunchedEffect(Unit) { delay(500); canInteract = true }
+    BackHandler(enabled = canInteract, onBack = onDismissRequest)
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(

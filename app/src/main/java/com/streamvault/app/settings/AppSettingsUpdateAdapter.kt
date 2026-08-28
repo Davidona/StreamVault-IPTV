@@ -4,7 +4,7 @@ import com.streamvault.app.update.AppUpdateDownloadStatus
 import com.streamvault.app.update.AppUpdateInstaller
 import com.streamvault.app.update.GitHubReleaseChecker
 import com.streamvault.app.update.GitHubReleaseInfo
-import com.streamvault.app.update.isRemoteVersionNewer
+import com.streamvault.app.update.isRemoteVersionNewer as isRemoteVersionNewerForCurrentBuild
 import com.streamvault.app.update.AppUpdateCheckPolicy
 import com.streamvault.domain.model.Result
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
@@ -51,7 +51,7 @@ class AppSettingsUpdateAdapter @Inject constructor(
         remoteVersionCode: Int?,
         remoteVersionName: String,
         remotePublishedAt: String?,
-    ): Boolean = isRemoteVersionNewer(remoteVersionCode, remoteVersionName, remotePublishedAt)
+    ): Boolean = isRemoteVersionNewerForCurrentBuild(remoteVersionCode, remoteVersionName, remotePublishedAt)
 
     override suspend fun fetchLatestRelease(): Result<SettingsReleaseInfo> =
         releaseChecker.fetchLatestRelease().map(::mapRelease)

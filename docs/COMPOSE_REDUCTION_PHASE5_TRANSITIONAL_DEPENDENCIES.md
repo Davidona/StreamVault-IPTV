@@ -87,3 +87,24 @@ still imports exactly the nine ledgered `:data` types listed above, plus
 Settings/parental state, observer, action, and formatting orchestration; no
 additional DAO or concrete implementation types were found. Replacing them
 requires domain-facing contracts and remains a Phase 7 task.
+
+### Exact source sites and contract readiness (2026-08-28)
+
+The second audit enumerated the concrete references rather than counting only
+distinct type names:
+
+| Implementation | Exact Settings source sites | Use classification | Replacement readiness |
+|---|---|---|---|
+| `ProgramDao` | `SettingsDerivedStateObservers.kt:36,50`; `SettingsObserverRegistrations.kt:5,161,177`; `SettingsViewModel.kt:16,106` | Provider program-count observation for diagnostics and parental/settings state wiring | No domain query port exists; keep until a provider-scoped program-count contract is introduced |
+| `XtreamIndexJobDao` | `SettingsViewModel.kt:17,115,311` | Xtream indexing-job observation | No domain indexing-status port exists; keep until the job state is modeled in `domain` |
+| `XtreamLiveOnboardingDao` | `SettingsViewModel.kt:18,116,362` | Xtream live-onboarding state observation | No domain onboarding-status port exists; keep until the onboarding state is modeled in `domain` |
+| `XtreamIndexJobEntity` | `SettingsViewModel.kt:19,378` | Diagnostics warning formatting from the persistence entity | No domain indexing-status model exists; keep the entity-to-message conversion in the transitional feature boundary |
+| `XtreamLiveOnboardingStateEntity` | `SettingsOperationalModels.kt:3,92` | Persistence entity to Settings UI-model mapping | No domain onboarding-status model exists; keep the mapper transitional |
+| `DatabaseMaintenanceSnapshot` | `SettingsOperationalModels.kt:4,128` | Database-health snapshot to maintenance UI-model mapping | No domain maintenance snapshot exists; keep the mapper transitional |
+| `PreferencesRepository` | `ParentalControlGroupViewModel.kt:6,48`; `SettingsAppUpdateActions.kt:10,16`; `SettingsDerivedStateObservers.kt:9,94,119,136`; `SettingsGuideDefaultCategoryBindings.kt:4,23`; `SettingsObserverRegistrations.kt:6,28,103,140,163`; `SettingsProviderActions.kt:19,37`; `SettingsStateBindings.kt:11,35`; `SettingsViewModel.kt:20,107` | Preference flows and writes for parental, update, provider, EPG, recording, playback, and presentation state | The repository is still the concrete implementation of a broad preference surface; no complete domain preference contract exists |
+| `ProviderSyncCommands` | `SettingsProviderActions.kt:18,39`; `SettingsSyncActions.kt:6,19`; `SettingsViewModel.kt:21,114` | Provider sync, retry, background EPG, and index command dispatch | No domain sync-command contract covering these commands exists; keep until command ownership is moved |
+| `SyncRepairSection` | `SettingsSyncActions.kt:7,112-114,197-200`; `SettingsViewModel.kt:22` | Sync-warning and selected-section mapping | No domain repair-section model exists; keep until sync repair semantics are domain-owned |
+| `AudioCompatibilityMemoryStore` | `SettingsViewModel.kt:85,125,872` | Clears player compatibility memory when the related preference is changed | Separate concrete `:player` dependency; no feature-to-feature replacement or Settings port exists |
+
+No row is removal-ready in this slice. The audit therefore produces no source
+or Gradle dependency changes; each row remains explicitly owned by Phase 7.
