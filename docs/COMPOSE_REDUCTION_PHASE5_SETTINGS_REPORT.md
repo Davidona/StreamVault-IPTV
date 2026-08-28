@@ -5,23 +5,22 @@ Date: 2026-08-28
 ## Current status
 
 The settings slice is **in progress**. A compilable, independently checked
-`:feature:settings` module now owns the first behavior-preserving presentation
-layers: shared settings contracts, backup-preview rendering, parental controls,
-settings state/models/actions/observers, preference mapping, backup/restore and
-EPG actions, the Hilt `SettingsViewModel`, and the related feature tests.
-`:app` remains the composition root and continues to own the platform adapters
-and the portions of the Settings screen that have not yet moved.
+`:feature:settings` module now owns the Settings and parental presentation,
+backup-preview rendering, settings state/models/actions/observers, preference
+mapping, backup/restore and EPG actions, the Hilt `SettingsViewModel`, and the
+related feature tests. `:app` remains the composition root and continues to own
+the platform adapters, route decoding, and Android lifecycle wiring.
 
-This is not Phase 5 completion. The remaining root-screen/platform-adapter and
-locale resource extraction, app adapter cleanup, and runtime/manual acceptance
-are still open. The Settings/parental route registration contract is now
-feature-owned. The existing playback and
-provider runtime gates remain open under their respective reports.
+This is not Phase 5 completion. Locale resource extraction, app adapter cleanup,
+dependency-audit work, and runtime/manual acceptance are still open. The
+Settings/parental route registration contract is feature-owned. The existing
+playback and provider runtime gates remain open under their respective reports.
 
 ## Ownership and boundary evidence
 
 - `:feature:settings` is registered and consumed by `:app` through the feature
-  dependency; the app still owns root navigation and platform composition.
+  dependency; the app owns root navigation and platform composition while the
+  feature owns the complete Settings presentation entry point.
 - The feature boundary allows only `:core:navigation`, `:core:ui`, `:domain`,
   temporary ledgered `:data`, and the audited `:player` dependency.
 - The feature source has no `com.streamvault.app`, `NavController`,
@@ -38,8 +37,8 @@ provider runtime gates remain open under their respective reports.
   `docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md`; the separate
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
-- Graphify was refreshed after the presentation move; the current corpus has
-  15,240 nodes, 29,727 edges, and 377 communities. `SettingsViewModel` remains
+- Graphify was refreshed after the root-screen move; the current corpus has
+  15,302 nodes, 29,862 edges, and 375 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -131,6 +130,10 @@ provider runtime gates remain open under their respective reports.
   feature-owned graph contract; `:app` retains route codec and screen callbacks
 - `fba66992` — added feature route-pattern coverage for Settings `backupUri`
   and parental `providerId` compatibility
+
+- `075452c6` — moved the Settings root screen and recording-browser
+  orchestration into the feature, wired the app platform host and shell
+  destinations, and added Task 8 extraction evidence
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -669,14 +672,26 @@ gradlew.bat :feature:settings:testDebugUnitTest --tests "com.streamvault.feature
 BUILD SUCCESSFUL in 29s
 ```
 
+The root-screen extraction batch was verified with:
+
+```text
+gradlew.bat :feature:settings:verifyFeatureSettingsBoundary :feature:settings:testDebugUnitTest :feature:settings:lintDebug :feature:settings:compileDebugAndroidTestKotlin :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 58s
+```
+
+`SettingsScreen` and the recording-browser orchestration now compile in the
+feature. The app supplies only the `SettingsPlatformHost`, navigation
+destinations, provider callbacks, and close-app callback. Detailed evidence is
+in `validation/phase5_settings/task8-screen-extraction.md`.
+
 ## Open work and gates
 
-- Move the remaining Settings presentation and resources while keeping routes,
-  focus restoration, semantics, callbacks, persistence, launcher ordering, and
-  error text unchanged.
 - Finish feature resource/locale ownership and remove transitional app
   wildcard imports/duplicate defaults once all consumers move; the feature now
   owns the Settings and parental route registration contract.
+- Remove any remaining app-side settings compatibility shims only after their
+  platform responsibilities have domain-facing contracts and the app root no
+  longer needs them.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
 - Add/refresh focused settings connected checks and perform manual TV journeys
