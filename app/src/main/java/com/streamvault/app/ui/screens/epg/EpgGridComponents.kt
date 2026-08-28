@@ -55,8 +55,8 @@ import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.feature.live.presentation.model.guideLookupKey
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormatter
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.feature.live.presentation.time.createLiveTimeFormatter
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -241,8 +241,8 @@ private fun GuideTimelineHeader(
     scrollState: androidx.compose.foundation.ScrollState
 ) {
     val now = currentGuideNow()
-    val appTimeFormat = LocalAppTimeFormat.current
-    val hourFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormatter() }
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val hourFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormatter() }
     val zone = remember { ZoneId.systemDefault() }
     val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
     val clampedNow = now.coerceIn(windowStart, windowEnd)
@@ -556,8 +556,8 @@ fun ProgramItem(
     val now = currentGuideNow()
     val isCurrent = now in program.startTime until program.endTime
 
-    val appTimeFormat = LocalAppTimeFormat.current
-    val format = remember(appTimeFormat) { appTimeFormat.createTimeFormatter() }
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val format = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormatter() }
     val zone = remember { ZoneId.systemDefault() }
     val startStr = format.format(Instant.ofEpochMilli(program.startTime).atZone(zone))
     val endStr = format.format(Instant.ofEpochMilli(program.endTime).atZone(zone))

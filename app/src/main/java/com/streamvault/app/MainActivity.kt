@@ -23,6 +23,7 @@ import com.streamvault.feature.playback.cast.CastManager
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.toUiTimeFormat
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.domain.repository.ProviderRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -231,6 +232,7 @@ class MainActivity : ComponentActivity() {
                 LocalContext provides localizedContext,
                 LocalLayoutDirection provides layoutDirection,
                 LocalAppTimeFormat provides appTimeFormat,
+                LocalLiveTimeFormat provides appTimeFormat,
                 LocalUiTimeFormat provides appTimeFormat.toUiTimeFormat()
             ) {
                 StreamVaultTheme {

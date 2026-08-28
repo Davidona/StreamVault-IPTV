@@ -63,8 +63,8 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.PrimaryLight
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.player.PlayerEngine
@@ -218,8 +218,8 @@ internal fun LivePreviewPane(
                             style = MaterialTheme.typography.bodyLarge,
                             color = OnBackground
                         )
-                        val appTimeFormat = LocalAppTimeFormat.current
-                        val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
+                        val appTimeFormat = LocalLiveTimeFormat.current
+                        val timeFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
                         Text(
                             text = stringResource(
                                 R.string.time_range_format,

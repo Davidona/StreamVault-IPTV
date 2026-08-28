@@ -47,8 +47,8 @@ import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.feature.live.presentation.model.guideLookupKey
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -142,8 +142,8 @@ internal fun ImmersiveGuideHero(
     isRefreshing: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val appTimeFormat = LocalAppTimeFormat.current
-    val format = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val format = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
     val currentTime = System.currentTimeMillis()
     val lastUpdatedLabel = remember(lastUpdatedAt, currentTime) {
         lastUpdatedAt?.let { updatedAt ->
@@ -320,8 +320,8 @@ internal fun GuidePreviewPane(
         initialValue = PlayerRenderSurfaceType.SURFACE_VIEW
     ) ?: remember { mutableStateOf(PlayerRenderSurfaceType.SURFACE_VIEW) }
     val now = currentGuideNow()
-    val appTimeFormat = LocalAppTimeFormat.current
-    val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val timeFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
 
     Surface(
         modifier = modifier.height(150.dp),

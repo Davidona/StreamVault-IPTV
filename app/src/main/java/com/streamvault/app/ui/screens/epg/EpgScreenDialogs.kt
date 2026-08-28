@@ -52,8 +52,8 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createTimeFormat
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -317,8 +317,8 @@ internal fun CompactGuideProgramDialog(
     onScheduleWeeklyRecording: (() -> Unit)?
 ) {
     var showDetails by rememberSaveable(program.startTime, program.endTime, program.title) { mutableStateOf(false) }
-    val appTimeFormat = LocalAppTimeFormat.current
-    val format = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val format = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
     val firstButtonFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstButtonFocusRequester.requestFocus() }
     GuideModalDialog(onDismiss = onDismiss) {
