@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.presentation.home
 
 import com.streamvault.player.PlayerEngine
 

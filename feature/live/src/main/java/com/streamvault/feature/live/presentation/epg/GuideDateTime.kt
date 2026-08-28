@@ -1,15 +1,15 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.presentation.epg
 
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-internal fun startOfGuideDay(timestamp: Long, zoneId: ZoneId = ZoneId.systemDefault()): Long {
+fun startOfGuideDay(timestamp: Long, zoneId: ZoneId = ZoneId.systemDefault()): Long {
     val localDate = Instant.ofEpochMilli(timestamp).atZone(zoneId).toLocalDate()
     return localDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
 }
 
-internal fun shiftGuideDayStart(
+fun shiftGuideDayStart(
     dayStartMillis: Long,
     days: Long,
     zoneId: ZoneId = ZoneId.systemDefault()
@@ -18,7 +18,7 @@ internal fun shiftGuideDayStart(
     return localDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
 }
 
-internal fun shiftGuideAnchorByDays(
+fun shiftGuideAnchorByDays(
     anchorTimeMillis: Long,
     days: Long,
     zoneId: ZoneId = ZoneId.systemDefault()
@@ -28,7 +28,7 @@ internal fun shiftGuideAnchorByDays(
     .toInstant()
     .toEpochMilli()
 
-internal fun guidePrimeTimeAnchor(
+fun guidePrimeTimeAnchor(
     anchorTimeMillis: Long,
     primeTimeHour: Int,
     zoneId: ZoneId = ZoneId.systemDefault()
@@ -37,7 +37,7 @@ internal fun guidePrimeTimeAnchor(
     return localDate.atTime(primeTimeHour, 0).atZone(zoneId).toInstant().toEpochMilli()
 }
 
-internal fun jumpGuideAnchorToDay(
+fun jumpGuideAnchorToDay(
     anchorTimeMillis: Long,
     dayStartMillis: Long,
     zoneId: ZoneId = ZoneId.systemDefault()
@@ -47,7 +47,7 @@ internal fun jumpGuideAnchorToDay(
     return targetDate.atTime(anchorDateTime.toLocalTime()).atZone(zoneId).toInstant().toEpochMilli()
 }
 
-internal fun dayRelativeOffset(
+fun dayRelativeOffset(
     dayStartMillis: Long,
     today: LocalDate,
     zoneId: ZoneId = ZoneId.systemDefault()

@@ -4,8 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import android.app.Application
 import androidx.lifecycle.ViewModel
-import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
-import com.streamvault.app.plugins.StreamVaultPluginManager
+import com.streamvault.feature.live.api.LivePreviewHandoffPort
+import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.manager.ProgramReminderManager
@@ -72,8 +72,8 @@ class EpgViewModelTest {
     private val programReminderManager: ProgramReminderManager = mock()
     private val scheduleRecording: ScheduleRecording = mock()
     private val recordingManager: RecordingManager = mock()
-    private val livePreviewHandoffManager: LivePreviewHandoffManager = mock()
-    private val pluginManager: StreamVaultPluginManager = mock()
+    private val livePreviewHandoffManager: LivePreviewHandoffPort = mock()
+    private val pluginManager: LivePreviewStreamPreparer = mock()
     private val playerEngine: PlayerEngine = mock()
     private val playerEngineProvider: InjectProvider<PlayerEngine> = mock()
     private val application: Application = mock()
@@ -91,7 +91,7 @@ class EpgViewModelTest {
         whenever(preferencesRepository.showAllChannelsCategory).thenReturn(flowOf(true))
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(null))
-        whenever(livePreviewHandoffManager.reverseSessionFlow).thenReturn(MutableStateFlow(null))
+        whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(MutableStateFlow(null))
         runBlocking {
             whenever(epgRepository.getResolvedProgramsForChannels(any(), any(), any(), any())).thenReturn(emptyMap())
             whenever(epgRepository.getProgramsForChannelsSnapshot(any(), any(), any(), any())).thenReturn(emptyMap())

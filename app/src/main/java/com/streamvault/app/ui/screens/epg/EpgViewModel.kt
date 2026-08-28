@@ -67,11 +67,14 @@ import javax.inject.Inject
 import android.app.Application
 import com.streamvault.app.R
 import com.streamvault.player.di.AuxiliaryPlayerEngine
-import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
-import com.streamvault.feature.playback.preview.PreviewHandoffSource
-import com.streamvault.app.plugins.StreamVaultPluginManager
+import com.streamvault.feature.live.api.LivePreviewHandoffPort
+import com.streamvault.feature.live.api.LivePreviewOrigin
+import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine
+import com.streamvault.feature.live.presentation.epg.guidePrimeTimeAnchor
+import com.streamvault.feature.live.presentation.epg.jumpGuideAnchorToDay
+import com.streamvault.feature.live.presentation.epg.shiftGuideAnchorByDays
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -282,8 +285,8 @@ class EpgViewModel @Inject constructor(
     private val scheduleRecording: ScheduleRecording,
     private val recordingManager: RecordingManager,
     @param:AuxiliaryPlayerEngine private val playerEngineProvider: InjectProvider<PlayerEngine>,
-    private val pluginManager: StreamVaultPluginManager,
-    private val livePreviewHandoffManager: LivePreviewHandoffManager,
+    private val pluginManager: LivePreviewStreamPreparer,
+    private val livePreviewHandoffManager: LivePreviewHandoffPort,
     application: Application,
 ) : ViewModel() {
 
@@ -336,8 +339,8 @@ class EpgViewModel @Inject constructor(
         observeGuidePresentation()
         observeReminderDeliveryIssues()
         viewModelScope.launch {
-            livePreviewHandoffManager.reverseSessionFlow.collect { session ->
-                if (session != null && session.source == PreviewHandoffSource.GUIDE) {
+            livePreviewHandoffManager.reverseHandoffOrigin.collect { origin ->
+                if (origin == LivePreviewOrigin.GUIDE) {
                     resumePreviewFromHandoff()
                 }
             }
@@ -428,7 +431,7 @@ class EpgViewModel @Inject constructor(
             when (val result = channelRepository.getStreamInfo(channel)) {
                 is Result.Success -> {
                     if (!isActivePreviewSession(version, channel.id)) return@launch
-                    val preparedStreamInfo = when (val r = pluginManager.preparePlaybackStreamInfo(result.data)) {
+                    val preparedStreamInfo = when (val r = pluginManager.prepare(result.data)) {
                         is Result.Success -> r.data
                         is Result.Error -> {
                             if (!isActivePreviewSession(version, channel.id)) return@launch
@@ -454,7 +457,7 @@ class EpgViewModel @Inject constructor(
                         channel = channel,
                         streamInfo = preparedStreamInfo,
                         engine = engine,
-                        source = PreviewHandoffSource.GUIDE
+                        origin = LivePreviewOrigin.GUIDE
                     )
                 }
                 is Result.Error -> {
@@ -489,7 +492,7 @@ class EpgViewModel @Inject constructor(
     }
 
     fun resumePreviewFromHandoff() {
-        val session = livePreviewHandoffManager.consumeReverseHandoff(PreviewHandoffSource.GUIDE) ?: return
+        val session = livePreviewHandoffManager.consumeReverseHandoff(LivePreviewOrigin.GUIDE) ?: return
         val engine = session.engine
         previewSessionVersion++
         val version = previewSessionVersion
@@ -508,7 +511,7 @@ class EpgViewModel @Inject constructor(
             providerId = session.providerId,
             streamInfo = session.streamInfo,
             engine = engine,
-            source = PreviewHandoffSource.GUIDE
+            origin = LivePreviewOrigin.GUIDE
         )
         _uiState.update {
             it.copy(

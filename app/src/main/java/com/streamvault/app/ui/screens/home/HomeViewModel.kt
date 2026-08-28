@@ -3,11 +3,11 @@ package com.streamvault.app.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.player.di.AuxiliaryPlayerEngine
-import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
-import com.streamvault.feature.playback.preview.PreviewHandoffSource
-import com.streamvault.app.plugins.StreamVaultPluginManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.feature.playback.multiview.MultiViewManager
+import com.streamvault.feature.live.api.LiveMultiViewStatusPort
+import com.streamvault.feature.live.api.LivePreviewHandoffPort
+import com.streamvault.feature.live.api.LivePreviewOrigin
+import com.streamvault.feature.live.api.LivePreviewStreamPreparer
+import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.app.ui.model.guideLookupKey
@@ -53,6 +53,7 @@ import com.streamvault.domain.usecase.UnlockParentalCategory
 import com.streamvault.domain.usecase.UnlockParentalCategoryCommand
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine
+import com.streamvault.feature.live.presentation.home.HomePreviewUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.streamvault.app.R
 import java.util.concurrent.CancellationException
@@ -86,10 +87,10 @@ class HomeViewModel @Inject constructor(
     private val unlockParentalCategory: UnlockParentalCategory,
     private val parentalControlManager: ParentalControlManager,
     private val syncManager: ProviderSyncStateSource,
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager,
-    private val multiViewManager: MultiViewManager,
-    private val livePreviewHandoffManager: LivePreviewHandoffManager,
-    private val pluginManager: StreamVaultPluginManager,
+    private val tvInputChannelSyncManager: LiveSurfaceRefreshPort,
+    private val multiViewStatusPort: LiveMultiViewStatusPort,
+    private val livePreviewHandoffManager: LivePreviewHandoffPort,
+    private val pluginManager: LivePreviewStreamPreparer,
     @param:AuxiliaryPlayerEngine
     private val playerEngineProvider: InjectProvider<PlayerEngine>
 ) : ViewModel() {
@@ -129,24 +130,18 @@ class HomeViewModel @Inject constructor(
     init {
         loadAllProviders()
         viewModelScope.launch {
-            livePreviewHandoffManager.reverseSessionFlow.collect { session ->
-                if (session != null && session.source == PreviewHandoffSource.HOME) {
+            livePreviewHandoffManager.reverseHandoffOrigin.collect { origin ->
+                if (origin == LivePreviewOrigin.HOME) {
                     resumePreviewFromHandoff()
                 }
             }
         }
         viewModelScope.launch {
-            combine(
-                multiViewManager.slots,
-                preferencesRepository.multiViewCenterTwoSlotLayout
-            ) { slots, centeredCompactLayoutEnabled ->
-                val slotLimit = if (centeredCompactLayoutEnabled) 2 else MultiViewManager.MAX_SLOTS
-                slots.count { it != null } to slotLimit
-            }.collect { (slotCount, slotLimit) ->
+            multiViewStatusPort.status.collect { status ->
                 _uiState.update {
                     it.copy(
-                        multiviewChannelCount = slotCount,
-                        multiviewSlotCapacity = slotLimit
+                        multiviewChannelCount = status.channelCount,
+                        multiviewSlotCapacity = status.slotCapacity
                     )
                 }
             }
@@ -1064,7 +1059,7 @@ class HomeViewModel @Inject constructor(
             when (val result = channelRepository.getStreamInfo(channel)) {
                 is Result.Success -> {
                     if (!isActivePreviewSession(previewVersion, channel.id)) return@launch
-                    val preparedStreamInfo = when (val pluginResult = pluginManager.preparePlaybackStreamInfo(result.data)) {
+                    val preparedStreamInfo = when (val pluginResult = pluginManager.prepare(result.data)) {
                         is Result.Success -> pluginResult.data
                         is Result.Error -> {
                             if (!isActivePreviewSession(previewVersion, channel.id)) return@launch
@@ -1096,7 +1091,7 @@ class HomeViewModel @Inject constructor(
                         channel = channel,
                         streamInfo = preparedStreamInfo,
                         engine = engine,
-                        source = PreviewHandoffSource.HOME
+                        origin = LivePreviewOrigin.HOME
                     )
                     scheduleAdaptivePreviewReprime(
                         previewVersion = previewVersion,
@@ -1168,7 +1163,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resumePreviewFromHandoff() {
-        val session = livePreviewHandoffManager.consumeReverseHandoff(PreviewHandoffSource.HOME) ?: return
+        val session = livePreviewHandoffManager.consumeReverseHandoff(LivePreviewOrigin.HOME) ?: return
         val engine = session.engine
         previewSessionVersion++
         val version = previewSessionVersion
@@ -1189,7 +1184,7 @@ class HomeViewModel @Inject constructor(
             providerId = session.providerId,
             streamInfo = session.streamInfo,
             engine = engine,
-            source = PreviewHandoffSource.HOME
+            origin = LivePreviewOrigin.HOME
         )
         _previewUiState.update {
             it.copy(
@@ -2123,7 +2118,7 @@ data class HomeUiState(
     val liveTvChannelMode: LiveTvChannelMode = LiveTvChannelMode.PRO,
     val errorMessage: String? = null,
     val multiviewChannelCount: Int = 0,
-    val multiviewSlotCapacity: Int = MultiViewManager.MAX_SLOTS
+    val multiviewSlotCapacity: Int = 4
 )
 
 private data class CategorySelectionContext(

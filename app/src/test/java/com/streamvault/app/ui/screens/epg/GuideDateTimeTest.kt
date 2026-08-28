@@ -1,5 +1,9 @@
 package com.streamvault.app.ui.screens.epg
 
+import com.streamvault.feature.live.presentation.epg.guidePrimeTimeAnchor
+import com.streamvault.feature.live.presentation.epg.jumpGuideAnchorToDay
+import com.streamvault.feature.live.presentation.epg.shiftGuideDayStart
+
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.time.LocalDate

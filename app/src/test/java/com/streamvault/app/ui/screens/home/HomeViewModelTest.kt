@@ -2,10 +2,11 @@ package com.streamvault.app.ui.screens.home
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
-import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
-import com.streamvault.app.plugins.StreamVaultPluginManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.feature.playback.multiview.MultiViewManager
+import com.streamvault.feature.live.api.LiveMultiViewStatus
+import com.streamvault.feature.live.api.LiveMultiViewStatusPort
+import com.streamvault.feature.live.api.LivePreviewHandoffPort
+import com.streamvault.feature.live.api.LivePreviewStreamPreparer
+import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.manager.ParentalControlManager
@@ -56,10 +57,10 @@ class HomeViewModelTest {
     private val unlockParentalCategory: UnlockParentalCategory = mock()
     private val parentalControlManager: ParentalControlManager = mock()
     private val syncManager: SyncManager = mock()
-    private val tvInputChannelSyncManager: TvInputChannelSyncManager = mock()
-    private val multiViewManager = MultiViewManager()
-    private val livePreviewHandoffManager: LivePreviewHandoffManager = mock()
-    private val pluginManager: StreamVaultPluginManager = mock()
+    private val tvInputChannelSyncManager: LiveSurfaceRefreshPort = mock()
+    private val multiViewStatusPort: LiveMultiViewStatusPort = mock()
+    private val livePreviewHandoffManager: LivePreviewHandoffPort = mock()
+    private val pluginManager: LivePreviewStreamPreparer = mock()
     private val playerEngine: PlayerEngine = mock()
     private val playerEngineProvider: InjectProvider<PlayerEngine> = mock()
     private val application: Application = mock()
@@ -79,7 +80,8 @@ class HomeViewModelTest {
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSourceOptions()).thenReturn(flowOf(emptyList()))
-        whenever(livePreviewHandoffManager.reverseSessionFlow).thenReturn(MutableStateFlow(null))
+        whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(MutableStateFlow(null))
+        whenever(multiViewStatusPort.status).thenReturn(flowOf(LiveMultiViewStatus()))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(favoriteRepository.getFavorites(any<Long>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
         whenever(favoriteRepository.getFavorites(any<List<Long>>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
@@ -111,7 +113,7 @@ class HomeViewModelTest {
         }
         whenever(playerEngineProvider.get()).thenReturn(playerEngine)
         runBlocking {
-            whenever(pluginManager.preparePlaybackStreamInfo(any())).thenAnswer { invocation ->
+            whenever(pluginManager.prepare(any())).thenAnswer { invocation ->
                 Result.Success(invocation.getArgument<StreamInfo>(0))
             }
         }
@@ -144,7 +146,7 @@ class HomeViewModelTest {
             parentalControlManager = parentalControlManager,
             syncManager = syncManager,
             tvInputChannelSyncManager = tvInputChannelSyncManager,
-            multiViewManager = multiViewManager,
+            multiViewStatusPort = multiViewStatusPort,
             livePreviewHandoffManager = livePreviewHandoffManager,
             pluginManager = pluginManager,
             playerEngineProvider = playerEngineProvider
