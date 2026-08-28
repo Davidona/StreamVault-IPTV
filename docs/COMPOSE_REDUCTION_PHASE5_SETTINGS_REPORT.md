@@ -731,5 +731,8 @@ manual acceptance remain open.
 - Add/refresh focused settings connected checks and perform manual TV journeys
   for parental controls, backup/restore, update, diagnostics, sync, and focus
   restoration when the required emulator/accounts/files are available.
+- The connected-test compilation and unavailable-device result are recorded in
+  `validation/phase5_settings/task11-runtime-validation.md`; execution remains
+  open until a suitable TV emulator/device and test fixtures are available.
 - Do not treat the still-open playback/provider acceptance and performance
   gates as closed by this settings report.
