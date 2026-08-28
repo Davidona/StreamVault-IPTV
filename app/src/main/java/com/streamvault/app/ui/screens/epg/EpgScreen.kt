@@ -5,6 +5,8 @@ import com.streamvault.domain.playback.ArchiveReplayMechanism
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
+import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -417,7 +419,7 @@ fun FullEpgScreen(
                 }
 
                 else -> {
-                    GuideNowProvider {
+                    LiveGuideNowProvider {
                         GuidePreviewPane(
                             previewPlayerEngine = uiState.previewPlayerEngine,
                             isPreviewLoading = uiState.isPreviewLoading,
@@ -460,7 +462,7 @@ fun FullEpgScreen(
                             trackColor = SurfaceHighlight
                         )
                     }
-                    GuideNowProvider {
+                    LiveGuideNowProvider {
                         EpgGrid(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -636,7 +638,7 @@ fun FullEpgScreen(
 
     val dialogState = selectedProgram
     if (dialogState != null) {
-        GuideNowProvider {
+        LiveGuideNowProvider {
             val (channel, program) = dialogState
             val reminderProviderId = program.providerId.takeIf { it > 0L } ?: channel.providerId
             LaunchedEffect(channel.id, reminderProviderId, program.channelId, program.title, program.startTime) {
@@ -651,7 +653,7 @@ fun FullEpgScreen(
             val reminderButtonLabel = if (
                 reminderProviderId > 0L &&
                 program.channelId.isNotBlank() &&
-                program.startTime > currentGuideNow() + 60_000L
+                program.startTime > currentLiveGuideNow() + 60_000L
             ) {
                 when {
                     reminderStateMatches && programReminderUiState.isLoading ->
@@ -663,12 +665,12 @@ fun FullEpgScreen(
             } else {
                 null
             }
-            val canWatchArchive = channel.isArchivePlayable(program, currentGuideNow())
+            val canWatchArchive = channel.isArchivePlayable(program, currentLiveGuideNow())
             CompactGuideProgramDialog(
                 channel = channel,
                 program = program,
                 providerLabel = uiState.providerSourceLabel,
-                now = currentGuideNow(),
+                now = currentLiveGuideNow(),
                 onDismiss = { selectedProgram = null },
                 onWatchLive = {
                     selectedProgram = null
@@ -717,7 +719,7 @@ fun FullEpgScreen(
                         }
                     }
                 },
-                onScheduleRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentGuideNow()) {
+                onScheduleRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentLiveGuideNow()) {
                     {
                         notificationPermissionGate.runRecordingAction {
                             viewModel.scheduleRecording(channel, program)
@@ -726,7 +728,7 @@ fun FullEpgScreen(
                 } else {
                     null
                 },
-                onScheduleDailyRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentGuideNow()) {
+                onScheduleDailyRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentLiveGuideNow()) {
                     {
                         notificationPermissionGate.runRecordingAction {
                             viewModel.scheduleRecording(channel, program, com.streamvault.domain.model.RecordingRecurrence.DAILY)
@@ -735,7 +737,7 @@ fun FullEpgScreen(
                 } else {
                     null
                 },
-                onScheduleWeeklyRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentGuideNow()) {
+                onScheduleWeeklyRecording = if (channel.streamUrl.isNotBlank() && program.endTime > currentLiveGuideNow()) {
                     {
                         notificationPermissionGate.runRecordingAction {
                             viewModel.scheduleRecording(channel, program, com.streamvault.domain.model.RecordingRecurrence.WEEKLY)

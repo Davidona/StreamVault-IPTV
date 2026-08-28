@@ -43,6 +43,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.domain.playback.isArchivePlayable
@@ -103,7 +104,7 @@ internal fun GuideHeroSection(
     focusedProgram: Program?,
     modifier: Modifier = Modifier
 ) {
-    val now = currentGuideNow()
+    val now = currentLiveGuideNow()
     val heroSelection by remember(uiState, focusedChannel, focusedProgram, now) {
         derivedStateOf {
             resolveGuideHeroSelection(
@@ -258,7 +259,7 @@ internal fun ImmersiveGuideHero(
                 if (isRefreshing) {
                     GuideHeroBadge(text = stringResource(R.string.epg_loading))
                 }
-                if (selection?.program != null && selection.channel.isArchivePlayable(selection.program, currentGuideNow())) {
+                if (selection?.program != null && selection.channel.isArchivePlayable(selection.program, currentLiveGuideNow())) {
                     GuideHeroBadge(
                         text = if (selection.program.hasArchive) {
                             stringResource(R.string.epg_program_replay_ready)
@@ -320,7 +321,7 @@ internal fun GuidePreviewPane(
     val renderSurfaceType by (previewPlayerEngine?.renderSurfaceType)?.collectAsStateWithLifecycle(
         initialValue = PlayerRenderSurfaceType.SURFACE_VIEW
     ) ?: remember { mutableStateOf(PlayerRenderSurfaceType.SURFACE_VIEW) }
-    val now = currentGuideNow()
+    val now = currentLiveGuideNow()
     val appTimeFormat = LocalLiveTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
 

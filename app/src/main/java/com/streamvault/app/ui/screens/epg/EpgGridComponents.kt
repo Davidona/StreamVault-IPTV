@@ -51,6 +51,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -241,7 +242,7 @@ private fun GuideTimelineHeader(
     markerStepMs: Long,
     scrollState: androidx.compose.foundation.ScrollState
 ) {
-    val now = currentGuideNow()
+    val now = currentLiveGuideNow()
     val appTimeFormat = LocalLiveTimeFormat.current
     val hourFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormatter() }
     val zone = remember { ZoneId.systemDefault() }
@@ -351,7 +352,7 @@ fun EpgRow(
     onProgramFocused: (Program) -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val now = currentGuideNow()
+    val now = currentLiveGuideNow()
     val currentProgram by remember(programs, now) {
         derivedStateOf { programs.currentProgramAt(now) }
     }
@@ -554,7 +555,7 @@ fun ProgramItem(
     onFocused: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val now = currentGuideNow()
+    val now = currentLiveGuideNow()
     val isCurrent = now in program.startTime until program.endTime
 
     val appTimeFormat = LocalLiveTimeFormat.current

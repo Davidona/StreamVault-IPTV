@@ -36,10 +36,10 @@ import com.streamvault.app.ui.screens.epg.EpgUiState
 import com.streamvault.app.ui.screens.epg.EpgViewModel
 import com.streamvault.app.ui.screens.epg.GuideCategoryPickerDialog
 import com.streamvault.app.ui.screens.epg.GuideMessageState
-import com.streamvault.app.ui.screens.epg.GuideNowProvider
+import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.app.ui.screens.epg.GuideSearchOverlay
 import com.streamvault.app.ui.screens.epg.GuideToolbarButton
-import com.streamvault.app.ui.screens.epg.currentGuideNow
+import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
@@ -75,8 +75,8 @@ fun PlayerTransparentGuideOverlay(
 
     BackHandler(onBack = onDismiss)
 
-    GuideNowProvider {
-        val now = currentGuideNow()
+    LiveGuideNowProvider {
+        val now = currentLiveGuideNow()
         val headerDateFormat = remember { SimpleDateFormat("EEE, MMM d, h:mm a", Locale.getDefault()) }
         val headerTitle = focusedProgram?.title ?: focusedChannel?.name ?: stringResource(R.string.epg_title)
         val favoritesLabel = stringResource(R.string.epg_favorites_filter_favorites)

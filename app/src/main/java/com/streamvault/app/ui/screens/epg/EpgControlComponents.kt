@@ -23,16 +23,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -79,30 +76,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private val LocalGuideNow = staticCompositionLocalOf { 0L }
-
-@Composable
-internal fun rememberGuideNow(): Long {
-    val currentTime by produceState(initialValue = System.currentTimeMillis()) {
-        while (true) {
-            value = System.currentTimeMillis()
-            delay(30_000L)
-        }
-    }
-    return currentTime
-}
-
-@Composable
-internal fun GuideNowProvider(content: @Composable () -> Unit) {
-    val now = rememberGuideNow()
-    CompositionLocalProvider(LocalGuideNow provides now) {
-        content()
-    }
-}
-
-@Composable
-internal fun currentGuideNow(): Long = LocalGuideNow.current
 
 @Composable
 internal fun GuideDensityRow(

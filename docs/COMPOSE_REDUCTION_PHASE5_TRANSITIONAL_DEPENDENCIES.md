@@ -129,9 +129,10 @@ The `:feature:live` module itself depends only on `:core:navigation`, `:core:ui`
 feature-to-feature imports. Home and Guide ViewModels are being moved behind
 the live boundary incrementally: `HomeViewModel`, the sidebar/preview surface,
 the loading/preview host supporting composables, the live source switcher, Home
-quick-filter panel/chip row, the reusable EPG guide shortcut chip, Home reorder
-top bar, and Home channel row surface are now feature-owned while the Home and
-EPG screen/dialog composition remains in `:app`.
+quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
+EPG guide-now ticker/provider, Home reorder top bar, and Home channel row
+surface are now feature-owned while the Home and EPG screen/dialog composition
+remains in `:app`.
 The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned
 presentation primitives, `HomeUiState`, `HomePreviewUiState`, and Guide
