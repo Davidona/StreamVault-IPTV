@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,237 nodes, 29,725 edges, and 375 communities. `SettingsViewModel` remains
+  15,240 nodes, 29,727 edges, and 377 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -128,6 +128,8 @@ provider runtime gates remain open under their respective reports.
   while retaining the app-specific `BackupFileBridge` candidate adapter
 - `579a00cc` — moved Settings and parental-control route registration into a
   feature-owned graph contract; `:app` retains route codec and screen callbacks
+- `fba66992` — added feature route-pattern coverage for Settings `backupUri`
+  and parental `providerId` compatibility
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -658,6 +660,13 @@ BUILD SUCCESSFUL in 1m 33s
 Settings `backupUri` and parental `providerId` arguments retain their existing
 route patterns and defaults; the app continues to decode navigation routes and
 supplies the screen callbacks, while the feature owns destination registration.
+
+The route-pattern compatibility test was verified with:
+
+```text
+gradlew.bat :feature:settings:testDebugUnitTest --tests "com.streamvault.feature.settings.navigation.SettingsRoutePatternsTest" :app:compileDebugKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 29s
+```
 
 ## Open work and gates
 
