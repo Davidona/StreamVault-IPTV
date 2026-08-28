@@ -46,7 +46,7 @@ import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.app.ui.model.guideLookupKey
+import com.streamvault.feature.live.presentation.model.guideLookupKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormat
 import com.streamvault.core.ui.theme.FocusBorder

@@ -4,7 +4,7 @@ import android.view.inputmethod.InputMethodManager
 import com.streamvault.domain.playback.ArchiveReplayMechanism
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.app.ui.model.guideLookupKey
+import com.streamvault.feature.live.presentation.model.guideLookupKey
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

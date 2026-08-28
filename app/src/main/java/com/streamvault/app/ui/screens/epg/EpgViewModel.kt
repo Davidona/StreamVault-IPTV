@@ -1,7 +1,7 @@
 package com.streamvault.app.ui.screens.epg
 
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.app.ui.model.guideLookupKey
+import com.streamvault.feature.live.presentation.model.guideLookupKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences

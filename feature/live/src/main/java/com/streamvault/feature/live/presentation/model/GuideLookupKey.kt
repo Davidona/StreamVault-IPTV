@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.model
+package com.streamvault.feature.live.presentation.model
 
 import com.streamvault.domain.model.Channel
 
