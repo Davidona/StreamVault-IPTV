@@ -45,7 +45,8 @@ runtime gates remain open under their respective reports.
   exactly. The feature now carries all 24 translated locale catalogs for its
   681-string/five-plural resource set. Existing app translations are copied
   verbatim where present and default English values preserve the app fallback
-  for untranslated keys; app resources remain in place pending the usage audit.
+  for untranslated keys; the app now retains only the 40 shared/app-consumed
+  names, while the 646 confirmed feature-only candidates were removed.
 
 ## Delivered commits
 
@@ -693,6 +694,25 @@ in `validation/phase5_settings/task8-screen-extraction.md`.
 Five remaining presentation-model unit tests were also moved into the feature
 test source set. The app-owned update-model test remains in `:app` because it
 exercises app update implementation types.
+
+The final focused verification bundle was re-run after locale consolidation and
+app resource cleanup:
+
+```text
+gradlew.bat :feature:settings:verifyFeatureSettingsBoundary \
+  :feature:settings:testDebugUnitTest \
+  :feature:settings:lintDebug \
+  :feature:settings:compileDebugAndroidTestKotlin \
+  :app:compileDebugKotlin \
+  :app:testDebugUnitTest \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 25s
+```
+
+This confirms the fail-closed boundary, feature unit tests/lint, connected-test
+source compilation, and app compile/unit-test integration. No connected device
+was available (`adb devices` returned an empty device list), so connected and
+manual acceptance remain open.
 
 ## Open work and gates
 
