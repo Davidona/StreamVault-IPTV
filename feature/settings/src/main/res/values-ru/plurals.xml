@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
+<plurals name="settings_live_tv_quick_filters_count">
+        <item quantity="one">%1$d сохранён</item>
+        <item quantity="other">%1$d сохранено</item>
+    </plurals>
+<plurals name="settings_timeout_seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="other">%d секунд</item>
+    </plurals>
+<plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d минута</item>
+        <item quantity="other">%1$d минут</item>
+    </plurals>
+<plurals name="settings_top_navigation_count">
+        <item quantity="one">%d tab</item>
+        <item quantity="other">%d tabs</item>
+    </plurals>
+<plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d shelf</item>
+        <item quantity="other">%d shelves</item>
+    </plurals>
+</resources>

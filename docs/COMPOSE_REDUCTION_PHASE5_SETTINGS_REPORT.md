@@ -11,10 +11,10 @@ mapping, backup/restore and EPG actions, the Hilt `SettingsViewModel`, and the
 related feature tests. `:app` remains the composition root and continues to own
 the platform adapters, route decoding, and Android lifecycle wiring.
 
-This is not Phase 5 completion. Locale resource extraction, app adapter cleanup,
-dependency-audit work, and runtime/manual acceptance are still open. The
-Settings/parental route registration contract is feature-owned. The existing
-playback and provider runtime gates remain open under their respective reports.
+This is not Phase 5 completion. App adapter cleanup, dependency-audit work,
+and runtime/manual acceptance are still open. The Settings/parental route
+registration contract is feature-owned. The existing playback and provider
+runtime gates remain open under their respective reports.
 
 ## Ownership and boundary evidence
 
@@ -42,10 +42,10 @@ playback and provider runtime gates remain open under their respective reports.
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
-  exactly. Locale catalogs remain app-owned until the full settings resource
-  batch moves them together; a partial locale copy would trigger the feature's
-  existing MissingTranslation lint set and is therefore intentionally not
-  treated as complete resource extraction.
+  exactly. The feature now carries all 24 translated locale catalogs for its
+  681-string/five-plural resource set. Existing app translations are copied
+  verbatim where present and default English values preserve the app fallback
+  for untranslated keys; app resources remain in place pending the usage audit.
 
 ## Delivered commits
 
@@ -137,6 +137,9 @@ playback and provider runtime gates remain open under their respective reports.
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
+
+Locale-resource extraction evidence is recorded in
+`validation/phase5_settings/task8-locale-resources.md`.
 
 - `docs/superpowers/specs/2026-08-27-phase-5-settings-feature-extraction-design.md`
 - `docs/superpowers/plans/2026-08-27-settings-feature-extraction.md`
@@ -686,9 +689,10 @@ in `validation/phase5_settings/task8-screen-extraction.md`.
 
 ## Open work and gates
 
-- Finish feature resource/locale ownership and remove transitional app
-  wildcard imports/duplicate defaults once all consumers move; the feature now
-  owns the Settings and parental route registration contract.
+- Complete the resource-usage audit and remove only confirmed-obsolete app
+  locale/default entries, wildcard imports, and duplicate defaults; the feature
+  now owns the Settings and parental route registration contract and carries
+  the translated locale batch.
 - Remove any remaining app-side settings compatibility shims only after their
   platform responsibilities have domain-facing contracts and the app root no
   longer needs them.
