@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
@@ -43,6 +42,7 @@ import com.streamvault.feature.live.home.HomePreviewHost
 import com.streamvault.feature.live.home.LiveChannelResultsHeader
 import com.streamvault.feature.live.home.LiveCategorySidebarHeader
 import com.streamvault.feature.live.home.LiveChannelContentHost
+import com.streamvault.feature.live.home.LiveChannelListHost
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
@@ -65,8 +65,6 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.LegacyProvider as Provider
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.domain.model.LiveTvChannelMode
@@ -838,6 +836,22 @@ fun HomeScreen(
                             label = "category_content_transition"
                         ) { _ ->
                         val selectedCategory = uiState.selectedCategory
+                        var ignoreNextClick by remember { mutableStateOf(false) }
+                        var draggingChannel by remember { mutableStateOf<Channel?>(null) }
+
+                        LaunchedEffect(ignoreNextClick) {
+                            if (ignoreNextClick) {
+                                kotlinx.coroutines.delay(1000)
+                                ignoreNextClick = false
+                            }
+                        }
+
+                        LaunchedEffect(isReorderMode) {
+                            if (!isReorderMode) {
+                                draggingChannel = null
+                            }
+                        }
+
                         LiveChannelContentHost(
                             isLoading = uiState.isLoading,
                             errorMessage = uiState.errorMessage,
@@ -855,109 +869,23 @@ fun HomeScreen(
                                 else -> null
                             }
                         ) {
-                            var ignoreNextClick by remember { mutableStateOf(false) }
-                            val channelListState = rememberLazyListState()
-
-                            LaunchedEffect(ignoreNextClick) {
-                                if (ignoreNextClick) {
-                                    kotlinx.coroutines.delay(1000)
-                                    ignoreNextClick = false
-                                }
-                            }
-
-                            var draggingChannel by remember { mutableStateOf<Channel?>(null) }
-
-                            LaunchedEffect(isReorderMode) {
-                                if (!isReorderMode) {
-                                    draggingChannel = null
-                                }
-                            }
-
-                            LaunchedEffect(isReorderMode, draggingChannel?.id, uiState.filteredChannels) {
-                                if (!isReorderMode) return@LaunchedEffect
-                                val draggingChannelId = draggingChannel?.id ?: return@LaunchedEffect
-                                val draggedIndex = uiState.filteredChannels.indexOfFirst { it.id == draggingChannelId }
-                                if (draggedIndex < 0) return@LaunchedEffect
-
-                                val visibleItems = channelListState.layoutInfo.visibleItemsInfo
-                                val firstVisibleIndex = visibleItems.firstOrNull()?.index
-                                val lastVisibleIndex = visibleItems.lastOrNull()?.index
-
-                                if (
-                                    firstVisibleIndex != null &&
-                                    lastVisibleIndex != null &&
-                                    (draggedIndex <= firstVisibleIndex || draggedIndex >= lastVisibleIndex)
-                                ) {
-                                    channelListState.scrollToItem(draggedIndex)
-                                }
-
-                                runCatching { channelFocusRequesters[draggingChannelId]?.requestFocus() }
-                            }
-
-                            LaunchedEffect(channelListState, uiState.filteredChannels, lastFocusedChannelId) {
-                                snapshotFlow {
-                                    channelListState.layoutInfo.visibleItemsInfo.mapNotNull { item ->
-                                        uiState.filteredChannels.getOrNull(item.index)?.id
-                                    } to lastFocusedChannelId
-                                }
-                                    .distinctUntilChanged()
-                                    .collect { (visibleIds, focusedId) ->
-                                        viewModel.updateVisibleChannelWindow(visibleIds, focusedId)
-                                    }
-                            }
-
-                            // Load more channels when the user scrolls near the end of the list
-                            LaunchedEffect(channelListState) {
-                                snapshotFlow {
-                                    val info = channelListState.layoutInfo
-                                    val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: -1
-                                    val total = info.totalItemsCount
-                                    uiState.hasMoreChannels && total > 0 && lastVisible >= total - 5
-                                }
-                                    .distinctUntilChanged()
-                                    .filter { it }
-                                    .collect { viewModel.loadMoreChannels() }
-                            }
-
-                            DisposableEffect(Unit) {
-                                onDispose {
-                                    viewModel.updateVisibleChannelWindow(emptyList(), null)
-                                }
-                            }
-
-                            LazyColumn(
-                                state = channelListState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .onPreviewKeyEvent { event ->
-                                        if (uiState.isChannelReorderMode && event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN) {
-                                            if (event.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-                                                if (draggingChannel != null) {
-                                                    draggingChannel = null
-                                                    true
-                                                } else {
-                                                    viewModel.exitChannelReorderMode()
-                                                    true
-                                                }
-                                            } else false
-                                        } else false
-                                    },
-                                contentPadding = PaddingValues(
-                                    start = 10.dp,
-                                    end = 10.dp,
-                                    bottom = if (isDenseMode) 8.dp else 12.dp
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(channelListSpacing)
-                            ) {
-                                items(
-                                    items = uiState.filteredChannels,
-                                    key = { it.id },
-                                    contentType = { "live_channel" }
-                                ) { channel ->
+                            LiveChannelListHost(
+                                channels = uiState.filteredChannels,
+                                hasMoreChannels = uiState.hasMoreChannels,
+                                isReorderMode = isReorderMode,
+                                draggingChannel = draggingChannel,
+                                focusedChannelId = lastFocusedChannelId,
+                                channelFocusRequesters = channelFocusRequesters,
+                                contentPaddingBottom = if (isDenseMode) 8.dp else 12.dp,
+                                channelListSpacing = channelListSpacing,
+                                onDraggingChannelChange = { draggingChannel = it },
+                                onExitReorderMode = viewModel::exitChannelReorderMode,
+                                onMoveChannelUp = viewModel::moveChannelUp,
+                                onMoveChannelDown = viewModel::moveChannelDown,
+                                onVisibleChannelWindowChanged = viewModel::updateVisibleChannelWindow,
+                                onLoadMore = viewModel::loadMoreChannels,
+                                itemContent = { channel, channelFocusRequester, isDraggingThis ->
                                     val isLocked = isChannelLocked(channel)
-                                    val isDraggingThis = draggingChannel == channel
-                                    val channelFocusRequester = channelFocusRequesters.getOrPut(channel.id) { FocusRequester() }
-
                                     LiveChannelRowSurface(
                                         channel = channel,
                                         nowMs = nowMs,
@@ -1052,28 +980,9 @@ fun HomeScreen(
                                                     focusedRemoteShortcutTarget = null
                                                 }
                                             }
-                                            .onPreviewKeyEvent { event ->
-                                                if (uiState.isChannelReorderMode && isDraggingThis && event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN) {
-                                                    when (event.nativeKeyEvent.keyCode) {
-                                                        android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                                            viewModel.moveChannelUp(channel); true
-                                                        }
-                                                        android.view.KeyEvent.KEYCODE_DPAD_UP -> {
-                                                            viewModel.moveChannelUp(channel); true
-                                                        }
-                                                        android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                                            viewModel.moveChannelDown(channel); true
-                                                        }
-                                                        android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
-                                                            viewModel.moveChannelDown(channel); true
-                                                        }
-                                                        else -> false
-                                                    }
-                                                } else false
-                                            }
                                     )
                                 }
-                            }
+                            )
                         }
                         } // Crossfade
                     }
