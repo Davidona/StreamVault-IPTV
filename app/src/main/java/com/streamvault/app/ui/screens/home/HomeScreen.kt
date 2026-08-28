@@ -17,8 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.streamvault.core.ui.components.SearchInput
-import com.streamvault.feature.live.presentation.components.LiveQuickFiltersPanel
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
@@ -44,12 +42,12 @@ import androidx.compose.animation.core.tween
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
-import com.streamvault.feature.live.presentation.components.LiveSourceSwitcher
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.feature.live.home.CategoryItem
 import com.streamvault.feature.live.home.HomeLoadingPane
 import com.streamvault.feature.live.home.HomePreviewHost
 import com.streamvault.feature.live.home.LiveChannelResultsHeader
+import com.streamvault.feature.live.home.LiveCategorySidebarHeader
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.components.TvEmptyState
@@ -67,7 +65,6 @@ import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
-import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
@@ -682,92 +679,50 @@ fun HomeScreen(
                             .padding(top = 10.dp)
                             .focusGroup()
                     ) {
-                        // Sticky Header Part
-                        Column(modifier = Modifier.padding(horizontal = 10.dp)) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp, start = 4.dp, end = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.home_categories_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = OnSurface,
-                                    maxLines = 1,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                if (shouldShowLiveSourceSwitcher) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    LiveSourceSwitcher(
-                                        currentSource = uiState.activeLiveSource,
-                                        options = uiState.liveSourceOptions,
-                                        onSourceSelected = viewModel::switchLiveSource,
-                                        compact = true,
-                                        noSourceLabel = stringResource(R.string.playlist_no_provider),
-                                        selectedLabel = stringResource(R.string.label_selected),
-                                        unavailableLabel = stringResource(R.string.live_source_unavailable_short)
-                                    )
-                                }
-                            }
-                            SearchInput(
-                                value = uiState.categorySearchQuery,
-                                onValueChange = {
-                                    if (!isReorderMode) {
-                                        viewModel.updateCategorySearchQuery(it)
-                                    }
-                                },
-                                placeholder = stringResource(R.string.home_search_categories),
-                                focusRequester = categorySearchFocusRequester,
-                                modifier = Modifier.padding(bottom = 10.dp),
-                                enabled = !isReorderMode
-                            )
-                            val shouldShowQuickFiltersControl = when (uiState.liveTvQuickFilterVisibilityMode) {
-                                LiveTvQuickFilterVisibilityMode.HIDE -> false
-                                LiveTvQuickFilterVisibilityMode.SHOW_WHEN_FILTERS_AVAILABLE -> uiState.savedCategoryFilters.isNotEmpty()
-                                LiveTvQuickFilterVisibilityMode.ALWAYS_VISIBLE -> true
-                            }
-                            if (shouldShowQuickFiltersControl) {
-                                val activeFilter = uiState.activeCategoryFilter
-                                val filterSubtitle = when {
-                                    uiState.categorySearchQuery.isBlank() -> stringResource(R.string.home_quick_filters_showing_all)
-                                    activeFilter != null -> stringResource(
-                                        R.string.home_quick_filters_active,
-                                        activeFilter
-                                    )
-                                    else -> stringResource(
-                                        R.string.home_quick_filters_manual_search,
-                                        uiState.categorySearchQuery
-                                    )
-                                }
-                                LiveQuickFiltersPanel(
-                                    savedFilters = uiState.savedCategoryFilters,
-                                    categorySearchQuery = uiState.categorySearchQuery,
-                                    activeFilter = activeFilter,
-                                    hiddenCategoriesButtonLabel = uiState.hiddenLiveCategories
-                                        .takeIf { it.isNotEmpty() }
-                                        ?.let { stringResource(R.string.live_quick_filter_hidden_categories, it.size) },
-                                    hiddenChannelsButtonLabel = hiddenChannelsLiveTv
-                                        .takeIf { it.isNotEmpty() }
-                                        ?.let { stringResource(R.string.live_quick_filter_hidden_channels, it.size) },
-                                    buttonTitle = stringResource(R.string.home_quick_filters_button),
-                                    chipTitle = stringResource(R.string.home_quick_filters_title),
-                                    showLabel = stringResource(R.string.home_quick_filters_show),
-                                    hideLabel = stringResource(R.string.home_quick_filters_hide),
-                                    filterSubtitle = filterSubtitle,
-                                    allLabel = stringResource(R.string.home_quick_filters_all),
-                                    emptyLabel = stringResource(R.string.home_quick_filters_empty),
-                                    addChipLabel = stringResource(R.string.home_quick_filters_add_chip),
-                                    isReorderMode = isReorderMode,
-                                    onShowHiddenCategories = { showHiddenCategoriesDialog = true },
-                                    onShowHiddenChannels = { showHiddenChannelsDialog = true },
-                                    onAddFilter = { showAddQuickFilterDialog = true },
-                                    onAllSelected = viewModel::clearCategorySearchQuery,
-                                    onSavedFilterSelected = viewModel::applySavedCategoryFilter
-                                )
-                            }
-                        }
+                        LiveCategorySidebarHeader(
+                            title = stringResource(R.string.home_categories_title),
+                            currentSource = uiState.activeLiveSource,
+                            sourceOptions = uiState.liveSourceOptions,
+                            showSourceSwitcher = shouldShowLiveSourceSwitcher,
+                            onSourceSelected = viewModel::switchLiveSource,
+                            categorySearchQuery = uiState.categorySearchQuery,
+                            onCategorySearchQueryChanged = viewModel::updateCategorySearchQuery,
+                            categorySearchFocusRequester = categorySearchFocusRequester,
+                            categorySearchPlaceholder = stringResource(R.string.home_search_categories),
+                            quickFilterVisibilityMode = uiState.liveTvQuickFilterVisibilityMode,
+                            savedCategoryFilters = uiState.savedCategoryFilters,
+                            activeCategoryFilter = uiState.activeCategoryFilter,
+                            hiddenCategoriesButtonLabel = uiState.hiddenLiveCategories
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { stringResource(R.string.live_quick_filter_hidden_categories, it.size) },
+                            hiddenChannelsButtonLabel = hiddenChannelsLiveTv
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { stringResource(R.string.live_quick_filter_hidden_channels, it.size) },
+                            quickFiltersButtonTitle = stringResource(R.string.home_quick_filters_button),
+                            quickFiltersTitle = stringResource(R.string.home_quick_filters_title),
+                            quickFiltersShowLabel = stringResource(R.string.home_quick_filters_show),
+                            quickFiltersHideLabel = stringResource(R.string.home_quick_filters_hide),
+                            quickFiltersShowingAllLabel = stringResource(R.string.home_quick_filters_showing_all),
+                            quickFiltersActiveLabel = uiState.activeCategoryFilter?.let { filter ->
+                                stringResource(R.string.home_quick_filters_active, filter)
+                            } ?: "",
+                            quickFiltersManualSearchLabel = stringResource(
+                                R.string.home_quick_filters_manual_search,
+                                uiState.categorySearchQuery
+                            ),
+                            quickFiltersAllLabel = stringResource(R.string.home_quick_filters_all),
+                            quickFiltersEmptyLabel = stringResource(R.string.home_quick_filters_empty),
+                            quickFiltersAddChipLabel = stringResource(R.string.home_quick_filters_add_chip),
+                            noSourceLabel = stringResource(R.string.playlist_no_provider),
+                            selectedLabel = stringResource(R.string.label_selected),
+                            unavailableLabel = stringResource(R.string.live_source_unavailable_short),
+                            isReorderMode = isReorderMode,
+                            onShowHiddenCategories = { showHiddenCategoriesDialog = true },
+                            onShowHiddenChannels = { showHiddenChannelsDialog = true },
+                            onAddFilter = { showAddQuickFilterDialog = true },
+                            onAllSelected = viewModel::clearCategorySearchQuery,
+                            onSavedFilterSelected = viewModel::applySavedCategoryFilter
+                        )
 
                         LazyColumn(
                             modifier = Modifier.fillMaxWidth(),
