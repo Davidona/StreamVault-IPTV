@@ -75,6 +75,9 @@ import com.streamvault.player.PlayerEngine
 import com.streamvault.feature.live.presentation.epg.guidePrimeTimeAnchor
 import com.streamvault.feature.live.presentation.epg.jumpGuideAnchorToDay
 import com.streamvault.feature.live.presentation.epg.shiftGuideAnchorByDays
+import com.streamvault.feature.live.presentation.epg.GuideChannelMode
+import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssueMessage
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -147,29 +150,6 @@ data class ProgramReminderUiState(
             this.channelId == channelId &&
             this.programTitle == programTitle &&
             this.programStartTime == programStartTime
-}
-
-internal fun programReminderDeliveryIssueMessage(reminders: List<ProgramReminder>): String? {
-    val issue = reminders.firstOrNull {
-        it.deliveryState == ProgramReminderDeliveryState.BLOCKED ||
-            it.deliveryState == ProgramReminderDeliveryState.FAILED
-    } ?: return null
-    val reason = issue.deliveryFailureReason
-        ?.takeIf { it.isNotBlank() }
-        ?: "The notification was not accepted."
-    return "Reminder for ${issue.programTitle} was not delivered: $reason"
-}
-
-enum class GuideChannelMode {
-    ALL,
-    ANCHORED,
-    ARCHIVE_READY
-}
-
-enum class GuideDensity {
-    COMPACT,
-    COMFORTABLE,
-    CINEMATIC
 }
 
 private data class GuideProgramsResult(

@@ -56,6 +56,8 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
+import com.streamvault.feature.live.presentation.epg.GuideChannelMode
+import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.app.ui.components.SelectionChip
 import com.streamvault.app.ui.components.SelectionChipRow
