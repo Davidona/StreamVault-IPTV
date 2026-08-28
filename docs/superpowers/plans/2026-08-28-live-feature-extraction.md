@@ -624,6 +624,11 @@ feature-owned.
 
 Run the focused test after each minimal adapter replacement. Expected: RED on the old direct implementation call, then PASS after the corresponding port call.
 
+Current moved Home coverage also verifies HOME session registration, preparation
+error preservation, handoff success/failure, and MultiView status mapping in
+`HomeViewModelTest`. Reverse-handoff and explicit clear/release assertions
+remain open for the dedicated preview-port test.
+
 - [x] **Step 4: Run the complete moved Home suite**
 
 ```powershell

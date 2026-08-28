@@ -1034,7 +1034,6 @@ class HomeViewModel @Inject constructor(
                         previewErrorMessage = when {
                             playbackState == PlaybackState.ERROR && state.previewErrorMessage.isNullOrBlank() ->
                                 appContext.getString(R.string.live_preview_failed)
-                            playbackState != PlaybackState.ERROR -> null
                             else -> state.previewErrorMessage
                         }
                     )

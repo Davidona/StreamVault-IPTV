@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.streamvault.feature.live.api.LiveMultiViewStatus
 import com.streamvault.feature.live.api.LiveMultiViewStatusPort
 import com.streamvault.feature.live.api.LivePreviewHandoffPort
+import com.streamvault.feature.live.api.LivePreviewOrigin
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.data.preferences.PreferencesRepository
@@ -27,6 +28,7 @@ import com.streamvault.domain.repository.*
 import com.streamvault.domain.usecase.GetCustomCategories
 import com.streamvault.domain.usecase.UnlockParentalCategory
 import com.streamvault.player.PlayerEngine
+import com.streamvault.player.PlaybackState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -252,6 +254,102 @@ class HomeViewModelTest {
 
         assertThat(previewViewModel.isPreviewing(channel.id)).isTrue()
         assertThat(previewViewModel.isPreviewing(channel.id + 1L)).isFalse()
+    }
+
+    @Test
+    fun `preview preparation registers HOME session through the handoff port`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        val channel = Channel(id = 101L, name = "Port Channel", providerId = 7L)
+        viewModel.previewChannel(channel)
+        advanceUntilIdle()
+
+        verify(livePreviewHandoffManager).registerPreviewSession(
+            eq(channel),
+            eq(streamInfo),
+            same(playerEngine),
+            eq(LivePreviewOrigin.HOME)
+        )
+        assertThat(viewModel.previewUiState.value.previewChannelId).isEqualTo(channel.id)
+    }
+
+    @Test
+    fun `preview preparation error is exposed without registering a session`() = runTest {
+        configurePreviewDependencies()
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(
+            Result.Success(StreamInfo(url = "https://example.com/live.m3u8"))
+        )
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Error("renewal failed"))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.previewChannel(Channel(id = 102L, name = "Error Channel", providerId = 7L))
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.liveTvChannelMode).isEqualTo(com.streamvault.domain.model.LiveTvChannelMode.PRO)
+        verify(channelRepository).getStreamInfo(any(), eq(false))
+        verify(pluginManager).prepare(any())
+        assertThat(viewModel.previewUiState.value.previewErrorMessage).isEqualTo("renewal failed")
+        verify(livePreviewHandoffManager, never()).registerPreviewSession(any<Channel>(), any(), any(), any())
+    }
+
+    @Test
+    fun `fullscreen handoff delegates and clears local preview only on success`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        val channel = Channel(id = 103L, name = "Handoff Channel", providerId = 7L)
+        viewModel.previewChannel(channel)
+        advanceUntilIdle()
+
+        whenever(livePreviewHandoffManager.beginFullscreenHandoff(channel.id, playerEngine)).thenReturn(false)
+        assertThat(viewModel.beginPreviewHandoff(channel)).isFalse()
+        assertThat(viewModel.previewUiState.value.previewChannelId).isEqualTo(channel.id)
+
+        whenever(livePreviewHandoffManager.beginFullscreenHandoff(channel.id, playerEngine)).thenReturn(true)
+        assertThat(viewModel.beginPreviewHandoff(channel)).isTrue()
+        verify(livePreviewHandoffManager, times(2)).beginFullscreenHandoff(channel.id, playerEngine)
+        assertThat(viewModel.previewUiState.value.previewChannelId).isNull()
+        assertThat(viewModel.previewUiState.value.previewPlayerEngine).isNull()
+    }
+
+    @Test
+    fun `multi view status is mapped into HomeUiState`() = runTest {
+        whenever(multiViewStatusPort.status).thenReturn(flowOf(LiveMultiViewStatus(channelCount = 3, slotCapacity = 6)))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.multiviewChannelCount).isEqualTo(3)
+        assertThat(viewModel.uiState.value.multiviewSlotCapacity).isEqualTo(6)
+    }
+
+    private fun configurePreviewDependencies() {
+        whenever(preferencesRepository.liveTvChannelMode).thenReturn(flowOf("PRO"))
+        whenever(preferencesRepository.playerAudioDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerVideoDecoderMode).thenReturn(
+            flowOf(com.streamvault.domain.model.DecoderMode.AUTO)
+        )
+        whenever(preferencesRepository.playerSurfaceMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlayerSurfaceMode.AUTO)
+        )
+        whenever(preferencesRepository.playerPlaybackBufferMode).thenReturn(
+            flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
+        )
+        whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        whenever(playerEngine.playbackState).thenReturn(MutableStateFlow(PlaybackState.IDLE))
+        whenever(playerEngine.isPlaying).thenReturn(MutableStateFlow(false))
+        whenever(playerEngine.playerStats).thenReturn(MutableStateFlow(com.streamvault.player.PlayerStats()))
+        whenever(playerEngine.error).thenReturn(flowOf(null))
     }
 
     @Test
