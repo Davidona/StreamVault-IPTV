@@ -728,6 +728,9 @@ manual acceptance remain open.
   longer needs them.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
+- Capture the five paired before/after incremental build samples and regenerate
+  the baseline/profile descriptors; these performance and profile checks have
+  not been run for this slice and remain open.
 - Add/refresh focused settings connected checks and perform manual TV journeys
   for parental controls, backup/restore, update, diagnostics, sync, and focus
   restoration when the required emulator/accounts/files are available.
