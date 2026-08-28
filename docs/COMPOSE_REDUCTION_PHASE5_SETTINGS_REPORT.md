@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,232 nodes, 29,717 edges, and 380 communities. `SettingsViewModel` remains
+  15,234 nodes, 29,720 edges, and 380 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -124,6 +124,8 @@ provider runtime gates remain open under their respective reports.
   feature status type
 - `5fe8a42b` — moved the settings content pane renderer into the feature and
   kept the app version label as an explicit composition-root input
+- `ae832ee4` — moved locale-aware backup timestamp formatting into the feature
+  while retaining the app-specific `BackupFileBridge` candidate adapter
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -632,6 +634,17 @@ BUILD SUCCESSFUL in 1m 34s
 Category routing, section ordering, row/dialog callbacks, and feature-owned
 labels remain unchanged; the app now supplies only the version label alongside
 its existing platform and navigation callbacks.
+
+The backup timestamp formatter batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 34s
+```
+
+Local, folder, USB, and Drive backup detail timestamps retain the existing
+locale-aware short date/time behavior; only the generic formatter moved into
+the feature.
 
 ## Open work and gates
 
