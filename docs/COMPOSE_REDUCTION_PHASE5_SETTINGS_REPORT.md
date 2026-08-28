@@ -135,6 +135,9 @@ runtime gates remain open under their respective reports.
   orchestration into the feature, wired the app platform host and shell
   destinations, and added Task 8 extraction evidence
 
+Recent continuation commits also completed the locale ownership cleanup and
+dependency audit snapshot (`0d296edc`, `95abe87e`, `222e95e8`).
+
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
 
