@@ -1,8 +1,5 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import android.content.Context
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
@@ -14,15 +11,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
-internal fun BoxScope.SettingsScreenOverlays(
+public fun BoxScope.SettingsScreenOverlays(
     snackbarHostState: SnackbarHostState,
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
-    context: Context,
+    context: android.content.Context,
     scope: CoroutineScope,
     dialogState: SettingsScreenDialogState,
-    mainActivity: com.streamvault.app.MainActivity?,
-    currentRoute: String,
+    recordingBrowserContent: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SnackbarHost(
@@ -32,16 +28,9 @@ internal fun BoxScope.SettingsScreenOverlays(
             .padding(bottom = 16.dp)
     )
 
-    SettingsRecordingBrowserDialog(
-        showRecordingBrowserDialog = dialogState.showRecordingBrowserDialog,
-        uiState = uiState,
-        selectedRecordingId = dialogState.selectedRecordingId,
-        onSelectedRecordingChange = { dialogState.selectedRecordingId = it },
-        onShowRecordingBrowserDialogChange = { dialogState.showRecordingBrowserDialog = it },
-        mainActivity = mainActivity,
-        currentRoute = currentRoute,
-        viewModel = viewModel
-    )
+    if (dialogState.showRecordingBrowserDialog) {
+        recordingBrowserContent()
+    }
 
     SettingsScreenDialogs(
         uiState = uiState,

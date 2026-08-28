@@ -490,8 +490,18 @@ fun SettingsScreen(
         context = context,
         scope = scope,
         dialogState = dialogState,
-        mainActivity = mainActivity,
-        currentRoute = currentRoute,
+        recordingBrowserContent = {
+            SettingsRecordingBrowserDialog(
+                showRecordingBrowserDialog = true,
+                uiState = uiState,
+                selectedRecordingId = dialogState.selectedRecordingId,
+                onSelectedRecordingChange = { dialogState.selectedRecordingId = it },
+                onShowRecordingBrowserDialogChange = { dialogState.showRecordingBrowserDialog = it },
+                mainActivity = mainActivity,
+                currentRoute = currentRoute,
+                viewModel = viewModel
+            )
+        },
         modifier = Modifier
     )
 
