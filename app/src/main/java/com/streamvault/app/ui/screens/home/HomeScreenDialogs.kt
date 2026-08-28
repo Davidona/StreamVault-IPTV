@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
+import com.streamvault.feature.live.presentation.home.HomeUiState
 import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
@@ -133,8 +134,9 @@ internal fun HomeDialogsHost(
         )
     }
 
-    if (uiState.selectedCategoryForOptions != null) {
-        val category = uiState.selectedCategoryForOptions
+    val selectedCategoryForOptions = uiState.selectedCategoryForOptions
+    if (selectedCategoryForOptions != null) {
+        val category = selectedCategoryForOptions
         val isCategoryLocked =
             (category.isAdult || category.isUserProtected) &&
                 uiState.parentalControlLevel in 1..2 &&
@@ -252,8 +254,9 @@ internal fun HomeDialogsHost(
         )
     }
 
-    if (uiState.showDialog && uiState.selectedChannelForDialog != null && pendingSplitPlannerChannel == null) {
-        val channel = uiState.selectedChannelForDialog
+    val selectedChannelForDialog = uiState.selectedChannelForDialog
+    if (uiState.showDialog && selectedChannelForDialog != null && pendingSplitPlannerChannel == null) {
+        val channel = selectedChannelForDialog
         AddToGroupDialog(
             contentTitle = channel.name,
             channel = channel,
@@ -345,9 +348,10 @@ internal fun HomeDialogsHost(
         )
     }
 
-    if (uiState.showRenameGroupDialog && uiState.groupToRename != null) {
+    val groupToRename = uiState.groupToRename
+    if (uiState.showRenameGroupDialog && groupToRename != null) {
         RenameGroupDialog(
-            initialName = uiState.groupToRename.name,
+            initialName = groupToRename.name,
             errorMessage = uiState.renameGroupError,
             onDismissRequest = { viewModel.cancelRenameGroup() },
             onConfirm = { name -> viewModel.confirmRenameGroup(name) }
@@ -367,8 +371,9 @@ internal fun HomeDialogsHost(
         )
     }
 
-    if (uiState.showDeleteGroupDialog && uiState.groupToDelete != null) {
-        val group = uiState.groupToDelete
+    val groupToDelete = uiState.groupToDelete
+    if (uiState.showDeleteGroupDialog && groupToDelete != null) {
+        val group = groupToDelete
         var canInteract by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             delay(500)
