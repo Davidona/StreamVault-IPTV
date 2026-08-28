@@ -27,6 +27,30 @@ gradlew.bat :feature:settings:verifyFeatureSettingsBoundary \
 BUILD SUCCESSFUL in 25s
 ```
 
+The complete feature unit suite was then rerun without task reuse:
+
+```text
+gradlew.bat :feature:settings:testDebugUnitTest --rerun-tasks \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 3m 49s
+34 tests, 0 failures, 0 errors
+```
+
+The app-owned composition-root seams were also rerun explicitly:
+
+```text
+gradlew.bat :app:testDebugUnitTest \
+  --tests com.streamvault.app.settings.AppSettingsAdaptersTest \
+  --tests com.streamvault.app.backup.BackupFileBridgeTest \
+  --tests com.streamvault.app.ui.screens.settings.SettingsAppUpdateModelsTest \
+  --rerun-tasks --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 5m 43s
+16 tests, 0 failures, 0 errors
+```
+
+These tests cover the remaining app adapters and presentation-model seam; they
+do not replace the manual TV journeys listed below.
+
 The profile-source check and both release-like assemblies pass together:
 
 ```text

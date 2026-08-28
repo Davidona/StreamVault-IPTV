@@ -715,6 +715,14 @@ earlier run no connected device was available (`adb devices` returned an empty
 device list); the later emulator-backed settings run is recorded below. Manual
 acceptance remains open.
 
+The deterministic unit suites were subsequently rerun fresh. The complete
+`:feature:settings:testDebugUnitTest` suite passed with 34 tests and no
+failures/errors. The app-owned settings seams were run explicitly via
+`AppSettingsAdaptersTest`, `BackupFileBridgeTest`, and
+`SettingsAppUpdateModelsTest`; all 16 tests passed. These results validate the
+feature policy and composition-root adapters but do not replace manual TV
+journeys.
+
 The profile-source check plus beta/release assembly was then re-run together:
 
 ```text
