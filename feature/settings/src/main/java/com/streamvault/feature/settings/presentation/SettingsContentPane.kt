@@ -1,6 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -11,14 +9,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.streamvault.app.BuildConfig
 import com.streamvault.domain.model.LegacyProvider as Provider
 
 @Composable
-internal fun SettingsContentPane(
+public fun SettingsContentPane(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     context: Context,
+    appVersionLabel: String,
     screenLabels: SettingsScreenLabels,
     dialogState: SettingsScreenDialogState,
     providerState: SettingsProviderSectionState,
@@ -200,7 +198,7 @@ internal fun SettingsContentPane(
             settingsAboutSection(
                 uiState = uiState,
                 context = context,
-                appVersionLabel = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                appVersionLabel = appVersionLabel,
                 buildVerificationLabel = screenLabels.buildVerificationLabel,
                 onOpenUri = onOpenUri,
                 onCheckForUpdates = viewModel::checkForAppUpdates,

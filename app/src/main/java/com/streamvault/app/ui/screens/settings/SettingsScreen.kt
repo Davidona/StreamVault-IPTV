@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.streamvault.app.backup.BackupFileBridge
+import com.streamvault.app.BuildConfig
 import com.streamvault.app.MainActivity
 import com.streamvault.app.device.isFireTvDevice
 import com.streamvault.app.device.isTelevisionDevice
@@ -405,6 +406,7 @@ fun SettingsScreen(
                     uiState = uiState,
                     viewModel = viewModel,
                     context = context,
+                    appVersionLabel = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                     screenLabels = screenLabels,
                     dialogState = dialogState,
                     providerState = providerState,
