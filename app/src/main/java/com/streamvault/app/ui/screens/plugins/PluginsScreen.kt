@@ -57,6 +57,7 @@ import com.streamvault.app.plugins.PluginConfigurationAction
 import com.streamvault.app.plugins.PluginConfigurationField
 import com.streamvault.app.plugins.PluginConfigurationSection
 import com.streamvault.app.plugins.owner
+import com.streamvault.app.plugins.toBundleSafeKey
 import com.streamvault.app.ui.components.dialogs.PremiumDialog
 import com.streamvault.app.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
@@ -171,7 +172,7 @@ fun PluginsScreen(
                             )
                         }
                     }
-                    items(uiState.plugins, key = { it.owner }) { plugin ->
+                    items(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
                         PluginCard(
                             plugin = plugin,
                             busy = uiState.activePluginOwner == plugin.owner,

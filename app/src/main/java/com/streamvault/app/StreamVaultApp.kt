@@ -1,6 +1,7 @@
 package com.streamvault.app
 
 import android.app.Application
+import android.util.Log
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -20,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import okio.Path.Companion.toOkioPath
 
 import androidx.work.Constraints
@@ -65,6 +68,9 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     @Inject
     lateinit var pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator
 
+    @Inject
+    lateinit var databaseStartupCoordinator: DatabaseStartupCoordinator
+
     private val imageOkHttpClient: OkHttpClient by lazy {
         okHttpClient.newBuilder()
             .addInterceptor(jellyfinImageAuthInterceptor)
@@ -76,27 +82,43 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
         CrashReportStore.install(this)
         runtimeDiagnosticsManager.start()
         applicationScope.launch {
-            // Clean up any timeshift temp directories left behind by crashes, OOM kills, or
-            // force-stops from the previous run. activeSessionDir = null means wipe everything.
-            TimeshiftDiskManager(applicationContext).cleanupStaleDirectories(activeSessionDir = null)
+            databaseStartupCoordinator.state
+                .filterIsInstance<DatabaseStartupState.Ready>()
+                .first()
+            runDatabaseReadyStartupTasks()
         }
-        applicationScope.launch {
-            downloadManager.recoverInterruptedDownloads()
-        }
-        applicationScope.launch {
-            streamVaultPluginManager.reconcilePluginProviders()
-        }
-        applicationScope.launch {
-            programReminderManager.restoreScheduledReminders()
-        }
-        applicationScope.launch {
-            providerSyncLifecycle.reconcileStalkerIndexWorkAtStartup()
-        }
-        applicationScope.launch {
-            pendingBackupRestoreCoordinator.applyAllAvailable()
-        }
-        
-        startupWorkRegistry.register()
+    }
+
+    private suspend fun runDatabaseReadyStartupTasks() {
+        runContainedStartupTasks(
+            tasks = listOf(
+                StartupTask("timeshift-cleanup") {
+                    TimeshiftDiskManager(applicationContext)
+                        .cleanupStaleDirectories(activeSessionDir = null)
+                },
+                StartupTask("download-recovery") {
+                    downloadManager.recoverInterruptedDownloads()
+                },
+                StartupTask("plugin-reconcile") {
+                    streamVaultPluginManager.reconcilePluginProviders()
+                },
+                StartupTask("reminder-restore") {
+                    programReminderManager.restoreScheduledReminders()
+                },
+                StartupTask("stalker-work-reconcile") {
+                    providerSyncLifecycle.reconcileStalkerIndexWorkAtStartup()
+                },
+                StartupTask("pending-backup-restore") {
+                    pendingBackupRestoreCoordinator.applyAllAvailable()
+                },
+                StartupTask("work-registration") {
+                    startupWorkRegistry.register()
+                }
+            ),
+            onFailure = { name, error ->
+                Log.e("StreamVaultStartup", "Startup task failed: $name", error)
+            }
+        )
     }
 
     override fun onTerminate() {

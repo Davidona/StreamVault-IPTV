@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import com.streamvault.data.local.entity.ProviderAccountRuntimeEntity
 import com.streamvault.data.local.entity.ProviderConfigEntity
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
+import com.streamvault.data.local.disambiguatedMigrationIdentityKey
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -60,9 +61,23 @@ abstract class ProviderSnapshotDao {
      */
     @Transaction
     open suspend fun commitConfiguration(entity: ProviderConfigEntity): Boolean {
-        val current = generation(entity.providerId)
-        if (current != null && entity.configurationGeneration <= current) return false
-        upsertConfigDirect(entity)
+        val current = getConfig(entity.providerId)
+        if (current != null && entity.configurationGeneration <= current.configurationGeneration) return false
+
+        val identityOwner = findProviderIdByIdentityKey(entity.identityKey)
+        val entityToWrite = if (identityOwner != null && identityOwner != entity.providerId) {
+            // A duplicate preserved by migration has a stable salted identity. Keep it when a
+            // later edit computes the canonical key owned by the first legacy provider.
+            val migratedIdentity = disambiguatedMigrationIdentityKey(
+                canonicalKey = entity.identityKey,
+                providerId = entity.providerId
+            )
+            if (current?.identityKey != migratedIdentity) return false
+            entity.copy(identityKey = current.identityKey)
+        } else {
+            entity
+        }
+        upsertConfigDirect(entityToWrite)
         return true
     }
 

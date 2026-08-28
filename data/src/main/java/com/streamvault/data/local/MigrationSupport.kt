@@ -3,6 +3,7 @@ package com.streamvault.data.local
 import androidx.sqlite.db.SupportSQLiteDatabase
 import org.json.JSONObject
 import java.net.URI
+import java.security.MessageDigest
 
 /** Shared, reviewable assertions and deterministic backfill helpers for versioned migrations. */
 /**
@@ -108,6 +109,25 @@ internal fun migrationNormalizeOrigin(value: String): String = runCatching {
     }
     "$scheme://$host:$port${uri.path.orEmpty().trimEnd('/')}"
 }.getOrElse { value.trim().trimEnd('/').lowercase() }
+
+/** Maps every provider spelling accepted by the legacy runtime to the persisted enum name. */
+internal fun canonicalLegacyProviderType(value: String): String = when (value.trim().uppercase()) {
+    "XTREAM_CODES", "XTREAM", "XTREAM_CODES_API" -> "XTREAM_CODES"
+    "STALKER_PORTAL", "STALKER", "STB" -> "STALKER_PORTAL"
+    "JELLYFIN" -> "JELLYFIN"
+    "M3U", "PLAYLIST" -> "M3U"
+    // ProviderTypeConverter historically treated unrecognized values as playlist providers.
+    else -> "M3U"
+}
+
+internal fun migrationIdentityKey(parts: List<String>): String =
+    MessageDigest.getInstance("SHA-256")
+        .digest(parts.joinToString("\u0000").toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
+
+/** Keeps a legacy duplicate addressable without violating the new unique identity index. */
+internal fun disambiguatedMigrationIdentityKey(canonicalKey: String, providerId: Long): String =
+    migrationIdentityKey(listOf(canonicalKey, "legacy-duplicate", providerId.toString()))
 
 internal fun tableHasColumn(
     database: SupportSQLiteDatabase,

@@ -71,6 +71,25 @@ data class StreamVaultPluginOwner(
         get() = StreamVaultPluginComponent(packageName, serviceClassName)
 }
 
+/**
+ * Stable Android-saveable identity for Compose item keys.
+ *
+ * Compose persists lazy-list keys through an Android Bundle. The owner itself is a Kotlin data
+ * class and cannot be written to a Bundle, so encode each component into a String while keeping
+ * the fields unambiguous even if plugin metadata contains separator characters.
+ */
+fun StreamVaultPluginOwner.toBundleSafeKey(): String = buildString {
+    appendLengthPrefixed(packageName)
+    appendLengthPrefixed(serviceClassName)
+    appendLengthPrefixed(manifestId)
+}
+
+private fun StringBuilder.appendLengthPrefixed(value: String) {
+    append(value.length)
+    append(':')
+    append(value)
+}
+
 data class StreamVaultPluginComponent(
     val packageName: String,
     val serviceClassName: String

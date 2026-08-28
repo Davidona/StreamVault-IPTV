@@ -70,6 +70,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Test CI helper scripts
+        shell: bash
+        run: |
+          for test_script in tools/tests/*-test.sh; do
+            bash "$test_script"
+          done
+
       - name: Run unit tests, lint, and coverage
         run: ./gradlew --console=plain testDebugUnitTest :app:lintDebug :data:lintDebug :player:lintDebug verifyLintBaseline koverXmlReportCi koverHtmlReportCi
 
@@ -188,28 +195,6 @@ jobs:
 
   platform-smoke:
     needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        api-level: [25, 26, 28, 32, 33, 35, 36]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Run compatibility instrumentation suite
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          profile: tv_1080p
-          script: |
-            chmod +x gradlew tools/run-platform-smoke.sh
-            ./tools/run-platform-smoke.sh "${{ matrix.api-level }}" x86_64
+    permissions:
+      contents: read
+    uses: ./.github/workflows/platform-smoke.yml
