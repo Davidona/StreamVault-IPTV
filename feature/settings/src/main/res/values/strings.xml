@@ -635,6 +635,8 @@
     <string name="settings_crash_report_share">Share crash report</string>
     <string name="settings_crash_report_delete">Delete crash report</string>
     <string name="settings_crash_report_delete_value">Remove saved report</string>
+    <string name="settings_crash_report_view_title">Crash Report</string>
+    <string name="player_close">Close</string>
     <string name="settings_crash_report_none">No crash report saved</string>
     <string name="settings_build">Build</string>
     <string name="settings_build_desc">StreamVault for Android TV</string>
@@ -645,6 +647,8 @@
     <string name="settings_github_url">https://github.com/Davidona</string>
     <string name="settings_donate">Support on Ko-fi</string>
     <string name="settings_donate_url">https://ko-fi.com/davidona</string>
+    <string name="settings_clear_history_dialog_title">Clear Watch History?</string>
+    <string name="settings_clear_history_dialog_body">This will permanently delete all watch history, continue watching progress, and last visited categories across all providers.</string>
     <string name="settings_speed_test_not_run">Not tested yet</string>
     <string name="settings_speed_test_summary_default">Run a quick download test and use the result to pick stable playback quality limits.</string>
     <string name="settings_speed_test_summary_measured">Measured on %1$s at %2$s.</string>
