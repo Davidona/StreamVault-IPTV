@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,234 nodes, 29,720 edges, and 380 communities. `SettingsViewModel` remains
+  15,237 nodes, 29,725 edges, and 375 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -126,6 +126,8 @@ provider runtime gates remain open under their respective reports.
   kept the app version label as an explicit composition-root input
 - `ae832ee4` — moved locale-aware backup timestamp formatting into the feature
   while retaining the app-specific `BackupFileBridge` candidate adapter
+- `579a00cc` — moved Settings and parental-control route registration into a
+  feature-owned graph contract; `:app` retains route codec and screen callbacks
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -646,13 +648,25 @@ Local, folder, USB, and Drive backup detail timestamps retain the existing
 locale-aware short date/time behavior; only the generic formatter moved into
 the feature.
 
+The feature-route registration batch was verified with the focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 33s
+```
+
+Settings `backupUri` and parental `providerId` arguments retain their existing
+route patterns and defaults; the app continues to decode navigation routes and
+supplies the screen callbacks, while the feature owns destination registration.
+
 ## Open work and gates
 
 - Move the remaining Settings presentation and resources while keeping routes,
   focus restoration, semantics, callbacks, persistence, launcher ordering, and
   error text unchanged.
-- Finish feature resource/locale ownership and the settings graph registration;
-  remove transitional app wildcard imports once all consumers move.
+- Finish feature resource/locale ownership and remove transitional app
+  wildcard imports/duplicate defaults once all consumers move; the feature now
+  owns the Settings and parental route registration contract.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
 - Add/refresh focused settings connected checks and perform manual TV journeys
