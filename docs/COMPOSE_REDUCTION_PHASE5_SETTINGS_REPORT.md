@@ -714,6 +714,21 @@ source compilation, and app compile/unit-test integration. No connected device
 was available (`adb devices` returned an empty device list), so connected and
 manual acceptance remain open.
 
+The profile-source check plus beta/release assembly was then re-run together:
+
+```text
+gradlew.bat verifyBaselineProfileSources :app:assembleBeta :app:assembleRelease \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 3m 43s
+```
+
+Release-like profile merge tasks now explicitly depend on the normalized
+profile installer, avoiding Gradle's implicit-output validation failure when
+verification and assembly share one invocation. The committed profile source
+still contains 24 pre-extraction settings descriptor lines and no feature
+settings descriptors; safe replacement remains dependent on fresh seeded-target
+profile generation.
+
 ## Open work and gates
 
 - The resource-usage audit and confirmed-obsolete app locale/default cleanup
@@ -729,8 +744,9 @@ manual acceptance remain open.
 - Complete the DAO/concrete dependency audit and remove each ledger entry only
   after a domain-facing replacement exists.
 - Capture the five paired before/after incremental build samples and regenerate
-  the baseline/profile descriptors; these performance and profile checks have
-  not been run for this slice and remain open.
+  the baseline/profile descriptors; paired performance samples and fresh
+  seeded-target profile generation remain open. The existing source scan found
+  24 stale pre-extraction settings descriptor lines, which were not hand-edited.
 - Add/refresh focused settings connected checks and perform manual TV journeys
   for parental controls, backup/restore, update, diagnostics, sync, and focus
   restoration when the required emulator/accounts/files are available.

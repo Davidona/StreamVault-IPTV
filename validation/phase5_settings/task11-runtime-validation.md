@@ -27,6 +27,25 @@ gradlew.bat :feature:settings:verifyFeatureSettingsBoundary \
 BUILD SUCCESSFUL in 25s
 ```
 
+The profile-source check and both release-like assemblies also pass together:
+
+```text
+gradlew.bat verifyBaselineProfileSources :app:assembleBeta :app:assembleRelease \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 3m 43s
+```
+
+The app build now declares the normalized profile installer as an explicit
+dependency of beta/release art-profile and startup-profile merge tasks. This
+prevents Gradle's implicit-output validation failure when verification and
+assembly are requested in one invocation.
+
+The stale-descriptor scan currently reports 24 lines in the committed profile
+sources under the pre-extraction `com/streamvault/app/ui/screens/settings`
+package and zero lines under `com/streamvault/feature/settings`. These files
+were not edited by hand; fresh profile generation on a seeded target is still
+required to replace them safely.
+
 ## Runtime gate
 
 ```text
