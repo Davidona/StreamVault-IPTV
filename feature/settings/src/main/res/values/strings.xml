@@ -447,7 +447,7 @@
     <string name="settings_update_current_message">You already have the latest StreamVault release.</string>
     <string name="settings_sync_option_sync_now">Sync now</string>
     <string name="settings_sync_option_rebuild_index">Rebuild index</string>
-    <string name="settings_sync_option_tv">TV</string>
+    <string name="settings_sync_option_tv">Live TV</string>
     <string name="settings_sync_option_movies">Movies</string>
     <string name="settings_sync_option_series">Series</string>
     <string name="settings_sync_option_epg">EPG</string>
@@ -578,8 +578,8 @@
     <string name="settings_recording_stop">Stop</string>
     <string name="settings_recording_disable">Disable</string>
     <string name="settings_recording_enable">Enable</string>
-    <string name="settings_recording_skip">Skip Occurrence</string>
-    <string name="settings_recording_cancel">Cancel Recording</string>
+    <string name="settings_recording_skip">Skip This Occurrence</string>
+    <string name="settings_recording_cancel">Cancel</string>
     <string name="settings_recording_retry">Retry</string>
     <string name="settings_recording_delete">Delete</string>
     <string name="settings_recording_time_window">%1$s - %2$s</string>
