@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,212 nodes, 29,643 edges, and 378 communities. `SettingsViewModel` remains
+  15,214 nodes, 29,662 edges, and 377 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -115,6 +115,8 @@ provider runtime gates remain open under their respective reports.
 - `0f52133d` — moved backup/restore, Drive-backup, and About/update/crash
   presentation into the settings feature while keeping app version/build and
   external-URI adapters in `:app`
+- `27677327` — moved settings dialog orchestration, restore-sync and crash
+  report dialogs, and clear-history presentation into the feature
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -577,6 +579,18 @@ snapshot labels, About/update/crash-report rows, and their focus/callback
 behavior now render from `:feature:settings`. The app supplies the version/build
 label and continues to own URI launching, backup orchestration, and persistence;
 the feature boundary and app Kotlin/unit-test compilation both remain clean.
+
+The settings-dialog orchestration batch was verified with the same focused
+command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 38s
+```
+
+Dialog ordering, restore-sync selection behavior, crash-report scrolling and
+focus handling, clear-history callbacks, and sync-overlay cancellation remain
+unchanged; only the presentation/resource ownership moved to the feature.
 
 ## Open work and gates
 
