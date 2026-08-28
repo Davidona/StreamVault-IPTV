@@ -317,6 +317,23 @@ abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
         finalizedBy(installMergedBaselineProfile)
     }
 
+    // Release-like art-profile merge tasks consume the normalized files written by the custom
+    // installer above. Keep the dependency explicit so Gradle's task validation remains sound
+    // when profile verification and a beta/release assembly are requested together.
+    setOf(
+        "mergeBetaArtProfile",
+        "mergeReleaseArtProfile",
+        "mergeNonMinifiedReleaseArtProfile",
+        "mergeBetaStartupProfile",
+        "mergeReleaseStartupProfile",
+        "mergeNonMinifiedReleaseStartupProfile",
+    )
+        .forEach { mergeTaskName ->
+            tasks.matching { it.name == mergeTaskName }.configureEach {
+                dependsOn(installMergedBaselineProfile)
+            }
+        }
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
