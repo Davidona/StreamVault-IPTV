@@ -1,6 +1,6 @@
 # Compose Reduction Phase 5 — Settings Feature Report
 
-Date: 2026-08-27
+Date: 2026-08-28
 
 ## Current status
 
@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,204 nodes, 29,615 edges, and 375 communities. `SettingsViewModel` remains
+  15,212 nodes, 29,643 edges, and 378 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -112,6 +112,9 @@ provider runtime gates remain open under their respective reports.
   app-owned browser launcher/navigation adapter
 - `9b72c593` — moved the recording browser dialog renderer into the settings
   feature with explicit time-format and television-device inputs
+- `0f52133d` — moved backup/restore, Drive-backup, and About/update/crash
+  presentation into the settings feature while keeping app version/build and
+  external-URI adapters in `:app`
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -561,6 +564,19 @@ BUILD SUCCESSFUL in 47s
 Dialog rendering, empty-state behavior, picker/detail focus handling, status
 filters, time-window formatting, and recording callbacks remain unchanged; the
 app adapter supplies only platform time/device values and player navigation.
+
+The backup/About presentation batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 34s
+```
+
+Backup export/import, local and USB backup actions, Drive sign-in/push/pull and
+snapshot labels, About/update/crash-report rows, and their focus/callback
+behavior now render from `:feature:settings`. The app supplies the version/build
+label and continues to own URI launching, backup orchestration, and persistence;
+the feature boundary and app Kotlin/unit-test compilation both remain clean.
 
 ## Open work and gates
 
