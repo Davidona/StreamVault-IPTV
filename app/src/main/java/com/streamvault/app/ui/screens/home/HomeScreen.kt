@@ -20,8 +20,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.streamvault.core.ui.components.SearchInput
-import com.streamvault.app.ui.components.SelectionChip
-import com.streamvault.app.ui.components.SelectionChipRow
+import com.streamvault.feature.live.presentation.components.LiveSelectionChip
+import com.streamvault.feature.live.presentation.components.LiveSelectionChipRow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
@@ -50,11 +50,11 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
 import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
+import com.streamvault.feature.live.presentation.components.LiveSourceSwitcher
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.feature.live.home.CategoryItem
 import com.streamvault.feature.live.home.CompactSplitLauncherButton
 import com.streamvault.feature.live.home.LivePreviewPane
-import com.streamvault.app.ui.components.LiveSourceSwitcher
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
@@ -771,7 +771,10 @@ fun HomeScreen(
                                         currentSource = uiState.activeLiveSource,
                                         options = uiState.liveSourceOptions,
                                         onSourceSelected = viewModel::switchLiveSource,
-                                        compact = true
+                                        compact = true,
+                                        noSourceLabel = stringResource(R.string.playlist_no_provider),
+                                        selectedLabel = stringResource(R.string.label_selected),
+                                        unavailableLabel = stringResource(R.string.live_source_unavailable_short)
                                     )
                                 }
                             }
@@ -907,18 +910,18 @@ fun HomeScreen(
                                         }
                                     }
                                     if (uiState.savedCategoryFilters.isNotEmpty() || uiState.categorySearchQuery.isNotBlank()) {
-                                        SelectionChipRow(
+                                        LiveSelectionChipRow(
                                             title = stringResource(R.string.home_quick_filters_title),
                                             chips = buildList {
                                                 add(
-                                                    SelectionChip(
+                                                    LiveSelectionChip(
                                                         key = HOME_ALL_FILTER_KEY,
                                                         label = stringResource(R.string.home_quick_filters_all)
                                                     )
                                                 )
                                                 addAll(
                                                     uiState.savedCategoryFilters.map { filter ->
-                                                        SelectionChip(key = filter, label = filter)
+                                                        LiveSelectionChip(key = filter, label = filter)
                                                     }
                                                 )
                                             },

@@ -17,9 +17,10 @@ Home/Guide screen and ViewModel ownership, feature-owned resource migration,
 golden/runtime/performance gates, and legacy app cleanup remain open; this plan does not
 claim the Live slice or Phase 5 complete.
 
-Status update (2026-08-29): `HomeViewModel` and the sidebar/preview surface
-components are now feature-owned and their feature checks are green. Home
-screen/dialog composition, complete locale resource migration, and acceptance
+Status update (2026-08-29): `HomeViewModel`, the sidebar/preview surface, the
+live source switcher, and the Home quick-filter chip row are now feature-owned
+and their feature checks are green. Home screen/dialog composition, the
+remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
 
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
@@ -650,6 +651,12 @@ Run `HomeScreenBehaviorTest`; expected missing-screen failure.
 - [ ] **Step 6: Move Home UI and wire live-local/core components**
 
 Move `HomeScreen.kt`, `HomeScreenDialogs.kt`, and `HomeSidebarComponents.kt`. Replace app navigation strings with typed `AppDestination`, app shell with `CoreAppScreenScaffold`/`UiDestination`, device/time helpers with Core UI, and direct MultiView composables with `LiveMultiViewPlannerContent`.
+
+The first screen wiring checkpoint is complete: Home now calls the
+feature-owned `LiveSourceSwitcher` and `LiveSelectionChipRow`, passing the
+app-localized labels through explicit presentation parameters. The remaining
+app-owned live cards/rows and shell/dialog composition still require
+compatibility seams before the full Home move.
 
 Preserve planner callback order:
 
