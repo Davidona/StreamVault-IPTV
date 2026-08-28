@@ -48,13 +48,48 @@ required to replace them safely.
 
 ## Runtime gate
 
+The Android SDK supplied for this validation is `E:\androidSdk`, with the
+following TV emulator attached:
+
 ```text
-adb devices
-List of devices attached
+E:\androidSdk\platform-tools\adb.exe devices -l
+emulator-5554 device product:sdk_google_atv_x86 model:AOSP_TV_on_x86
 ```
 
-No emulator or physical device was connected. Consequently, the following
-acceptance checks were not run and remain open:
+The focused settings connected suite now passes on that device:
+
+```text
+gradlew.bat :feature:settings:connectedDebugAndroidTest \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 11s
+2 tests, 0 failures, 0 errors, 0 skipped
+```
+
+Result XML: `feature/settings/build/outputs/androidTest-results/connected/debug/TEST-Television_1080p(AVD) - 16-_feature_settings-.xml`.
+The passing cases cover the feature-owned Settings entry point and the
+provider backup-preview title contract. This is focused evidence, not a full
+manual acceptance of every Settings journey.
+
+The neighboring provider/app connected checks were also run:
+
+```text
+gradlew.bat :feature:provider:connectedDebugAndroidTest \
+  :app:connectedDebugAndroidTest --no-daemon --console=plain --warning-mode=none
+```
+
+Provider passed (`1/1`). The app suite executed 26 tests with 5 existing
+failures (21 passed, 0 skipped):
+
+- `DownloadForegroundServiceQuotaInstrumentationTest.reducedDataSyncTimeoutReleasesDownloadLease`
+- `LauncherProviderInstrumentationTest.watchNextProgram_supportsInsertUpdateDeleteRoundTrip`
+- `PlayerSmokeTest.playerControlsOverlay_playButton_canReceiveFocus`
+- `PlayerSmokeTest.categoryRailPanel_searchField_acceptsInitialFocusAndInput`
+- `PlayerSmokeTest.playerTrackSelectionDialog_selectsAudioTrack`
+
+These failures are outside the settings extraction and remain open under the
+neighboring feature/app acceptance work. The settings-specific connected tests
+do not exercise the full app shell or all runtime journeys. The following
+acceptance checks therefore remain open:
 
 - Settings entry/section navigation, D-pad focus restoration, dialog semantics,
   Back behavior, RTL, accessibility, and reduced-motion behavior.
@@ -64,8 +99,8 @@ acceptance checks were not run and remain open:
   management/sync, diagnostics, update flows, and external callback behavior.
 
 No credentials, accounts, files, or destructive external operations were used.
-The feature AndroidTest sources are ready for execution when a suitable TV
-emulator/device and test fixtures are available.
+Manual flows still require suitable fixtures (and, where applicable, accounts
+or local files).
 
 ## Related open gates
 

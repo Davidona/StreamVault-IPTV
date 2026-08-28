@@ -744,6 +744,28 @@ existing playback lint error in
 (`RememberInComposition` for `FocusRequester()`); playback remains outside this
 slice and was not modified.
 
+With the Android SDK at `E:\androidSdk` and a `Television_1080p(AVD)` API 36
+emulator available, the focused settings connected suite was executed:
+
+```text
+gradlew.bat :feature:settings:connectedDebugAndroidTest \
+  --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 1m 11s
+2 tests, 0 failures, 0 errors, 0 skipped
+```
+
+The result XML is
+`feature/settings/build/outputs/androidTest-results/connected/debug/TEST-Television_1080p(AVD) - 16-_feature_settings-.xml`.
+It covers the feature-owned Settings entry point and the provider backup-preview
+title contract. Full manual Settings acceptance remains open.
+
+The neighboring provider and app connected checks were also attempted on the
+same emulator. Provider passed its single test. The app suite ran 26 tests and
+reported five existing failures (download quota timeout lease, Watch Next
+round-trip schema, and three PlayerSmoke focus/track cases). These failures are
+outside `:feature:settings`; they remain open under the neighboring acceptance
+gates and are not being counted as settings failures.
+
 ## Open work and gates
 
 - The resource-usage audit and confirmed-obsolete app locale/default cleanup
@@ -765,8 +787,9 @@ slice and was not modified.
 - Add/refresh focused settings connected checks and perform manual TV journeys
   for parental controls, backup/restore, update, diagnostics, sync, and focus
   restoration when the required emulator/accounts/files are available.
-- The connected-test compilation and unavailable-device result are recorded in
-  `validation/phase5_settings/task11-runtime-validation.md`; execution remains
-  open until a suitable TV emulator/device and test fixtures are available.
+- The focused connected settings result, plus the neighboring provider/app
+  result and failure inventory, are recorded in
+  `validation/phase5_settings/task11-runtime-validation.md`. The full manual
+  settings journey remains open until suitable fixtures and time are available.
 - Do not treat the still-open playback/provider acceptance and performance
   gates as closed by this settings report.
