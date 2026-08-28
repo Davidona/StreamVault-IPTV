@@ -52,7 +52,8 @@ import com.streamvault.feature.live.presentation.components.LiveSourceSwitcher
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.feature.live.home.CategoryItem
 import com.streamvault.feature.live.home.CompactSplitLauncherButton
-import com.streamvault.feature.live.home.LivePreviewPane
+import com.streamvault.feature.live.home.HomeLoadingPane
+import com.streamvault.feature.live.home.HomePreviewHost
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
@@ -112,64 +113,6 @@ private sealed interface FocusedRemoteShortcutTarget {
 }
 
 private const val HOME_ALL_FILTER_KEY = "__all_categories__"
-
-@Composable
-private fun HomeLoadingPane(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            CircularProgressIndicator(color = Color.White)
-            Text(
-                text = message,
-                color = Color.White.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-private fun HomePreviewHost(
-    viewModel: HomeViewModel,
-    channels: List<Channel>,
-    modifier: Modifier = Modifier
-) {
-    val previewUiState by viewModel.previewUiState.collectAsStateWithLifecycle()
-    val previewChannel = remember(channels, previewUiState.previewChannelId) {
-        channels.firstOrNull { it.id == previewUiState.previewChannelId }
-    }
-    val hasActivePreview = previewUiState.previewPlayerEngine != null
-    val context = androidx.compose.ui.platform.LocalContext.current
-
-    DisposableEffect(hasActivePreview) {
-        val window = (context as? android.app.Activity)?.window
-        if (hasActivePreview) {
-            window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            if (hasActivePreview) {
-                window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
-        }
-    }
-
-    LivePreviewPane(
-        channel = previewChannel,
-        playerEngine = previewUiState.previewPlayerEngine,
-        isLoading = previewUiState.isPreviewLoading,
-        errorMessage = previewUiState.previewErrorMessage,
-        modifier = modifier
-    )
-}
-
 
 // ׳’ג€ג‚¬׳’ג€ג‚¬ Screen ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 

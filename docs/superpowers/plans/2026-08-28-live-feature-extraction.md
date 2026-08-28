@@ -18,8 +18,9 @@ golden/runtime/performance gates, and legacy app cleanup remain open; this plan 
 claim the Live slice or Phase 5 complete.
 
 Status update (2026-08-29): `HomeViewModel`, the sidebar/preview surface, the
-live source switcher, Home quick-filter chip row, Home reorder top bar, and
-Home channel row surface are now feature-owned
+loading/preview host supporting composables, the live source switcher, Home
+quick-filter chip row, Home reorder top bar, and Home channel row surface are
+now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
