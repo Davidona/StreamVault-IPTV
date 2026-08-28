@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,192 nodes, 29,571 edges, and 376 communities. `SettingsViewModel` remains
+  15,195 nodes, 29,579 edges, and 375 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -106,6 +106,8 @@ provider runtime gates remain open under their respective reports.
   settings feature, removing the duplicate app formatter file
 - `92333570` — moved recording pattern, retention, concurrency, and padding
   dialogs into the settings feature
+- `32f40371` — moved recording-browser sidebar controls behind an explicit
+  television-device capability input
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -522,6 +524,17 @@ BUILD SUCCESSFUL in 1m 31s
 Pattern, retention, concurrency, and padding option ordering plus dismissal and
 ViewModel callbacks remain unchanged; the app retains the surrounding screen
 dialog state and recording persistence orchestration.
+
+The recording-browser-sidebar batch was covered by the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 1m 28s
+```
+
+Search filtering, status-chip toggling, D-pad focus, TV keyboard gating, and
+selection callbacks remain unchanged; only the device capability lookup stays
+in the app composition layer.
 
 ## Open work and gates
 
