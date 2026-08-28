@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.home
 
 import android.app.Application
 import androidx.lifecycle.ViewModel

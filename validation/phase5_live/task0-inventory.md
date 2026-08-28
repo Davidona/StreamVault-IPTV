@@ -22,7 +22,7 @@ app/src/main/java/com/streamvault/app/ui/screens/home/HomePreviewUiState.kt
 app/src/main/java/com/streamvault/app/ui/screens/home/HomeScreen.kt
 app/src/main/java/com/streamvault/app/ui/screens/home/HomeScreenDialogs.kt
 app/src/main/java/com/streamvault/app/ui/screens/home/HomeSidebarComponents.kt
-app/src/main/java/com/streamvault/app/ui/screens/home/HomeViewModel.kt
+feature/live/src/main/java/com/streamvault/feature/live/home/HomeViewModel.kt
 app/src/main/java/com/streamvault/app/ui/screens/epg/EpgControlComponents.kt
 app/src/main/java/com/streamvault/app/ui/screens/epg/EpgGridComponents.kt
 app/src/main/java/com/streamvault/app/ui/screens/epg/EpgHeroComponents.kt

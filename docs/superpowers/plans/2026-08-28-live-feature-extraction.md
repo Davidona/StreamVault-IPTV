@@ -10,20 +10,24 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-28-phase-5-live-feature-extraction-design.md`
 
-**Implementation status (2026-08-28):** Tasks 0–1, the preview/platform port
+**Implementation status (2026-08-29):** Tasks 0–1, the preview/platform port
 portion of Tasks 2–4, the Live presentation primitive set, HomeUiState, and
-the pure Guide presentation models are complete and committed. Home/Guide
-screen and ViewModel ownership, feature-owned resources, golden/runtime/
-performance gates, and legacy app cleanup remain open; this plan does not
+the pure Guide presentation models and HomeViewModel are complete and committed.
+Home/Guide screen and ViewModel ownership, feature-owned resource migration,
+golden/runtime/performance gates, and legacy app cleanup remain open; this plan does not
 claim the Live slice or Phase 5 complete.
+
+Status update (2026-08-29): `HomeViewModel` is now feature-owned and its
+relocated test suite is green. Home screen/dialog/sidebar composition,
+feature-owned resource migration, and acceptance gates remain open.
 
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument
 registration; the app graph supplies existing screen content and performs
 typed player-request mapping. Pure guide lookup/time-format and Guide
-mode/density/reminder-message seams are also feature-owned. Screen/resource
-ownership is still open.
+mode/density/reminder-message seams are also feature-owned. Home
+screen/dialog/sidebar and resource ownership are still open.
 
 ## Global Constraints
 
@@ -572,7 +576,7 @@ git commit -m "feat(live): add app-independent presentation primitives"
 - Consumes: Tasks 3-5 ports/components and current Home constructor/state/method behavior.
 - Produces: feature-owned `HomeViewModel`, `HomeUiState`, `HomePreviewUiState`, `HomeScreen`, dialogs, sidebars, resources, and independent tests.
 
-- [ ] **Step 1: Move the Home tests first and verify RED**
+- [x] **Step 1: Move the Home tests first and verify RED**
 
 Change only package/imports needed for the feature test source set. Replace direct app/Playback implementation fixtures with fakes for the Task 3 ports while preserving every repository and state expectation.
 
@@ -584,7 +588,10 @@ Run:
 
 Expected: FAIL because feature-owned `HomeViewModel` is absent.
 
-- [ ] **Step 2: Move Home state/ViewModel mechanically**
+Observed RED on 2026-08-29 after moving the test package: unresolved
+`HomeViewModel` and dependent members in the feature test source set.
+
+- [x] **Step 2: Move Home state/ViewModel mechanically**
 
 Move `HomePreviewUiState.kt` and `HomeViewModel.kt`; change packages and resources only. Replace:
 
@@ -597,6 +604,11 @@ MultiViewManager slots/capacity -> LiveMultiViewStatusPort.status
 ```
 
 Keep constructor order otherwise stable. Preserve the separate `_uiState` and `_previewUiState`, session versioning, job cancellation, player configuration, adaptive reprime delay, error strings, and engine identity checks.
+
+`HomeViewModel` now lives under `com.streamvault.feature.live.home`, uses the
+feature resource namespace, and keeps the existing port-based preview and
+surface-refresh seams. `HomeUiState` and `HomePreviewUiState` remain
+feature-owned.
 
 - [ ] **Step 3: Add and run focused preview RED/GREEN tests**
 
@@ -611,13 +623,16 @@ Keep constructor order otherwise stable. Preserve the separate `_uiState` and `_
 
 Run the focused test after each minimal adapter replacement. Expected: RED on the old direct implementation call, then PASS after the corresponding port call.
 
-- [ ] **Step 4: Run the complete moved Home suite**
+- [x] **Step 4: Run the complete moved Home suite**
 
 ```powershell
 ./gradlew.bat :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.home.*" --no-daemon --console=plain --warning-mode=none
 ```
 
 Expected: PASS with the same behavioral assertions as the pre-extraction app suite.
+
+Observed GREEN on 2026-08-29 for `com.streamvault.feature.live.home.*`; the
+feature boundary verifier and app Kotlin/unit-test compilation also pass.
 
 - [ ] **Step 5: Write failing Home screen behavior tests**
 

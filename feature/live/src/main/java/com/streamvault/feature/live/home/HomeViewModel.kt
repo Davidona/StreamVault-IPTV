@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,7 +56,7 @@ import com.streamvault.player.PlayerEngine
 import com.streamvault.feature.live.presentation.home.HomePreviewUiState
 import com.streamvault.feature.live.presentation.home.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.streamvault.app.R
+import com.streamvault.feature.live.R
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

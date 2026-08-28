@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_error_load_failed">Failed to load channels. Please check your connection and try again.</string>
+    <string name="settings_live_tv_quick_filter_blank">Enter a filter before saving it.</string>
+    <string name="settings_live_tv_quick_filter_duplicate">%1$s is already saved.</string>
+    <string name="settings_live_tv_quick_filter_added">Saved %1$s to Live TV quick filters.</string>
+    <string name="live_preview_failed">Preview unavailable</string>
+    <string name="home_added_to_favorites">Added %1$s to Favorites</string>
+    <string name="home_removed_from_favorites">Removed %1$s from Favorites</string>
+    <string name="home_group_name_invalid">Enter a group name</string>
+    <string name="home_group_name_reserved">Cannot create group named \'Favorites\'</string>
+    <string name="home_group_name_duplicate">Group \'%1$s\' already exists</string>
+    <string name="home_group_requires_provider_scope">Select a single provider source to create groups</string>
+    <string name="home_group_created">Group \'%1$s\' created</string>
+    <string name="home_group_renamed">Renamed group to %1$s</string>
+    <string name="home_group_deleted">Group \'%1$s\' deleted</string>
+    <string name="category_pinned">Pinned %1$s.</string>
+    <string name="category_unpinned">Unpinned %1$s.</string>
+</resources>

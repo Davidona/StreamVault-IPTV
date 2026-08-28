@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.app.ui.components.CategoryRow
 import com.streamvault.app.ui.components.ChannelCard
 import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
+import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.ui.components.LiveSourceSwitcher
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
