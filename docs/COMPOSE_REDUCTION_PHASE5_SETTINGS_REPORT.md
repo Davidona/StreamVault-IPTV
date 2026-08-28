@@ -729,6 +729,21 @@ still contains 24 pre-extraction settings descriptor lines and no feature
 settings descriptors; safe replacement remains dependent on fresh seeded-target
 profile generation.
 
+The final neighboring-feature/debug assembly gate was also attempted:
+
+```text
+gradlew.bat :feature:settings:check :feature:provider:check \
+  :feature:playback:check :app:testDebugUnitTest :app:assembleDebug \
+  --no-daemon --console=plain --warning-mode=none
+BUILD FAILED at :feature:playback:lintDebug
+```
+
+Settings and provider checks had progressed successfully. The failure is an
+existing playback lint error in
+`feature/playback/src/androidTest/.../PlayerOverlayGoldenTest.kt:51`
+(`RememberInComposition` for `FocusRequester()`); playback remains outside this
+slice and was not modified.
+
 ## Open work and gates
 
 - The resource-usage audit and confirmed-obsolete app locale/default cleanup
