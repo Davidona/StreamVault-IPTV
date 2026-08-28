@@ -109,7 +109,15 @@ class EpgResolutionEngine @Inject constructor(
         // Check which channels have provider-native EPG data
         val providerEpgChannelIds = channels.mapNotNull { it.epgChannelId?.trim()?.takeIf(String::isNotEmpty) }
         val providerNativeChannelIds = if (providerEpgChannelIds.isNotEmpty()) {
-            programDao.getChannelIdsWithPrograms(providerId, providerEpgChannelIds).toHashSet()
+            // SQLite bind-variable cap is 999 on older Android; keep chunks small
+            // (same pattern as EpgRepositoryImpl.getPrograms).
+            if (providerEpgChannelIds.size <= 500) {
+                programDao.getChannelIdsWithPrograms(providerId, providerEpgChannelIds)
+            } else {
+                providerEpgChannelIds.chunked(500).flatMap { chunk ->
+                    programDao.getChannelIdsWithPrograms(providerId, chunk)
+                }
+            }.toHashSet()
         } else {
             emptySet()
         }

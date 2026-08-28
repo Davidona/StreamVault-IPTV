@@ -25,7 +25,9 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -491,6 +493,23 @@ class EpgResolutionEngineTest {
         val result = engine.getResolvedProgrammes(PROVIDER_ID, listOf(1L), now - 3600_000, now + 3600_000)
 
         assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun `resolveForProvider_overFiveHundredChannels_chunks_native_program_lookup`() = runTest {
+        val channels = (1..600).map { i ->
+            makeChannel(id = i.toLong(), name = "Channel $i", epgChannelId = "ch.$i")
+        }
+        whenever(channelDao.getByProviderSync(PROVIDER_ID)).thenReturn(channels)
+        whenever(providerEpgSourceDao.getEnabledForProviderSync(PROVIDER_ID)).thenReturn(emptyList())
+        whenever(channelEpgMappingDao.getForProvider(PROVIDER_ID)).thenReturn(emptyList())
+
+        engine.resolveForProvider(PROVIDER_ID)
+
+        val captor = argumentCaptor<List<String>>()
+        verify(programDao, times(2)).getChannelIdsWithPrograms(eq(PROVIDER_ID), captor.capture())
+        assertThat(captor.allValues.map { it.size }).isEqualTo(listOf(500, 100))
+        assertThat(captor.allValues.flatten().distinct().size).isEqualTo(600)
     }
 
     // ── Helpers ────────────────────────────────────────────────────
