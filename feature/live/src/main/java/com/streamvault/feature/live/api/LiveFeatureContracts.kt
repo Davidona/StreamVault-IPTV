@@ -94,3 +94,20 @@ typealias LiveMultiViewPlannerContent = @Composable (
     onDismiss: () -> Unit,
     onConfirmed: () -> Unit,
 ) -> Unit
+
+/** Home content injected by the composition root into the feature-owned route. */
+typealias LiveTvContent = @Composable (
+    initialCategoryId: Long?,
+    onPlaybackRequested: (LiveChannelPlaybackRequest) -> Unit,
+    onNavigate: (String) -> Unit,
+) -> Unit
+
+/** Guide content injected by the composition root into the feature-owned route. */
+typealias LiveEpgContent = @Composable (
+    initialCategoryId: Long?,
+    initialAnchorTime: Long?,
+    initialFavoritesOnly: Boolean,
+    onChannelPlaybackRequested: (LiveChannelPlaybackRequest) -> Unit,
+    onArchivePlaybackRequested: (LiveArchivePlaybackRequest) -> Unit,
+    onNavigate: (String) -> Unit,
+) -> Unit

@@ -1,101 +1,119 @@
 package com.streamvault.app.navigation.graph
 
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
-import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
-import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.domain.playback.isArchivePlayable
+import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
+import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
+import com.streamvault.feature.live.navigation.registerLiveGraph as registerFeatureLiveGraph
 
 internal fun NavGraphBuilder.registerLiveGraph(
     actions: NavigationActions,
-    onTopLevelDestinationRequested: (AppDestination) -> Unit
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
 ) {
-    composable(
-        route = AppRoutePatterns.LIVE_TV_DESTINATION,
-        arguments = listOf(
-            navArgument("categoryId") { type = NavType.LongType; defaultValue = -1L }
-        )
-    ) { backStackEntry ->
-        val initialCategoryId = backStackEntry.arguments?.getLong("categoryId")?.takeIf { it != -1L }
-        HomeScreen(
-            onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
-                actions.openPlayer(
-                    channel.toLivePlayerRequest(
-                        categoryId = category?.id,
-                        providerId = provider?.id,
-                        isVirtual = category?.isVirtual == true,
-                        combinedProfileId = combinedProfileId,
-                        combinedSourceFilterProviderId = combinedSourceFilterProviderId,
-                        returnDestination = AppDestination.LiveTv(category?.id)
+    registerFeatureLiveGraph(
+        liveTvContent = { initialCategoryId, onPlaybackRequested, onNavigate ->
+            HomeScreen(
+                onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
+                    onPlaybackRequested(
+                        LiveChannelPlaybackRequest(
+                            channel = channel,
+                            categoryId = category?.id,
+                            providerId = provider?.id,
+                            isVirtual = category?.isVirtual == true,
+                            combinedProfileId = combinedProfileId,
+                            combinedSourceFilterProviderId = combinedSourceFilterProviderId,
+                            returnRoute = AppRouteCodec.encode(AppDestination.LiveTv(category?.id)),
+                        )
                     )
-                )
-            },
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
-            currentRoute = AppRoutePatterns.LIVE_TV,
-            initialCategoryId = initialCategoryId
-        )
-    }
-
-    composable(
-        route = AppRoutePatterns.EPG_DESTINATION,
-        arguments = listOf(
-            navArgument("categoryId") { type = NavType.LongType; defaultValue = -1L },
-            navArgument("anchorTime") { type = NavType.LongType; defaultValue = -1L },
-            navArgument("favoritesOnly") { type = NavType.BoolType; defaultValue = false }
-        )
-    ) { backStackEntry ->
-        val epgCategoryId = backStackEntry.arguments?.getLong("categoryId")?.takeIf { it != -1L }
-        val epgAnchorTime = backStackEntry.arguments?.getLong("anchorTime")?.takeIf { it != -1L }
-        val epgFavoritesOnly = backStackEntry.arguments?.getBoolean("favoritesOnly") ?: false
-        FullEpgScreen(
-            currentRoute = AppRoutePatterns.EPG,
-            initialCategoryId = epgCategoryId,
-            initialAnchorTime = epgAnchorTime,
-            initialFavoritesOnly = epgFavoritesOnly,
-            onPlayChannel = { channel, categoryId, isVirtual, combinedProfileId, returnRoute ->
-                actions.openPlayer(
-                    channel.toLivePlayerRequest(
-                        categoryId = categoryId,
-                        providerId = channel.providerId,
-                        isVirtual = isVirtual,
-                        combinedProfileId = combinedProfileId,
-                        returnDestination = AppRouteCodec.decode(returnRoute)
+                },
+                onNavigate = onNavigate,
+                currentRoute = AppRoutePatterns.LIVE_TV,
+                initialCategoryId = initialCategoryId,
+            )
+        },
+        epgContent = {
+            initialCategoryId,
+            initialAnchorTime,
+            initialFavoritesOnly,
+            onChannelPlaybackRequested,
+            onArchivePlaybackRequested,
+            onNavigate,
+        ->
+            FullEpgScreen(
+                currentRoute = AppRoutePatterns.EPG,
+                initialCategoryId = initialCategoryId,
+                initialAnchorTime = initialAnchorTime,
+                initialFavoritesOnly = initialFavoritesOnly,
+                onPlayChannel = { channel, categoryId, isVirtual, combinedProfileId, returnRoute ->
+                    onChannelPlaybackRequested(
+                        LiveChannelPlaybackRequest(
+                            channel = channel,
+                            categoryId = categoryId,
+                            providerId = channel.providerId,
+                            isVirtual = isVirtual,
+                            combinedProfileId = combinedProfileId,
+                            combinedSourceFilterProviderId = null,
+                            returnRoute = returnRoute,
+                        )
                     )
-                )
-            },
-            onPlayArchive = { channel, program, categoryId, isVirtual, combinedProfileId, returnRoute ->
-                if (!channel.isArchivePlayable(program)) return@FullEpgScreen
-                actions.openPlayer(
-                    playerNavigationRequest(
-                        streamUrl = channel.streamUrl,
-                        title = channel.name,
-                        channelId = channel.epgChannelId,
-                        internalId = channel.id,
-                        categoryId = categoryId,
-                        providerId = channel.providerId,
-                        isVirtual = isVirtual,
-                        combinedProfileId = combinedProfileId,
-                        contentType = "LIVE",
-                        archiveStartMs = program.startTime,
-                        archiveEndMs = program.endTime,
-                        archiveTitle = "${channel.name}: ${program.title}",
-                        returnDestination = AppRouteCodec.decode(returnRoute)
+                },
+                onPlayArchive = { channel, program, categoryId, isVirtual, combinedProfileId, returnRoute ->
+                    if (!channel.isArchivePlayable(program)) return@FullEpgScreen
+                    onArchivePlaybackRequested(
+                        LiveArchivePlaybackRequest(
+                            channel = channel,
+                            program = program,
+                            categoryId = categoryId,
+                            isVirtual = isVirtual,
+                            combinedProfileId = combinedProfileId,
+                            returnRoute = returnRoute,
+                        )
                     )
+                },
+                onNavigate = onNavigate,
+            )
+        },
+        onPlaybackRequested = { request ->
+            actions.openPlayer(
+                request.channel.toLivePlayerRequest(
+                    categoryId = request.categoryId,
+                    providerId = request.providerId,
+                    isVirtual = request.isVirtual,
+                    combinedProfileId = request.combinedProfileId,
+                    combinedSourceFilterProviderId = request.combinedSourceFilterProviderId,
+                    returnDestination = request.returnRoute?.let(AppRouteCodec::decode),
                 )
-            },
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            }
-        )
-    }
+            )
+        },
+        onArchivePlaybackRequested = { request ->
+            actions.openPlayer(
+                playerNavigationRequest(
+                    streamUrl = request.channel.streamUrl,
+                    title = request.channel.name,
+                    channelId = request.channel.epgChannelId,
+                    internalId = request.channel.id,
+                    categoryId = request.categoryId,
+                    providerId = request.channel.providerId,
+                    isVirtual = request.isVirtual,
+                    combinedProfileId = request.combinedProfileId,
+                    contentType = "LIVE",
+                    archiveStartMs = request.program.startTime,
+                    archiveEndMs = request.program.endTime,
+                    archiveTitle = "${request.channel.name}: ${request.program.title}",
+                    returnDestination = request.returnRoute?.let(AppRouteCodec::decode),
+                )
+            )
+        },
+        onNavigate = { route ->
+            AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
+        },
+    )
 }
