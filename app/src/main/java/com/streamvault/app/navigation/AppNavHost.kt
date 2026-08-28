@@ -1,6 +1,7 @@
 package com.streamvault.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.streamvault.app.navigation.graph.registerCatalogGraph
@@ -11,6 +12,10 @@ import com.streamvault.app.navigation.graph.registerWelcomeGraph
 import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.core.navigation.NavigationOptions
+import com.streamvault.app.ui.screens.settings.SettingsScreen
+import com.streamvault.feature.settings.navigation.registerSettingsGraph
+import com.streamvault.feature.settings.parental.ParentalControlGroupScreen
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.feature.playback.navigation.registerPlaybackGraph
 import com.streamvault.feature.provider.api.ProviderBackupPreviewRequest
@@ -62,6 +67,42 @@ internal fun AppNavHost(
             onTopLevelDestinationRequested
         )
         registerPlaybackGraph(actions, playbackPlatformHost, payloads::consumePlayerRequest)
+        registerSettingsGraph(
+            actions = actions,
+            settingsContent = { backupUri ->
+                SettingsScreen(
+                    onNavigate = { route ->
+                        AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
+                    },
+                    onAddProvider = dropUnlessResumed {
+                        actions.navigate(AppDestination.ProviderSetup())
+                    },
+                    onEditProvider = { provider ->
+                        actions.navigate(
+                            AppDestination.ProviderSetup(providerId = provider.id),
+                            NavigationOptions(launchSingleTop = true)
+                        )
+                    },
+                    onNavigateToParentalControl = { providerId ->
+                        actions.navigate(
+                            AppDestination.ParentalControlGroups(providerId),
+                            NavigationOptions(launchSingleTop = true)
+                        )
+                    },
+                    currentRoute = AppRoutePatterns.SETTINGS,
+                    initialBackupImportUri = backupUri
+                )
+            },
+            parentalControlContent = { onBack ->
+                ParentalControlGroupScreen(
+                    currentRoute = AppRoutePatterns.SETTINGS,
+                    onNavigate = { route ->
+                        AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
+                    },
+                    onBack = onBack
+                )
+            }
+        )
         registerSystemGraph(actions, onTopLevelDestinationRequested)
     }
 }
