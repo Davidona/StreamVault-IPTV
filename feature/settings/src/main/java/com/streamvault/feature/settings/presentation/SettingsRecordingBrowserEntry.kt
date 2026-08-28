@@ -1,16 +1,9 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.SettingsUiState
-import com.streamvault.feature.settings.presentation.SettingsViewModel
-import com.streamvault.feature.settings.presentation.RecordingBrowserDialog
-import com.streamvault.feature.settings.presentation.playbackUrl
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.runtime.Composable
-import com.streamvault.app.MainActivity
-import com.streamvault.app.navigation.AppRouteCodec
-import com.streamvault.app.navigation.playerNavigationRequest
-import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.time.LocalAppTimeFormat
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
+import com.streamvault.feature.settings.api.SettingsPlatformHost
+import com.streamvault.feature.settings.api.SettingsRecordingPlaybackRequest
 
 @Composable
 internal fun SettingsRecordingBrowserDialog(
@@ -19,8 +12,7 @@ internal fun SettingsRecordingBrowserDialog(
     selectedRecordingId: String?,
     onSelectedRecordingChange: (String?) -> Unit,
     onShowRecordingBrowserDialogChange: (Boolean) -> Unit,
-    mainActivity: MainActivity?,
-    currentRoute: String,
+    platformHost: SettingsPlatformHost,
     viewModel: SettingsViewModel
 ) {
     if (!showRecordingBrowserDialog) return
@@ -33,14 +25,13 @@ internal fun SettingsRecordingBrowserDialog(
         onPlay = { item ->
             val playbackUrl = item.playbackUrl()
             if (!playbackUrl.isNullOrBlank()) {
-                mainActivity?.openPlayer(
-                    playerNavigationRequest(
+                platformHost.playRecording(
+                    SettingsRecordingPlaybackRequest(
                         streamUrl = playbackUrl,
                         title = item.programTitle ?: item.channelName,
                         internalId = item.id.hashCode().toLong().and(0x7FFFFFFFL),
                         providerId = item.providerId,
                         contentType = "MOVIE",
-                        returnDestination = AppRouteCodec.decode(currentRoute)
                     )
                 )
             }
@@ -53,7 +44,7 @@ internal fun SettingsRecordingBrowserDialog(
         onToggleSchedule = { item, enabled ->
             viewModel.setRecordingScheduleEnabled(item.id, enabled)
         },
-        appTimeFormat = LocalAppTimeFormat.current,
+        appTimeFormat = uiState.appTimeFormat,
         isTelevisionDevice = rememberIsTelevisionDevice()
     )
 }

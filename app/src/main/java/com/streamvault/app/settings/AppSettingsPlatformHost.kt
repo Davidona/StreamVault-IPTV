@@ -12,7 +12,6 @@ import com.streamvault.feature.settings.api.SettingsBuildInfo
 import com.streamvault.feature.settings.api.SettingsOfficialBuildStatus
 import com.streamvault.feature.settings.api.SettingsPlatformHost
 import com.streamvault.feature.settings.api.SettingsRecordingPlaybackRequest
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 
 /**
@@ -21,7 +20,7 @@ import java.io.File
  * operations that need an Activity or an Activity Result launcher.
  */
 class AppSettingsPlatformHost(
-    @ApplicationContext private val context: Context,
+    private val context: Context,
     override val backupFiles: SettingsBackupFileHost,
     private val playRecordingOperation: (SettingsRecordingPlaybackRequest) -> Unit = {},
     private val shareBackupOperation: (Uri) -> Result<Unit> = {
@@ -58,6 +57,8 @@ class AppSettingsPlatformHost(
     override fun shareCrashReport(): Result<Unit> =
         shareCrashReportOperation()
 
-    override fun removableBackupDirectory(): File? =
-        context.removableAppStorageDirs().firstOrNull()
+    override fun removableBackupDirectory(): File? {
+        if (!context.packageManager.hasSystemFeature("amazon.hardware.fire_tv")) return null
+        return context.removableAppStorageDirs().firstOrNull()
+    }
 }

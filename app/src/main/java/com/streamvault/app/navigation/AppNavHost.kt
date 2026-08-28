@@ -13,9 +13,11 @@ import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
-import com.streamvault.app.ui.screens.settings.SettingsScreen
+import com.streamvault.app.ui.components.shell.rememberAppDestinationItems
 import com.streamvault.feature.settings.navigation.registerSettingsGraph
 import com.streamvault.feature.settings.parental.ParentalControlGroupScreen
+import com.streamvault.feature.settings.api.SettingsPlatformHost
+import com.streamvault.feature.settings.presentation.SettingsScreen
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.feature.playback.navigation.registerPlaybackGraph
 import com.streamvault.feature.provider.api.ProviderBackupPreviewRequest
@@ -28,10 +30,14 @@ internal fun AppNavHost(
     catalogDetailActions: CatalogDetailNavigationActions,
     payloads: AppNavigationPayloads,
     playbackPlatformHost: PlaybackPlatformHost?,
+    settingsPlatformHost: SettingsPlatformHost,
     startupReady: Boolean,
     onStartupNavigationRequested: (popUpTo: AppDestination) -> Unit,
-    onTopLevelDestinationRequested: (AppDestination) -> Unit
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
+    onCloseApp: () -> Unit
 ) {
+    val navigationDestinations = rememberAppDestinationItems()
+
     NavHost(
         navController = navController,
         startDestination = AppRoutePatterns.WELCOME
@@ -69,11 +75,16 @@ internal fun AppNavHost(
         registerPlaybackGraph(actions, playbackPlatformHost, payloads::consumePlayerRequest)
         registerSettingsGraph(
             actions = actions,
-            settingsContent = { backupUri ->
+            platformHost = settingsPlatformHost,
+            navigationDestinations = navigationDestinations,
+            settingsContent = { backupUri, platformHost, destinations ->
                 SettingsScreen(
                     onNavigate = { route ->
                         AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
                     },
+                    currentRoute = AppRoutePatterns.SETTINGS,
+                    platformHost = platformHost,
+                    navigationDestinations = destinations,
                     onAddProvider = dropUnlessResumed {
                         actions.navigate(AppDestination.ProviderSetup())
                     },
@@ -89,8 +100,8 @@ internal fun AppNavHost(
                             NavigationOptions(launchSingleTop = true)
                         )
                     },
-                    currentRoute = AppRoutePatterns.SETTINGS,
-                    initialBackupImportUri = backupUri
+                    initialBackupImportUri = backupUri,
+                    onCloseApp = onCloseApp
                 )
             },
             parentalControlContent = { onBack ->

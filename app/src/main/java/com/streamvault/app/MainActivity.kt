@@ -18,6 +18,7 @@ import com.streamvault.app.navigation.AppNavigationCoordinator
 import com.streamvault.app.navigation.ExternalNavigationRequestParser
 import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.core.navigation.ExternalNavigationRequest
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.feature.playback.cast.CastManager
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
@@ -68,6 +69,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.streamvault.app.diagnostics.CrashReportStore
+import com.streamvault.app.backup.BackupFileBridge
+import com.streamvault.app.navigation.playerNavigationRequest
+import com.streamvault.app.settings.AppSettingsBackupFileAdapter
+import com.streamvault.app.settings.AppSettingsPlatformHost
+import com.streamvault.domain.model.Result
+import com.streamvault.feature.settings.api.SettingsPlatformHost
+import com.streamvault.feature.settings.api.SettingsRecordingPlaybackRequest
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -110,6 +118,50 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
+
+    @Inject
+    lateinit var settingsBackupFileAdapter: AppSettingsBackupFileAdapter
+
+    private val settingsPlatformHost: SettingsPlatformHost by lazy {
+        AppSettingsPlatformHost(
+            context = this,
+            backupFiles = settingsBackupFileAdapter,
+            playRecordingOperation = { request: SettingsRecordingPlaybackRequest ->
+                openPlayer(
+                    playerNavigationRequest(
+                        streamUrl = request.streamUrl,
+                        title = request.title,
+                        internalId = request.internalId ?: -1L,
+                        providerId = request.providerId,
+                        contentType = request.contentType ?: "MOVIE",
+                        returnDestination = AppDestination.Settings()
+                    )
+                )
+            },
+            shareBackupOperation = { uri ->
+                runCatching {
+                    startActivity(BackupFileBridge.buildShareIntent(uri))
+                    Result.success(Unit)
+                }.getOrElse { error ->
+                    Result.error(getString(R.string.settings_backup_share_failed), error)
+                }
+            },
+            shareCrashReportOperation = {
+                val file = CrashReportStore.latestReportFile(this)
+                if (!file.isFile || file.length() <= 0L) {
+                    Result.error(getString(R.string.settings_crash_report_missing))
+                } else {
+                    runCatching {
+                        val uri = CrashReportStore.providerUriForFile(this, file)
+                        startActivity(CrashReportStore.buildShareIntent(uri))
+                        Result.success(Unit)
+                    }.getOrElse { error ->
+                        Result.error(getString(R.string.settings_crash_report_share_failed), error)
+                    }
+                }
+            }
+        )
+    }
 
     private var playerPictureInPictureState = PlayerPictureInPictureState()
 
@@ -192,7 +244,11 @@ class MainActivity : ComponentActivity() {
                             onShareReport = ::shareLatestFailureReport
                         )
                         DatabaseStartupState.Ready -> {
-                            AppNavigation(coordinator = appNavigationCoordinator)
+                            AppNavigation(
+                                coordinator = appNavigationCoordinator,
+                                settingsPlatformHost = settingsPlatformHost,
+                                onCloseApp = ::finishAffinity
+                            )
                             LaunchedEffect(Unit) {
                                 dispatchPendingExternalNavigationRequests()
                                 window.decorView.doOnPreDraw {

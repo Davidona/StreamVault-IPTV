@@ -662,4 +662,27 @@
     <string name="settings_speed_test_transport_cellular">Cellular</string>
     <string name="settings_speed_test_transport_other">Other network</string>
     <string name="settings_speed_test_transport_unknown">Unknown network</string>
+    <string name="settings_backup_choose_file_title">Choose a backup file</string>
+    <string name="settings_backup_delete_failed">Could not delete that backup file.</string>
+    <string name="settings_backup_deleted">Local backup deleted.</string>
+    <string name="settings_backup_folder_create_failed">Could not create the backup file in that folder.</string>
+    <string name="settings_backup_folder_picker_unavailable">No folder picker is available on this device.</string>
+    <string name="settings_backup_folder_read_failed">Could not read that folder.</string>
+    <string name="settings_backup_no_files_in_folder">No backup files (.json) found in that folder.</string>
+    <string name="settings_backup_no_local_files">No local StreamVault backups found. Export one first or open a backup file with StreamVault.</string>
+    <string name="settings_backup_no_managed_files">No StreamVault-created local backups found.</string>
+    <string name="settings_backup_picker_free_failed">Could not save the backup without a file picker.</string>
+    <string name="settings_backup_picker_free_saved">Backup saved locally. On supported TVs it is in Downloads/StreamVault; open it with a file manager.</string>
+    <string name="settings_backup_share_failed">No app could receive the backup file.</string>
+    <string name="settings_backup_share_prepare_failed">Could not prepare the backup file.</string>
+    <string name="settings_backup_usb_failed">Could not write the backup to the USB drive.</string>
+    <string name="settings_close_app">Close app</string>
+    <string name="settings_crash_report_missing">No crash report is available.</string>
+    <string name="settings_crash_report_share_failed">No app could receive the crash report.</string>
+    <string name="settings_drive_choose_backup_subtitle">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_choose_backup_title">Choose a Drive backup</string>
+    <string name="settings_drive_manage_subtitle">Delete only snapshots you no longer need.</string>
+    <string name="settings_drive_manage_title">Saved Drive backups</string>
+    <string name="settings_providers_subtitle">Switch, sync, edit, and troubleshoot your IPTV sources.</string>
+    <string name="settings_title">Settings</string>
 </resources>

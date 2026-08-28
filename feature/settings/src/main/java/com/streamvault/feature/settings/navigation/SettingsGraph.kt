@@ -6,6 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.core.ui.components.shell.UiDestination
+import com.streamvault.feature.settings.api.SettingsPlatformHost
 
 /** Stable route patterns owned by the settings feature. */
 object SettingsRoutePatterns {
@@ -20,7 +22,9 @@ object SettingsRoutePatterns {
  */
 fun NavGraphBuilder.registerSettingsGraph(
     actions: NavigationActions,
-    settingsContent: @Composable (backupUri: String?) -> Unit,
+    platformHost: SettingsPlatformHost,
+    navigationDestinations: List<UiDestination>,
+    settingsContent: @Composable (backupUri: String?, SettingsPlatformHost, List<UiDestination>) -> Unit,
     parentalControlContent: @Composable (onBack: () -> Unit) -> Unit,
 ) {
     composable(
@@ -30,7 +34,7 @@ fun NavGraphBuilder.registerSettingsGraph(
         )
     ) { backStackEntry ->
         val backupUri = backStackEntry.arguments?.getString("backupUri")?.takeIf { it.isNotBlank() }
-        settingsContent(backupUri)
+        settingsContent(backupUri, platformHost, navigationDestinations)
     }
 
     composable(

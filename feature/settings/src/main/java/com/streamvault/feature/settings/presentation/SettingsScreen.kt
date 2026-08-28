@@ -1,18 +1,14 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.*
+package com.streamvault.feature.settings.presentation
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.ContextWrapper
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -22,26 +18,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.streamvault.app.backup.BackupFileBridge
-import com.streamvault.app.BuildConfig
-import com.streamvault.app.MainActivity
-import com.streamvault.app.device.isFireTvDevice
-import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.device.removableAppStorageDirs
-import java.io.File
-import com.streamvault.app.diagnostics.CrashReportStore
-import com.streamvault.app.util.OfficialBuildVerifier
+import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
 import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.core.ui.components.shell.NavigationChrome
+import com.streamvault.core.ui.components.shell.UiDestination
+import com.streamvault.core.ui.device.isTelevisionDevice
+import java.io.File
 import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.feature.settings.R
+import com.streamvault.feature.settings.api.SettingsBackupFileCandidate
+import com.streamvault.feature.settings.api.SettingsPlatformHost
 import com.streamvault.domain.model.LegacyProvider as Provider
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
-import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.feature.settings.api.SettingsOfficialBuildStatus
+import com.streamvault.domain.model.Result
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -57,24 +48,17 @@ private fun buildBackupFileName(): String =
 private fun Context.isFireTv(): Boolean =
     packageManager.hasSystemFeature("amazon.hardware.fire_tv")
 
-private fun Context.findMainActivity(): MainActivity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is MainActivity) return current
-        current = current.baseContext
-    }
-    return null
-}
-
-
 @Composable
-fun SettingsScreen(
+public fun SettingsScreen(
     onNavigate: (String) -> Unit,
+    currentRoute: String,
+    platformHost: SettingsPlatformHost,
+    navigationDestinations: List<UiDestination> = emptyList(),
     onAddProvider: () -> Unit = {},
     onEditProvider: (Provider) -> Unit = {},
     onNavigateToParentalControl: (Long) -> Unit = {},
-    currentRoute: String,
     initialBackupImportUri: String? = null,
+    onCloseApp: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,17 +67,24 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = androidx.compose.ui.platform.LocalContext.current
-    val mainActivity = context.findMainActivity()
-    val officialBuildVerification = remember(context.packageName) { OfficialBuildVerifier.verify(context) }
+    val unknownBackupDate = stringResource(R.string.settings_drive_unknown_backup_date)
+    val noLocalBackupsMessage = stringResource(R.string.settings_backup_no_local_files)
+    val folderCreateFailedMessage = stringResource(R.string.settings_backup_folder_create_failed)
+    val folderReadFailedMessage = stringResource(R.string.settings_backup_folder_read_failed)
+    val noFolderBackupsMessage = stringResource(R.string.settings_backup_no_files_in_folder)
+    val sharePrepareFailedMessage = stringResource(R.string.settings_backup_share_prepare_failed)
+    val shareFailedMessage = stringResource(R.string.settings_backup_share_failed)
+    val pickerFreeFailedMessage = stringResource(R.string.settings_backup_picker_free_failed)
+    val pickerFreeSavedMessage = stringResource(R.string.settings_backup_picker_free_saved)
+    val deletedBackupMessage = stringResource(R.string.settings_backup_deleted)
+    val deleteBackupFailedMessage = stringResource(R.string.settings_backup_delete_failed)
+    val usbBackupFailedMessage = stringResource(R.string.settings_backup_usb_failed)
+    val crashReportShareFailedMessage = stringResource(R.string.settings_crash_report_share_failed)
+    val folderPickerUnavailableMessage = stringResource(R.string.settings_backup_folder_picker_unavailable)
     val screenLabels = rememberSettingsScreenLabels(
         uiState = uiState,
         context = context,
-        officialBuildStatus = when (officialBuildVerification.status) {
-            com.streamvault.app.util.OfficialBuildStatus.OFFICIAL -> SettingsOfficialBuildStatus.OFFICIAL
-            com.streamvault.app.util.OfficialBuildStatus.UNOFFICIAL -> SettingsOfficialBuildStatus.UNOFFICIAL
-            com.streamvault.app.util.OfficialBuildStatus.VERIFICATION_UNAVAILABLE ->
-                SettingsOfficialBuildStatus.VERIFICATION_UNAVAILABLE
-        }
+        officialBuildStatus = platformHost.officialBuildStatus()
     )
     val dialogState = rememberSettingsScreenDialogState()
     val providerState = rememberSettingsProviderSectionState(dialogState)
@@ -112,7 +103,7 @@ fun SettingsScreen(
             }
             viewModel.exportConfig(
                 uriString = it.toString(),
-                onSuccess = { BackupFileBridge.rememberManagedExport(context, it) },
+                onSuccess = { platformHost.backupFiles.rememberManagedExport(it) },
             )
         }
     }
@@ -126,20 +117,20 @@ fun SettingsScreen(
     var pendingImportCandidates by remember { mutableStateOf<List<BackupDialogItem>>(emptyList()) }
 
     fun restoreBackupFromLocalStorage() {
-        val candidates = BackupFileBridge.listPickerFreeBackups(context)
+        val candidates = platformHost.backupFiles.listPickerFreeBackups()
             .map {
                 BackupDialogItem(
                     id = it.uri.toString(),
                     title = it.displayName,
                     subtitle = formatBackupTimestamp(
                         it.lastModifiedMs,
-                        context.getString(R.string.settings_drive_unknown_backup_date),
+                        unknownBackupDate,
                     ),
                 )
             }
         when {
             candidates.isEmpty() ->
-                viewModel.showUserMessage(context.getString(R.string.settings_backup_no_local_files))
+                viewModel.showUserMessage(noLocalBackupsMessage)
             candidates.size == 1 -> viewModel.inspectBackup(candidates.first().id)
             else -> pendingImportCandidates = candidates
         }
@@ -158,17 +149,17 @@ fun SettingsScreen(
         }
         val folder = DocumentFile.fromTreeUri(context, treeUri)
         if (folder == null || !folder.canWrite()) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_folder_create_failed))
+            viewModel.showUserMessage(folderCreateFailedMessage)
             return@rememberLauncherForActivityResult
         }
-        val newFile = folder.createFile(BackupFileBridge.MIME_TYPE_JSON, buildBackupFileName())
+        val newFile = folder.createFile(platformHost.backupFiles.jsonMimeType, buildBackupFileName())
         if (newFile == null) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_folder_create_failed))
+            viewModel.showUserMessage(folderCreateFailedMessage)
             return@rememberLauncherForActivityResult
         }
         viewModel.exportConfig(
             uriString = newFile.uri.toString(),
-            onSuccess = { BackupFileBridge.rememberManagedExport(context, newFile.uri) },
+            onSuccess = { platformHost.backupFiles.rememberManagedExport(newFile.uri) },
         )
     }
 
@@ -184,7 +175,7 @@ fun SettingsScreen(
         }
         val folder = DocumentFile.fromTreeUri(context, treeUri)
         if (folder == null) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_folder_read_failed))
+            viewModel.showUserMessage(folderReadFailedMessage)
             return@rememberLauncherForActivityResult
         }
         val candidates = folder.listFiles()
@@ -196,44 +187,45 @@ fun SettingsScreen(
                     title = it.name ?: "backup.json",
                     subtitle = formatBackupTimestamp(
                         it.lastModified(),
-                        context.getString(R.string.settings_drive_unknown_backup_date),
+                        unknownBackupDate,
                     ),
                 )
             }
         when {
             candidates.isEmpty() ->
-                viewModel.showUserMessage(context.getString(R.string.settings_backup_no_files_in_folder))
+                viewModel.showUserMessage(noFolderBackupsMessage)
             candidates.size == 1 -> viewModel.inspectBackup(candidates.first().id)
             else -> pendingImportCandidates = candidates
         }
     }
 
     fun shareBackup() {
-        val file = runCatching { BackupFileBridge.createExportFile(context) }.getOrNull()
+        val file = runCatching { platformHost.backupFiles.createShareExportFile() }.getOrNull()
         if (file == null) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_share_prepare_failed))
+            viewModel.showUserMessage(sharePrepareFailedMessage)
             return
         }
-        val uri = BackupFileBridge.providerUriForFile(context, file)
+        val uri = platformHost.backupFiles.providerUri(file)
         viewModel.exportConfig(uri.toString()) {
-            runCatching { context.startActivity(BackupFileBridge.buildShareIntent(uri)) }
-                .onFailure { viewModel.showUserMessage(context.getString(R.string.settings_backup_share_failed)) }
+            if (platformHost.shareBackup(uri) is Result.Error) {
+                viewModel.showUserMessage(shareFailedMessage)
+            }
         }
     }
 
     fun exportBackupWithoutPicker() {
-        val uri = BackupFileBridge.createPickerFreeExportUri(context)
+        val uri = platformHost.backupFiles.createPickerFreeExportUri()
         if (uri == null) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_picker_free_failed))
+            viewModel.showUserMessage(pickerFreeFailedMessage)
             return
         }
         viewModel.exportConfig(
             uriString = uri.toString(),
-            successMessage = context.getString(R.string.settings_backup_picker_free_saved),
+            successMessage = pickerFreeSavedMessage,
             onFinished = { success ->
-                val published = BackupFileBridge.finishPickerFreeExport(context, uri, success)
+                val published = platformHost.backupFiles.finishPickerFreeExport(uri, success)
                 if (success && !published) {
-                    viewModel.showUserMessage(context.getString(R.string.settings_backup_picker_free_failed))
+                    viewModel.showUserMessage(pickerFreeFailedMessage)
                 }
             },
         )
@@ -241,22 +233,19 @@ fun SettingsScreen(
 
     // Fire-Stick-only: app-private folder on a plugged-in USB OTG drive. Null on every other device
     // and when no removable drive is attached, which keeps all USB controls hidden elsewhere.
-    val usbStorageDir: File? = remember(context) {
-        if (context.isFireTvDevice()) context.removableAppStorageDirs().firstOrNull() else null
-    }
+    val usbStorageDir: File? = remember(platformHost) { platformHost.removableBackupDirectory() }
 
     var showLocalBackupManager by remember { mutableStateOf(false) }
-    var managedLocalBackups by remember { mutableStateOf<List<BackupFileBridge.BackupFileCandidate>>(emptyList()) }
+    var managedLocalBackups by remember { mutableStateOf<List<SettingsBackupFileCandidate>>(emptyList()) }
 
     fun refreshManagedLocalBackups() {
         val usbCandidates = usbStorageDir
             ?.let { dir ->
-                BackupFileBridge.listBackupFiles(dir)
-                    .filter { it.name.startsWith("streamvault_backup_", ignoreCase = true) }
-                    .map(BackupFileBridge::candidateForFile)
+                platformHost.backupFiles.listBackups(dir)
+                    .filter { it.displayName.startsWith("streamvault_backup_", ignoreCase = true) }
             }
             .orEmpty()
-        managedLocalBackups = (BackupFileBridge.listManagedBackups(context) + usbCandidates)
+        managedLocalBackups = (platformHost.backupFiles.listManagedBackups() + usbCandidates)
             .distinctBy { it.uri.toString() }
             .sortedByDescending { it.lastModifiedMs }
     }
@@ -266,20 +255,20 @@ fun SettingsScreen(
         showLocalBackupManager = true
     }
 
-    fun deleteLocalBackup(candidate: BackupFileBridge.BackupFileCandidate) {
-        if (BackupFileBridge.deleteManagedBackup(context, candidate)) {
+    fun deleteLocalBackup(candidate: SettingsBackupFileCandidate) {
+        if (platformHost.backupFiles.delete(candidate)) {
             refreshManagedLocalBackups()
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_deleted))
+            viewModel.showUserMessage(deletedBackupMessage)
         } else {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_delete_failed))
+            viewModel.showUserMessage(deleteBackupFailedMessage)
         }
     }
 
     fun createBackupToUsb() {
         val dir = usbStorageDir ?: return
-        val file = runCatching { BackupFileBridge.createExportFile(dir) }.getOrNull()
+        val file = runCatching { platformHost.backupFiles.createExportFile(dir) }.getOrNull()
         if (file == null) {
-            viewModel.showUserMessage(context.getString(R.string.settings_backup_usb_failed))
+            viewModel.showUserMessage(usbBackupFailedMessage)
             return
         }
         viewModel.exportConfig(Uri.fromFile(file).toString())
@@ -287,35 +276,33 @@ fun SettingsScreen(
 
     fun restoreBackupFromUsb() {
         val dir = usbStorageDir ?: return
-        val candidates = BackupFileBridge.listBackupFiles(dir)
+        val candidates = platformHost.backupFiles.listBackups(dir)
             .map {
                 BackupDialogItem(
-                    id = Uri.fromFile(it).toString(),
-                    title = it.name,
+                    id = it.uri.toString(),
+                    title = it.displayName,
                     subtitle = formatBackupTimestamp(
-                        it.lastModified(),
-                        context.getString(R.string.settings_drive_unknown_backup_date),
+                        it.lastModifiedMs,
+                        unknownBackupDate,
                     ),
                 )
             }
         when {
             candidates.isEmpty() ->
-                viewModel.showUserMessage(context.getString(R.string.settings_backup_no_files_in_folder))
+                viewModel.showUserMessage(noFolderBackupsMessage)
             candidates.size == 1 -> viewModel.inspectBackup(candidates.first().id)
             else -> pendingImportCandidates = candidates
         }
     }
 
     fun shareCrashReport() {
-        val file = CrashReportStore.latestReportFile(context)
-        if (!file.isFile || file.length() <= 0L) {
-            viewModel.showUserMessage(context.getString(R.string.settings_crash_report_missing))
+        val result = platformHost.shareCrashReport()
+        if (result is Result.Error) {
+            viewModel.showUserMessage(result.message.ifBlank {
+                crashReportShareFailedMessage
+            })
             viewModel.refreshCrashReport()
-            return
         }
-        val uri = CrashReportStore.providerUriForFile(context, file)
-        runCatching { context.startActivity(CrashReportStore.buildShareIntent(uri)) }
-            .onFailure { viewModel.showUserMessage(context.getString(R.string.settings_crash_report_share_failed)) }
     }
 
     val driveSignInLauncher = rememberLauncherForActivityResult(
@@ -368,21 +355,22 @@ fun SettingsScreen(
 
     LaunchedEffect(currentRoute, dialogState.selectedCategory) {
         delay(80)
-        settingsNavFocusRequester.requestFocusSafely(tag = "SettingsScreen", target = "Selected settings section")
+            settingsNavFocusRequester.requestFocusSafely(tag = "SettingsScreen", target = "Selected settings section")
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AppScreenScaffold(
-            currentRoute = currentRoute,
-            onNavigate = { if (!uiState.isSyncing) onNavigate(it) },
+        CoreAppScreenScaffold(
+            currentDestinationId = currentRoute,
+            destinations = navigationDestinations,
+            onDestinationSelected = { if (!uiState.isSyncing) onNavigate(it) },
             title = stringResource(R.string.settings_title),
             subtitle = stringResource(R.string.settings_providers_subtitle),
-            navigationChrome = AppNavigationChrome.TopBar,
+            navigationChrome = NavigationChrome.TopBar,
             compactHeader = true,
             showScreenHeader = false,
             topBarActions = {
                 AppTopBarCloseAction(
-                    onClick = { mainActivity?.finishAffinity() },
+                    onClick = onCloseApp,
                     contentDescription = stringResource(R.string.settings_close_app)
                 )
             }
@@ -406,7 +394,7 @@ fun SettingsScreen(
                     uiState = uiState,
                     viewModel = viewModel,
                     context = context,
-                    appVersionLabel = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    appVersionLabel = "${platformHost.buildInfo.versionName} (${platformHost.buildInfo.versionCode})",
                     screenLabels = screenLabels,
                     dialogState = dialogState,
                     providerState = providerState,
@@ -418,7 +406,7 @@ fun SettingsScreen(
                             recordingFolderLauncher.launch(null)
                         } catch (e: ActivityNotFoundException) {
                             viewModel.showUserMessage(
-                                context.getString(R.string.settings_backup_folder_picker_unavailable)
+                                folderPickerUnavailableMessage
                             )
                         }
                     },
@@ -516,8 +504,7 @@ fun SettingsScreen(
                 selectedRecordingId = dialogState.selectedRecordingId,
                 onSelectedRecordingChange = { dialogState.selectedRecordingId = it },
                 onShowRecordingBrowserDialogChange = { dialogState.showRecordingBrowserDialog = it },
-                mainActivity = mainActivity,
-                currentRoute = currentRoute,
+                platformHost = platformHost,
                 viewModel = viewModel
             )
         },
@@ -529,7 +516,7 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_backup_choose_file_title),
             subtitle = stringResource(R.string.settings_restore_subtitle),
             items = pendingImportCandidates,
-            emptyMessage = stringResource(R.string.settings_backup_no_local_files),
+            emptyMessage = noLocalBackupsMessage,
             onSelect = { uri ->
                 pendingImportCandidates = emptyList()
                 viewModel.inspectBackup(uri)
@@ -570,7 +557,7 @@ fun SettingsScreen(
                     subtitle = formatSnapshotDetails(snapshot),
                 )
             },
-            emptyMessage = stringResource(R.string.settings_backup_no_local_files),
+            emptyMessage = noLocalBackupsMessage,
             onSelect = viewModel::selectDriveBackup,
             onDismiss = viewModel::dismissDriveBackupOptions,
         )
@@ -598,7 +585,7 @@ fun SettingsScreen(
 }
 
 @Composable
-internal fun formatLocalBackupDetails(candidate: BackupFileBridge.BackupFileCandidate): String {
+internal fun formatLocalBackupDetails(candidate: SettingsBackupFileCandidate): String {
     return formatBackupTimestamp(
         candidate.lastModifiedMs,
         stringResource(R.string.settings_drive_unknown_backup_date),
