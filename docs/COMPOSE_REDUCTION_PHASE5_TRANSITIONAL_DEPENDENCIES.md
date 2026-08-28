@@ -72,7 +72,7 @@ domain-facing contract exists.
 | settings | `data.local.dao.XtreamLiveOnboardingDao` | diagnostics/settings state | domain-owned onboarding status contract | Phase 7 |
 | settings | `data.local.entity.XtreamIndexJobEntity` | diagnostics formatting/state | domain-owned indexing status model | Phase 7 |
 | settings | `data.local.entity.XtreamLiveOnboardingStateEntity` | diagnostics formatting/state | domain-owned onboarding status model | Phase 7 |
-| settings | `data.local.model.DatabaseMaintenanceSnapshot` | database maintenance UI/state | domain-owned maintenance snapshot | Phase 7 |
+| settings | `data.preferences.DatabaseMaintenanceSnapshot` | database maintenance UI/state | domain-owned maintenance snapshot | Phase 7 |
 | settings | `data.preferences.PreferencesRepository` | settings/preferences state | domain-owned settings preference contract | Phase 7 |
 | settings | `data.sync.ProviderSyncCommands` | sync actions/state | domain-owned provider sync command contract | Phase 7 |
 | settings | `data.sync.SyncRepairSection` | sync repair UI/state | domain-owned sync repair model | Phase 7 |
@@ -80,3 +80,10 @@ domain-facing contract exists.
 `player.AudioCompatibilityMemoryStore` is a separate concrete dependency
 audit candidate. It is not included in the nine-entry `:data` ledger above and
 must not become a feature-to-feature implementation dependency.
+
+Settings dependency audit snapshot (2026-08-28): the feature production source
+still imports exactly the nine ledgered `:data` types listed above, plus
+`player.AudioCompatibilityMemoryStore`. The imports are confined to the
+Settings/parental state, observer, action, and formatting orchestration; no
+additional DAO or concrete implementation types were found. Replacing them
+requires domain-facing contracts and remains a Phase 7 task.
