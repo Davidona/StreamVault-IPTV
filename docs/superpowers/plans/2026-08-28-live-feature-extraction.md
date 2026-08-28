@@ -16,6 +16,9 @@ files, feature-owned resources, graph registration, integration cleanup, and
 runtime/performance gates remain open; this plan does not claim the Live slice
 or Phase 5 complete.
 
+Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
+codec still owns encode/decode compatibility and no route behavior changed.
+
 ## Global Constraints
 
 - Preserve the current working tree and unrelated changes; never reset, clean, delete, or rewrite unrelated work.
@@ -229,7 +232,7 @@ git commit -m "build(live): add isolated feature module"
 - Consumes: `AppDestination`, `Channel`, and `Program`.
 - Produces: exact route constants plus `LiveChannelPlaybackRequest` and `LiveArchivePlaybackRequest` for app-owned player mapping.
 
-- [ ] **Step 1: Write failing route compatibility tests**
+- [x] **Step 1: Write route compatibility tests**
 
 ```kotlin
 class LiveRoutePatternsTest {
@@ -253,7 +256,7 @@ Run:
 
 Expected: FAIL because `LiveRoutePatterns` does not exist.
 
-- [ ] **Step 2: Implement the exact route constants and run GREEN**
+- [x] **Step 2: Implement the exact route constants and run GREEN**
 
 Implement the four constants exactly as asserted. Rerun the focused test; expected PASS.
 
@@ -302,7 +305,7 @@ data class LiveArchivePlaybackRequest(
 
 Rerun both feature tests; expected PASS.
 
-- [ ] **Step 5: Make app compatibility constants delegate to the feature**
+- [x] **Step 5: Make app compatibility constants delegate to the feature**
 
 Replace only the four duplicated app constants with `LiveRoutePatterns` references. Add assertions to `AppRouteCodecTest` for `AppDestination.LiveTv` and all Guide argument combinations.
 
@@ -418,7 +421,7 @@ Run and expect missing adapters.
 
 Production constructors inject the current app implementations; internal test constructors accept the narrow suspend functions. Preserve results/exceptions without translation.
 
-- [ ] **Step 3: Write failing handoff mapping tests**
+- [x] **Step 3: Write handoff mapping tests**
 
 Cover all mappings:
 
@@ -431,7 +434,7 @@ assertThat(adapter.mapOrigin(LivePreviewOrigin.GUIDE)).isEqualTo(PreviewHandoffS
 
 Also register, begin, clear, and consume through a fake delegate, asserting channel IDs, engine identity, stream identity, origin, and boolean return values are unchanged.
 
-- [ ] **Step 4: Implement the handoff adapter and run GREEN**
+- [x] **Step 4: Implement the handoff adapter and run GREEN**
 
 The adapter must delegate to the injected singleton `LivePreviewHandoffManager`. It maps `reverseSessionFlow` to `Flow<LivePreviewOrigin?>` and maps a consumed session to `LivePreviewSession`; it must not create a second manager or reproduce release timers.
 
@@ -448,7 +451,7 @@ assertThat(statuses[2]).isEqualTo(LiveMultiViewStatus(1, 2))
 
 Expected: FAIL before `AppLiveMultiViewStatusAdapter` exists.
 
-- [ ] **Step 6: Implement MultiView mapping and Hilt bindings**
+- [x] **Step 6: Implement MultiView mapping and Hilt bindings**
 
 Implement `status` as `combine(slots, centerTwoSlotLayout)` returning
 `LiveMultiViewStatus(slots.count { it != null }, if (centerTwoSlotLayout) 2 else 4)`.
@@ -462,7 +465,7 @@ Bind all four ports in `AppLiveModule` with `@Binds`, `@Singleton`, and no busin
 
 Expected: PASS; Playback manager timeout/release behavior remains covered by its existing suite.
 
-- [ ] **Step 8: Commit the adapters**
+- [x] **Step 8: Commit the adapters**
 
 ```powershell
 git add app/src/main/java/com/streamvault/app/live app/src/test/java/com/streamvault/app/live
