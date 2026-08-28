@@ -38,7 +38,7 @@ provider runtime gates remain open under their respective reports.
   `AudioCompatibilityMemoryStore` audit is recorded there as a non-`:data`
   dependency.
 - Graphify was refreshed after the presentation move; the current corpus has
-  15,199 nodes, 29,586 edges, and 383 communities. `SettingsViewModel` remains
+  15,204 nodes, 29,615 edges, and 375 communities. `SettingsViewModel` remains
   a high-connectivity coordination node while moved presentation nodes now
   resolve under `feature/settings`.
 - The moved shared widget's default overview values match the app catalog
@@ -110,6 +110,8 @@ provider runtime gates remain open under their respective reports.
   television-device capability input
 - `80af3673` — split the recording dashboard/actions section from its
   app-owned browser launcher/navigation adapter
+- `9b72c593` — moved the recording browser dialog renderer into the settings
+  feature with explicit time-format and television-device inputs
 
 The design/spec and detailed implementation plan are tracked documentation for
 the ongoing slice:
@@ -548,6 +550,17 @@ BUILD SUCCESSFUL in 44s
 The feature now owns the recording dashboard/actions list; the app retains only
 the browser launcher adapter that decodes the current route and invokes the
 player callback.
+
+The recording-browser-renderer batch was verified with the same focused command:
+
+```text
+gradlew.bat :feature:settings:check :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon
+BUILD SUCCESSFUL in 47s
+```
+
+Dialog rendering, empty-state behavior, picker/detail focus handling, status
+filters, time-window formatting, and recording callbacks remain unchanged; the
+app adapter supplies only platform time/device values and player navigation.
 
 ## Open work and gates
 
