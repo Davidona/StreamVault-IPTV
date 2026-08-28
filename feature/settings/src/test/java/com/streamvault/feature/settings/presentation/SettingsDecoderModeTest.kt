@@ -1,10 +1,10 @@
-package com.streamvault.app.ui.screens.settings
+package com.streamvault.feature.settings.presentation
 
 import com.streamvault.feature.settings.presentation.*
 
 import android.content.Context
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.DecoderMode
 import org.junit.Test
 import org.mockito.kotlin.mock

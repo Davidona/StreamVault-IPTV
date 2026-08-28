@@ -687,12 +687,19 @@ feature. The app supplies only the `SettingsPlatformHost`, navigation
 destinations, provider callbacks, and close-app callback. Detailed evidence is
 in `validation/phase5_settings/task8-screen-extraction.md`.
 
+Five remaining presentation-model unit tests were also moved into the feature
+test source set. The app-owned update-model test remains in `:app` because it
+exercises app update implementation types.
+
 ## Open work and gates
 
 - Complete the resource-usage audit and remove only confirmed-obsolete app
   locale/default entries, wildcard imports, and duplicate defaults; the feature
   now owns the Settings and parental route registration contract and carries
   the translated locale batch.
+- Remove the remaining app-side settings test/resource compatibility seams only
+  after the app-owned update-model test and shared navigation/resource usages
+  have explicit owners.
 - Remove any remaining app-side settings compatibility shims only after their
   platform responsibilities have domain-facing contracts and the app root no
   longer needs them.
