@@ -1,8 +1,4 @@
-package com.streamvault.app.ui.screens.settings
-
-import com.streamvault.feature.settings.presentation.CompactRecordingActionChip
-import com.streamvault.feature.settings.presentation.recordingStatusAccent
-import com.streamvault.feature.settings.presentation.recordingStatusLabel
+package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +30,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnBackground
@@ -46,13 +42,14 @@ import com.streamvault.domain.model.RecordingStatus
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun RecordingBrowserSidebarControls(
+public fun RecordingBrowserSidebarControls(
     filteredCount: Int,
     totalCount: Int,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     statusFilter: RecordingStatus?,
-    onStatusFilterChange: (RecordingStatus?) -> Unit
+    onStatusFilterChange: (RecordingStatus?) -> Unit,
+    isTelevisionDevice: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -89,7 +86,8 @@ internal fun RecordingBrowserSidebarControls(
         }
         RecordingBrowserSearchField(
             searchQuery = searchQuery,
-            onSearchQueryChange = onSearchQueryChange
+            onSearchQueryChange = onSearchQueryChange,
+            isTelevisionDevice = isTelevisionDevice
         )
     }
 }
@@ -97,9 +95,9 @@ internal fun RecordingBrowserSidebarControls(
 @Composable
 private fun RecordingBrowserSearchField(
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    isTelevisionDevice: Boolean
 ) {
-    val isTelevisionDevice = com.streamvault.app.device.rememberIsTelevisionDevice()
     val searchFocusRequester = remember { FocusRequester() }
     val inputFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current

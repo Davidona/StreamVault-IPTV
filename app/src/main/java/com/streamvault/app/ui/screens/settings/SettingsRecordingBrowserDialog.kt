@@ -13,6 +13,7 @@ import com.streamvault.feature.settings.presentation.formatRecordingFailureCateg
 import com.streamvault.feature.settings.presentation.summarizeRecordingOutputPath
 import com.streamvault.feature.settings.presentation.formatTimestamp
 import com.streamvault.feature.settings.presentation.recordingListSecondaryLine
+import com.streamvault.feature.settings.presentation.RecordingBrowserSidebarControls
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -63,6 +64,7 @@ import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createDateTimeFormat
+import com.streamvault.app.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
@@ -183,6 +185,7 @@ private fun RecordingBrowserPanel(
     onToggleSchedule: (RecordingItem, Boolean) -> Unit
 ) {
     val selectedItem = recordingItems.firstOrNull { it.id == selectedRecordingId } ?: recordingItems.first()
+    val isTelevisionDevice = rememberIsTelevisionDevice()
     var searchQuery by remember { mutableStateOf("") }
     var statusFilter by remember { mutableStateOf<RecordingStatus?>(null) }
     val filteredItems = remember(recordingItems, searchQuery, statusFilter) {
@@ -219,7 +222,8 @@ private fun RecordingBrowserPanel(
                     searchQuery = searchQuery,
                     onSearchQueryChange = { searchQuery = it },
                     statusFilter = statusFilter,
-                    onStatusFilterChange = { statusFilter = it }
+                    onStatusFilterChange = { statusFilter = it },
+                    isTelevisionDevice = isTelevisionDevice
                 )
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
