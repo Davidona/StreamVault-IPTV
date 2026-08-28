@@ -41,6 +41,7 @@ import com.streamvault.feature.live.home.HomeLoadingPane
 import com.streamvault.feature.live.home.HomePreviewHost
 import com.streamvault.feature.live.home.LiveChannelResultsHeader
 import com.streamvault.feature.live.home.LiveCategorySidebarHeader
+import com.streamvault.feature.live.home.LiveCategoryListHost
 import com.streamvault.feature.live.home.LiveChannelContentHost
 import com.streamvault.feature.live.home.LiveChannelListHost
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
@@ -711,18 +712,11 @@ fun HomeScreen(
                             onSavedFilterSelected = viewModel::applySavedCategoryFilter
                         )
 
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(bottom = 16.dp)
-                        ) {
-
-                        items(
-                            items = visibleCategories,
-                            key = { it.id },
-                            contentType = { "live_category" }
-                        ) { category ->
+                        LiveCategoryListHost(
+                            categories = visibleCategories,
+                            categoryFocusRequesters = categoryFocusRequesters,
+                            itemContent = { category, categoryFocusRequester ->
                             val isLocked = isCategoryLocked(category)
-                            val categoryFocusRequester = categoryFocusRequesters.getOrPut(category.id) { FocusRequester() }
 
                             CategoryItem(
                                 category = category,
@@ -779,9 +773,9 @@ fun HomeScreen(
                                     }
                                 }
                             )
-                        }
+                            }
+                        )
                     }
-                }
 
                 // Content - Channel Grid / Pro Preview
                 Row(

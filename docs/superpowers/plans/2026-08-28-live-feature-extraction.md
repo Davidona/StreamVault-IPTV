@@ -22,7 +22,8 @@ loading/preview host supporting composables, the live source switcher, Home
 quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar,
 Home channel row surface, Home channel-results header, Home category sidebar
-header, channel-content state host, and channel-list host are now feature-owned
+header, channel-content state host, channel-list host, and category-list host
+are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -670,6 +671,9 @@ locked-empty, and no-channel presentation while keeping the channel-list slot
 in the app. The list mechanics now call `LiveChannelListHost` for lazy-list
 state, visible-window/load-more reporting, reorder key handling, and drag
 auto-scroll while the app retains row presentation and channel actions. The
+category sidebar now calls `LiveCategoryListHost`, which owns category list
+container/key/content-type mechanics while the app retains category policy,
+focus transitions, and callbacks. The
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

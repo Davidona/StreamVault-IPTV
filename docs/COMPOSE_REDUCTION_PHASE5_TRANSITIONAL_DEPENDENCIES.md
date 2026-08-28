@@ -132,7 +132,8 @@ the loading/preview host supporting composables, the live source switcher, Home
 quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar, and
 Home channel row surface, Home channel-results header, Home category sidebar
-header, channel-content state host, and channel-list host are now feature-owned
+header, channel-content state host, channel-list host, and category-list host
+are now feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app`.
 The source switcher receives localized labels from the app at the current
