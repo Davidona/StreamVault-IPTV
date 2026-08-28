@@ -1,7 +1,6 @@
 package com.streamvault.app.ui.screens.home
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,7 +30,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
@@ -49,10 +47,9 @@ import com.streamvault.feature.live.presentation.components.LiveChannelProgressT
 import com.streamvault.feature.live.presentation.components.LiveSourceSwitcher
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.feature.live.home.CategoryItem
-import com.streamvault.feature.live.home.CompactSplitLauncherButton
 import com.streamvault.feature.live.home.HomeLoadingPane
 import com.streamvault.feature.live.home.HomePreviewHost
-import com.streamvault.core.ui.components.shell.ContentMetadataStrip
+import com.streamvault.feature.live.home.LiveChannelResultsHeader
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.components.TvEmptyState
@@ -856,82 +853,40 @@ fun HomeScreen(
                             .weight(if (isProMode) 1.08f else 1f)
                             .fillMaxHeight()
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, top = 2.dp, bottom = if (isDenseMode) 4.dp else 6.dp, end = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(if (isDenseMode) 2.dp else 4.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = displayedCategory?.name ?: if (hasBlockedCategorySearch) {
-                                        stringResource(R.string.home_locked_short)
-                                    } else {
-                                        stringResource(R.string.home_all_channels)
-                                    },
-                                    style = if (isDenseMode) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
-                                    color = OnBackground,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Clip,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 8.dp)
-                                        .basicMarquee(
-                                            iterations = Int.MAX_VALUE,
-                                            initialDelayMillis = 900,
-                                            repeatDelayMillis = 1200,
-                                            velocity = 24.dp
-                                        )
-                                )
-                                if (hasSplitChannels) {
-                                    CompactSplitLauncherButton(
-                                        slotCount = uiState.multiviewChannelCount,
-                                        slotLimit = uiState.multiviewSlotCapacity,
-                                        onClick = { showSplitManagerDialog = true },
-                                        modifier = Modifier.padding(start = 12.dp)
-                                    )
-                                }
-                            }
-                            if (isDenseMode) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.live_channel_results, uiState.filteredChannels.size),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = OnSurfaceDim,
-                                        maxLines = 1
-                                    )
-                                }
+                        LiveChannelResultsHeader(
+                            heading = displayedCategory?.name ?: if (hasBlockedCategorySearch) {
+                                stringResource(R.string.home_locked_short)
                             } else {
-                                ContentMetadataStrip(
-                                    values = buildList {
-                                        add(stringResource(R.string.live_channel_results, uiState.filteredChannels.size))
-                                        uiState.lastVisitedCategory?.name?.let {
-                                            add(stringResource(R.string.label_colon_value_format, stringResource(R.string.live_shell_last_group), it))
-                                        }
-                                    }
-                                )
-                            }
-                            SearchInput(
-                                value = uiState.channelSearchQuery,
-                                onValueChange = {
-                                    if (!isReorderMode) {
-                                        viewModel.updateChannelSearchQuery(it)
-                                    }
-                                },
-                                placeholder = stringResource(R.string.home_search_channels),
-                                onSearch = {},
-                                focusRequester = channelSearchFocusRequester,
-                                modifier = Modifier.width(channelSearchWidth),
-                                enabled = !isReorderMode
-                            )
-                        }
+                                stringResource(R.string.home_all_channels)
+                            },
+                            resultCountLabel = stringResource(
+                                R.string.live_channel_results,
+                                uiState.filteredChannels.size
+                            ),
+                            metadataValues = buildList {
+                                add(stringResource(R.string.live_channel_results, uiState.filteredChannels.size))
+                                uiState.lastVisitedCategory?.name?.let {
+                                    add(
+                                        stringResource(
+                                            R.string.label_colon_value_format,
+                                            stringResource(R.string.live_shell_last_group),
+                                            it
+                                        )
+                                    )
+                                }
+                            },
+                            isDenseMode = isDenseMode,
+                            hasSplitChannels = hasSplitChannels,
+                            slotCount = uiState.multiviewChannelCount,
+                            slotLimit = uiState.multiviewSlotCapacity,
+                            onOpenSplit = { showSplitManagerDialog = true },
+                            channelSearchQuery = uiState.channelSearchQuery,
+                            onChannelSearchQueryChanged = viewModel::updateChannelSearchQuery,
+                            searchPlaceholder = stringResource(R.string.home_search_channels),
+                            channelSearchFocusRequester = channelSearchFocusRequester,
+                            channelSearchWidth = channelSearchWidth,
+                            isReorderMode = isReorderMode
+                        )
 
                         Crossfade(
                             targetState = uiState.selectedCategory?.id,
