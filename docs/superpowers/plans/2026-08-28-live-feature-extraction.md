@@ -27,7 +27,8 @@ and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
-pane, guide toolbar, guide message state, hero badge, and timeline header are now feature-owned
+pane, guide toolbar, guide message state, hero badge, timeline header, grid
+rows/cells, options overlay, and EPG-match dialog are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -713,7 +714,10 @@ The hero badge owns rounded highlight styling and text overflow presentation;
 callers supply the text and optional accent. Stable EPG channel-key generation
 and timeline marker calculation are feature-owned and covered by focused
 identity/timeline tests. The timeline header owns marker rendering and
-live-time presentation while the app supplies sizing and scroll state.
+live-time presentation while the app supplies sizing and scroll state. Grid
+rows/cells, options overlay, and EPG-match dialog likewise own their
+presentation and focus behavior while the app supplies localized labels and
+state/action callbacks.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

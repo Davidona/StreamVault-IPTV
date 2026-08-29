@@ -25,6 +25,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
 import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
+import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideDialog
+import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsOverlay
 import com.streamvault.feature.live.presentation.epg.liveGuideOptionsDayStart
@@ -877,9 +879,31 @@ fun FullEpgScreen(
         }
     }
 
-    if (overrideUiState.channel != null) {
-        EpgOverrideDialog(
-            state = overrideUiState,
+    val overrideChannel = overrideUiState.channel
+    if (overrideChannel != null) {
+        LiveGuideEpgOverrideDialog(
+            channel = overrideChannel,
+            currentMapping = overrideUiState.currentMapping,
+            searchQuery = overrideUiState.searchQuery,
+            candidates = overrideUiState.candidates,
+            isLoading = overrideUiState.isLoading,
+            isSaving = overrideUiState.isSaving,
+            error = overrideUiState.error,
+            labels = LiveGuideEpgOverrideLabels(
+                title = stringResource(R.string.epg_override_title),
+                currentLabel = stringResource(R.string.epg_override_current_label),
+                unknownValue = stringResource(R.string.epg_program_unknown_value),
+                currentNone = stringResource(R.string.epg_override_current_none),
+                currentManualFormat = stringResource(R.string.epg_override_current_manual),
+                currentProviderFormat = stringResource(R.string.epg_override_current_provider),
+                currentExternalFormat = stringResource(R.string.epg_override_current_external),
+                searchPlaceholder = stringResource(R.string.epg_override_search_placeholder),
+                noCandidates = stringResource(R.string.epg_override_no_candidates),
+                noSearchResults = stringResource(R.string.epg_override_no_search_results),
+                selectedBadge = stringResource(R.string.epg_override_selected_badge),
+                clear = stringResource(R.string.epg_override_clear),
+                cancel = stringResource(R.string.settings_cancel)
+            ),
             onDismiss = viewModel::dismissEpgOverride,
             onQueryChange = viewModel::updateEpgOverrideSearch,
             onCandidateSelected = viewModel::applyEpgOverride,

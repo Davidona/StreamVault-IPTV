@@ -1,16 +1,10 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.presentation.epg
 
-import com.streamvault.feature.live.presentation.epg.LiveGuideSearchField
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -22,19 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -42,86 +30,93 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.ChannelEpgMapping
 import com.streamvault.domain.model.EpgMatchType
 import com.streamvault.domain.model.EpgOverrideCandidate
 import com.streamvault.domain.model.EpgSourceType
 
-@Composable
-private fun GuideModalDialog(
-    onDismiss: () -> Unit,
-    contentAlignment: Alignment = Alignment.Center,
-    content: @Composable BoxScope.() -> Unit
-) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
-        )
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = contentAlignment
-        ) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(Color.Black.copy(alpha = 0.68f))
-                    .clickable(
-                        onClick = onDismiss,
-                        indication = null,
-                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                    )
-            )
-            content()
-        }
+data class LiveGuideEpgOverrideLabels(
+    val title: String,
+    val currentLabel: String,
+    val unknownValue: String,
+    val currentNone: String,
+    val currentManualFormat: String,
+    val currentProviderFormat: String,
+    val currentExternalFormat: String,
+    val searchPlaceholder: String,
+    val noCandidates: String,
+    val noSearchResults: String,
+    val selectedBadge: String,
+    val clear: String,
+    val cancel: String
+)
+
+private const val DESCRIPTOR_SEPARATOR = "  \u05D2\u20AC\u00A2  "
+
+internal fun liveGuideOverrideSummary(
+    mapping: ChannelEpgMapping?,
+    currentCandidate: EpgOverrideCandidate?,
+    unknownValue: String,
+    currentNone: String,
+    currentManualFormat: String,
+    currentProviderFormat: String,
+    currentExternalFormat: String
+): String {
+    val currentDescriptor = currentCandidate?.let {
+        "${it.displayName}$DESCRIPTOR_SEPARATOR${it.epgSourceName}$DESCRIPTOR_SEPARATOR${it.xmltvChannelId}"
+    } ?: (mapping?.xmltvChannelId ?: unknownValue)
+    return when {
+        mapping == null || mapping.sourceType == EpgSourceType.NONE -> currentNone
+        mapping.isManualOverride || mapping.matchType == EpgMatchType.MANUAL -> currentManualFormat.format(currentDescriptor)
+        mapping.sourceType == EpgSourceType.PROVIDER -> currentProviderFormat.format(currentDescriptor)
+        else -> currentExternalFormat.format(currentDescriptor)
     }
 }
 
 @Composable
-internal fun EpgOverrideDialog(
-    state: EpgOverrideUiState,
+fun LiveGuideEpgOverrideDialog(
+    channel: Channel,
+    currentMapping: ChannelEpgMapping?,
+    searchQuery: String,
+    candidates: List<EpgOverrideCandidate>,
+    isLoading: Boolean,
+    isSaving: Boolean,
+    error: String?,
+    labels: LiveGuideEpgOverrideLabels,
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     onCandidateSelected: (EpgOverrideCandidate) -> Unit,
     onClearOverride: () -> Unit
 ) {
-    val channel = state.channel ?: return
-    val unknownValue = stringResource(R.string.epg_program_unknown_value)
-    val currentCandidate = remember(state.currentMapping, state.candidates) {
-        state.candidates.firstOrNull {
-            it.epgSourceId == state.currentMapping?.epgSourceId &&
-                it.xmltvChannelId == state.currentMapping?.xmltvChannelId
+    val currentCandidate = remember(currentMapping, candidates) {
+        candidates.firstOrNull {
+            it.epgSourceId == currentMapping?.epgSourceId &&
+                it.xmltvChannelId == currentMapping.xmltvChannelId
         }
     }
-    val currentDescriptor = currentCandidate?.let {
-        "${it.displayName}  ג€¢  ${it.epgSourceName}  ג€¢  ${it.xmltvChannelId}"
-    } ?: (state.currentMapping?.xmltvChannelId ?: unknownValue)
-    val currentSummary = when {
-        state.currentMapping == null || state.currentMapping.sourceType == EpgSourceType.NONE ->
-            stringResource(R.string.epg_override_current_none)
-        state.currentMapping.isManualOverride || state.currentMapping.matchType == EpgMatchType.MANUAL ->
-            stringResource(R.string.epg_override_current_manual, currentDescriptor)
-        state.currentMapping.sourceType == EpgSourceType.PROVIDER ->
-            stringResource(R.string.epg_override_current_provider, currentDescriptor)
-        else ->
-            stringResource(R.string.epg_override_current_external, currentDescriptor)
-    }
+    val currentSummary = liveGuideOverrideSummary(
+        mapping = currentMapping,
+        currentCandidate = currentCandidate,
+        unknownValue = labels.unknownValue,
+        currentNone = labels.currentNone,
+        currentManualFormat = labels.currentManualFormat,
+        currentProviderFormat = labels.currentProviderFormat,
+        currentExternalFormat = labels.currentExternalFormat
+    )
 
     val searchFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { searchFocusRequester.requestFocus() }
 
-    GuideModalDialog(onDismiss = onDismiss) {
+    LiveGuideModalDialog(onDismiss = onDismiss) {
         Surface(
             modifier = Modifier.widthIn(min = 560.dp, max = 760.dp),
             colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
@@ -135,7 +130,7 @@ internal fun EpgOverrideDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.epg_override_title),
+                    text = labels.title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = OnSurface
                 )
@@ -146,7 +141,7 @@ internal fun EpgOverrideDialog(
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = stringResource(R.string.epg_override_current_label),
+                        text = labels.currentLabel,
                         style = MaterialTheme.typography.labelMedium,
                         color = Primary
                     )
@@ -156,14 +151,14 @@ internal fun EpgOverrideDialog(
                         color = OnSurface
                     )
                 }
-                if (!state.error.isNullOrBlank()) {
+                if (!error.isNullOrBlank()) {
                     Text(
-                        text = state.error,
+                        text = error,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-                if (state.isLoading || state.isSaving) {
+                if (isLoading || isSaving) {
                     LinearProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -173,20 +168,16 @@ internal fun EpgOverrideDialog(
                     )
                 }
                 LiveGuideSearchField(
-                    value = state.searchQuery,
+                    value = searchQuery,
                     onValueChange = onQueryChange,
-                    placeholder = stringResource(R.string.epg_override_search_placeholder),
+                    placeholder = labels.searchPlaceholder,
                     modifier = Modifier.fillMaxWidth(),
                     focusRequester = searchFocusRequester,
-                    onSearch = { onQueryChange(it) }
+                    onSearch = onQueryChange
                 )
-                if (state.candidates.isEmpty()) {
+                if (candidates.isEmpty()) {
                     Text(
-                        text = if (state.searchQuery.isBlank()) {
-                            stringResource(R.string.epg_override_no_candidates)
-                        } else {
-                            stringResource(R.string.epg_override_no_search_results)
-                        },
+                        text = if (searchQuery.isBlank()) labels.noCandidates else labels.noSearchResults,
                         style = MaterialTheme.typography.bodyMedium,
                         color = OnSurfaceDim
                     )
@@ -199,16 +190,14 @@ internal fun EpgOverrideDialog(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(
-                            items = state.candidates,
+                            items = candidates,
                             key = { candidate -> "${candidate.epgSourceId}:${candidate.xmltvChannelId}" }
                         ) { candidate ->
-                            val isCurrent = state.currentMapping?.epgSourceId == candidate.epgSourceId &&
-                                state.currentMapping?.xmltvChannelId == candidate.xmltvChannelId
+                            val isCurrent = currentMapping?.epgSourceId == candidate.epgSourceId &&
+                                currentMapping?.xmltvChannelId == candidate.xmltvChannelId
                             TvClickableSurface(
                                 onClick = {
-                                    if (!state.isSaving) {
-                                        onCandidateSelected(candidate)
-                                    }
+                                    if (!isSaving) onCandidateSelected(candidate)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
@@ -246,14 +235,14 @@ internal fun EpgOverrideDialog(
                                         )
                                         if (isCurrent) {
                                             Text(
-                                                text = stringResource(R.string.epg_override_selected_badge),
+                                                text = labels.selectedBadge,
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = Primary
                                             )
                                         }
                                     }
                                     Text(
-                                        text = "${candidate.epgSourceName}  ג€¢  ${candidate.xmltvChannelId}",
+                                        text = "${candidate.epgSourceName}$DESCRIPTOR_SEPARATOR${candidate.xmltvChannelId}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = OnSurfaceDim,
                                         maxLines = 2,
@@ -265,10 +254,10 @@ internal fun EpgOverrideDialog(
                     }
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (state.currentMapping?.isManualOverride == true) {
+                    if (currentMapping?.isManualOverride == true) {
                         TvButton(
                             onClick = onClearOverride,
-                            enabled = !state.isSaving,
+                            enabled = !isSaving,
                             modifier = Modifier.fillMaxWidth(),
                             scale = ButtonDefaults.scale(focusedScale = 1f),
                             colors = ButtonDefaults.colors(
@@ -276,7 +265,7 @@ internal fun EpgOverrideDialog(
                                 contentColor = OnSurface
                             )
                         ) {
-                            Text(stringResource(R.string.epg_override_clear))
+                            Text(labels.clear)
                         }
                     }
                     TvButton(
@@ -284,16 +273,14 @@ internal fun EpgOverrideDialog(
                         modifier = Modifier.fillMaxWidth(),
                         scale = ButtonDefaults.scale(focusedScale = 1f),
                         colors = ButtonDefaults.colors(
-                            containerColor = Color.Transparent,
+                            containerColor = androidx.compose.ui.graphics.Color.Transparent,
                             contentColor = OnSurface
                         )
                     ) {
-                        Text(stringResource(R.string.settings_cancel))
+                        Text(labels.cancel)
                     }
                 }
             }
         }
     }
 }
-
-
