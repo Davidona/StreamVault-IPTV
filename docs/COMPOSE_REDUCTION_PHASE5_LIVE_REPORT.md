@@ -78,6 +78,13 @@ Full PNG, hash, media-session, and logcat evidence is in
 `validation/phase5_live/task10-live-playback/`. The connected and route smoke
 record is `validation/phase5_live/task10-connected-validation.md`.
 
+The bounded Guide journey moved focus right/right through the timeline,
+down/down through program rows, and left/up back toward channel content while
+remaining on `streamvault.destination:epg`; Back restored
+`streamvault.destination:home`. The corresponding local screenshots and
+hierarchies are under `build/adb-validation/guide-journey-*` and
+`guide-back.xml`.
+
 ## Open gates
 
 - Full Home/EPG ViewModel-driven manual journey matrix (search, filters,
