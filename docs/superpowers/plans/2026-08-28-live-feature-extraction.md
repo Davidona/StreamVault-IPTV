@@ -25,7 +25,8 @@ Home channel row surface, Home channel-results header, Home category sidebar
 header, channel-content state host, channel-list host, and category-list host
 and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
-organizer dialog, and M3U series-assignment dialogs are now feature-owned
+organizer dialog, M3U series-assignment dialogs, and the EPG search overlay are
+now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -691,6 +692,8 @@ The M3U category organizer likewise receives explicit labels and reports only
 the selected classification target to the app.
 The single-item and category-review series dialogs own draft normalization and
 assignment construction while the app retains repository mutations.
+The EPG search overlay owns modal/search presentation and focus behavior while
+Home/Guide callers supply localized labels and query callbacks.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

@@ -37,7 +37,8 @@ import com.streamvault.app.ui.screens.epg.EpgViewModel
 import com.streamvault.app.ui.screens.epg.GuideCategoryPickerDialog
 import com.streamvault.app.ui.screens.epg.GuideMessageState
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
-import com.streamvault.app.ui.screens.epg.GuideSearchOverlay
+import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
+import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlayLabels
 import com.streamvault.app.ui.screens.epg.GuideToolbarButton
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
@@ -268,8 +269,15 @@ fun PlayerTransparentGuideOverlay(
         }
 
         if (showSearchOverlay) {
-            GuideSearchOverlay(
+            LiveGuideSearchOverlay(
                 query = uiState.programSearchQuery,
+                labels = LiveGuideSearchOverlayLabels(
+                    title = stringResource(R.string.epg_search_label),
+                    apply = stringResource(R.string.epg_search_apply),
+                    clearAndClose = stringResource(R.string.epg_clear_search_close),
+                    searchPlaceholder = stringResource(R.string.epg_search_placeholder),
+                    clear = stringResource(R.string.epg_clear_search)
+                ),
                 onQueryChange = onSearchQueryChange,
                 onClear = onClearSearch,
                 onDismiss = { showSearchOverlay = false }
