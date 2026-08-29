@@ -134,7 +134,8 @@ EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar, and
 Home channel row surface, Home channel-results header, Home category sidebar
 header, channel-content state host, channel-list host, and category-list host
 and hidden category/channel dialogs, the category options dialog, the
-quick-filter add dialog, and the delete-group dialog are now feature-owned
+quick-filter add dialog, delete-group dialog, and rename-group dialog are now
+feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
@@ -142,7 +143,7 @@ The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned
 presentation primitives, `HomeUiState`, `HomePreviewUiState`, Guide
 mode/density/reminder presentation models, hidden collection dialogs, the
-category options dialog, the quick-filter add dialog, and the delete-group
-dialog are independent of app code;
+category options dialog, the quick-filter add dialog, the delete-group dialog,
+and the rename-group dialog are independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

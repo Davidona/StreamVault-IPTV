@@ -14,7 +14,6 @@ import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog
 import com.streamvault.app.ui.components.dialogs.M3uSeriesAssignmentDialog
@@ -26,6 +25,8 @@ import com.streamvault.feature.live.home.LiveAddQuickFilterDialog
 import com.streamvault.feature.live.home.LiveAddQuickFilterDialogLabels
 import com.streamvault.feature.live.home.LiveDeleteGroupDialog
 import com.streamvault.feature.live.home.LiveDeleteGroupDialogLabels
+import com.streamvault.feature.live.home.LiveRenameGroupDialog
+import com.streamvault.feature.live.home.LiveRenameGroupDialogLabels
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -341,9 +342,16 @@ internal fun HomeDialogsHost(
 
     val groupToRename = uiState.groupToRename
     if (uiState.showRenameGroupDialog && groupToRename != null) {
-        RenameGroupDialog(
+        LiveRenameGroupDialog(
             initialName = groupToRename.name,
             errorMessage = uiState.renameGroupError,
+            labels = LiveRenameGroupDialogLabels(
+                title = stringResource(R.string.category_options_rename),
+                hint = stringResource(R.string.library_saved_manage_hint),
+                nameLabel = stringResource(R.string.add_group_name_hint),
+                cancel = stringResource(R.string.add_group_cancel),
+                confirm = stringResource(R.string.add_group_rename)
+            ),
             onDismissRequest = { viewModel.cancelRenameGroup() },
             onConfirm = { name -> viewModel.confirmRenameGroup(name) }
         )
