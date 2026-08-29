@@ -55,6 +55,7 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
+import com.streamvault.feature.live.presentation.home.liveHomeLayoutMetrics
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
@@ -119,36 +120,16 @@ fun HomeScreen(
     val isReorderMode = uiState.isChannelReorderMode
     val isProMode = uiState.liveTvChannelMode == LiveTvChannelMode.PRO
     val isDenseMode = uiState.liveTvChannelMode != LiveTvChannelMode.COMFORTABLE
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isTelevisionDevice = rememberIsTelevisionDevice()
-    val sidebarWidth = if (screenWidth < 900.dp) {
-        (screenWidth * 0.36f).coerceIn(188.dp, 220.dp)
-    } else if (!isTelevisionDevice && screenWidth < 1280.dp) {
-        (screenWidth * 0.28f).coerceIn(220.dp, 252.dp)
-    } else {
-        272.dp
-    }
-    val channelSearchWidth = if (screenWidth < 900.dp) {
-        (screenWidth * 0.34f).coerceIn(170.dp, 220.dp)
-    } else if (!isTelevisionDevice && screenWidth < 1280.dp) {
-        (screenWidth * 0.28f).coerceIn(220.dp, 280.dp)
-    } else if (isProMode) {
-        320.dp
-    } else if (isDenseMode) {
-        300.dp
-    } else {
-        340.dp
-    }
-    val channelRowHeight = when (uiState.liveTvChannelMode) {
-        LiveTvChannelMode.COMFORTABLE -> 92.dp
-        LiveTvChannelMode.COMPACT -> 54.dp
-        LiveTvChannelMode.PRO -> 52.dp
-    }
-    val channelListSpacing = when (uiState.liveTvChannelMode) {
-        LiveTvChannelMode.COMFORTABLE -> 8.dp
-        LiveTvChannelMode.COMPACT -> 2.dp
-        LiveTvChannelMode.PRO -> 2.dp
-    }
+    val layoutMetrics = liveHomeLayoutMetrics(
+        screenWidthDp = LocalConfiguration.current.screenWidthDp,
+        isTelevisionDevice = isTelevisionDevice,
+        channelMode = uiState.liveTvChannelMode
+    )
+    val sidebarWidth = layoutMetrics.sidebarWidth
+    val channelSearchWidth = layoutMetrics.channelSearchWidth
+    val channelRowHeight = layoutMetrics.channelRowHeight
+    val channelListSpacing = layoutMetrics.channelListSpacing
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Split screen state
