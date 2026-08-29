@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.epg
 
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.presentation.model.guideLookupKey
@@ -64,7 +64,7 @@ import java.time.Instant
 import java.time.ZoneId
 import javax.inject.Inject
 import android.app.Application
-import com.streamvault.app.R
+import com.streamvault.feature.live.R
 import com.streamvault.player.di.AuxiliaryPlayerEngine
 import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewOrigin

@@ -127,6 +127,15 @@ typealias LiveHomeScaffoldContent = @Composable (
     content: @Composable ColumnScope.() -> Unit,
 ) -> Unit
 
+/** App-shell adapter used while the Guide surface moves out of the composition root. */
+typealias LiveEpgScaffoldContent = @Composable (
+    currentRoute: String,
+    title: String,
+    subtitle: String?,
+    topBarVisible: Boolean,
+    content: @Composable ColumnScope.() -> Unit,
+) -> Unit
+
 /** Home content injected by the composition root into the feature-owned route. */
 typealias LiveTvContent = @Composable (
     initialCategoryId: Long?,

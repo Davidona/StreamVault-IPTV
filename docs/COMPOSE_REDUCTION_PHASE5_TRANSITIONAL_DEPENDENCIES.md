@@ -195,3 +195,11 @@ adapters, preserving composition-root ownership of platform and route
 navigation. The default Home resource keys were copied into the feature;
 non-default locale parity, behavior tests, golden/runtime checks, and legacy
 resource cleanup remain open.
+
+The Guide surface is now feature-owned as `LiveEpgScreen`,
+`LiveEpgHeroComponents`, `EpgViewModel`, and the deferred
+`LivePlayerTransparentGuideOverlay`. The app graph supplies the typed playback
+callbacks and `LiveEpgScaffoldContent` adapter; the feature owns Guide state,
+preview lifecycle calls, controls, dialogs, hero/grid composition, and default
+EPG strings. EPG behavior tests, non-default locale parity, golden/runtime
+checks, and legacy cleanup remain open.

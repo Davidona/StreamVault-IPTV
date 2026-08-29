@@ -12,5 +12,11 @@ class LiveRoutePatternsTest {
         assertThat(LiveRoutePatterns.EPG).isEqualTo("epg")
         assertThat(LiveRoutePatterns.EPG_DESTINATION)
             .isEqualTo("epg?categoryId={categoryId}&anchorTime={anchorTime}&favoritesOnly={favoritesOnly}")
+        assertThat(LiveRoutePatterns.epg()).isEqualTo(
+            "epg?categoryId=-1&anchorTime=-1&favoritesOnly=false"
+        )
+        assertThat(LiveRoutePatterns.epg(42L, 1_234L, true)).isEqualTo(
+            "epg?categoryId=42&anchorTime=1234&favoritesOnly=true"
+        )
     }
 }

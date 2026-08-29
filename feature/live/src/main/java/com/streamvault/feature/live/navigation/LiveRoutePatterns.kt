@@ -7,4 +7,10 @@ object LiveRoutePatterns {
     const val EPG = "epg"
     const val EPG_DESTINATION =
         "epg?categoryId={categoryId}&anchorTime={anchorTime}&favoritesOnly={favoritesOnly}"
+
+    fun epg(categoryId: Long? = null, anchorTime: Long? = null, favoritesOnly: Boolean = false): String {
+        val encodedCategoryId = categoryId ?: -1L
+        val encodedAnchorTime = anchorTime ?: -1L
+        return "$EPG?categoryId=$encodedCategoryId&anchorTime=$encodedAnchorTime&favoritesOnly=$favoritesOnly"
+    }
 }

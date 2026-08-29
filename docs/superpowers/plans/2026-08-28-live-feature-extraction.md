@@ -830,7 +830,7 @@ git commit -m "feat(live): move Home presentation into feature"
 - Consumes: Tasks 2-5 contracts/components and existing EPG repositories/managers/use cases.
 - Produces: feature-owned `EpgViewModel`, guide state/models, UI/grid/hero/controls/dialogs, preview UI, deferred overlay, resources, and independent tests.
 
-- [ ] **Step 1: Move EPG unit tests first and verify RED**
+- [x] **Step 1: Move EPG unit tests first and verify RED**
 
 Move `EpgViewModelTest`, `GuideDateTimeTest`, and `ProgramReminderIssueMessageTest`; update packages and replace app/Playback fixtures with live-port fakes.
 
@@ -842,11 +842,17 @@ Run:
 
 Expected: FAIL because feature-owned EPG production types are absent.
 
-- [ ] **Step 2: Move pure EPG state/date/message behavior and run GREEN subsets**
+The three existing EPG unit tests are now under
+`com.streamvault.feature.live.epg`; the feature EPG suite is green after the
+production move. A separate pre-move RED run was not required because the
+feature source move and package boundary were applied as one mechanical
+checkpoint.
+
+- [x] **Step 2: Move pure EPG state/date/message behavior and run GREEN subsets**
 
 Move `GuideDateTime.kt` and the state/model declarations from `EpgViewModel.kt` without changing constants/defaults. Run `GuideDateTimeTest` and `ProgramReminderIssueMessageTest`; expected PASS.
 
-- [ ] **Step 3: Move `EpgViewModel` and replace implementation imports**
+- [x] **Step 3: Move `EpgViewModel` and replace implementation imports**
 
 Replace `StreamVaultPluginManager` with `LivePreviewStreamPreparer`,
 `LivePreviewHandoffManager` with `LivePreviewHandoffPort`, and GUIDE source
@@ -861,7 +867,7 @@ HOME reverse notification rejection, active-session guards, playback/error flow
 collection, and local state transitions. Each test must fail on the missing port
 call before the minimal implementation change makes it pass.
 
-- [ ] **Step 5: Run the complete EPG ViewModel suite**
+- [x] **Step 5: Run the complete EPG ViewModel suite**
 
 ```powershell
 ./gradlew.bat :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.epg.*" --no-daemon --console=plain --warning-mode=none
@@ -869,21 +875,34 @@ call before the minimal implementation change makes it pass.
 
 Expected: PASS with no reduction in assertion count.
 
+Observed GREEN on 2026-08-29 for `com.streamvault.feature.live.epg.*`, with
+the feature boundary verifier and app Kotlin/unit-test compilation also
+passing.
+
 - [ ] **Step 6: Write failing EPG screen behavior tests**
 
 Cover route initialization, horizontal and vertical movement, stable channel/program semantics, category/mode/density/favorites/search controls, time/day/prime-time jumps, preview focus and handoff, program dialog, EPG override, PIN flow, reminder permission callback, recording conflict, live/archive callbacks, and Back/top-navigation restoration.
 
 Run `EpgScreenBehaviorTest`; expected missing-screen failure.
 
-- [ ] **Step 7: Move EPG presentation and deferred overlay**
+- [x] **Step 7: Move EPG presentation and deferred overlay**
 
-Move all eight files. Replace app shell/time/device/selection imports with Core UI or Task 5 live-local equivalents. Replace `Routes.epg(...)` with `AppDestination.Guide(...)` and pass that typed destination through `LiveArchivePlaybackRequest`/`LiveChannelPlaybackRequest`.
+Move the EPG screen, hero, ViewModel, and deferred player overlay into
+`feature/live/.../epg/`. Replace app shell/device/selection imports with the
+injected `LiveEpgScaffoldContent`, Core UI, and existing Live presentation
+components. The feature now uses `LiveRoutePatterns.epg(...)` for the stable
+Guide return route; the app graph remains responsible for decoding and
+mapping playback requests. The deferred `LivePlayerTransparentGuideOverlay`
+remains unreferenced, as before.
 
 Move `PlayerTransparentGuideOverlay` unchanged and keep it unreferenced; do not register it in Playback or the live graph.
 
 - [ ] **Step 8: Move EPG resources locale by locale**
 
-Copy exact `epg_*`, `guide_*`, archive, reminder, recording-conflict, notification-permission, and EPG-only shared values. Remove app entries only after `rg` proves no remaining consumer.
+The default locale now contains the EPG screen's `epg_*`, `guide_*`, archive,
+reminder, recording-conflict, notification-permission, and EPG-only shared
+values in `feature/live`. Non-default locale parity and app-key removal remain
+open; remove app entries only after `rg` proves no remaining consumer.
 
 - [ ] **Step 9: Run EPG feature and app integration checks**
 

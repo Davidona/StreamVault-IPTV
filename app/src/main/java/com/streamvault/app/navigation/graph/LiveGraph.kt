@@ -6,7 +6,6 @@ import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
-import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
@@ -19,6 +18,7 @@ import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
 import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
 import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
 import com.streamvault.feature.live.home.LiveHomeScreen
+import com.streamvault.feature.live.epg.LiveEpgScreen
 import com.streamvault.feature.live.navigation.registerLiveGraph as registerFeatureLiveGraph
 
 internal fun NavGraphBuilder.registerLiveGraph(
@@ -97,7 +97,7 @@ internal fun NavGraphBuilder.registerLiveGraph(
             onArchivePlaybackRequested,
             onNavigate,
         ->
-            FullEpgScreen(
+            LiveEpgScreen(
                 currentRoute = AppRoutePatterns.EPG,
                 initialCategoryId = initialCategoryId,
                 initialAnchorTime = initialAnchorTime,
@@ -116,7 +116,7 @@ internal fun NavGraphBuilder.registerLiveGraph(
                     )
                 },
                 onPlayArchive = { channel, program, categoryId, isVirtual, combinedProfileId, returnRoute ->
-                    if (!channel.isArchivePlayable(program)) return@FullEpgScreen
+                    if (!channel.isArchivePlayable(program)) return@LiveEpgScreen
                     onArchivePlaybackRequested(
                         LiveArchivePlaybackRequest(
                             channel = channel,
@@ -129,6 +129,19 @@ internal fun NavGraphBuilder.registerLiveGraph(
                     )
                 },
                 onNavigate = onNavigate,
+                scaffold = { route, title, subtitle, topBarVisible, content ->
+                    AppScreenScaffold(
+                        currentRoute = route,
+                        onNavigate = onNavigate,
+                        title = title,
+                        subtitle = subtitle,
+                        navigationChrome = AppNavigationChrome.TopBar,
+                        topBarVisible = topBarVisible,
+                        compactHeader = true,
+                        showScreenHeader = false,
+                        content = content,
+                    )
+                },
             )
         },
         onPlaybackRequested = { request ->

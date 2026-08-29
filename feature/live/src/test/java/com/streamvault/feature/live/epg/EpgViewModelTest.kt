@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.epg
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage

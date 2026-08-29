@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.epg
 
 import android.view.inputmethod.InputMethodManager
 import com.streamvault.domain.playback.ArchiveReplayMechanism
@@ -33,6 +33,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsOverlay
 import com.streamvault.feature.live.presentation.epg.liveGuideOptionsDayStart
+import com.streamvault.feature.live.api.LiveEpgScaffoldContent
+import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -117,17 +119,11 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.live.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
-import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
-import com.streamvault.app.ui.components.SelectionChip
-import com.streamvault.app.ui.components.SelectionChipRow
 import kotlinx.coroutines.launch
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -163,7 +159,7 @@ private sealed interface LockedGuideAction {
 }
 
 @Composable
-fun FullEpgScreen(
+fun LiveEpgScreen(
     currentRoute: String,
     initialCategoryId: Long? = null,
     initialAnchorTime: Long? = null,
@@ -171,6 +167,7 @@ fun FullEpgScreen(
     onPlayChannel: (Channel, Long, Boolean, Long?, String) -> Unit,
     onPlayArchive: (Channel, Program, Long, Boolean, Long?, String) -> Unit,
     onNavigate: (String) -> Unit,
+    scaffold: LiveEpgScaffoldContent,
     viewModel: EpgViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -199,7 +196,7 @@ fun FullEpgScreen(
         recordingBlockedMessage = stringResource(R.string.notification_permission_recording_alert_required)
     )
     val returnRoute = remember(uiState.selectedCategoryId, uiState.guideAnchorTime, uiState.showFavoritesOnly) {
-        Routes.epg(
+        LiveRoutePatterns.epg(
             categoryId = uiState.selectedCategoryId.takeIf { it != ChannelRepository.ALL_CHANNELS_ID },
             anchorTime = uiState.guideAnchorTime,
             favoritesOnly = uiState.showFavoritesOnly
@@ -403,16 +400,7 @@ fun FullEpgScreen(
         else -> null
     }
 
-    AppScreenScaffold(
-        currentRoute = currentRoute,
-        onNavigate = onNavigate,
-        title = stringResource(R.string.nav_epg),
-        subtitle = stringResource(R.string.guide_shell_subtitle),
-        navigationChrome = AppNavigationChrome.TopBar,
-        topBarVisible = topNavVisible,
-        compactHeader = true,
-        showScreenHeader = false
-    ) {
+    scaffold(currentRoute, stringResource(R.string.nav_epg), stringResource(R.string.guide_shell_subtitle), topNavVisible) {
         LiveGuideContent(
             modifier = Modifier.fillMaxSize(),
             isInitialLoading = uiState.isInitialLoading,

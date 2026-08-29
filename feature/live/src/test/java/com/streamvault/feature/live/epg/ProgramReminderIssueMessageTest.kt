@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.epg
 
 import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssueMessage
 

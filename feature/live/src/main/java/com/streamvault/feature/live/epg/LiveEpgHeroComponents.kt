@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.epg
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
+import com.streamvault.feature.live.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.LiveGuideHeroBadge
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
