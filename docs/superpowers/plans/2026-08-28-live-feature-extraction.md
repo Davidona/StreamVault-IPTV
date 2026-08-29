@@ -804,7 +804,7 @@ remain intact for other consumers. Copy exact values for every non-default
 key, then run a comparison script before removing any app key. Locale parity
 and removal are still open.
 
-- [ ] **Step 8: Run Home feature and app integration checks**
+- [x] **Step 8: Run Home feature and app integration checks**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.home.*" :feature:live:compileDebugAndroidTestKotlin :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
@@ -812,7 +812,7 @@ and removal are still open.
 
 Expected: PASS; no app or Playback feature import exists under `feature/live/src/main`.
 
-- [ ] **Step 9: Commit Home ownership**
+- [x] **Step 9: Commit Home ownership**
 
 ```powershell
 git add app/src/main/java/com/streamvault/app/ui/screens/home app/src/test/java/com/streamvault/app/ui/screens/home feature/live
@@ -914,7 +914,7 @@ reminder, recording-conflict, notification-permission, and EPG-only shared
 values in `feature/live`. Non-default locale parity and app-key removal remain
 open; remove app entries only after `rg` proves no remaining consumer.
 
-- [ ] **Step 9: Run EPG feature and app integration checks**
+- [x] **Step 9: Run EPG feature and app integration checks**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.epg.*" :feature:live:compileDebugAndroidTestKotlin :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --no-daemon --console=plain --warning-mode=none
@@ -922,7 +922,7 @@ open; remove app entries only after `rg` proves no remaining consumer.
 
 Expected: PASS with no app/feature implementation imports under live main source.
 
-- [ ] **Step 10: Commit EPG ownership**
+- [x] **Step 10: Commit EPG ownership**
 
 ```powershell
 git add app/src/main/java/com/streamvault/app/ui/screens/epg app/src/test/java/com/streamvault/app/ui/screens/epg feature/live
@@ -946,7 +946,7 @@ git commit -m "feat(live): move EPG presentation into feature"
 - Consumes: live route/request contracts, feature screens, `UiDestination`, app navigation adapters, and existing Playback planner.
 - Produces: controller-free `registerLiveGraph` called by `AppNavHost`, with field-for-field player request mapping and app-composed MultiView planner.
 
-- [ ] **Step 1: Write failing graph contract tests**
+- [x] **Step 1: Add graph contract coverage**
 
 Use `TestNavHostController`/Navigation testing to assert:
 
@@ -959,11 +959,16 @@ Use `TestNavHostController`/Navigation testing to assert:
 
 Run the focused test; expected missing `registerLiveGraph` failure.
 
+`LiveGraphBehaviorTest` now runs connected on the TV emulator and verifies the
+Live category argument, Guide optional arguments, and typed channel/archive
+callback payloads. The test is green; a separate pre-implementation RED run
+was not needed because the feature graph was already present at this checkpoint.
+
 - [x] **Step 2: Implement feature graph registration minimally**
 
 Use the exact signature from the spec. Construct both `composable` destinations with current `NavType` and defaults. Call `HomeScreen` and `FullEpgScreen` directly. Do not import app route codecs or construct `PlayerNavigationRequest` in the feature.
 
-- [ ] **Step 3: Write failing app player-mapping tests**
+- [x] **Step 3: Write app player-mapping tests**
 
 For a channel request assert stream URL, title, EPG channel ID, internal ID,
 category fallback to `ChannelRepository.ALL_CHANNELS_ID`, provider, virtual,
@@ -972,6 +977,9 @@ combined profile/source filter, `contentType = "LIVE"`, and return destination.
 For archive assert archive start/end/title, category/provider identity,
 `contentType = "LIVE"`, and Guide return destination. Include the existing
 `isArchivePlayable` rejection at the app callback boundary.
+
+`AppLivePlaybackRequestMapperTest` covers these fields and the rejection path;
+the first run was intentionally red until the mapper existed.
 
 - [x] **Step 4: Implement app request mapping and run GREEN**
 
@@ -993,13 +1001,16 @@ Replace the app graph call with `com.streamvault.feature.live.navigation.registe
 
 First compile while the old app registration still exists and confirm the duplicate-route or duplicate-symbol problem is observable. Remove only the old `LiveGraph.kt`, then rerun.
 
-- [ ] **Step 7: Run route, mapping, app navigation, and feature checks**
+- [x] **Step 7: Run route, mapping, app navigation, and feature checks**
 
 ```powershell
 ./gradlew.bat :feature:live:testDebugUnitTest --tests "com.streamvault.feature.live.navigation.*" :app:testDebugUnitTest --tests "com.streamvault.app.live.AppLivePlaybackRequestMapperTest" --tests "com.streamvault.app.navigation.*" :feature:live:verifyFeatureLiveBoundary :app:compileDebugKotlin --no-daemon --console=plain --warning-mode=none
 ```
 
 Expected: PASS with one production owner for each live destination.
+
+The route/mapping/navigation bundle passed on 2026-08-29, including the Live
+boundary verifier and app Kotlin compilation.
 
 - [ ] **Step 8: Commit graph ownership**
 

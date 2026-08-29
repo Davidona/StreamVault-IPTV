@@ -4,8 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
-import com.streamvault.app.navigation.playerNavigationRequest
-import com.streamvault.app.navigation.toLivePlayerRequest
+import com.streamvault.app.live.toAppArchivePlayerNavigationRequest
+import com.streamvault.app.live.toAppPlayerNavigationRequest
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
@@ -145,35 +145,10 @@ internal fun NavGraphBuilder.registerLiveGraph(
             )
         },
         onPlaybackRequested = { request ->
-            actions.openPlayer(
-                request.channel.toLivePlayerRequest(
-                    categoryId = request.categoryId,
-                    providerId = request.providerId,
-                    isVirtual = request.isVirtual,
-                    combinedProfileId = request.combinedProfileId,
-                    combinedSourceFilterProviderId = request.combinedSourceFilterProviderId,
-                    returnDestination = request.returnRoute?.let(AppRouteCodec::decode),
-                )
-            )
+            actions.openPlayer(request.toAppPlayerNavigationRequest())
         },
         onArchivePlaybackRequested = { request ->
-            actions.openPlayer(
-                playerNavigationRequest(
-                    streamUrl = request.channel.streamUrl,
-                    title = request.channel.name,
-                    channelId = request.channel.epgChannelId,
-                    internalId = request.channel.id,
-                    categoryId = request.categoryId,
-                    providerId = request.channel.providerId,
-                    isVirtual = request.isVirtual,
-                    combinedProfileId = request.combinedProfileId,
-                    contentType = "LIVE",
-                    archiveStartMs = request.program.startTime,
-                    archiveEndMs = request.program.endTime,
-                    archiveTitle = "${request.channel.name}: ${request.program.title}",
-                    returnDestination = request.returnRoute?.let(AppRouteCodec::decode),
-                )
-            )
+            request.toAppArchivePlayerNavigationRequest()?.let(actions::openPlayer)
         },
         onNavigate = { route ->
             AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
