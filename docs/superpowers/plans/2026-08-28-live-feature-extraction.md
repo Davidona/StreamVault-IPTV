@@ -699,6 +699,11 @@ Cover route category initialization, source/category/channel focus, quick-filter
 
 Run `HomeScreenBehaviorTest`; expected missing-screen failure.
 
+`HomePresentationBehaviorTest` now provides connected coverage for extracted
+channel identity/program/favorite/catch-up semantics, locked-row state, and
+category rendering. The full ViewModel-driven Home journey (focus, dialogs,
+PIN, preview states, and planner callbacks) remains open.
+
 - [ ] **Step 6: Move Home UI and wire live-local/core components**
 
 Move `HomeScreen.kt`, `HomeScreenDialogs.kt`, and `HomeSidebarComponents.kt`. Replace app navigation strings with typed `AppDestination`, app shell with `CoreAppScreenScaffold`/`UiDestination`, device/time helpers with Core UI, and direct MultiView composables with `LiveMultiViewPlannerContent`.
