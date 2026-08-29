@@ -99,7 +99,8 @@ the exhaustive search/filter/PIN/favorite/reorder/reminder/recording/archive/
 RTL/reduced-motion matrix therefore remains open. A second Enter handed the
 selected Guide channel to the existing full-screen player; its overlay exposed
 EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
-No queued-channel fixture was available to validate the Multiview planner
+Activating Multiview returned to the Live route with the empty-favorites/queue
+state; no queued-channel fixture was available to validate a populated planner
 result.
 
 ## Open gates
