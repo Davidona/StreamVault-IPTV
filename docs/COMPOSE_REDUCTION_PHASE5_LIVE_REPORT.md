@@ -54,6 +54,10 @@ following Live checkpoints (plus the final lint fix):
 - Focused feature/app structural bundle (unit tests, lint, Android-test
   compilation, app compilation/tests, and debug assembly): passed after the
   lint fix. Gradle reported 235 actionable tasks, 23 executed, 212 up-to-date.
+- Final fresh verification (`:feature:live:verifyFeatureLiveBoundary`,
+  `:feature:live:check`, Android-test compilation, app unit tests/assembly, and
+  `verifyBaselineProfileSources`): passed in 2m 35s (373 actionable tasks; 23
+  executed, 2 from cache, 348 up-to-date).
 - Graphify refreshed at 15,797 nodes, 30,791 edges, 436 communities. The
   legacy app Home/EPG source directories and imports are absent.
 - The existing app Live route golden remains open: exact pixel drift at `(0,0)`
