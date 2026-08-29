@@ -56,6 +56,8 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
 import com.streamvault.feature.live.presentation.home.liveHomeLayoutMetrics
+import com.streamvault.feature.live.presentation.home.isLiveHomeCategoryLocked
+import com.streamvault.feature.live.presentation.home.isLiveHomeChannelLocked
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
@@ -340,11 +342,7 @@ fun HomeScreen(
                         .toList()
                 }
                 val isCategoryLocked: (Category) -> Boolean = remember(uiState.parentalControlLevel, uiState.unlockedCategoryIds) {
-                    { category ->
-                        (category.isAdult || category.isUserProtected) &&
-                            uiState.parentalControlLevel in 1..2 &&
-                            kotlin.math.abs(category.id) !in uiState.unlockedCategoryIds
-                    }
+                    { category -> isLiveHomeCategoryLocked(category, uiState.parentalControlLevel, uiState.unlockedCategoryIds) }
                 }
                 val isChannelLocked: (Channel) -> Boolean = remember(
                     uiState.parentalControlLevel,
@@ -355,24 +353,13 @@ fun HomeScreen(
                     uiState.selectedCategory?.isUserProtected
                 ) {
                     { channel ->
-                        val selectedCategory = uiState.selectedCategory
-                        val channelCategoryId = channel.categoryId
-                        val sourceCategory = uiState.categories.firstOrNull { it.id == channelCategoryId }
-                        val unlockedByChannelCategory =
-                            channelCategoryId != null && kotlin.math.abs(channelCategoryId) in uiState.unlockedCategoryIds
-                        val unlockedBySelectedCategory =
-                            selectedCategory != null && kotlin.math.abs(selectedCategory.id) in uiState.unlockedCategoryIds
-                        val unlocked = unlockedByChannelCategory || unlockedBySelectedCategory
-                        (
-                            channel.isAdult ||
-                                channel.isUserProtected ||
-                                (selectedCategory?.isAdult == true) ||
-                                (selectedCategory?.isUserProtected == true) ||
-                                (sourceCategory?.isAdult == true) ||
-                                (sourceCategory?.isUserProtected == true)
-                            ) &&
-                            uiState.parentalControlLevel in 1..2 &&
-                            !unlocked
+                        isLiveHomeChannelLocked(
+                            channel = channel,
+                            categories = uiState.categories,
+                            selectedCategory = uiState.selectedCategory,
+                            parentalControlLevel = uiState.parentalControlLevel,
+                            unlockedCategoryIds = uiState.unlockedCategoryIds
+                        )
                     }
                 }
                 val unlockedVisibleCategories = remember(

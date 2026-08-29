@@ -28,9 +28,9 @@ quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
 pane, guide toolbar, guide message state, hero badge, timeline header, grid
-rows/cells, grid host, EPG content host, focus reconciliation, and Home layout
-metrics are now feature-owned, with the options overlay and EPG-match dialog
-also feature-owned
+rows/cells, grid host, EPG content host, focus reconciliation, Home layout
+metrics, and Home parental-lock policy are now feature-owned, with the options
+overlay and EPG-match dialog also feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -728,7 +728,9 @@ overlay and EPG-match dialog likewise own their presentation and focus behavior
 while the app supplies localized labels and state/action callbacks.
 Home layout metrics now preserve the existing device/mode breakpoints behind a
 feature-owned pure contract while `HomeScreen` supplies the configuration and
-device inputs.
+device inputs. Home parental-lock policy likewise preserves normalized unlock
+IDs and selected/source-category protection behind feature-owned pure
+predicates while the app supplies current state.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.
