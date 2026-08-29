@@ -94,8 +94,12 @@ hierarchies are under `build/adb-validation/guide-journey-*` and
 - Locale-by-locale resource parity is open. The feature has 245 default keys;
   translated app locales remain in the app until values and placeholders are
   compared. No app resources were deleted.
-- Golden baseline review, five-pair post-extraction performance isolation,
-  clean/warm guardrails, and baseline/startup profile regeneration are open.
+- Golden baseline review, the formal paired performance target, clean/warm
+  guardrails, and baseline/startup profile regeneration are open. Five
+  post-extraction Live source-edit and five moved-test samples are recorded in
+  `validation/phase5_live/performance-after.md`; they establish the
+  post-extraction envelope but are not a comparable pre/post pair because the
+  available pre record is no-change rather than source-edit.
   `verifyBaselineProfileSources` passes (46,249 baseline / 30,093 startup
   rules), but `:app:generateBaselineProfile` hit a JVM native-memory OOM during
   release Java compilation; generated files still contain stale app Home/EPG

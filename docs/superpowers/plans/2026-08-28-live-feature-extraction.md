@@ -1224,7 +1224,7 @@ git commit -m "test(live): record feature runtime acceptance"
 - Consumes: committed post-extraction ref and all Tasks 0-10 evidence.
 - Produces: five-pair build comparison, task-isolation proof, regenerated profile evidence, final ownership report, and explicit remaining gates without a Phase 5 completion claim.
 
-- [ ] **Step 1: Capture five post-extraction live source-edit samples**
+- [x] **Step 1: Capture five post-extraction live source-edit samples**
 
 In an isolated snapshot of the committed post-extraction ref, touch only
 `feature/live/src/main/java/com/streamvault/feature/live/home/HomeScreen.kt`
@@ -1238,7 +1238,13 @@ Record wall time, profile path, task states, median, average, and p95. Prove no
 `:feature:playback`, `:feature:provider`, or `:feature:settings` Kotlin compile
 task executes.
 
-- [ ] **Step 2: Capture five post-extraction moved-test samples**
+Recorded in `validation/phase5_live/performance-after.md`: five successful
+post-extraction Live source-edit samples (median 12.828s; setup outlier
+42.404s). The formal paired pre/post target remains open because the available
+pre record is a no-change app baseline rather than an identical source-edit
+snapshot.
+
+- [x] **Step 2: Capture five post-extraction moved-test samples**
 
 Touch only `feature/live/src/test/java/com/streamvault/feature/live/home/HomeViewModelTest.kt` and run five times:
 
@@ -1247,6 +1253,11 @@ Touch only `feature/live/src/test/java/com/streamvault/feature/live/home/HomeVie
 ```
 
 Compute the same statistics and compare against Task 0. Report outliers and cache/setup state; do not claim the 20% target from incomparable samples.
+
+Recorded in `validation/phase5_live/performance-after.md`: five successful
+post-extraction Live test-edit samples (median 12.583s; setup outlier
+49.658s). No performance target is claimed without a comparable pre-edit
+snapshot.
 
 - [ ] **Step 3: Capture clean and warm guardrails**
 
