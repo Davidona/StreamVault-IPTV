@@ -987,13 +987,17 @@ Delegate to the existing `playerNavigationRequest`/`toLivePlayerRequest`
 helpers so payload behavior stays app-owned. Do not duplicate codec or payload
 storage.
 
-- [ ] **Step 5: Compose the existing MultiView planner in app**
+- [x] **Step 5: Compose the existing MultiView planner in app**
 
 Implement `rememberAppLiveMultiViewPlannerContent()` as a composable provider
 that obtains the existing `MultiViewViewModel` in the destination composition
 and renders `MultiViewPlannerDialog(pendingChannel, onDismiss, onLaunch,
 viewModel)`. The feature supplies the state-clearing callbacks; the app content
 only renders Playback presentation.
+
+`AppLiveMultiViewPlanner.kt` now owns this adapter. It remembers the existing
+Playback ViewModel, exposes the planner content and queue predicate, and leaves
+all planner state/lifecycle behavior in Playback.
 
 - [x] **Step 6: Wire `AppNavHost` and verify RED-to-GREEN integration**
 
@@ -1012,12 +1016,15 @@ Expected: PASS with one production owner for each live destination.
 The route/mapping/navigation bundle passed on 2026-08-29, including the Live
 boundary verifier and app Kotlin compilation.
 
-- [ ] **Step 8: Commit graph ownership**
+- [x] **Step 8: Commit graph ownership**
 
 ```powershell
 git add feature/live/src/main/java/com/streamvault/feature/live/navigation feature/live/src/test/java/com/streamvault/feature/live/navigation app/src/main/java/com/streamvault/app/live app/src/test/java/com/streamvault/app/live app/src/main/java/com/streamvault/app/navigation
 git commit -m "feat(live): register feature-owned navigation graph"
 ```
+
+The graph contract, app player mapper, and MultiView composition adapter were
+committed together in `8a3e8cd1`.
 
 ---
 
