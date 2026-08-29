@@ -96,7 +96,11 @@ through the top navigation. Valid PNG/XML artifacts are in
 `task10-manual/` directory. Touch taps on Guide `Program Search`/`Options` did
 not change state on this emulator, and visible channels had no schedule data;
 the exhaustive search/filter/PIN/favorite/reorder/reminder/recording/archive/
-RTL/reduced-motion/MultiView matrix therefore remains open.
+RTL/reduced-motion matrix therefore remains open. A second Enter handed the
+selected Guide channel to the existing full-screen player; its overlay exposed
+EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
+No queued-channel fixture was available to validate the Multiview planner
+result.
 
 ## Open gates
 
