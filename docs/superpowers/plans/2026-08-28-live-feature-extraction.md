@@ -47,6 +47,11 @@ feature-owned `LiveRoutePatterns.EPG`, while MultiView navigation is supplied
 as an app composition callback. Dialog composition therefore carries no
 MultiView route constant and remains behaviorally unchanged.
 
+The Home screen also consumes the `LiveHomeScaffoldContent` port. The app
+graph supplies the existing top-bar `AppScreenScaffold` adapter, leaving shell
+layout and destination configuration in the composition root while the Live
+surface moves toward feature ownership.
+
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument

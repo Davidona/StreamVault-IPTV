@@ -7,6 +7,8 @@ import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
 import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
+import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.domain.playback.isArchivePlayable
@@ -36,6 +38,18 @@ internal fun NavGraphBuilder.registerLiveGraph(
                 },
                 onOpenMultiView = { onNavigate(AppRoutePatterns.MULTI_VIEW) },
                 onNavigate = onNavigate,
+                scaffold = { route, title, subtitle, content ->
+                    AppScreenScaffold(
+                        currentRoute = route,
+                        onNavigate = onNavigate,
+                        title = title,
+                        subtitle = subtitle,
+                        navigationChrome = AppNavigationChrome.TopBar,
+                        compactHeader = true,
+                        showScreenHeader = false,
+                        content = content,
+                    )
+                },
                 currentRoute = AppRoutePatterns.LIVE_TV,
                 initialCategoryId = initialCategoryId,
             )

@@ -58,8 +58,6 @@ import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
 import com.streamvault.feature.live.presentation.home.liveHomeLayoutMetrics
 import com.streamvault.feature.live.presentation.home.isLiveHomeCategoryLocked
 import com.streamvault.feature.live.presentation.home.isLiveHomeChannelLocked
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
@@ -82,6 +80,7 @@ import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.feature.live.presentation.remote.LiveBrowseRemoteShortcutHandler
 import com.streamvault.feature.live.presentation.remote.dispatchLiveBrowseRemoteShortcut
 import com.streamvault.feature.live.presentation.remote.remoteColorButtonForKeyCode
+import com.streamvault.feature.live.api.LiveHomeScaffoldContent
 
 private enum class FocusRestoreTarget {
     CATEGORY,
@@ -105,6 +104,7 @@ fun HomeScreen(
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
     onNavigate: (String) -> Unit,
     onOpenMultiView: () -> Unit,
+    scaffold: LiveHomeScaffoldContent,
     currentRoute: String,
     initialCategoryId: Long? = null,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -271,14 +271,10 @@ fun HomeScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AppScreenScaffold(
-            currentRoute = currentRoute,
-            onNavigate = onNavigate,
-            title = stringResource(R.string.nav_live_tv),
-            subtitle = uiState.activeLiveSourceTitle.ifBlank { uiState.provider?.name },
-            navigationChrome = AppNavigationChrome.TopBar,
-            compactHeader = true,
-            showScreenHeader = false
+        scaffold(
+            currentRoute,
+            stringResource(R.string.nav_live_tv),
+            uiState.activeLiveSourceTitle.ifBlank { uiState.provider?.name },
         ) {
             if (isReorderMode) {
                 LiveReorderTopBar(

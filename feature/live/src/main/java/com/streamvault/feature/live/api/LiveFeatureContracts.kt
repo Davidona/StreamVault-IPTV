@@ -1,6 +1,7 @@
 package com.streamvault.feature.live.api
 
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.ColumnScope
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Result
@@ -93,6 +94,14 @@ typealias LiveMultiViewPlannerContent = @Composable (
     selectedChannel: Channel?,
     onDismiss: () -> Unit,
     onConfirmed: () -> Unit,
+) -> Unit
+
+/** App-shell adapter used while the Live surface moves out of the composition root. */
+typealias LiveHomeScaffoldContent = @Composable (
+    currentRoute: String,
+    title: String,
+    subtitle: String?,
+    content: @Composable ColumnScope.() -> Unit,
 ) -> Unit
 
 /** Home content injected by the composition root into the feature-owned route. */

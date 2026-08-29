@@ -173,3 +173,8 @@ Home route composition is also app-independent at the screen boundary: Guide
 uses `LiveRoutePatterns.EPG`, and MultiView is exposed through an injected
 callback. The app graph remains the sole owner of the concrete MultiView
 destination string.
+
+The Home screen consumes `LiveHomeScaffoldContent`; the app graph supplies the
+existing `AppScreenScaffold` adapter with the same top-bar, compact-header,
+and hidden-screen-header configuration. Shell ownership remains in `:app`,
+but the Live presentation no longer imports that app shell directly.
