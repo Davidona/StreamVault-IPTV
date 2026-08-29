@@ -11,6 +11,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlayLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerDialog
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabels
+import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDialog
+import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -688,11 +690,22 @@ fun FullEpgScreen(
                 null
             }
             val canWatchArchive = channel.isArchivePlayable(program, currentLiveGuideNow())
-            CompactGuideProgramDialog(
+            LiveCompactGuideProgramDialog(
                 channel = channel,
                 program = program,
                 providerLabel = uiState.providerSourceLabel,
                 now = currentLiveGuideNow(),
+                labels = LiveCompactGuideProgramLabels(
+                    noInfo = stringResource(R.string.epg_no_info),
+                    watchLive = stringResource(R.string.epg_watch_live),
+                    watchArchive = stringResource(R.string.epg_watch_archive),
+                    scheduleRecording = stringResource(R.string.epg_schedule_recording),
+                    scheduleDailyRecording = stringResource(R.string.epg_schedule_daily_recording),
+                    scheduleWeeklyRecording = stringResource(R.string.epg_schedule_weekly_recording),
+                    detailsShow = stringResource(R.string.epg_program_details_show),
+                    detailsHide = stringResource(R.string.epg_program_details_hide),
+                    cancel = stringResource(R.string.settings_cancel)
+                ),
                 onDismiss = { selectedProgram = null },
                 onWatchLive = {
                     selectedProgram = null

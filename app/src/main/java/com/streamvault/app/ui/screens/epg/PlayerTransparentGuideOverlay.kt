@@ -30,7 +30,6 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.app.ui.screens.epg.CompactGuideProgramDialog
 import com.streamvault.app.ui.screens.epg.EpgGrid
 import com.streamvault.app.ui.screens.epg.EpgUiState
 import com.streamvault.app.ui.screens.epg.EpgViewModel
@@ -40,6 +39,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlayLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerDialog
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabels
+import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDialog
+import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
 import com.streamvault.app.ui.screens.epg.GuideToolbarButton
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
@@ -298,11 +299,22 @@ fun PlayerTransparentGuideOverlay(
 
         selectedProgram?.let { (channel, program) ->
             val canWatchArchive = channel.id == currentPlayerChannelId && channel.isArchivePlayable(program, now)
-            CompactGuideProgramDialog(
+            LiveCompactGuideProgramDialog(
                 channel = channel,
                 program = program,
                 providerLabel = uiState.providerSourceLabel,
                 now = now,
+                labels = LiveCompactGuideProgramLabels(
+                    noInfo = stringResource(R.string.epg_no_info),
+                    watchLive = stringResource(R.string.epg_watch_live),
+                    watchArchive = stringResource(R.string.epg_watch_archive),
+                    scheduleRecording = stringResource(R.string.epg_schedule_recording),
+                    scheduleDailyRecording = stringResource(R.string.epg_schedule_daily_recording),
+                    scheduleWeeklyRecording = stringResource(R.string.epg_schedule_weekly_recording),
+                    detailsShow = stringResource(R.string.epg_program_details_show),
+                    detailsHide = stringResource(R.string.epg_program_details_hide),
+                    cancel = stringResource(R.string.settings_cancel)
+                ),
                 onDismiss = { selectedProgram = null },
                 onWatchLive = {
                     selectedProgram = null
