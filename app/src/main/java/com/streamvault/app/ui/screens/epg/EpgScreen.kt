@@ -24,6 +24,7 @@ import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -384,7 +385,7 @@ fun FullEpgScreen(
                 }
 
                 uiState.error != null -> {
-                    GuideMessageState(
+                    LiveGuideMessageState(
                         modifier = Modifier.weight(1f),
                         title = when (uiState.error) {
                             EpgViewModel.NO_ACTIVE_PROVIDER -> stringResource(R.string.epg_no_provider)
@@ -400,7 +401,7 @@ fun FullEpgScreen(
                 }
 
                 uiState.channels.isEmpty() -> {
-                    GuideMessageState(
+                    LiveGuideMessageState(
                         modifier = Modifier.weight(1f),
                         title = when {
                             uiState.programSearchQuery.isNotBlank() ->

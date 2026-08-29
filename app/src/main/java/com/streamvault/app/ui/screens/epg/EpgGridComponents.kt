@@ -75,47 +75,6 @@ import kotlinx.coroutines.delay
 import kotlin.math.max
 
 @Composable
-internal fun GuideMessageState(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String?,
-    actionLabel: String?,
-    onAction: (() -> Unit)?
-) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.padding(horizontal = 32.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                color = OnSurface
-            )
-            if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = OnSurfaceDim
-                )
-            }
-            if (actionLabel != null && onAction != null) {
-                TvButton(
-                    onClick = onAction,
-                    colors = ButtonDefaults.colors(
-                        containerColor = Primary,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(actionLabel)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 internal fun EpgGrid(
     modifier: Modifier = Modifier,
     channels: List<Channel>,
@@ -230,7 +189,6 @@ internal fun EpgGrid(
         }
     }
 }
-
 @Composable
 private fun GuideTimelineHeader(
     windowStart: Long,
@@ -327,7 +285,6 @@ private fun GuideTimelineHeader(
         }
     }
 }
-
 @Composable
 fun EpgRow(
     channel: Channel,

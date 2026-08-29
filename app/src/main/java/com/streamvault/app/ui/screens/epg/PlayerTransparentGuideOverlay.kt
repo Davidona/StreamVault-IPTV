@@ -33,7 +33,6 @@ import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.app.ui.screens.epg.EpgGrid
 import com.streamvault.app.ui.screens.epg.EpgUiState
 import com.streamvault.app.ui.screens.epg.EpgViewModel
-import com.streamvault.app.ui.screens.epg.GuideMessageState
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlayLabels
@@ -42,6 +41,7 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabe
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDialog
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarButton
+import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -205,7 +205,7 @@ fun PlayerTransparentGuideOverlay(
             ) {
                 when {
                     uiState.isInitialLoading -> {
-                        GuideMessageState(
+                        LiveGuideMessageState(
                             title = stringResource(R.string.epg_loading),
                             subtitle = contextLabel.takeIf { it.isNotBlank() },
                             actionLabel = null,
@@ -213,7 +213,7 @@ fun PlayerTransparentGuideOverlay(
                         )
                     }
                     uiState.channels.isEmpty() -> {
-                        GuideMessageState(
+                        LiveGuideMessageState(
                             title = stringResource(R.string.epg_title),
                             subtitle = uiState.error
                                 ?.takeUnless { it == EpgViewModel.NO_ACTIVE_PROVIDER }
