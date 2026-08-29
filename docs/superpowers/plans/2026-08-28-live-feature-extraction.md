@@ -37,6 +37,11 @@ and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
 
+The Live-browse portion of remote shortcut dispatch is now feature-owned in
+`presentation/remote/LiveRemoteShortcutDispatch.kt`; the app retains only
+player-wide shortcut dispatch and imports the Live handler API at the Home
+composition boundary. Focused feature and app dispatch tests are green.
+
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument
@@ -538,6 +543,13 @@ Expected: FAIL because live-owned implementations do not exist.
 - [x] **Step 2: Move live-only policies and run GREEN**
 
 Move `GuideLookupKey.kt` and the Live browse portion of `RemoteShortcutDispatch.kt` mechanically into the feature packages. Leave non-live remote helpers in `:app`. Preserve every key code and action result.
+
+The Live browse handler types, colour-key mapping, and dispatch function now
+live in `feature/live/.../presentation/remote/LiveRemoteShortcutDispatch.kt`.
+The app dispatcher retains player-only behavior and its existing tests import
+the feature API. `LiveRemoteShortcutDispatchTest` covers key mapping, channel
+dispatch, and category action rejection; both that suite and the existing app
+remote suite pass.
 
 - [ ] **Step 3: Add failing connected/golden coverage for shared visuals**
 

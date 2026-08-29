@@ -146,6 +146,13 @@ policy, and schedule metrics now feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
+
+The Live-browse remote shortcut dispatcher is no longer app-owned: its handler
+types, Android colour-key mapping, and action dispatch live in
+`feature/live/.../presentation/remote/LiveRemoteShortcutDispatch.kt`. The app
+retains only player-wide shortcut dispatch and adapts Home callbacks to the
+feature handler API. This is a presentation move, not a new transitional
+implementation dependency.
 The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned
 presentation primitives, `HomeUiState`, `HomePreviewUiState`, Guide

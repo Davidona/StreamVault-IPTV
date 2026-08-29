@@ -78,10 +78,10 @@ import com.streamvault.app.navigation.Routes
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.repository.ChannelRepository
-import com.streamvault.app.ui.remote.LiveBrowseRemoteShortcutHandler
-import com.streamvault.app.ui.remote.dispatchLiveBrowseRemoteShortcut
-import com.streamvault.app.ui.remote.remoteColorButtonForKeyCode
 import com.streamvault.domain.model.RemoteShortcutProfile
+import com.streamvault.feature.live.presentation.remote.LiveBrowseRemoteShortcutHandler
+import com.streamvault.feature.live.presentation.remote.dispatchLiveBrowseRemoteShortcut
+import com.streamvault.feature.live.presentation.remote.remoteColorButtonForKeyCode
 
 private enum class FocusRestoreTarget {
     CATEGORY,
