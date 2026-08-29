@@ -36,7 +36,6 @@ import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.usecase.GetCustomCategories
 import com.streamvault.domain.usecase.ScheduleRecording
 import com.streamvault.domain.usecase.ScheduleRecordingCommand
-import com.streamvault.domain.util.AdultContentVisibilityPolicy
 import com.streamvault.data.preferences.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -78,6 +77,7 @@ import com.streamvault.feature.live.presentation.epg.shiftGuideAnchorByDays
 import com.streamvault.feature.live.presentation.epg.GuideChannelMode
 import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssueMessage
+import com.streamvault.feature.live.presentation.epg.isLiveGuideCategoryAccessible
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -2053,14 +2053,7 @@ class EpgViewModel @Inject constructor(
         category: Category,
         parentalControlLevel: Int,
         unlockedCategoryIds: Set<Long>
-    ): Boolean {
-        // Non-adult/protected categories are always accessible
-        if (!category.isAdult && !category.isUserProtected) return true
-        // Adult/protected: accessible if level permits aggregated surfaces (OFF or LOCKED),
-        // OR if the user has explicitly unlocked this category
-        return AdultContentVisibilityPolicy.showInAggregatedSurfaces(parentalControlLevel) ||
-            unlockedCategoryIds.contains(category.id)
-    }
+    ): Boolean = isLiveGuideCategoryAccessible(category, parentalControlLevel, unlockedCategoryIds)
 }
 
 private data class GuidePresentationState(

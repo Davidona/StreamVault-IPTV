@@ -15,6 +15,26 @@ class LiveGuideLockPolicyTest {
     }
 
     @Test
+    fun `guide category access allows explicit unlock at private or hidden levels`() {
+        val protectedCategory = Category(id = 4L, name = "Protected", isAdult = true)
+
+        assertThat(
+            isLiveGuideCategoryAccessible(
+                category = protectedCategory,
+                parentalControlLevel = 2,
+                unlockedCategoryIds = emptySet()
+            )
+        ).isFalse()
+        assertThat(
+            isLiveGuideCategoryAccessible(
+                category = protectedCategory,
+                parentalControlLevel = 2,
+                unlockedCategoryIds = setOf(protectedCategory.id)
+            )
+        ).isTrue()
+    }
+
+    @Test
     fun `guide channel is locked by its own protection or source category`() {
         val protectedCategory = Category(id = 4L, name = "Protected", isAdult = true)
         val channel = Channel(id = 9L, name = "Channel", categoryId = 4L)

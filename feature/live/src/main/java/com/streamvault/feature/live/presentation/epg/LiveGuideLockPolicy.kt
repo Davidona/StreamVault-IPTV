@@ -2,9 +2,22 @@ package com.streamvault.feature.live.presentation.epg
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.util.AdultContentVisibilityPolicy
 
 fun isLiveGuideCategoryLocked(category: Category, parentalControlLevel: Int): Boolean =
     parentalControlLevel in 1..2 && (category.isAdult || category.isUserProtected)
+
+fun isLiveGuideCategoryAccessible(
+    category: Category,
+    parentalControlLevel: Int,
+    unlockedCategoryIds: Set<Long>
+): Boolean {
+    if (!category.isAdult && !category.isUserProtected) {
+        return true
+    }
+    return AdultContentVisibilityPolicy.showInAggregatedSurfaces(parentalControlLevel) ||
+        category.id in unlockedCategoryIds
+}
 
 fun isLiveGuideChannelLocked(
     channel: Channel,
