@@ -32,6 +32,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.LiveGuideHeroBadge
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.domain.playback.isArchivePlayable
@@ -236,12 +237,12 @@ internal fun ImmersiveGuideHero(
                 modifier = Modifier.widthIn(min = 176.dp, max = 220.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                GuideHeroBadge(text = stringResource(R.string.epg_schedule_summary_short, channelsWithSchedule, channelCount))
+                LiveGuideHeroBadge(text = stringResource(R.string.epg_schedule_summary_short, channelsWithSchedule, channelCount))
                 if (isRefreshing) {
-                    GuideHeroBadge(text = stringResource(R.string.epg_loading))
+                    LiveGuideHeroBadge(text = stringResource(R.string.epg_loading))
                 }
                 if (selection?.program != null && selection.channel.isArchivePlayable(selection.program, currentLiveGuideNow())) {
-                    GuideHeroBadge(
+                    LiveGuideHeroBadge(
                         text = if (selection.program.hasArchive) {
                             stringResource(R.string.epg_program_replay_ready)
                         } else {
@@ -251,7 +252,7 @@ internal fun ImmersiveGuideHero(
                     )
                 }
                 if (isGuideStale) {
-                    GuideHeroBadge(
+                    LiveGuideHeroBadge(
                         text = stringResource(R.string.epg_stale_short),
                         accentColor = Color(0xFFFF6B6B)
                     )
@@ -265,28 +266,5 @@ internal fun ImmersiveGuideHero(
                 }
             }
         }
-    }
-}
-
-@Composable
-internal fun GuideHeroBadge(
-    text: String,
-    highlight: Boolean = false,
-    accentColor: Color = Primary
-) {
-    Surface(
-        shape = RoundedCornerShape(999.dp),
-        colors = SurfaceDefaults.colors(
-            containerColor = if (highlight) accentColor.copy(alpha = 0.18f) else SurfaceHighlight
-        )
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            style = MaterialTheme.typography.labelMedium,
-            color = if (highlight) accentColor else OnSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }

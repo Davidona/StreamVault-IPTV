@@ -137,7 +137,7 @@ and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
-pane, guide toolbar, and guide message state are now feature-owned
+pane, guide toolbar, guide message state, and hero badge are now feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
@@ -149,6 +149,6 @@ category options dialog, the quick-filter add dialog, the delete-group dialog,
 and the rename-group dialog, M3U category organizer dialog, and M3U
 series-assignment dialogs, the EPG search overlay, guide category picker, and
 compact guide-program dialog, guide control rows, EPG preview pane, guide
-toolbar, and guide message state are independent of app code;
+toolbar, guide message state, and hero badge are independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

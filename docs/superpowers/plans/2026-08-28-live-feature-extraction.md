@@ -27,7 +27,7 @@ and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
-pane, guide toolbar, and guide message state are now feature-owned
+pane, guide toolbar, guide message state, and hero badge are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -709,6 +709,8 @@ The guide toolbar owns button layout and focus affordances while the app
 supplies category text and navigation callbacks.
 The guide message state owns centered empty/loading/error presentation and the
 optional action affordance while callers supply state-specific copy and action.
+The hero badge owns rounded highlight styling and text overflow presentation;
+callers supply the text and optional accent.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.
