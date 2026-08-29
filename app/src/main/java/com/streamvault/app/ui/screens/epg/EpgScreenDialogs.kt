@@ -1,8 +1,6 @@
 package com.streamvault.app.ui.screens.epg
 
-import com.streamvault.feature.live.presentation.epg.LiveGuideProgramSearchRow
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchField
-import com.streamvault.feature.live.presentation.epg.LiveGuideShortcutChip
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,9 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,12 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,16 +43,6 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.feature.live.presentation.epg.GuideChannelMode
-import com.streamvault.feature.live.presentation.epg.GuideDensity
-import com.streamvault.feature.live.presentation.epg.LiveGuideControlLabels
-import com.streamvault.feature.live.presentation.epg.LiveGuideDensityRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideDayRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideFavoritesRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideModeRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlsRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsRow
-import com.streamvault.feature.live.presentation.epg.startOfGuideDay
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.theme.FocusBorder
@@ -102,136 +84,6 @@ private fun GuideModalDialog(
                     )
             )
             content()
-        }
-    }
-}
-
-@Composable
-internal fun GuideOptionsOverlay(
-    uiState: EpgUiState,
-    labels: LiveGuideControlLabels,
-    onDismiss: () -> Unit,
-    onShowAppNavigation: () -> Unit,
-    onJumpToPreviousDay: () -> Unit,
-    onPageBackward: () -> Unit,
-    onJumpBackwardHalfHour: () -> Unit,
-    onJumpBackward: () -> Unit,
-    onJumpToNow: () -> Unit,
-    onJumpForwardHalfHour: () -> Unit,
-    onJumpForward: () -> Unit,
-    onPageForward: () -> Unit,
-    onJumpToPrimeTime: () -> Unit,
-    onJumpToTomorrow: () -> Unit,
-    onJumpToNextDay: () -> Unit,
-    onDaySelected: (Long) -> Unit,
-    onModeSelected: (GuideChannelMode) -> Unit,
-    onDensitySelected: (GuideDensity) -> Unit,
-    onToggleScheduledOnly: () -> Unit,
-    onToggleFavoritesOnly: () -> Unit,
-    onRefresh: () -> Unit,
-    onManageEpgMatch: (() -> Unit)? = null
-) {
-    val optionsFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        optionsFocusRequester.requestFocus()
-    }
-    GuideModalDialog(onDismiss = onDismiss) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.68f)
-                .fillMaxHeight(0.78f)
-                .focusGroup(),
-            colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-            shape = RoundedCornerShape(20.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 18.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.epg_options_short),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = OnSurface
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        LiveGuideShortcutChip(
-                            label = stringResource(R.string.epg_show_app_navigation),
-                            onClick = onShowAppNavigation
-                        )
-                        LiveGuideShortcutChip(
-                            label = stringResource(R.string.settings_cancel),
-                            onClick = onDismiss
-                        )
-                    }
-                }
-                LiveGuideTimeControlsRow(
-                    labels = labels.time,
-                    onJumpToPreviousDay = onJumpToPreviousDay,
-                    onPageBackward = onPageBackward,
-                    onJumpBackwardHalfHour = onJumpBackwardHalfHour,
-                    onJumpBackward = onJumpBackward,
-                    onJumpToNow = onJumpToNow,
-                    onJumpForwardHalfHour = onJumpForwardHalfHour,
-                    onJumpForward = onJumpForward,
-                    onPageForward = onPageForward,
-                    onJumpToPrimeTime = onJumpToPrimeTime,
-                    onJumpToTomorrow = onJumpToTomorrow,
-                    onJumpToNextDay = onJumpToNextDay,
-                    firstChipFocusRequester = optionsFocusRequester
-                )
-                LiveGuideDayRow(
-                    selectedDayStart = startOfGuideDay(uiState.guideWindowStart + EpgViewModel.LOOKBACK_MS),
-                    labels = labels.day,
-                    onDaySelected = onDaySelected
-                )
-                LiveGuideModeRow(
-                    selectedMode = uiState.selectedChannelMode,
-                    labels = labels.mode,
-                    onModeSelected = onModeSelected
-                )
-                LiveGuideDensityRow(
-                    selectedDensity = uiState.selectedDensity,
-                    labels = labels.density,
-                    onDensitySelected = onDensitySelected
-                )
-                LiveGuideViewOptionsRow(
-                    showScheduledOnly = uiState.showScheduledOnly,
-                    labels = labels.viewOptions,
-                    onToggleScheduledOnly = onToggleScheduledOnly
-                )
-                LiveGuideFavoritesRow(
-                    showFavoritesOnly = uiState.showFavoritesOnly,
-                    labels = labels.favorites,
-                    onToggleFavoritesOnly = onToggleFavoritesOnly
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                ) {
-                    if (onManageEpgMatch != null) {
-                        LiveGuideShortcutChip(
-                            label = stringResource(R.string.epg_override_manage),
-                            onClick = onManageEpgMatch
-                        )
-                    }
-                    LiveGuideShortcutChip(
-                        label = stringResource(R.string.epg_refresh_guide),
-                        onClick = onRefresh
-                    )
-                }
-            }
         }
     }
 }

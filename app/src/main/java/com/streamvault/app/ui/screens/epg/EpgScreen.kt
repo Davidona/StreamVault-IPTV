@@ -25,6 +25,9 @@ import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
 import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
+import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsOverlay
+import com.streamvault.feature.live.presentation.epg.liveGuideOptionsDayStart
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -615,9 +618,13 @@ fun FullEpgScreen(
     }
 
     if (showGuideOptions) {
-        GuideOptionsOverlay(
-            uiState = uiState,
-            labels = LiveGuideControlLabels(
+        LiveGuideOptionsOverlay(
+            selectedDayStart = liveGuideOptionsDayStart(uiState.guideWindowStart, EpgViewModel.LOOKBACK_MS),
+            selectedMode = uiState.selectedChannelMode,
+            selectedDensity = uiState.selectedDensity,
+            showScheduledOnly = uiState.showScheduledOnly,
+            showFavoritesOnly = uiState.showFavoritesOnly,
+            controlLabels = LiveGuideControlLabels(
                 time = LiveGuideTimeControlLabels(
                     section = stringResource(R.string.epg_time_controls),
                     previousDay = stringResource(R.string.epg_previous_day),
@@ -672,6 +679,13 @@ fun FullEpgScreen(
                     favorites = stringResource(R.string.epg_favorites_filter_favorites),
                     favoritesHint = stringResource(R.string.epg_favorites_filter_favorites_hint)
                 )
+            ),
+            labels = LiveGuideOptionsLabels(
+                title = stringResource(R.string.epg_options_short),
+                showAppNavigation = stringResource(R.string.epg_show_app_navigation),
+                cancel = stringResource(R.string.settings_cancel),
+                manageEpgMatch = stringResource(R.string.epg_override_manage),
+                refreshGuide = stringResource(R.string.epg_refresh_guide)
             ),
             onDismiss = { showGuideOptions = false },
             onShowAppNavigation = {
