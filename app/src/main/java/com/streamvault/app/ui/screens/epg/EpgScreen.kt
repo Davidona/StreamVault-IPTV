@@ -21,12 +21,11 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideModeLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewLabels
-import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
-import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
-import com.streamvault.feature.live.presentation.epg.LiveGuideGrid
 import com.streamvault.feature.live.presentation.epg.LiveGuideGridLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideContent
+import com.streamvault.feature.live.presentation.epg.LiveGuideContentLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideContentMessage
 import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideDialog
 import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsLabels
@@ -69,7 +68,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -129,7 +127,6 @@ import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
@@ -364,6 +361,60 @@ fun FullEpgScreen(
         }
     }
 
+    val contentMessage = when {
+        uiState.error != null -> LiveGuideContentMessage(
+            title = when (uiState.error) {
+                EpgViewModel.NO_ACTIVE_PROVIDER -> stringResource(R.string.epg_no_provider)
+                else -> stringResource(R.string.epg_error)
+            },
+            subtitle = when (uiState.error) {
+                EpgViewModel.NO_ACTIVE_PROVIDER -> null
+                else -> stringResource(R.string.epg_retry_hint)
+            },
+            actionLabel = if (uiState.error == EpgViewModel.NO_ACTIVE_PROVIDER) {
+                null
+            } else {
+                stringResource(R.string.epg_retry)
+            },
+            onAction = if (uiState.error == EpgViewModel.NO_ACTIVE_PROVIDER) null else viewModel::refresh
+        )
+
+        uiState.channels.isEmpty() -> LiveGuideContentMessage(
+            title = when {
+                uiState.programSearchQuery.isNotBlank() ->
+                    stringResource(R.string.epg_no_search_results)
+                uiState.totalChannelCount == 0 && uiState.selectedCategoryId != ChannelRepository.ALL_CHANNELS_ID ->
+                    stringResource(R.string.epg_no_channels_in_category)
+                uiState.totalChannelCount == 0 ->
+                    stringResource(R.string.epg_no_data)
+                else ->
+                    stringResource(R.string.epg_no_scheduled_channels)
+            },
+            subtitle = when {
+                uiState.programSearchQuery.isNotBlank() ->
+                    stringResource(R.string.epg_search_empty_hint)
+                uiState.totalChannelCount == 0 ->
+                    stringResource(R.string.epg_filter_hint)
+                uiState.showScheduledOnly ->
+                    stringResource(R.string.epg_scheduled_only_hint)
+                else ->
+                    stringResource(R.string.epg_stale_warning)
+            },
+            actionLabel = if (uiState.programSearchQuery.isNotBlank()) {
+                stringResource(R.string.epg_clear_search)
+            } else {
+                stringResource(R.string.epg_retry)
+            },
+            onAction = if (uiState.programSearchQuery.isNotBlank()) {
+                viewModel::clearProgramSearch
+            } else {
+                viewModel::refresh
+            }
+        )
+
+        else -> null
+    }
+
     AppScreenScaffold(
         currentRoute = currentRoute,
         onNavigate = onNavigate,
@@ -374,210 +425,104 @@ fun FullEpgScreen(
         compactHeader = true,
         showScreenHeader = false
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            when {
-                uiState.isInitialLoading && uiState.channels.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(R.string.epg_loading), color = OnBackground)
-                    }
-                }
-
-                uiState.error != null -> {
-                    LiveGuideMessageState(
-                        modifier = Modifier.weight(1f),
-                        title = when (uiState.error) {
-                            EpgViewModel.NO_ACTIVE_PROVIDER -> stringResource(R.string.epg_no_provider)
-                            else -> stringResource(R.string.epg_error)
-                        },
-                        subtitle = when (uiState.error) {
-                            EpgViewModel.NO_ACTIVE_PROVIDER -> null
-                            else -> stringResource(R.string.epg_retry_hint)
-                        },
-                        actionLabel = if (uiState.error == EpgViewModel.NO_ACTIVE_PROVIDER) null else stringResource(R.string.epg_retry),
-                        onAction = if (uiState.error == EpgViewModel.NO_ACTIVE_PROVIDER) null else viewModel::refresh
+        LiveGuideContent(
+            modifier = Modifier.fillMaxSize(),
+            isInitialLoading = uiState.isInitialLoading,
+            contentMessage = contentMessage,
+            channels = uiState.channels,
+            favoriteChannelIds = uiState.favoriteChannelIds,
+            programsByChannel = uiState.programsByChannel,
+            guideWindowStart = uiState.guideWindowStart,
+            guideWindowEnd = uiState.guideWindowEnd,
+            density = uiState.selectedDensity,
+            selectedCategoryName = uiState.categories
+                .firstOrNull { it.id == uiState.selectedCategoryId }
+                ?.name
+                ?: stringResource(R.string.epg_filter_short),
+            isRefreshing = uiState.isRefreshing,
+            previewPlayerEngine = uiState.previewPlayerEngine,
+            isPreviewLoading = uiState.isPreviewLoading,
+            focusedChannel = focusedChannel,
+            focusedProgram = focusedProgram,
+            labels = LiveGuideContentLabels(
+                loading = stringResource(R.string.epg_loading),
+                preview = LiveGuidePreviewLabels(
+                    title = stringResource(R.string.epg_title),
+                    placeholderTitle = stringResource(R.string.live_preview_placeholder_title),
+                    noSchedule = stringResource(R.string.epg_no_schedule)
+                ),
+                toolbar = LiveGuideToolbarLabels(
+                    jumpNow = stringResource(R.string.epg_jump_now),
+                    search = stringResource(R.string.epg_search_label),
+                    options = stringResource(R.string.epg_options_short)
+                ),
+                grid = LiveGuideGridLabels(
+                    noSchedule = stringResource(R.string.epg_no_schedule_short),
+                    archiveBadge = stringResource(R.string.player_archive_badge),
+                    favoriteBadge = stringResource(R.string.epg_favorite_badge)
+                )
+            ),
+            onOpenCategoryPicker = { showCategoryPicker = true },
+            onJumpToNow = viewModel::jumpToNow,
+            onOpenSearch = { showSearchOverlay = true },
+            onOpenOptions = { showGuideOptions = true },
+            onGuideInteract = { topNavVisible = true },
+            onChannelClick = { channel ->
+                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
+                    requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
+                } else if (uiState.previewChannelId == channel.id) {
+                    viewModel.handoffOrClearForFullscreen(channel)
+                    onPlayChannel(
+                        channel,
+                        playerCategoryId,
+                        playerIsVirtualCategory,
+                        uiState.combinedProfileId,
+                        returnRoute
                     )
+                } else {
+                    viewModel.previewChannel(channel)
                 }
-
-                uiState.channels.isEmpty() -> {
-                    LiveGuideMessageState(
-                        modifier = Modifier.weight(1f),
-                        title = when {
-                            uiState.programSearchQuery.isNotBlank() ->
-                                stringResource(R.string.epg_no_search_results)
-                            uiState.totalChannelCount == 0 && uiState.selectedCategoryId != ChannelRepository.ALL_CHANNELS_ID ->
-                                stringResource(R.string.epg_no_channels_in_category)
-                            uiState.totalChannelCount == 0 ->
-                                stringResource(R.string.epg_no_data)
-                            else ->
-                                stringResource(R.string.epg_no_scheduled_channels)
-                        },
-                        subtitle = when {
-                            uiState.programSearchQuery.isNotBlank() ->
-                                stringResource(R.string.epg_search_empty_hint)
-                            uiState.totalChannelCount == 0 ->
-                                stringResource(R.string.epg_filter_hint)
-                            uiState.showScheduledOnly ->
-                                stringResource(R.string.epg_scheduled_only_hint)
-                            else ->
-                                stringResource(R.string.epg_stale_warning)
-                        },
-                        actionLabel = if (uiState.programSearchQuery.isNotBlank()) {
-                            stringResource(R.string.epg_clear_search)
-                        } else {
-                            stringResource(R.string.epg_retry)
-                        },
-                        onAction = if (uiState.programSearchQuery.isNotBlank()) {
-                            viewModel::clearProgramSearch
-                        } else {
-                            viewModel::refresh
-                        }
-                    )
-                }
-
-                else -> {
-                    LiveGuideNowProvider {
-                        LiveGuidePreviewPane(
-                            previewPlayerEngine = uiState.previewPlayerEngine,
-                            isPreviewLoading = uiState.isPreviewLoading,
-                            focusedChannel = focusedChannel,
-                            focusedProgram = focusedProgram,
-                            labels = LiveGuidePreviewLabels(
-                                title = stringResource(R.string.epg_title),
-                                placeholderTitle = stringResource(R.string.live_preview_placeholder_title),
-                                noSchedule = stringResource(R.string.epg_no_schedule)
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 4.dp)
+            },
+            onChannelLongClick = { channel, currentProgram ->
+                topNavVisible = false
+                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
+                    requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
+                } else {
+                    val program = currentProgram ?: run {
+                        val now = System.currentTimeMillis()
+                        Program(
+                            channelId = channel.id.toString(),
+                            title = channel.name,
+                            startTime = now,
+                            endTime = now + 60L * 60L * 1000L
                         )
                     }
-                    LiveGuideToolbarRow(
-                        selectedCategoryName = uiState.categories
-                            .firstOrNull { it.id == uiState.selectedCategoryId }
-                            ?.name
-                            ?: stringResource(R.string.epg_filter_short),
-                        labels = LiveGuideToolbarLabels(
-                            jumpNow = stringResource(R.string.epg_jump_now),
-                            search = stringResource(R.string.epg_search_label),
-                            options = stringResource(R.string.epg_options_short)
-                        ),
-                        onOpenCategoryPicker = {
-                            showCategoryPicker = true
-                        },
-                        onJumpToNow = {
-                            viewModel.jumpToNow()
-                        },
-                        onOpenSearch = {
-                            showSearchOverlay = true
-                        },
-                        onOpenOptions = {
-                            showGuideOptions = true
-                        },
-                        onGuideInteract = { topNavVisible = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp)
-                    )
-                    if (uiState.isRefreshing) {
-                        LinearProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 4.dp)
-                                .height(3.dp),
-                            color = Primary,
-                            trackColor = SurfaceHighlight
-                        )
-                    }
-                    LiveGuideNowProvider {
-                        LiveGuideGrid(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            channels = uiState.channels,
-                            favoriteChannelIds = uiState.favoriteChannelIds,
-                            programsByChannel = uiState.programsByChannel,
-                            guideWindowStart = uiState.guideWindowStart,
-                            guideWindowEnd = uiState.guideWindowEnd,
-                            density = uiState.selectedDensity,
-                            labels = LiveGuideGridLabels(
-                                noSchedule = stringResource(R.string.epg_no_schedule_short),
-                                archiveBadge = stringResource(R.string.player_archive_badge),
-                                favoriteBadge = stringResource(R.string.epg_favorite_badge)
-                            ),
-                            onChannelClick = { channel ->
-                                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
-                                    requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
-                                } else if (uiState.previewChannelId == channel.id) {
-                                    viewModel.handoffOrClearForFullscreen(channel)
-                                    onPlayChannel(
-                                        channel,
-                                        playerCategoryId,
-                                        playerIsVirtualCategory,
-                                        uiState.combinedProfileId,
-                                        returnRoute
-                                    )
-                                } else {
-                                    viewModel.previewChannel(channel)
-                                }
-                            },
-                            onChannelLongClick = { channel, currentProgram ->
-                                topNavVisible = false
-                                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
-                                    requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
-                                } else {
-                                    val program = currentProgram ?: run {
-                                        // No EPG match ג€” synthesize a 1-hour "now" program so
-                                        // the dialog still shows Record / Record Daily / Weekly.
-                                        val now = System.currentTimeMillis()
-                                        Program(
-                                            channelId = channel.id.toString(),
-                                            title = channel.name,
-                                            startTime = now,
-                                            endTime = now + 60L * 60L * 1000L
-                                        )
-                                    }
-                                    // Delay so the long-press key-release lands on the
-                                    // channel cell, not on an auto-focused button inside
-                                    // the dialog (which would auto-fire "Watch Live").
-                                    scope.launch {
-                                        kotlinx.coroutines.delay(350)
-                                        selectedProgram = channel to program
-                                    }
-                                }
-                            },
-                            onProgramClick = { channel, program ->
-                                topNavVisible = false
-                                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
-                                    requestLockedGuideAction(LockedGuideAction.OpenProgram(channel, program))
-                                } else {
-                                    selectedProgram = channel to program
-                                }
-                            },
-                            onChannelFocused = { channel, currentProgram, isFirstRow ->
-                                topNavVisible = isFirstRow
-                                focusedChannel = channel
-                                focusedProgram = currentProgram
-                            },
-                            onProgramFocused = { channel, program, isFirstRow ->
-                                topNavVisible = isFirstRow
-                                focusedChannel = channel
-                                focusedProgram = program
-                            },
-                            onRequestMoreChannels = viewModel::requestMoreChannels
-                        )
+                    scope.launch {
+                        kotlinx.coroutines.delay(350)
+                        selectedProgram = channel to program
                     }
                 }
-            }
-        }
+            },
+            onProgramClick = { channel, program ->
+                topNavVisible = false
+                if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
+                    requestLockedGuideAction(LockedGuideAction.OpenProgram(channel, program))
+                } else {
+                    selectedProgram = channel to program
+                }
+            },
+            onChannelFocused = { channel, currentProgram, isFirstRow ->
+                topNavVisible = isFirstRow
+                focusedChannel = channel
+                focusedProgram = currentProgram
+            },
+            onProgramFocused = { channel, program, isFirstRow ->
+                topNavVisible = isFirstRow
+                focusedChannel = channel
+                focusedProgram = program
+            },
+            onRequestMoreChannels = viewModel::requestMoreChannels
+        )
     }
 
     if (showCategoryPicker) {
