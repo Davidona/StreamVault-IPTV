@@ -46,6 +46,7 @@ import com.streamvault.feature.live.home.LiveChannelContentHost
 import com.streamvault.feature.live.home.LiveChannelListHost
 import com.streamvault.feature.live.home.LiveHiddenCategoriesDialog
 import com.streamvault.feature.live.home.LiveHiddenChannelsDialog
+import com.streamvault.feature.live.home.LiveHomeDialogsHost
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
@@ -80,6 +81,7 @@ import com.streamvault.feature.live.presentation.remote.LiveBrowseRemoteShortcut
 import com.streamvault.feature.live.presentation.remote.dispatchLiveBrowseRemoteShortcut
 import com.streamvault.feature.live.presentation.remote.remoteColorButtonForKeyCode
 import com.streamvault.feature.live.api.LiveHomeScaffoldContent
+import com.streamvault.feature.live.api.LiveAddToGroupContent
 
 private enum class FocusRestoreTarget {
     CATEGORY,
@@ -105,6 +107,7 @@ fun HomeScreen(
     onOpenMultiView: () -> Unit,
     scaffold: LiveHomeScaffoldContent,
     multiViewPlanner: LiveMultiViewPlannerContent,
+    addToGroupContent: LiveAddToGroupContent,
     isChannelQueuedForMultiView: (Long) -> Boolean,
     currentRoute: String,
     initialCategoryId: Long? = null,
@@ -198,7 +201,7 @@ fun HomeScreen(
         }
     }
 
-    HomeDialogsHost(
+    LiveHomeDialogsHost(
         uiState = uiState,
         viewModel = viewModel,
         showPinDialog = showPinDialog,
@@ -220,6 +223,7 @@ fun HomeScreen(
         onChannelClick = onChannelClick,
         onOpenMultiView = onOpenMultiView,
         multiViewPlanner = multiViewPlanner,
+        addToGroupContent = addToGroupContent,
         isChannelQueuedForMultiView = isChannelQueuedForMultiView,
         resolveProviderForChannel = resolveProviderForChannel,
         scope = scope

@@ -183,3 +183,8 @@ Home also consumes the existing `LiveMultiViewPlannerContent` port and a
 queue-status callback. The app graph owns the Playback `MultiViewViewModel`
 and dialog adapter; no `feature:live` source imports Playback implementation
 packages.
+
+`LiveHomeDialogsHost` now lives in `:feature:live` and consumes typed
+`LiveMultiViewPlannerContent` and `LiveAddToGroupContent` ports. The app graph
+continues to own the concrete Playback planner and Add-to-Group dialog; the
+dialog host itself and its Live strings no longer belong to `:app`.

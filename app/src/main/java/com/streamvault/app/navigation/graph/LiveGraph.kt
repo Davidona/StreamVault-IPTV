@@ -10,6 +10,7 @@ import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.core.navigation.AppDestination
@@ -17,6 +18,7 @@ import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
 import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
+import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
 import com.streamvault.feature.live.navigation.registerLiveGraph as registerFeatureLiveGraph
 
 internal fun NavGraphBuilder.registerLiveGraph(
@@ -60,6 +62,26 @@ internal fun NavGraphBuilder.registerLiveGraph(
                         onDismiss = onDismiss,
                         onLaunch = onConfirmed,
                         viewModel = multiViewViewModel,
+                    )
+                },
+                addToGroupContent = { request: LiveAddToGroupDialogRequest ->
+                    AddToGroupDialog(
+                        contentTitle = request.contentTitle,
+                        channel = request.channel,
+                        groups = request.groups,
+                        isFavorite = request.isFavorite,
+                        memberOfGroups = request.memberOfGroups,
+                        onDismiss = request.onDismiss,
+                        onToggleFavorite = request.onToggleFavorite,
+                        onAddToGroup = request.onAddToGroup,
+                        onRemoveFromGroup = request.onRemoveFromGroup,
+                        onCreateGroup = request.onCreateGroup,
+                        isQueuedForSplitScreen = request.isQueuedForSplitScreen,
+                        onOpenSplitScreenPlanner = request.onOpenSplitScreenPlanner,
+                        onRemoveFromRecent = request.onRemoveFromRecent,
+                        onHideChannel = request.onHideChannel,
+                        onMoveToMovies = request.onMoveToMovies,
+                        onMoveToSeries = request.onMoveToSeries,
                     )
                 },
                 isChannelQueuedForMultiView = multiViewViewModel::isQueued,

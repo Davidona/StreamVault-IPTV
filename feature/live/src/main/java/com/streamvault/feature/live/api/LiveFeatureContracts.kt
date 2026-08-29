@@ -3,6 +3,7 @@ package com.streamvault.feature.live.api
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.ColumnScope
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
@@ -95,6 +96,28 @@ typealias LiveMultiViewPlannerContent = @Composable (
     onDismiss: () -> Unit,
     onConfirmed: () -> Unit,
 ) -> Unit
+
+/** Typed request for the app-owned channel group dialog shown by the Live surface. */
+data class LiveAddToGroupDialogRequest(
+    val contentTitle: String,
+    val channel: Channel,
+    val groups: List<Category>,
+    val isFavorite: Boolean,
+    val memberOfGroups: List<Long>,
+    val onDismiss: () -> Unit,
+    val onToggleFavorite: () -> Unit,
+    val onAddToGroup: (Category) -> Unit,
+    val onRemoveFromGroup: (Category) -> Unit,
+    val onCreateGroup: ((String) -> Unit)?,
+    val isQueuedForSplitScreen: Boolean,
+    val onOpenSplitScreenPlanner: () -> Unit,
+    val onRemoveFromRecent: (() -> Unit)?,
+    val onHideChannel: () -> Unit,
+    val onMoveToMovies: (() -> Unit)?,
+    val onMoveToSeries: (() -> Unit)?,
+)
+
+typealias LiveAddToGroupContent = @Composable (LiveAddToGroupDialogRequest) -> Unit
 
 /** App-shell adapter used while the Live surface moves out of the composition root. */
 typealias LiveHomeScaffoldContent = @Composable (

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -8,11 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
+import com.streamvault.feature.live.R
 import com.streamvault.feature.live.presentation.home.HomeUiState
 import com.streamvault.feature.live.home.HomeViewModel
-import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
+import com.streamvault.feature.live.api.LiveAddToGroupContent
+import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
 import com.streamvault.feature.live.api.LiveMultiViewPlannerContent
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialogLabels
@@ -42,7 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun HomeDialogsHost(
+fun LiveHomeDialogsHost(
     uiState: HomeUiState,
     viewModel: HomeViewModel,
     showPinDialog: Boolean,
@@ -64,6 +65,7 @@ internal fun HomeDialogsHost(
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
     onOpenMultiView: () -> Unit,
     multiViewPlanner: LiveMultiViewPlannerContent,
+    addToGroupContent: LiveAddToGroupContent,
     isChannelQueuedForMultiView: (Long) -> Boolean,
     resolveProviderForChannel: (Channel) -> Provider?,
     scope: CoroutineScope
@@ -250,43 +252,45 @@ internal fun HomeDialogsHost(
     val selectedChannelForDialog = uiState.selectedChannelForDialog
     if (uiState.showDialog && selectedChannelForDialog != null && pendingSplitPlannerChannel == null) {
         val channel = selectedChannelForDialog
-        AddToGroupDialog(
-            contentTitle = channel.name,
-            channel = channel,
-            groups = uiState.categories.filter {
-                it.isVirtual && it.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)
-            },
-            isFavorite = channel.isFavorite,
-            memberOfGroups = uiState.dialogGroupMemberships,
-            onDismiss = { viewModel.onDismissDialog() },
-            onToggleFavorite = {
-                if (channel.isFavorite) viewModel.removeFavorite(channel) else viewModel.addFavorite(channel)
-            },
-            onAddToGroup = { group -> viewModel.addToGroup(channel, group) },
-            onRemoveFromGroup = { group -> viewModel.removeFromGroup(channel, group) },
-            onCreateGroup = if (
-                uiState.isCombinedLiveSource &&
-                uiState.selectedCombinedSourceProviderId == null &&
-                uiState.currentCombinedProfileMembers.count { it.enabled } > 1
-            ) null else { name -> viewModel.createCustomGroup(name) },
-            isQueuedForSplitScreen = isChannelQueuedForMultiView(channel.id),
-            onOpenSplitScreenPlanner = { onPendingSplitPlannerChannelChange(channel) },
-            onRemoveFromRecent = if (uiState.selectedCategory?.id == VirtualCategoryIds.RECENT) {
-                {
-                    viewModel.removeChannelFromRecent(channel)
-                    viewModel.onDismissDialog()
-                }
-            } else null,
-            onHideChannel = { viewModel.hideChannel(channel) },
-            onMoveToMovies = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
-                { viewModel.moveM3uChannelToMovies(channel) }
-            } else null,
-            onMoveToSeries = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
-                {
-                    pendingM3uSeriesChannel = channel
-                    viewModel.onDismissDialog()
-                }
-            } else null
+        addToGroupContent(
+            LiveAddToGroupDialogRequest(
+                contentTitle = channel.name,
+                channel = channel,
+                groups = uiState.categories.filter {
+                    it.isVirtual && it.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)
+                },
+                isFavorite = channel.isFavorite,
+                memberOfGroups = uiState.dialogGroupMemberships,
+                onDismiss = { viewModel.onDismissDialog() },
+                onToggleFavorite = {
+                    if (channel.isFavorite) viewModel.removeFavorite(channel) else viewModel.addFavorite(channel)
+                },
+                onAddToGroup = { group -> viewModel.addToGroup(channel, group) },
+                onRemoveFromGroup = { group -> viewModel.removeFromGroup(channel, group) },
+                onCreateGroup = if (
+                    uiState.isCombinedLiveSource &&
+                    uiState.selectedCombinedSourceProviderId == null &&
+                    uiState.currentCombinedProfileMembers.count { it.enabled } > 1
+                ) null else { name -> viewModel.createCustomGroup(name) },
+                isQueuedForSplitScreen = isChannelQueuedForMultiView(channel.id),
+                onOpenSplitScreenPlanner = { onPendingSplitPlannerChannelChange(channel) },
+                onRemoveFromRecent = if (uiState.selectedCategory?.id == VirtualCategoryIds.RECENT) {
+                    {
+                        viewModel.removeChannelFromRecent(channel)
+                        viewModel.onDismissDialog()
+                    }
+                } else null,
+                onHideChannel = { viewModel.hideChannel(channel) },
+                onMoveToMovies = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
+                    { viewModel.moveM3uChannelToMovies(channel) }
+                } else null,
+                onMoveToSeries = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
+                    {
+                        pendingM3uSeriesChannel = channel
+                        viewModel.onDismissDialog()
+                    }
+                } else null,
+            )
         )
     }
 

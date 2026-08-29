@@ -57,6 +57,11 @@ planner UI and queue lookup are supplied through `LiveMultiViewPlannerContent`
 and `isChannelQueuedForMultiView`; the app graph remains responsible for
 constructing `MultiViewViewModel` and `MultiViewPlannerDialog`.
 
+The Home dialog host is now feature-owned as `LiveHomeDialogsHost`. Its
+Playback-dependent planner and app-owned Add-to-Group dialog are both injected
+through Live contracts; the required dialog labels are present in the feature
+resource namespace. The app graph supplies the two adapters.
+
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument
