@@ -31,6 +31,7 @@ pane, guide toolbar, guide message state, hero badge, timeline header, grid
 rows/cells, grid host, EPG content host, focus reconciliation, Home layout
 metrics, and Home parental-lock policy are now feature-owned, with the options
 overlay and EPG-match dialog also feature-owned
+and the EPG guide-channel lock policy now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -730,7 +731,10 @@ Home layout metrics now preserve the existing device/mode breakpoints behind a
 feature-owned pure contract while `HomeScreen` supplies the configuration and
 device inputs. Home parental-lock policy likewise preserves normalized unlock
 IDs and selected/source-category protection behind feature-owned pure
-predicates while the app supplies current state.
+predicates while the app supplies current state. EPG guide-channel lock policy
+now preserves the existing parental-control level, channel protection, and
+source-category protection behind a feature-owned pure predicate; `EpgScreen`
+keeps its compatibility wrapper while supplying current state.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

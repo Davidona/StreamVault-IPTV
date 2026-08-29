@@ -5,6 +5,7 @@ import com.streamvault.domain.playback.ArchiveReplayMechanism
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.presentation.epg.resolveLiveGuideFocus
+import com.streamvault.feature.live.presentation.epg.isLiveGuideChannelLocked
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
@@ -981,14 +982,6 @@ private fun isGuideChannelLocked(
     channel: Channel,
     categoriesById: Map<Long, Category>,
     parentalControlLevel: Int
-): Boolean {
-    if (parentalControlLevel !in 1..2) {
-        return false
-    }
-    val categoryLocked = channel.categoryId?.let(categoriesById::get)?.let { category ->
-        category.isAdult || category.isUserProtected
-    } ?: false
-    return channel.isAdult || channel.isUserProtected || categoryLocked
-}
+): Boolean = isLiveGuideChannelLocked(channel, categoriesById, parentalControlLevel)
 
 
