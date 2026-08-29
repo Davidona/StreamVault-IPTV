@@ -9,6 +9,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlayLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerDialog
+import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -543,10 +545,21 @@ fun FullEpgScreen(
     }
 
     if (showCategoryPicker) {
-        GuideCategoryPickerDialog(
+        LiveGuideCategoryPickerDialog(
             categories = uiState.categories,
             selectedCategoryId = uiState.selectedCategoryId,
-            parentalControlLevel = uiState.parentalControlLevel,
+            labels = LiveGuideCategoryPickerLabels(
+                title = stringResource(R.string.epg_filter_label),
+                cancel = stringResource(R.string.settings_cancel),
+                searchLabel = stringResource(R.string.epg_search_label),
+                searchPlaceholder = stringResource(R.string.epg_search_placeholder),
+                clearSearch = stringResource(R.string.epg_clear_search),
+                parentalControl = stringResource(R.string.settings_parental_control),
+                matchesCount = { count -> "$count matches" },
+                channelCount = { count -> if (count == 1) "1 channel" else "$count channels" },
+                jumpNow = stringResource(R.string.epg_jump_now)
+            ),
+            isCategoryLocked = { category -> isGuideCategoryLocked(category, uiState.parentalControlLevel) },
             onDismiss = { showCategoryPicker = false },
             onCategorySelected = { category ->
                 showCategoryPicker = false
