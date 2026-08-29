@@ -311,7 +311,7 @@ Expected: FAIL because `LiveRoutePatterns` does not exist.
 
 Implement the four constants exactly as asserted. Rerun the focused test; expected PASS.
 
-- [ ] **Step 3: Write failing playback-request value tests**
+- [x] **Step 3: Write playback-request value tests**
 
 Define tests that construct a real `Channel`/`Program` fixture and assert every field survives construction:
 
@@ -331,7 +331,12 @@ assertThat(request.returnDestination).isEqualTo(AppDestination.Guide(12L, 1_700_
 
 Run the test and expect a missing-type compilation failure.
 
-- [ ] **Step 4: Implement the immutable request values**
+The request value types were introduced with the feature contracts before this
+checkpoint. `LivePlaybackRequestContractTest` now locks channel and archive
+field identity, virtual/combined-source metadata, and Guide return-route
+preservation; the focused suite is green.
+
+- [x] **Step 4: Implement the immutable request values**
 
 ```kotlin
 data class LiveChannelPlaybackRequest(
