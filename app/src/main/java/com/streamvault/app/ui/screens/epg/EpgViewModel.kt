@@ -79,6 +79,7 @@ import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssueMessage
 import com.streamvault.feature.live.presentation.epg.isLiveGuideCategoryAccessible
 import com.streamvault.feature.live.presentation.epg.matchesLiveGuideMetadataSearch
+import com.streamvault.feature.live.presentation.epg.resolveLiveGuideCategorySelection
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -2020,34 +2021,13 @@ class EpgViewModel @Inject constructor(
         parentalControlLevel: Int,
         unlockedCategoryIds: Set<Long>,
         fallbackFromEmptyFavorites: Boolean = false
-    ): Long {
-        val requestedExists = categories.any { it.id == requestedCategoryId }
-        if (requestedCategoryId == ChannelRepository.ALL_CHANNELS_ID && requestedExists) {
-            return ChannelRepository.ALL_CHANNELS_ID
-        }
-
-        val requestedCategory = categories.firstOrNull { it.id == requestedCategoryId }
-        if (requestedCategory != null && isGuideCategoryAccessible(requestedCategory, parentalControlLevel, unlockedCategoryIds)) {
-            if (fallbackFromEmptyFavorites && requestedCategory.id == VirtualCategoryIds.FAVORITES && requestedCategory.count <= 0) {
-                return categories.find { it.id == ChannelRepository.ALL_CHANNELS_ID }?.id
-                    ?: categories.firstOrNull {
-                        !(it.id == VirtualCategoryIds.FAVORITES && it.count <= 0) &&
-                            isGuideCategoryAccessible(it, parentalControlLevel, unlockedCategoryIds)
-                    }?.id
-                    ?: categories.firstOrNull()?.id
-                    ?: ChannelRepository.ALL_CHANNELS_ID
-            }
-            return requestedCategory.id
-        }
-
-        return categories.firstOrNull { category ->
-            if (fallbackFromEmptyFavorites && category.id == VirtualCategoryIds.FAVORITES && category.count <= 0) {
-                false
-            } else {
-                isGuideCategoryAccessible(category, parentalControlLevel, unlockedCategoryIds)
-            }
-        }?.id ?: categories.firstOrNull()?.id ?: ChannelRepository.ALL_CHANNELS_ID
-    }
+    ): Long = resolveLiveGuideCategorySelection(
+        requestedCategoryId = requestedCategoryId,
+        categories = categories,
+        parentalControlLevel = parentalControlLevel,
+        unlockedCategoryIds = unlockedCategoryIds,
+        fallbackFromEmptyFavorites = fallbackFromEmptyFavorites
+    )
 
     private fun isGuideCategoryAccessible(
         category: Category,
