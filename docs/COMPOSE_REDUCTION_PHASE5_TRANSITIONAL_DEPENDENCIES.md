@@ -133,12 +133,14 @@ quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar, and
 Home channel row surface, Home channel-results header, Home category sidebar
 header, channel-content state host, channel-list host, and category-list host
-are now feature-owned
+and hidden category/channel dialogs are now feature-owned
 while the Home and EPG
-screen/dialog composition remains in `:app`.
+screen/dialog composition remains in `:app` for the remaining app-specific
+dialogs.
 The source switcher receives localized labels from the app at the current
 composition boundary. Live-owned
-presentation primitives, `HomeUiState`, `HomePreviewUiState`, and Guide
-mode/density/reminder presentation models are independent of app code;
+presentation primitives, `HomeUiState`, `HomePreviewUiState`, Guide
+mode/density/reminder presentation models, and hidden collection dialogs are
+independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

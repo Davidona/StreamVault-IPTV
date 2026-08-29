@@ -23,7 +23,7 @@ quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar,
 Home channel row surface, Home channel-results header, Home category sidebar
 header, channel-content state host, channel-list host, and category-list host
-are now feature-owned
+and hidden category/channel dialogs are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -674,6 +674,9 @@ auto-scroll while the app retains row presentation and channel actions. The
 category sidebar now calls `LiveCategoryListHost`, which owns category list
 container/key/content-type mechanics while the app retains category policy,
 focus transitions, and callbacks. The
+hidden category/channel dialogs now also live in `:feature:live`; `HomeScreen`
+supplies app-localized labels and retains the ViewModel callbacks while other
+app-specific dialogs remain in the composition root. The
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

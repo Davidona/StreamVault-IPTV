@@ -44,11 +44,11 @@ import com.streamvault.feature.live.home.LiveCategorySidebarHeader
 import com.streamvault.feature.live.home.LiveCategoryListHost
 import com.streamvault.feature.live.home.LiveChannelContentHost
 import com.streamvault.feature.live.home.LiveChannelListHost
+import com.streamvault.feature.live.home.LiveHiddenCategoriesDialog
+import com.streamvault.feature.live.home.LiveHiddenChannelsDialog
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
-import com.streamvault.app.ui.components.dialogs.HiddenCategoriesDialog
-import com.streamvault.app.ui.components.dialogs.HiddenChannelsDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
@@ -247,8 +247,12 @@ fun HomeScreen(
     }
 
     if (showHiddenCategoriesDialog) {
-        HiddenCategoriesDialog(
+        LiveHiddenCategoriesDialog(
             hiddenCategories = uiState.hiddenLiveCategories,
+            title = stringResource(R.string.hidden_categories_dialog_title),
+            subtitle = stringResource(R.string.hidden_categories_dialog_subtitle),
+            unhideAllLabel = stringResource(R.string.hidden_categories_dialog_unhide_all),
+            closeLabel = stringResource(R.string.hidden_categories_dialog_close),
             onUnhide = { viewModel.unhideCategory(it) },
             onUnhideAll = {
                 viewModel.unhideAllLiveCategories()
@@ -267,8 +271,12 @@ fun HomeScreen(
     }
 
     if (showHiddenChannelsDialog) {
-        HiddenChannelsDialog(
+        LiveHiddenChannelsDialog(
             hiddenChannels = hiddenChannelsLiveTv,
+            title = stringResource(R.string.hidden_channels_dialog_title),
+            subtitle = stringResource(R.string.hidden_channels_dialog_subtitle),
+            unhideAllLabel = stringResource(R.string.hidden_channels_dialog_unhide_all),
+            closeLabel = stringResource(R.string.hidden_channels_dialog_close),
             onUnhide = { viewModel.unhideChannel(it) },
             onUnhideAll = {
                 viewModel.unhideAllChannels()
