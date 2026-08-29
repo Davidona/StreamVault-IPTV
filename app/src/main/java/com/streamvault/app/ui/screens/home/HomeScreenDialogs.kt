@@ -14,7 +14,6 @@ import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog
 import com.streamvault.app.ui.components.dialogs.M3uSeriesAssignmentDialog
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
@@ -27,6 +26,8 @@ import com.streamvault.feature.live.home.LiveDeleteGroupDialog
 import com.streamvault.feature.live.home.LiveDeleteGroupDialogLabels
 import com.streamvault.feature.live.home.LiveRenameGroupDialog
 import com.streamvault.feature.live.home.LiveRenameGroupDialogLabels
+import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerDialog
+import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerLabels
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -301,8 +302,15 @@ internal fun HomeDialogsHost(
     }
 
     pendingM3uCategory?.let { category ->
-        M3uCategoryOrganizerDialog(
+        LiveM3uCategoryOrganizerDialog(
             categoryName = category.name,
+            labels = LiveM3uCategoryOrganizerLabels(
+                subtitle = stringResource(R.string.m3u_category_rule_subtitle),
+                moveToMovies = stringResource(R.string.m3u_move_to_movies),
+                moveToSeries = stringResource(R.string.m3u_move_to_series),
+                keepLive = stringResource(R.string.m3u_keep_live),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
             onDismiss = { pendingM3uCategory = null },
             onTargetSelected = { target ->
                 if (target == M3uClassificationTarget.SERIES) {
