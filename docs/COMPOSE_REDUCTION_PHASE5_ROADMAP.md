@@ -96,6 +96,8 @@ out of :app without behavior or stability regressions.
 The settings implementation plan and execution report document the structural
 extraction, resource ownership cleanup, dependency audit, and open runtime
 gates. The Live implementation plan and report now document the Home/EPG
-extraction, connected checks, and two-channel runtime evidence while leaving
-locale, golden, performance/profile, and exhaustive journey gates explicit.
+extraction, translated-resource parity, reviewed feature goldens, connected
+checks, populated MultiView planner journey, and two-channel runtime evidence.
+The exhaustive journey, app-route golden, and deferred performance/profile
+gates remain explicit.
 Catalog and System remain unstarted.

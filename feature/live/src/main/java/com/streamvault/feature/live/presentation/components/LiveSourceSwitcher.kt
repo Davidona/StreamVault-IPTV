@@ -49,13 +49,14 @@ fun LiveSourceSwitcher(
     currentSource: ActiveLiveSource?,
     options: List<ActiveLiveSourceOption>,
     onSourceSelected: (ActiveLiveSource) -> Unit,
+    initiallyExpanded: Boolean = false,
     compact: Boolean = false,
     modifier: Modifier = Modifier,
     noSourceLabel: String = "No provider",
     selectedLabel: String = "Selected",
     unavailableLabel: String = "Unavailable"
 ) {
-    var showSourceList by remember { mutableStateOf(false) }
+    var showSourceList by remember { mutableStateOf(initiallyExpanded) }
     var isFocused by remember { mutableStateOf(false) }
     val toggleRequester = remember { FocusRequester() }
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp

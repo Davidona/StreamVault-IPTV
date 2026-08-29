@@ -576,7 +576,7 @@ the feature API. `LiveRemoteShortcutDispatchTest` covers key mapping, channel
 dispatch, and category action rejection; both that suite and the existing app
 remote suite pass.
 
-- [ ] **Step 3: Add failing connected/golden coverage for shared visuals**
+- [x] **Step 3: Add failing connected/golden coverage for shared visuals**
 
 Render representative selected/unselected selection chips, locked/unlocked category rows, channel card progress, source switcher, reorder bar, and category dialog. Use the repository golden helper that fails when the checked-in baseline is absent.
 
@@ -594,9 +594,9 @@ Copy rendering/focus/key/callback behavior from the app components, rename the p
 
 Keep app originals unchanged for Dashboard, Movies, Series, Favorites, Search, and VOD. Do not make those packages depend on `:feature:live`.
 
-- [ ] **Step 5: Review and check in golden baselines**
+- [x] **Step 5: Review and check in golden baselines**
 
-Render at 1920x1080, compare against pre-move screenshots, inspect focus borders/text/spacing manually, then add the reviewed PNGs. Rerun the connected class; expected PASS with the repository missing-golden guard still active.
+Render at 1920x1080, compare against pre-move screenshots, inspect focus borders/text/spacing manually, then add the reviewed PNGs. Rerun the connected class; expected PASS with the repository missing-golden guard still active. Completed 2026-08-29: six feature baselines reviewed and `LivePresentationGoldenTest` passed 6/6; the existing app route golden remains unchanged because its separate `(0,0)` drift is still open.
 
 - [x] **Step 6: Verify source boundary and app consumers**
 
@@ -704,7 +704,7 @@ channel identity/program/favorite/catch-up semantics, locked-row state, and
 category rendering. The full ViewModel-driven Home journey (focus, dialogs,
 PIN, preview states, and planner callbacks) remains open.
 
-- [ ] **Step 6: Move Home UI and wire live-local/core components**
+- [x] **Step 6: Move Home UI and wire live-local/core components**
 
 Move `HomeScreen.kt`, `HomeScreenDialogs.kt`, and `HomeSidebarComponents.kt`. Replace app navigation strings with typed `AppDestination`, app shell with `CoreAppScreenScaffold`/`UiDestination`, device/time helpers with Core UI, and direct MultiView composables with `LiveMultiViewPlannerContent`.
 
@@ -790,9 +790,9 @@ mechanical screen move is now complete: `LiveHomeScreen` and
 `LiveHomeDialogsHost` are feature-owned under `:feature:live`, and the app
 graph supplies the shell, MultiView planner, and Add-to-Group dialog ports.
 The runtime Home route was smoke-checked on the emulator after the move. The
-behavior-test, locale-parity, golden-baseline, and performance/acceptance
-gates remain open; do not treat this checkpoint as full Home or Live-slice
-acceptance.
+full ViewModel-driven behavior test and exhaustive acceptance matrix remain
+open; the locale and feature-golden gates were completed separately. Do not
+treat this checkpoint as full Home or Live-slice acceptance.
 
 Preserve planner callback order:
 
@@ -800,14 +800,16 @@ Preserve planner callback order:
 dismiss planner state -> dismiss channel dialog when present -> clear preview -> request AppDestination.MultiView
 ```
 
-- [ ] **Step 7: Move Home resources locale by locale**
+- [x] **Step 7: Move Home resources locale by locale**
 
 The default locale values for the moved Home screen/dialog surface are now
 present in `feature/live/src/main/res/values/strings.xml`, while app resources
 remain intact for other consumers. Copy exact values for every non-default
 `home_*`, `live_*`, preview, quick-filter, category/group, and Home-only dialog
-key, then run a comparison script before removing any app key. Locale parity
-and removal are still open.
+key, then run a comparison script before removing any app key. Completed
+2026-08-29: all 25 translated feature locale files were added and the audit
+reports zero feature missing/value-mismatch/unexpected keys; app copies remain
+because shared app consumers still use them.
 
 - [x] **Step 8: Run Home feature and app integration checks**
 
@@ -916,12 +918,14 @@ remains unreferenced, as before.
 
 Move `PlayerTransparentGuideOverlay` unchanged and keep it unreferenced; do not register it in Playback or the live graph.
 
-- [ ] **Step 8: Move EPG resources locale by locale**
+- [x] **Step 8: Move EPG resources locale by locale**
 
 The default locale now contains the EPG screen's `epg_*`, `guide_*`, archive,
 reminder, recording-conflict, notification-permission, and EPG-only shared
-values in `feature/live`. Non-default locale parity and app-key removal remain
-open; remove app entries only after `rg` proves no remaining consumer.
+values in `feature/live`. Completed 2026-08-29: all 25 translated feature
+locale files were added and the locale audit reports zero feature
+missing/value-mismatch/unexpected keys. App-key removal remains out of scope
+while shared consumers remain.
 
 - [x] **Step 9: Run EPG feature and app integration checks**
 
@@ -1084,9 +1088,9 @@ For every moved key, compare app and feature values, plurals, and formatting pla
 Expected: no missing resource at compile time and no changed format argument ordering.
 Completed in `validation/phase5_live/task9-resource-cleanup.md`: the default
 245-key set and all translated app locales were compared for values and
-placeholders; two mojibake defaults were corrected in `feature/live`. No app
-entries were deleted. Translated-locale migration remains an acceptance gate
-because the feature still has no `values-*` resource files.
+placeholders; two mojibake defaults were corrected in `feature/live`. The 25
+translated feature locale files now pass the feature-side parity fields. No app
+entries were deleted because shared consumers still require the app copies.
 
 - [x] **Step 5: Run the full focused structural bundle**
 
@@ -1161,11 +1165,22 @@ Expected: Live TV and EPG destinations open with argument compatibility; player 
 
 Recorded in `validation/phase5_live/task10-connected-validation.md`: AppNavigationContractTest 3/3 and PlatformCompatibilityMatrixTest 4/4 pass; the existing Live golden drift and PlayerSmokeTest's three pre-existing failures remain open neighboring gates.
 
+The complete feature suite was rerun on 2026-08-29 after the resource parity
+fix: 13/13 tests passed with zero failures, errors, or skips. The result XML is
+under `feature/live/build/outputs/androidTest-results/connected/debug/`.
+
 - [ ] **Step 4: Perform manual Live TV and EPG journeys**
 
 Using D-pad first, then available touch/mouse paths, cover source/category switching, category/channel search, quick filters, hidden channels/categories, favorites, reorder, PIN, repeated focus, preview replacement, fullscreen/back handoff, MultiView planner, EPG horizontal/vertical movement, paging, search, density/mode/favorites, reminders, recording conflict where fixtures allow, archive launch, RTL, reduced motion, semantics, and Back restoration.
 
 Capture named 1920x1080 screenshots and sanitized logs. Record unavailable fixture-dependent actions as open.
+
+Completed partial planner coverage on 2026-08-29: the seeded emulator exposed
+`All Channels`, so `01 00s Replay` was long-pressed, added to the split-screen
+planner, assigned to slot 1, launched, and returned with Back. Evidence is in
+`validation/phase5_live/task10-multiview/`. The broader search/filter/PIN/
+recording/archive/RTL/reduced-motion matrix remains open because the loaded
+fixture and TV input path do not expose all branches.
 
 - [x] **Step 5: Capture channel 1 at two-second cadence**
 

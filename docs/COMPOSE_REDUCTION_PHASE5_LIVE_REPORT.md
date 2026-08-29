@@ -10,9 +10,8 @@ Home Live TV, categories, channel preview, EPG/Guide presentation, state, and
 dialogs now compile under `:feature:live`. The app remains the composition root
 for route registration, platform/scaffold adapters, typed player request
 mapping, and Playback MultiView composition. The slice is not a Phase 5
-completion claim: locale parity, exact golden review, exhaustive fixture-driven
-journeys, performance/profile evidence, and neighboring slice gates remain
-open.
+completion claim: the remaining exhaustive fixture-driven journeys, deferred
+performance/profile gates, and neighboring slice gates remain open.
 
 ## Ownership and boundaries
 
@@ -49,8 +48,13 @@ following Live checkpoints (plus the final lint fix):
 
 - `:feature:live:verifyFeatureLiveBoundary`: passed.
 - `:feature:live:connectedDebugAndroidTest`: passed after the final lint fix,
-  7 tests, 0 failures, 0 errors, 0 skipped (56s). XML is under
+  13 tests, 0 failures, 0 errors, 0 skipped (54s test time). XML is under
   `feature/live/build/outputs/androidTest-results/connected/debug/`.
+- `LivePresentationGoldenTest`: passed 6/6 at 1920x1080 after visual review.
+  The checked-in feature baselines cover selection chips, locked/unlocked
+  category rows, progress/locked channel surfaces, the app-parity row fixture,
+  the selected/unavailable source switcher, and the reorder bar. The existing
+  app route golden was not rewritten.
 - Focused feature/app structural bundle (unit tests, lint, Android-test
   compilation, app compilation/tests, and debug assembly): passed after the
   lint fix. Gradle reported 235 actionable tasks, 23 executed, 212 up-to-date.
@@ -58,12 +62,14 @@ following Live checkpoints (plus the final lint fix):
   `:feature:live:check`, Android-test compilation, app unit tests/assembly, and
   `verifyBaselineProfileSources`): passed in 2m 35s (373 actionable tasks; 23
   executed, 2 from cache, 348 up-to-date).
-- Graphify refreshed at 15,797 nodes, 30,791 edges, 436 communities. The
+- Graphify refreshed at 15,811 nodes, 30,815 edges, 435 communities. The
   legacy app Home/EPG source directories and imports are absent.
 - The locale audit compared all 245 moved defaults and placeholder sequences
   against every app locale. It corrected two mojibake feature defaults
   (`live_preview_loading` and `time_range_format`) and found no remaining
-  default or placeholder mismatch; translated-locale migration remains open.
+  default or placeholder mismatch. All 25 translated feature locale files now
+  have `featureMissing=0`, `featureValueMismatch=0`, and
+  `featureUnexpected=0`; app copies remain for shared consumers.
 - The existing app Live route golden remains open: exact pixel drift at `(0,0)`
   from RGB `(6,16,26)` to `(7,17,27)`. The baseline was not rewritten.
 
@@ -100,8 +106,11 @@ RTL/reduced-motion matrix therefore remains open. A second Enter handed the
 selected Guide channel to the existing full-screen player; its overlay exposed
 EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
 Activating Multiview returned to the Live route with the empty-favorites/queue
-state; no queued-channel fixture was available to validate a populated planner
-result.
+state. A follow-up populated-planner journey switched to `All Channels`,
+long-pressed `01 00s Replay`, added it through the management dialog, assigned
+it to slot 1, launched MultiView, and returned with Back. The planner evidence
+is under `validation/phase5_live/task10-multiview/`; the remaining manual matrix
+is still fixture- or input-path-dependent.
 
 ## Open gates
 
@@ -109,11 +118,12 @@ result.
   hidden/locked/favorite/reorder/PIN, reminders/recording conflicts, archive,
   RTL/reduced-motion, focus restoration, and MultiView edge cases) remains
   fixture-dependent and open.
-- Locale-by-locale resource parity is open. The feature has 245 default keys;
-  translated app locales remain in the app until values and placeholders are
-  compared. No app resources were deleted.
-- Golden baseline review, the formal paired performance target, clean/warm
-  guardrails, and baseline/startup profile regeneration are open. Five
+- The feature presentation golden review is complete. The existing app Live
+  route golden remains open because its stored `(0,0)` pixel is RGB
+  `(6,16,26)` while the current render is `(7,17,27)`; that app baseline was
+  not rewritten.
+- The formal paired performance target, clean/warm guardrails, and
+  baseline/startup profile regeneration are open. Five
   post-extraction Live source-edit and five moved-test samples are recorded in
   `validation/phase5_live/performance-after.md`; they establish the
   post-extraction envelope but are not a comparable pre/post pair because the

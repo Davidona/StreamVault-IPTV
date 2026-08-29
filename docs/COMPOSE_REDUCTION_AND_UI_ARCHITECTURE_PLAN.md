@@ -954,6 +954,18 @@ and related navigation/golden changes are uncommitted; a valid before/after
 comparison requires a committed post-extraction ref. See
 [COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md](COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md).
 
+Live execution status (2026-08-29): the Home Live TV and EPG presentation
+extraction is structurally complete under `:feature:live`, with the app
+retaining route/platform/player-request/MultiView adapters. The Live boundary,
+feature checks, translated-resource parity audit, six reviewed feature golden
+baselines, connected suite, populated MultiView planner journey, and required
+two-channel long-playback protocol are recorded in
+[COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md](COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md).
+The full fixture-dependent Home/EPG journey matrix, app-owned Live route golden,
+and deferred performance/profile gates remain open. Catalog and System were not
+started; Playback, Provider, and Settings gates remain governed by their
+separate reports.
+
 ### Phase 6 - Optional Views migrations
 
 Purpose: reduce Compose where evidence and maintenance characteristics support it.
