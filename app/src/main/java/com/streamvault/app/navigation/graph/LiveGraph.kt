@@ -7,7 +7,6 @@ import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.playerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
 import com.streamvault.app.ui.screens.epg.FullEpgScreen
-import com.streamvault.app.ui.screens.home.HomeScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
@@ -19,6 +18,7 @@ import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
 import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
 import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
+import com.streamvault.feature.live.home.LiveHomeScreen
 import com.streamvault.feature.live.navigation.registerLiveGraph as registerFeatureLiveGraph
 
 internal fun NavGraphBuilder.registerLiveGraph(
@@ -28,7 +28,7 @@ internal fun NavGraphBuilder.registerLiveGraph(
     registerFeatureLiveGraph(
         liveTvContent = { initialCategoryId, onPlaybackRequested, onNavigate ->
             val multiViewViewModel: MultiViewViewModel = hiltViewModel()
-            HomeScreen(
+            LiveHomeScreen(
                 onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
                     onPlaybackRequested(
                         LiveChannelPlaybackRequest(

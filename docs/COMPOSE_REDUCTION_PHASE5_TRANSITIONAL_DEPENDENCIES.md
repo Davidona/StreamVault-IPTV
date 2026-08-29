@@ -188,3 +188,10 @@ packages.
 `LiveMultiViewPlannerContent` and `LiveAddToGroupContent` ports. The app graph
 continues to own the concrete Playback planner and Add-to-Group dialog; the
 dialog host itself and its Live strings no longer belong to `:app`.
+
+`LiveHomeScreen` now also lives in `:feature:live`. The app graph invokes it
+with the existing shell, MultiView planner, Add-to-Group dialog, and queue
+adapters, preserving composition-root ownership of platform and route
+navigation. The default Home resource keys were copied into the feature;
+non-default locale parity, behavior tests, golden/runtime checks, and legacy
+resource cleanup remain open.

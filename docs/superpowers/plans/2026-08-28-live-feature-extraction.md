@@ -776,8 +776,13 @@ Guide schedule metrics (missing entries, channels with schedules, and upcoming
 data) are now feature-owned pure functions; `EpgViewModel` delegates while
 retaining data loading and state assembly.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
-remaining app-owned live cards and shell/dialog composition still require
-compatibility seams before the full Home move.
+mechanical screen move is now complete: `LiveHomeScreen` and
+`LiveHomeDialogsHost` are feature-owned under `:feature:live`, and the app
+graph supplies the shell, MultiView planner, and Add-to-Group dialog ports.
+The runtime Home route was smoke-checked on the emulator after the move. The
+behavior-test, locale-parity, golden-baseline, and performance/acceptance
+gates remain open; do not treat this checkpoint as full Home or Live-slice
+acceptance.
 
 Preserve planner callback order:
 
@@ -787,7 +792,12 @@ dismiss planner state -> dismiss channel dialog when present -> clear preview ->
 
 - [ ] **Step 7: Move Home resources locale by locale**
 
-Copy exact values for `home_*`, `live_*`, preview, quick-filter, category/group, and Home-only dialog keys. Duplicate shared keys only when app consumers remain. Run a script comparing each moved locale value before removing any app key.
+The default locale values for the moved Home screen/dialog surface are now
+present in `feature/live/src/main/res/values/strings.xml`, while app resources
+remain intact for other consumers. Copy exact values for every non-default
+`home_*`, `live_*`, preview, quick-filter, category/group, and Home-only dialog
+key, then run a comparison script before removing any app key. Locale parity
+and removal are still open.
 
 - [ ] **Step 8: Run Home feature and app integration checks**
 

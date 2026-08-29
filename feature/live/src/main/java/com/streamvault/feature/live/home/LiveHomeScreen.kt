@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.home
+package com.streamvault.feature.live.home
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.layout.*
@@ -49,12 +49,6 @@ import com.streamvault.feature.live.home.LiveHiddenChannelsDialog
 import com.streamvault.feature.live.home.LiveHomeDialogsHost
 import com.streamvault.feature.live.presentation.components.LiveChannelRowSurface
 import com.streamvault.core.ui.components.TvEmptyState
-import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
-import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
-import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
 import com.streamvault.feature.live.presentation.home.liveHomeLayoutMetrics
 import com.streamvault.feature.live.presentation.home.isLiveHomeCategoryLocked
@@ -69,7 +63,7 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.LegacyProvider as Provider
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
+import com.streamvault.feature.live.R
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import com.streamvault.feature.live.api.LiveMultiViewPlannerContent
@@ -101,7 +95,7 @@ private sealed interface FocusedRemoteShortcutTarget {
 // ׳’ג€ג‚¬׳’ג€ג‚¬ Screen ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
 
 @Composable
-fun HomeScreen(
+fun LiveHomeScreen(
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
     onNavigate: (String) -> Unit,
     onOpenMultiView: () -> Unit,
