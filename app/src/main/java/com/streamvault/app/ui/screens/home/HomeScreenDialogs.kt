@@ -14,8 +14,6 @@ import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog
-import com.streamvault.app.ui.components.dialogs.M3uSeriesAssignmentDialog
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
@@ -28,6 +26,10 @@ import com.streamvault.feature.live.home.LiveRenameGroupDialog
 import com.streamvault.feature.live.home.LiveRenameGroupDialogLabels
 import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerDialog
 import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerLabels
+import com.streamvault.feature.live.home.LiveM3uSeriesAssignmentDialog
+import com.streamvault.feature.live.home.LiveM3uSeriesAssignmentLabels
+import com.streamvault.feature.live.home.LiveM3uCategorySeriesAssignmentDialog
+import com.streamvault.feature.live.home.LiveM3uCategorySeriesAssignmentLabels
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -291,8 +293,16 @@ internal fun HomeDialogsHost(
     }
 
     pendingM3uSeriesChannel?.let { channel ->
-        M3uSeriesAssignmentDialog(
+        LiveM3uSeriesAssignmentDialog(
             initialTitle = channel.name,
+            labels = LiveM3uSeriesAssignmentLabels(
+                title = stringResource(R.string.m3u_move_to_series),
+                seriesName = stringResource(R.string.m3u_series_name),
+                seasonNumber = stringResource(R.string.m3u_season_number),
+                episodeNumber = stringResource(R.string.m3u_episode_number),
+                classify = stringResource(R.string.m3u_classify),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
             onDismiss = { pendingM3uSeriesChannel = null },
             onConfirm = { assignment ->
                 pendingM3uSeriesChannel = null
@@ -329,9 +339,18 @@ internal fun HomeDialogsHost(
 
     if (pendingM3uSeriesCategory != null && pendingM3uSeriesItems != null) {
         val category = pendingM3uSeriesCategory!!
-        M3uCategorySeriesAssignmentDialog(
-            categoryName = category.name,
+        LiveM3uCategorySeriesAssignmentDialog(
             items = pendingM3uSeriesItems!!,
+            labels = LiveM3uCategorySeriesAssignmentLabels(
+                title = stringResource(R.string.m3u_series_review_title, category.name),
+                subtitle = stringResource(R.string.m3u_series_review_subtitle),
+                seriesName = stringResource(R.string.m3u_series_name),
+                seasonNumber = stringResource(R.string.m3u_season_number),
+                episodeNumber = stringResource(R.string.m3u_episode_number),
+                episodeUnresolved = stringResource(R.string.m3u_episode_unresolved),
+                classify = stringResource(R.string.m3u_classify),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
             onDismiss = {
                 pendingM3uSeriesCategory = null
                 pendingM3uSeriesItems = null
