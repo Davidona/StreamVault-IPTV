@@ -1091,7 +1091,7 @@ Expected: no missing resource at compile time and no changed format argument ord
 
 Expected: exit 0. If a neighboring existing gate fails, record the exact task, file, diagnostic, and evidence that it is pre-existing; do not label the full bundle successful.
 
-- [ ] **Step 6: Run neighboring feature checks separately**
+- [x] **Step 6: Run neighboring feature checks separately**
 
 ```powershell
 ./gradlew.bat :feature:settings:check :feature:provider:check :feature:playback:check --no-daemon --console=plain --warning-mode=none
@@ -1099,7 +1099,7 @@ Expected: exit 0. If a neighboring existing gate fails, record the exact task, f
 
 Expected: record each result independently. The known Playback lint/open runtime gates remain Playback-owned unless the live diff demonstrably changes them.
 
-- [ ] **Step 7: Refresh Graphify and verify ownership paths**
+- [x] **Step 7: Refresh Graphify and verify ownership paths**
 
 ```powershell
 graphify update .

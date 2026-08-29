@@ -91,5 +91,7 @@ record is `validation/phase5_live/task10-connected-validation.md`.
   descriptors and were not hand-edited. Details are in
   `validation/phase5_live/profile-validation.md`.
 - Playback, Provider, and Settings acceptance/performance gates remain governed
-  by their existing reports. Catalog and System were not started. Phase 5 is
-  not complete.
+  by their existing reports. The separate Provider and Settings `check` tasks
+  pass; the aggregate neighboring command stops at the pre-existing Playback
+  lint gate (29 errors, first at `PlayerOverlayGoldenTest.kt:51`). Catalog and
+  System were not started. Phase 5 is not complete.
