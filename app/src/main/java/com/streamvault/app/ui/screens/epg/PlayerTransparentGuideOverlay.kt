@@ -41,7 +41,7 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerDial
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabels
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDialog
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
-import com.streamvault.app.ui.screens.epg.GuideToolbarButton
+import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarButton
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -171,23 +171,23 @@ fun PlayerTransparentGuideOverlay(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        GuideToolbarButton(
+                        LiveGuideToolbarButton(
                             label = selectedCategoryName.ifBlank { stringResource(R.string.epg_filter_short) },
                             modifier = Modifier.widthIn(min = 180.dp, max = 280.dp),
                             onClick = { showCategoryPicker = true },
                             onFocused = {}
                         )
-                        GuideToolbarButton(
+                        LiveGuideToolbarButton(
                             label = stringResource(R.string.epg_jump_now),
                             onClick = onJumpToNow,
                             onFocused = {}
                         )
-                        GuideToolbarButton(
+                        LiveGuideToolbarButton(
                             label = stringResource(R.string.epg_search_label),
                             onClick = { showSearchOverlay = true },
                             onFocused = {}
                         )
-                        GuideToolbarButton(
+                        LiveGuideToolbarButton(
                             label = stringResource(R.string.settings_cancel),
                             onClick = onDismiss,
                             onFocused = {}

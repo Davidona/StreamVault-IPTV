@@ -22,6 +22,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
+import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -450,11 +452,16 @@ fun FullEpgScreen(
                                 .padding(horizontal = 14.dp, vertical = 4.dp)
                         )
                     }
-                    GuideToolbarRow(
+                    LiveGuideToolbarRow(
                         selectedCategoryName = uiState.categories
                             .firstOrNull { it.id == uiState.selectedCategoryId }
                             ?.name
                             ?: stringResource(R.string.epg_filter_short),
+                        labels = LiveGuideToolbarLabels(
+                            jumpNow = stringResource(R.string.epg_jump_now),
+                            search = stringResource(R.string.epg_search_label),
+                            options = stringResource(R.string.epg_options_short)
+                        ),
                         onOpenCategoryPicker = {
                             showCategoryPicker = true
                         },
