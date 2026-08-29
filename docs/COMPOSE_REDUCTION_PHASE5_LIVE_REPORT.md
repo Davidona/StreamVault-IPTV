@@ -48,8 +48,8 @@ following Live checkpoints (plus the final lint fix):
 ## Verification
 
 - `:feature:live:verifyFeatureLiveBoundary`: passed.
-- `:feature:live:connectedDebugAndroidTest`: passed, 7 tests, 0 failures,
-  0 errors, 0 skipped. XML is under
+- `:feature:live:connectedDebugAndroidTest`: passed after the final lint fix,
+  7 tests, 0 failures, 0 errors, 0 skipped (56s). XML is under
   `feature/live/build/outputs/androidTest-results/connected/debug/`.
 - Focused feature/app structural bundle (unit tests, lint, Android-test
   compilation, app compilation/tests, and debug assembly): passed after the
