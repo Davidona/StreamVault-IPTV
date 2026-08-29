@@ -797,11 +797,10 @@ fun LiveHomeScreen(
                         )
 
                         Crossfade(
-                            targetState = uiState.selectedCategory?.id,
+                            targetState = uiState.selectedCategory,
                             animationSpec = tween(durationMillis = 200),
                             label = "category_content_transition"
-                        ) { _ ->
-                        val selectedCategory = uiState.selectedCategory
+                        ) { selectedCategory ->
                         var ignoreNextClick by remember { mutableStateOf(false) }
                         var draggingChannel by remember { mutableStateOf<Channel?>(null) }
 

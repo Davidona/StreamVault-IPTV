@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.streamvault.feature.live.R
 import com.streamvault.feature.live.presentation.home.HomeUiState
@@ -70,7 +69,7 @@ fun LiveHomeDialogsHost(
     resolveProviderForChannel: (Channel) -> Provider?,
     scope: CoroutineScope
 ) {
-    val context = LocalContext.current
+    val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
     var pendingM3uSeriesChannel by remember { mutableStateOf<Channel?>(null) }
     var pendingM3uCategory by remember { mutableStateOf<Category?>(null) }
     var pendingM3uSeriesCategory by remember { mutableStateOf<Category?>(null) }
@@ -99,7 +98,7 @@ fun LiveHomeDialogsHost(
                             is Result.Error -> {
                                 onPinErrorChange(
                                     if (unlockResult.message == "Incorrect PIN") {
-                                        context.getString(R.string.home_incorrect_pin)
+                                        incorrectPinMessage
                                     } else {
                                         unlockResult.message
                                     }
@@ -129,7 +128,7 @@ fun LiveHomeDialogsHost(
                         onPendingUnlockCategoryChange(null)
                         onPendingUnlockChannelChange(null)
                     } else {
-                        onPinErrorChange(context.getString(R.string.home_incorrect_pin))
+                        onPinErrorChange(incorrectPinMessage)
                     }
                 }
             },

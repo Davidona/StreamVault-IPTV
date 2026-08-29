@@ -1050,7 +1050,7 @@ committed together in `8a3e8cd1`.
 - Consumes: fully wired feature graph and moved tests/resources.
 - Produces: one live production owner, exact resource/dependency audit, and fresh automated verification evidence.
 
-- [ ] **Step 1: Prove no legacy Home/EPG production remains**
+- [x] **Step 1: Prove no legacy Home/EPG production remains**
 
 ```powershell
 rg --files app/src/main/java/com/streamvault/app/ui/screens/home app/src/main/java/com/streamvault/app/ui/screens/epg
@@ -1059,7 +1059,7 @@ rg -n "com\.streamvault\.app\.ui\.screens\.(home|epg)" app/src/main app/src/test
 
 Expected: the old directories are absent; any remaining string occurs only in generated profile output or recorded validation evidence and is handled in Task 11.
 
-- [ ] **Step 2: Audit feature dependencies and forbidden imports**
+- [x] **Step 2: Audit feature dependencies and forbidden imports**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:dependencies --configuration debugRuntimeClasspath --no-daemon --console=plain --warning-mode=none
@@ -1068,7 +1068,7 @@ rg -n "com\.streamvault\.(app|feature\.)|MainActivity|NavController|NavHostContr
 
 Expected: boundary PASS; no forbidden source match; project dependencies match the five approved modules.
 
-- [ ] **Step 3: Audit every temporary implementation import**
+- [x] **Step 3: Audit every temporary implementation import**
 
 ```powershell
 rg -n "^import com\.streamvault\.data\." feature/live/src/main
@@ -1083,7 +1083,7 @@ For every moved key, compare app and feature values, plurals, and formatting pla
 
 Expected: no missing resource at compile time and no changed format argument ordering.
 
-- [ ] **Step 5: Run the full focused structural bundle**
+- [x] **Step 5: Run the full focused structural bundle**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:testDebugUnitTest :feature:live:lintDebug :feature:live:compileDebugAndroidTestKotlin :feature:live:assembleDebug :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:testDebugUnitTest :app:assembleDebug --no-daemon --console=plain --warning-mode=none
@@ -1129,7 +1129,7 @@ git commit -m "refactor(live): remove legacy app presentation ownership"
 - Consumes: installed debug app, API 36 TV emulator, at least two valid live HLS channels, and feature connected tests.
 - Produces: exact route/focus/EPG/preview/MultiView evidence plus two long-duration channel captures satisfying the repository protocol.
 
-- [ ] **Step 1: Verify ADB and emulator readiness without clearing data**
+- [x] **Step 1: Verify ADB and emulator readiness without clearing data**
 
 ```powershell
 $env:ANDROID_HOME='E:\androidSdk'
@@ -1140,7 +1140,7 @@ $env:ANDROID_HOME='E:\androidSdk'
 
 Expected: one authorized boot-complete TV emulator and available package service. Record device/AVD/API/ABI; do not uninstall or clear user data.
 
-- [ ] **Step 2: Run the complete feature connected suite**
+- [x] **Step 2: Run the complete feature connected suite**
 
 ```powershell
 ./gradlew.bat :feature:live:connectedDebugAndroidTest --no-daemon --console=plain --warning-mode=none
@@ -1160,7 +1160,7 @@ Using D-pad first, then available touch/mouse paths, cover source/category switc
 
 Capture named 1920x1080 screenshots and sanitized logs. Record unavailable fixture-dependent actions as open.
 
-- [ ] **Step 5: Capture channel 1 at two-second cadence**
+- [x] **Step 5: Capture channel 1 at two-second cadence**
 
 Create an explicit directory such as `validation/phase5_live/task10-live-playback/channel-1/`. After selecting and naming the channel, run 61 captures:
 
@@ -1175,7 +1175,7 @@ $adb='E:\androidSdk\platform-tools\adb.exe'
 
 Expected: 61 nonempty PNGs spanning approximately two minutes.
 
-- [ ] **Step 6: Prove channel 1 progression and health**
+- [x] **Step 6: Prove channel 1 progression and health**
 
 Compute SHA-256 hashes, unique-hash count, media session, and log scans:
 
@@ -1189,11 +1189,11 @@ rg -n "retry category=|first-frame-success|prepare resolvedStreamType=HLS|read-p
 
 Expected: frames continue changing, media session is `PLAYING` with `error=null`, HLS evidence exists, and no fatal/stuck/unintended fallback match exists.
 
-- [ ] **Step 7: Repeat the full capture for a different live channel**
+- [x] **Step 7: Repeat the full capture for a different live channel**
 
 Use `channel-2/`, clear logcat immediately before starting, and repeat Steps 5-6 without shortening the window. Prefer a different provider/source characteristic when available.
 
-- [ ] **Step 8: Record acceptance honestly**
+- [x] **Step 8: Record acceptance honestly**
 
 For both channels record name, provider, URL redaction policy, 61 screenshot count, two-second interval, unique hash count, first/last timestamps, media-session state/error, HLS prepare/read/first-frame lines, recovery lines, and every fatal/stuck/fallback match.
 

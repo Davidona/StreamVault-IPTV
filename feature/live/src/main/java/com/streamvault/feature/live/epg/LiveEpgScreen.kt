@@ -188,6 +188,7 @@ fun LiveEpgScreen(
     var pendingLockedAction by remember { mutableStateOf<LockedGuideAction?>(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
     val notificationPermissionGate = rememberNotificationPermissionGate(
         onNotificationsBlocked = { message ->
             android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
@@ -674,7 +675,7 @@ fun LiveEpgScreen(
                         pendingLockedAction = null
                         action?.let(::executeLockedGuideAction)
                     } else {
-                        pinError = context.getString(R.string.home_incorrect_pin)
+                        pinError = incorrectPinMessage
                     }
                 }
             },
