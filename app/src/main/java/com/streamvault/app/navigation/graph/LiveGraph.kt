@@ -34,6 +34,7 @@ internal fun NavGraphBuilder.registerLiveGraph(
                         )
                     )
                 },
+                onOpenMultiView = { onNavigate(AppRoutePatterns.MULTI_VIEW) },
                 onNavigate = onNavigate,
                 currentRoute = AppRoutePatterns.LIVE_TV,
                 initialCategoryId = initialCategoryId,

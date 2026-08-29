@@ -74,7 +74,7 @@ import com.streamvault.app.R
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
-import com.streamvault.app.navigation.Routes
+import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.repository.ChannelRepository
@@ -104,6 +104,7 @@ private sealed interface FocusedRemoteShortcutTarget {
 fun HomeScreen(
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
     onNavigate: (String) -> Unit,
+    onOpenMultiView: () -> Unit,
     currentRoute: String,
     initialCategoryId: Long? = null,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -218,8 +219,8 @@ fun HomeScreen(
         onShowSplitManagerDialogChange = { showSplitManagerDialog = it },
         onPendingSplitPlannerChannelChange = { pendingSplitPlannerChannel = it },
         onChannelClick = onChannelClick,
+        onOpenMultiView = onOpenMultiView,
         resolveProviderForChannel = resolveProviderForChannel,
-        onNavigate = onNavigate,
         scope = scope
     )
 
@@ -603,7 +604,7 @@ fun HomeScreen(
                                         )
                                     },
                                     onAddToSplitScreen = { pendingSplitPlannerChannel = target.channel },
-                                    onOpenGuide = { onNavigate(Routes.EPG) }
+                                    onOpenGuide = { onNavigate(LiveRoutePatterns.EPG) }
                                 )
                                 is FocusedRemoteShortcutTarget.CategoryTarget -> {
                                     val category = target.category
@@ -622,7 +623,7 @@ fun HomeScreen(
                                                 showPinDialog = true
                                             },
                                             onHideCategory = { viewModel.hideCategory(category) },
-                                            onOpenGuide = { onNavigate(Routes.EPG) }
+                                            onOpenGuide = { onNavigate(LiveRoutePatterns.EPG) }
                                         )
                                     }
                                 }

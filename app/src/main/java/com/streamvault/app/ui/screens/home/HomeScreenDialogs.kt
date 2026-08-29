@@ -11,7 +11,6 @@ import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.home.HomeUiState
 import com.streamvault.feature.live.home.HomeViewModel
-import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
@@ -65,8 +64,8 @@ internal fun HomeDialogsHost(
     onShowSplitManagerDialogChange: (Boolean) -> Unit,
     onPendingSplitPlannerChannelChange: (Channel?) -> Unit,
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
+    onOpenMultiView: () -> Unit,
     resolveProviderForChannel: (Channel) -> Provider?,
-    onNavigate: (String) -> Unit,
     scope: CoroutineScope
 ) {
     val context = LocalContext.current
@@ -243,7 +242,7 @@ internal fun HomeDialogsHost(
                 onPendingSplitPlannerChannelChange(null)
                 viewModel.onDismissDialog()
                 viewModel.clearPreview()
-                onNavigate(Routes.MULTI_VIEW)
+                onOpenMultiView()
             },
             viewModel = multiViewViewModel
         )
@@ -391,7 +390,7 @@ internal fun HomeDialogsHost(
             onLaunch = {
                 onShowSplitManagerDialogChange(false)
                 viewModel.clearPreview()
-                onNavigate(Routes.MULTI_VIEW)
+                onOpenMultiView()
             },
             viewModel = multiViewViewModel
         )

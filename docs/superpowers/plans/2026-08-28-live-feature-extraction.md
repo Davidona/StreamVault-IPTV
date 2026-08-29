@@ -42,6 +42,11 @@ The Live-browse portion of remote shortcut dispatch is now feature-owned in
 player-wide shortcut dispatch and imports the Live handler API at the Home
 composition boundary. Focused feature and app dispatch tests are green.
 
+Home no longer imports the app `Routes` object: Guide navigation uses the
+feature-owned `LiveRoutePatterns.EPG`, while MultiView navigation is supplied
+as an app composition callback. Dialog composition therefore carries no
+MultiView route constant and remains behaviorally unchanged.
+
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument

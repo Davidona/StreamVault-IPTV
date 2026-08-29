@@ -168,3 +168,8 @@ category/channel lock policies, category-selection fallback policy, schedule
 metrics, options overlay, and EPG-match dialog are independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.
+
+Home route composition is also app-independent at the screen boundary: Guide
+uses `LiveRoutePatterns.EPG`, and MultiView is exposed through an injected
+callback. The app graph remains the sole owner of the concrete MultiView
+destination string.
