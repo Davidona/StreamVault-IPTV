@@ -80,6 +80,9 @@ import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssu
 import com.streamvault.feature.live.presentation.epg.isLiveGuideCategoryAccessible
 import com.streamvault.feature.live.presentation.epg.matchesLiveGuideMetadataSearch
 import com.streamvault.feature.live.presentation.epg.resolveLiveGuideCategorySelection
+import com.streamvault.feature.live.presentation.epg.countMissingLiveGuideEntries
+import com.streamvault.feature.live.presentation.epg.countLiveGuideChannelsWithSchedule
+import com.streamvault.feature.live.presentation.epg.hasUpcomingLiveGuideData
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -1702,7 +1705,7 @@ class EpgViewModel @Inject constructor(
         val programsByChannel = resolvedPrograms + legacyPrograms
         return GuideProgramsResult(
             programsByChannel = programsByChannel,
-            failedCount = countMissingGuideEntries(channels, programsByChannel)
+            failedCount = countMissingLiveGuideEntries(channels, programsByChannel)
         )
     }
 
@@ -1733,7 +1736,7 @@ class EpgViewModel @Inject constructor(
         val guideKeys = channels.mapNotNull(Channel::guideLookupKey).distinct()
         return GuideProgramsResult(
             programsByChannel = mergedProgramsByChannel,
-            failedCount = countMissingGuideEntries(channels, mergedProgramsByChannel)
+            failedCount = countMissingLiveGuideEntries(channels, mergedProgramsByChannel)
         )
     }
 
@@ -1773,12 +1776,12 @@ class EpgViewModel @Inject constructor(
 
                 val mergedProgramsByChannel = currentSnapshot.baseProgramsByChannel + fallbackProgramsByChannel
                 val visibleChannels = currentSnapshot.visibleChannels
-                val channelsWithSchedule = countChannelsWithSchedule(visibleChannels, mergedProgramsByChannel)
-                val hasUpcomingData = hasUpcomingGuideData(mergedProgramsByChannel, currentSnapshot.guideWindowStart)
+                val channelsWithSchedule = countLiveGuideChannelsWithSchedule(visibleChannels, mergedProgramsByChannel)
+                val hasUpcomingData = hasUpcomingLiveGuideData(mergedProgramsByChannel, currentSnapshot.guideWindowStart)
 
                 currentSnapshot.copy(
                     baseProgramsByChannel = mergedProgramsByChannel,
-                    failedScheduleCount = countMissingGuideEntries(visibleChannels, mergedProgramsByChannel),
+                    failedScheduleCount = countMissingLiveGuideEntries(visibleChannels, mergedProgramsByChannel),
                     lastUpdatedAt = System.currentTimeMillis(),
                     baseChannelsWithSchedule = channelsWithSchedule,
                     baseGuideStale = visibleChannels.isNotEmpty() && (channelsWithSchedule == 0 || !hasUpcomingData)
@@ -1851,32 +1854,6 @@ class EpgViewModel @Inject constructor(
             guideWindowStart == context.guideWindowStart &&
             guideWindowEnd == context.guideWindowEnd &&
             visibleChannels.map(Channel::id) == context.visibleChannelIds
-
-    private fun countMissingGuideEntries(
-        channels: List<Channel>,
-        programsByChannel: Map<String, List<Program>>
-    ): Int =
-        channels.mapNotNull(Channel::guideLookupKey)
-            .distinct()
-            .count { lookupKey -> programsByChannel[lookupKey].isNullOrEmpty() }
-
-    private fun countChannelsWithSchedule(
-        channels: List<Channel>,
-        programsByChannel: Map<String, List<Program>>
-    ): Int =
-        channels.count { channel ->
-            channel.guideLookupKey()
-                ?.let { lookupKey -> programsByChannel[lookupKey].orEmpty().isNotEmpty() }
-                ?: false
-        }
-
-    private fun hasUpcomingGuideData(
-        programsByChannel: Map<String, List<Program>>,
-        windowStart: Long
-    ): Boolean =
-        programsByChannel.values.any { programs ->
-            programs.any { program -> program.endTime > windowStart }
-        }
 
     private suspend fun buildGuideDisplaySnapshot(
         baseSnapshot: GuideBaseSnapshot,

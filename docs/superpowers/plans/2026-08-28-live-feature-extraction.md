@@ -31,8 +31,8 @@ pane, guide toolbar, guide message state, hero badge, timeline header, grid
 rows/cells, grid host, EPG content host, focus reconciliation, Home layout
 metrics, and Home parental-lock policy are now feature-owned, with the options
 overlay and EPG-match dialog also feature-owned
-and the EPG guide category/channel lock policies and category-selection fallback
-policy now feature-owned
+and the EPG guide category/channel lock policies, category-selection fallback
+policy, and schedule metrics now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -740,6 +740,9 @@ The EPG category-selection fallback policy now preserves the existing
 All/Favorites/accessibility ordering and explicit-unlock behavior behind a
 feature-owned pure resolver; `EpgViewModel` delegates while retaining repository
 coordination.
+Guide schedule metrics (missing entries, channels with schedules, and upcoming
+data) are now feature-owned pure functions; `EpgViewModel` delegates while
+retaining data loading and state assembly.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.
