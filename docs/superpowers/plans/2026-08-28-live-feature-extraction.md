@@ -1148,11 +1148,13 @@ Expected: one authorized boot-complete TV emulator and available package service
 
 Expected: all live feature connected tests pass. Record XML path, tests, failures, errors, skipped, and duration.
 
-- [ ] **Step 3: Run app navigation/player seam connected tests**
+- [x] **Step 3: Run app navigation/player seam connected tests**
 
 Run the repository's focused navigation, platform compatibility, Playback overlay, and golden test classes rather than treating the complete app suite as one opaque result. Record each class result independently.
 
 Expected: Live TV and EPG destinations open with argument compatibility; player and MultiView callbacks reach the existing destinations; any unrelated baseline failure is listed exactly.
+
+Recorded in `validation/phase5_live/task10-connected-validation.md`: AppNavigationContractTest 3/3 and PlatformCompatibilityMatrixTest 4/4 pass; the existing Live golden drift and PlayerSmokeTest's three pre-existing failures remain open neighboring gates.
 
 - [ ] **Step 4: Perform manual Live TV and EPG journeys**
 
