@@ -900,6 +900,10 @@ Cover route initialization, horizontal and vertical movement, stable channel/pro
 
 Run `EpgScreenBehaviorTest`; expected missing-screen failure.
 
+`EpgPresentationBehaviorTest` now provides connected coverage for the
+feature-owned Guide hero badge and actionable message-state rendering. The
+full ViewModel-driven Guide journey remains open.
+
 - [x] **Step 7: Move EPG presentation and deferred overlay**
 
 Move the EPG screen, hero, ViewModel, and deferred player overlay into
