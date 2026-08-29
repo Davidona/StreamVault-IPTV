@@ -860,12 +860,17 @@ values with `LivePreviewOrigin.GUIDE`. Preserve guide window constants, paging,
 prefetch jobs, search debounce, reminder/recording flow, override behavior,
 parental policy, preview engine configuration, and dispatchers.
 
-- [ ] **Step 4: Add and run EPG preview port RED/GREEN tests**
+- [x] **Step 4: Add and run EPG preview port RED/GREEN tests**
 
 Assert successful/error preparation, GUIDE register/begin/reverse/clear behavior,
 HOME reverse notification rejection, active-session guards, playback/error flow
 collection, and local state transitions. Each test must fail on the missing port
 call before the minimal implementation change makes it pass.
+
+`EpgPreviewPortTest` now covers successful GUIDE registration, preparation-error
+preservation without registration, and accepted fullscreen handoff cleanup. The
+EPG playback-state collector was aligned with Home so a preparation error is not
+cleared by a concurrent non-error state emission.
 
 - [x] **Step 5: Run the complete EPG ViewModel suite**
 

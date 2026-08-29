@@ -392,7 +392,6 @@ class EpgViewModel @Inject constructor(
                         previewErrorMessage = when {
                             state == PlaybackState.ERROR && s.previewErrorMessage.isNullOrBlank() ->
                                 appContext.getString(R.string.live_preview_failed)
-                            state != PlaybackState.ERROR -> null
                             else -> s.previewErrorMessage
                         }
                     )
