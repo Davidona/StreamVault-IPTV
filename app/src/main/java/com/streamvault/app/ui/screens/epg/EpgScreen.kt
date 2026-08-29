@@ -6,6 +6,7 @@ import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.presentation.epg.resolveLiveGuideFocus
 import com.streamvault.feature.live.presentation.epg.isLiveGuideChannelLocked
+import com.streamvault.feature.live.presentation.epg.isLiveGuideCategoryLocked
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
@@ -976,7 +977,7 @@ private fun GuideProviderTroubleshootingCard(
 }
 
 internal fun isGuideCategoryLocked(category: Category, parentalControlLevel: Int): Boolean =
-    parentalControlLevel in 1..2 && (category.isAdult || category.isUserProtected)
+    isLiveGuideCategoryLocked(category, parentalControlLevel)
 
 private fun isGuideChannelLocked(
     channel: Channel,

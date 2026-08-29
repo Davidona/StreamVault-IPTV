@@ -141,7 +141,7 @@ pane, guide toolbar, guide message state, hero badge, timeline header, grid
 rows/cells, grid host, EPG content host, focus reconciliation, Home layout
 metrics, and Home parental-lock policy are now feature-owned, with the options
 overlay and EPG-match dialog also feature-owned
-and the EPG guide-channel lock policy now feature-owned
+and the EPG guide category/channel lock policies now feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
@@ -155,7 +155,8 @@ series-assignment dialogs, the EPG search overlay, guide category picker, and
 compact guide-program dialog, guide control rows, EPG preview pane, guide
 toolbar, guide message state, hero badge, stable EPG channel-key helper,
 timeline header, grid rows/cells, grid host, EPG content host, focus
-reconciliation, Home layout metrics, Home parental-lock policy, EPG guide-channel
-lock policy, options overlay, and EPG-match dialog are independent of app code;
+reconciliation, Home layout metrics, Home parental-lock policy, EPG guide
+category/channel lock policies, options overlay, and EPG-match dialog are
+independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

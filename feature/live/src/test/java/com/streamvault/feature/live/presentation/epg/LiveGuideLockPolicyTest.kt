@@ -7,6 +7,14 @@ import org.junit.Test
 
 class LiveGuideLockPolicyTest {
     @Test
+    fun `guide category is locked only when parental controls are active`() {
+        val protectedCategory = Category(id = 4L, name = "Protected", isAdult = true)
+
+        assertThat(isLiveGuideCategoryLocked(protectedCategory, parentalControlLevel = 1)).isTrue()
+        assertThat(isLiveGuideCategoryLocked(protectedCategory, parentalControlLevel = 0)).isFalse()
+    }
+
+    @Test
     fun `guide channel is locked by its own protection or source category`() {
         val protectedCategory = Category(id = 4L, name = "Protected", isAdult = true)
         val channel = Channel(id = 9L, name = "Channel", categoryId = 4L)
