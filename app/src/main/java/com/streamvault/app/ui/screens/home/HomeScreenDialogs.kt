@@ -1,12 +1,10 @@
 package com.streamvault.app.ui.screens.home
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,12 +13,9 @@ import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.home.HomeUiState
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.navigation.Routes
-import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
-import com.streamvault.app.ui.components.dialogs.CategoryOptionsDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
@@ -28,6 +23,10 @@ import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDial
 import com.streamvault.app.ui.components.dialogs.M3uSeriesAssignmentDialog
 import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.feature.playback.multiview.MultiViewViewModel
+import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
+import com.streamvault.feature.live.home.LiveCategoryOptionsDialogLabels
+import com.streamvault.feature.live.home.LiveAddQuickFilterDialog
+import com.streamvault.feature.live.home.LiveAddQuickFilterDialogLabels
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -142,8 +141,24 @@ internal fun HomeDialogsHost(
             (category.isAdult || category.isUserProtected) &&
                 uiState.parentalControlLevel in 1..2 &&
                 kotlin.math.abs(category.id) !in uiState.unlockedCategoryIds
-        CategoryOptionsDialog(
+        LiveCategoryOptionsDialog(
             category = category,
+            labels = LiveCategoryOptionsDialogLabels(
+                hint = stringResource(R.string.library_saved_manage_hint),
+                setDefault = stringResource(R.string.category_options_set_default),
+                pin = stringResource(R.string.category_options_pin),
+                unpin = stringResource(R.string.category_options_unpin),
+                rename = stringResource(R.string.category_options_rename),
+                hide = stringResource(R.string.category_options_hide),
+                hideFromLiveTv = stringResource(R.string.category_options_hide_from_live_tv),
+                clearRecent = stringResource(R.string.category_options_clear_recent),
+                reorder = stringResource(R.string.category_options_reorder),
+                organizeM3u = stringResource(R.string.m3u_organize_items),
+                lock = stringResource(R.string.category_options_lock),
+                unlock = stringResource(R.string.category_options_unlock),
+                delete = stringResource(R.string.category_options_delete),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
             onDismissRequest = { viewModel.dismissCategoryOptions() },
             onSetAsDefault = if (isCategoryLocked) null else {
                 {
@@ -204,40 +219,17 @@ internal fun HomeDialogsHost(
     }
 
     if (showAddQuickFilterDialog) {
-        var pendingFilter by rememberSaveable { mutableStateOf("") }
-        PremiumDialog(
-            title = stringResource(R.string.home_quick_filters_add_title),
-            subtitle = stringResource(R.string.home_quick_filters_add_subtitle),
-            onDismissRequest = { onShowAddQuickFilterDialogChange(false) },
-            widthFraction = 0.42f,
-            content = {
-                SearchInput(
-                    value = pendingFilter,
-                    onValueChange = { pendingFilter = it },
-                    placeholder = stringResource(R.string.home_quick_filters_add_placeholder),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                PremiumDialogActionButton(
-                    label = stringResource(R.string.home_quick_filters_add_action),
-                    enabled = pendingFilter.isNotBlank(),
-                    onClick = {
-                        val normalized = pendingFilter.trim()
-                        val isDuplicate = uiState.savedCategoryFilters.any {
-                            it.equals(normalized, ignoreCase = true)
-                        }
-                        viewModel.addLiveTvCategoryFilter(pendingFilter)
-                        if (normalized.isNotBlank() && !isDuplicate) {
-                            onShowAddQuickFilterDialogChange(false)
-                        }
-                    }
-                )
-            },
-            footer = {
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.settings_cancel),
-                    onClick = { onShowAddQuickFilterDialogChange(false) }
-                )
-            }
+        LiveAddQuickFilterDialog(
+            savedFilters = uiState.savedCategoryFilters,
+            labels = LiveAddQuickFilterDialogLabels(
+                title = stringResource(R.string.home_quick_filters_add_title),
+                subtitle = stringResource(R.string.home_quick_filters_add_subtitle),
+                placeholder = stringResource(R.string.home_quick_filters_add_placeholder),
+                action = stringResource(R.string.home_quick_filters_add_action),
+                cancel = stringResource(R.string.settings_cancel)
+            ),
+            onAddFilter = viewModel::addLiveTvCategoryFilter,
+            onDismiss = { onShowAddQuickFilterDialogChange(false) }
         )
     }
 
