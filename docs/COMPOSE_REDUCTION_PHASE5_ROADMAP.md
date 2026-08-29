@@ -86,11 +86,16 @@ out of :app without behavior or stability regressions.
   docs/superpowers/plans/2026-08-27-settings-feature-extraction.md
 - Settings execution report:
   docs/COMPOSE_REDUCTION_PHASE5_SETTINGS_REPORT.md
+- Live extraction implementation plan:
+  docs/superpowers/plans/2026-08-28-live-feature-extraction.md
+- Live execution report:
+  docs/COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 
-The settings implementation plan and execution report now document the
-structural extraction, resource ownership cleanup, dependency audit, and open
-runtime gates. Live and catalog still receive separate implementation plans
-only after the current provider/runtime gates confirm the reusable module
-pattern; no later slice is started by the settings work.
+The settings implementation plan and execution report document the structural
+extraction, resource ownership cleanup, dependency audit, and open runtime
+gates. The Live implementation plan and report now document the Home/EPG
+extraction, connected checks, and two-channel runtime evidence while leaving
+locale, golden, performance/profile, and exhaustive journey gates explicit.
+Catalog and System remain unstarted.
