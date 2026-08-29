@@ -51,6 +51,8 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.LIVE_GUIDE_MARKER_STEP_MS
+import com.streamvault.feature.live.presentation.epg.LiveGuideTimelineHeader
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.presentation.epg.liveEpgChannelKey
 import com.streamvault.core.ui.image.ChannelLogoBadge
@@ -132,10 +134,10 @@ internal fun EpgGrid(
         } else {
             timelineViewportWidth
         }
-        val markerStepMs = EpgViewModel.HALF_HOUR_SHIFT_MS
+        val markerStepMs = LIVE_GUIDE_MARKER_STEP_MS
 
         Column(modifier = Modifier.fillMaxSize()) {
-            GuideTimelineHeader(
+            LiveGuideTimelineHeader(
                 windowStart = guideWindowStart,
                 windowEnd = guideWindowEnd,
                 channelRailWidth = channelRailWidth,
@@ -185,102 +187,6 @@ internal fun EpgGrid(
                         onProgramClick = { program -> onProgramClick(channel, program) },
                         onProgramFocused = { program -> onProgramFocused(channel, program, isFirstRow) }
                     )
-                }
-            }
-        }
-    }
-}
-@Composable
-private fun GuideTimelineHeader(
-    windowStart: Long,
-    windowEnd: Long,
-    channelRailWidth: Dp,
-    timelineGap: Dp,
-    timelineViewportWidth: Dp,
-    totalTimelineWidth: Dp,
-    markerStepMs: Long,
-    scrollState: androidx.compose.foundation.ScrollState
-) {
-    val now = currentLiveGuideNow()
-    val appTimeFormat = LocalLiveTimeFormat.current
-    val hourFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormatter() }
-    val zone = remember { ZoneId.systemDefault() }
-    val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
-    val clampedNow = now.coerceIn(windowStart, windowEnd)
-    val elapsedRatio = ((clampedNow - windowStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
-    val markerLabel = if (now in windowStart..windowEnd) {
-        stringResource(R.string.epg_now_marker, hourFormat.format(Instant.ofEpochMilli(now).atZone(zone)))
-    } else {
-        stringResource(R.string.epg_outside_window)
-    }
-    val hourMarkers = buildList {
-        val firstMarker = windowStart - (windowStart % markerStepMs)
-        var marker = firstMarker
-        while (marker <= windowEnd) {
-            add(marker)
-            marker += markerStepMs
-        }
-        if (lastOrNull() != windowEnd) {
-            add(windowEnd)
-        }
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 2.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Spacer(modifier = Modifier.width(channelRailWidth + timelineGap))
-        Column(
-            modifier = Modifier.width(timelineViewportWidth),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(timelineViewportWidth)
-                    .height(20.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .width(totalTimelineWidth)
-                        .horizontalScroll(scrollState)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(totalTimelineWidth)
-                            .height(20.dp)
-                    ) {
-                        hourMarkers.forEach { marker ->
-                            val markerRatio = ((marker - windowStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
-                            val markerOffset = totalTimelineWidth * markerRatio
-                            Column(
-                                modifier = Modifier.padding(start = markerOffset),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Text(
-                                    text = hourFormat.format(Instant.ofEpochMilli(marker).atZone(zone)),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = OnSurfaceDim
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .width(1.dp)
-                                        .height(8.dp)
-                                        .background(Color.White.copy(alpha = 0.16f))
-                                )
-                            }
-                        }
-                        if (now in windowStart..windowEnd) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(start = totalTimelineWidth * elapsedRatio)
-                                    .width(2.dp)
-                                    .fillMaxHeight()
-                                    .background(Primary)
-                            )
-                        }
-                    }
                 }
             }
         }
