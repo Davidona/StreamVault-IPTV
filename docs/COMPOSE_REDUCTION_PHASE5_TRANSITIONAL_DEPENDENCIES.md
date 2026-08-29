@@ -149,6 +149,7 @@ category options dialog, the quick-filter add dialog, the delete-group dialog,
 and the rename-group dialog, M3U category organizer dialog, and M3U
 series-assignment dialogs, the EPG search overlay, guide category picker, and
 compact guide-program dialog, guide control rows, EPG preview pane, guide
-toolbar, guide message state, and hero badge are independent of app code;
+toolbar, guide message state, hero badge, and stable EPG channel-key helper are
+independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

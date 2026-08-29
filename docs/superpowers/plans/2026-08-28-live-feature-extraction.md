@@ -710,7 +710,8 @@ supplies category text and navigation callbacks.
 The guide message state owns centered empty/loading/error presentation and the
 optional action affordance while callers supply state-specific copy and action.
 The hero badge owns rounded highlight styling and text overflow presentation;
-callers supply the text and optional accent.
+callers supply the text and optional accent. Stable EPG channel-key generation
+is feature-owned and covered by focused identity tests.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

@@ -52,6 +52,7 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
+import com.streamvault.feature.live.presentation.epg.liveEpgChannelKey
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -152,7 +153,7 @@ internal fun EpgGrid(
             ) {
                 itemsIndexed(
                     items = channels,
-                    key = { index, channel -> epgChannelKey(channel, index) },
+                    key = { index, channel -> liveEpgChannelKey(channel, index) },
                     contentType = { _, _ -> "epg_channel" }
                 ) { index, channel ->
                     if (index >= channels.size - 15) {
@@ -499,7 +500,6 @@ fun EpgRow(
         }
     }
 }
-
 @Composable
 fun ProgramItem(
     program: Program,
@@ -644,9 +644,4 @@ internal fun formatWindowDuration(durationMs: Long): String {
     } else {
         "${hours}h ${minutes}m"
     }
-}
-
-internal fun epgChannelKey(channel: Channel, index: Int): String {
-    val epgId = channel.guideLookupKey().orEmpty()
-    return "channel:${channel.id}:${channel.streamId}:${epgId}:${channel.name.trim()}:$index"
 }
