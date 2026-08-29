@@ -52,6 +52,11 @@ graph supplies the existing top-bar `AppScreenScaffold` adapter, leaving shell
 layout and destination configuration in the composition root while the Live
 surface moves toward feature ownership.
 
+Home no longer depends directly on the Playback feature for MultiView. The
+planner UI and queue lookup are supplied through `LiveMultiViewPlannerContent`
+and `isChannelQueuedForMultiView`; the app graph remains responsible for
+constructing `MultiViewViewModel` and `MultiViewPlannerDialog`.
+
 Route patterns were subsequently moved behind `LiveRoutePatterns`; the app
 codec still owns encode/decode compatibility and no route behavior changed.
 The feature-owned `registerLiveGraph` now owns Live destination argument

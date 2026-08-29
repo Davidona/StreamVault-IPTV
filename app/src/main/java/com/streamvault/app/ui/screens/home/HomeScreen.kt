@@ -70,9 +70,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
 import com.streamvault.domain.model.LiveTvChannelMode
-import com.streamvault.feature.playback.multiview.MultiViewViewModel
-import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
+import com.streamvault.feature.live.api.LiveMultiViewPlannerContent
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.repository.ChannelRepository
@@ -105,10 +104,11 @@ fun HomeScreen(
     onNavigate: (String) -> Unit,
     onOpenMultiView: () -> Unit,
     scaffold: LiveHomeScaffoldContent,
+    multiViewPlanner: LiveMultiViewPlannerContent,
+    isChannelQueuedForMultiView: (Long) -> Boolean,
     currentRoute: String,
     initialCategoryId: Long? = null,
-    viewModel: HomeViewModel = hiltViewModel(),
-    multiViewViewModel: MultiViewViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val remoteShortcutPreferences by viewModel.remoteShortcutPreferences.collectAsStateWithLifecycle()
@@ -200,7 +200,6 @@ fun HomeScreen(
 
     HomeDialogsHost(
         uiState = uiState,
-        multiViewViewModel = multiViewViewModel,
         viewModel = viewModel,
         showPinDialog = showPinDialog,
         pinError = pinError,
@@ -220,6 +219,8 @@ fun HomeScreen(
         onPendingSplitPlannerChannelChange = { pendingSplitPlannerChannel = it },
         onChannelClick = onChannelClick,
         onOpenMultiView = onOpenMultiView,
+        multiViewPlanner = multiViewPlanner,
+        isChannelQueuedForMultiView = isChannelQueuedForMultiView,
         resolveProviderForChannel = resolveProviderForChannel,
         scope = scope
     )

@@ -178,3 +178,8 @@ The Home screen consumes `LiveHomeScaffoldContent`; the app graph supplies the
 existing `AppScreenScaffold` adapter with the same top-bar, compact-header,
 and hidden-screen-header configuration. Shell ownership remains in `:app`,
 but the Live presentation no longer imports that app shell directly.
+
+Home also consumes the existing `LiveMultiViewPlannerContent` port and a
+queue-status callback. The app graph owns the Playback `MultiViewViewModel`
+and dialog adapter; no `feature:live` source imports Playback implementation
+packages.

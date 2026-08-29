@@ -13,8 +13,7 @@ import com.streamvault.feature.live.presentation.home.HomeUiState
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
-import com.streamvault.feature.playback.multiview.MultiViewViewModel
+import com.streamvault.feature.live.api.LiveMultiViewPlannerContent
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialogLabels
 import com.streamvault.feature.live.home.LiveAddQuickFilterDialog
@@ -45,7 +44,6 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun HomeDialogsHost(
     uiState: HomeUiState,
-    multiViewViewModel: MultiViewViewModel,
     viewModel: HomeViewModel,
     showPinDialog: Boolean,
     pinError: String?,
@@ -65,6 +63,8 @@ internal fun HomeDialogsHost(
     onPendingSplitPlannerChannelChange: (Channel?) -> Unit,
     onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
     onOpenMultiView: () -> Unit,
+    multiViewPlanner: LiveMultiViewPlannerContent,
+    isChannelQueuedForMultiView: (Long) -> Boolean,
     resolveProviderForChannel: (Channel) -> Provider?,
     scope: CoroutineScope
 ) {
@@ -235,16 +235,15 @@ internal fun HomeDialogsHost(
     }
 
     if (pendingSplitPlannerChannel != null) {
-        MultiViewPlannerDialog(
-            pendingChannel = pendingSplitPlannerChannel,
-            onDismiss = { onPendingSplitPlannerChannelChange(null) },
-            onLaunch = {
+        multiViewPlanner(
+            pendingSplitPlannerChannel,
+            { onPendingSplitPlannerChannelChange(null) },
+            {
                 onPendingSplitPlannerChannelChange(null)
                 viewModel.onDismissDialog()
                 viewModel.clearPreview()
                 onOpenMultiView()
-            },
-            viewModel = multiViewViewModel
+            }
         )
     }
 
@@ -270,7 +269,7 @@ internal fun HomeDialogsHost(
                 uiState.selectedCombinedSourceProviderId == null &&
                 uiState.currentCombinedProfileMembers.count { it.enabled } > 1
             ) null else { name -> viewModel.createCustomGroup(name) },
-            isQueuedForSplitScreen = multiViewViewModel.isQueued(channel.id),
+            isQueuedForSplitScreen = isChannelQueuedForMultiView(channel.id),
             onOpenSplitScreenPlanner = { onPendingSplitPlannerChannelChange(channel) },
             onRemoveFromRecent = if (uiState.selectedCategory?.id == VirtualCategoryIds.RECENT) {
                 {
@@ -384,15 +383,14 @@ internal fun HomeDialogsHost(
     }
 
     if (showSplitManagerDialog) {
-        MultiViewPlannerDialog(
-            pendingChannel = null,
-            onDismiss = { onShowSplitManagerDialogChange(false) },
-            onLaunch = {
+        multiViewPlanner(
+            null,
+            { onShowSplitManagerDialogChange(false) },
+            {
                 onShowSplitManagerDialogChange(false)
                 viewModel.clearPreview()
                 onOpenMultiView()
-            },
-            viewModel = multiViewViewModel
+            }
         )
     }
 

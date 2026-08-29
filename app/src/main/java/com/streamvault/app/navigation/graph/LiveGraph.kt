@@ -1,6 +1,7 @@
 package com.streamvault.app.navigation.graph
 
 import androidx.navigation.NavGraphBuilder
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.playerNavigationRequest
@@ -9,6 +10,8 @@ import com.streamvault.app.ui.screens.epg.FullEpgScreen
 import com.streamvault.app.ui.screens.home.HomeScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.feature.playback.multiview.MultiViewPlannerDialog
+import com.streamvault.feature.playback.multiview.MultiViewViewModel
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.domain.playback.isArchivePlayable
@@ -22,6 +25,7 @@ internal fun NavGraphBuilder.registerLiveGraph(
 ) {
     registerFeatureLiveGraph(
         liveTvContent = { initialCategoryId, onPlaybackRequested, onNavigate ->
+            val multiViewViewModel: MultiViewViewModel = hiltViewModel()
             HomeScreen(
                 onChannelClick = { channel, category, provider, combinedProfileId, combinedSourceFilterProviderId ->
                     onPlaybackRequested(
@@ -50,6 +54,15 @@ internal fun NavGraphBuilder.registerLiveGraph(
                         content = content,
                     )
                 },
+                multiViewPlanner = { selectedChannel, onDismiss, onConfirmed ->
+                    MultiViewPlannerDialog(
+                        pendingChannel = selectedChannel,
+                        onDismiss = onDismiss,
+                        onLaunch = onConfirmed,
+                        viewModel = multiViewViewModel,
+                    )
+                },
+                isChannelQueuedForMultiView = multiViewViewModel::isQueued,
                 currentRoute = AppRoutePatterns.LIVE_TV,
                 initialCategoryId = initialCategoryId,
             )
