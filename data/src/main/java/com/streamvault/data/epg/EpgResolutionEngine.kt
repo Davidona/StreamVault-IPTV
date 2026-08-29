@@ -308,8 +308,8 @@ class EpgResolutionEngine @Inject constructor(
 
             for (mapping in sourceMappings) {
                 val channel = channelById[mapping.providerChannelId] ?: continue
-                val lookupKey = channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
-                    ?: channel.streamId.takeIf { it > 0L }?.toString()
+                val lookupKey = channel.streamId.takeIf { it > 0L }?.toString()
+                    ?: channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
                     ?: continue
                 val progs = programsByXmltvId[mapping.xmltvChannelId]
                     ?.map { it.toDomainProgram(providerId) }
@@ -344,8 +344,8 @@ class EpgResolutionEngine @Inject constructor(
 
             for (mapping in providerMappings) {
                 val channel = channelById[mapping.providerChannelId] ?: continue
-                val lookupKey = channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
-                    ?: channel.streamId.takeIf { it > 0L }?.toString()
+                val lookupKey = channel.streamId.takeIf { it > 0L }?.toString()
+                    ?: channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
                     ?: continue
                 // Don't overwrite external data (external wins if already resolved)
                 if (lookupKey !in result) {
