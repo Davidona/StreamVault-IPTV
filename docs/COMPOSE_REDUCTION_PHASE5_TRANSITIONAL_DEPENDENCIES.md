@@ -136,7 +136,8 @@ header, channel-content state host, channel-list host, and category-list host
 and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
-category picker, and compact guide-program dialog are now feature-owned
+category picker, compact guide-program dialog, and the guide control rows are
+now feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
@@ -147,6 +148,6 @@ mode/density/reminder presentation models, hidden collection dialogs, the
 category options dialog, the quick-filter add dialog, the delete-group dialog,
 and the rename-group dialog, M3U category organizer dialog, and M3U
 series-assignment dialogs, the EPG search overlay, guide category picker, and
-compact guide-program dialog are independent of app code;
+compact guide-program dialog and guide control rows are independent of app code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.

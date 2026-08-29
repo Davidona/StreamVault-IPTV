@@ -13,6 +13,13 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerDial
 import com.streamvault.feature.live.presentation.epg.LiveGuideCategoryPickerLabels
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDialog
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideControlLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideDayLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideDensityLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideFavoritesLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideModeLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsLabels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -595,6 +602,62 @@ fun FullEpgScreen(
     if (showGuideOptions) {
         GuideOptionsOverlay(
             uiState = uiState,
+            labels = LiveGuideControlLabels(
+                time = LiveGuideTimeControlLabels(
+                    section = stringResource(R.string.epg_time_controls),
+                    previousDay = stringResource(R.string.epg_previous_day),
+                    pageBack = stringResource(R.string.epg_page_back),
+                    jumpBackHalfHour = stringResource(R.string.epg_jump_back_half_hour),
+                    jumpBack = stringResource(R.string.epg_jump_back),
+                    jumpNow = stringResource(R.string.epg_jump_now),
+                    jumpForwardHalfHour = stringResource(R.string.epg_jump_forward_half_hour),
+                    jumpForward = stringResource(R.string.epg_jump_forward),
+                    pageForward = stringResource(R.string.epg_page_forward),
+                    jumpPrimeTime = stringResource(R.string.epg_jump_prime_time),
+                    jumpTomorrow = stringResource(R.string.epg_jump_tomorrow),
+                    nextDay = stringResource(R.string.epg_next_day)
+                ),
+                day = LiveGuideDayLabels(
+                    section = stringResource(R.string.epg_day_selector_label),
+                    yesterday = stringResource(R.string.epg_day_yesterday),
+                    today = stringResource(R.string.epg_day_today),
+                    tomorrow = stringResource(R.string.epg_day_tomorrow)
+                ),
+                mode = LiveGuideModeLabels(
+                    title = stringResource(R.string.epg_mode_label),
+                    subtitle = stringResource(R.string.epg_mode_subtitle),
+                    all = stringResource(R.string.epg_mode_all),
+                    allHint = stringResource(R.string.epg_mode_all_hint),
+                    anchored = stringResource(R.string.epg_mode_anchored),
+                    anchoredHint = stringResource(R.string.epg_mode_anchored_hint),
+                    archiveReady = stringResource(R.string.epg_mode_archive),
+                    archiveReadyHint = stringResource(R.string.epg_mode_archive_hint)
+                ),
+                density = LiveGuideDensityLabels(
+                    title = stringResource(R.string.epg_density_label),
+                    subtitle = stringResource(R.string.epg_density_subtitle),
+                    compact = stringResource(R.string.epg_density_compact),
+                    compactHint = stringResource(R.string.epg_density_compact_hint),
+                    comfortable = stringResource(R.string.epg_density_comfortable),
+                    comfortableHint = stringResource(R.string.epg_density_comfortable_hint),
+                    cinematic = stringResource(R.string.epg_density_cinematic),
+                    cinematicHint = stringResource(R.string.epg_density_cinematic_hint)
+                ),
+                viewOptions = LiveGuideViewOptionsLabels(
+                    title = stringResource(R.string.epg_view_options_label),
+                    scheduledOnlyOn = stringResource(R.string.epg_view_scheduled_only_on),
+                    scheduledOnlyOff = stringResource(R.string.epg_view_scheduled_only_off),
+                    scheduledOnlyHint = stringResource(R.string.epg_view_scheduled_only_hint)
+                ),
+                favorites = LiveGuideFavoritesLabels(
+                    title = stringResource(R.string.epg_favorites_filter_title),
+                    subtitle = stringResource(R.string.epg_favorites_filter_subtitle),
+                    all = stringResource(R.string.epg_favorites_filter_all),
+                    allHint = stringResource(R.string.epg_favorites_filter_all_hint),
+                    favorites = stringResource(R.string.epg_favorites_filter_favorites),
+                    favoritesHint = stringResource(R.string.epg_favorites_filter_favorites_hint)
+                )
+            ),
             onDismiss = { showGuideOptions = false },
             onShowAppNavigation = {
                 topNavVisible = true

@@ -31,9 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,23 +53,25 @@ import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideChannelMode
 import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.LiveGuideControlLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuideDensityRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideDayRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideFavoritesRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideModeRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlsRow
+import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsRow
+import com.streamvault.feature.live.presentation.epg.startOfGuideDay
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
-import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.domain.model.Category
-import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.EpgMatchType
 import com.streamvault.domain.model.EpgOverrideCandidate
 import com.streamvault.domain.model.EpgSourceType
-import com.streamvault.domain.model.Program
-import java.util.Date
 
 @Composable
 private fun GuideModalDialog(
@@ -109,6 +109,7 @@ private fun GuideModalDialog(
 @Composable
 internal fun GuideOptionsOverlay(
     uiState: EpgUiState,
+    labels: LiveGuideControlLabels,
     onDismiss: () -> Unit,
     onShowAppNavigation: () -> Unit,
     onJumpToPreviousDay: () -> Unit,
@@ -173,7 +174,8 @@ internal fun GuideOptionsOverlay(
                         )
                     }
                 }
-                GuideTimeControlsRow(
+                LiveGuideTimeControlsRow(
+                    labels = labels.time,
                     onJumpToPreviousDay = onJumpToPreviousDay,
                     onPageBackward = onPageBackward,
                     onJumpBackwardHalfHour = onJumpBackwardHalfHour,
@@ -187,24 +189,29 @@ internal fun GuideOptionsOverlay(
                     onJumpToNextDay = onJumpToNextDay,
                     firstChipFocusRequester = optionsFocusRequester
                 )
-                GuideDayRow(
-                    selectedDayStart = startOfDay(uiState.guideWindowStart + EpgViewModel.LOOKBACK_MS),
+                LiveGuideDayRow(
+                    selectedDayStart = startOfGuideDay(uiState.guideWindowStart + EpgViewModel.LOOKBACK_MS),
+                    labels = labels.day,
                     onDaySelected = onDaySelected
                 )
-                GuideModeRow(
+                LiveGuideModeRow(
                     selectedMode = uiState.selectedChannelMode,
+                    labels = labels.mode,
                     onModeSelected = onModeSelected
                 )
-                GuideDensityRow(
+                LiveGuideDensityRow(
                     selectedDensity = uiState.selectedDensity,
+                    labels = labels.density,
                     onDensitySelected = onDensitySelected
                 )
-                GuideViewOptionsRow(
+                LiveGuideViewOptionsRow(
                     showScheduledOnly = uiState.showScheduledOnly,
+                    labels = labels.viewOptions,
                     onToggleScheduledOnly = onToggleScheduledOnly
                 )
-                GuideFavoritesRow(
+                LiveGuideFavoritesRow(
                     showFavoritesOnly = uiState.showFavoritesOnly,
+                    labels = labels.favorites,
                     onToggleFavoritesOnly = onToggleFavoritesOnly
                 )
                 Row(
