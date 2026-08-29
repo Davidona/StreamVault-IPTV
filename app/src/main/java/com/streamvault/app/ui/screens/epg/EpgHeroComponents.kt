@@ -3,11 +3,8 @@ package com.streamvault.app.ui.screens.epg
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -31,10 +27,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
@@ -45,7 +39,6 @@ import com.streamvault.app.R
 import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.core.ui.image.ChannelLogoBadge
-import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.feature.live.presentation.model.guideLookupKey
@@ -59,9 +52,6 @@ import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
-import com.streamvault.player.PlayerEngine
-import com.streamvault.player.PlayerRenderSurfaceType
-import com.streamvault.player.PlayerSurfaceResizeMode
 import java.util.Date
 
 internal data class GuideHeroSelection(
@@ -96,7 +86,6 @@ internal fun resolveGuideHeroSelection(
         isFallbackToChannel = resolvedProgram == null
     )
 }
-
 @Composable
 internal fun GuideHeroSection(
     uiState: EpgUiState,
@@ -307,150 +296,6 @@ internal fun GuideHeroBadge(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-@Composable
-internal fun GuidePreviewPane(
-    previewPlayerEngine: PlayerEngine?,
-    isPreviewLoading: Boolean,
-    focusedChannel: Channel?,
-    focusedProgram: Program?,
-    modifier: Modifier = Modifier
-) {
-    val renderSurfaceType by (previewPlayerEngine?.renderSurfaceType)?.collectAsStateWithLifecycle(
-        initialValue = PlayerRenderSurfaceType.SURFACE_VIEW
-    ) ?: remember { mutableStateOf(PlayerRenderSurfaceType.SURFACE_VIEW) }
-    val now = currentLiveGuideNow()
-    val appTimeFormat = LocalLiveTimeFormat.current
-    val timeFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
-
-    Surface(
-        modifier = modifier.height(150.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Video preview area (16:9 at 90dp height = 160dp wide)
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(16f / 9f)
-                    .background(Color.Black, RoundedCornerShape(12.dp))
-                    .clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                if (previewPlayerEngine != null) {
-                    PlayerRenderView(
-                        playerEngine = previewPlayerEngine,
-                        resizeMode = PlayerSurfaceResizeMode.FIT,
-                        surfaceType = renderSurfaceType,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    if (isPreviewLoading) {
-                        CircularProgressIndicator(
-                            color = Primary,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.live_preview_placeholder_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = OnSurfaceDim,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-
-            // Program info
-            val channel = focusedChannel
-            val program = focusedProgram
-            if (channel != null) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ChannelLogoBadge(
-                            channelName = channel.name,
-                            logoUrl = channel.logoUrl,
-                            modifier = Modifier.size(32.dp),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Text(
-                            text = if (channel.number > 0) "${channel.number}. ${channel.name}" else channel.name,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = OnSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    if (program != null) {
-                        Text(
-                            text = program.title,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = OnSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = "${timeFormat.format(Date(program.startTime))} ג€“ ${timeFormat.format(Date(program.endTime))}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = OnSurfaceDim
-                        )
-                        if (now in program.startTime until program.endTime) {
-                            LinearProgressIndicator(
-                                progress = { ((now - program.startTime).toFloat() / (program.endTime - program.startTime).toFloat()).coerceIn(0f, 1f) },
-                                modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .height(3.dp),
-                                color = Primary,
-                                trackColor = SurfaceHighlight
-                            )
-                        }
-                        if (program.description.isNotBlank()) {
-                            Text(
-                                text = program.description,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = OnSurfaceDim,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    } else {
-                        Text(
-                            text = stringResource(R.string.epg_no_schedule),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = OnSurfaceDim
-                        )
-                    }
-                }
-            } else {
-                Text(
-                    text = stringResource(R.string.epg_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = OnSurfaceDim,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
     }
 }
 

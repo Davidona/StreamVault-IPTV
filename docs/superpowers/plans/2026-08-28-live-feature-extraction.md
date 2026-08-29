@@ -26,8 +26,8 @@ header, channel-content state host, channel-list host, and category-list host
 and hidden category/channel dialogs, the category options dialog, the
 quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
-category picker, compact guide-program dialog, and guide control rows are now
-feature-owned
+category picker, compact guide-program dialog, guide control rows, and EPG
+preview pane are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -702,7 +702,9 @@ details state, focus, and action affordances while the app supplies labels and
 playback/recording callbacks.
 The guide control rows (time paging, day selection, mode, density, view, and
 favorites) are also feature-owned; the options shell continues to supply labels
-and ViewModel callbacks from `:app`.
+and ViewModel callbacks from `:app`. The preview pane owns render-surface
+selection, placeholder/loading states, channel/program metadata, and progress
+presentation while the app supplies the player and focused data.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

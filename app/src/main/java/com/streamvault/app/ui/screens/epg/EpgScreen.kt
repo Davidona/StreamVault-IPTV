@@ -20,6 +20,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideFavoritesLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideModeLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideTimeControlLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideViewOptionsLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewLabels
+import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -433,11 +435,16 @@ fun FullEpgScreen(
 
                 else -> {
                     LiveGuideNowProvider {
-                        GuidePreviewPane(
+                        LiveGuidePreviewPane(
                             previewPlayerEngine = uiState.previewPlayerEngine,
                             isPreviewLoading = uiState.isPreviewLoading,
                             focusedChannel = focusedChannel,
                             focusedProgram = focusedProgram,
+                            labels = LiveGuidePreviewLabels(
+                                title = stringResource(R.string.epg_title),
+                                placeholderTitle = stringResource(R.string.live_preview_placeholder_title),
+                                noSchedule = stringResource(R.string.epg_no_schedule)
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 14.dp, vertical = 4.dp)
