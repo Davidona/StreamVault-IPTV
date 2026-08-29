@@ -78,6 +78,7 @@ import com.streamvault.feature.live.presentation.epg.GuideChannelMode
 import com.streamvault.feature.live.presentation.epg.GuideDensity
 import com.streamvault.feature.live.presentation.epg.programReminderDeliveryIssueMessage
 import com.streamvault.feature.live.presentation.epg.isLiveGuideCategoryAccessible
+import com.streamvault.feature.live.presentation.epg.matchesLiveGuideMetadataSearch
 import javax.inject.Provider as InjectProvider
 
 data class RecordingConflictInfo(
@@ -2010,8 +2011,7 @@ class EpgViewModel @Inject constructor(
     }
 
     private fun Channel.matchesGuideMetadataSearch(searchQuery: String): Boolean {
-        return name.contains(searchQuery, ignoreCase = true) ||
-            categoryName?.contains(searchQuery, ignoreCase = true) == true
+        return matchesLiveGuideMetadataSearch(this, searchQuery)
     }
 
     private fun resolveGuideCategorySelection(
