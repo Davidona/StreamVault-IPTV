@@ -23,8 +23,8 @@ quick-filter panel/chip row, the reusable EPG guide shortcut chip, the shared
 EPG guide-now ticker/provider, EPG search field/row, Home reorder top bar,
 Home channel row surface, Home channel-results header, Home category sidebar
 header, channel-content state host, channel-list host, and category-list host
-and hidden category/channel dialogs, the category options dialog, and the
-quick-filter add dialog are now feature-owned
+and hidden category/channel dialogs, the category options dialog, the
+quick-filter add dialog, and the delete-group dialog are now feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -682,6 +682,8 @@ dialog follows the same contract: feature-owned UI receives a label bundle and
 the app retains policy/callback wiring. The
 quick-filter add dialog also owns its draft text and duplicate check while the
 app supplies the saved-filter snapshot and mutation callback. The
+delete-group dialog owns its interaction guard and presentation while the app
+supplies the already formatted group-specific copy and ViewModel callbacks.
 quick-filter key/selection rules are covered by `LiveQuickFiltersTest`. The
 remaining app-owned live cards and shell/dialog composition still require
 compatibility seams before the full Home move.

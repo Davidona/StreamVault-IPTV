@@ -1,7 +1,6 @@
 package com.streamvault.app.ui.screens.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,8 +14,6 @@ import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.components.dialogs.AddToGroupDialog
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.app.ui.components.dialogs.RenameGroupDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategoryOrganizerDialog
 import com.streamvault.app.ui.components.dialogs.M3uCategorySeriesAssignmentDialog
@@ -27,6 +24,8 @@ import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
 import com.streamvault.feature.live.home.LiveCategoryOptionsDialogLabels
 import com.streamvault.feature.live.home.LiveAddQuickFilterDialog
 import com.streamvault.feature.live.home.LiveAddQuickFilterDialogLabels
+import com.streamvault.feature.live.home.LiveDeleteGroupDialog
+import com.streamvault.feature.live.home.LiveDeleteGroupDialogLabels
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -38,7 +37,6 @@ import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.repository.M3uCategoryItem
 import com.streamvault.domain.repository.M3uClassificationTarget
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -367,33 +365,15 @@ internal fun HomeDialogsHost(
     val groupToDelete = uiState.groupToDelete
     if (uiState.showDeleteGroupDialog && groupToDelete != null) {
         val group = groupToDelete
-        var canInteract by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            delay(500)
-            canInteract = true
-        }
-
-        val safeDismiss = {
-            if (canInteract) viewModel.cancelDeleteGroup()
-        }
-
-        PremiumDialog(
-            title = stringResource(R.string.home_delete_group_title),
-            subtitle = stringResource(R.string.home_delete_group_body, group.name),
-            onDismissRequest = safeDismiss,
-            widthFraction = 0.36f,
-            content = {},
-            footer = {
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.home_delete_group_cancel),
-                    onClick = safeDismiss
-                )
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.home_delete_group_confirm),
-                    onClick = { if (canInteract) viewModel.confirmDeleteGroup() },
-                    destructive = true
-                )
-            }
+        LiveDeleteGroupDialog(
+            labels = LiveDeleteGroupDialogLabels(
+                title = stringResource(R.string.home_delete_group_title),
+                body = stringResource(R.string.home_delete_group_body, group.name),
+                cancel = stringResource(R.string.home_delete_group_cancel),
+                confirm = stringResource(R.string.home_delete_group_confirm)
+            ),
+            onDismiss = viewModel::cancelDeleteGroup,
+            onConfirm = viewModel::confirmDeleteGroup
         )
     }
 }
