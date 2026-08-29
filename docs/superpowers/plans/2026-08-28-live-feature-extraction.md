@@ -28,8 +28,8 @@ quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
 pane, guide toolbar, guide message state, hero badge, timeline header, grid
-rows/cells, grid host, and the EPG content host are now feature-owned, with
-the options overlay and EPG-match dialog also feature-owned
+rows/cells, grid host, EPG content host, and focus reconciliation are now
+feature-owned, with the options overlay and EPG-match dialog also feature-owned
 and their feature checks are green. Home screen/dialog composition, the
 remaining live cards/rows, complete locale resource migration, and acceptance
 gates remain open.
@@ -718,7 +718,9 @@ identity/timeline tests. The timeline header owns marker rendering and
 live-time presentation while the app supplies sizing and scroll state. Grid
 rows/cells and the grid host own guide row composition, sizing, scrolling, and
 focus behavior while the app supplies localized labels, guide data, and
-state/action callbacks. The EPG content host now owns loading, message, preview,
+state/action callbacks. Focus reconciliation now resolves stale channel/program
+selection and current-program fallback behind a feature-owned pure contract.
+The EPG content host now owns loading, message, preview,
 toolbar, refresh, and grid composition while the app supplies the localized
 label bundles, content message, state, and action callbacks. The options
 overlay and EPG-match dialog likewise own their presentation and focus behavior

@@ -4,7 +4,7 @@ import android.view.inputmethod.InputMethodManager
 import com.streamvault.domain.playback.ArchiveReplayMechanism
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.feature.live.presentation.epg.resolveLiveGuideFocus
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.presentation.epg.LiveGuideSearchOverlay
@@ -336,29 +336,15 @@ fun FullEpgScreen(
     }
 
     LaunchedEffect(uiState.channels, uiState.programsByChannel) {
-        if (uiState.channels.isEmpty()) {
-            focusedChannel = null
-            focusedProgram = null
-            return@LaunchedEffect
-        }
-        val resolvedChannel = focusedChannel?.let { current ->
-            uiState.channels.firstOrNull { it.id == current.id }
-        } ?: uiState.channels.firstOrNull()
-        focusedChannel = resolvedChannel
-        val resolvedPrograms = resolvedChannel?.let { channel ->
-            channel.guideLookupKey()?.let { lookupKey ->
-                uiState.programsByChannel[lookupKey].orEmpty()
-            }.orEmpty()
-        }.orEmpty()
-        focusedProgram = focusedProgram?.let { focused ->
-            resolvedPrograms.firstOrNull {
-                it.startTime == focused.startTime &&
-                    it.endTime == focused.endTime &&
-                    it.title == focused.title
-            }
-        } ?: resolvedPrograms.firstOrNull {
-            System.currentTimeMillis() in it.startTime until it.endTime
-        }
+        val resolvedFocus = resolveLiveGuideFocus(
+            channels = uiState.channels,
+            programsByChannel = uiState.programsByChannel,
+            focusedChannel = focusedChannel,
+            focusedProgram = focusedProgram,
+            now = System.currentTimeMillis()
+        )
+        focusedChannel = resolvedFocus.channel
+        focusedProgram = resolvedFocus.program
     }
 
     val contentMessage = when {

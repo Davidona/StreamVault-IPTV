@@ -138,8 +138,8 @@ quick-filter add dialog, delete-group dialog, rename-group dialog, M3U category
 organizer dialog, M3U series-assignment dialogs, EPG search overlay, guide
 category picker, compact guide-program dialog, guide control rows, EPG preview
 pane, guide toolbar, guide message state, hero badge, timeline header, grid
-rows/cells, grid host, and the EPG content host are now feature-owned, with
-the options overlay and EPG-match dialog also feature-owned
+rows/cells, grid host, EPG content host, and focus reconciliation are now
+feature-owned, with the options overlay and EPG-match dialog also feature-owned
 while the Home and EPG
 screen/dialog composition remains in `:app` for the remaining app-specific
 dialogs.
@@ -152,7 +152,8 @@ and the rename-group dialog, M3U category organizer dialog, and M3U
 series-assignment dialogs, the EPG search overlay, guide category picker, and
 compact guide-program dialog, guide control rows, EPG preview pane, guide
 toolbar, guide message state, hero badge, stable EPG channel-key helper,
-timeline header, grid rows/cells, grid host, EPG content host, options overlay,
-and EPG-match dialog are independent of app code;
+timeline header, grid rows/cells, grid host, EPG content host, focus
+reconciliation, options overlay, and EPG-match dialog are independent of app
+code;
 screen/resource moves, golden/runtime/performance gates, and legacy app cleanup
 remain open, so no live slice acceptance gate is claimed yet.
