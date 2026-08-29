@@ -20,12 +20,23 @@ fun SemanticsNodeInteraction.assertAgainstGolden(goldenName: String) {
         .getString(RECORD_GOLDENS_ARGUMENT) == "true"
 
     if (shouldRecord) {
-        val outputDir = File(targetContext.filesDir, "ui-goldens").apply { mkdirs() }
-        val goldenFile = File(outputDir, "$goldenName.png")
-        goldenFile.outputStream().use { stream ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        val outputDirs = listOfNotNull(
+            File(targetContext.filesDir, "ui-goldens"),
+            targetContext.externalCacheDir?.let { File(it, "ui-goldens") },
+        )
+        outputDirs.forEach { outputDir ->
+            outputDir.mkdirs()
+            File(outputDir, "$goldenName.png").outputStream().use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            }
         }
-        assertTrue(goldenFile.exists())
+        assertTrue(outputDirs.all { File(it, "$goldenName.png").exists() })
+        instrumentation.uiAutomation
+            .executeShellCommand(
+                "cp ${outputDirs.last().absolutePath}/$goldenName.png " +
+                    "/sdcard/Download/streamvault-app-golden-$goldenName.png"
+            )
+            .close()
         return
     }
 

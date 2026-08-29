@@ -47,8 +47,9 @@ following Live checkpoints (plus the final lint fix):
 ## Verification
 
 - `:feature:live:verifyFeatureLiveBoundary`: passed.
-- `:feature:live:connectedDebugAndroidTest`: passed after the final lint fix,
-  13 tests, 0 failures, 0 errors, 0 skipped (54s test time). XML is under
+- `:feature:live:connectedDebugAndroidTest`: final full-suite rerun passed 24
+  tests, 0 failures, 0 errors, and 0 skipped (the original 13 tests plus the
+  Home 6-test and Guide 5-test screen-host suites). XML is under
   `feature/live/build/outputs/androidTest-results/connected/debug/`.
 - `LivePresentationGoldenTest`: passed 6/6 at 1920x1080 after visual review.
   The checked-in feature baselines cover selection chips, locked/unlocked
@@ -62,7 +63,7 @@ following Live checkpoints (plus the final lint fix):
   `:feature:live:check`, Android-test compilation, app unit tests/assembly, and
   `verifyBaselineProfileSources`): passed in 2m 35s (373 actionable tasks; 23
   executed, 2 from cache, 348 up-to-date).
-- Graphify refreshed at 15,811 nodes, 30,815 edges, 435 communities. The
+- Graphify refreshed at 15,831 nodes, 30,870 edges, 435 communities. The
   legacy app Home/EPG source directories and imports are absent.
 - The locale audit compared all 245 moved defaults and placeholder sequences
   against every app locale. It corrected two mojibake feature defaults
@@ -70,8 +71,14 @@ following Live checkpoints (plus the final lint fix):
   default or placeholder mismatch. All 25 translated feature locale files now
   have `featureMissing=0`, `featureValueMismatch=0`, and
   `featureUnexpected=0`; app copies remain for shared consumers.
-- The existing app Live route golden remains open: exact pixel drift at `(0,0)`
-  from RGB `(6,16,26)` to `(7,17,27)`. The baseline was not rewritten.
+- The app-owned Live route golden was reviewed and regenerated from a fresh
+  1920x1080 recorder capture after confirming the layout/content matched and
+  the drift came from the current `AppColors.Canvas`/gradient palette. The
+  non-recording `live_route_matchesGolden` assertion now passes 1/1.
+- The extracted Home/Guide behavior coverage is now present in
+  `HomeScreenBehaviorTest` (6 tests) and `EpgScreenBehaviorTest` (5 tests).
+  These validate presentation-host contracts; they do not close the
+  fixture-dependent ViewModel journey matrix below.
 
 ## Runtime acceptance
 
@@ -100,9 +107,10 @@ category (77 channels rendered), moved into the preview pane, and opened Guide
 through the top navigation. Valid PNG/XML artifacts are in
 `validation/phase5_live/task10-manual.md` and the adjacent
 `task10-manual/` directory. Touch taps on Guide `Program Search`/`Options` did
-not change state on this emulator, and visible channels had no schedule data;
-the exhaustive search/filter/PIN/favorite/reorder/reminder/recording/archive/
-RTL/reduced-motion matrix therefore remains open. A second Enter handed the
+not change state on this emulator, although both controls were later reached
+through D-pad focus. Visible channels had no schedule data; the exhaustive
+search/filter/PIN/reminder/recording/archive matrix therefore remains open. A
+second Enter handed the
 selected Guide channel to the existing full-screen player; its overlay exposed
 EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
 Activating Multiview returned to the Live route with the empty-favorites/queue
@@ -110,18 +118,56 @@ state. A follow-up populated-planner journey switched to `All Channels`,
 long-pressed `01 00s Replay`, added it through the management dialog, assigned
 it to slot 1, launched MultiView, and returned with Back. The planner evidence
 is under `validation/phase5_live/task10-multiview/`; the remaining manual matrix
-is still fixture- or input-path-dependent.
+is still fixture- or input-path-dependent. A follow-up fixture pass also
+validated adding/removing two channels from Favorites and entering populated
+Favorites reorder mode; the final device state was restored to zero favorites.
+Quick-filter text entry remained unavailable through the emulator ADB input
+path. The same fixture pass then opened the Movies `Lock Group` action and
+reached the focused `Enter PIN` keypad; no PIN was submitted because the
+configured value was unavailable, Back canceled the dialog, and Movies
+remained unlocked (`live_lock_options.*`, `live_pin_dialog.*`, and
+`live_after_pin_cancel.xml`).
+The populated Favorites reorder path was also exercised: `00s Replay` was
+grabbed and moved above the other fixture favorite with D-pad Up, then the
+unsaved reorder was canceled and both favorites were removed; the final count
+was zero (`live_reorder_dragging.xml`, `live_reorder_moved_up.xml`, and
+`live_fav_restored_again.xml`).
+The Save Order callback was also validated in a reversible round trip: the
+swapped order was saved, the original order was restored and saved again, and
+both favorites were removed (`live_save_order_saved.xml`,
+`live_save_order_restored.xml`, and `live_save_order_final.xml`).
+
+A further reversible device pass changed the locale from `en-US` to `ar-SA`:
+Live TV and Guide stayed interactive, Arabic labels rendered, and the Live
+sidebar plus Guide grid mirrored correctly before the locale was restored.
+The three Android animation scales were then set to `0.0`; Guide remained
+interactive through D-pad input with no app fatal marker in the bounded scan,
+and all scales were restored to `1.0`. D-pad also opened Program Search and
+Guide Options; Guide mode was switched and restored. The Compose text field
+still did not accept ADB text input, and the loaded provider still exposed no
+schedule rows. Screenshots and hierarchies are recorded in
+`validation/phase5_live/task10-manual/`.
+
+The planner edge follow-up populated two slots, removed slot 2, replaced the
+occupied slot 1 with the pending channel, and used Clear All. The planner
+dismissed as designed, and the final Live fixture state remained Favorites `0`
+and All Channels `1,467`. Evidence is under
+`validation/phase5_live/task10-multiview/`.
 
 ## Open gates
 
-- Full Home/EPG ViewModel-driven manual journey matrix (search, filters,
-  hidden/locked/favorite/reorder/PIN, reminders/recording conflicts, archive,
-  RTL/reduced-motion, focus restoration, and MultiView edge cases) remains
-  fixture-dependent and open.
-- The feature presentation golden review is complete. The existing app Live
-  route golden remains open because its stored `(0,0)` pixel is RGB
-  `(6,16,26)` while the current render is `(7,17,27)`; that app baseline was
-  not rewritten.
+- Full Home/EPG ViewModel-driven manual journey matrix (search, quick-filter
+  mutation, PIN submission/unlock verification, reminders/recording conflicts,
+  archive, focus restoration, and any still-unexercised MultiView cases)
+  remains fixture-dependent and open. Hidden category/channel hide and restore
+  paths, PIN-dialog reachability, RTL/reduced-motion smoke checks, and the
+  core planner placement/removal/replacement/clear paths are covered in the
+  follow-up fixture/device passes; PIN submission/unlock verification and the
+  unavailable search/schedule branches remain open.
+- The feature presentation golden review and the app-owned Live route golden
+  review are complete. The app baseline was regenerated from the reviewed
+  current capture; the old baseline is preserved as
+  `route_live_browse_baseline_before.png` in the ignored follow-up evidence.
 - The formal paired performance target, clean/warm guardrails, and
   baseline/startup profile regeneration are open. Five
   post-extraction Live source-edit and five moved-test samples are recorded in

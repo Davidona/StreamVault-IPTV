@@ -596,7 +596,7 @@ Keep app originals unchanged for Dashboard, Movies, Series, Favorites, Search, a
 
 - [x] **Step 5: Review and check in golden baselines**
 
-Render at 1920x1080, compare against pre-move screenshots, inspect focus borders/text/spacing manually, then add the reviewed PNGs. Rerun the connected class; expected PASS with the repository missing-golden guard still active. Completed 2026-08-29: six feature baselines reviewed and `LivePresentationGoldenTest` passed 6/6; the existing app route golden remains unchanged because its separate `(0,0)` drift is still open.
+Render at 1920x1080, compare against pre-move screenshots, inspect focus borders/text/spacing manually, then add the reviewed PNGs. Rerun the connected class; expected PASS with the repository missing-golden guard still active. Completed 2026-08-29: six feature baselines reviewed and `LivePresentationGoldenTest` passed 6/6. The app-owned `live_route_matchesGolden` baseline was separately reviewed and regenerated from a fresh capture after confirming identical layout/content; its non-recording assertion passed 1/1.
 
 - [x] **Step 6: Verify source boundary and app consumers**
 
@@ -693,16 +693,18 @@ Expected: PASS with the same behavioral assertions as the pre-extraction app sui
 Observed GREEN on 2026-08-29 for `com.streamvault.feature.live.home.*`; the
 feature boundary verifier and app Kotlin/unit-test compilation also pass.
 
-- [ ] **Step 5: Write failing Home screen behavior tests**
+- [x] **Step 5: Add Home screen behavior tests**
 
 Cover route category initialization, source/category/channel focus, quick-filter visibility, search, Back/dialog ordering, PIN unlock, preview placeholder/loading/error/render states, stable channel semantics, and planner callbacks. The planner fake records `pendingChannel`, dismiss, and launch events without importing Playback.
 
-Run `HomeScreenBehaviorTest`; expected missing-screen failure.
+Run `HomeScreenBehaviorTest` against the extracted Home hosts.
 
-`HomePresentationBehaviorTest` now provides connected coverage for extracted
-channel identity/program/favorite/catch-up semantics, locked-row state, and
-category rendering. The full ViewModel-driven Home journey (focus, dialogs,
-PIN, preview states, and planner callbacks) remains open.
+`HomeScreenBehaviorTest` now provides 6 connected tests for channel-content
+loading/error/locked-empty/content branches, quick-filter callback delivery,
+and stable channel-list rendering/visible-window reporting. Together with
+`HomePresentationBehaviorTest`, this covers extracted Home presentation seams;
+the full ViewModel-driven Home journey (route focus, dialogs, PIN submission,
+preview transitions, and planner callbacks) remains fixture-dependent and open.
 
 - [x] **Step 6: Move Home UI and wire live-local/core components**
 
@@ -896,15 +898,19 @@ Observed GREEN on 2026-08-29 for `com.streamvault.feature.live.epg.*`, with
 the feature boundary verifier and app Kotlin/unit-test compilation also
 passing.
 
-- [ ] **Step 6: Write failing EPG screen behavior tests**
+- [x] **Step 6: Add EPG screen behavior tests**
 
 Cover route initialization, horizontal and vertical movement, stable channel/program semantics, category/mode/density/favorites/search controls, time/day/prime-time jumps, preview focus and handoff, program dialog, EPG override, PIN flow, reminder permission callback, recording conflict, live/archive callbacks, and Back/top-navigation restoration.
 
-Run `EpgScreenBehaviorTest`; expected missing-screen failure.
+Run `EpgScreenBehaviorTest` against the extracted Guide hosts.
 
-`EpgPresentationBehaviorTest` now provides connected coverage for the
-feature-owned Guide hero badge and actionable message-state rendering. The
-full ViewModel-driven Guide journey remains open.
+`EpgScreenBehaviorTest` now provides 5 connected tests for Guide toolbar
+callback delivery, retry action, preview placeholder/no-schedule states, and
+channel/program identity callbacks. Together with
+`EpgPresentationBehaviorTest`, this covers extracted Guide presentation seams;
+the full ViewModel-driven Guide journey (movement, controls, dialogs, PIN,
+reminders/recording, archive, and Back restoration) remains fixture-dependent
+and open.
 
 - [x] **Step 7: Move EPG presentation and deferred overlay**
 
@@ -1166,8 +1172,10 @@ Expected: Live TV and EPG destinations open with argument compatibility; player 
 Recorded in `validation/phase5_live/task10-connected-validation.md`: AppNavigationContractTest 3/3 and PlatformCompatibilityMatrixTest 4/4 pass; the existing Live golden drift and PlayerSmokeTest's three pre-existing failures remain open neighboring gates.
 
 The complete feature suite was rerun on 2026-08-29 after the resource parity
-fix: 13/13 tests passed with zero failures, errors, or skips. The result XML is
-under `feature/live/build/outputs/androidTest-results/connected/debug/`.
+fix: the original extracted suite passed 13/13. After adding the Home and EPG
+screen-host behavior classes, the final full run passed 24/24 with zero
+failures, errors, or skips. The result XML is under
+`feature/live/build/outputs/androidTest-results/connected/debug/`.
 
 - [ ] **Step 4: Perform manual Live TV and EPG journeys**
 
@@ -1179,8 +1187,27 @@ Completed partial planner coverage on 2026-08-29: the seeded emulator exposed
 `All Channels`, so `01 00s Replay` was long-pressed, added to the split-screen
 planner, assigned to slot 1, launched, and returned with Back. Evidence is in
 `validation/phase5_live/task10-multiview/`. The broader search/filter/PIN/
-recording/archive/RTL/reduced-motion matrix remains open because the loaded
-fixture and TV input path do not expose all branches.
+recording/archive matrix remains open because the loaded fixture and TV input
+path do not expose all branches. A follow-up device pass now records Arabic
+RTL rendering for Live TV and Guide, a reduced-motion D-pad smoke check with
+animation scales at zero, and D-pad reachability for Program Search and Guide
+Options; the search field still did not accept ADB text input.
+
+Follow-up on 2026-08-29 also added and removed two fixture channels from
+Favorites and entered populated Favorites reorder mode before restoring the
+device to zero favorites. Quick-filter text entry did not work through the
+emulator ADB input path. Hidden category/channel paths were exercised and
+restored. The Movies `Lock Group` action also opened the focused `Enter PIN`
+keypad; the configured PIN was unavailable, so Back canceled without changing
+the lock state. Favorite movement and the Save Order callback were exercised in
+a reversible round trip that restored the original order and zero favorites;
+PIN submission/unlock verification and the other fixture-dependent branches
+remain open.
+
+The planner edge follow-up then populated two slots, removed slot 2, replaced
+an occupied slot 1 with the pending channel, and exercised Clear All before
+restoring Live TV with zero active slots. Evidence is under
+`validation/phase5_live/task10-multiview/`.
 
 - [x] **Step 5: Capture channel 1 at two-second cadence**
 

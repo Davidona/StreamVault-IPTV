@@ -98,6 +98,7 @@ extraction, resource ownership cleanup, dependency audit, and open runtime
 gates. The Live implementation plan and report now document the Home/EPG
 extraction, translated-resource parity, reviewed feature goldens, connected
 checks, populated MultiView planner journey, and two-channel runtime evidence.
-The exhaustive journey, app-route golden, and deferred performance/profile
-gates remain explicit.
+The exhaustive journey and deferred performance/profile gates remain explicit;
+the app-route Live golden was reviewed and regenerated from the current
+palette, with its connected assertion passing.
 Catalog and System remain unstarted.

@@ -961,8 +961,9 @@ feature checks, translated-resource parity audit, six reviewed feature golden
 baselines, connected suite, populated MultiView planner journey, and required
 two-channel long-playback protocol are recorded in
 [COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md](COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md).
-The full fixture-dependent Home/EPG journey matrix, app-owned Live route golden,
-and deferred performance/profile gates remain open. Catalog and System were not
+The full fixture-dependent Home/EPG journey matrix and deferred
+performance/profile gates remain open. The app-owned Live route golden was
+reviewed and regenerated with its connected assertion passing. Catalog and System were not
 started; Playback, Provider, and Settings gates remain governed by their
 separate reports.
 
