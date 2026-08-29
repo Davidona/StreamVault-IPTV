@@ -1,11 +1,10 @@
-package com.streamvault.app.ui.screens.epg
+package com.streamvault.feature.live.presentation.epg
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,22 +16,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.streamvault.app.R
-import com.streamvault.feature.live.presentation.epg.GuideDensity
-import com.streamvault.feature.live.presentation.epg.LIVE_GUIDE_MARKER_STEP_MS
-import com.streamvault.feature.live.presentation.epg.LiveGuideGridLabels
-import com.streamvault.feature.live.presentation.epg.LiveGuideGridRow
-import com.streamvault.feature.live.presentation.epg.LiveGuideTimelineHeader
-import com.streamvault.feature.live.presentation.epg.liveEpgChannelKey
-import com.streamvault.feature.live.presentation.model.guideLookupKey
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
+import com.streamvault.feature.live.presentation.model.guideLookupKey
 import kotlinx.coroutines.delay
 
+fun liveGuideInitialFocusIndex(
+    channels: List<Channel>,
+    initialFocusedChannelId: Long?
+): Int {
+    val resolvedInitialChannelId = initialFocusedChannelId ?: channels.firstOrNull()?.id
+    return resolvedInitialChannelId
+        ?.let { channelId -> channels.indexOfFirst { it.id == channelId } }
+        ?.takeIf { it >= 0 }
+        ?: 0
+}
+
 @Composable
-internal fun EpgGrid(
+fun LiveGuideGrid(
     modifier: Modifier = Modifier,
     channels: List<Channel>,
     favoriteChannelIds: Set<Long>,
@@ -40,6 +42,7 @@ internal fun EpgGrid(
     guideWindowStart: Long,
     guideWindowEnd: Long,
     density: GuideDensity,
+    labels: LiveGuideGridLabels,
     transparentOverlay: Boolean = false,
     initialFocusedChannelId: Long? = null,
     onChannelClick: (Channel) -> Unit,
@@ -61,10 +64,7 @@ internal fun EpgGrid(
     val resolvedInitialChannelId = initialFocusedChannelId ?: channels.firstOrNull()?.id
     val initialFocusRequester = remember(resolvedInitialChannelId) { FocusRequester() }
     val initialFocusIndex = remember(channels, resolvedInitialChannelId) {
-        resolvedInitialChannelId
-            ?.let { channelId -> channels.indexOfFirst { it.id == channelId } }
-            ?.takeIf { it >= 0 }
-            ?: 0
+        liveGuideInitialFocusIndex(channels, resolvedInitialChannelId)
     }
 
     LaunchedEffect(channels.size, resolvedInitialChannelId) {
@@ -79,11 +79,6 @@ internal fun EpgGrid(
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 2.dp)
     ) {
-        val gridLabels = LiveGuideGridLabels(
-            noSchedule = stringResource(R.string.epg_no_schedule_short),
-            archiveBadge = stringResource(R.string.player_archive_badge),
-            favoriteBadge = stringResource(R.string.epg_favorite_badge)
-        )
         val timelineViewportWidth = (maxWidth - channelRailWidth - timelineGap).coerceAtLeast(640.dp)
         val totalDuration = (guideWindowEnd - guideWindowStart).coerceAtLeast(1L)
         val visibleDurationMs = 3 * 60 * 60 * 1000L
@@ -139,7 +134,7 @@ internal fun EpgGrid(
                         rowHeight = rowHeight,
                         markerStepMs = markerStepMs,
                         scrollState = horizontalScrollState,
-                        labels = gridLabels,
+                        labels = labels,
                         focusRequester = if (channel.id == resolvedInitialChannelId) initialFocusRequester else null,
                         onChannelClick = { onChannelClick(channel) },
                         onChannelLongClick = onChannelLongClick?.let { cb -> { prog -> cb(channel, prog) } },

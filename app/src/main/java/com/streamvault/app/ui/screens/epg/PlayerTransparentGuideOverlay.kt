@@ -30,7 +30,6 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.app.ui.screens.epg.EpgGrid
 import com.streamvault.app.ui.screens.epg.EpgUiState
 import com.streamvault.app.ui.screens.epg.EpgViewModel
 import com.streamvault.feature.live.presentation.epg.LiveGuideNowProvider
@@ -42,6 +41,8 @@ import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramDial
 import com.streamvault.feature.live.presentation.epg.LiveCompactGuideProgramLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarButton
 import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
+import com.streamvault.feature.live.presentation.epg.LiveGuideGrid
+import com.streamvault.feature.live.presentation.epg.LiveGuideGridLabels
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.app.ui.screens.epg.isGuideCategoryLocked
 import com.streamvault.core.ui.theme.OnSurfaceDim
@@ -223,13 +224,18 @@ fun PlayerTransparentGuideOverlay(
                         )
                     }
                     else -> {
-                        EpgGrid(
+                        LiveGuideGrid(
                             channels = uiState.channels,
                             favoriteChannelIds = uiState.favoriteChannelIds,
                             programsByChannel = uiState.programsByChannel,
                             guideWindowStart = uiState.guideWindowStart,
                             guideWindowEnd = uiState.guideWindowEnd,
                             density = uiState.selectedDensity,
+                            labels = LiveGuideGridLabels(
+                                noSchedule = stringResource(R.string.epg_no_schedule_short),
+                                archiveBadge = stringResource(R.string.player_archive_badge),
+                                favoriteBadge = stringResource(R.string.epg_favorite_badge)
+                            ),
                             transparentOverlay = true,
                             initialFocusedChannelId = currentPlayerChannelId.takeIf { it > 0L },
                             onChannelClick = { channel ->

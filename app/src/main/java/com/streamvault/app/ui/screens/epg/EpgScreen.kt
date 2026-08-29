@@ -25,6 +25,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
 import com.streamvault.feature.live.presentation.epg.LiveGuideMessageState
+import com.streamvault.feature.live.presentation.epg.LiveGuideGrid
+import com.streamvault.feature.live.presentation.epg.LiveGuideGridLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideDialog
 import com.streamvault.feature.live.presentation.epg.LiveGuideEpgOverrideLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideOptionsLabels
@@ -496,7 +498,7 @@ fun FullEpgScreen(
                         )
                     }
                     LiveGuideNowProvider {
-                        EpgGrid(
+                        LiveGuideGrid(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
@@ -506,6 +508,11 @@ fun FullEpgScreen(
                             guideWindowStart = uiState.guideWindowStart,
                             guideWindowEnd = uiState.guideWindowEnd,
                             density = uiState.selectedDensity,
+                            labels = LiveGuideGridLabels(
+                                noSchedule = stringResource(R.string.epg_no_schedule_short),
+                                archiveBadge = stringResource(R.string.player_archive_badge),
+                                favoriteBadge = stringResource(R.string.epg_favorite_badge)
+                            ),
                             onChannelClick = { channel ->
                                 if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
                                     requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
