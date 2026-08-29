@@ -60,6 +60,10 @@ following Live checkpoints (plus the final lint fix):
   executed, 2 from cache, 348 up-to-date).
 - Graphify refreshed at 15,797 nodes, 30,791 edges, 436 communities. The
   legacy app Home/EPG source directories and imports are absent.
+- The locale audit compared all 245 moved defaults and placeholder sequences
+  against every app locale. It corrected two mojibake feature defaults
+  (`live_preview_loading` and `time_range_format`) and found no remaining
+  default or placeholder mismatch; translated-locale migration remains open.
 - The existing app Live route golden remains open: exact pixel drift at `(0,0)`
   from RGB `(6,16,26)` to `(7,17,27)`. The baseline was not rewritten.
 
@@ -84,6 +88,15 @@ remaining on `streamvault.destination:epg`; Back restored
 `streamvault.destination:home`. The corresponding local screenshots and
 hierarchies are under `build/adb-validation/guide-journey-*` and
 `guide-back.xml`.
+
+A follow-up D-pad-first pass opened Live TV from Home, selected the `Movies`
+category (77 channels rendered), moved into the preview pane, and opened Guide
+through the top navigation. Valid PNG/XML artifacts are in
+`validation/phase5_live/task10-manual.md` and the adjacent
+`task10-manual/` directory. Touch taps on Guide `Program Search`/`Options` did
+not change state on this emulator, and visible channels had no schedule data;
+the exhaustive search/filter/PIN/favorite/reorder/reminder/recording/archive/
+RTL/reduced-motion/MultiView matrix therefore remains open.
 
 ## Open gates
 

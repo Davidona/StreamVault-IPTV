@@ -1077,11 +1077,16 @@ rg -n "^import com\.streamvault\.player\." feature/live/src/main
 
 Update the ledger with exact type and source location. Remove only dependencies made obsolete by Tasks 3-8; retain `PreferencesRepository`, `ProviderSyncStateSource`, and player API imports with their recorded Phase 7 direction.
 
-- [ ] **Step 4: Compare resources locale by locale before deletion**
+- [x] **Step 4: Compare resources locale by locale before deletion**
 
 For every moved key, compare app and feature values, plurals, and formatting placeholders. Use `rg` across app/feature/core/benchmark/manifest/test sources before removing an app entry. Record moved, duplicated, retained, and removed counts in `task9-resource-cleanup.md`.
 
 Expected: no missing resource at compile time and no changed format argument ordering.
+Completed in `validation/phase5_live/task9-resource-cleanup.md`: the default
+245-key set and all translated app locales were compared for values and
+placeholders; two mojibake defaults were corrected in `feature/live`. No app
+entries were deleted. Translated-locale migration remains an acceptance gate
+because the feature still has no `values-*` resource files.
 
 - [x] **Step 5: Run the full focused structural bundle**
 
