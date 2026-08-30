@@ -1,0 +1,1 @@
+Trigger provider configuration fix APK build.
