@@ -1,6 +1,6 @@
 # Compose Reduction Phase 5: Live report
 
-Date: 2026-08-29  
+Date: 2026-08-30
 Slice: `:feature:live` (Phase 5 order 4 of 6)  
 Rollback point: `ea349d83dceb8baa45ef1a18b7a45fa295a264f5`
 
@@ -10,8 +10,9 @@ Home Live TV, categories, channel preview, EPG/Guide presentation, state, and
 dialogs now compile under `:feature:live`. The app remains the composition root
 for route registration, platform/scaffold adapters, typed player request
 mapping, and Playback MultiView composition. The slice is not a Phase 5
-completion claim: the remaining exhaustive fixture-driven journeys, deferred
-performance/profile gates, and neighboring slice gates remain open.
+completion claim: the remaining exhaustive fixture-driven journeys, formal
+paired performance/clean-build guardrails, profile regeneration, and
+neighboring slice gates remain open.
 
 ## Ownership and boundaries
 
@@ -54,16 +55,30 @@ following Live checkpoints (plus the final lint fix):
 - `LivePresentationGoldenTest`: passed 6/6 at 1920x1080 after visual review.
   The checked-in feature baselines cover selection chips, locked/unlocked
   category rows, progress/locked channel surfaces, the app-parity row fixture,
-  the selected/unavailable source switcher, and the reorder bar. The existing
-  app route golden was not rewritten.
+  the selected/unavailable source switcher, and the reorder bar. The separate
+  app-owned route golden is covered by the review and regeneration checkpoint
+  below.
 - Focused feature/app structural bundle (unit tests, lint, Android-test
   compilation, app compilation/tests, and debug assembly): passed after the
   lint fix. Gradle reported 235 actionable tasks, 23 executed, 212 up-to-date.
 - Final fresh verification (`:feature:live:verifyFeatureLiveBoundary`,
-  `:feature:live:check`, Android-test compilation, app unit tests/assembly, and
-  `verifyBaselineProfileSources`): passed in 2m 35s (373 actionable tasks; 23
-  executed, 2 from cache, 348 up-to-date).
-- Graphify refreshed at 15,831 nodes, 30,870 edges, 435 communities. The
+  `:feature:live:check`, the focused app-adapter and Playback-handoff tests,
+  app debug assembly, and `verifyBaselineProfileSources`): passed in 7m 39s
+  (375 actionable tasks; 64 executed, 37 from cache, 274 up-to-date). The
+  focused XML results contain 4 app-adapter and 9 Playback-handoff tests, all
+  passing with no failures, errors, or skips.
+- Fixture-flow follow-up on 2026-08-30: the reversible Live quick-filter
+  save/reload/remove journey passed. `Movies` survived force-stop/relaunch,
+  was removed through Settings > Browsing > Live TV Quick Filters, and the
+  final Live drawer reported no saved filters. The selected synthetic
+  schedule/PIN contract suite also passed: 39 tests, 0 failures, 0 errors,
+  and 0 skips across `:feature:live` and `:domain`.
+- Direct app adapter coverage was completed test-first for stream-result
+  preservation, exactly-once surface refresh, MultiView occupied-slot/capacity
+  mapping, and preview-origin mapping. The four app tests plus the existing
+  Playback handoff suite passed together in 40s (163 actionable tasks; 12
+  executed, 2 from cache, 149 up-to-date).
+- Graphify refreshed at 15,838 nodes, 30,884 edges, 440 communities. The
   legacy app Home/EPG source directories and imports are absent.
 - The locale audit compared all 245 moved defaults and placeholder sequences
   against every app locale. It corrected two mojibake feature defaults
@@ -79,6 +94,27 @@ following Live checkpoints (plus the final lint fix):
   `HomeScreenBehaviorTest` (6 tests) and `EpgScreenBehaviorTest` (5 tests).
   These validate presentation-host contracts; they do not close the
   fixture-dependent ViewModel journey matrix below.
+- The documented post-extraction clean debug command passed twice: 4m 46s
+  after configuration-cache invalidation (136 executed, 73 from cache) and 1m
+  01s on the final tree with configuration-cache reuse (95 executed, 114 from
+  cache). Both had 209 actionable tasks. Five final-tree warm no-change builds
+  passed with a 13.690s median and 13.984s average; every run had 1 executed
+  and 197 up-to-date tasks. The 3.7x clean-run spread makes the formal clean
+  guardrail inconclusive without cache-equivalent pre/post snapshots. Exact
+  samples and limitations are in `validation/phase5_live/performance-after.md`.
+- Fresh `:app:generateBaselineProfile` passed on the `Television_1080p` API 36
+  emulator in 13m 45s: the two `BaselineProfileGenerator` tests passed and the
+  eight separate macrobenchmark tests were skipped by configuration. It
+  generated 48,627 baseline and 31,990 startup rules. The follow-up
+  `verifyBaselineProfileSources`, `:app:assembleBeta`, and
+  `:app:assembleRelease` passed in 3m 41s (387 actionable tasks; 20 executed,
+  1 from cache, 366 up-to-date). Fresh descriptor scans found zero stale app
+  Home/EPG matches and 1,544 baseline / 43 startup `feature/live` matches.
+  The earlier no-device and native-memory failures remain recorded as
+  historical attempts; generated profiles were never hand-edited. A direct
+  `:benchmark:connectedNonMinifiedReleaseAndroidTest` attempt also passed in
+  13m 09s, but its XML again reports the eight macrobenchmark cases as
+  `ignored (-)`; no performance measurements were produced.
 
 ## Runtime acceptance
 
@@ -108,8 +144,9 @@ through the top navigation. Valid PNG/XML artifacts are in
 `validation/phase5_live/task10-manual.md` and the adjacent
 `task10-manual/` directory. Touch taps on Guide `Program Search`/`Options` did
 not change state on this emulator, although both controls were later reached
-through D-pad focus. Visible channels had no schedule data; the exhaustive
-search/filter/PIN/reminder/recording/archive matrix therefore remains open. A
+through D-pad focus. Visible channels had no schedule data; the remaining
+schedule/PIN/reminder/recording/archive and filtered-result matrix therefore
+remains open. A
 second Enter handed the
 selected Guide channel to the existing full-screen player; its overlay exposed
 EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
@@ -121,8 +158,16 @@ is under `validation/phase5_live/task10-multiview/`; the remaining manual matrix
 is still fixture- or input-path-dependent. A follow-up fixture pass also
 validated adding/removing two channels from Favorites and entering populated
 Favorites reorder mode; the final device state was restored to zero favorites.
-Quick-filter text entry remained unavailable through the emulator ADB input
-path. The same fixture pass then opened the Movies `Lock Group` action and
+The D-pad-activated category search accepted `Movies` and filtered the
+category rows. The D-pad-activated All Channels search accepted the `Replay`
+input path (received as `Rep`) and reported exactly one result, `01  00s
+Replay`; both queries were cleared and All Channels returned to `1,467`.
+The Add quick filter dialog accepted `Movies` and enabled `Save filter`; it
+was then saved, survived a force-stop/relaunch, and was removed through
+Settings. The final Live drawer and Settings row reported no saved filters;
+the device artifacts are under
+`validation/phase5_live/task11-fixture-flows/`. The same fixture pass
+then opened the Movies `Lock Group` action and
 reached the focused `Enter PIN` keypad; no PIN was submitted because the
 configured value was unavailable, Back canceled the dialog, and Movies
 remained unlocked (`live_lock_options.*`, `live_pin_dialog.*`, and
@@ -144,8 +189,11 @@ The three Android animation scales were then set to `0.0`; Guide remained
 interactive through D-pad input with no app fatal marker in the bounded scan,
 and all scales were restored to `1.0`. D-pad also opened Program Search and
 Guide Options; Guide mode was switched and restored. The Compose text field
-still did not accept ADB text input, and the loaded provider still exposed no
-schedule rows. Screenshots and hierarchies are recorded in
+accepted Home category/channel text input after D-pad activation. Guide
+Program Search was also activated through D-pad and accepted `Movies`; the
+dialog was dismissed and Live TV restored, but the loaded provider's visible
+guide rows still reported `No schedule`, so a distinct filtered program-result
+assertion remains unavailable. Screenshots and hierarchies are recorded in
 `validation/phase5_live/task10-manual/`.
 
 The planner edge follow-up populated two slots, removed slot 2, replaced the
@@ -154,30 +202,43 @@ dismissed as designed, and the final Live fixture state remained Favorites `0`
 and All Channels `1,467`. Evidence is under
 `validation/phase5_live/task10-multiview/`.
 
+A further planner pass launched the two-slot configuration with `00s Replay`
+and `3ABN Dare To Dream Network`; the MultiView surface showed both channel
+labels and two empty slots. The planner was reopened from a queued channel,
+Clear All removed both active slots, and Live TV was restored with no split
+badge, Favorites `0`, and All Channels `1,467`.
+
 ## Open gates
 
-- Full Home/EPG ViewModel-driven manual journey matrix (search, quick-filter
-  mutation, PIN submission/unlock verification, reminders/recording conflicts,
-  archive, focus restoration, and any still-unexercised MultiView cases)
+- Full Home/EPG ViewModel-driven manual journey matrix (Guide search focus
+  restoration, mutation, PIN submission/unlock verification, reminders/recording
+  conflicts, archive, focus restoration, and any still-unexercised MultiView cases)
   remains fixture-dependent and open. Hidden category/channel hide and restore
   paths, PIN-dialog reachability, RTL/reduced-motion smoke checks, and the
-  core planner placement/removal/replacement/clear paths are covered in the
-  follow-up fixture/device passes; PIN submission/unlock verification and the
-  unavailable search/schedule branches remain open.
+  core planner placement/removal/replacement/clear and two-slot launch paths
+  are covered in the
+  follow-up fixture/device passes; PIN submission/unlock verification, Guide
+  filtered-result verification, and the unavailable schedule branch remain
+  open. Quick-filter save/reload/remove is no longer open.
 - The feature presentation golden review and the app-owned Live route golden
   review are complete. The app baseline was regenerated from the reviewed
   current capture; the old baseline is preserved as
   `route_live_browse_baseline_before.png` in the ignored follow-up evidence.
-- The formal paired performance target, clean/warm guardrails, and
-  baseline/startup profile regeneration are open. Five
+- The formal paired performance target and clean-build guardrail remain open.
+  Five
   post-extraction Live source-edit and five moved-test samples are recorded in
   `validation/phase5_live/performance-after.md`; they establish the
   post-extraction envelope but are not a comparable pre/post pair because the
   available pre record is no-change rather than source-edit.
-  `verifyBaselineProfileSources` passes (46,249 baseline / 30,093 startup
-  rules), but `:app:generateBaselineProfile` hit a JVM native-memory OOM during
-  release Java compilation; generated files still contain stale app Home/EPG
-  descriptors and were not hand-edited. Details are in
+  Two current clean task-graph runs passed at 4m46s and 1m01s under materially
+  different cache states, so the clean guardrail is inconclusive; five
+  final-tree warm no-change samples passed with a 13.690s median.
+  `verifyBaselineProfileSources`, Beta assembly, and Release assembly pass
+  against the regenerated 48,627 baseline / 31,990 startup rules. The
+  baseline-profile producer's eight macrobenchmark tests were skipped by
+  configuration, so
+  macrobenchmark performance remains open even though profile generation and
+  descriptor freshness now pass. Details are in
   `validation/phase5_live/profile-validation.md`.
 - Playback, Provider, and Settings acceptance/performance gates remain governed
   by their existing reports. The separate Provider and Settings `check` tasks

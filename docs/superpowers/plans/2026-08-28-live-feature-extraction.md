@@ -204,7 +204,7 @@ implementation(project(":data"))
 implementation(project(":player"))
 ```
 
-- [ ] **Step 2: Add a deliberate forbidden source probe**
+- [x] **Step 2: Add a deliberate forbidden source probe**
 
 Create `feature/live/src/main/java/com/streamvault/feature/live/BoundaryProbe.kt`:
 
@@ -216,7 +216,7 @@ import com.streamvault.app.MainActivity
 internal typealias BoundaryProbe = MainActivity
 ```
 
-- [ ] **Step 3: Implement the boundary verifier and run RED**
+- [x] **Step 3: Implement the boundary verifier and run RED**
 
 Use the Settings boundary task structure with these tokens:
 
@@ -373,7 +373,7 @@ Run:
 
 Expected: PASS with unchanged encoded routes.
 
-- [ ] **Step 6: Commit the contracts**
+- [x] **Step 6: Commit the contracts**
 
 ```powershell
 git add feature/live/src/main/java/com/streamvault/feature/live/navigation feature/live/src/test/java/com/streamvault/feature/live/navigation app/src/main/java/com/streamvault/app/navigation/AppRouteCodec.kt app/src/test/java/com/streamvault/app/navigation/AppRouteCodecTest.kt
@@ -453,7 +453,7 @@ git commit -m "feat(live): add preview and platform ports"
 - Consumes: Task 3 ports plus existing `LivePreviewHandoffManager`, `StreamVaultPluginManager`, `TvInputChannelSyncManager`, `MultiViewManager`, and `PreferencesRepository`.
 - Produces: singleton app bindings that delegate to current implementations without duplicating policy.
 
-- [ ] **Step 1: Write failing stream and surface delegation tests**
+- [x] **Step 1: Write failing stream and surface delegation tests**
 
 Use constructor seams accepting function references so the tests exercise real adapter code without mocking final implementation classes:
 
@@ -473,7 +473,7 @@ Use constructor seams accepting function references so the tests exercise real a
 
 Run and expect missing adapters.
 
-- [ ] **Step 2: Implement the two simple adapters and run GREEN**
+- [x] **Step 2: Implement the two simple adapters and run GREEN**
 
 Production constructors inject the current app implementations; internal test constructors accept the narrow suspend functions. Preserve results/exceptions without translation.
 
@@ -494,7 +494,7 @@ Also register, begin, clear, and consume through a fake delegate, asserting chan
 
 The adapter must delegate to the injected singleton `LivePreviewHandoffManager`. It maps `reverseSessionFlow` to `Flow<LivePreviewOrigin?>` and maps a consumed session to `LivePreviewSession`; it must not create a second manager or reproduce release timers.
 
-- [ ] **Step 5: Write failing MultiView status tests**
+- [x] **Step 5: Write failing MultiView status tests**
 
 Use `MutableStateFlow<List<Channel?>>` and `MutableStateFlow<Boolean>`:
 
@@ -513,13 +513,20 @@ Implement `status` as `combine(slots, centerTwoSlotLayout)` returning
 `LiveMultiViewStatus(slots.count { it != null }, if (centerTwoSlotLayout) 2 else 4)`.
 Bind all four ports in `AppLiveModule` with `@Binds`, `@Singleton`, and no business logic.
 
-- [ ] **Step 7: Verify adapters and existing Playback handoff tests**
+- [x] **Step 7: Verify adapters and existing Playback handoff tests**
 
 ```powershell
 ./gradlew.bat :app:testDebugUnitTest --tests "com.streamvault.app.live.AppLiveAdaptersTest" :feature:playback:testDebugUnitTest --tests "com.streamvault.feature.playback.preview.LivePreviewHandoffManagerTest" :app:compileDebugKotlin --no-daemon --console=plain --warning-mode=none
 ```
 
 Expected: PASS; Playback manager timeout/release behavior remains covered by its existing suite.
+
+Checklist reconciliation (2026-08-30): the missing direct adapter cases were
+added test-first. RED failed at test compilation because the narrow delegate/
+Flow constructors did not exist. Minimal internal seams kept the Hilt
+production constructors unchanged. The four app adapter tests and the existing
+Playback handoff suite then passed together in 40s (163 actionable; 12
+executed, 2 from cache, 149 up-to-date).
 
 - [x] **Step 8: Commit the adapters**
 
@@ -1123,7 +1130,7 @@ graphify query "Where are Home Live TV EPG and preview presentation owned after 
 
 Expected: Home/EPG production nodes resolve under `feature/live`; app nodes represent composition/adapters; Playback owns handoff/MultiView implementation.
 
-- [ ] **Step 8: Commit cleanup and structural evidence**
+- [x] **Step 8: Commit cleanup and structural evidence**
 
 ```powershell
 git add app feature/live docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md validation/phase5_live graphify-out
@@ -1186,17 +1193,26 @@ Capture named 1920x1080 screenshots and sanitized logs. Record unavailable fixtu
 Completed partial planner coverage on 2026-08-29: the seeded emulator exposed
 `All Channels`, so `01 00s Replay` was long-pressed, added to the split-screen
 planner, assigned to slot 1, launched, and returned with Back. Evidence is in
-`validation/phase5_live/task10-multiview/`. The broader search/filter/PIN/
-recording/archive matrix remains open because the loaded fixture and TV input
-path do not expose all branches. A follow-up device pass now records Arabic
+`validation/phase5_live/task10-multiview/`. The remaining schedule/PIN/
+recording/archive and filtered-result matrix remains open because the loaded
+fixture and TV input path do not expose all branches. A follow-up device pass now records Arabic
 RTL rendering for Live TV and Guide, a reduced-motion D-pad smoke check with
 animation scales at zero, and D-pad reachability for Program Search and Guide
-Options; the search field still did not accept ADB text input.
+Options. D-pad activation plus ADB text input now covers category search and
+All Channels search; the quick-filter form accepts input and enables Save. A
+follow-up saved `Movies`, verified it after force-stop/relaunch, and removed it
+through Settings, restoring the empty-filter state.
+Guide Program Search was also activated and accepted `Movies`; the dialog was
+dismissed and Live TV restored, but its visible rows still reported `No
+schedule`, so a distinct filtered-result assertion remains unavailable.
 
 Follow-up on 2026-08-29 also added and removed two fixture channels from
 Favorites and entered populated Favorites reorder mode before restoring the
-device to zero favorites. Quick-filter text entry did not work through the
-emulator ADB input path. Hidden category/channel paths were exercised and
+device to zero favorites. The activated-input follow-up populated and saved a
+quick filter, verified it after process restart, and removed it through the
+existing Settings management dialog so no persistent filter remained. Device
+evidence is under `validation/phase5_live/task11-fixture-flows/`.
+Hidden category/channel paths were exercised and
 restored. The Movies `Lock Group` action also opened the focused `Enter PIN`
 keypad; the configured PIN was unavailable, so Back canceled without changing
 the lock state. Favorite movement and the Save Order callback were exercised in
@@ -1208,6 +1224,13 @@ The planner edge follow-up then populated two slots, removed slot 2, replaced
 an occupied slot 1 with the pending channel, and exercised Clear All before
 restoring Live TV with zero active slots. Evidence is under
 `validation/phase5_live/task10-multiview/`.
+
+A subsequent pass launched the populated two-slot configuration with `00s
+Replay` and `3ABN Dare To Dream Network`, confirmed both channel labels on the
+MultiView surface, then reopened the planner and used Clear All. The final Live
+TV state had no split badge, zero active slots, Favorites `0`, and All Channels
+`1,467`; evidence is in `two-slot-placed.*`, `two-slot-launched.*`, and
+`two-slot-cleared.*` under `validation/phase5_live/task10-multiview/`.
 
 - [x] **Step 5: Capture channel 1 at two-second cadence**
 
@@ -1310,7 +1333,19 @@ snapshot.
 
 In isolated pre/post snapshots with equivalent Gradle/SDK/temp storage, run clean debug and warm no-change `:app:assembleDebug`. Record executed/from-cache/up-to-date task counts, median where repeated, and comparability limitations.
 
-- [ ] **Step 4: Regenerate Baseline/Startup Profiles**
+Current-checkout guardrail update (2026-08-30): the documented clean debug
+command passed in 4m 46s (209 actionable; 136 executed, 73 from cache). Five
+warm no-change samples all passed with a 13.150s median and 13.394s average;
+each had 1 executed and 197 up-to-date tasks. The clean result is 111.1% slower
+than the Phase 0 profiled clean baseline and does not meet the 10% guardrail.
+After the adapter checklist seam was completed, the final-tree clean rerun
+passed in 1m 01s (95 executed, 114 from cache) and five final-tree warm samples
+passed with a 13.690s median and 13.984s average. The 3.7x clean-run spread
+reflects materially different cache states. The step remains open because no
+equivalent isolated pre-Live/post-Live clean pair exists. Evidence is in
+`validation/phase5_live/performance-after.md`.
+
+- [x] **Step 4: Regenerate Baseline/Startup Profiles**
 
 ```powershell
 ./gradlew.bat :app:generateBaselineProfile --no-daemon --console=plain --warning-mode=none
@@ -1319,7 +1354,15 @@ In isolated pre/post snapshots with equivalent Gradle/SDK/temp storage, run clea
 
 Expected: producer and packaging pass. Record test counts, durations, generated rule counts, APK/AAB packaging evidence, and any unavailable physical-device gate.
 
-- [ ] **Step 5: Scan profile descriptors**
+Retry update (2026-08-30): after starting the seeded `Television_1080p` API 36
+AVD, the producer passed in 13m 45s. Both `BaselineProfileGenerator` tests
+passed; eight separate macrobenchmark tests were skipped by configuration.
+The independent source/Beta/Release command then passed in 3m 41s with 48,627
+baseline and 31,990 startup rules. Earlier native-memory and no-device
+failures remain recorded as historical attempts; no profile source was
+hand-edited.
+
+- [x] **Step 5: Scan profile descriptors**
 
 ```powershell
 rg -n "com/streamvault/app/ui/screens/(home|epg)" app/src/main/generated/baselineProfiles
@@ -1328,7 +1371,11 @@ rg -n "com/streamvault/feature/live" app/src/main/generated/baselineProfiles
 
 Expected: zero stale app Home/EPG descriptors and nonzero feature/live descriptors. If stale descriptors remain, rerun generation from a clean installed target rather than editing text manually.
 
-- [ ] **Step 6: Write the live execution report**
+Retry scan (2026-08-30): the regenerated sources satisfy freshness with zero
+stale app Home/EPG matches and 1,544 baseline / 43 startup `feature/live`
+matches. Details and hashes are in `validation/phase5_live/profile-validation.md`.
+
+- [x] **Step 6: Write the live execution report**
 
 The report must include:
 
@@ -1341,11 +1388,11 @@ The report must include:
   Provider, and Settings reports remain authoritative for their open gates;
 - explicit statement that Phase 5 is not complete.
 
-- [ ] **Step 7: Update roadmap and architecture status**
+- [x] **Step 7: Update roadmap and architecture status**
 
 Link the live spec, plan, report, and validation artifacts. Mark only evidence-backed live items complete. Leave later slices and all unrelated open gates unchanged.
 
-- [ ] **Step 8: Run final fresh verification**
+- [x] **Step 8: Run final fresh verification**
 
 ```powershell
 ./gradlew.bat :feature:live:verifyFeatureLiveBoundary :feature:live:check :feature:live:compileDebugAndroidTestKotlin :app:testDebugUnitTest :app:assembleDebug verifyBaselineProfileSources --no-daemon --console=plain --warning-mode=none

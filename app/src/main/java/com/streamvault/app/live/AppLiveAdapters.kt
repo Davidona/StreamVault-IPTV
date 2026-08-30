@@ -24,36 +24,63 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 @Singleton
-class AppLivePreviewStreamPreparer @Inject constructor(
-    private val pluginManager: StreamVaultPluginManager,
+class AppLivePreviewStreamPreparer internal constructor(
+    private val delegate: LivePreviewStreamPreparationDelegate,
 ) : LivePreviewStreamPreparer {
+    @Inject
+    constructor(pluginManager: StreamVaultPluginManager) : this(
+        LivePreviewStreamPreparationDelegate(pluginManager::preparePlaybackStreamInfo),
+    )
+
     override suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo> =
-        pluginManager.preparePlaybackStreamInfo(streamInfo)
+        delegate.prepare(streamInfo)
 }
 
 @Singleton
-class AppLiveSurfaceRefreshAdapter @Inject constructor(
-    private val syncManager: TvInputChannelSyncManager,
+class AppLiveSurfaceRefreshAdapter internal constructor(
+    private val delegate: LiveSurfaceRefreshDelegate,
 ) : LiveSurfaceRefreshPort {
+    @Inject
+    constructor(syncManager: TvInputChannelSyncManager) : this(
+        LiveSurfaceRefreshDelegate(syncManager::refreshTvInputCatalog),
+    )
+
     override suspend fun refreshTvInputCatalog() {
-        syncManager.refreshTvInputCatalog()
+        delegate.refresh()
     }
 }
 
 @Singleton
-class AppLiveMultiViewStatusAdapter @Inject constructor(
-    multiViewManager: MultiViewManager,
-    preferencesRepository: PreferencesRepository,
+class AppLiveMultiViewStatusAdapter internal constructor(
+    slots: Flow<List<Channel?>>,
+    centeredCompactLayoutEnabled: Flow<Boolean>,
 ) : LiveMultiViewStatusPort {
+    @Inject
+    constructor(
+        multiViewManager: MultiViewManager,
+        preferencesRepository: PreferencesRepository,
+    ) : this(
+        slots = multiViewManager.slots,
+        centeredCompactLayoutEnabled = preferencesRepository.multiViewCenterTwoSlotLayout,
+    )
+
     override val status: Flow<LiveMultiViewStatus> = combine(
-        multiViewManager.slots,
-        preferencesRepository.multiViewCenterTwoSlotLayout,
+        slots,
+        centeredCompactLayoutEnabled,
     ) { slots, centeredCompactLayoutEnabled ->
         LiveMultiViewStatus(
             channelCount = slots.count { it != null },
             slotCapacity = if (centeredCompactLayoutEnabled) 2 else MultiViewManager.MAX_SLOTS,
         )
     }
+}
+
+internal fun interface LivePreviewStreamPreparationDelegate {
+    suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo>
+}
+
+internal fun interface LiveSurfaceRefreshDelegate {
+    suspend fun refresh()
 }
 
 @Singleton

@@ -98,7 +98,12 @@ extraction, resource ownership cleanup, dependency audit, and open runtime
 gates. The Live implementation plan and report now document the Home/EPG
 extraction, translated-resource parity, reviewed feature goldens, connected
 checks, populated MultiView planner journey, and two-channel runtime evidence.
-The exhaustive journey and deferred performance/profile gates remain explicit;
-the app-route Live golden was reviewed and regenerated from the current
-palette, with its connected assertion passing.
+The exhaustive fixture-dependent journeys and formal paired performance and
+clean-build guardrails remain explicit. Current-checkout clean/warm samples
+and successful Beta/Release packaging are recorded. Profile generation now
+passes on the seeded API 36 TV emulator, with fresh sources containing zero
+stale app Home/EPG descriptors and nonzero `feature/live` descriptors; the
+eight separate macrobenchmark tests were skipped by configuration and remain
+an open performance gate. The app-route Live golden was reviewed and
+regenerated from the current palette, with its connected assertion passing.
 Catalog and System remain unstarted.

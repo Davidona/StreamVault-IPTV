@@ -954,18 +954,28 @@ and related navigation/golden changes are uncommitted; a valid before/after
 comparison requires a committed post-extraction ref. See
 [COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md](COMPOSE_REDUCTION_PHASE5_PROVIDER_REPORT.md).
 
-Live execution status (2026-08-29): the Home Live TV and EPG presentation
+Live execution status (2026-08-30): the Home Live TV and EPG presentation
 extraction is structurally complete under `:feature:live`, with the app
 retaining route/platform/player-request/MultiView adapters. The Live boundary,
 feature checks, translated-resource parity audit, six reviewed feature golden
 baselines, connected suite, populated MultiView planner journey, and required
 two-channel long-playback protocol are recorded in
 [COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md](COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md).
-The full fixture-dependent Home/EPG journey matrix and deferred
-performance/profile gates remain open. The app-owned Live route golden was
-reviewed and regenerated with its connected assertion passing. Catalog and System were not
-started; Playback, Provider, and Settings gates remain governed by their
-separate reports.
+The follow-up device passes also cover RTL/reduced-motion interaction, D-pad
+activation of category/channel/Guide search inputs, quick-filter form input,
+hidden category/channel restore, populated Favorites reorder/save-order, and
+the populated MultiView placement/removal/replacement/clear and two-slot launch
+paths, plus reversible quick-filter save/reload/remove persistence. The full
+  fixture-dependent Home/EPG journey matrix, formal paired performance and
+  clean-build guardrails remain open. Current-checkout clean/warm samples and
+  Beta/Release packaging are recorded. Profile generation now passes on the
+  seeded API 36 TV emulator, with fresh sources containing zero stale app
+  Home/EPG descriptors and nonzero `feature/live` descriptors; the eight
+  separate macrobenchmark tests were skipped by configuration and remain an
+  open performance gate. The app-owned Live route golden was reviewed and
+  regenerated with its connected assertion passing. Catalog and System were
+  not started; Playback, Provider, and Settings gates remain governed by their
+  separate reports.
 
 ### Phase 6 - Optional Views migrations
 
