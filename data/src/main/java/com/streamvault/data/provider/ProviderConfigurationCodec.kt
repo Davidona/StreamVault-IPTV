@@ -19,18 +19,11 @@ class ProviderConfigurationCodec @Inject constructor(
     private val gson: Gson,
     private val credentialCrypto: CredentialCrypto
 ) {
-    fun encode(configuration: ProviderConfiguration): String = gson.toJson(configuration.encryptSecrets())
+    fun encode(configuration: ProviderConfiguration): String =
+        encodeProviderConfiguration(gson, credentialCrypto, configuration)
 
-    fun decode(type: ProviderType, payload: String): ProviderConfiguration {
-        val encrypted = when (type) {
-            ProviderType.XTREAM_CODES -> gson.fromJson(payload, XtreamConfig::class.java)
-            ProviderType.M3U -> gson.fromJson(payload, M3uConfig::class.java)
-            ProviderType.STALKER_PORTAL -> gson.fromJson(payload, StalkerConfig::class.java)
-            ProviderType.JELLYFIN -> gson.fromJson(payload, JellyfinConfig::class.java)
-        } ?: throw IllegalArgumentException("Provider configuration payload is empty")
-        require(encrypted.type == type) { "Configuration payload does not match stored provider type" }
-        return encrypted.decryptSecrets()
-    }
+    fun decode(type: ProviderType, payload: String): ProviderConfiguration =
+        decodeProviderConfigurationCompat(gson, credentialCrypto, type, payload)
 
     fun identityKey(configuration: ProviderConfiguration): String {
         val canonical = when (configuration) {
@@ -47,20 +40,6 @@ class ProviderConfigurationCodec @Inject constructor(
         return MessageDigest.getInstance("SHA-256")
             .digest(canonical.toByteArray(Charsets.UTF_8))
             .joinToString("") { "%02x".format(it) }
-    }
-
-    private fun ProviderConfiguration.encryptSecrets(): ProviderConfiguration = when (this) {
-        is XtreamConfig -> copy(password = credentialCrypto.encryptIfNeeded(password))
-        is M3uConfig -> this
-        is StalkerConfig -> copy(password = credentialCrypto.encryptIfNeeded(password))
-        is JellyfinConfig -> copy(credential = credentialCrypto.encryptIfNeeded(credential))
-    }
-
-    private fun ProviderConfiguration.decryptSecrets(): ProviderConfiguration = when (this) {
-        is XtreamConfig -> copy(password = credentialCrypto.decryptIfNeeded(password))
-        is M3uConfig -> this
-        is StalkerConfig -> copy(password = credentialCrypto.decryptIfNeeded(password))
-        is JellyfinConfig -> copy(credential = credentialCrypto.decryptIfNeeded(credential))
     }
 
     private fun normalizeOrigin(value: String): String = runCatching {
