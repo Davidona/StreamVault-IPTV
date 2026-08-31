@@ -57,7 +57,7 @@ internal fun ProviderEpgAssignmentsCard(
                     if (resolutionSummary.rematchCandidateChannels > 0) add("${resolutionSummary.rematchCandidateChannels} need review")
                 }
                 Text(
-                    text = summaryParts.joinToString(" ג€¢ "),
+                    text = summaryParts.joinToString(" • "),
                     style = MaterialTheme.typography.bodySmall,
                     color = OnSurfaceDim
                 )

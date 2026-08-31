@@ -31,8 +31,19 @@ fun NavGraphBuilder.registerProviderGraph(
             onBack = { actions.back() },
             backupPreviewContent = backupPreviewContent,
             onProviderAdded = dropUnlessResumed {
-                onStartupNavigationRequested(AppDestination.ProviderSetup())
+                completeProviderSetup(actions) {
+                    onStartupNavigationRequested(AppDestination.ProviderSetup())
+                }
             }
         )
+    }
+}
+
+internal fun completeProviderSetup(
+    actions: NavigationActions,
+    onStartupNavigationRequested: () -> Unit
+) {
+    if (!actions.back()) {
+        onStartupNavigationRequested()
     }
 }

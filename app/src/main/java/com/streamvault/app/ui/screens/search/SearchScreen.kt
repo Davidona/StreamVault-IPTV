@@ -1147,7 +1147,7 @@ private fun SearchResultsSummaryRow(
         stringResource(R.string.search_results_count, stringResource(R.string.search_live_tv), uiState.channels.size),
         stringResource(R.string.search_results_count, stringResource(R.string.search_movies), uiState.movies.size),
         stringResource(R.string.search_results_count, stringResource(R.string.search_series), uiState.series.size)
-    ).joinToString("  ג€¢  ")
+    ).joinToString("  •  ")
     Column(
         modifier = Modifier
             .fillMaxWidth()

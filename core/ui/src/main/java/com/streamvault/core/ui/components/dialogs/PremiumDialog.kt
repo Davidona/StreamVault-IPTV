@@ -285,9 +285,9 @@ private fun ColumnScope.PremiumDialogScrollableBody(
 
         if (!scrollHint.isNullOrBlank() && (canScrollUp || canScrollDown)) {
             val arrow = when {
-                canScrollUp && canScrollDown -> "ג†•"
-                canScrollDown -> "ג†“"
-                else -> "ג†‘"
+                canScrollUp && canScrollDown -> "↕"
+                canScrollDown -> "↓"
+                else -> "↑"
             }
             Text(
                 text = "$arrow  $scrollHint",

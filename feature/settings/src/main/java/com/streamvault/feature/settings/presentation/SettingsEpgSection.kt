@@ -307,10 +307,10 @@ private fun EpgTimeShiftCard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                ShiftAdjustButton("גˆ’1h", onClick = { onAdjust(-60) })
-                ShiftAdjustButton("גˆ’30m", onClick = { onAdjust(-30) })
-                ShiftAdjustButton("גˆ’15m", onClick = { onAdjust(-15) })
-                ShiftAdjustButton("גˆ’5m", onClick = { onAdjust(-5) })
+                ShiftAdjustButton("−1h", onClick = { onAdjust(-60) })
+                ShiftAdjustButton("−30m", onClick = { onAdjust(-30) })
+                ShiftAdjustButton("−15m", onClick = { onAdjust(-15) })
+                ShiftAdjustButton("−5m", onClick = { onAdjust(-5) })
                 ShiftAdjustButton("Reset", onClick = onReset, enabled = shiftMinutes != 0)
                 ShiftAdjustButton("+5m", onClick = { onAdjust(5) })
                 ShiftAdjustButton("+15m", onClick = { onAdjust(15) })
@@ -353,7 +353,7 @@ private fun ShiftAdjustButton(
 
 private fun formatShiftLabel(minutes: Int): String {
     if (minutes == 0) return "No shift"
-    val sign = if (minutes < 0) "גˆ’" else "+"
+    val sign = if (minutes < 0) "−" else "+"
     val abs = kotlin.math.abs(minutes)
     val hours = abs / 60
     val mins = abs % 60

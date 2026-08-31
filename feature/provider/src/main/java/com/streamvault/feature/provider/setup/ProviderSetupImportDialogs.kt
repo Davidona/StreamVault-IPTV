@@ -186,7 +186,7 @@ private fun formatDriveSnapshotDetails(snapshot: DriveBackupSnapshot): String {
         ).format(java.util.Date(it))
     } ?: "Date unavailable"
     val size = if (snapshot.sizeBytes > 0L) "${snapshot.sizeBytes / 1024L} KB" else "Size unavailable"
-    return "$date ֲ· $size"
+    return "$date · $size"
 }
 
 @Composable

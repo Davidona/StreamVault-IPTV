@@ -107,8 +107,8 @@ public fun CombinedM3uProfilesCard(
                             title = profile.name,
                             subtitle = buildString {
                                 append("${profile.members.count { it.enabled }}/${profile.members.size} playlist(s)")
-                                if (isActive) append(" ג€¢ Active")
-                                if (profile.members.none { it.enabled }) append(" ג€¢ Empty")
+                                if (isActive) append(" • Active")
+                                if (profile.members.none { it.enabled }) append(" • Empty")
                             },
                             isSelected = selectedProfileId == profile.id,
                             isActive = isActive,
@@ -485,7 +485,7 @@ private fun ProviderChip(
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(title, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
             Text(
-                if (isActive) "$subtitle ג€¢ Active" else subtitle,
+                if (isActive) "$subtitle • Active" else subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isActive) Primary else OnSurfaceDim
             )

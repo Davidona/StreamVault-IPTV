@@ -83,7 +83,7 @@
     <string name="home_group_renamed">Gruppo rinominato in %1$s</string>
     <string name="home_group_deleted">Gruppo "%1$s" eliminato</string>
     <string name="home_group_name_reserved">Impossibile creare il gruppo denominato "Preferiti"</string>
-    <string name="home_group_name_duplicate">Il gruppo "%1$s" esiste giֳ</string>
+    <string name="home_group_name_duplicate">Il gruppo "%1$s" esiste già</string>
     <string name="home_group_name_invalid">Inserisci il nome del gruppo</string>
     <string name="dashboard_title">La tua libreria, pronta</string>
     <string name="dashboard_subtitle">%1$s è attivo. Torna alla diretta, riprendi la visione o sfoglia le nuove aggiunte.</string>
@@ -425,7 +425,7 @@
     <string name="player_action_mute">Muto</string>
     <string name="player_action_cast">Trasmetti</string>
     <string name="player_action_pip">PiP</string>
-    <string name="player_action_quality">Qualitֳ</string>
+    <string name="player_action_quality">Qualità</string>
     <string name="player_mute">Muto</string>
     <string name="player_muted_badge">Disattivato</string>
     <string name="player_cast">Trasmetti</string>
@@ -434,7 +434,7 @@
     <string name="player_picture_in_picture">Immagine nell\'immagine</string>
     <string name="player_pip_short">PiP</string>
     <string name="player_epg_short">EPG</string>
-    <string name="player_quality_short">Qualitֳ</string>
+    <string name="player_quality_short">Qualità</string>
     <string name="player_episodes">Episodi</string>
     <string name="player_resume_title">Riprendi la riproduzione</string>
     <string name="player_resume_desc">Vuoi riprendere %1$s da dove eri rimasto?</string>

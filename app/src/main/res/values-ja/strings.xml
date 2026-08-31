@@ -208,7 +208,7 @@
     <string name="library_full_browse_title_series">シリーズライブラリ全体を閲覧</string>
     <string name="library_saved_title">保存済み</string>
     <string name="library_saved_subtitle">お気に入りとカスタムグループ</string>
-    <string name="library_saved_items_count">%1$d ד‚¢ד‚₪דƒ†דƒ</string>
+    <string name="library_saved_items_count">%1$d アイテム</string>
     <string name="library_saved_active_title">保存済みグループ</string>
     <string name="library_saved_active_summary">この保存済み表示には %1$d 件あります</string>
     <string name="library_saved_manage_action">管理</string>
@@ -276,7 +276,7 @@
     <string name="settings_language">言語</string>
     <string name="settings_language_subtitle">TVインターフェースを離れずにアプリの言語を選択できます。</string>
     <string name="settings_diagnostic_never">なし</string>
-    <string name="settings_diagnostic_items">%1$d ד‚¢ד‚₪דƒ†דƒ</string>
+    <string name="settings_diagnostic_items">%1$d アイテム</string>
     <string name="settings_status_active">有効</string>
     <string name="settings_status_partial">一部</string>
     <string name="settings_status_error">エラー</string>
@@ -325,7 +325,7 @@
     <string name="saved_preset_custom_groups">カスタムグループ</string>
     <string name="saved_group_manage_title">カスタムグループを管理</string>
     <string name="saved_group_manage_subtitle">グループを開くか、長押しして結合、削除、並べ替え、ホーム優先の操作を行います。</string>
-    <string name="saved_group_manage_count">%1$d ד‚¢ד‚₪דƒ†דƒ</string>
+    <string name="saved_group_manage_count">%1$d アイテム</string>
     <string name="saved_group_manage_promoted">ホームに固定済み • %1$d 件</string>
     <string name="saved_group_promote_home">ホームに固定</string>
     <string name="saved_group_demote_home">ホームから削除</string>

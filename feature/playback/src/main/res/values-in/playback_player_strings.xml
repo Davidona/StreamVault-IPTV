@@ -103,10 +103,10 @@
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episode</string>
     <string name="player_error_back">Atau tekan Kembali untuk kembali</string>
-    <string name="player_error_decoder">Tidak dapat memutar format ini ג€” coba ubah mode decoder di Pengaturan</string>
+    <string name="player_error_decoder">Tidak dapat memutar format ini — coba ubah mode decoder di Pengaturan</string>
     <string name="player_error_drm">Lisensi DRM atau persyaratan keamanan perangkat mencegah pemutaran</string>
     <string name="player_error_live_hint">Coba lagi, kembali ke saluran terakhir, atau tekan Kembali untuk keluar dari pemutaran.</string>
-    <string name="player_error_network">Streaming tidak tersedia ג€” periksa koneksi internet Anda</string>
+    <string name="player_error_network">Streaming tidak tersedia — periksa koneksi internet Anda</string>
     <string name="player_error_source">Streaming tidak ditemukan atau akses ditolak</string>
     <string name="player_error_title">Kesalahan Pemutaran</string>
     <string name="player_error_unknown">Kesalahan pemutaran tidak diketahui</string>
@@ -192,8 +192,8 @@
     <string name="player_up_next">Berikutnya</string>
     <string name="player_variants_short">Varian</string>
     <string name="player_video_quality">Kualitas Video</string>
-    <string name="program_date_time_range">%1$s | %2$s ג€“ %3$s</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Musim</string>
     <string name="settings_recording_status_recording">Rekaman</string>
-    <string name="time_range_format">%1$s ג€“ %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
 </resources>

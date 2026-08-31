@@ -135,9 +135,9 @@ public fun ProviderSettingsCard(
 
         diagnostics?.let { model ->
             Text(
-                text = listOf(model.sourceLabel, model.connectionSummary, model.expirySummary)
-                    .filter { it.isNotBlank() }
-                    .joinToString(" ג€¢ "),
+                text = formatProviderSummary(
+                    listOf(model.sourceLabel, model.connectionSummary, model.expirySummary)
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurface
             )
@@ -280,6 +280,9 @@ public fun sectionCatalogCount(
         ProviderCatalogCountUiModel(count, ProviderCatalogCountStatus.PENDING)
     }
 }
+
+internal fun formatProviderSummary(parts: List<String>): String =
+    parts.filter(String::isNotBlank).joinToString(" • ")
 
 
 

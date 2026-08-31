@@ -893,6 +893,7 @@ Detailed delivery artifacts:
 - [Phase 5 accepted architecture design](superpowers/specs/2026-08-24-phase-5-feature-module-extraction-design.md)
 - [Playback feature extraction implementation plan](superpowers/plans/2026-08-24-playback-feature-extraction.md)
 - [Provider feature extraction implementation plan](superpowers/plans/2026-08-26-provider-feature-extraction.md)
+- [Settings and Live regression audit](COMPOSE_REDUCTION_PHASE5_SETTINGS_LIVE_REGRESSION_AUDIT.md)
 
 Recommended extraction order:
 

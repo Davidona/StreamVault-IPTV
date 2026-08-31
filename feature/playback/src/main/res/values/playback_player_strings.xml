@@ -104,10 +104,10 @@
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episodes</string>
     <string name="player_error_back">Or press Back to return</string>
-    <string name="player_error_decoder">Unable to play this format ג€” try changing decoder mode in Settings</string>
+    <string name="player_error_decoder">Unable to play this format — try changing decoder mode in Settings</string>
     <string name="player_error_drm">DRM license or device security requirements prevented playback</string>
     <string name="player_error_live_hint">Retry, jump back to the last channel, or press Back to leave playback.</string>
-    <string name="player_error_network">Stream unavailable ג€” check your internet connection</string>
+    <string name="player_error_network">Stream unavailable — check your internet connection</string>
     <string name="player_error_source">Stream not found or access denied</string>
     <string name="player_error_title">Playback Error</string>
     <string name="player_error_unknown">Unknown playback error</string>
@@ -195,5 +195,5 @@
     <string name="player_video_quality">Video Quality</string>
     <string name="series_seasons">Seasons</string>
     <string name="settings_recording_status_recording">Recording</string>
-    <string name="time_range_format">%1$s ג€“ %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
 </resources>

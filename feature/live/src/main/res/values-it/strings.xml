@@ -35,7 +35,7 @@
     <string name="home_removed_from_favorites">Rimosso %1$s dai Preferiti</string>
     <string name="home_group_name_invalid">Inserisci il nome del gruppo</string>
     <string name="home_group_name_reserved">Impossibile creare il gruppo denominato "Preferiti"</string>
-    <string name="home_group_name_duplicate">Il gruppo "%1$s" esiste giֳ</string>
+    <string name="home_group_name_duplicate">Il gruppo "%1$s" esiste già</string>
     <string name="home_group_requires_provider_scope">Seleziona una singola sorgente provider per creare gruppi</string>
     <string name="home_group_created">Gruppo "%1$s" creato</string>
     <string name="home_group_renamed">Gruppo rinominato in %1$s</string>

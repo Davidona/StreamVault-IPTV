@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.SearchInput
+import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ActiveLiveSourceOption
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
@@ -73,6 +74,7 @@ fun LiveCategorySidebarHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
+                color = OnSurface,
                 maxLines = 1,
                 modifier = Modifier.weight(1f)
             )

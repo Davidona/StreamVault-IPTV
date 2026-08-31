@@ -1346,8 +1346,8 @@ private fun buildVariantSelectionLabel(variant: LiveChannelVariant): String {
     return buildString {
         append(variant.originalName)
         if (metaParts.isNotEmpty()) {
-            append(" ג€¢ ")
-            append(metaParts.joinToString(" ג€¢ "))
+            append(" • ")
+            append(metaParts.joinToString(" • "))
         }
     }
 }
@@ -1404,7 +1404,7 @@ private fun buildEpisodeCodeLabel(episode: Episode): String = buildString {
 private fun buildEpisodeMetaLabel(episode: Episode): String = buildString {
     append(stringResourceFallbackEpisode(episode.episodeNumber))
     episode.duration?.takeIf { it.isNotBlank() }?.let {
-        append(" ׳’ג‚¬ֲ¢ ")
+        append(" • ")
         append(it)
     }
 }
@@ -1600,7 +1600,7 @@ fun NextEpisodeCountdownOverlay(
                 Column(modifier = Modifier.weight(1f)) {
                     val episodeLabel = buildString {
                         append("S${nextEpisode.seasonNumber}E${nextEpisode.episodeNumber}")
-                        if (nextEpisode.title.isNotBlank()) append(" ײ²ֲ· ${nextEpisode.title}")
+                        if (nextEpisode.title.isNotBlank()) append(" · ${nextEpisode.title}")
                     }
                     Text(
                         text = episodeLabel,

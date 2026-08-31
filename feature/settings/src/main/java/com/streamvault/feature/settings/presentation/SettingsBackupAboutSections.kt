@@ -83,14 +83,14 @@ public fun LazyListScope.settingsBackupSection(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Restore ${job.jobId.take(8)} ֲ· ${job.status}",
+                            text = "Restore ${job.jobId.take(8)} · ${job.status}",
                             style = MaterialTheme.typography.titleMedium,
                             color = OnSurface
                         )
                         job.providers.forEach { provider ->
                             val waiting = provider.pendingCount + provider.unresolvedCount + provider.failedCount
                             Text(
-                                text = "${provider.providerIdentityKey.substringBefore('|')} ג€” " +
+                                text = "${provider.providerIdentityKey.substringBefore('|')} — " +
                                     "${provider.appliedCount} applied, $waiting waiting (${provider.failedCount} failed)",
                                 color = OnSurfaceDim
                             )
@@ -100,7 +100,7 @@ public fun LazyListScope.settingsBackupSection(
                             ) {
                                 provider.localProviderId?.let { providerId ->
                                     BackupActionCard(
-                                        icon = "ג†»",
+                                        icon = "\u21aa",
                                         title = "Retry",
                                         subtitle = "Try available catalog data",
                                         accent = Primary,
@@ -108,8 +108,8 @@ public fun LazyListScope.settingsBackupSection(
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
-                                BackupActionCard(
-                                    icon = "ֳ—",
+                                    BackupActionCard(
+                                        icon = "×",
                                     title = "Dismiss provider",
                                     subtitle = "Discard unresolved instructions",
                                     accent = Secondary,
@@ -122,7 +122,7 @@ public fun LazyListScope.settingsBackupSection(
                                 .forEach { item ->
                                     BackupActionCard(
                                         icon = "!",
-                                        title = "${item.section}${item.contentType?.let { " ֲ· $it" }.orEmpty()}",
+                                        title = "${item.section}${item.contentType?.let { " · $it" }.orEmpty()}",
                                         subtitle = item.lastError ?: item.status,
                                         accent = Secondary,
                                         onClick = { viewModel.dismissRestoreItem(item.id) },
@@ -131,7 +131,7 @@ public fun LazyListScope.settingsBackupSection(
                                 }
                         }
                         BackupActionCard(
-                            icon = "ֳ—",
+                            icon = "×",
                             title = "Dismiss entire restore",
                             subtitle = "Discard all remaining instructions",
                             accent = Secondary,
@@ -141,7 +141,7 @@ public fun LazyListScope.settingsBackupSection(
                     }
                 }
             BackupActionCard(
-                icon = "ג‰¡",
+                icon = "☁",
                 title = stringResource(R.string.settings_manage_local_backups),
                 subtitle = stringResource(R.string.settings_manage_local_backups_subtitle),
                 accent = OnSurface,
@@ -195,7 +195,7 @@ public fun LazyListScope.settingsDriveBackupSection(
             when (val auth = uiState.driveAuthState) {
                 is DriveAuthState.SignedOut, is DriveAuthState.Pending -> {
                     BackupActionCard(
-                        icon = "ג˜",
+                        icon = "↻",
                         title = stringResource(R.string.settings_drive_signin),
                         subtitle = stringResource(R.string.settings_drive_signin_description),
                         accent = Primary,
@@ -218,7 +218,7 @@ public fun LazyListScope.settingsDriveBackupSection(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         BackupActionCard(
-                            icon = "ג†‘",
+                            icon = "\u2191",
                             title = stringResource(R.string.settings_drive_push),
                             subtitle = stringResource(R.string.settings_drive_push_subtitle),
                             accent = Primary,
@@ -226,7 +226,7 @@ public fun LazyListScope.settingsDriveBackupSection(
                             modifier = Modifier.weight(1f)
                         )
                         BackupActionCard(
-                            icon = "ג†“",
+                            icon = "\u2193",
                             title = stringResource(R.string.settings_drive_pull),
                             subtitle = stringResource(R.string.settings_drive_pull_subtitle),
                             accent = Secondary,
@@ -235,7 +235,7 @@ public fun LazyListScope.settingsDriveBackupSection(
                         )
                     }
                     BackupActionCard(
-                        icon = "ג‰¡",
+                        icon = "☁",
                         title = stringResource(R.string.settings_manage_drive_backups),
                         subtitle = stringResource(R.string.settings_manage_drive_backups_subtitle),
                         accent = OnSurface,
@@ -261,7 +261,7 @@ public fun formatSnapshotDetails(snapshot: com.streamvault.domain.manager.DriveB
     } else {
         stringResource(R.string.settings_drive_backup_size_unknown)
     }
-    return "$date ֲ· $size"
+    return "$date · $size"
 }
 
 @androidx.compose.runtime.Composable
@@ -320,7 +320,7 @@ private fun formatLastSync(pushMs: Long?, pullMs: Long?): String {
     val parts = mutableListOf<String>()
     pushMs?.let { parts += stringResource(R.string.settings_drive_last_push, df.format(java.util.Date(it))) }
     pullMs?.let { parts += stringResource(R.string.settings_drive_last_pull, df.format(java.util.Date(it))) }
-    return parts.joinToString("  ֲ·  ")
+    return parts.joinToString("  ·  ")
 }
 
 @androidx.compose.runtime.Composable

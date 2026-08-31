@@ -12,7 +12,7 @@
     <string name="epg_up_next">Volgende</string>
     <string name="epg_upcoming_schedule">Komend schema</string>
     <string name="home_locked_short">GESLOTEN</string>
-    <string name="label_categories">Categorieֳ«n</string>
+    <string name="label_categories">Categorieën</string>
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Gesplitst scherm</string>
     <string name="nav_live_tv">Live-tv</string>
@@ -192,8 +192,8 @@
     <string name="player_up_next">Volgende</string>
     <string name="player_variants_short">Varianten</string>
     <string name="player_video_quality">Videokwaliteit</string>
-    <string name="program_date_time_range">%1$s | %2$s ג€“ %3$s</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Seizoenen</string>
     <string name="settings_recording_status_recording">Opname</string>
-    <string name="time_range_format">%1$s ג€“ %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
 </resources>

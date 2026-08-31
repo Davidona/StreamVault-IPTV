@@ -114,7 +114,11 @@ following Live checkpoints (plus the final lint fix):
   historical attempts; generated profiles were never hand-edited. A direct
   `:benchmark:connectedNonMinifiedReleaseAndroidTest` attempt also passed in
   13m 09s, but its XML again reports the eight macrobenchmark cases as
-  `ignored (-)`; no performance measurements were produced.
+  `ignored (-)`. Direct runner probes then produced emulator-only startup
+  diagnostics: `coldStartupNoCompilation` median TTID 991.7 ms and
+  `coldStartupWithBaselineProfile` median 947.4 ms over 10 iterations. A
+  FrameTiming probe failed because the emulator trace contained no RenderThread
+  slices, so the broader macrobenchmark performance gate remains open.
 
 ## Runtime acceptance
 

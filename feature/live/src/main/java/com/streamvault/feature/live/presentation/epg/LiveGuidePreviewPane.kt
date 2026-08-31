@@ -151,7 +151,7 @@ fun LiveGuidePreviewPane(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "${timeFormat.format(Date(program.startTime))} ׳’ג‚¬ג€ ${timeFormat.format(Date(program.endTime))}",
+                            text = "${timeFormat.format(Date(program.startTime))} – ${timeFormat.format(Date(program.endTime))}",
                             style = MaterialTheme.typography.labelSmall,
                             color = OnSurfaceDim
                         )

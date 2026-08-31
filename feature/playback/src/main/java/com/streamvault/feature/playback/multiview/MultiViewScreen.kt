@@ -659,7 +659,7 @@ private fun MultiViewControlHud(
                 color = Color.White.copy(alpha = 0.86f),
                 style = MaterialTheme.typography.labelMedium
             )
-            Text(text = "־“׳ֳ³", color = Color.White.copy(alpha = 0.42f))
+            Text(text = "•", color = Color.White.copy(alpha = 0.42f))
             Text(
                 text = stringResource(
                     R.string.multiview_telemetry_snapshot,

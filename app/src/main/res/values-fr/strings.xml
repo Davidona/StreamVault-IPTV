@@ -88,7 +88,7 @@
     <string name="home_group_renamed">Groupe renommé en %1$s</string>
     <string name="home_group_deleted">Groupe ’%1$s’ supprimé</string>
     <string name="home_group_name_reserved">Impossible de créer un groupe nommé "Favoris"</string>
-    <string name="home_group_name_duplicate">Le groupe ’%1$s’ existe déjֳ</string>
+    <string name="home_group_name_duplicate">Le groupe ’%1$s’ existe déjà</string>
     <string name="home_group_name_invalid">Entrez un nom de groupe</string>
     <string name="dashboard_title">Votre bibliothèque, prête</string>
     <string name="dashboard_subtitle">%1$s est actif. Retournez au direct, reprenez votre progression ou parcourez les nouveautés.</string>
@@ -190,7 +190,7 @@
     <string name="movies_group_deleted">Groupe supprimé %1$s</string>
     <string name="movies_group_name_invalid">Entrez un nom de groupe</string>
     <string name="movies_group_name_reserved">Les favoris sont réservés</string>
-    <string name="movies_group_name_duplicate">Un groupe de films portant ce nom existe déjֳ</string>
+    <string name="movies_group_name_duplicate">Un groupe de films portant ce nom existe déjà</string>
     <string name="movies_saved_empty_hint">Ajoutez un film à vos favoris ou ajoutez-le à un groupe personnalisé pour le voir ici.</string>
     <string name="movies_filter_subtitle">Affinez la catégorie de films sélectionnée sans reconstruire toute la bibliothèque.</string>
     <string name="movies_library_lens_subtitle">Affichez les favoris, les contenus en cours, les mieux notés et les films récents dans toute la bibliothèque.</string>
@@ -213,7 +213,7 @@
     <string name="series_group_deleted">Groupe supprimé %1$s</string>
     <string name="series_group_name_invalid">Entrez un nom de groupe</string>
     <string name="series_group_name_reserved">Les favoris sont réservés</string>
-    <string name="series_group_name_duplicate">Un groupe de séries portant ce nom existe déjֳ</string>
+    <string name="series_group_name_duplicate">Un groupe de séries portant ce nom existe déjà</string>
     <string name="series_saved_empty_hint">Ajoutez une série à vos favoris ou ajoutez-la à un groupe personnalisé pour la voir ici.</string>
     <string name="series_filter_subtitle">Passez entre les séries enregistrées, en cours, mises à jour et très bien notées.</string>
     <string name="series_library_lens_subtitle">Affichez les favoris, les contenus en cours, les mieux notés et les séries récentes dans toute la bibliothèque.</string>

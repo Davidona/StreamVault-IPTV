@@ -26,7 +26,7 @@
     <string name="player_action_mute">Muto</string>
     <string name="player_action_pip">PiP</string>
     <string name="player_action_playback">Riproduzione</string>
-    <string name="player_action_quality">Qualitײ³</string>
+    <string name="player_action_quality">Qualità</string>
     <string name="player_action_split">Diviso</string>
     <string name="player_action_variants">Varianti</string>
     <string name="player_action_view">Visualizza</string>
@@ -103,7 +103,7 @@
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episodi</string>
     <string name="player_error_back">Oppure premi Indietro per tornare</string>
-    <string name="player_error_decoder">Impossibile riprodurre questo formato: prova a cambiare la modalitֳ  del decoder in Impostazioni</string>
+    <string name="player_error_decoder">Impossibile riprodurre questo formato: prova a cambiare la modalità del decoder in Impostazioni</string>
     <string name="player_error_drm">La licenza DRM o i requisiti di sicurezza del dispositivo hanno impedito la riproduzione</string>
     <string name="player_error_live_hint">Riprova, torna all\'ultimo canale o premi Indietro per abbandonare la riproduzione.</string>
     <string name="player_error_network">Streaming non disponibile: controlla la tua connessione Internet</string>
@@ -112,7 +112,7 @@
     <string name="player_error_unknown">Errore di riproduzione sconosciuto</string>
     <string name="player_format_short">Format</string>
     <string name="player_forward">Avanti veloce</string>
-    <string name="player_idle_standby_after">Consenti standby dopo inattivitֳ </string>
+    <string name="player_idle_standby_after">Consenti standby dopo inattività</string>
     <string name="player_idle_timer_status">Standby inattivo %1$s</string>
     <string name="player_jump_to_live">Vai al live</string>
     <string name="player_jump_to_live_short">LIVE</string>
@@ -129,7 +129,7 @@
     <string name="player_live_ready">LIVE</string>
     <string name="player_live_rewind_badge">LOCAL DVR</string>
     <string name="player_live_scrubber_cd">Linea temporale di riavvolgimento live. Usa sinistra e destra per cercare.</string>
-    <string name="player_live_timeshift_buffering">Il riavvolgimento live locale ֳ¨ ancora in buffering.</string>
+    <string name="player_live_timeshift_buffering">Il riavvolgimento live locale è ancora in buffering.</string>
     <string name="player_minutes_remaining">%1$d minuti rimanenti</string>
     <string name="player_more_controls">Altri controlli</string>
     <string name="player_multiview_short">Visualizzazione multipla</string>
@@ -145,9 +145,9 @@
     <string name="player_pip_short">PiP</string>
     <string name="player_play">Gioca</string>
     <string name="player_playback_label">Riproduzione</string>
-    <string name="player_playback_speed_title">Velocitֳ  di riproduzione</string>
-    <string name="player_playback_speed_value">Velocitֳ  %1$s</string>
-    <string name="player_quality_short">Qualitײ³</string>
+    <string name="player_playback_speed_title">Velocità di riproduzione</string>
+    <string name="player_playback_speed_value">Velocità %1$s</string>
+    <string name="player_quality_short">Qualità</string>
     <string name="player_recent_channels">Recente</string>
     <string name="player_record">Registra</string>
     <string name="player_record_now">Registra ora</string>
@@ -191,9 +191,9 @@
     <string name="player_unmute">Riattiva</string>
     <string name="player_up_next">Prossimo</string>
     <string name="player_variants_short">Varianti</string>
-    <string name="player_video_quality">Qualitֳ  video</string>
-    <string name="program_date_time_range">%1$s | %2$s ג€“ %3$s</string>
+    <string name="player_video_quality">Qualità video</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Stagioni</string>
     <string name="settings_recording_status_recording">Registrazione</string>
-    <string name="time_range_format">%1$s ג€“ %2$s</string>
+    <string name="time_range_format">%1$s – %2$s</string>
 </resources>

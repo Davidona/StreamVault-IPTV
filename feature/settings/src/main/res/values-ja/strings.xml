@@ -380,7 +380,7 @@
 <string name="settings_backup_section_recordings">録画スケジュール</string>
 <string name="settings_backup_conflict_count">競合 %1$d 件</string>
 <string name="settings_backup_no_conflicts">競合なし</string>
-<string name="settings_backup_item_count">%1$d ד‚¢ד‚₪דƒ†דƒ</string>
+<string name="settings_backup_item_count">%1$d アイテム</string>
 <string name="settings_provider_category_controls_title">カテゴリ制御</string>
 <string name="settings_provider_category_controls_subtitle">現在のプレイリストのカテゴリを、ロック・解除・非表示・復元を一か所で管理できます。</string>
 <string name="settings_provider_category_controls_search">カテゴリを検索...</string>

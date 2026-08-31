@@ -1,10 +1,20 @@
 package com.streamvault.feature.live.home
 
+import android.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,6 +23,7 @@ import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ActiveLiveSourceOption
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import org.junit.Rule
 import org.junit.Test
@@ -164,6 +175,74 @@ class HomeScreenBehaviorTest {
             .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(selectedFilters).containsExactly("Movies")
+    }
+
+    @Test
+    fun categorySidebarHeader_titleUsesLightOnSurfaceText() {
+        composeRule.setContent {
+            StreamVaultTheme {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(androidx.compose.ui.graphics.Color(0xFF162338))
+                ) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides androidx.compose.ui.graphics.Color.Black
+                    ) {
+                        LiveCategorySidebarHeader(
+                            title = "Categories",
+                            currentSource = null,
+                            sourceOptions = emptyList(),
+                            showSourceSwitcher = false,
+                            onSourceSelected = {},
+                            categorySearchQuery = "",
+                            onCategorySearchQueryChanged = {},
+                            categorySearchFocusRequester = remember { FocusRequester() },
+                            categorySearchPlaceholder = "Search categories",
+                            quickFilterVisibilityMode = LiveTvQuickFilterVisibilityMode.HIDE,
+                            savedCategoryFilters = emptyList(),
+                            activeCategoryFilter = null,
+                            hiddenCategoriesButtonLabel = null,
+                            hiddenChannelsButtonLabel = null,
+                            quickFiltersButtonTitle = "Quick filters",
+                            quickFiltersTitle = "Saved filters",
+                            quickFiltersShowLabel = "Show",
+                            quickFiltersHideLabel = "Hide",
+                            quickFiltersShowingAllLabel = "Showing all categories",
+                            quickFiltersActiveLabel = "Filter active",
+                            quickFiltersManualSearchLabel = "Manual search",
+                            quickFiltersAllLabel = "All categories",
+                            quickFiltersEmptyLabel = "No saved filters",
+                            quickFiltersAddChipLabel = "Add quick filter",
+                            noSourceLabel = "No provider",
+                            selectedLabel = "Selected",
+                            unavailableLabel = "Unavailable",
+                            isReorderMode = false,
+                            onShowHiddenCategories = {},
+                            onShowHiddenChannels = {},
+                            onAddFilter = {},
+                            onAllSelected = {},
+                            onSavedFilterSelected = {}
+                        )
+                    }
+                }
+            }
+        }
+
+        val titleNode = composeRule
+            .onNodeWithText("Categories")
+            .assertIsDisplayed()
+            .fetchSemanticsNode()
+        val bounds = titleNode.boundsInRoot
+        val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
+        val brightestPixel = (bounds.left.toInt() until bounds.right.toInt()).maxOf { x ->
+            (bounds.top.toInt() until bounds.bottom.toInt()).maxOf { y ->
+                val pixel = bitmap.getPixel(x, y)
+                Color.red(pixel) + Color.green(pixel) + Color.blue(pixel)
+            }
+        }
+
+        assertThat(brightestPixel).isGreaterThan(700)
     }
 
     @Test

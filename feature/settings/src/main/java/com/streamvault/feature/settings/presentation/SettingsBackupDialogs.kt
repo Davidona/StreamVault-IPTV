@@ -210,7 +210,7 @@ private fun BackupDialogItemSurface(
                 }
             }
             Text(
-                text = "ג†’",
+                text = "→",
                 style = MaterialTheme.typography.titleMedium,
                 color = Primary,
             )

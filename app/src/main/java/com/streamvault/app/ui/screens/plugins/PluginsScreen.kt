@@ -412,7 +412,7 @@ private fun PluginCard(
                 )
                 val version = plugin.manifest.versionName.ifBlank { "unknown" }
                 Text(
-                    text = "${plugin.packageName} ײ²ֲ· v$version",
+                    text = "${plugin.packageName} · v$version",
                     style = MaterialTheme.typography.bodySmall,
                     color = AppColors.TextTertiary,
                     maxLines = 1,
@@ -422,7 +422,7 @@ private fun PluginCard(
                     Text(
                         text = listOf(plugin.statusLabel, plugin.lastMessage)
                             .filter { it.isNotBlank() }
-                            .joinToString(" ײ²ֲ· "),
+                            .joinToString(" · "),
                         style = MaterialTheme.typography.bodySmall,
                         color = AppColors.TextTertiary,
                         maxLines = 2,
@@ -727,7 +727,7 @@ private fun PluginConfigurationSelectField(
                     onClick = { onValueChange(option.value) }
                 ) {
                     Text(
-                        text = if (option.value == value) "${option.label} ׳’ֲג€" else option.label,
+                        text = if (option.value == value) "${option.label} ✓" else option.label,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

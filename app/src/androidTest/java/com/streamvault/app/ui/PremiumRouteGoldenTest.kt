@@ -315,7 +315,7 @@ class PremiumRouteGoldenTest {
                                     }
                                     AppMessageState(
                                         title = TestFixtures.currentProgram.title,
-                                        subtitle = "21:00 - 22:00 ֲ· Focused details stay visible while the timeline scrolls."
+                                        subtitle = "21:00 - 22:00 · Focused details stay visible while the timeline scrolls."
                                     )
                                 }
                             }
@@ -330,7 +330,7 @@ class PremiumRouteGoldenTest {
                                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                                     AppHeroHeader(
                                         title = "Pulse IPTV",
-                                        subtitle = "1 active provider ֲ· Locked groups enabled ֲ· System language"
+                                        subtitle = "1 active provider · Locked groups enabled · System language"
                                     )
                                     AppMessageState(
                                         title = "Provider Sync Healthy",
