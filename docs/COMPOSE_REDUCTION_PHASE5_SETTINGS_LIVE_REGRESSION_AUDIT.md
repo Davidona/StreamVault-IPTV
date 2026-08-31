@@ -2,7 +2,7 @@
 
 Date started: 2026-08-30
 Date completed: 2026-08-31
-Status: Audit complete; three isolated regression fixes verified, with documented residual risks
+Status: Audit complete; three isolated regression fixes verified and integrated, with documented residual risks
 
 ## Scope and comparison points
 
@@ -77,9 +77,11 @@ tasks:
 | `LIVE-POLICY-001` | Live | Inconclusive boundary drift | Minor | Archive eligibility is checked twice against wall clock instead of once. | Normally defensive/equivalent, but a request could expire between checks. Needs a shared/injected-clock boundary decision rather than a speculative fix. |
 | `TEST-GOLDEN-001` | Live test infrastructure | Deterministic golden mismatch; no material UI regression observed | Minor | Six strict Live image goldens fail exact equality on the audit emulator. | Two target captures are byte-identical. All images retain 1920x1080 geometry; maximum channel delta is 1-7, mean absolute RGBA error is at most 0.0232, and no layout displacement is visible. Do not regenerate baselines until provenance/environment is resolved. |
 
-No additional code changes were made in the shared primary worktree. The three
-new production fixes exist only on the external integrated audit branch and
-must be reviewed/cherry-picked separately.
+The three additional production fixes were first developed and verified in the
+isolated audit worktrees, then cherry-picked into the primary
+`feature/improveCompose` branch as `713e4f6b`, `59e40f98`, and `da94af62`.
+The supplied category-color and Add Provider examples were already present in
+the primary snapshot and remain recorded as known fixed control findings.
 
 ## Improvements
 
@@ -320,8 +322,9 @@ remain outside the evidence obtained by this audit.
 
 ## Recommended disposition
 
-1. Review and cherry-pick `c2286afc`, `11f0ee6f`, and `3f4152d9` from
-   `audit/phase5-settings-live-integrated` in that order.
+1. The three audit fixes are now integrated in primary as `713e4f6b`,
+   `59e40f98`, and `da94af62` (source commits `c2286afc`, `11f0ee6f`, and
+   `3f4152d9`).
 2. Keep the six Live goldens open as test-infrastructure work; do not regenerate
    them from this emulator without first identifying the baseline renderer.
 3. Decide product intent for `SET-COPY-001` and clock semantics for
