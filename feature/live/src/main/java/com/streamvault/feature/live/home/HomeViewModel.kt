@@ -1026,14 +1026,23 @@ class HomeViewModel @Inject constructor(
         }
 
         previewPlaybackJob = viewModelScope.launch {
+            var hasEnginePlaybackError = false
             engine.playbackState.collectLatest { playbackState ->
                 if (!isActivePreviewSession(previewVersion, channel.id)) return@collectLatest
                 _previewUiState.update { state ->
                     state.copy(
                         isPreviewLoading = playbackState == PlaybackState.IDLE || playbackState == PlaybackState.BUFFERING,
                         previewErrorMessage = when {
-                            playbackState == PlaybackState.ERROR && state.previewErrorMessage.isNullOrBlank() ->
-                                appContext.getString(R.string.live_preview_failed)
+                            playbackState == PlaybackState.ERROR -> {
+                                hasEnginePlaybackError = true
+                                state.previewErrorMessage
+                                    ?.takeIf(String::isNotBlank)
+                                    ?: appContext.getString(R.string.live_preview_failed)
+                            }
+                            hasEnginePlaybackError -> {
+                                hasEnginePlaybackError = false
+                                null
+                            }
                             else -> state.previewErrorMessage
                         }
                     )

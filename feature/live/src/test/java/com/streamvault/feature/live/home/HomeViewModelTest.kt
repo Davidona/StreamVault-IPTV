@@ -302,6 +302,29 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `preview clears engine error when playback recovers`() = runTest {
+        configurePreviewDependencies()
+        val playbackState = MutableStateFlow(PlaybackState.IDLE)
+        whenever(playerEngine.playbackState).thenReturn(playbackState)
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(
+            Result.Success(StreamInfo(url = "https://example.com/live.m3u8"))
+        )
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.previewChannel(Channel(id = 103L, name = "Recovery Channel", providerId = 7L))
+        advanceUntilIdle()
+
+        playbackState.value = PlaybackState.ERROR
+        runCurrent()
+        assertThat(viewModel.previewUiState.value.previewErrorMessage).isEqualTo("test-message")
+
+        playbackState.value = PlaybackState.READY
+        runCurrent()
+        assertThat(viewModel.previewUiState.value.previewErrorMessage).isNull()
+    }
+
+    @Test
     fun `fullscreen handoff delegates and clears local preview only on success`() = runTest {
         configurePreviewDependencies()
         val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
