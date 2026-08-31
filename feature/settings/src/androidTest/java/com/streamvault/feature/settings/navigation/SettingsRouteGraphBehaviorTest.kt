@@ -18,6 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
@@ -60,7 +62,7 @@ class SettingsRouteGraphBehaviorTest {
                         receivedBackupUri = uri
                         androidx.tv.material3.Text("Settings route")
                     },
-                    parentalControlContent = { androidx.tv.material3.Text("Parental route") }
+                    parentalControlContent = { _, _ -> androidx.tv.material3.Text("Parental route") }
                 )
             }
             LaunchedEffect(Unit) {
@@ -90,7 +92,7 @@ class SettingsRouteGraphBehaviorTest {
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
                     settingsContent = { _, _, _ -> androidx.tv.material3.Text("Settings route") },
-                    parentalControlContent = { androidx.tv.material3.Text("Parental route") }
+                    parentalControlContent = { _, _ -> androidx.tv.material3.Text("Parental route") }
                 )
             }
             LaunchedEffect(Unit) {
@@ -105,6 +107,44 @@ class SettingsRouteGraphBehaviorTest {
         composeRule.runOnIdle {
             assertThat(navController.currentBackStackEntry?.arguments?.getLong("providerId"))
                 .isEqualTo(987654321L)
+        }
+    }
+
+    @Test
+    fun parentalRoute_passesTopNavigationDestinationsToParentalContent() {
+        lateinit var navController: TestNavHostController
+        var receivedDestinationIds: List<String>? = null
+        val destinations = listOf(
+            UiDestination(
+                id = "home",
+                label = "Home",
+                icon = Icons.Default.Home,
+            ),
+        )
+
+        composeRule.setContent {
+            navController = rememberTestNavController()
+            NavHost(navController = navController, startDestination = "host") {
+                composable("host") {}
+                registerSettingsGraph(
+                    actions = NoOpNavigationActions,
+                    platformHost = EmptySettingsPlatformHost,
+                    navigationDestinations = destinations,
+                    settingsContent = { _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    parentalControlContent = { _, receivedDestinations ->
+                        receivedDestinationIds = receivedDestinations.map(UiDestination::id)
+                        androidx.tv.material3.Text("Parental route")
+                    },
+                )
+            }
+            LaunchedEffect(Unit) {
+                navController.navigate("parental_control_groups/987654321")
+            }
+        }
+
+        composeRule.waitUntil(3_000) { receivedDestinationIds != null }
+        composeRule.runOnIdle {
+            assertThat(receivedDestinationIds).containsExactly("home")
         }
     }
 

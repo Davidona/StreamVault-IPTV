@@ -25,7 +25,10 @@ fun NavGraphBuilder.registerSettingsGraph(
     platformHost: SettingsPlatformHost,
     navigationDestinations: List<UiDestination>,
     settingsContent: @Composable (backupUri: String?, SettingsPlatformHost, List<UiDestination>) -> Unit,
-    parentalControlContent: @Composable (onBack: () -> Unit) -> Unit,
+    parentalControlContent: @Composable (
+        onBack: () -> Unit,
+        navigationDestinations: List<UiDestination>,
+    ) -> Unit,
 ) {
     composable(
         route = SettingsRoutePatterns.SETTINGS_DESTINATION,
@@ -43,6 +46,6 @@ fun NavGraphBuilder.registerSettingsGraph(
             navArgument("providerId") { type = NavType.LongType }
         )
     ) {
-        parentalControlContent(actions::back)
+        parentalControlContent(actions::back, navigationDestinations)
     }
 }

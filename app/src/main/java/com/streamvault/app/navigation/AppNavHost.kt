@@ -104,13 +104,14 @@ internal fun AppNavHost(
                     onCloseApp = onCloseApp
                 )
             },
-            parentalControlContent = { onBack ->
+            parentalControlContent = { onBack, destinations ->
                 ParentalControlGroupScreen(
                     currentRoute = AppRoutePatterns.SETTINGS,
                     onNavigate = { route ->
                         AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
                     },
-                    onBack = onBack
+                    onBack = onBack,
+                    navigationDestinations = destinations,
                 )
             }
         )
