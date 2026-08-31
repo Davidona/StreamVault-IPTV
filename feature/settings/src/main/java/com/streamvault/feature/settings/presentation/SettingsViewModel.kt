@@ -296,7 +296,12 @@ class SettingsViewModel @Inject constructor(
                 preferencesRepository = preferencesRepository
             ).collect { snapshot ->
                 val previousProviderIds = _uiState.value.providers.map { it.id }.toSet()
-                _uiState.update { it.applyPreferenceSnapshot(snapshot) }
+                _uiState.update {
+                    it.applyPreferenceSnapshot(
+                        snapshot = snapshot,
+                        isRemoteVersionNewer = appUpdatePort::isRemoteVersionNewer,
+                    )
+                }
                 val currentProviderIds = snapshot.providers.map { it.id }.toSet()
                 val removedIds = previousProviderIds - currentProviderIds
                 if (removedIds.isNotEmpty()) {

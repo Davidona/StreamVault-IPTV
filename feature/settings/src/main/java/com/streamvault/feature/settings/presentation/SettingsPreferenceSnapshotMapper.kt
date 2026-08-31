@@ -1,7 +1,10 @@
 package com.streamvault.feature.settings.presentation
 
-fun SettingsUiState.applyPreferenceSnapshot(snapshot: SettingsPreferenceSnapshot): SettingsUiState {
-    val cachedAppUpdate = snapshot.toCachedAppUpdateUiModel()
+fun SettingsUiState.applyPreferenceSnapshot(
+    snapshot: SettingsPreferenceSnapshot,
+    isRemoteVersionNewer: (Int?, String, String?) -> Boolean,
+): SettingsUiState {
+    val cachedAppUpdate = snapshot.toCachedAppUpdateUiModel(isRemoteVersionNewer)
     return copy(
         providers = snapshot.providers,
         activeProviderId = snapshot.activeProviderId,
