@@ -60,7 +60,7 @@ data class LiveGuideEpgOverrideLabels(
     val cancel: String
 )
 
-private const val DESCRIPTOR_SEPARATOR = "  \u05D2\u20AC\u00A2  "
+private const val DESCRIPTOR_SEPARATOR = " • "
 
 internal fun liveGuideOverrideSummary(
     mapping: ChannelEpgMapping?,

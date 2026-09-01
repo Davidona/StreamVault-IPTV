@@ -1,6 +1,7 @@
 package com.streamvault.feature.live.epg
 
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -10,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
+import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.feature.live.presentation.epg.GuideDensity
@@ -20,6 +22,7 @@ import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuidePreviewPane
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarLabels
 import com.streamvault.feature.live.presentation.epg.LiveGuideToolbarRow
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -120,6 +123,38 @@ class EpgScreenBehaviorTest {
         }
         composeRule.onNodeWithText("21. World News").assertIsDisplayed()
         composeRule.onNodeWithText("No schedule").assertIsDisplayed()
+    }
+
+    @Test
+    fun guidePreviewPane_rendersProgramTimeRangeWithEnDash() {
+        val now = System.currentTimeMillis()
+        val program = Program(
+            channelId = "world-news",
+            title = "Evening Bulletin",
+            startTime = now - 60_000L,
+            endTime = now + 60_000L
+        )
+
+        composeRule.setContent {
+            StreamVaultTheme {
+                CompositionLocalProvider(LocalLiveTimeFormat provides AppTimeFormat.TWENTY_FOUR_HOUR) {
+                    LiveGuidePreviewPane(
+                        previewPlayerEngine = null,
+                        isPreviewLoading = false,
+                        focusedChannel = testChannel(21L, "World News"),
+                        focusedProgram = program,
+                        labels = LiveGuidePreviewLabels(
+                            title = "Preview",
+                            placeholderTitle = "Select a channel",
+                            noSchedule = "No schedule"
+                        )
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Evening Bulletin").assertIsDisplayed()
+        composeRule.onNodeWithText(" – ", substring = true).assertIsDisplayed()
     }
 
     @Test

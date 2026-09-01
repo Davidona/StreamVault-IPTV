@@ -51,6 +51,6 @@ class LiveGuideEpgOverrideTest {
                 currentProviderFormat = "Provider: %1\$s",
                 currentExternalFormat = "External: %1\$s"
             )
-        ).startsWith("Manual: News")
+        ).isEqualTo("Manual: News • External • news.xml")
     }
 }

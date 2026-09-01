@@ -445,8 +445,8 @@
     <string name="settings_update_status_permission_required">Install permission required</string>
     <string name="settings_update_available_message">StreamVault %1$s is available.</string>
     <string name="settings_update_current_message">You already have the latest StreamVault release.</string>
-    <string name="settings_sync_option_sync_now">Sync now</string>
-    <string name="settings_sync_option_rebuild_index">Rebuild index</string>
+    <string name="settings_sync_option_sync_now">Sync Now</string>
+    <string name="settings_sync_option_rebuild_index">Rebuild Index</string>
     <string name="settings_sync_option_tv">Live TV</string>
     <string name="settings_sync_option_movies">Movies</string>
     <string name="settings_sync_option_series">Series</string>

@@ -52,6 +52,28 @@ class ArchivePlaybackTest {
     }
 
     @Test
+    fun `catch-up eligibility includes exact completion and window-start boundaries`() {
+        val now = 3 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            catchUpSupported = true,
+            catchUpDays = 2,
+            streamUrl = "xtream://7/live/42",
+            streamId = 42L
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Boundary Bulletin",
+            startTime = now - (2 * 86_400_000L),
+            endTime = now
+        )
+
+        assertThat(channel.isArchivePlayable(program, now)).isTrue()
+    }
+
+    @Test
     fun `provider archive flag keeps replay enabled with replay metadata`() {
         val channel = Channel(
             id = 42L,
