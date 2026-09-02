@@ -380,9 +380,7 @@ abstract class VerifyFeatureNavigationBoundaryTask : DefaultTask() {
     fun verify() {
         val expectedFiles = setOf(
             "WelcomeGraph.kt",
-            "HomeGraph.kt",
             "LiveGraph.kt",
-            "CatalogGraph.kt",
             "SystemGraph.kt"
         )
         val files = sourceRoot.get().asFile.walkTopDown()

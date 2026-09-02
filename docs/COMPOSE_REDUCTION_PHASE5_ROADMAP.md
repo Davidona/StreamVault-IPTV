@@ -94,6 +94,8 @@ out of :app without behavior or stability regressions.
   docs/superpowers/specs/2026-09-02-phase-5-catalog-feature-extraction-design.md
 - Catalog extraction implementation plan:
   docs/superpowers/plans/2026-09-02-catalog-feature-extraction.md
+- Catalog execution report:
+  docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 
@@ -110,4 +112,7 @@ stale app Home/EPG descriptors and nonzero `feature/live` descriptors; the
 eight separate macrobenchmark tests were skipped by configuration and remain
 an open performance gate. The app-route Live golden was reviewed and
 regenerated from the current palette, with its connected assertion passing.
-Catalog and System remain unstarted.
+Catalog extraction is structurally implemented through connected validation and
+current-checkout build-isolation samples. Its four golden/window checks,
+seeded production journeys, paired macrobenchmark comparison, and fresh
+baseline-profile generation remain open. System remains unstarted.

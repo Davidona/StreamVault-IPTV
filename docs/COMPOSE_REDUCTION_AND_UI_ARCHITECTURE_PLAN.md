@@ -896,6 +896,7 @@ Detailed delivery artifacts:
 - [Settings and Live regression audit](COMPOSE_REDUCTION_PHASE5_SETTINGS_LIVE_REGRESSION_AUDIT.md)
 - [Catalog feature extraction design](superpowers/specs/2026-09-02-phase-5-catalog-feature-extraction-design.md)
 - [Catalog feature extraction implementation plan](superpowers/plans/2026-09-02-catalog-feature-extraction.md)
+- [Catalog feature extraction execution report](COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md)
 
 Recommended extraction order:
 
@@ -976,8 +977,11 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   Home/EPG descriptors and nonzero `feature/live` descriptors; the eight
   separate macrobenchmark tests were skipped by configuration and remain an
   open performance gate. The app-owned Live route golden was reviewed and
-  regenerated with its connected assertion passing. Catalog and System were
-  not started; Playback, Provider, and Settings gates remain governed by their
+  regenerated with its connected assertion passing. Catalog is now structurally
+  extracted under `:feature:catalog`; its execution report records the
+  connected golden window mismatch, unavailable seeded journeys, open paired
+  benchmark/profile gates, and current app lint baseline failure. System remains
+  unstarted; Playback, Provider, and Settings gates remain governed by their
   separate reports.
 
 ### Phase 6 - Optional Views migrations
