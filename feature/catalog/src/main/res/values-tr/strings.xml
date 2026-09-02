@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Yakalama mevcut</string>
+  <string name="a11y_channel_with_number">Kanal %1$d, %2$s</string>
+  <string name="a11y_favorite">Favori</string>
+  <string name="a11y_locked">Kilitli</string>
+  <string name="a11y_now_playing">%1$s oynatılıyor</string>
   <string name="a11y_recent_search">Son arama %1$s</string>
   <string name="a11y_selected">Seçildi</string>
+  <string name="action_cancel">İptal</string>
+  <string name="action_save_order">Sıralamayı Kaydet</string>
+  <string name="action_see_all">Tümünü gör</string>
+  <string name="add_group_add_btn">Ekle</string>
+  <string name="add_group_add_favorites">Favorilere Ekle</string>
+  <string name="add_group_cancel">İptal</string>
+  <string name="add_group_close_cd">Kapat</string>
+  <string name="add_group_create">Oluştur</string>
+  <string name="add_group_create_new_btn">Yeni Grup Oluştur</string>
+  <string name="add_group_custom_groups_title">Özel Gruplar</string>
+  <string name="add_group_manage_title">Yönet: %1$s</string>
+  <string name="add_group_name_hint">Grup Adı</string>
+  <string name="add_group_remove_btn">Kaldır</string>
+  <string name="add_group_remove_favorites">Favorilerden Kaldır</string>
+  <string name="add_group_rename">Yeniden adlandır</string>
+  <string name="badge_catch_up">YAKALAN</string>
+  <string name="badge_error">HATA</string>
+  <string name="badge_movie">FİLM</string>
+  <string name="badge_moving">HAREKETLİ</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">KAYDEDİLDİ</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SERİ</string>
+  <string name="card_live_badge">CANLI</string>
+  <string name="card_locked_channel">Kilitli Kanal</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">İptal</string>
+  <string name="category_options_clear_recent">Tüm Son İzlenenleri Temizle</string>
   <string name="category_options_delete">Grubu Sil</string>
+  <string name="category_options_hide">Kategoriyi Gizle</string>
+  <string name="category_options_hide_from_live_tv">Canlı TV\'den Gizle</string>
+  <string name="category_options_lock">Kilit Grubu</string>
+  <string name="category_options_pin">Kategoriyi Sabitle</string>
+  <string name="category_options_rename">Grubu Yeniden Adlandır</string>
   <string name="category_options_reorder">Öğeleri Yeniden Sırala</string>
+  <string name="category_options_set_default">Varsayılan Grup Olarak Ayarla</string>
+  <string name="category_options_unlock">Grubun Kilidini Aç</string>
+  <string name="category_options_unpin">Kategorinin Sabitlemesini Kaldır</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Tümünü Gör</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Son İzlenenlerden Kaldır</string>
+  <string name="continue_watching_season_episode">S%1$d B%2$d</string>
+  <string name="continue_watching_title">İzlemeye Devam Et</string>
   <string name="dashboard_channels_format">%1$d kanallar</string>
   <string name="dashboard_continue_watching">İzlemeye Devam Et</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Kaydedildi</string>
   <string name="home_add_first_provider">İlk sağlayıcınızı ekleyin</string>
   <string name="home_add_first_provider_subtitle">Canlı kanalları, filmleri, dizileri ve rehber verilerini yüklemek için bir sağlayıcı ayarlayın.</string>
+  <string name="home_delete_group_body">\'%1$s\' silinsin mi? Bu, gruptaki tüm kanalları kaldırır.</string>
+  <string name="home_delete_group_cancel">İptal</string>
+  <string name="home_delete_group_confirm">Sil</string>
+  <string name="home_delete_group_title">Grup Silinsin mi?</string>
   <string name="home_error_load_failed">Kanallar yüklenemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.</string>
   <string name="home_last_group">Son Grup</string>
+  <string name="home_locked_short">KİLİTLİ</string>
+  <string name="label_episode">Bölüm %1$d</string>
+  <string name="label_episode_full">Bölüm %1$d</string>
+  <string name="label_no_schedule">Program bilgisi yok</string>
+  <string name="label_reordering">%1$s yeniden sıralanıyor</string>
   <string name="library_action_filters_sort">Filtreler ve Sıralama</string>
   <string name="library_action_hide_search">Aramayı Gizle</string>
+  <string name="library_browse_all">Tümüne Göz At</string>
   <string name="library_filter_empty">Bu filtreyle eşleşen öğe yok.</string>
   <string name="library_filter_title">Kütüphaneyi Filtrele</string>
   <string name="library_full_browse_subtitle">Geçerli sağlayıcıda %1$d başlık mevcut</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Son Güncellenenler</string>
   <string name="library_lens_top_rated">En Çok Oy Alan</string>
   <string name="library_load_more">Daha fazla yükle (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">Bu kayıtlı görünümde %1$d öğe</string>
+  <string name="library_saved_active_title">Kayıtlı Grup</string>
   <string name="library_saved_items_count">%1$d öğe</string>
+  <string name="library_saved_manage_action">Yönet</string>
   <string name="library_saved_manage_hint">Seçenekler için kayıtlı bir grubu tutun</string>
+  <string name="library_saved_primary_hint">Tam kütüphaneye dönün</string>
   <string name="library_sort_title">Sonuçları Sırala</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Kütüphaneye dön</string>
   <string name="movie_detail_cast">Oyuncular:</string>
   <string name="movie_detail_director">Yönetmen:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Daha fazla başlık görmek için farklı bir kategori deneyin veya tam kütüphane raflarına dönün.</string>
   <string name="movies_reorder_subtitle">Posteri taşımak için kumandayı kullanın, ardından bu grup için raf sırasını kaydedin.</string>
   <string name="movies_search_placeholder">Film ara...</string>
+  <string name="multiview_add_to_split">Bölünmüş Ekrana Ekle</string>
+  <string name="multiview_queued">Bölünmüş Ekranda</string>
   <string name="nav_epg">Rehber</string>
   <string name="nav_home">Ana sayfa</string>
   <string name="nav_live_tv">Canlı TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Eşleşen kategori bulunamadı.</string>
+  <string name="vod_category_picker_search_placeholder">Kategorilerde ara…</string>
   <string name="vod_category_picker_subtitle">Kategori adına göre arayın, ardından eşleşen rafı açın.</string>
   <string name="vod_category_picker_title">Kategorilere göz atın</string>
   <string name="vod_classic_all">Tümü</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Bu bölümde başlık bulunamadı.</string>
   <string name="vod_classic_recently_added">Yeni Eklenenler</string>
   <string name="vod_classic_results_count">%1$d öğe</string>
+  <string name="vod_external_ratings_heading">Puanlar</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Filmleri ve dizileri kitaplığa aktarmak için bu sağlayıcıyı yenileyin.</string>
   <string name="vod_sync_needed_title">Senkronizasyon gerekli</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

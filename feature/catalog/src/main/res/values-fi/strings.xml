@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Kiinniotto saatavilla</string>
+  <string name="a11y_channel_with_number">Kanava %1$d, %2$s</string>
+  <string name="a11y_favorite">Suosikki</string>
+  <string name="a11y_locked">Lukittu</string>
+  <string name="a11y_now_playing">Nyt toistetaan %1$s</string>
   <string name="a11y_recent_search">Viimeisin haku %1$s</string>
   <string name="a11y_selected">Valittu</string>
+  <string name="action_cancel">Peruuta</string>
+  <string name="action_save_order">Tallenna tilaus</string>
+  <string name="action_see_all">Katso kaikki</string>
+  <string name="add_group_add_btn">Lisää</string>
+  <string name="add_group_add_favorites">Lisää suosikkeihin</string>
+  <string name="add_group_cancel">Peruuta</string>
+  <string name="add_group_close_cd">Sulje</string>
+  <string name="add_group_create">Luo</string>
+  <string name="add_group_create_new_btn">Luo uusi ryhmä</string>
+  <string name="add_group_custom_groups_title">Mukautetut ryhmät</string>
+  <string name="add_group_manage_title">Hallinnoi: %1$s</string>
+  <string name="add_group_name_hint">Ryhmän nimi</string>
+  <string name="add_group_remove_btn">Poista</string>
+  <string name="add_group_remove_favorites">Poista suosikeista</string>
+  <string name="add_group_rename">Nimeä uudelleen</string>
+  <string name="badge_catch_up">OTA KIINNI</string>
+  <string name="badge_error">VIRH</string>
+  <string name="badge_movie">ELOKUVA</string>
+  <string name="badge_moving">LIIKKUVA</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">TALLENNETTU</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SARJA</string>
+  <string name="card_live_badge">LÄHES</string>
+  <string name="card_locked_channel">Lukittu kanava</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Peruuta</string>
+  <string name="category_options_clear_recent">Tyhjennä kaikki viimeisimmät</string>
   <string name="category_options_delete">Poista ryhmä</string>
+  <string name="category_options_hide">Piilota kategoria</string>
+  <string name="category_options_hide_from_live_tv">Piilota Live TV:stä</string>
+  <string name="category_options_lock">Lukitusryhmä</string>
+  <string name="category_options_pin">Kiinnitä kategoria</string>
+  <string name="category_options_rename">Nimeä ryhmä uudelleen</string>
   <string name="category_options_reorder">Järjestä tuotteet uudelleen</string>
+  <string name="category_options_set_default">Aseta oletusryhmäksi</string>
+  <string name="category_options_unlock">Avaa ryhmän lukitus</string>
+  <string name="category_options_unpin">Poista kategorian kiinnitys</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Katso kaikki →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Poista viimeisimmistä</string>
+  <string name="continue_watching_season_episode">K%1$d J%2$d</string>
+  <string name="continue_watching_title">Jatka katselua</string>
   <string name="dashboard_channels_format">%1$d kanavaa</string>
   <string name="dashboard_continue_watching">Jatka katselua</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Tallennettu</string>
   <string name="home_add_first_provider">Lisää ensimmäinen palveluntarjoajasi</string>
   <string name="home_add_first_provider_subtitle">Määritä palveluntarjoaja ladataksesi live-kanavia, elokuvia, sarjoja ja ohjelmaopasta.</string>
+  <string name="home_delete_group_body">Haluatko varmasti poistaa kohteen %1$s? Tämä poistaa kaikki kanavat tästä ryhmästä.</string>
+  <string name="home_delete_group_cancel">Peruuta</string>
+  <string name="home_delete_group_confirm">Poista</string>
+  <string name="home_delete_group_title">Poistetaanko ryhmä?</string>
   <string name="home_error_load_failed">Kanavien lataaminen epäonnistui. Tarkista yhteys ja yritä uudelleen.</string>
   <string name="home_last_group">Viimeinen ryhmä</string>
+  <string name="home_locked_short">LUKITTU</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">Jakso %1$d</string>
+  <string name="label_no_schedule">Ei aikataulutietoja</string>
+  <string name="label_reordering">Järjestetään uudelleen %1$s</string>
   <string name="library_action_filters_sort">Suodattimet ja lajittelu</string>
   <string name="library_action_hide_search">Piilota haku</string>
+  <string name="library_browse_all">Selaa kaikkia</string>
   <string name="library_filter_empty">Yksikään kohde ei vastaa tätä suodatinta.</string>
   <string name="library_filter_title">Suodata kirjasto</string>
   <string name="library_full_browse_subtitle">%1$d nimikettä saatavilla nykyisellä toimittajalla</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Äskettäin päivitetty</string>
   <string name="library_lens_top_rated">Parhaiksi arvioitu</string>
   <string name="library_load_more">Lataa lisää (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d kohdetta tässä tallennetussa näkymässä</string>
+  <string name="library_saved_active_title">Tallennettu ryhmä</string>
   <string name="library_saved_items_count">%1$d kohdetta</string>
+  <string name="library_saved_manage_action">Hallitse</string>
   <string name="library_saved_manage_hint">Pidä tallennettua ryhmää vaihtoehtoja varten</string>
+  <string name="library_saved_primary_hint">Palaa koko kirjastoon</string>
   <string name="library_sort_title">Lajittele tulokset</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Takaisin kirjastoon</string>
   <string name="movie_detail_cast">Näyttelijät:</string>
   <string name="movie_detail_director">Ohjaaja:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Kokeile toista luokkaa tai palaa koko kirjaston hyllyille nähdäksesi lisää nimikkeitä.</string>
   <string name="movies_reorder_subtitle">Siirrä julisteita kaukosäätimellä ja tallenna sitten tämän ryhmän hyllyjärjestys.</string>
   <string name="movies_search_placeholder">Etsi elokuvia...</string>
+  <string name="multiview_add_to_split">Lisää jaettuun näyttöön</string>
+  <string name="multiview_queued">Jaetussa näytössä</string>
   <string name="nav_epg">Opas</string>
   <string name="nav_home">Kotiin</string>
   <string name="nav_live_tv">Live-TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Sopivia kategorioita ei löytynyt.</string>
+  <string name="vod_category_picker_search_placeholder">Hae kategorioita…</string>
   <string name="vod_category_picker_subtitle">Hae luokan nimen mukaan ja avaa sitten vastaava hylly.</string>
   <string name="vod_category_picker_title">Selaa luokkia</string>
   <string name="vod_classic_all">Kaikki</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Tästä osiosta ei löytynyt nimikkeitä.</string>
   <string name="vod_classic_recently_added">Äskettäin lisätty</string>
   <string name="vod_classic_results_count">%1$d kohdetta</string>
+  <string name="vod_external_ratings_heading">Arviot</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Päivitä tämä palveluntarjoaja tuodaksesi elokuvat ja sarjat kirjastoon.</string>
   <string name="vod_sync_needed_title">Synkronointi tarvitaan</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

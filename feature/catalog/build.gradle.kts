@@ -172,6 +172,8 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.tv.foundation)
     implementation(libs.compose.tv.material)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.activity.compose)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.runtime.compose)

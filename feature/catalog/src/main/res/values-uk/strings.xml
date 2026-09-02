@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Доступний перегляд</string>
+  <string name="a11y_channel_with_number">Канал %1$d, %2$s</string>
+  <string name="a11y_favorite">Улюблене</string>
+  <string name="a11y_locked">Заблоковано</string>
+  <string name="a11y_now_playing">Зараз відтворюється %1$s</string>
   <string name="a11y_recent_search">Нещодавній пошук %1$s</string>
   <string name="a11y_selected">Вибрано</string>
+  <string name="action_cancel">Скасувати</string>
+  <string name="action_save_order">Зберегти порядок</string>
+  <string name="action_see_all">Дивитися все</string>
+  <string name="add_group_add_btn">Додати</string>
+  <string name="add_group_add_favorites">Додати до обраного</string>
+  <string name="add_group_cancel">Скасувати</string>
+  <string name="add_group_close_cd">Закрити</string>
+  <string name="add_group_create">Створити</string>
+  <string name="add_group_create_new_btn">Створити нову групу</string>
+  <string name="add_group_custom_groups_title">Користувацькі групи</string>
+  <string name="add_group_manage_title">Керування: %1$s</string>
+  <string name="add_group_name_hint">Назва групи</string>
+  <string name="add_group_remove_btn">Видалити</string>
+  <string name="add_group_remove_favorites">Видалити з обраного</string>
+  <string name="add_group_rename">Перейменувати</string>
+  <string name="badge_catch_up">НАВЕРСТАННЯ</string>
+  <string name="badge_error">ПОМИЛКА</string>
+  <string name="badge_movie">ФІЛЬМ</string>
+  <string name="badge_moving">ПЕРЕМІЩЕННЯ</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">ЗБЕРЕЖЕНО</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">СЕРІАЛ</string>
+  <string name="card_live_badge">ПРЯМО ЗАРАЗ</string>
+  <string name="card_locked_channel">Заблокований канал</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Скасувати</string>
+  <string name="category_options_clear_recent">Очистити всі нещодавні</string>
   <string name="category_options_delete">Видалити групу</string>
+  <string name="category_options_hide">Сховати категорію</string>
+  <string name="category_options_hide_from_live_tv">Приховати з Live TV</string>
+  <string name="category_options_lock">Заблокувати групу</string>
+  <string name="category_options_pin">Закріпити категорію</string>
+  <string name="category_options_rename">Перейменувати групу</string>
   <string name="category_options_reorder">Перевпорядкувати елементи</string>
+  <string name="category_options_set_default">Зробити групою за замовчуванням</string>
+  <string name="category_options_unlock">Розблокувати групу</string>
+  <string name="category_options_unpin">Відкріпити категорію</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Показати все</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Видалити з нещодавніх</string>
+  <string name="continue_watching_season_episode">С%1$d Е%2$d</string>
+  <string name="continue_watching_title">Продовжити перегляд</string>
   <string name="dashboard_channels_format">%1$d каналів</string>
   <string name="dashboard_continue_watching">Продовжити перегляд</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Збережене</string>
   <string name="home_add_first_provider">Додайте першого провайдера</string>
   <string name="home_add_first_provider_subtitle">Налаштуйте провайдера для завантаження живих каналів, фільмів, серіалів та даних гіда.</string>
+  <string name="home_delete_group_body">Ви впевнені, що хочете видалити \'%1$s\'? Це видалить усі канали з цієї групи.</string>
+  <string name="home_delete_group_cancel">Скасувати</string>
+  <string name="home_delete_group_confirm">Видалити</string>
+  <string name="home_delete_group_title">Видалити групу?</string>
   <string name="home_error_load_failed">Не вдалося завантажити канали. Перевірте з’єднання та спробуйте ще раз.</string>
   <string name="home_last_group">Остання група</string>
+  <string name="home_locked_short">ЗАБЛОКОВАНО</string>
+  <string name="label_episode">Е%1$d</string>
+  <string name="label_episode_full">Епізод %1$d</string>
+  <string name="label_no_schedule">Немає інформації про розклад</string>
+  <string name="label_reordering">Сортування %1$s</string>
   <string name="library_action_filters_sort">Фільтри та сортування</string>
   <string name="library_action_hide_search">Приховати пошук</string>
+  <string name="library_browse_all">Переглянути все</string>
   <string name="library_filter_empty">Жоден елемент не відповідає цьому фільтру.</string>
   <string name="library_filter_title">Фільтр бібліотеки</string>
   <string name="library_full_browse_subtitle">Доступно %1$d назв у поточного провайдера</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Нещодавно оновлено</string>
   <string name="library_lens_top_rated">Найвищий рейтинг</string>
   <string name="library_load_more">Завантажити ще (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d елементів у цьому збереженому поданні</string>
+  <string name="library_saved_active_title">Збережена група</string>
   <string name="library_saved_items_count">%1$d елементів</string>
+  <string name="library_saved_manage_action">Керувати</string>
   <string name="library_saved_manage_hint">Утримуйте збережену групу для параметрів</string>
+  <string name="library_saved_primary_hint">Повернутися до повної бібліотеки</string>
   <string name="library_sort_title">Сортувати результати</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Назад до бібліотеки</string>
   <string name="movie_detail_cast">Актори:</string>
   <string name="movie_detail_director">Режисер:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Спробуйте іншу категорію або поверніться до повної бібліотеки, щоб знайти більше назв.</string>
   <string name="movies_reorder_subtitle">Використовуйте пульт, щоб переміщати постери, а потім збережіть порядок полиці для цієї групи.</string>
   <string name="movies_search_placeholder">Пошук фільмів...</string>
+  <string name="multiview_add_to_split">Додати до розділеного екрана</string>
+  <string name="multiview_queued">У розділеному екрані</string>
   <string name="nav_epg">Гід</string>
   <string name="nav_home">Головна</string>
   <string name="nav_live_tv">Прямий ефір</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Відповідних категорій не знайдено.</string>
+  <string name="vod_category_picker_search_placeholder">Пошук категорій…</string>
   <string name="vod_category_picker_subtitle">Шукайте за назвою категорії, потім відкрийте відповідну добірку.</string>
   <string name="vod_category_picker_title">Перегляд категорій</string>
   <string name="vod_classic_all">Усі</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">У цьому розділі нічого не знайдено.</string>
   <string name="vod_classic_recently_added">Нещодавно додані</string>
   <string name="vod_classic_results_count">%1$d елементів</string>
+  <string name="vod_external_ratings_heading">Рейтинги</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Оновіть цього провайдера для імпорту фільмів та серіалів до бібліотеки.</string>
   <string name="vod_sync_needed_title">Необхідна синхронізація</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

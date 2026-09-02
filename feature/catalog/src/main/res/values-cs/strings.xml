@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Catch-up k dispozici</string>
+  <string name="a11y_channel_with_number">Kanál %1$d, %2$s</string>
+  <string name="a11y_favorite">Oblíbené</string>
+  <string name="a11y_locked">Uzamčeno</string>
+  <string name="a11y_now_playing">Právě hraje %1$s</string>
   <string name="a11y_recent_search">Nedávné vyhledávání %1$s</string>
   <string name="a11y_selected">Vybráno</string>
+  <string name="action_cancel">Zrušit</string>
+  <string name="action_save_order">Uložit pořadí</string>
+  <string name="action_see_all">Zobrazit vše</string>
+  <string name="add_group_add_btn">Přidat</string>
+  <string name="add_group_add_favorites">Přidat do oblíbených</string>
+  <string name="add_group_cancel">Zrušit</string>
+  <string name="add_group_close_cd">Zavřít</string>
+  <string name="add_group_create">Vytvořit</string>
+  <string name="add_group_create_new_btn">Vytvořit novou skupinu</string>
+  <string name="add_group_custom_groups_title">Vlastní skupiny</string>
+  <string name="add_group_manage_title">Spravovat: %1$s</string>
+  <string name="add_group_name_hint">Název skupiny</string>
+  <string name="add_group_remove_btn">Odebrat</string>
+  <string name="add_group_remove_favorites">Odebrat z oblíbených</string>
+  <string name="add_group_rename">Přejmenovat</string>
+  <string name="badge_catch_up">DODATEČNĚ</string>
+  <string name="badge_error">CHYBA</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">PŘESUN</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">ULOŽENO</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SÉRIE</string>
+  <string name="card_live_badge">ŽIVĚ</string>
+  <string name="card_locked_channel">Uzamčený kanál</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Zrušit</string>
+  <string name="category_options_clear_recent">Vymazat vše nedávné</string>
   <string name="category_options_delete">Smazat skupinu</string>
+  <string name="category_options_hide">Skrýt kategorii</string>
+  <string name="category_options_hide_from_live_tv">Skrýt z živé TV</string>
+  <string name="category_options_lock">Uzamknout skupinu</string>
+  <string name="category_options_pin">Připnout kategorii</string>
+  <string name="category_options_rename">Přejmenovat skupinu</string>
   <string name="category_options_reorder">Přesunout položky</string>
+  <string name="category_options_set_default">Nastavit jako výchozí skupinu</string>
+  <string name="category_options_unlock">Odemknout skupinu</string>
+  <string name="category_options_unpin">Odepnout kategorii</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Zobrazit vše →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Odebrat z nedávných</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Pokračovat ve sledování</string>
   <string name="dashboard_channels_format">%1$d kanálů</string>
   <string name="dashboard_continue_watching">Pokračovat ve sledování</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Uloženo</string>
   <string name="home_add_first_provider">Přidejte prvního poskytovatele</string>
   <string name="home_add_first_provider_subtitle">Nastavte poskytovatele pro načtení živých kanálů, filmů, seriálů a dat průvodce.</string>
+  <string name="home_delete_group_body">Opravdu chcete smazat \'%1$s\'? Tímto odeberete všechny kanály z této skupiny.</string>
+  <string name="home_delete_group_cancel">Zrušit</string>
+  <string name="home_delete_group_confirm">Smazat</string>
+  <string name="home_delete_group_title">Smazat skupinu?</string>
   <string name="home_error_load_failed">Nepodařilo se načíst kanály. Zkontrolujte připojení a zkuste to znovu.</string>
   <string name="home_last_group">Poslední skupina</string>
+  <string name="home_locked_short">ZAMKNUTO</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">Epizoda %1$d</string>
+  <string name="label_no_schedule">Žádné informace o programu</string>
+  <string name="label_reordering">Změna pořadí %1$s</string>
   <string name="library_action_filters_sort">Filtry a řazení</string>
   <string name="library_action_hide_search">Skrýt hledání</string>
+  <string name="library_browse_all">Procházet vše</string>
   <string name="library_filter_empty">Žádné položky neodpovídají tomuto filtru.</string>
   <string name="library_filter_title">Filtrovat knihovnu</string>
   <string name="library_full_browse_subtitle">%1$d titulů je k dispozici u aktuálního poskytovatele</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Nedávno aktualizováno</string>
   <string name="library_lens_top_rated">Nejlépe hodnocené</string>
   <string name="library_load_more">Načíst další (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d položek v tomto uloženém zobrazení</string>
+  <string name="library_saved_active_title">Uložená skupina</string>
   <string name="library_saved_items_count">%1$d položek</string>
+  <string name="library_saved_manage_action">Spravovat</string>
   <string name="library_saved_manage_hint">Podržte uloženou skupinu pro možnosti</string>
+  <string name="library_saved_primary_hint">Návrat do úplné knihovny</string>
   <string name="library_sort_title">Seřadit výsledky</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Zpět do knihovny</string>
   <string name="movie_detail_cast">Obsazení:</string>
   <string name="movie_detail_director">Režie:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Zkuste jinou kategorii nebo se vraťte do celé knihovny, abyste zobrazili více titulů.</string>
   <string name="movies_reorder_subtitle">Pomocí ovladače přesuňte plakáty a pak uložte pořadí polic pro tuto skupinu.</string>
   <string name="movies_search_placeholder">Hledat filmy...</string>
+  <string name="multiview_add_to_split">Přidat na rozdělenou obrazovku</string>
+  <string name="multiview_queued">Na rozdělené obrazovce</string>
   <string name="nav_epg">Průvodce</string>
   <string name="nav_home">Domů</string>
   <string name="nav_live_tv">Živé TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Nebyly nalezeny žádné odpovídající kategorie.</string>
+  <string name="vod_category_picker_search_placeholder">Hledat kategorie…</string>
   <string name="vod_category_picker_subtitle">Vyhledejte podle názvu kategorie a pak otevřete odpovídající polici.</string>
   <string name="vod_category_picker_title">Procházet kategorie</string>
   <string name="vod_classic_all">Vše</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">V této sekci nebyly nalezeny žádné tituly.</string>
   <string name="vod_classic_recently_added">Nedávno přidáno</string>
   <string name="vod_classic_results_count">%1$d položek</string>
+  <string name="vod_external_ratings_heading">Hodnocení</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Obnovte tohoto poskytovatele pro import filmů a seriálů do knihovny.</string>
   <string name="vod_sync_needed_title">Synchronizace potřebná</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

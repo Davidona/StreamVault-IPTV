@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Visszanézés elérhető</string>
+  <string name="a11y_channel_with_number">Csatorna %1$d, %2$s</string>
+  <string name="a11y_favorite">Kedvenc</string>
+  <string name="a11y_locked">Lezárva</string>
+  <string name="a11y_now_playing">Most játszik %1$s</string>
   <string name="a11y_recent_search">Legutóbbi keresés: %1$s</string>
   <string name="a11y_selected">Kiválasztva</string>
+  <string name="action_cancel">Mégse</string>
+  <string name="action_save_order">Rendelés mentése</string>
+  <string name="action_see_all">Összes megtekintése</string>
+  <string name="add_group_add_btn">Hozzáadás</string>
+  <string name="add_group_add_favorites">Hozzáadás a kedvencekhez</string>
+  <string name="add_group_cancel">Mégse</string>
+  <string name="add_group_close_cd">Bezárás</string>
+  <string name="add_group_create">Létrehozása</string>
+  <string name="add_group_create_new_btn">Új csoport létrehozása</string>
+  <string name="add_group_custom_groups_title">Egyéni csoportok</string>
+  <string name="add_group_manage_title">Kezelés: %1$s</string>
+  <string name="add_group_name_hint">Csoport neve</string>
+  <string name="add_group_remove_btn">Távolítsa el</string>
+  <string name="add_group_remove_favorites">Eltávolítás a kedvencekből</string>
+  <string name="add_group_rename">Átnevezés</string>
+  <string name="badge_catch_up">UTAZD FEL</string>
+  <string name="badge_error">HIBA</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">MOZGATÁS</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">MENTÉS</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SOROZAT</string>
+  <string name="card_live_badge">ÉLŐ</string>
+  <string name="card_locked_channel">Lezárt csatorna</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Mégse</string>
+  <string name="category_options_clear_recent">Összes legutóbbi törlése</string>
   <string name="category_options_delete">Csoport törlése</string>
+  <string name="category_options_hide">Kategória elrejtése</string>
+  <string name="category_options_hide_from_live_tv">Elrejtés az élő TV-ből</string>
+  <string name="category_options_lock">Csoport zárolása</string>
+  <string name="category_options_pin">Kategória rögzítése</string>
+  <string name="category_options_rename">Csoport átnevezése</string>
   <string name="category_options_reorder">Tételek átrendezése</string>
+  <string name="category_options_set_default">Beállítás alapértelmezett csoportként</string>
+  <string name="category_options_unlock">Csoport feloldása</string>
+  <string name="category_options_unpin">Kategória rögzítésének feloldása</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Lásd Összes →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Eltávolítás a legutóbbiakból</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Folytassa a nézést</string>
   <string name="dashboard_channels_format">%1$d csatorna</string>
   <string name="dashboard_continue_watching">Folytassa a nézést</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Mentve</string>
   <string name="home_add_first_provider">Adja hozzá az első szolgáltatót</string>
   <string name="home_add_first_provider_subtitle">Állítson be egy szolgáltatót az élő csatornák, filmek, sorozatok és műsorújság adatok betöltéséhez.</string>
+  <string name="home_delete_group_body">Biztosan törlöd ezt: \'%1$s\'? Ezzel a csoport összes csatornája eltávolításra kerül.</string>
+  <string name="home_delete_group_cancel">Mégse</string>
+  <string name="home_delete_group_confirm">Törlés</string>
+  <string name="home_delete_group_title">Törlöd a csoportot?</string>
   <string name="home_error_load_failed">Nem sikerült betölteni a csatornákat. Ellenőrizze a kapcsolatot, majd próbálja újra.</string>
   <string name="home_last_group">Utolsó csoport</string>
+  <string name="home_locked_short">ZÁROLVA</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">%1$d. epizód</string>
+  <string name="label_no_schedule">Nincs műsorinformáció</string>
+  <string name="label_reordering">%1$s átrendezése</string>
   <string name="library_action_filters_sort">Szűrők és rendezés</string>
   <string name="library_action_hide_search">Keresés elrejtése</string>
+  <string name="library_browse_all">Összes böngészése</string>
   <string name="library_filter_empty">Egyetlen elem sem felel meg ennek a szűrőnek.</string>
   <string name="library_filter_title">Könyvtár szűrése</string>
   <string name="library_full_browse_subtitle">A jelenlegi szolgáltatóban %1$d cím érhető el</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Nemrég frissítve</string>
   <string name="library_lens_top_rated">Legjobbra értékelt</string>
   <string name="library_load_more">További betöltése (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d elem ebben a mentett nézetben</string>
+  <string name="library_saved_active_title">Mentett csoport</string>
   <string name="library_saved_items_count">%1$d elem</string>
+  <string name="library_saved_manage_action">Kezelése</string>
   <string name="library_saved_manage_hint">Tartsa lenyomva a mentett csoportot az opciókhoz</string>
+  <string name="library_saved_primary_hint">Vissza a teljes könyvtárhoz</string>
   <string name="library_sort_title">Eredmények rendezése</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Vissza a könyvtárba</string>
   <string name="movie_detail_cast">Szereplők:</string>
   <string name="movie_detail_director">Rendező:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Próbáljon másik kategóriát, vagy térjen vissza a teljes könyvtárhoz, hogy több címet lásson.</string>
   <string name="movies_reorder_subtitle">A távirányítóval mozgassa a borítókat, majd mentse a gyűjtemény sorrendjét ehhez a csoporthoz.</string>
   <string name="movies_search_placeholder">Filmek keresése...</string>
+  <string name="multiview_add_to_split">Hozzáadás osztott képernyőhöz</string>
+  <string name="multiview_queued">Osztott képernyőn</string>
   <string name="nav_epg">Műsorújság</string>
   <string name="nav_home">Otthon</string>
   <string name="nav_live_tv">Élő TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Nem található egyező kategória.</string>
+  <string name="vod_category_picker_search_placeholder">Kategóriák keresése…</string>
   <string name="vod_category_picker_subtitle">Keressen kategórianév szerint, majd nyissa meg a megfelelő polcot.</string>
   <string name="vod_category_picker_title">Kategóriák böngészése</string>
   <string name="vod_classic_all">Összes</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Ebben a szekcióban nem található cím.</string>
   <string name="vod_classic_recently_added">Nemrég hozzáadva</string>
   <string name="vod_classic_results_count">%1$d elem</string>
+  <string name="vod_external_ratings_heading">Értékelések</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Frissítse ezt a szolgáltatót, hogy filmeket és sorozatokat importáljon a könyvtárba.</string>
   <string name="vod_sync_needed_title">Szinkronizálás szükséges</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

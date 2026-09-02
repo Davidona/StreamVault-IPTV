@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">השג זמין</string>
+  <string name="a11y_channel_with_number">ערוץ %1$d, %2$s</string>
+  <string name="a11y_favorite">מועדף</string>
+  <string name="a11y_locked">נעול</string>
+  <string name="a11y_now_playing">עכשיו משחק %1$s</string>
   <string name="a11y_recent_search">חיפוש אחרון %1$s</string>
   <string name="a11y_selected">נבחר</string>
+  <string name="action_cancel">בטל</string>
+  <string name="action_save_order">שמור הזמנה</string>
+  <string name="action_see_all">ראה הכל</string>
+  <string name="add_group_add_btn">הוסף</string>
+  <string name="add_group_add_favorites">הוסף למועדפים</string>
+  <string name="add_group_cancel">בטל</string>
+  <string name="add_group_close_cd">סגור</string>
+  <string name="add_group_create">צור</string>
+  <string name="add_group_create_new_btn">צור קבוצה חדשה</string>
+  <string name="add_group_custom_groups_title">קבוצות מותאמות אישית</string>
+  <string name="add_group_manage_title">נהל: %1$s</string>
+  <string name="add_group_name_hint">שם הקבוצה</string>
+  <string name="add_group_remove_btn">הסר</string>
+  <string name="add_group_remove_favorites">הסר מהמועדפים</string>
+  <string name="add_group_rename">שנה שם</string>
+  <string name="badge_catch_up">להתעדכן</string>
+  <string name="badge_error">שגיאה</string>
+  <string name="badge_movie">סרט</string>
+  <string name="badge_moving">זז</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">נשמר</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">סדרה</string>
+  <string name="card_live_badge">בשידור חי</string>
+  <string name="card_locked_channel">ערוץ נעול</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">בטל</string>
+  <string name="category_options_clear_recent">נקה את כל האחרונים</string>
   <string name="category_options_delete">מחק קבוצה</string>
+  <string name="category_options_hide">הסתר קטגוריה</string>
+  <string name="category_options_hide_from_live_tv">הסתר מ-Live TV</string>
+  <string name="category_options_lock">נעל קבוצה</string>
+  <string name="category_options_pin">הצמד קטגוריה</string>
+  <string name="category_options_rename">שנה את שם הקבוצה</string>
   <string name="category_options_reorder">סדר מחדש את הפריטים</string>
+  <string name="category_options_set_default">הגדר כקבוצת ברירת מחדל</string>
+  <string name="category_options_unlock">בטל את נעילת הקבוצה</string>
+  <string name="category_options_unpin">בטל הצמדה של קטגוריה</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">ראה הכל</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">הסר מהאחרונים</string>
+  <string name="continue_watching_season_episode">עונה %1$d פרק %2$d</string>
+  <string name="continue_watching_title">המשך לצפות</string>
   <string name="dashboard_channels_format">%1$d ערוצים</string>
   <string name="dashboard_continue_watching">המשך לצפות</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">נשמר</string>
   <string name="home_add_first_provider">הוסף את הספק הראשון שלך</string>
   <string name="home_add_first_provider_subtitle">הגדר ספק כדי לטעון ערוצים חיים, סרטים, סדרות ונתוני מדריך.</string>
+  <string name="home_delete_group_body">האם אתה בטוח שברצונך למחוק את \'%1$s\'? פעולה זו תסיר את כל הערוצים מהקבוצה הזו.</string>
+  <string name="home_delete_group_cancel">בטל</string>
+  <string name="home_delete_group_confirm">מחק</string>
+  <string name="home_delete_group_title">למחוק את הקבוצה?</string>
   <string name="home_error_load_failed">טעינת הערוצים נכשלה. אנא בדוק את החיבור שלך ונסה שוב.</string>
   <string name="home_last_group">קבוצה אחרונה</string>
+  <string name="home_locked_short">נעול</string>
+  <string name="label_episode">פרק %1$d</string>
+  <string name="label_episode_full">פרק %1$d</string>
+  <string name="label_no_schedule">אין מידע על לוח זמנים</string>
+  <string name="label_reordering">מסדר מחדש %1$s</string>
   <string name="library_action_filters_sort">מסננים ומיון</string>
   <string name="library_action_hide_search">הסתר חיפוש</string>
+  <string name="library_browse_all">עיין בהכל</string>
   <string name="library_filter_empty">אין פריטים שתואמים למסנן זה.</string>
   <string name="library_filter_title">ספריית סינון</string>
   <string name="library_full_browse_subtitle">%1$d כותרים זמינים בספק הנוכחי</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">עודכן לאחרונה</string>
   <string name="library_lens_top_rated">מדורג מוביל</string>
   <string name="library_load_more">טען עוד (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d פריטים בתצוגה השמורה הזו</string>
+  <string name="library_saved_active_title">קבוצה שמורה</string>
   <string name="library_saved_items_count">%1$d פריטים</string>
+  <string name="library_saved_manage_action">נהל</string>
   <string name="library_saved_manage_hint">החזק קבוצה שמורה לאפשרויות</string>
+  <string name="library_saved_primary_hint">חזור לספרייה המלאה</string>
   <string name="library_sort_title">מיין תוצאות</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">חזרה לספרייה</string>
   <string name="movie_detail_cast">שחקנים:</string>
   <string name="movie_detail_director">בימוי:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">נסה קטגוריה אחרת או חזור למדפי הספרייה המלאים כדי להציג כותרים נוספים.</string>
   <string name="movies_reorder_subtitle">השתמש בשלט כדי להעביר פוסטרים, ולאחר מכן שמור את סדר המדף עבור הקבוצה הזו.</string>
   <string name="movies_search_placeholder">חפש סרטים...</string>
+  <string name="multiview_add_to_split">הוסף למסך מפוצל</string>
+  <string name="multiview_queued">במסך מפוצל</string>
   <string name="nav_epg">מדריך</string>
   <string name="nav_home">בית</string>
   <string name="nav_live_tv">טלוויזיה בשידור חי</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">לא נמצאו קטגוריות תואמות.</string>
+  <string name="vod_category_picker_search_placeholder">חפש קטגוריות...</string>
   <string name="vod_category_picker_subtitle">חפש לפי שם קטגוריה ולאחר מכן פתח את המדף התואם.</string>
   <string name="vod_category_picker_title">עיין בקטגוריות</string>
   <string name="vod_classic_all">הכול</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">לא נמצאו כותרים בקטע זה.</string>
   <string name="vod_classic_recently_added">נוספו לאחרונה</string>
   <string name="vod_classic_results_count">%1$d פריטים</string>
+  <string name="vod_external_ratings_heading">דירוגים</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">רענן ספק זה כדי לייבא סרטים וסדרות לספרייה.</string>
   <string name="vod_sync_needed_title">נדרש סנכרון</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

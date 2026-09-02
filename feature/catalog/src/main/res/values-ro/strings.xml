@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Catch-up disponibil</string>
+  <string name="a11y_channel_with_number">Canalul %1$d, %2$s</string>
+  <string name="a11y_favorite">Favorit</string>
+  <string name="a11y_locked">Blocat</string>
+  <string name="a11y_now_playing">Se joacă acum %1$s</string>
   <string name="a11y_recent_search">Căutare recentă %1$s</string>
   <string name="a11y_selected">Selectat</string>
+  <string name="action_cancel">Anulează</string>
+  <string name="action_save_order">Salvați comanda</string>
+  <string name="action_see_all">Vezi toate</string>
+  <string name="add_group_add_btn">Adăugați</string>
+  <string name="add_group_add_favorites">Adăugați la Favorite</string>
+  <string name="add_group_cancel">Anulează</string>
+  <string name="add_group_close_cd">Închide</string>
+  <string name="add_group_create">Creați</string>
+  <string name="add_group_create_new_btn">Creați un grup nou</string>
+  <string name="add_group_custom_groups_title">Grupuri personalizate</string>
+  <string name="add_group_manage_title">Gestionați: %1$s</string>
+  <string name="add_group_name_hint">Numele grupului</string>
+  <string name="add_group_remove_btn">Eliminați</string>
+  <string name="add_group_remove_favorites">Eliminați din Favorite</string>
+  <string name="add_group_rename">Redenumiți</string>
+  <string name="badge_catch_up">prinde din urmă</string>
+  <string name="badge_error">ERR</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">SE MUTĂ</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">SALVAT</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SERIA</string>
+  <string name="card_live_badge">LIVE</string>
+  <string name="card_locked_channel">Canal blocat</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Anulează</string>
+  <string name="category_options_clear_recent">Șterge tot istoricul recent</string>
   <string name="category_options_delete">Șterge grupul</string>
+  <string name="category_options_hide">Ascunde categoria</string>
+  <string name="category_options_hide_from_live_tv">Ascunde din Live TV</string>
+  <string name="category_options_lock">Blocare grup</string>
+  <string name="category_options_pin">Fixează categoria</string>
+  <string name="category_options_rename">Redenumiți grupul</string>
   <string name="category_options_reorder">Reordonați articolele</string>
+  <string name="category_options_set_default">Setați ca grup implicit</string>
+  <string name="category_options_unlock">Deblocați grupul</string>
+  <string name="category_options_unpin">Anulează fixarea categoriei</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Vezi toate →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Elimină din Recent</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Continuați vizionarea</string>
   <string name="dashboard_channels_format">%1$d canale</string>
   <string name="dashboard_continue_watching">Continuați vizionarea</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Salvat</string>
   <string name="home_add_first_provider">Adaugă primul tău furnizor</string>
   <string name="home_add_first_provider_subtitle">Configurează un furnizor pentru a încărca canale live, filme, seriale și date ghid.</string>
+  <string name="home_delete_group_body">Sigur vrei să ștergi „%1$s”? Aceasta va elimina toate canalele din acest grup.</string>
+  <string name="home_delete_group_cancel">Anulează</string>
+  <string name="home_delete_group_confirm">Ștergeți</string>
+  <string name="home_delete_group_title">Ștergeți grupul?</string>
   <string name="home_error_load_failed">Nu s-au încărcat canalele. Vă rugăm să vă verificați conexiunea și să încercați din nou.</string>
   <string name="home_last_group">Ultimul grup</string>
+  <string name="home_locked_short">BLOCAT</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">Episodul %1$d</string>
+  <string name="label_no_schedule">Fără informații despre program</string>
+  <string name="label_reordering">Recomandând %1$s</string>
   <string name="library_action_filters_sort">Filtre și Sortare</string>
   <string name="library_action_hide_search">Ascunde căutarea</string>
+  <string name="library_browse_all">Răsfoiți toate</string>
   <string name="library_filter_empty">Niciun articol nu se potrivește cu acest filtru.</string>
   <string name="library_filter_title">Biblioteca de filtre</string>
   <string name="library_full_browse_subtitle">%1$d titluri disponibile în furnizorul actual</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Actualizat recent</string>
   <string name="library_lens_top_rated">Cel mai bine evaluat</string>
   <string name="library_load_more">Încarcă mai multe (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d elemente în această vizualizare salvată</string>
+  <string name="library_saved_active_title">Grup salvat</string>
   <string name="library_saved_items_count">%1$d articole</string>
+  <string name="library_saved_manage_action">Gestionează</string>
   <string name="library_saved_manage_hint">Ține apăsat pe un grup salvat pentru opțiuni</string>
+  <string name="library_saved_primary_hint">Reveniți la biblioteca completă</string>
   <string name="library_sort_title">Sortare rezultate</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Înapoi la bibliotecă</string>
   <string name="movie_detail_cast">Distribuție:</string>
   <string name="movie_detail_director">Regizat de:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Încearcă o altă categorie sau revino la rafturile complete ale bibliotecii pentru a afișa mai multe titluri.</string>
   <string name="movies_reorder_subtitle">Folosiți telecomanda pentru a muta postere, apoi salvați ordinea de raft pentru acest grup.</string>
   <string name="movies_search_placeholder">Căutați filme...</string>
+  <string name="multiview_add_to_split">Adăugați la Split Screen</string>
+  <string name="multiview_queued">În ecran divizat</string>
   <string name="nav_epg">Ghid</string>
   <string name="nav_home">Acasă</string>
   <string name="nav_live_tv">TV în direct</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Nu s-au găsit categorii care se potrivesc.</string>
+  <string name="vod_category_picker_search_placeholder">Caută categorii...</string>
   <string name="vod_category_picker_subtitle">Căutați după numele categoriei, apoi deschideți raftul potrivit.</string>
   <string name="vod_category_picker_title">Răsfoiți categoriile</string>
   <string name="vod_classic_all">Toate</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Nu s-au găsit titluri în această secțiune.</string>
   <string name="vod_classic_recently_added">Adăugate recent</string>
   <string name="vod_classic_results_count">%1$d elemente</string>
+  <string name="vod_external_ratings_heading">Evaluări</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Reîmprospătează furnizorul pentru a importa filme și seriale în bibliotecă.</string>
   <string name="vod_sync_needed_title">Sincronizare necesară</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

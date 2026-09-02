@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Διαθέσιμο catch-up</string>
+  <string name="a11y_channel_with_number">Κανάλι %1$d, %2$s</string>
+  <string name="a11y_favorite">Αγαπημένο</string>
+  <string name="a11y_locked">Κλειδωμένο</string>
+  <string name="a11y_now_playing">Αναπαράγεται τώρα %1$s</string>
   <string name="a11y_recent_search">Πρόσφατη αναζήτηση %1$s</string>
   <string name="a11y_selected">Επιλεγμένο</string>
+  <string name="action_cancel">Ακύρωση</string>
+  <string name="action_save_order">Αποθήκευση σειράς</string>
+  <string name="action_see_all">Προβολή όλων</string>
+  <string name="add_group_add_btn">Προσθήκη</string>
+  <string name="add_group_add_favorites">Προσθήκη στα Αγαπημένα</string>
+  <string name="add_group_cancel">Ακύρωση</string>
+  <string name="add_group_close_cd">Κλείσιμο</string>
+  <string name="add_group_create">Δημιουργία</string>
+  <string name="add_group_create_new_btn">Δημιουργία νέας ομάδας</string>
+  <string name="add_group_custom_groups_title">Προσαρμοσμένες ομάδες</string>
+  <string name="add_group_manage_title">Διαχείριση: %1$s</string>
+  <string name="add_group_name_hint">Όνομα ομάδας</string>
+  <string name="add_group_remove_btn">Αφαίρεση</string>
+  <string name="add_group_remove_favorites">Αφαίρεση από τα Αγαπημένα</string>
+  <string name="add_group_rename">Μετονομασία</string>
+  <string name="badge_catch_up">ΠΛΗΡΩΣΤΕ</string>
+  <string name="badge_error">ΣΦΑΛΜΑ</string>
+  <string name="badge_movie">ΤΑΙΝΙΑ</string>
+  <string name="badge_moving">ΜΕΤΑΚΙΝΗΣΗ</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">ΑΠΟΘΗΚΕΥΜΕΝΟ</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">ΣΕΙΡΑ</string>
+  <string name="card_live_badge">ΖΩΝΤΑΝΑ</string>
+  <string name="card_locked_channel">Κλειδωμένο κανάλι</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Ακύρωση</string>
+  <string name="category_options_clear_recent">Εκκαθάριση Πρόσφατων</string>
   <string name="category_options_delete">Διαγραφή ομάδας</string>
+  <string name="category_options_hide">Απόκρυψη κατηγορίας</string>
+  <string name="category_options_hide_from_live_tv">Απόκρυψη από Live TV</string>
+  <string name="category_options_lock">Κλείδωμα ομάδας</string>
+  <string name="category_options_pin">Καρφίτσωμα κατηγορίας</string>
+  <string name="category_options_rename">Μετονομασία ομάδας</string>
   <string name="category_options_reorder">Αναδιάταξη στοιχείων</string>
+  <string name="category_options_set_default">Ορισμός ως προεπιλεγμένη ομάδα</string>
+  <string name="category_options_unlock">Ξεκλείδωμα ομάδας</string>
+  <string name="category_options_unpin">Ξεκαρφίτσωμα κατηγορίας</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Προβολή όλων</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Αφαίρεση από Πρόσφατα</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Συνέχεια παρακολούθησης</string>
   <string name="dashboard_channels_format">%1$d κανάλια</string>
   <string name="dashboard_continue_watching">Συνέχιση παρακολούθησης</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Αποθηκευμένα</string>
   <string name="home_add_first_provider">Προσθέστε τον πρώτο σας πάροχο</string>
   <string name="home_add_first_provider_subtitle">Ρυθμίστε έναν πάροχο για φόρτωση καναλιών, ταινιών, σειρών και οδηγού.</string>
+  <string name="home_delete_group_body">Είστε βέβαιοι ότι θέλετε να διαγράψετε το \'%1$s\'; Αυτό θα αφαιρέσει όλα τα κανάλια από αυτήν την ομάδα.</string>
+  <string name="home_delete_group_cancel">Ακύρωση</string>
+  <string name="home_delete_group_confirm">Διαγραφή</string>
+  <string name="home_delete_group_title">Διαγραφή ομάδας;</string>
   <string name="home_error_load_failed">Αποτυχία φόρτωσης καναλιών. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
   <string name="home_last_group">Τελευταία ομάδα</string>
+  <string name="home_locked_short">ΚΛΕΙΔΩΜΕΝΟ</string>
+  <string name="label_episode">Ε%1$d</string>
+  <string name="label_episode_full">Επεισόδιο %1$d</string>
+  <string name="label_no_schedule">Δεν υπάρχουν πληροφορίες προγράμματος</string>
+  <string name="label_reordering">Αλλαγή σειράς %1$s</string>
   <string name="library_action_filters_sort">Φίλτρα &amp; Ταξινόμηση</string>
   <string name="library_action_hide_search">Απόκρυψη αναζήτησης</string>
+  <string name="library_browse_all">Περιήγηση σε όλα</string>
   <string name="library_filter_empty">Κανένα στοιχείο δεν ταιριάζει με αυτό το φίλτρο.</string>
   <string name="library_filter_title">Φιλτράρισμα βιβλιοθήκης</string>
   <string name="library_full_browse_subtitle">Διαθέσιμοι %1$d τίτλοι στον τρέχοντα πάροχο</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Πρόσφατα ενημερωμένα</string>
   <string name="library_lens_top_rated">Κορυφαία αξιολόγηση</string>
   <string name="library_load_more">Φόρτωση περισσότερων (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d στοιχεία σε αυτή την αποθηκευμένη προβολή</string>
+  <string name="library_saved_active_title">Αποθηκευμένη ομάδα</string>
   <string name="library_saved_items_count">%1$d στοιχεία</string>
+  <string name="library_saved_manage_action">Διαχείριση</string>
   <string name="library_saved_manage_hint">Κρατήστε πατημένη μια αποθηκευμένη ομάδα για επιλογές</string>
+  <string name="library_saved_primary_hint">Επιστροφή στην πλήρη βιβλιοθήκη</string>
   <string name="library_sort_title">Ταξινόμηση αποτελεσμάτων</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Πίσω στη βιβλιοθήκη</string>
   <string name="movie_detail_cast">Πρωταγωνιστές:</string>
   <string name="movie_detail_director">Σκηνοθεσία:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Δοκιμάστε άλλη κατηγορία ή επιστρέψτε στα πλήρη ράφια της βιβλιοθήκης για να εμφανιστούν περισσότερες ταινίες.</string>
   <string name="movies_reorder_subtitle">Χρησιμοποιήστε το τηλεχειριστήριο για να μετακινήσετε τις αφίσες και μετά αποθηκεύστε τη σειρά των ραφιών για αυτήν την ομάδα.</string>
   <string name="movies_search_placeholder">Αναζήτηση ταινιών...</string>
+  <string name="multiview_add_to_split">Προσθήκη σε διαχωρισμένη οθόνη</string>
+  <string name="multiview_queued">Σε διαχωρισμένη οθόνη</string>
   <string name="nav_epg">Οδηγός</string>
   <string name="nav_home">Αρχική</string>
   <string name="nav_live_tv">Ζωντανή TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Δεν βρέθηκαν κατηγορίες που να ταιριάζουν.</string>
+  <string name="vod_category_picker_search_placeholder">Αναζήτηση κατηγοριών…</string>
   <string name="vod_category_picker_subtitle">Αναζήτηση με βάση το όνομα κατηγορίας και μετά άνοιγμα του αντίστοιχου ραφιού.</string>
   <string name="vod_category_picker_title">Περιήγηση κατηγοριών</string>
   <string name="vod_classic_all">Όλα</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Δεν βρέθηκαν τίτλοι σε αυτήν την ενότητα.</string>
   <string name="vod_classic_recently_added">Πρόσφατα προστέθηκαν</string>
   <string name="vod_classic_results_count">%1$d στοιχεία</string>
+  <string name="vod_external_ratings_heading">Βαθμολογίες</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Ανανεώστε αυτόν τον πάροχο για εισαγωγή ταινιών και σειρών στη βιβλιοθήκη.</string>
   <string name="vod_sync_needed_title">Απαιτείται συγχρονισμός</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

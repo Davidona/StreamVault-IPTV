@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">見逃し視聴あり</string>
+  <string name="a11y_channel_with_number">チャンネル %1$d、%2$s</string>
+  <string name="a11y_favorite">お気に入り</string>
+  <string name="a11y_locked">ロック済み</string>
+  <string name="a11y_now_playing">再生中 %1$s</string>
   <string name="a11y_recent_search">最近の検索 %1$s</string>
   <string name="a11y_selected">選択済み</string>
+  <string name="action_cancel">キャンセル</string>
+  <string name="action_save_order">順序を保存</string>
+  <string name="action_see_all">すべて表示</string>
+  <string name="add_group_add_btn">追加</string>
+  <string name="add_group_add_favorites">お気に入りに追加</string>
+  <string name="add_group_cancel">キャンセル</string>
+  <string name="add_group_close_cd">閉じる</string>
+  <string name="add_group_create">作成</string>
+  <string name="add_group_create_new_btn">新しいグループを作成</string>
+  <string name="add_group_custom_groups_title">カスタムグループ</string>
+  <string name="add_group_manage_title">管理: %1$s</string>
+  <string name="add_group_name_hint">グループ名</string>
+  <string name="add_group_remove_btn">削除</string>
+  <string name="add_group_remove_favorites">お気に入りから削除</string>
+  <string name="add_group_rename">名前を変更</string>
+  <string name="badge_catch_up">追っかけ再生</string>
+  <string name="badge_error">エラー</string>
+  <string name="badge_movie">映画</string>
+  <string name="badge_moving">移動中</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">保存済み</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">シリーズ</string>
+  <string name="card_live_badge">ライブ</string>
+  <string name="card_locked_channel">チャンネルはロックされています</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">キャンセル</string>
+  <string name="category_options_clear_recent">最近をすべてクリア</string>
   <string name="category_options_delete">グループを削除</string>
+  <string name="category_options_hide">カテゴリを非表示</string>
+  <string name="category_options_hide_from_live_tv">ライブTVから非表示</string>
+  <string name="category_options_lock">グループをロック</string>
+  <string name="category_options_pin">カテゴリを固定</string>
+  <string name="category_options_rename">グループ名を変更</string>
   <string name="category_options_reorder">項目を並べ替え</string>
+  <string name="category_options_set_default">デフォルトグループに設定</string>
+  <string name="category_options_unlock">グループのロックを解除</string>
+  <string name="category_options_unpin">カテゴリの固定を解除</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">すべて表示</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">最近から削除</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">視聴を続ける</string>
   <string name="dashboard_channels_format">%1$dチャンネル</string>
   <string name="dashboard_continue_watching">視聴を続ける</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">保存済み</string>
   <string name="home_add_first_provider">最初のプロバイダーを追加</string>
   <string name="home_add_first_provider_subtitle">プロバイダーを設定してライブチャンネル、映画、シリーズ、ガイドデータを読み込みます。</string>
+  <string name="home_delete_group_body">「%1$s」を削除しますか？ このグループ内のすべてのチャンネルが削除されます。</string>
+  <string name="home_delete_group_cancel">キャンセル</string>
+  <string name="home_delete_group_confirm">削除</string>
+  <string name="home_delete_group_title">グループを削除しますか？</string>
   <string name="home_error_load_failed">チャンネルの読み込みに失敗しました。接続を確認して、もう一度お試しください。</string>
   <string name="home_last_group">最後のグループ</string>
+  <string name="home_locked_short">ロック中</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">エピソード %1$d</string>
+  <string name="label_no_schedule">番組情報なし</string>
+  <string name="label_reordering">%1$s を並べ替え中</string>
   <string name="library_action_filters_sort">フィルターと並べ替え</string>
   <string name="library_action_hide_search">検索を非表示にする</string>
+  <string name="library_browse_all">すべて閲覧</string>
   <string name="library_filter_empty">この条件に一致する項目はありません。</string>
   <string name="library_filter_title">ライブラリを絞り込む</string>
   <string name="library_full_browse_subtitle">現在のプロバイダーで利用可能なタイトルは %1$d 件です</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">最近更新</string>
   <string name="library_lens_top_rated">高評価</string>
   <string name="library_load_more">さらに読み込む（%1$d/%2$d）</string>
+  <string name="library_saved_active_summary">この保存済み表示には %1$d 件あります</string>
+  <string name="library_saved_active_title">保存済みグループ</string>
   <string name="library_saved_items_count">%1$d アイテム</string>
+  <string name="library_saved_manage_action">管理</string>
   <string name="library_saved_manage_hint">保存済みグループを長押しするとオプションが表示されます</string>
+  <string name="library_saved_primary_hint">完全なライブラリに戻る</string>
   <string name="library_sort_title">結果を並べ替え</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">ライブラリに戻る</string>
   <string name="movie_detail_cast">出演:</string>
   <string name="movie_detail_director">監督:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">別のカテゴリを試すか、全ライブラリの棚に戻ってさらに作品を表示してください。</string>
   <string name="movies_reorder_subtitle">リモコンでポスターを移動し、このグループの棚順を保存します。</string>
   <string name="movies_search_placeholder">映画を検索...</string>
+  <string name="multiview_add_to_split">分割画面に追加</string>
+  <string name="multiview_queued">分割画面に追加済み</string>
   <string name="nav_epg">ガイド</string>
   <string name="nav_home">ホーム</string>
   <string name="nav_live_tv">ライブテレビ</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">一致するカテゴリが見つかりません。</string>
+  <string name="vod_category_picker_search_placeholder">カテゴリを検索…</string>
   <string name="vod_category_picker_subtitle">カテゴリ名で検索して、該当する棚を開きます。</string>
   <string name="vod_category_picker_title">カテゴリを閲覧</string>
   <string name="vod_classic_all">すべて</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">このセクションにはタイトルがありません。</string>
   <string name="vod_classic_recently_added">最近追加</string>
   <string name="vod_classic_results_count">%1$d件</string>
+  <string name="vod_external_ratings_heading">評価</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">このプロバイダーを更新して映画とシリーズをライブラリに取り込みます。</string>
   <string name="vod_sync_needed_title">同期が必要</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

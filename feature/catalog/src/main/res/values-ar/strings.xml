@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">متاح للمشاهدة اللاحقة</string>
+  <string name="a11y_channel_with_number">القناة %1$d، %2$s</string>
+  <string name="a11y_favorite">مفضل</string>
+  <string name="a11y_locked">مقفل</string>
+  <string name="a11y_now_playing">يتم التشغيل الآن %1$s</string>
   <string name="a11y_recent_search">بحث حديث %1$s</string>
   <string name="a11y_selected">محدد</string>
+  <string name="action_cancel">إلغاء</string>
+  <string name="action_save_order">حفظ الترتيب</string>
+  <string name="action_see_all">عرض الكل</string>
+  <string name="add_group_add_btn">إضافة</string>
+  <string name="add_group_add_favorites">إضافة إلى المفضلة</string>
+  <string name="add_group_cancel">إلغاء</string>
+  <string name="add_group_close_cd">إغلاق</string>
+  <string name="add_group_create">إنشاء</string>
+  <string name="add_group_create_new_btn">إنشاء مجموعة جديدة</string>
+  <string name="add_group_custom_groups_title">المجموعات المخصصة</string>
+  <string name="add_group_manage_title">إدارة: %1$s</string>
+  <string name="add_group_name_hint">اسم المجموعة</string>
+  <string name="add_group_remove_btn">إزالة</string>
+  <string name="add_group_remove_favorites">إزالة من المفضلة</string>
+  <string name="add_group_rename">إعادة التسمية</string>
+  <string name="badge_catch_up">استدراك</string>
+  <string name="badge_error">خطأ</string>
+  <string name="badge_movie">فيلم</string>
+  <string name="badge_moving">جارٍ النقل</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">محفوظ</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">مسلسل</string>
+  <string name="card_live_badge">مباشر</string>
+  <string name="card_locked_channel">قناة مقفلة</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">إلغاء</string>
+  <string name="category_options_clear_recent">مسح جميع الأخيرة</string>
   <string name="category_options_delete">حذف المجموعة</string>
+  <string name="category_options_hide">إخفاء الفئة</string>
+  <string name="category_options_hide_from_live_tv">إخفاء من التلفزيون المباشر</string>
+  <string name="category_options_lock">قفل المجموعة</string>
+  <string name="category_options_pin">تثبيت الفئة</string>
+  <string name="category_options_rename">إعادة تسمية المجموعة</string>
   <string name="category_options_reorder">إعادة ترتيب العناصر</string>
+  <string name="category_options_set_default">تعيين كمجموعة افتراضية</string>
+  <string name="category_options_unlock">إلغاء قفل المجموعة</string>
+  <string name="category_options_unpin">إلغاء تثبيت الفئة</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">عرض الكل</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">إخفاء هذه القناة</string>
+  <string name="channel_options_remove_from_recent">إزالة من الأخيرة</string>
+  <string name="continue_watching_season_episode">م%1$d ح%2$d</string>
+  <string name="continue_watching_title">متابعة المشاهدة</string>
   <string name="dashboard_channels_format">%1$d قناة</string>
   <string name="dashboard_continue_watching">متابعة المشاهدة</string>
   <string name="dashboard_continue_watching_movies">متابعة مشاهدة الأفلام</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">المحفوظة</string>
   <string name="home_add_first_provider">أضف مزودك الأول</string>
   <string name="home_add_first_provider_subtitle">قم بإعداد مزود لتحميل القنوات المباشرة والأفلام والمسلسلات وبيانات الدليل.</string>
+  <string name="home_delete_group_body">هل أنت متأكد من حذف \'%1$s\'؟ سيؤدي ذلك إلى إزالة جميع القنوات من هذه المجموعة.</string>
+  <string name="home_delete_group_cancel">إلغاء</string>
+  <string name="home_delete_group_confirm">حذف</string>
+  <string name="home_delete_group_title">هل تريد حذف المجموعة؟</string>
   <string name="home_error_load_failed">فشل تحميل القنوات. يُرجى التحقق من الاتصال والمحاولة مرة أخرى.</string>
   <string name="home_last_group">آخر مجموعة</string>
+  <string name="home_locked_short">مقفل</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">الحلقة %1$d</string>
+  <string name="label_no_schedule">لا توجد معلومات عن الجدول</string>
+  <string name="label_reordering">إعادة ترتيب %1$s</string>
   <string name="library_action_filters_sort">الفلاتر والترتيب</string>
   <string name="library_action_hide_search">إخفاء البحث</string>
+  <string name="library_browse_all">تصفح الكل</string>
   <string name="library_filter_empty">لا توجد عناصر تطابق هذا الفلتر.</string>
   <string name="library_filter_title">تصفية المكتبة</string>
   <string name="library_full_browse_subtitle">%1$d عنوانًا متاحًا لدى المزوّد الحالي</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">تم التحديث مؤخراً</string>
   <string name="library_lens_top_rated">الأعلى تقييماً</string>
   <string name="library_load_more">تحميل المزيد (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d عناصر في هذا العرض المحفوظ</string>
+  <string name="library_saved_active_title">المجموعة المحفوظة</string>
   <string name="library_saved_items_count">%1$d عناصر</string>
+  <string name="library_saved_manage_action">إدارة</string>
   <string name="library_saved_manage_hint">اضغط مطولًا على مجموعة محفوظة لعرض الخيارات</string>
+  <string name="library_saved_primary_hint">العودة إلى المكتبة الكاملة</string>
   <string name="library_sort_title">ترتيب النتائج</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">العودة إلى المكتبة</string>
   <string name="movie_detail_cast">طاقم التمثيل:</string>
   <string name="movie_detail_director">إخراج:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">جرّب فئة أخرى أو عد إلى رفوف المكتبة الكاملة لعرض المزيد من العناوين.</string>
   <string name="movies_reorder_subtitle">استخدم جهاز التحكم لتحريك الملصقات، ثم احفظ ترتيب الرف لهذه المجموعة.</string>
   <string name="movies_search_placeholder">ابحث عن الأفلام...</string>
+  <string name="multiview_add_to_split">أضف إلى الشاشة المقسمة</string>
+  <string name="multiview_queued">في الشاشة المقسمة</string>
   <string name="nav_epg">دليل البرامج</string>
   <string name="nav_home">الرئيسية</string>
   <string name="nav_live_tv">البث المباشر</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">تم نسخ رابط البث</string>
   <string name="stream_url_copy">نسخ الرابط</string>
   <string name="stream_url_copy_failed">تعذّر استخراج رابط البث</string>
+  <string name="vod_category_picker_empty">لم يتم العثور على فئات مطابقة.</string>
+  <string name="vod_category_picker_search_placeholder">ابحث عن الفئات…</string>
   <string name="vod_category_picker_subtitle">ابحث باسم الفئة، ثم افتح الرف المطابق.</string>
   <string name="vod_category_picker_title">تصفح الفئات</string>
   <string name="vod_classic_all">الكل</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">لا توجد عناوين في هذا القسم.</string>
   <string name="vod_classic_recently_added">أضيف مؤخرًا</string>
   <string name="vod_classic_results_count">%1$d عنصر</string>
+  <string name="vod_external_ratings_heading">التقييمات</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">حدّث هذا المزود لاستيراد الأفلام والمسلسلات إلى المكتبة.</string>
   <string name="vod_sync_needed_title">المزامنة مطلوبة</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

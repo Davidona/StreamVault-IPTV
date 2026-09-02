@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Catch-up tilgængelig</string>
+  <string name="a11y_channel_with_number">Kanal %1$d, %2$s</string>
+  <string name="a11y_favorite">Favorit</string>
+  <string name="a11y_locked">Låst</string>
+  <string name="a11y_now_playing">Spiller nu %1$s</string>
   <string name="a11y_recent_search">Seneste søgning %1$s</string>
   <string name="a11y_selected">Valgt</string>
+  <string name="action_cancel">Annuller</string>
+  <string name="action_save_order">Gem ordre</string>
+  <string name="action_see_all">Se alle</string>
+  <string name="add_group_add_btn">Tilføj</string>
+  <string name="add_group_add_favorites">Tilføj til Favoritter</string>
+  <string name="add_group_cancel">Annuller</string>
+  <string name="add_group_close_cd">Luk</string>
+  <string name="add_group_create">Opret</string>
+  <string name="add_group_create_new_btn">Opret ny gruppe</string>
+  <string name="add_group_custom_groups_title">Brugerdefinerede grupper</string>
+  <string name="add_group_manage_title">Administrer: %1$s</string>
+  <string name="add_group_name_hint">Gruppenavn</string>
+  <string name="add_group_remove_btn">Fjern</string>
+  <string name="add_group_remove_favorites">Fjern fra favoritter</string>
+  <string name="add_group_rename">Omdøb</string>
+  <string name="badge_catch_up">FÅ GEN</string>
+  <string name="badge_error">ERR</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">FLYTTER</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">GEMT</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SERIE</string>
+  <string name="card_live_badge">LIVE</string>
+  <string name="card_locked_channel">Låst kanal</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Annuller</string>
+  <string name="category_options_clear_recent">Ryd alle seneste</string>
   <string name="category_options_delete">Slet gruppe</string>
+  <string name="category_options_hide">Skjul kategori</string>
+  <string name="category_options_hide_from_live_tv">Skjul fra Live TV</string>
+  <string name="category_options_lock">Lås gruppe</string>
+  <string name="category_options_pin">Fastgør kategori</string>
+  <string name="category_options_rename">Omdøb gruppe</string>
   <string name="category_options_reorder">Genbestil varer</string>
+  <string name="category_options_set_default">Indstil som standardgruppe</string>
+  <string name="category_options_unlock">Lås gruppe op</string>
+  <string name="category_options_unpin">Frigør kategori</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Se alle →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Fjern fra seneste</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Fortsæt med at se</string>
   <string name="dashboard_channels_format">%1$d kanaler</string>
   <string name="dashboard_continue_watching">Fortsæt med at se</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Gemt</string>
   <string name="home_add_first_provider">Tilføj din første udbyder</string>
   <string name="home_add_first_provider_subtitle">Opsæt en udbyder for at indlæse live-kanaler, film, serier og programguidedata.</string>
+  <string name="home_delete_group_body">Er du sikker på, at du vil slette \'%1$s\'? Dette fjerner alle kanaler fra denne gruppe.</string>
+  <string name="home_delete_group_cancel">Annuller</string>
+  <string name="home_delete_group_confirm">Slet</string>
+  <string name="home_delete_group_title">Slet gruppe?</string>
   <string name="home_error_load_failed">Kunne ikke indlæse kanaler. Tjek din forbindelse, og prøv igen.</string>
   <string name="home_last_group">Sidste gruppe</string>
+  <string name="home_locked_short">LÅST</string>
+  <string name="label_episode">Afsnit %1$d</string>
+  <string name="label_episode_full">Afsnit %1$d</string>
+  <string name="label_no_schedule">Ingen tidsplanoplysninger</string>
+  <string name="label_reordering">Genbestilling %1$s</string>
   <string name="library_action_filters_sort">Filtre og sortering</string>
   <string name="library_action_hide_search">Skjul søgning</string>
+  <string name="library_browse_all">Gennemse alle</string>
   <string name="library_filter_empty">Ingen varer matcher dette filter.</string>
   <string name="library_filter_title">Filterbibliotek</string>
   <string name="library_full_browse_subtitle">%1$d titler tilgængelige hos den aktuelle udbyder</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Nyligt opdateret</string>
   <string name="library_lens_top_rated">Bedst bedømte</string>
   <string name="library_load_more">Indlæs flere (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d elementer i denne gemte visning</string>
+  <string name="library_saved_active_title">Gemt gruppe</string>
   <string name="library_saved_items_count">%1$d varer</string>
+  <string name="library_saved_manage_action">Administrer</string>
   <string name="library_saved_manage_hint">Hold en gemt gruppe for valgmuligheder</string>
+  <string name="library_saved_primary_hint">Vend tilbage til det fulde bibliotek</string>
   <string name="library_sort_title">Sorter resultater</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Tilbage til biblioteket</string>
   <string name="movie_detail_cast">Medvirkende:</string>
   <string name="movie_detail_director">Instruktør:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Prøv en anden kategori, eller gå tilbage til hele biblioteket for at få vist flere titler.</string>
   <string name="movies_reorder_subtitle">Brug fjernbetjeningen til at flytte plakaterne, og gem derefter rækkefølgen for denne gruppe.</string>
   <string name="movies_search_placeholder">Søg film...</string>
+  <string name="multiview_add_to_split">Tilføj til delt skærm</string>
+  <string name="multiview_queued">I Split Screen</string>
   <string name="nav_epg">Vejledning</string>
   <string name="nav_home">Hjem</string>
   <string name="nav_live_tv">Live tv</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Der blev ikke fundet nogen matchende kategorier.</string>
+  <string name="vod_category_picker_search_placeholder">Søg kategorier…</string>
   <string name="vod_category_picker_subtitle">Søg efter kategorinavn, og åbn derefter den matchende hylde.</string>
   <string name="vod_category_picker_title">Gennemse kategorier</string>
   <string name="vod_classic_all">Alle</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Ingen titler fundet i dette afsnit.</string>
   <string name="vod_classic_recently_added">Nyligt tilføjet</string>
   <string name="vod_classic_results_count">%1$d elementer</string>
+  <string name="vod_external_ratings_heading">Bedømmelser</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Opdater denne udbyder for at importere film og serier til biblioteket.</string>
   <string name="vod_sync_needed_title">Synkronisering nødvendig</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

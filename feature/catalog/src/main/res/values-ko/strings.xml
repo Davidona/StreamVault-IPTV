@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">다시보기 가능</string>
+  <string name="a11y_channel_with_number">채널 %1$d, %2$s</string>
+  <string name="a11y_favorite">즐겨찾기</string>
+  <string name="a11y_locked">잠김</string>
+  <string name="a11y_now_playing">현재 재생 중 %1$s</string>
   <string name="a11y_recent_search">최근 검색 %1$s</string>
   <string name="a11y_selected">선택됨</string>
+  <string name="action_cancel">취소</string>
+  <string name="action_save_order">순서 저장</string>
+  <string name="action_see_all">전체 보기</string>
+  <string name="add_group_add_btn">추가</string>
+  <string name="add_group_add_favorites">즐겨찾기에 추가</string>
+  <string name="add_group_cancel">취소</string>
+  <string name="add_group_close_cd">닫기</string>
+  <string name="add_group_create">생성</string>
+  <string name="add_group_create_new_btn">새 그룹 만들기</string>
+  <string name="add_group_custom_groups_title">사용자 그룹</string>
+  <string name="add_group_manage_title">관리: %1$s</string>
+  <string name="add_group_name_hint">그룹 이름</string>
+  <string name="add_group_remove_btn">제거</string>
+  <string name="add_group_remove_favorites">즐겨찾기에서 제거</string>
+  <string name="add_group_rename">이름 변경</string>
+  <string name="badge_catch_up">다시보기</string>
+  <string name="badge_error">오류</string>
+  <string name="badge_movie">영화</string>
+  <string name="badge_moving">이동 중</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">저장됨</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">시리즈</string>
+  <string name="card_live_badge">라이브</string>
+  <string name="card_locked_channel">잠긴 채널</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">취소</string>
+  <string name="category_options_clear_recent">최근 항목 모두 지우기</string>
   <string name="category_options_delete">그룹 삭제</string>
+  <string name="category_options_hide">카테고리 숨기기</string>
+  <string name="category_options_hide_from_live_tv">라이브 TV에서 숨기기</string>
+  <string name="category_options_lock">그룹 잠금</string>
+  <string name="category_options_pin">카테고리 고정</string>
+  <string name="category_options_rename">그룹 이름 변경</string>
   <string name="category_options_reorder">항목 순서 변경</string>
+  <string name="category_options_set_default">기본 그룹으로 설정</string>
+  <string name="category_options_unlock">그룹 잠금 해제</string>
+  <string name="category_options_unpin">카테고리 고정 해제</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">모두 보기</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">최근 항목에서 제거</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">이어보기</string>
   <string name="dashboard_channels_format">%1$d개 채널</string>
   <string name="dashboard_continue_watching">시청 계속하기</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">저장됨</string>
   <string name="home_add_first_provider">첫 번째 공급자 추가</string>
   <string name="home_add_first_provider_subtitle">공급자를 설정하여 라이브 채널, 영화, 시리즈 및 가이드 데이터를 불러옵니다.</string>
+  <string name="home_delete_group_body">\'%1$s\'을(를) 삭제하시겠습니까? 이 그룹의 모든 채널이 제거됩니다.</string>
+  <string name="home_delete_group_cancel">취소</string>
+  <string name="home_delete_group_confirm">삭제</string>
+  <string name="home_delete_group_title">그룹을 삭제하시겠습니까?</string>
   <string name="home_error_load_failed">채널을 불러오지 못했습니다. 연결을 확인한 후 다시 시도하세요.</string>
   <string name="home_last_group">마지막 그룹</string>
+  <string name="home_locked_short">잠김</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">에피소드 %1$d</string>
+  <string name="label_no_schedule">편성 정보 없음</string>
+  <string name="label_reordering">%1$s 재정렬 중</string>
   <string name="library_action_filters_sort">필터 및 정렬</string>
   <string name="library_action_hide_search">검색 숨기기</string>
+  <string name="library_browse_all">모두 둘러보기</string>
   <string name="library_filter_empty">이 필터와 일치하는 항목이 없습니다.</string>
   <string name="library_filter_title">라이브러리 필터</string>
   <string name="library_full_browse_subtitle">현재 제공자에서 이용 가능한 제목 %1$d개</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">최근 업데이트</string>
   <string name="library_lens_top_rated">평점 높은 순</string>
   <string name="library_load_more">더 불러오기 (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">이 저장된 보기의 항목 %1$d개</string>
+  <string name="library_saved_active_title">저장된 그룹</string>
   <string name="library_saved_items_count">%1$d개 항목</string>
+  <string name="library_saved_manage_action">관리</string>
   <string name="library_saved_manage_hint">저장된 그룹을 길게 눌러 옵션 보기</string>
+  <string name="library_saved_primary_hint">전체 라이브러리로 돌아가기</string>
   <string name="library_sort_title">결과 정렬</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">라이브러리로 돌아가기</string>
   <string name="movie_detail_cast">출연:</string>
   <string name="movie_detail_director">감독:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">다른 카테고리를 시도하거나 전체 라이브러리 선반으로 돌아가 더 많은 제목을 표시하세요.</string>
   <string name="movies_reorder_subtitle">리모컨으로 포스터를 이동한 다음 이 그룹의 선반 순서를 저장하세요.</string>
   <string name="movies_search_placeholder">영화 검색...</string>
+  <string name="multiview_add_to_split">분할 화면에 추가</string>
+  <string name="multiview_queued">분할 화면에 있음</string>
   <string name="nav_epg">가이드</string>
   <string name="nav_home">홈</string>
   <string name="nav_live_tv">라이브 TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">일치하는 카테고리를 찾을 수 없습니다.</string>
+  <string name="vod_category_picker_search_placeholder">카테고리 검색…</string>
   <string name="vod_category_picker_subtitle">카테고리 이름으로 검색한 뒤 일치하는 선반을 여세요.</string>
   <string name="vod_category_picker_title">카테고리 둘러보기</string>
   <string name="vod_classic_all">전체</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">이 섹션에서 제목을 찾을 수 없습니다.</string>
   <string name="vod_classic_recently_added">최근 추가됨</string>
   <string name="vod_classic_results_count">%1$d개 항목</string>
+  <string name="vod_external_ratings_heading">평점</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">메타크리틱</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">이 공급자를 새로 고쳐 영화와 시리즈를 라이브러리로 가져옵니다.</string>
   <string name="vod_sync_needed_title">동기화 필요</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

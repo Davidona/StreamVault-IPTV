@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Catch-up verfügbar</string>
+  <string name="a11y_channel_with_number">Kanal %1$d, %2$s</string>
+  <string name="a11y_favorite">Favorit</string>
+  <string name="a11y_locked">Gesperrt</string>
+  <string name="a11y_now_playing">Spielt gerade %1$s</string>
   <string name="a11y_recent_search">Letzte Suche %1$s</string>
   <string name="a11y_selected">Ausgewählt</string>
+  <string name="action_cancel">Abbrechen</string>
+  <string name="action_save_order">Bestellung speichern</string>
+  <string name="action_see_all">Alle anzeigen</string>
+  <string name="add_group_add_btn">Hinzufügen</string>
+  <string name="add_group_add_favorites">Zu Favoriten hinzufügen</string>
+  <string name="add_group_cancel">Abbrechen</string>
+  <string name="add_group_close_cd">Schließen</string>
+  <string name="add_group_create">Erstellen</string>
+  <string name="add_group_create_new_btn">Neue Gruppe erstellen</string>
+  <string name="add_group_custom_groups_title">Benutzerdefinierte Gruppen</string>
+  <string name="add_group_manage_title">Verwalten: %1$s</string>
+  <string name="add_group_name_hint">Gruppenname</string>
+  <string name="add_group_remove_btn">Entfernen</string>
+  <string name="add_group_remove_favorites">Aus Favoriten entfernen</string>
+  <string name="add_group_rename">Umbenennen</string>
+  <string name="badge_catch_up">NACHHOLEN</string>
+  <string name="badge_error">ERR</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">BEWEGEN</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">GESPEICHERT</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SERIE</string>
+  <string name="card_live_badge">LEBEN</string>
+  <string name="card_locked_channel">Gesperrter Kanal</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Abbrechen</string>
+  <string name="category_options_clear_recent">Zuletzt gesehen löschen</string>
   <string name="category_options_delete">Gruppe löschen</string>
+  <string name="category_options_hide">Kategorie ausblenden</string>
+  <string name="category_options_hide_from_live_tv">Aus Live-TV ausblenden</string>
+  <string name="category_options_lock">Gruppe sperren</string>
+  <string name="category_options_pin">Kategorie anheften</string>
+  <string name="category_options_rename">Gruppe umbenennen</string>
   <string name="category_options_reorder">Artikel neu anordnen</string>
+  <string name="category_options_set_default">Als Standardgruppe festlegen</string>
+  <string name="category_options_unlock">Gruppe entsperren</string>
+  <string name="category_options_unpin">Kategorie lösen</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Alle anzeigen →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Aus Zuletzt gesehen entfernen</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Schauen Sie weiter</string>
   <string name="dashboard_channels_format">%1$d Kanäle</string>
   <string name="dashboard_continue_watching">Schauen Sie weiter</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Gespeichert</string>
   <string name="home_add_first_provider">Ersten Anbieter hinzufügen</string>
   <string name="home_add_first_provider_subtitle">Richten Sie einen Anbieter ein, um Live-Sender, Filme, Serien und Programmdaten zu laden.</string>
+  <string name="home_delete_group_body">Möchten Sie \'%1$s\' wirklich löschen? Dadurch werden alle Kanäle aus dieser Gruppe entfernt.</string>
+  <string name="home_delete_group_cancel">Abbrechen</string>
+  <string name="home_delete_group_confirm">Löschen</string>
+  <string name="home_delete_group_title">Gruppe löschen?</string>
   <string name="home_error_load_failed">Kanäle konnten nicht geladen werden. Bitte Verbindung prüfen und erneut versuchen.</string>
   <string name="home_last_group">Letzte Gruppe</string>
+  <string name="home_locked_short">GESPERRT</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">Folge %1$d</string>
+  <string name="label_no_schedule">Keine Fahrplaninformationen</string>
+  <string name="label_reordering">Neuordnung %1$s</string>
   <string name="library_action_filters_sort">Filtern und Sortieren</string>
   <string name="library_action_hide_search">Suche ausblenden</string>
+  <string name="library_browse_all">Alle durchsuchen</string>
   <string name="library_filter_empty">Keine Artikel entsprechen diesem Filter.</string>
   <string name="library_filter_title">Filterbibliothek</string>
   <string name="library_full_browse_subtitle">%1$d Titel im aktuellen Anbieter verfügbar</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Kürzlich aktualisiert</string>
   <string name="library_lens_top_rated">Bestbewertet</string>
   <string name="library_load_more">Mehr laden (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d Elemente in dieser gespeicherten Ansicht</string>
+  <string name="library_saved_active_title">Gespeicherte Gruppe</string>
   <string name="library_saved_items_count">%1$d Artikel</string>
+  <string name="library_saved_manage_action">Verwalten</string>
   <string name="library_saved_manage_hint">Halten Sie eine gespeicherte Gruppe für Optionen gedrückt</string>
+  <string name="library_saved_primary_hint">Zur vollständigen Bibliothek zurückkehren</string>
   <string name="library_sort_title">Ergebnisse sortieren</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Zurück zur Mediathek</string>
   <string name="movie_detail_cast">Besetzung:</string>
   <string name="movie_detail_director">Regie:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Probieren Sie eine andere Kategorie oder kehren Sie zu den vollständigen Bibliotheksregalen zurück, um mehr Titel anzuzeigen.</string>
   <string name="movies_reorder_subtitle">Verwenden Sie die Fernbedienung, um Poster zu verschieben, und speichern Sie dann die Regalreihenfolge für diese Gruppe.</string>
   <string name="movies_search_placeholder">Filme suchen...</string>
+  <string name="multiview_add_to_split">Zu Split-Screen hinzufügen</string>
+  <string name="multiview_queued">Im geteilten Bildschirm</string>
   <string name="nav_epg">Leitfaden</string>
   <string name="nav_home">Zuhause</string>
   <string name="nav_live_tv">Live-TV</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Keine passenden Kategorien gefunden.</string>
+  <string name="vod_category_picker_search_placeholder">Kategorien suchen…</string>
   <string name="vod_category_picker_subtitle">Nach Kategorienamen suchen und dann das passende Regal öffnen.</string>
   <string name="vod_category_picker_title">Kategorien durchsuchen</string>
   <string name="vod_classic_all">Alle</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">In diesem Bereich wurden keine Titel gefunden.</string>
   <string name="vod_classic_recently_added">Neu hinzugefügt</string>
   <string name="vod_classic_results_count">%1$d Elemente</string>
+  <string name="vod_external_ratings_heading">Bewertungen</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Diesen Anbieter aktualisieren, um Filme und Serien in die Bibliothek zu importieren.</string>
   <string name="vod_sync_needed_title">Synchronisierung erforderlich</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

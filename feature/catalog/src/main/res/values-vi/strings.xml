@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Có xem lại</string>
+  <string name="a11y_channel_with_number">Kênh %1$d, %2$s</string>
+  <string name="a11y_favorite">yêu thích</string>
+  <string name="a11y_locked">Đã khóa</string>
+  <string name="a11y_now_playing">Đang phát %1$s</string>
   <string name="a11y_recent_search">Tìm kiếm gần đây %1$s</string>
   <string name="a11y_selected">Đã chọn</string>
+  <string name="action_cancel">Hủy</string>
+  <string name="action_save_order">Lưu đơn hàng</string>
+  <string name="action_see_all">Xem tất cả</string>
+  <string name="add_group_add_btn">Thêm</string>
+  <string name="add_group_add_favorites">Thêm vào Yêu thích</string>
+  <string name="add_group_cancel">Hủy</string>
+  <string name="add_group_close_cd">Đóng</string>
+  <string name="add_group_create">Tạo</string>
+  <string name="add_group_create_new_btn">Tạo nhóm mới</string>
+  <string name="add_group_custom_groups_title">Nhóm tùy chỉnh</string>
+  <string name="add_group_manage_title">Quản lý: %1$s</string>
+  <string name="add_group_name_hint">Tên nhóm</string>
+  <string name="add_group_remove_btn">Xóa</string>
+  <string name="add_group_remove_favorites">Xóa khỏi Yêu thích</string>
+  <string name="add_group_rename">Đổi tên</string>
+  <string name="badge_catch_up">XEM LẠI</string>
+  <string name="badge_error">LỖI</string>
+  <string name="badge_movie">PHIM</string>
+  <string name="badge_moving">ĐANG CHUYỂN</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">ĐÃ LƯU</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">PHIM BỘ</string>
+  <string name="card_live_badge">TRỰC TIẾP</string>
+  <string name="card_locked_channel">Kênh bị khóa</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Hủy</string>
+  <string name="category_options_clear_recent">Xóa Tất Cả Gần Đây</string>
   <string name="category_options_delete">Xóa nhóm</string>
+  <string name="category_options_hide">Ẩn danh mục</string>
+  <string name="category_options_hide_from_live_tv">Ẩn khỏi TV Trực Tiếp</string>
+  <string name="category_options_lock">Khóa nhóm</string>
+  <string name="category_options_pin">Ghim danh mục</string>
+  <string name="category_options_rename">Đổi tên nhóm</string>
   <string name="category_options_reorder">Sắp xếp lại mục</string>
+  <string name="category_options_set_default">Đặt làm nhóm mặc định</string>
+  <string name="category_options_unlock">Mở khóa nhóm</string>
+  <string name="category_options_unpin">Bỏ ghim danh mục</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Xem Tất Cả →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Xóa khỏi Gần Đây</string>
+  <string name="continue_watching_season_episode">M%1$d T%2$d</string>
+  <string name="continue_watching_title">Tiếp tục xem</string>
   <string name="dashboard_channels_format">%1$d kênh</string>
   <string name="dashboard_continue_watching">Tiếp tục xem</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Đã lưu</string>
   <string name="home_add_first_provider">Thêm nhà cung cấp đầu tiên</string>
   <string name="home_add_first_provider_subtitle">Thiết lập nhà cung cấp để tải kênh trực tiếp, phim, series và dữ liệu hướng dẫn.</string>
+  <string name="home_delete_group_body">Bạn có chắc muốn xóa \'%1$s\' không? Việc này sẽ xóa tất cả kênh khỏi nhóm này.</string>
+  <string name="home_delete_group_cancel">Hủy</string>
+  <string name="home_delete_group_confirm">Xóa</string>
+  <string name="home_delete_group_title">Xóa nhóm?</string>
   <string name="home_error_load_failed">Không tải được kênh. Vui lòng kiểm tra kết nối và thử lại.</string>
   <string name="home_last_group">Nhóm gần nhất</string>
+  <string name="home_locked_short">ĐÃ KHÓA</string>
+  <string name="label_episode">T%1$d</string>
+  <string name="label_episode_full">Tập %1$d</string>
+  <string name="label_no_schedule">Không có thông tin lịch</string>
+  <string name="label_reordering">Đang sắp xếp lại %1$s</string>
   <string name="library_action_filters_sort">Bộ lọc &amp; Sắp xếp</string>
   <string name="library_action_hide_search">Ẩn tìm kiếm</string>
+  <string name="library_browse_all">Duyệt tất cả</string>
   <string name="library_filter_empty">Không có mục nào khớp với bộ lọc này.</string>
   <string name="library_filter_title">Lọc thư viện</string>
   <string name="library_full_browse_subtitle">Có %1$d tựa trong nhà cung cấp hiện tại</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Cập nhật gần đây</string>
   <string name="library_lens_top_rated">Đánh giá cao nhất</string>
   <string name="library_load_more">Tải thêm (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d mục trong chế độ xem đã lưu này</string>
+  <string name="library_saved_active_title">Nhóm đã lưu</string>
   <string name="library_saved_items_count">%1$d mục</string>
+  <string name="library_saved_manage_action">Quản lý</string>
   <string name="library_saved_manage_hint">Nhấn giữ một nhóm đã lưu để xem tùy chọn</string>
+  <string name="library_saved_primary_hint">Quay lại toàn bộ thư viện</string>
   <string name="library_sort_title">Sắp xếp kết quả</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Quay lại thư viện</string>
   <string name="movie_detail_cast">Diễn viên:</string>
   <string name="movie_detail_director">Đạo diễn:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Hãy thử danh mục khác hoặc quay lại toàn bộ thư viện để hiển thị thêm nội dung.</string>
   <string name="movies_reorder_subtitle">Dùng điều khiển để di chuyển poster, rồi lưu thứ tự kệ cho nhóm này.</string>
   <string name="movies_search_placeholder">Tìm phim...</string>
+  <string name="multiview_add_to_split">Thêm vào màn hình chia đôi</string>
+  <string name="multiview_queued">Trong màn hình chia đôi</string>
   <string name="nav_epg">Hướng dẫn</string>
   <string name="nav_home">Trang chủ</string>
   <string name="nav_live_tv">TV trực tiếp</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Không tìm thấy danh mục phù hợp.</string>
+  <string name="vod_category_picker_search_placeholder">Tìm danh mục…</string>
   <string name="vod_category_picker_subtitle">Tìm theo tên danh mục, rồi mở kệ tương ứng.</string>
   <string name="vod_category_picker_title">Duyệt danh mục</string>
   <string name="vod_classic_all">Tất cả</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Không tìm thấy tiêu đề nào trong mục này.</string>
   <string name="vod_classic_recently_added">Mới thêm gần đây</string>
   <string name="vod_classic_results_count">%1$d mục</string>
+  <string name="vod_external_ratings_heading">Đánh giá</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Làm mới nhà cung cấp này để nhập phim và series vào thư viện.</string>
   <string name="vod_sync_needed_title">Cần đồng bộ</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>

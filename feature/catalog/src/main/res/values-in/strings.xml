@@ -1,15 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="a11y_catch_up_available">Tersedia tangkapan</string>
+  <string name="a11y_channel_with_number">Saluran %1$d, %2$s</string>
+  <string name="a11y_favorite">Favorit</string>
+  <string name="a11y_locked">Terkunci</string>
+  <string name="a11y_now_playing">Sedang diputar %1$s</string>
   <string name="a11y_recent_search">Pencarian terkini %1$s</string>
   <string name="a11y_selected">Dipilih</string>
+  <string name="action_cancel">Batalkan</string>
+  <string name="action_save_order">Simpan Pesanan</string>
+  <string name="action_see_all">Lihat semuanya</string>
+  <string name="add_group_add_btn">Tambahkan</string>
+  <string name="add_group_add_favorites">Tambahkan ke Favorit</string>
+  <string name="add_group_cancel">Batalkan</string>
+  <string name="add_group_close_cd">Tutup</string>
+  <string name="add_group_create">Buat</string>
+  <string name="add_group_create_new_btn">Buat Grup Baru</string>
+  <string name="add_group_custom_groups_title">Grup Kustom</string>
+  <string name="add_group_manage_title">Kelola: %1$s</string>
+  <string name="add_group_name_hint">Nama Grup</string>
+  <string name="add_group_remove_btn">Hapus</string>
+  <string name="add_group_remove_favorites">Hapus dari Favorit</string>
+  <string name="add_group_rename">Ganti nama</string>
+  <string name="badge_catch_up">MENANGKAP</string>
+  <string name="badge_error">KESALAHAN</string>
+  <string name="badge_movie">FILM</string>
+  <string name="badge_moving">BERGERAK</string>
+  <string name="badge_recording">REC</string>
+  <string name="badge_saved">DISELAMATKAN</string>
+  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_series">SERI</string>
+  <string name="card_live_badge">LANGSUNG</string>
+  <string name="card_locked_channel">Saluran Terkunci</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
   <string name="cast_launching" translatable="false">Casting...</string>
   <string name="cast_started" translatable="false">Casting to the connected device.</string>
   <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="category_options_cancel">Batalkan</string>
+  <string name="category_options_clear_recent">Hapus Semua Terkini</string>
   <string name="category_options_delete">Hapus Grup</string>
+  <string name="category_options_hide">Sembunyikan Kategori</string>
+  <string name="category_options_hide_from_live_tv">Sembunyikan dari Live TV</string>
+  <string name="category_options_lock">Grup Kunci</string>
+  <string name="category_options_pin">Sematkan Kategori</string>
+  <string name="category_options_rename">Ganti Nama Grup</string>
   <string name="category_options_reorder">Susun Ulang Barang</string>
+  <string name="category_options_set_default">Tetapkan sebagai Grup Default</string>
+  <string name="category_options_unlock">Buka Kunci Grup</string>
+  <string name="category_options_unpin">Lepas Sematan Kategori</string>
+  <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Lihat Semua →</string>
+  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_options_remove_from_recent">Hapus dari Terkini</string>
+  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_title">Lanjutkan Menonton</string>
   <string name="dashboard_channels_format">%1$d saluran</string>
   <string name="dashboard_continue_watching">Lanjutkan Menonton</string>
   <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
@@ -119,10 +165,20 @@
   <string name="favorites_title">Disimpan</string>
   <string name="home_add_first_provider">Tambahkan penyedia pertama Anda</string>
   <string name="home_add_first_provider_subtitle">Siapkan penyedia untuk memuat saluran langsung, film, serial, dan data panduan.</string>
+  <string name="home_delete_group_body">Apakah Anda yakin ingin menghapus \'%1$s\'? Tindakan ini akan menghapus semua saluran dari grup ini.</string>
+  <string name="home_delete_group_cancel">Batalkan</string>
+  <string name="home_delete_group_confirm">Hapus</string>
+  <string name="home_delete_group_title">Hapus Grup?</string>
   <string name="home_error_load_failed">Gagal memuat saluran. Silakan periksa koneksi Anda dan coba lagi.</string>
   <string name="home_last_group">Grup Terakhir</string>
+  <string name="home_locked_short">TERKUNCI</string>
+  <string name="label_episode">E%1$d</string>
+  <string name="label_episode_full">Episode %1$d</string>
+  <string name="label_no_schedule">Tidak ada informasi jadwal</string>
+  <string name="label_reordering">Menyusun ulang %1$s</string>
   <string name="library_action_filters_sort">Filter &amp; Sortir</string>
   <string name="library_action_hide_search">Sembunyikan Pencarian</string>
+  <string name="library_browse_all">Telusuri Semua</string>
   <string name="library_filter_empty">Tidak ada item yang cocok dengan filter ini.</string>
   <string name="library_filter_title">Menyaring Perpustakaan</string>
   <string name="library_full_browse_subtitle">%1$d judul tersedia di penyedia saat ini</string>
@@ -134,9 +190,17 @@
   <string name="library_lens_fresh_series">Baru-baru ini Diperbarui</string>
   <string name="library_lens_top_rated">Nilai Tertinggi</string>
   <string name="library_load_more">Muat lebih banyak (%1$d/%2$d)</string>
+  <string name="library_saved_active_summary">%1$d item dalam tampilan tersimpan ini</string>
+  <string name="library_saved_active_title">Grup Tersimpan</string>
   <string name="library_saved_items_count">%1$d item</string>
+  <string name="library_saved_manage_action">Kelola</string>
   <string name="library_saved_manage_hint">Tahan grup yang disimpan untuk opsi</string>
+  <string name="library_saved_primary_hint">Kembali ke perpustakaan lengkap</string>
   <string name="library_sort_title">Urutkan Hasil</string>
+  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
+  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
+  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
+  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
   <string name="movie_detail_back">Kembali ke pustaka</string>
   <string name="movie_detail_cast">Pemeran:</string>
   <string name="movie_detail_director">Disutradarai oleh:</string>
@@ -160,6 +224,8 @@
   <string name="movies_no_found_subtitle">Cobalah kategori lain atau kembali ke rak perpustakaan lengkap untuk menampilkan lebih banyak judul.</string>
   <string name="movies_reorder_subtitle">Gunakan remote untuk memindahkan poster, lalu simpan urutan rak untuk grup ini.</string>
   <string name="movies_search_placeholder">Cari film...</string>
+  <string name="multiview_add_to_split">Tambahkan ke Layar Terpisah</string>
+  <string name="multiview_queued">Di Layar Terpisah</string>
   <string name="nav_epg">Panduan</string>
   <string name="nav_home">Rumah</string>
   <string name="nav_live_tv">siaran langsung</string>
@@ -266,6 +332,8 @@
   <string name="stream_url_copied">Stream URL copied</string>
   <string name="stream_url_copy">Copy URL</string>
   <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="vod_category_picker_empty">Tidak ditemukan kategori yang cocok.</string>
+  <string name="vod_category_picker_search_placeholder">Cari kategori…</string>
   <string name="vod_category_picker_subtitle">Cari berdasarkan nama kategori, lalu buka rak yang cocok.</string>
   <string name="vod_category_picker_title">Telusuri kategori</string>
   <string name="vod_classic_all">Semua</string>
@@ -274,6 +342,11 @@
   <string name="vod_classic_empty_category">Tidak ada judul ditemukan di bagian ini.</string>
   <string name="vod_classic_recently_added">Baru Ditambahkan</string>
   <string name="vod_classic_results_count">%1$d item</string>
+  <string name="vod_external_ratings_heading">Rating</string>
+  <string name="vod_rating_imdb">IMDb</string>
+  <string name="vod_rating_metacritic">Metacritic</string>
+  <string name="vod_rating_rotten_tomatoes">Rotten Tomatoes</string>
+  <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Perbarui penyedia ini untuk mengimpor film dan serial ke pustaka.</string>
   <string name="vod_sync_needed_title">Sinkronisasi diperlukan</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
