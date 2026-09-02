@@ -99,7 +99,7 @@ fun SeriesScreen(
     scaffold: CatalogScaffoldContent,
     viewModel: SeriesViewModel = hiltViewModel()
 ) {
-    remember(viewModel) {
+    LaunchedEffect(viewModel) {
         viewModel.resetPreviewRowsForScreenEntry()
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -109,7 +109,6 @@ fun SeriesScreen(
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     var pendingCategory by remember { mutableStateOf<Category?>(null) }
-    val context = androidx.compose.ui.platform.LocalContext.current
 
     HandleVodUserMessage(
         userMessage = uiState.userMessage,
@@ -124,7 +123,7 @@ fun SeriesScreen(
     ProtectedVodPinDialog(
         visible = showPinDialog,
         error = pinError,
-        incorrectPinMessage = context.getString(R.string.series_incorrect_pin),
+        incorrectPinMessage = stringResource(R.string.series_incorrect_pin),
         onDismissRequest = {
             showPinDialog = false
             pinError = null

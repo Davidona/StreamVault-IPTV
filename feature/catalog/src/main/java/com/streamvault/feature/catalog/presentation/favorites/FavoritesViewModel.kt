@@ -1,5 +1,7 @@
 package com.streamvault.feature.catalog.presentation.favorites
 
+import android.annotation.SuppressLint
+
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -642,6 +644,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("StringFormatMatches")
     private fun observeSavedHistory(providerIds: Set<Long>): Flow<SavedHistorySnapshot> {
         if (providerIds.isEmpty()) {
             return flowOf(SavedHistorySnapshot())
@@ -699,7 +702,13 @@ class FavoritesViewModel @Inject constructor(
                                     val s = entry.seasonNumber
                                     val e = entry.episodeNumber
                                     if (s != null && e != null) {
-                                        append(appContext.getString(R.string.favorites_content_type_episode_format, s, e))
+                                        append(
+                                            appContext.getString(
+                                                R.string.favorites_content_type_episode_format,
+                                                s ?: 0,
+                                                e ?: 0
+                                            )
+                                        )
                                     } else {
                                         append(appContext.getString(R.string.favorites_content_type_episode))
                                         entry.seasonNumber?.let { append(" S$it") }

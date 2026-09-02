@@ -602,22 +602,20 @@ private fun DashboardProviderHealthCard(
     health: DashboardProviderHealth,
     onOpenDiagnostics: () -> Unit
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
     val appTimeFormat = LocalCatalogTimeFormat.current
     val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createCatalogDateTimeFormat() }
-    val syncLabel = remember(health.lastSyncedAt, dateTimeFormat) {
-        if (health.lastSyncedAt <= 0L) {
-            context.getString(R.string.dashboard_provider_no_sync)
-        } else {
-            context.getString(R.string.dashboard_provider_synced_at, dateTimeFormat.format(Date(health.lastSyncedAt)))
-        }
+    val syncLabel = if (health.lastSyncedAt <= 0L) {
+        stringResource(R.string.dashboard_provider_no_sync)
+    } else {
+        stringResource(
+            R.string.dashboard_provider_synced_at,
+            dateTimeFormat.format(Date(health.lastSyncedAt))
+        )
     }
-    val expiryLabel = remember(health.expirationDate) {
-        health.expirationDate?.let {
-            val format = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
-            context.getString(R.string.dashboard_provider_expires_at, format.format(Date(it)))
-        } ?: context.getString(R.string.dashboard_provider_no_expiry)
-    }
+    val expiryLabel = health.expirationDate?.let {
+        val format = remember(it) { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
+        stringResource(R.string.dashboard_provider_expires_at, format.format(Date(it)))
+    } ?: stringResource(R.string.dashboard_provider_no_expiry)
     val statusLabel = when (health.status) {
         com.streamvault.domain.model.ProviderStatus.ACTIVE -> stringResource(R.string.settings_status_active)
         com.streamvault.domain.model.ProviderStatus.PARTIAL -> stringResource(R.string.settings_status_partial)

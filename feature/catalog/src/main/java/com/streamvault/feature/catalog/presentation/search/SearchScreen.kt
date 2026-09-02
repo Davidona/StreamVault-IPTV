@@ -381,7 +381,6 @@ fun SearchScreen(
     val nowMs by CatalogChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
-    val context = androidx.compose.ui.platform.LocalContext.current
     var showPinDialog by remember { mutableStateOf(false) }
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingChannel by remember { mutableStateOf<Channel?>(null) }
@@ -389,6 +388,7 @@ fun SearchScreen(
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     val scope = rememberCoroutineScope()
     val selectedStateLabel = stringResource(R.string.a11y_selected)
+    val incorrectPinMessage = stringResource(R.string.search_incorrect_pin)
 
     // ג”€ג”€ Long-press actions dialog state ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
     var showActionsDialog by remember { mutableStateOf(false) }
@@ -490,7 +490,7 @@ fun SearchScreen(
                             pendingSeries = null
                         }
                     } else {
-                        pinError = context.getString(R.string.search_incorrect_pin)
+                        pinError = incorrectPinMessage
                     }
                 }
             },
@@ -633,7 +633,7 @@ fun SearchScreen(
                             item {
                                 SearchResultRail(
                                     title = stringResource(R.string.search_live_tv),
-                                    items = uiState.channels.take(18),
+                                    items = uiState.channels.subList(0, minOf(uiState.channels.size, 18)),
                                     keySelector = { it.id }
                                 ) { channel ->
                                     val channelLocked = isLocked(
@@ -665,7 +665,7 @@ fun SearchScreen(
                             item {
                                 SearchResultRail(
                                     title = stringResource(R.string.search_movies),
-                                    items = uiState.movies.take(18),
+                                    items = uiState.movies.subList(0, minOf(uiState.movies.size, 18)),
                                     keySelector = { it.id }
                                 ) { movie ->
                                     val movieLocked = isLocked(
@@ -694,7 +694,7 @@ fun SearchScreen(
                             item {
                                 SearchResultRail(
                                     title = stringResource(R.string.search_series),
-                                    items = uiState.series.take(18),
+                                    items = uiState.series.subList(0, minOf(uiState.series.size, 18)),
                                     keySelector = { it.id }
                                 ) { seriesItem ->
                                     val seriesLocked = isLocked(

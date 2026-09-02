@@ -53,7 +53,6 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.app.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
-import com.streamvault.app.ui.components.channelProgressFraction
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppMotion
@@ -67,6 +66,16 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
+
+private fun channelProgressFraction(
+    nowMs: Long,
+    startTimeMs: Long,
+    endTimeMs: Long
+): Float {
+    val duration = endTimeMs - startTimeMs
+    if (duration <= 0L) return 0f
+    return ((nowMs - startTimeMs).toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+}
 
 @Composable
 fun LiveChannelRowCard(

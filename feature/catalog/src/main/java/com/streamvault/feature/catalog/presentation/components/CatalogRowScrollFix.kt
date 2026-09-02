@@ -7,6 +7,7 @@ import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -22,7 +23,7 @@ import androidx.compose.ui.layout.onSizeChanged
  */
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.suppressParentVerticalScroll(): Modifier = composed {
-    var height by mutableFloatStateOf(0f)
+    var height by remember { mutableFloatStateOf(0f) }
 
     this
         .onSizeChanged { height = it.height.toFloat() }
