@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -30,22 +30,22 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.ui.components.MovieCard
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.presentation.components.MovieCard
 import com.streamvault.core.ui.components.SearchInput
-import com.streamvault.app.ui.components.SelectionChip
-import com.streamvault.app.ui.components.SeriesCard
+import com.streamvault.feature.catalog.presentation.components.SelectionChip
+import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.shell.AppMessageState
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.components.shell.InfiniteScrollEffect
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.feature.catalog.presentation.components.InfiniteScrollEffect
 import com.streamvault.core.ui.components.shell.LoadMoreCard
-import com.streamvault.app.ui.components.shell.VodActionChip
-import com.streamvault.app.ui.components.shell.VodActionChipRow
-import com.streamvault.app.ui.components.shell.VodBrowseOptionsDialog
-import com.streamvault.app.ui.components.shell.VodCategoryOption
-import com.streamvault.app.ui.components.shell.VodCategoryPickerDialog
-import com.streamvault.app.ui.components.shell.VodSectionHeader
+import com.streamvault.feature.catalog.presentation.components.VodActionChip
+import com.streamvault.feature.catalog.presentation.components.VodActionChipRow
+import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsDialog
+import com.streamvault.feature.catalog.presentation.components.VodCategoryOption
+import com.streamvault.feature.catalog.presentation.components.VodCategoryPickerDialog
+import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
@@ -57,20 +57,20 @@ import com.streamvault.domain.model.VodCatalogItem
 fun VodScreen(
     onMovieClick: (Movie) -> Unit,
     onSeriesClick: (Series) -> Unit,
-    onNavigate: (String) -> Unit,
-    currentRoute: String,
+    scaffold: CatalogScaffoldContent,
     viewModel: VodViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     BackHandler(enabled = state.selectedCategory != null) { viewModel.selectCategory(null) }
 
-    AppScreenScaffold(
-        currentRoute = currentRoute,
-        onNavigate = onNavigate,
-        title = stringResource(R.string.nav_vod),
-        navigationChrome = AppNavigationChrome.TopBar,
-        compactHeader = true,
-        showScreenHeader = false
+    scaffold(
+        com.streamvault.core.navigation.AppDestination.Vod,
+        stringResource(R.string.nav_vod),
+        null,
+        CatalogNavigationChrome.TopBar,
+        true,
+        true,
+        false
     ) {
         when {
             state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -400,3 +400,4 @@ private fun VodItemCard(
         )
     }
 }
+

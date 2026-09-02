@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.movies
+﻿package com.streamvault.feature.catalog.presentation.movies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,22 +27,22 @@ import com.streamvault.domain.usecase.ContinueWatchingResult
 import com.streamvault.domain.usecase.ContinueWatchingScope
 import com.streamvault.domain.usecase.GetContinueWatching
 import com.streamvault.domain.usecase.GetCustomCategories
-import com.streamvault.app.ui.screens.vod.createVodGroup
-import com.streamvault.app.ui.screens.vod.incrementVodSelectedCategoryLoadLimit
-import com.streamvault.app.ui.screens.vod.buildVodPreviewCatalog
-import com.streamvault.app.ui.screens.vod.buildVodSearchCatalog
-import com.streamvault.app.ui.screens.vod.loadVodReorderItems
-import com.streamvault.app.ui.screens.vod.matchesVodGroupMembership
-import com.streamvault.app.ui.screens.vod.moveVodItemDown
-import com.streamvault.app.ui.screens.vod.moveVodItemUp
-import com.streamvault.app.ui.screens.vod.selectVodCategory
-import com.streamvault.app.ui.screens.vod.saveVodReorder
-import com.streamvault.app.ui.screens.vod.setVodLibraryFilterType
-import com.streamvault.app.ui.screens.vod.setVodLibrarySortBy
-import com.streamvault.app.ui.screens.vod.setVodSearchQuery
-import com.streamvault.app.ui.screens.vod.setVodFavorite
-import com.streamvault.app.ui.screens.vod.updateVodGroupMembership
-import com.streamvault.app.ui.screens.vod.VodBrowseDefaults
+import com.streamvault.feature.catalog.presentation.vod.createVodGroup
+import com.streamvault.feature.catalog.presentation.vod.incrementVodSelectedCategoryLoadLimit
+import com.streamvault.feature.catalog.presentation.vod.buildVodPreviewCatalog
+import com.streamvault.feature.catalog.presentation.vod.buildVodSearchCatalog
+import com.streamvault.feature.catalog.presentation.vod.loadVodReorderItems
+import com.streamvault.feature.catalog.presentation.vod.matchesVodGroupMembership
+import com.streamvault.feature.catalog.presentation.vod.moveVodItemDown
+import com.streamvault.feature.catalog.presentation.vod.moveVodItemUp
+import com.streamvault.feature.catalog.presentation.vod.selectVodCategory
+import com.streamvault.feature.catalog.presentation.vod.saveVodReorder
+import com.streamvault.feature.catalog.presentation.vod.setVodLibraryFilterType
+import com.streamvault.feature.catalog.presentation.vod.setVodLibrarySortBy
+import com.streamvault.feature.catalog.presentation.vod.setVodSearchQuery
+import com.streamvault.feature.catalog.presentation.vod.setVodFavorite
+import com.streamvault.feature.catalog.presentation.vod.updateVodGroupMembership
+import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
 import com.streamvault.domain.playback.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -1488,3 +1488,4 @@ data class MoviesUiState(
     val filteredMovies: List<Movie> = emptyList(),
     val errorMessage: String? = null
 )
+

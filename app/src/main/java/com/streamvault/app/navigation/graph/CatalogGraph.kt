@@ -11,11 +11,15 @@ import com.streamvault.app.navigation.CatalogDetailNavigationActions
 import com.streamvault.app.navigation.toLivePlayerRequest
 import com.streamvault.app.navigation.toPlayerNavigationRequest
 import com.streamvault.app.ui.screens.movies.MovieDetailScreen
-import com.streamvault.app.ui.screens.movies.MoviesScreen
 import com.streamvault.app.ui.screens.search.SearchScreen
 import com.streamvault.app.ui.screens.series.SeriesDetailScreen
-import com.streamvault.app.ui.screens.series.SeriesScreen
-import com.streamvault.app.ui.screens.vod.VodScreen
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.feature.catalog.presentation.movies.MoviesScreen
+import com.streamvault.feature.catalog.presentation.series.SeriesScreen
+import com.streamvault.feature.catalog.presentation.vod.VodScreen
+import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
@@ -36,10 +40,10 @@ internal fun NavGraphBuilder.registerCatalogGraph(
                     history.toPlayerNavigationRequest().copy(returnDestination = AppDestination.Movies)
                 )
             },
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
-            currentRoute = AppRoutePatterns.MOVIES
+            scaffold = catalogAppScaffold(
+                currentRoute = AppRoutePatterns.MOVIES,
+                onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) }
+            )
         )
     }
 
@@ -54,10 +58,10 @@ internal fun NavGraphBuilder.registerCatalogGraph(
                     NavigationOptions(launchSingleTop = true)
                 )
             },
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
-            currentRoute = AppRoutePatterns.SERIES
+            scaffold = catalogAppScaffold(
+                currentRoute = AppRoutePatterns.SERIES,
+                onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) }
+            )
         )
     }
 
@@ -69,10 +73,10 @@ internal fun NavGraphBuilder.registerCatalogGraph(
             onSeriesClick = { series ->
                 catalogDetailActions.openSeriesDetail(series, AppDestination.Vod)
             },
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
-            currentRoute = AppRoutePatterns.VOD
+            scaffold = catalogAppScaffold(
+                currentRoute = AppRoutePatterns.VOD,
+                onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) }
+            )
         )
     }
 
@@ -163,4 +167,24 @@ internal fun NavGraphBuilder.registerCatalogGraph(
             onBack = { actions.returnTo(returnDestination) }
         )
     }
+}
+
+private fun catalogAppScaffold(
+    currentRoute: String,
+    onNavigate: (String) -> Unit
+): CatalogScaffoldContent = { _, title, subtitle, chrome, topBarVisible, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = currentRoute,
+        onNavigate = onNavigate,
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = when (chrome) {
+            CatalogNavigationChrome.Rail -> AppNavigationChrome.Rail
+            CatalogNavigationChrome.TopBar -> AppNavigationChrome.TopBar
+        },
+        topBarVisible = topBarVisible,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content
+    )
 }

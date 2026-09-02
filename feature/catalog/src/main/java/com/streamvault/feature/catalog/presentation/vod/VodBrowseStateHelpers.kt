@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
@@ -86,7 +86,7 @@ inline fun <State> setVodLibrarySortBy(
 
 /**
  * Returns a compact summary label for the currently active filter and/or sort
- * (e.g. "Favorites · Rating"), or null when both are at their defaults.
+ * (e.g. "Favorites ֲ· Rating"), or null when both are at their defaults.
  * This is used to decorate the "Filter & Sort" action chip so the user can
  * tell at a glance that a non-default browse mode is in effect.
  */
@@ -107,5 +107,5 @@ fun vodActiveFilterSortDetail(filter: LibraryFilterType, sort: LibrarySortBy): S
         LibrarySortBy.RATING -> "Rating"
         LibrarySortBy.WATCH_COUNT -> "Recent Activity"
     }
-    return listOfNotNull(filterLabel, sortLabel).joinToString(" · ").ifEmpty { null }
+    return listOfNotNull(filterLabel, sortLabel).joinToString(" ֲ· ").ifEmpty { null }
 }

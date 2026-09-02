@@ -1,8 +1,8 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Favorite
-import com.streamvault.app.ui.screens.vod.matchesVodGroupMembership
+import com.streamvault.feature.catalog.presentation.vod.matchesVodGroupMembership
 
 data class VodCatalogSnapshot<Item>(
     val grouped: Map<String, List<Item>>,
@@ -187,3 +187,4 @@ fun <Item> markVodFavorites(
 ): List<Item> = items.map { item ->
     copyWithFavorite(item, itemIds(item).any { rawItemId -> rawItemId in globalFavoriteIds })
 }
+

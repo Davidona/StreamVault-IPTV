@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Result
@@ -77,3 +77,4 @@ suspend fun createVodGroup(
     favoriteRepository: FavoriteRepository
 ): Result<VirtualGroup> =
     favoriteRepository.createGroup(providerId, name, contentType = contentType)
+

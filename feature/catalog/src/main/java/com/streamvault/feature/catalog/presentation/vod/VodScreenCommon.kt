@@ -1,11 +1,11 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
+import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import kotlinx.coroutines.launch
 
@@ -61,3 +61,4 @@ fun ProtectedVodPinDialog(
         error = error
     )
 }
+

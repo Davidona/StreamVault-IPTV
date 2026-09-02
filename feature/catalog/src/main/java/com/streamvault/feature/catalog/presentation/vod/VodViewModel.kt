@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -393,3 +393,4 @@ class VodViewModel @Inject constructor(
         else -> VodCategoryKind.UNKNOWN
     }
 }
+

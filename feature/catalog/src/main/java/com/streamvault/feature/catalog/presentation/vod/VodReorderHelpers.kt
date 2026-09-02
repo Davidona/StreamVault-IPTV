@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.vod
+﻿package com.streamvault.feature.catalog.presentation.vod
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ContentType
@@ -84,3 +84,4 @@ private fun <Item> List<Item>.orderByIds(
     val positions = ids.withIndex().associate { it.value to it.index }
     return sortedBy { item -> positions[itemId(item)] ?: Int.MAX_VALUE }
 }
+
