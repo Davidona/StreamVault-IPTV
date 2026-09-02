@@ -1,0 +1,440 @@
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:126:            title = stringResource(R.string.nav_home),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:199:                        title = stringResource(R.string.dashboard_live_shortcuts),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:200:                        subtitle = stringResource(R.string.dashboard_live_shortcuts_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:210:                        title = stringResource(R.string.dashboard_favorite_channels),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:219:                        title = stringResource(R.string.dashboard_recent_channels),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:246:                        title = stringResource(R.string.dashboard_recent_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:258:                        title = stringResource(R.string.dashboard_recent_series),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:265:                            subtitle = series.releaseDate ?: stringResource(R.string.dashboard_updated_series_badge),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:271:                        title = stringResource(R.string.dashboard_favorite_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:280:                        title = stringResource(R.string.dashboard_favorite_series),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:287:                            subtitle = series.releaseDate ?: stringResource(R.string.dashboard_updated_series_badge),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:293:                        title = stringResource(R.string.dashboard_continue_watching_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:299:                        title = stringResource(R.string.dashboard_continue_watching_series),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:305:                        title = stringResource(R.string.dashboard_top_rated_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:314:                        title = stringResource(R.string.dashboard_recommended_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:398:            title = feature.title.ifBlank { stringResource(R.string.dashboard_title) },
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:399:            subtitle = feature.summary.ifBlank { stringResource(R.string.dashboard_subtitle, providerName) },
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:406:                        StatusPill(label = stringResource(R.string.nav_live_tv), containerColor = AppColors.BrandMuted)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:407:                        StatusPill(label = stringResource(R.string.nav_epg), containerColor = AppColors.SurfaceEmphasis)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:408:                        StatusPill(label = stringResource(R.string.favorites_title), containerColor = AppColors.Warning, contentColor = Color.Black)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:414:                DashboardActionButton(label = stringResource(R.string.nav_live_tv), onClick = onOpenLiveTv)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:415:                DashboardActionButton(label = stringResource(R.string.nav_epg), onClick = onOpenGuide)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:416:                DashboardActionButton(label = stringResource(R.string.dashboard_search_library), onClick = onOpenSearch)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:417:                DashboardActionButton(label = stringResource(R.string.favorites_title), onClick = onOpenSavedLibrary)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:437:        stringResource(R.string.dashboard_stat_live, stats.liveChannelCount),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:438:        stringResource(R.string.dashboard_stat_favorites, stats.favoriteChannelCount),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:439:        stringResource(R.string.dashboard_stat_recent, stats.recentChannelCount),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:440:        stringResource(R.string.dashboard_stat_resume, stats.continueWatchingCount),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:441:        stringResource(R.string.dashboard_stat_movies, stats.movieLibraryCount),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:442:        stringResource(R.string.dashboard_stat_series, stats.seriesLibraryCount)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:609:            context.getString(R.string.dashboard_provider_no_sync)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:611:            context.getString(R.string.dashboard_provider_synced_at, dateTimeFormat.format(Date(health.lastSyncedAt)))
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:617:            context.getString(R.string.dashboard_provider_expires_at, format.format(Date(it)))
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:618:        } ?: context.getString(R.string.dashboard_provider_no_expiry)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:621:        com.streamvault.domain.model.ProviderStatus.ACTIVE -> stringResource(R.string.settings_status_active)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:622:        com.streamvault.domain.model.ProviderStatus.PARTIAL -> stringResource(R.string.settings_status_partial)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:623:        com.streamvault.domain.model.ProviderStatus.ERROR -> stringResource(R.string.settings_status_error)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:624:        com.streamvault.domain.model.ProviderStatus.EXPIRED -> stringResource(R.string.settings_status_expired)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:625:        com.streamvault.domain.model.ProviderStatus.DISABLED -> stringResource(R.string.settings_status_disabled)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:626:        com.streamvault.domain.model.ProviderStatus.UNKNOWN -> stringResource(R.string.settings_status_unknown)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:629:        com.streamvault.domain.model.ProviderType.XTREAM_CODES -> stringResource(R.string.dashboard_provider_xtream)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:630:        com.streamvault.domain.model.ProviderType.M3U -> stringResource(R.string.dashboard_provider_m3u)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:654:                    text = stringResource(R.string.dashboard_provider_health_title),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:674:                        value = stringResource(R.string.dashboard_provider_status)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:680:                        value = stringResource(R.string.dashboard_provider_source)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:686:                        value = stringResource(R.string.dashboard_provider_connections)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:698:                label = stringResource(R.string.dashboard_warning_review),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:749:                text = stringResource(R.string.dashboard_warning_title),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:760:                    label = stringResource(R.string.dashboard_warning_review),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:787:                text = stringResource(R.string.dashboard_update_title, notice.latestVersionName),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:794:                        R.string.dashboard_update_install_permission_required
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:796:                        R.string.dashboard_update_install_ready
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:798:                        R.string.dashboard_update_available
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:808:                            R.string.dashboard_update_allow_installs
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:810:                            R.string.dashboard_update_open_installer
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:812:                            R.string.dashboard_update_open_settings
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:859:                    text = stringResource(R.string.dashboard_empty_title),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:864:                    text = stringResource(R.string.dashboard_empty_body),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:870:                        Text(stringResource(R.string.settings_add_provider))
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:880:                        Text(stringResource(R.string.nav_settings))
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardScreen.kt:986:                    text = stringResource(R.string.category_see_all),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:530:                            label = appContext.getString(R.string.home_last_group),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:555:                                    appContext.getString(R.string.dashboard_pinned_channels_format, category.count)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:557:                                    appContext.getString(R.string.dashboard_channels_format, category.count)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:734:                title = appContext.getString(R.string.dashboard_resume_unavailable),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:735:                summary = appContext.getString(R.string.dashboard_resume_unavailable_detail),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:737:                actionLabel = appContext.getString(R.string.dashboard_continue_watching),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:745:                ContentType.VOD -> appContext.getString(R.string.dashboard_resume_movie)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:746:                ContentType.SERIES -> appContext.getString(R.string.dashboard_resume_series)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:749:                        appContext.getString(R.string.dashboard_resume_episode_format, resumeItem.seasonNumber, resumeItem.episodeNumber)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:751:                        appContext.getString(R.string.dashboard_resume_episode)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:754:                ContentType.LIVE -> appContext.getString(R.string.dashboard_resume_live)
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:760:                actionLabel = appContext.getString(R.string.dashboard_continue_watching),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:768:                summary = appContext.getString(R.string.dashboard_jump_back_live),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:770:                actionLabel = appContext.getString(R.string.dashboard_watch_live),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:778:                summary = movie.year ?: appContext.getString(R.string.dashboard_fresh_movie_pick),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:780:                actionLabel = appContext.getString(R.string.dashboard_open_movies),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:788:                summary = appContext.getString(R.string.dashboard_updated_series),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:790:                actionLabel = appContext.getString(R.string.dashboard_open_series),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:797:            summary = appContext.getString(R.string.dashboard_library_ready),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:799:            actionLabel = appContext.getString(R.string.dashboard_open_live_tv),
+app/src/main/java/com/streamvault/app/ui/screens/dashboard\DashboardViewModel.kt:873:                        userMessage = appContext.getString(R.string.settings_update_install_started)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1006:        title = stringResource(R.string.saved_group_merge_title, source.group.name),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1007:        subtitle = stringResource(R.string.saved_group_manage_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1019:                label = stringResource(R.string.settings_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1131:                    text = stringResource(R.string.favorites_reordering),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1162:            text = stringResource(R.string.favorites_reorder_mode),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1173:            ReorderHintRow(label = stringResource(R.string.favorites_move_up))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1174:            ReorderHintRow(label = stringResource(R.string.favorites_move_down))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1175:            ReorderHintRow(label = stringResource(R.string.favorites_confirm))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:1176:            ReorderHintRow(label = stringResource(R.string.favorites_cancel))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:291:            label = stringResource(R.string.saved_preset_all_saved),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:292:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.allSavedCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:296:            label = stringResource(R.string.saved_preset_home_shelf),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:298:                R.string.library_saved_items_count,
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:304:            label = stringResource(R.string.saved_preset_watch_next),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:305:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.watchNextCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:309:            label = stringResource(R.string.saved_preset_live_recall),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:310:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.liveRecallCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:314:            label = stringResource(R.string.search_movies),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:315:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.movieCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:319:            label = stringResource(R.string.search_series),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:320:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.seriesCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:324:            label = stringResource(R.string.saved_preset_custom_groups),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:325:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedPresetSummary.customGroupCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:331:            label = uiState.activeProviderName ?: stringResource(R.string.saved_scope_current_provider),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:332:            supportingText = stringResource(R.string.saved_scope_current_provider_hint)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:336:            label = stringResource(R.string.saved_scope_all_providers),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:337:            supportingText = stringResource(R.string.saved_scope_all_providers_hint)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:343:            label = stringResource(R.string.search_all),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:344:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedSummary.totalItems)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:348:            label = stringResource(R.string.search_live_tv),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:349:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedSummary.liveCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:353:            label = stringResource(R.string.search_movies),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:354:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedSummary.movieCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:358:            label = stringResource(R.string.search_series),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:359:            supportingText = stringResource(R.string.library_saved_items_count, providerScopedSummary.seriesCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:367:            title = stringResource(R.string.favorites_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:368:            subtitle = stringResource(R.string.saved_shell_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:377:                            text = stringResource(R.string.favorites_loading),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:388:                                text = stringResource(R.string.favorites_no_favorites),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:394:                                text = stringResource(R.string.favorites_empty_hint),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:419:                                title = stringResource(R.string.saved_scope_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:421:                                    R.string.saved_scope_subtitle,
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:422:                                    uiState.activeProviderName ?: stringResource(R.string.settings_overview_no_provider)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:435:                                title = stringResource(R.string.saved_preset_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:436:                                subtitle = stringResource(R.string.saved_preset_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:450:                                title = stringResource(R.string.favorites_filters_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:451:                                subtitle = stringResource(R.string.favorites_filters_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:465:                                title = stringResource(R.string.favorites_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:466:                                subtitle = stringResource(R.string.favorites_sort_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:470:                                        label = stringResource(R.string.favorites_sort_default),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:471:                                        supportingText = stringResource(R.string.favorites_sort_default_hint)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:475:                                        label = stringResource(R.string.favorites_sort_recent),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:476:                                        supportingText = stringResource(R.string.favorites_sort_recent_hint)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:480:                                        label = stringResource(R.string.favorites_sort_title_alpha),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:481:                                        supportingText = stringResource(R.string.favorites_sort_title_hint)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:520:                                    title = stringResource(R.string.favorites_continue_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:521:                                    subtitle = stringResource(R.string.favorites_continue_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:531:                                    title = stringResource(R.string.favorites_recent_live_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:532:                                    subtitle = stringResource(R.string.favorites_recent_live_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:542:                                    title = stringResource(R.string.favorites_jump_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:543:                                    subtitle = stringResource(R.string.favorites_jump_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:549:                                                R.string.library_saved_items_count,
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:569:                                    text = stringResource(R.string.library_filter_empty),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:706:                title = stringResource(R.string.favorites_overview_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:708:                    R.string.favorites_overview_subtitle,
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:715:                    label = stringResource(R.string.search_live_tv),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:720:                    label = stringResource(R.string.search_movies),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:725:                    label = stringResource(R.string.search_series),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:731:                StatusPill(label = stringResource(R.string.favorites_status_pill_format, stringResource(R.string.favorites_continue_short), summary.continueWatchingCount))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:732:                StatusPill(label = stringResource(R.string.favorites_status_pill_format, stringResource(R.string.favorites_recent_short), summary.recentLiveCount))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:853:            text = stringResource(R.string.saved_group_manage_title),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:858:            text = stringResource(R.string.saved_group_manage_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:890:                                stringResource(R.string.saved_group_manage_promoted, group.itemCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:892:                                stringResource(R.string.saved_group_manage_count, group.itemCount)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:914:        subtitle = stringResource(R.string.library_saved_manage_hint),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:919:                    stringResource(R.string.saved_item_remove_saved)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:921:                    stringResource(R.string.saved_item_remove_group)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:928:                    label = stringResource(R.string.saved_item_move_to, target.group.name),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:935:                label = stringResource(R.string.settings_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:95:    val homeShelfGlobalTitle = stringResource(R.string.saved_preset_home_shelf_global_title)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:954:        subtitle = stringResource(R.string.saved_group_manage_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:959:                    label = stringResource(R.string.category_options_reorder),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:96:    val homeShelfGlobalSubtitle = stringResource(R.string.saved_preset_home_shelf_global_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:966:                        stringResource(R.string.saved_group_demote_home)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:968:                        stringResource(R.string.saved_group_promote_home)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:975:                    label = stringResource(R.string.saved_group_merge),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:981:                    stringResource(R.string.saved_group_delete_empty)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:983:                    stringResource(R.string.category_options_delete)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesScreen.kt:991:                label = stringResource(R.string.settings_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:154:                    title = appContext.getString(R.string.favorites_all_favorites),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:155:                    subtitle = appContext.getString(R.string.favorites_saved_items_format, items.size),
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:487:                        appContext.getString(R.string.favorites_removed_home_priority, group.group.name)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:489:                        appContext.getString(R.string.favorites_pinned_home, group.group.name)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:522:                            userMessage = appContext.getString(R.string.favorites_merged_group, source.group.name)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:696:                                ContentType.VOD -> appContext.getString(R.string.nav_vod)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:697:                                ContentType.SERIES -> appContext.getString(R.string.favorites_content_type_series)
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:702:                                        append(appContext.getString(R.string.favorites_content_type_episode_format, s, e))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:704:                                        append(appContext.getString(R.string.favorites_content_type_episode))
+app/src/main/java/com/streamvault/app/ui/screens/favorites\FavoritesViewModel.kt:709:                                ContentType.LIVE -> appContext.getString(R.string.favorites_content_type_live)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:107:                Text(stringResource(R.string.movie_loading_details), color = AppColors.TextSecondary)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:119:                    text = uiState.error ?: stringResource(R.string.movie_not_found),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:241:                    Text(stringResource(R.string.movie_detail_back))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:316:                        text = stringResource(R.string.movie_detail_related),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:407:            StatusPill(label = stringResource(R.string.nav_movies), containerColor = AppColors.BrandMuted)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:460:                        stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:462:                        stringResource(R.string.movie_detail_play)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:473:                Text(stringResource(R.string.stream_url_copy))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:482:                Text(stringResource(R.string.download_button_label))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:494:                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:506:                    Text(stringResource(R.string.movie_detail_trailer))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:519:                        if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:526:            text = movie.plot?.ifBlank { stringResource(R.string.movie_plot_fallback) }
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:527:                ?: stringResource(R.string.movie_plot_fallback),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:545:            text = stringResource(R.string.movie_detail_versions),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:572:        Toast.makeText(context, context.getString(R.string.stream_url_copy_failed), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:576:        ?.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.stream_url_clip_label), url))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:577:    Toast.makeText(context, context.getString(R.string.stream_url_copied), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:600:        MovieFactRow(label = stringResource(R.string.movie_detail_director), value = movie.director)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:601:        MovieFactRow(label = stringResource(R.string.movie_detail_release_date), value = movie.releaseDate)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:602:        MovieFactRow(label = stringResource(R.string.movie_detail_duration), value = movie.duration)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:603:        MovieFactRow(label = stringResource(R.string.movie_detail_genre), value = movie.genre)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:604:        MovieFactRow(label = stringResource(R.string.movie_detail_cast), value = movie.cast)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailScreen.kt:613:    val resolvedValue = value?.takeIf { it.isNotBlank() } ?: stringResource(R.string.movie_detail_unknown)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:191:                            Toast.makeText(context, context.getString(R.string.download_started), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:194:                            Toast.makeText(context, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:199:                    Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:217:                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:221:                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:280:                    CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MovieDetailViewModel.kt:286:                CastStartResult.UNAVAILABLE -> CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_unavailable)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1065:            title = stringResource(R.string.nav_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1066:            filterTitle = stringResource(R.string.library_filter_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1072:            sortTitle = stringResource(R.string.library_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1182:        railTitle = stringResource(R.string.nav_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1185:        railSearchPlaceholder = stringResource(R.string.vod_classic_category_search),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1201:                    R.string.vod_classic_results_count,
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1209:                                if (showSearchBar) R.string.library_action_hide_search else R.string.search_title
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1217:                            label = stringResource(R.string.library_action_filters_sort),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1230:                    placeholder = stringResource(R.string.movies_search_placeholder),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1279:                            title = stringResource(R.string.movies_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1280:                            subtitle = stringResource(R.string.vod_classic_empty_category)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:129:        incorrectPinMessage = context.getString(R.string.movies_incorrect_pin),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1317:                                R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1334:        MovieLibraryLens.FAVORITES -> stringResource(R.string.library_lens_favorites)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1335:        MovieLibraryLens.CONTINUE -> stringResource(R.string.library_lens_continue)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1336:        MovieLibraryLens.TOP_RATED -> stringResource(R.string.library_lens_top_rated)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:1337:        MovieLibraryLens.FRESH -> stringResource(R.string.library_lens_fresh_movies)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:159:            title = stringResource(R.string.nav_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:170:                subtitle = stringResource(R.string.movies_reorder_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:182:                        text = stringResource(R.string.movies_loading),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:190:                    title = stringResource(R.string.home_error_load_failed),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:197:                    title = stringResource(R.string.home_add_first_provider),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:198:                    subtitle = stringResource(R.string.home_add_first_provider_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:204:                    title = stringResource(R.string.vod_sync_needed_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:205:                    subtitle = stringResource(R.string.vod_sync_needed_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:211:                    title = stringResource(R.string.movies_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:212:                    subtitle = stringResource(R.string.movies_no_found_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:483:            title = stringResource(R.string.vod_category_picker_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:484:            subtitle = stringResource(R.string.vod_category_picker_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:535:                            ?: stringResource(R.string.movies_library_lens_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:536:                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:553:                                label = stringResource(R.string.library_full_browse_title_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:554:                                detail = stringResource(R.string.library_full_browse_subtitle, uiState.libraryCount),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:561:                                label = stringResource(R.string.movies_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:570:                                    label = stringResource(R.string.favorites_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:571:                                    detail = stringResource(R.string.library_saved_items_count, favoriteMovies.size),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:580:                                    label = stringResource(R.string.library_lens_continue),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:590:                                    label = stringResource(R.string.library_lens_top_rated),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:600:                                    label = stringResource(R.string.library_lens_fresh_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:621:                    title = stringResource(R.string.favorites_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:670:                    title = stringResource(R.string.library_lens_fresh_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:688:                    title = stringResource(R.string.library_lens_top_rated),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:745:                            R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:769:            title = stringResource(R.string.nav_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:770:            filterTitle = stringResource(R.string.library_filter_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:776:            sortTitle = stringResource(R.string.library_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:816:                    uiState.fullLibraryCategoryName -> stringResource(R.string.library_full_browse_title_movies)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:817:                    else -> uiState.selectedCategory ?: stringResource(R.string.nav_movies)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:831:                                label = stringResource(R.string.nav_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:838:                                label = stringResource(R.string.movies_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:846:                                    if (showSearchBar) R.string.library_action_hide_search else R.string.search_title
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:854:                                label = stringResource(R.string.library_action_filters_sort),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:863:                                    label = stringResource(R.string.library_full_browse_title_movies),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:879:                        placeholder = stringResource(R.string.movies_search_placeholder),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:902:                            text = stringResource(R.string.movies_loading),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:917:                        title = stringResource(R.string.movies_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:918:                        subtitle = stringResource(R.string.movies_no_found_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:956:                        R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:990:    val allLabel = stringResource(R.string.vod_classic_all)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:991:    val continueLabel = stringResource(R.string.vod_classic_continue_watching)
+app/src/main/java/com/streamvault/app/ui/screens/movies\MoviesScreen.kt:992:    val recentLabel = stringResource(R.string.vod_classic_recently_added)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1147:        stringResource(R.string.search_results_count, stringResource(R.string.search_live_tv), uiState.channels.size),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1148:        stringResource(R.string.search_results_count, stringResource(R.string.search_movies), uiState.movies.size),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1149:        stringResource(R.string.search_results_count, stringResource(R.string.search_series), uiState.series.size)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1158:            text = stringResource(R.string.search_results_title, uiState.totalResults),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1174:                        CatalogCompleteness.INDEXING -> R.string.search_catalog_indexing
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1175:                        CatalogCompleteness.TRUNCATED -> R.string.search_catalog_truncated
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1176:                        CatalogCompleteness.PARTIAL -> R.string.search_catalog_downloaded_only
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1177:                        CatalogCompleteness.COMPLETE -> R.string.search_catalog_complete
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1187:                    Text(stringResource(R.string.search_build_complete_index))
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1263:                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_actions_dismiss))
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1271:                        label = if (isFavorite) stringResource(R.string.search_actions_remove_favorite)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1272:                                else stringResource(R.string.search_actions_add_favorite),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1282:                            label = stringResource(R.string.search_actions_hide_category),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1289:                            label = stringResource(R.string.search_actions_hide_no_category),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1300:                            label = if (isProtected) stringResource(R.string.search_actions_unlock)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1301:                                    else stringResource(R.string.search_actions_lock),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:1308:                            label = stringResource(R.string.search_actions_lock_no_category),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:327:    ALL(R.string.search_all),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:328:    LIVE(R.string.search_live_tv),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:329:    MOVIES(R.string.search_movies),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:330:    SERIES(R.string.search_series)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:391:    val selectedStateLabel = stringResource(R.string.a11y_selected)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:453:            title = stringResource(R.string.pin_dialog_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:454:            cancelLabel = stringResource(R.string.pin_dialog_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:493:                        pinError = context.getString(R.string.search_incorrect_pin)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:546:        title = stringResource(R.string.search_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:547:        subtitle = stringResource(R.string.search_screen_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:581:                            title = stringResource(R.string.search_no_provider_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:582:                            subtitle = stringResource(R.string.search_no_provider_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:590:                            title = stringResource(R.string.search_ready_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:591:                            subtitle = stringResource(R.string.search_type_to_search)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:599:                            title = stringResource(R.string.search_loading_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:600:                            subtitle = stringResource(R.string.search_loading_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:608:                            title = stringResource(R.string.search_error_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:609:                            subtitle = stringResource(R.string.search_error_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:617:                            title = stringResource(R.string.search_no_results_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:618:                            subtitle = stringResource(R.string.search_no_results, query)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:635:                                    title = stringResource(R.string.search_live_tv),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:667:                                    title = stringResource(R.string.search_movies),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:696:                                    title = stringResource(R.string.search_series),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:725:                                    SearchTab.ALL -> stringResource(R.string.search_all)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:726:                                    SearchTab.LIVE -> stringResource(R.string.search_live_tv)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:727:                                    SearchTab.MOVIES -> stringResource(R.string.search_movies)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:728:                                    SearchTab.SERIES -> stringResource(R.string.search_series)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:858:                        text = stringResource(R.string.search_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:864:                        text = stringResource(R.string.search_command_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:875:                        stringResource(R.string.search_results_title, totalResults)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:877:                        stringResource(R.string.search_ready_title)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:880:                        stringResource(R.string.search_screen_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:882:                        stringResource(R.string.search_type_to_search)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:891:                placeholder = stringResource(R.string.search_hint),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:922:                        text = stringResource(R.string.search_recent_title),
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:931:                            val recentQueryDescription = stringResource(R.string.a11y_recent_search, recentQuery)
+app/src/main/java/com/streamvault/app/ui/screens/search\SearchScreen.kt:947:                        text = stringResource(R.string.search_clear_history),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:114:            Text(stringResource(R.string.series_loading_details), color = AppColors.TextSecondary)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:127:                text = uiState.error ?: stringResource(R.string.series_not_found),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:254:                    Text(stringResource(R.string.series_detail_back))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:281:                                StatusPill(label = stringResource(R.string.nav_series), containerColor = AppColors.BrandMuted)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:291:                                        label = stringResource(R.string.series_unwatched_badge, unwatchedEpisodeCount),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:320:                                text = series.plot ?: stringResource(R.string.series_plot_fallback),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:369:                                StatusPill(label = stringResource(R.string.nav_series), containerColor = AppColors.BrandMuted)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:379:                                        label = stringResource(R.string.series_unwatched_badge, unwatchedEpisodeCount),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:408:                                text = series.plot ?: stringResource(R.string.series_plot_fallback),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:439:                            text = stringResource(R.string.series_seasons),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:463:                            text = stringResource(R.string.series_episodes, season.episodes.size),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:498:                                    R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:520:            text = stringResource(R.string.series_detail_versions),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:567:                        R.string.series_detail_resume,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:574:                        R.string.series_detail_play_episode,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:588:            Text(stringResource(R.string.stream_url_copy))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:600:                    if (isCasting) R.string.cast_launching else R.string.cast_button_label
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:623:                if (series.isFavorite) R.string.favorites_remove else R.string.favorites_add
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:701:                Text(stringResource(R.string.download_button_label))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:704:                Text(stringResource(R.string.stream_url_copy))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:712:                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:722:        Toast.makeText(context, context.getString(R.string.stream_url_copy_failed), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:726:        ?.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.stream_url_clip_label), url))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailScreen.kt:727:    Toast.makeText(context, context.getString(R.string.stream_url_copied), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:261:                            Toast.makeText(context, context.getString(R.string.download_started), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:264:                            Toast.makeText(context, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:269:                    Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:290:                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:294:                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:353:                    CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesDetailViewModel.kt:359:                CastStartResult.UNAVAILABLE -> CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_unavailable)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1072:            title = stringResource(R.string.nav_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1073:            filterTitle = stringResource(R.string.library_filter_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1079:            sortTitle = stringResource(R.string.library_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1189:        railTitle = stringResource(R.string.nav_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1192:        railSearchPlaceholder = stringResource(R.string.vod_classic_category_search),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1208:                    R.string.vod_classic_results_count,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1216:                                if (showSearchBar) R.string.library_action_hide_search else R.string.search_title
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1224:                            label = stringResource(R.string.library_action_filters_sort),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1237:                    placeholder = stringResource(R.string.series_search_placeholder),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1286:                            title = stringResource(R.string.series_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1287:                            subtitle = stringResource(R.string.vod_classic_empty_category)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:129:        incorrectPinMessage = context.getString(R.string.series_incorrect_pin),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1324:                                R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1341:        SeriesLibraryLens.FAVORITES -> stringResource(R.string.library_lens_favorites)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1342:        SeriesLibraryLens.CONTINUE -> stringResource(R.string.library_lens_continue)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1343:        SeriesLibraryLens.TOP_RATED -> stringResource(R.string.library_lens_top_rated)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:1344:        SeriesLibraryLens.FRESH -> stringResource(R.string.library_lens_fresh_series)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:159:            title = stringResource(R.string.nav_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:170:                subtitle = stringResource(R.string.series_reorder_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:182:                        text = stringResource(R.string.series_loading),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:190:                    title = stringResource(R.string.home_error_load_failed),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:197:                    title = stringResource(R.string.home_add_first_provider),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:198:                    subtitle = stringResource(R.string.home_add_first_provider_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:204:                    title = stringResource(R.string.vod_sync_needed_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:205:                    subtitle = stringResource(R.string.vod_sync_needed_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:211:                    title = stringResource(R.string.series_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:212:                    subtitle = stringResource(R.string.series_no_found_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:482:            title = stringResource(R.string.vod_category_picker_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:483:            subtitle = stringResource(R.string.vod_category_picker_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:535:                            ?: stringResource(R.string.series_library_lens_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:536:                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:553:                                label = stringResource(R.string.library_full_browse_title_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:554:                                detail = stringResource(R.string.library_full_browse_subtitle, uiState.libraryCount),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:561:                                label = stringResource(R.string.series_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:570:                                    label = stringResource(R.string.favorites_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:571:                                    detail = stringResource(R.string.library_saved_items_count, favoriteSeries.size),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:580:                                    label = stringResource(R.string.library_lens_continue),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:590:                                    label = stringResource(R.string.library_lens_top_rated),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:600:                                    label = stringResource(R.string.library_lens_fresh_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:631:                        title = stringResource(R.string.favorites_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:677:                        title = stringResource(R.string.library_lens_fresh_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:695:                        title = stringResource(R.string.library_lens_top_rated),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:751:                            R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:775:            title = stringResource(R.string.nav_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:776:            filterTitle = stringResource(R.string.library_filter_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:782:            sortTitle = stringResource(R.string.library_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:822:                    uiState.fullLibraryCategoryName -> stringResource(R.string.library_full_browse_title_series)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:823:                    else -> uiState.selectedCategory ?: stringResource(R.string.nav_series)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:837:                                label = stringResource(R.string.nav_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:844:                                label = stringResource(R.string.series_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:852:                                    if (showSearchBar) R.string.library_action_hide_search else R.string.search_title
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:860:                                label = stringResource(R.string.library_action_filters_sort),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:869:                                    label = stringResource(R.string.library_full_browse_title_series),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:885:                        placeholder = stringResource(R.string.series_search_placeholder),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:908:                            text = stringResource(R.string.series_loading),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:923:                        title = stringResource(R.string.series_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:924:                        subtitle = stringResource(R.string.series_no_found_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:962:                        R.string.library_load_more,
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:997:    val allLabel = stringResource(R.string.vod_classic_all)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:998:    val continueLabel = stringResource(R.string.vod_classic_continue_watching)
+app/src/main/java/com/streamvault/app/ui/screens/series\SeriesScreen.kt:999:    val recentLabel = stringResource(R.string.vod_classic_recently_added)
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:108:                    title = stringResource(R.string.movies_no_found),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:109:                    subtitle = stringResource(R.string.movies_no_found_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:152:                        label = stringResource(R.string.movies_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:182:            title = stringResource(R.string.vod_category_picker_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:183:            subtitle = stringResource(R.string.vod_category_picker_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:212:                        label = stringResource(R.string.movies_categories_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:234:            title = stringResource(R.string.vod_category_picker_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:235:            subtitle = stringResource(R.string.vod_category_picker_subtitle),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:271:            filterTitle = stringResource(R.string.library_filter_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:277:            sortTitle = stringResource(R.string.library_sort_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:299:                VodActionChip("back", stringResource(R.string.nav_vod), onClick = onBack),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:302:                    stringResource(if (showSearchBar) R.string.library_action_hide_search else R.string.search_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:307:                    stringResource(R.string.library_action_filters_sort),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:320:                placeholder = stringResource(R.string.movies_search_placeholder),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:349:                        label = stringResource(R.string.library_load_more, loadedCount, totalCount),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:70:        title = stringResource(R.string.nav_vod),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:77:                Text(stringResource(R.string.movies_loading))
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:81:                    title = stringResource(R.string.vod_unavailable_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreen.kt:82:                    subtitle = stringResource(R.string.vod_unavailable_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreenCommon.kt:48:        title = stringResource(R.string.pin_dialog_title),
+app/src/main/java/com/streamvault/app/ui/screens/vod\VodScreenCommon.kt:49:        cancelLabel = stringResource(R.string.pin_dialog_cancel),

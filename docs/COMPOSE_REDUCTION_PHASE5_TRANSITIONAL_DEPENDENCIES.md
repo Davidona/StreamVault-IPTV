@@ -109,6 +109,24 @@ distinct type names:
 No row is removal-ready in this slice. The audit therefore produces no source
 or Gradle dependency changes; each row remains explicitly owned by Phase 7.
 
+## Catalog extraction inventory (Task 0, 2026-09-02)
+
+The Catalog slice starts with a temporary `:data` dependency for the concrete
+preference and provider-sync implementations already consumed by the app
+presentation. These imports are recorded explicitly so the extraction does
+not turn a presentation move into an untracked data-layer contract.
+
+| Feature | Imported implementation | Current consumer | Removal direction | Owner |
+|---|---|---|---|---|
+| catalog | `data.preferences.PreferencesRepository` | `MoviesViewModel`, `MovieDetailViewModel`, `SeriesViewModel`, `SeriesDetailViewModel`, `VodViewModel`, `FavoritesViewModel`, `DashboardViewModel` | focused domain-facing preference contracts | Phase 7 |
+| catalog | `data.sync.ProviderSyncStateSource` | `DashboardViewModel` | domain-facing provider synchronization-status contract | Phase 7 |
+
+Catalog does not gain a `:player` dependency or any sibling-feature
+implementation dependency. Cast, download, update, plugin, playback
+preparation, Settings-dialog composition, and the app shell remain app-owned
+adapters at the extraction boundary. The exact source inventory and import
+scan are stored under `validation/phase5_catalog/`.
+
 ## Live extraction inventory (Task 0/4, 2026-08-28)
 
 The live presentation seam now consumes narrow app-host ports while the

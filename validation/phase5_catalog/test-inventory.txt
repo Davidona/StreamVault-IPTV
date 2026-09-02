@@ -1,0 +1,10 @@
+app/src/androidTest\assets\ui-goldens\route_dashboard_default.png
+app/src/androidTest\assets\ui-goldens\route_movies_landing.png
+app/src/androidTest\assets\ui-goldens\route_search_results.png
+app/src/androidTest\assets\ui-goldens\route_series_detail.png
+app/src/androidTest\java\com\streamvault\app\ui\PremiumRouteGoldenTest.kt
+app/src/test\java\com\streamvault\app\navigation\CatalogRouteResolverTest.kt
+app/src/test\java\com\streamvault\app\ui\screens\dashboard\DashboardHomeShelvesTest.kt
+app/src/test\java\com\streamvault\app\ui\screens\movies\MovieDetailViewModelCastingTest.kt
+app/src/test\java\com\streamvault\app\ui\screens\search\SearchViewModelTest.kt
+app/src/test\java\com\streamvault\app\ui\screens\series\SeriesDetailViewModelCastingTest.kt
