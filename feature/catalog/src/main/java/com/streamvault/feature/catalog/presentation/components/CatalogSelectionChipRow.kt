@@ -121,7 +121,7 @@ fun ChipRowSection(
                             }
                             wasFocused = it.isFocused
                         }
-                        .semantics { selected = isSelected },
+                        .semantics(mergeDescendants = true) { selected = isSelected },
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = if (isSelected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
                         focusedContainerColor = if (isSelected && focusedContainerBoostWhenSelected) Primary.copy(alpha = 0.28f) else SurfaceHighlight,

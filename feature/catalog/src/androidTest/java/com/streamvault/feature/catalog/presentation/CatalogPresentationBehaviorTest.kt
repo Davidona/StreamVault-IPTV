@@ -3,7 +3,8 @@ package com.streamvault.feature.catalog.presentation
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.tv.material3.MaterialTheme
 import com.streamvault.feature.catalog.presentation.components.SelectionChip
 import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
@@ -33,7 +34,7 @@ class CatalogPresentationBehaviorTest {
         }
 
         composeRule.onNodeWithText("All").assertIsSelected()
-        composeRule.onNodeWithText("Movies").performClick()
+        composeRule.onNodeWithText("Movies").performSemanticsAction(SemanticsActions.OnClick)
         composeRule.runOnIdle { assertEquals("movies", selectedKey) }
     }
 }
