@@ -90,6 +90,10 @@ out of :app without behavior or stability regressions.
   docs/superpowers/plans/2026-08-28-live-feature-extraction.md
 - Live execution report:
   docs/COMPOSE_REDUCTION_PHASE5_LIVE_REPORT.md
+- Catalog extraction design:
+  docs/superpowers/specs/2026-09-02-phase-5-catalog-feature-extraction-design.md
+- Catalog extraction implementation plan:
+  docs/superpowers/plans/2026-09-02-catalog-feature-extraction.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 

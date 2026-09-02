@@ -894,6 +894,8 @@ Detailed delivery artifacts:
 - [Playback feature extraction implementation plan](superpowers/plans/2026-08-24-playback-feature-extraction.md)
 - [Provider feature extraction implementation plan](superpowers/plans/2026-08-26-provider-feature-extraction.md)
 - [Settings and Live regression audit](COMPOSE_REDUCTION_PHASE5_SETTINGS_LIVE_REGRESSION_AUDIT.md)
+- [Catalog feature extraction design](superpowers/specs/2026-09-02-phase-5-catalog-feature-extraction-design.md)
+- [Catalog feature extraction implementation plan](superpowers/plans/2026-09-02-catalog-feature-extraction.md)
 
 Recommended extraction order:
 
