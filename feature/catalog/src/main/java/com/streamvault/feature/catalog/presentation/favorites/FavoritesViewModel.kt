@@ -1,9 +1,9 @@
-package com.streamvault.app.ui.screens.favorites
+package com.streamvault.feature.catalog.presentation.favorites
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.R
+import com.streamvault.feature.catalog.R
 import com.streamvault.domain.playback.associateByAnyRawId
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType

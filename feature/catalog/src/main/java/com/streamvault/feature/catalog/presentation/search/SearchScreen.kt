@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.search
+package com.streamvault.feature.catalog.presentation.search
 
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -42,16 +42,16 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
 import androidx.tv.material3.*
-import com.streamvault.app.R
-import com.streamvault.app.ui.components.CategoryRow
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.presentation.components.CategoryRow
 import com.streamvault.core.ui.components.SearchInput
-import com.streamvault.app.ui.components.ChannelCard
-import com.streamvault.app.ui.components.ChannelProgressTicker
-import com.streamvault.app.ui.components.MovieCard
-import com.streamvault.app.ui.components.SeriesCard
+import com.streamvault.feature.catalog.presentation.components.ChannelCard
+import com.streamvault.feature.catalog.presentation.components.CatalogChannelProgressTicker
+import com.streamvault.feature.catalog.presentation.components.MovieCard
+import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.TvEmptyState
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.mouseClickable
@@ -71,6 +71,7 @@ import com.streamvault.domain.usecase.SearchContentScope
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.util.AdultContentVisibilityPolicy
+import com.streamvault.core.navigation.AppDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -368,8 +369,7 @@ fun SearchScreen(
     onChannelClick: (Channel) -> Unit,
     onMovieClick: (Movie) -> Unit,
     onSeriesClick: (Series) -> Unit,
-    onNavigate: (String) -> Unit,
-    currentRoute: String,
+    scaffold: CatalogScaffoldContent,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val query by viewModel.query.collectAsStateWithLifecycle()
@@ -378,7 +378,7 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recordingChannelIds by viewModel.recordingChannelIds.collectAsStateWithLifecycle()
     val scheduledChannelIds by viewModel.scheduledChannelIds.collectAsStateWithLifecycle()
-    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
+    val nowMs by CatalogChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -540,14 +540,14 @@ fun SearchScreen(
         )
     }
 
-    AppScreenScaffold(
-        currentRoute = currentRoute,
-        onNavigate = onNavigate,
-        title = stringResource(R.string.search_title),
-        subtitle = stringResource(R.string.search_screen_subtitle),
-        navigationChrome = AppNavigationChrome.TopBar,
-        compactHeader = true,
-        showScreenHeader = false
+    scaffold(
+        AppDestination.Search(),
+        stringResource(R.string.search_title),
+        stringResource(R.string.search_screen_subtitle),
+        CatalogNavigationChrome.TopBar,
+        true,
+        true,
+        false
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.favorites
+package com.streamvault.feature.catalog.presentation.favorites
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -54,15 +54,16 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.R
-import com.streamvault.app.ui.components.SelectionChip
-import com.streamvault.app.ui.components.SelectionChipRow
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.presentation.components.SelectionChip
+import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.core.ui.components.shell.AppHeroHeader
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.theme.OnBackground
@@ -83,8 +84,9 @@ import com.streamvault.core.ui.interaction.TvIconButton
 fun FavoritesScreen(
     onItemClick: (FavoriteUiModel) -> Unit,
     onHistoryClick: (SavedHistoryUiModel) -> Unit,
-    onNavigate: (String) -> Unit,
-    currentRoute: String,
+    currentDestination: AppDestination,
+    onDestinationRequested: (AppDestination) -> Unit,
+    scaffold: CatalogScaffoldContent,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -361,14 +363,14 @@ fun FavoritesScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AppScreenScaffold(
-            currentRoute = currentRoute,
-            onNavigate = onNavigate,
-            title = stringResource(R.string.favorites_title),
-            subtitle = stringResource(R.string.saved_shell_subtitle),
-            navigationChrome = AppNavigationChrome.TopBar,
-            compactHeader = true,
-            showScreenHeader = false
+        scaffold(
+            currentDestination,
+            stringResource(R.string.favorites_title),
+            stringResource(R.string.saved_shell_subtitle),
+            CatalogNavigationChrome.TopBar,
+            true,
+            true,
+            false
         ) {
             when {
                 uiState.isLoading -> {
@@ -592,7 +594,7 @@ fun FavoritesScreen(
                                                 viewModel.saveReorder()
                                             }
                                         } else if (item.favorite.contentType == ContentType.SERIES) {
-                                            onNavigate("series_detail/${item.favorite.contentId}")
+                                            onDestinationRequested(AppDestination.SeriesDetail(item.favorite.contentId))
                                         } else {
                                             onItemClick(item)
                                         }

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.search
+package com.streamvault.feature.catalog.presentation.search
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Channel
