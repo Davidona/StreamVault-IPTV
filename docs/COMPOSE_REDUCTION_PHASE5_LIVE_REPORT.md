@@ -1,6 +1,6 @@
 # Compose Reduction Phase 5: Live report
 
-Date: 2026-08-30
+Date: 2026-09-02
 Slice: `:feature:live` (Phase 5 order 4 of 6)  
 Rollback point: `ea349d83dceb8baa45ef1a18b7a45fa295a264f5`
 
@@ -10,9 +10,8 @@ Home Live TV, categories, channel preview, EPG/Guide presentation, state, and
 dialogs now compile under `:feature:live`. The app remains the composition root
 for route registration, platform/scaffold adapters, typed player request
 mapping, and Playback MultiView composition. The slice is not a Phase 5
-completion claim: the remaining exhaustive fixture-driven journeys, formal
-paired performance/clean-build guardrails, profile regeneration, and
-neighboring slice gates remain open.
+completion claim: the remaining archive-replay fixture, formal paired
+performance/clean-build guardrails, and neighboring slice gates remain open.
 
 ## Ownership and boundaries
 
@@ -102,15 +101,19 @@ following Live checkpoints (plus the final lint fix):
   and 197 up-to-date tasks. The 3.7x clean-run spread makes the formal clean
   guardrail inconclusive without cache-equivalent pre/post snapshots. Exact
   samples and limitations are in `validation/phase5_live/performance-after.md`.
+- Current-tree guardrail rerun (2026-09-01) also passed two warm no-change
+  `:app:assembleDebug --profile` samples (48.435s and 20.162s); the formal
+  paired target remains open because the pre-extraction record is no-change,
+  not an equivalent source-edit snapshot.
 - Fresh `:app:generateBaselineProfile` passed on the `Television_1080p` API 36
-  emulator in 13m 45s: the two `BaselineProfileGenerator` tests passed and the
+  emulator in 25m 13s: both `BaselineProfileGenerator` tests passed and the
   eight separate macrobenchmark tests were skipped by configuration. It
-  generated 48,627 baseline and 31,990 startup rules. The follow-up
+  generated 49,409 baseline and 32,151 startup rules. The follow-up
   `verifyBaselineProfileSources`, `:app:assembleBeta`, and
-  `:app:assembleRelease` passed in 3m 41s (387 actionable tasks; 20 executed,
-  1 from cache, 366 up-to-date). Fresh descriptor scans found zero stale app
-  Home/EPG matches and 1,544 baseline / 43 startup `feature/live` matches.
-  The earlier no-device and native-memory failures remain recorded as
+  `:app:assembleRelease` passed in 10m 27s (387 actionable tasks; 142
+  executed, 14 from cache, 231 up-to-date). Fresh descriptor scans found zero
+  stale app Home/EPG matches and 1,533 baseline / 43 startup `feature/live`
+  matches. The earlier no-device and native-memory failures remain recorded as
   historical attempts; generated profiles were never hand-edited. A direct
   `:benchmark:connectedNonMinifiedReleaseAndroidTest` attempt also passed in
   13m 09s, but its XML again reports the eight macrobenchmark cases as
@@ -119,6 +122,15 @@ following Live checkpoints (plus the final lint fix):
   `coldStartupWithBaselineProfile` median 947.4 ms over 10 iterations. A
   FrameTiming probe failed because the emulator trace contained no RenderThread
   slices, so the broader macrobenchmark performance gate remains open.
+
+- The authorized post-reboot rerun of
+  `:benchmark:connectedNonMinifiedReleaseAndroidTest` also completed with
+  `BUILD SUCCESSFUL` in 23m 59s. Its XML recorded 10 tests, 0 failures, 0
+  errors, and 8 skipped: `startup` and `criticalJourneys` passed, while every
+  `StreamVaultMacrobenchmark` case was skipped by the current instrumentation
+  configuration. This confirms the rerun is healthy but does not produce the
+  missing FrameTiming/navigation measurements; the macrobenchmark gate remains
+  open and no generated profile was hand-edited.
 
 ## Runtime acceptance
 
@@ -148,9 +160,8 @@ through the top navigation. Valid PNG/XML artifacts are in
 `validation/phase5_live/task10-manual.md` and the adjacent
 `task10-manual/` directory. Touch taps on Guide `Program Search`/`Options` did
 not change state on this emulator, although both controls were later reached
-through D-pad focus. Visible channels had no schedule data; the remaining
-schedule/PIN/reminder/recording/archive and filtered-result matrix therefore
-remains open. A
+through D-pad focus. In that earlier pass, visible channels had no schedule
+data, so schedule-dependent actions were not yet exercisable. A
 second Enter handed the
 selected Guide channel to the existing full-screen player; its overlay exposed
 EPG, Multiview, Stats, Record, and Pause, and Back returned to the Guide route.
@@ -212,23 +223,82 @@ labels and two empty slots. The planner was reopened from a queued channel,
 Clear All removed both active slots, and Live TV was restored with no split
 badge, Favorites `0`, and All Channels `1,467`.
 
+A provider-backed EPG pass on 2026-09-01 then exercised the previously blocked
+schedule/PIN paths. In `VIP | 4K ULTRA HD`, `VIP - TNT SPORT ULTIMATE 4K`
+displayed the program `This is TNT Sports Ultimate`; Guide moved between the
+current and future timeline, and the future-program dialog exposed Watch Live,
+Remind Me, Record, recurring record, Program Details, and Cancel. With exact
+alarm access enabled for the app, `Remind Me` changed to `Cancel Reminder` and
+registered an exact alarm; cancellation removed it and restored `Remind Me`.
+Privacy PIN `1234` was saved, the protection level was temporarily changed to
+`LOCKED`, and the same PIN successfully unlocked the locked
+`VIP | GOLDEN EVENTS` category. The temporary category lock was removed and
+the original `HIDDEN` protection level restored. Favorites and saved quick
+filters ended empty. Evidence is in `build/pin-screen.png`,
+`build/unlock-success.xml`, `build/remind-success-clean.xml`,
+`build/remind-cancelled.xml`, and `build/final-favorites.xml`.
+
+A fresh D-pad follow-up after the profile/package validation reopened Guide in
+the currently installed debug state and confirmed the provider currently
+exposed to that package is the M3U fixture without Guide schedule coverage.
+Guide rows rendered `No schedule` / `No schedule data available`; activating
+Program Search with `TNT` returned `No matching programs in this guide window`.
+Back returned to the Home destination with the top navigation focused. The
+captured hierarchies are `build/current-guide.xml`,
+`build/current-guide-search-no-results.xml`, and
+`build/current-guide-after-search.xml`. This is recorded as fixture-limited
+evidence, not as a filtered-result or focus-restoration pass.
+
+A temporary local XMLTV fixture was then used on 2026-09-02 because the native
+Xtream Guide endpoint returned `auth=0` and no usable schedule rows. The fixture
+parsed seven programmes and matched cached channel IDs/names across the
+restored Xtream and M3U providers. It exercised the remaining Guide branches:
+
+- Program Search accepted `VIP`, returned the three matched fixture programmes,
+  and restored focus to the selected VIP channel row after dismissal
+  (`guide-search-vip-fixture.png`, `guide-search-focus-before.png`, and
+  `guide-search-focus-after.png`). This closes the filtered-result and search
+  focus-restoration checks.
+- A future fixture programme scheduled successfully after exact-alarm access
+  was enabled (`guide-record-scheduled-allow.png`). Two overlapping schedules
+  from different providers produced the real Recording Conflict dialog naming
+  both conflicting recordings; it was dismissed with Cancel so no replacement
+  occurred (`guide-recording-conflict.png`). The scheduled fixture rows were
+  subsequently cancelled in Settings > Recording.
+- The `-3h` Guide window exposed a fixture archive programme
+  (`guide-before-archive.png`). Activating it reached the archive callback but
+  returned to Home because the current provider has no replay stream/IDs; no
+  archive playback claim is made. The archive gate remains open until a provider
+  fixture with catch-up metadata is available.
+- Existing MultiView evidence already covers empty and populated planner entry,
+  slot-1 placement, slot removal, occupied-slot replacement, Clear All,
+  two-slot launch, and Back restoration under
+  `validation/phase5_live/task10-multiview/`. No additional provider-backed
+  MultiView branch was left unexercised by this fixture run.
+
+The temporary XMLTV source, provider assignments, scheduled fixture recordings,
+and emulator backup were cleaned up afterward. The active provider was restored
+to Xtream and both provider Guide source policies were returned to Auto; the
+local fixture server was stopped.
+
 ## Open gates
 
-- Full Home/EPG ViewModel-driven manual journey matrix (Guide search focus
-  restoration, mutation, PIN submission/unlock verification, reminders/recording
-  conflicts, archive, focus restoration, and any still-unexercised MultiView cases)
-  remains fixture-dependent and open. Hidden category/channel hide and restore
-  paths, PIN-dialog reachability, RTL/reduced-motion smoke checks, and the
-  core planner placement/removal/replacement/clear and two-slot launch paths
-  are covered in the
-  follow-up fixture/device passes; PIN submission/unlock verification, Guide
-  filtered-result verification, and the unavailable schedule branch remain
-  open. Quick-filter save/reload/remove is no longer open.
+- Deferred — provider fixture: the remaining Home/EPG manual gate is archive
+  playback. The temporary XMLTV
+  fixture proved archive-window rendering and callback routing, but the active
+  provider supplied no replay stream/IDs, so archive playback could not be
+  verified. Search focus restoration, filtered results, recording scheduling,
+  and the real cross-provider conflict dialog now pass. Hidden category/channel
+  hide and restore paths, PIN submission/unlock, reminder scheduling/cancellation,
+  RTL/reduced-motion smoke checks, and the core MultiView
+  placement/removal/replacement/clear and two-slot launch paths are covered.
+  Quick-filter save/reload/remove is no longer open.
 - The feature presentation golden review and the app-owned Live route golden
   review are complete. The app baseline was regenerated from the reviewed
   current capture; the old baseline is preserved as
   `route_live_browse_baseline_before.png` in the ignored follow-up evidence.
-- The formal paired performance target and clean-build guardrail remain open.
+- Deferred — performance follow-up: the formal paired performance target and
+  clean-build guardrail remain open.
   Five
   post-extraction Live source-edit and five moved-test samples are recorded in
   `validation/phase5_live/performance-after.md`; they establish the
@@ -238,14 +308,15 @@ badge, Favorites `0`, and All Channels `1,467`.
   different cache states, so the clean guardrail is inconclusive; five
   final-tree warm no-change samples passed with a 13.690s median.
   `verifyBaselineProfileSources`, Beta assembly, and Release assembly pass
-  against the regenerated 48,627 baseline / 31,990 startup rules. The
+  against the regenerated 49,409 baseline / 32,151 startup rules. The
   baseline-profile producer's eight macrobenchmark tests were skipped by
   configuration, so
   macrobenchmark performance remains open even though profile generation and
   descriptor freshness now pass. Details are in
   `validation/phase5_live/profile-validation.md`.
-- Playback, Provider, and Settings acceptance/performance gates remain governed
-  by their existing reports. The separate Provider and Settings `check` tasks
-  pass; the aggregate neighboring command stops at the pre-existing Playback
-  lint gate (29 errors, first at `PlayerOverlayGoldenTest.kt:51`). Catalog and
-  System were not started. Phase 5 is not complete.
+- Deferred — neighboring slices: Playback, Provider, and Settings
+  acceptance/performance gates remain governed by their existing reports. The
+  separate Provider and Settings `check` tasks pass; the aggregate neighboring
+  command stops at the pre-existing Playback lint gate (29 errors, first at
+  `PlayerOverlayGoldenTest.kt:51`). Catalog and System were not started. Phase
+  5 is not complete until the deferred gates and remaining slices are resolved.

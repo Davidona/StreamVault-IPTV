@@ -1193,9 +1193,9 @@ Capture named 1920x1080 screenshots and sanitized logs. Record unavailable fixtu
 Completed partial planner coverage on 2026-08-29: the seeded emulator exposed
 `All Channels`, so `01 00s Replay` was long-pressed, added to the split-screen
 planner, assigned to slot 1, launched, and returned with Back. Evidence is in
-`validation/phase5_live/task10-multiview/`. The remaining schedule/PIN/
-recording/archive and filtered-result matrix remains open because the loaded
-fixture and TV input path do not expose all branches. A follow-up device pass now records Arabic
+`validation/phase5_live/task10-multiview/`. The remaining archive playback
+branch remains fixture-dependent because the loaded provider does not expose
+replay metadata. A follow-up device pass now records Arabic
 RTL rendering for Live TV and Guide, a reduced-motion D-pad smoke check with
 animation scales at zero, and D-pad reachability for Program Search and Guide
 Options. D-pad activation plus ADB text input now covers category search and
@@ -1204,7 +1204,24 @@ follow-up saved `Movies`, verified it after force-stop/relaunch, and removed it
 through Settings, restoring the empty-filter state.
 Guide Program Search was also activated and accepted `Movies`; the dialog was
 dismissed and Live TV restored, but its visible rows still reported `No
-schedule`, so a distinct filtered-result assertion remains unavailable.
+schedule`, so a distinct filtered-result assertion remained unavailable on that
+fixture.
+
+On 2026-09-02, a temporary local XMLTV source matched seven programmes to the
+cached Xtream/M3U channels and closed the remaining Guide branches. Search for
+`VIP` returned fixture programmes and restored focus to the selected channel
+after dismissal (`build/guide-search-vip-fixture.png`,
+`build/guide-search-focus-before.png`, `build/guide-search-focus-after.png`).
+Future-program recording succeeded after exact-alarm access was enabled, and
+two overlapping cross-provider schedules produced the Recording Conflict
+dialog (`build/guide-recording-conflict.png`); all temporary scheduled rows were
+cancelled afterward. The `-3h` window rendered an archive fixture, but the
+provider had no replay metadata, so activation returned Home and archive
+playback remains open. Existing `task10-multiview` evidence covers empty and
+populated planner entry, placement, removal, replacement, Clear All, two-slot
+launch, and Back restoration; no additional MultiView path was left open in this
+run. The XMLTV source and assignments were deleted after the pass and provider
+Guide policies were restored to Auto.
 
 Follow-up on 2026-08-29 also added and removed two fixture channels from
 Favorites and entered populated Favorites reorder mode before restoring the
@@ -1214,11 +1231,12 @@ existing Settings management dialog so no persistent filter remained. Device
 evidence is under `validation/phase5_live/task11-fixture-flows/`.
 Hidden category/channel paths were exercised and
 restored. The Movies `Lock Group` action also opened the focused `Enter PIN`
-keypad; the configured PIN was unavailable, so Back canceled without changing
-the lock state. Favorite movement and the Save Order callback were exercised in
-a reversible round trip that restored the original order and zero favorites;
-PIN submission/unlock verification and the other fixture-dependent branches
-remain open.
+keypad; the configured PIN was unavailable during that early pass, so Back
+canceled without changing the lock state. A later provider-backed pass saved
+PIN `1234` and successfully unlocked a temporarily locked category. Favorite
+movement and the Save Order callback were exercised in a reversible round trip
+that restored the original order and zero favorites; only archive playback
+remains open in the fixture-dependent Guide matrix.
 
 The planner edge follow-up then populated two slots, removed slot 2, replaced
 an occupied slot 1 with the pending channel, and exercised Clear All before
@@ -1345,6 +1363,12 @@ reflects materially different cache states. The step remains open because no
 equivalent isolated pre-Live/post-Live clean pair exists. Evidence is in
 `validation/phase5_live/performance-after.md`.
 
+Current-tree follow-up (2026-09-01): the clean guardrail was rerun successfully
+and two additional warm no-change `:app:assembleDebug --profile` samples passed
+at 48.435s and 20.162s. The formal paired target remains open because the
+available pre-extraction record is still no-change rather than an equivalent
+source-edit snapshot.
+
 - [x] **Step 4: Regenerate Baseline/Startup Profiles**
 
 ```powershell
@@ -1362,6 +1386,19 @@ baseline and 31,990 startup rules. Earlier native-memory and no-device
 failures remain recorded as historical attempts; no profile source was
 hand-edited.
 
+Current-tree retry (2026-09-01): `:app:generateBaselineProfile` passed in
+25m 13s, and the independent source/Beta/Release command passed in 10m 27s
+with 49,409 baseline and 32,151 startup rules. Both profile-generator tests
+passed, the eight separate macrobenchmark tests were skipped by configuration,
+and no profile source was hand-edited.
+
+Post-reboot direct-run update (2026-09-01):
+`:benchmark:connectedNonMinifiedReleaseAndroidTest` passed in 23m 59s with
+10 tests total, 0 failures, 0 errors, and 8 skipped. The two
+`BaselineProfileGenerator` tests passed; all eight `StreamVaultMacrobenchmark`
+cases were skipped by instrumentation configuration, so this does not close
+the FrameTiming/navigation performance gate.
+
 - [x] **Step 5: Scan profile descriptors**
 
 ```powershell
@@ -1374,6 +1411,9 @@ Expected: zero stale app Home/EPG descriptors and nonzero feature/live descripto
 Retry scan (2026-08-30): the regenerated sources satisfy freshness with zero
 stale app Home/EPG matches and 1,544 baseline / 43 startup `feature/live`
 matches. Details and hashes are in `validation/phase5_live/profile-validation.md`.
+
+Current-tree scan (2026-09-01): the regenerated sources contain zero stale app
+Home/EPG matches and 1,533 baseline / 43 startup `feature/live` matches.
 
 - [x] **Step 6: Write the live execution report**
 
