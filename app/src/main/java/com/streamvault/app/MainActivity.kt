@@ -77,9 +77,10 @@ import com.streamvault.app.settings.AppSettingsPlatformHost
 import com.streamvault.domain.model.Result
 import com.streamvault.feature.settings.api.SettingsPlatformHost
 import com.streamvault.feature.settings.api.SettingsRecordingPlaybackRequest
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), CatalogPlatformHost {
 
     companion object {
         const val EXTRA_PLAYER_REQUEST = "com.streamvault.app.extra.PLAYER_REQUEST"
@@ -348,7 +349,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun openCastRouteChooser() {
+    override fun openCastRouteChooser() {
         startActivity(Intent(this, CastRouteChooserActivity::class.java))
     }
 
