@@ -250,6 +250,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
                             AppNavigation(
                                 coordinator = appNavigationCoordinator,
                                 settingsPlatformHost = settingsPlatformHost,
+                                catalogPlatformHost = this@MainActivity,
                                 onCloseApp = ::finishAffinity
                             )
                             LaunchedEffect(Unit) {

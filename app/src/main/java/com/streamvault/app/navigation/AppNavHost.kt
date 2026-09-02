@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.streamvault.app.navigation.graph.registerCatalogGraph
-import com.streamvault.app.navigation.graph.registerHomeGraph
 import com.streamvault.app.navigation.graph.registerLiveGraph
 import com.streamvault.app.navigation.graph.registerSystemGraph
 import com.streamvault.app.navigation.graph.registerWelcomeGraph
+import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
@@ -22,6 +22,16 @@ import com.streamvault.feature.playback.api.PlaybackPlatformHost
 import com.streamvault.feature.playback.navigation.registerPlaybackGraph
 import com.streamvault.feature.provider.api.ProviderBackupPreviewRequest
 import com.streamvault.feature.provider.navigation.registerProviderGraph
+import com.streamvault.app.navigation.toLivePlayerRequest
+import com.streamvault.app.navigation.toPlayerNavigationRequest
+import com.streamvault.feature.catalog.api.CatalogChannelPlaybackContext
+import com.streamvault.feature.catalog.api.CatalogDashboardShelfCustomizationContent
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.feature.catalog.navigation.registerCatalogGraph
+import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
+import com.streamvault.domain.model.ContentType
 
 @Composable
 internal fun AppNavHost(
@@ -29,6 +39,7 @@ internal fun AppNavHost(
     actions: NavigationActions,
     catalogDetailActions: CatalogDetailNavigationActions,
     payloads: AppNavigationPayloads,
+    catalogPlatformHost: CatalogPlatformHost?,
     playbackPlatformHost: PlaybackPlatformHost?,
     settingsPlatformHost: SettingsPlatformHost,
     startupReady: Boolean,
@@ -64,13 +75,49 @@ internal fun AppNavHost(
                 )
             }
         )
-        registerHomeGraph(actions, catalogDetailActions, onTopLevelDestinationRequested)
         registerLiveGraph(actions, onTopLevelDestinationRequested)
         registerCatalogGraph(
-            actions,
-            catalogDetailActions,
-            payloads,
-            onTopLevelDestinationRequested
+            actions = actions,
+            platformHost = catalogPlatformHost,
+            scaffold = appCatalogScaffold(onTopLevelDestinationRequested),
+            dashboardShelfCustomizationContent = appDashboardShelfCustomizationContent(),
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
+            onOpenMovieDetail = catalogDetailActions::openMovieDetail,
+            onOpenSeriesDetail = catalogDetailActions::openSeriesDetail,
+            onPlayChannel = { channel, playbackContext ->
+                actions.openPlayer(
+                    channel.toLivePlayerRequest(
+                        categoryId = playbackContext.categoryId,
+                        providerId = playbackContext.providerId,
+                        isVirtual = playbackContext.isVirtual,
+                        combinedProfileId = playbackContext.combinedProfileId,
+                        returnDestination = playbackContext.returnDestination
+                    )
+                )
+            },
+            onPlayMovie = { movie, returnDestination ->
+                actions.openPlayer(movie.toPlayerNavigationRequest(returnDestination))
+            },
+            onPlayEpisode = { episode, returnDestination ->
+                actions.openPlayer(episode.toPlayerNavigationRequest(returnDestination))
+            },
+            onPlayHistory = { history, returnDestination ->
+                when (history.contentType) {
+                    ContentType.SERIES -> actions.navigate(
+                        AppDestination.SeriesDetail(history.contentId, returnDestination),
+                        NavigationOptions(launchSingleTop = true)
+                    )
+                    ContentType.LIVE,
+                    ContentType.MOVIE,
+                    ContentType.VOD,
+                    ContentType.SERIES_EPISODE -> actions.openPlayer(
+                        history.toPlayerNavigationRequest(returnDestination)
+                    )
+                }
+            },
+            consumeMoviePresentationHint = payloads::consumeMoviePresentationHint,
+            consumeSeriesPresentationHint = payloads::consumeSeriesPresentationHint,
+            decodeDestination = AppRouteCodec::decode,
         )
         registerPlaybackGraph(actions, playbackPlatformHost, payloads::consumePlayerRequest)
         registerSettingsGraph(
@@ -118,3 +165,31 @@ internal fun AppNavHost(
         registerSystemGraph(actions, onTopLevelDestinationRequested)
     }
 }
+
+private fun appCatalogScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit
+): CatalogScaffoldContent = { currentDestination, title, subtitle, chrome, topBarVisible, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(currentDestination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = when (chrome) {
+            CatalogNavigationChrome.Rail -> AppNavigationChrome.Rail
+            CatalogNavigationChrome.TopBar -> AppNavigationChrome.TopBar
+        },
+        topBarVisible = topBarVisible,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content
+    )
+}
+
+private fun appDashboardShelfCustomizationContent(): CatalogDashboardShelfCustomizationContent =
+    { currentShelves, onDismiss, onSave ->
+        DashboardShelfCustomizationDialog(
+            currentShelves = currentShelves,
+            onDismiss = onDismiss,
+            onSave = onSave
+        )
+    }

@@ -13,12 +13,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.streamvault.app.playback.rememberPlaybackPlatformHost
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.settings.api.SettingsPlatformHost
 
 @Composable
 fun AppNavigation(
     coordinator: AppNavigationCoordinator,
     settingsPlatformHost: SettingsPlatformHost,
+    catalogPlatformHost: CatalogPlatformHost? = null,
     onCloseApp: () -> Unit,
     navController: NavHostController = rememberNavController()
 ) {
@@ -48,6 +50,7 @@ fun AppNavigation(
         payloads = navigator,
         playbackPlatformHost = playbackPlatformHost,
         settingsPlatformHost = settingsPlatformHost,
+        catalogPlatformHost = catalogPlatformHost,
         startupReady = state.startupTarget != null,
         onStartupNavigationRequested = coordinator::requestStartupNavigation,
         onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation,

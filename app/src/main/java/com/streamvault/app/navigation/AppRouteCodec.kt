@@ -6,16 +6,17 @@ import android.net.Uri
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
+import com.streamvault.feature.catalog.navigation.CatalogRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
     const val WELCOME = "welcome"
-    const val HOME = "home"
+    const val HOME = CatalogRoutePatterns.HOME
     const val LIVE_TV = LiveRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = LiveRoutePatterns.LIVE_TV_DESTINATION
-    const val MOVIES = "movies"
-    const val SERIES = "series"
-    const val VOD = "vod"
+    const val MOVIES = CatalogRoutePatterns.MOVIES
+    const val SERIES = CatalogRoutePatterns.SERIES
+    const val VOD = CatalogRoutePatterns.VOD
     const val DOWNLOADS = "downloads"
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
@@ -23,11 +24,11 @@ internal object AppRoutePatterns {
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
     const val PLUGINS = "plugins"
     const val PLAYER = PlaybackRoutePatterns.PLAYER
-    const val SEARCH = "search"
-    const val SEARCH_DESTINATION = "search?query={query}"
+    const val SEARCH = CatalogRoutePatterns.SEARCH
+    const val SEARCH_DESTINATION = CatalogRoutePatterns.SEARCH_DESTINATION
     const val PROVIDER_SETUP = ProviderRoutePatterns.PROVIDER_SETUP
-    const val MOVIE_DETAIL = "movie_detail/{movieId}?returnRoute={returnRoute}"
-    const val SERIES_DETAIL = "series_detail/{seriesId}?returnRoute={returnRoute}"
+    const val MOVIE_DETAIL = CatalogRoutePatterns.MOVIE_DETAIL
+    const val SERIES_DETAIL = CatalogRoutePatterns.SERIES_DETAIL
     const val PARENTAL_CONTROL_GROUPS = "parental_control_groups/{providerId}"
     const val MULTI_VIEW = PlaybackRoutePatterns.MULTI_VIEW
 }

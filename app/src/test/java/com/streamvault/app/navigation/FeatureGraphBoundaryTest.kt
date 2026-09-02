@@ -9,14 +9,14 @@ class FeatureGraphBoundaryTest {
     fun featureGraphsDoNotReferenceRootController() {
         val graphRoots = listOf(
             File("src/main/java/com/streamvault/app/navigation/graph"),
-            File("../feature/provider/src/main/java/com/streamvault/feature/provider/navigation")
+            File("../feature/provider/src/main/java/com/streamvault/feature/provider/navigation"),
+            File("../feature/catalog/src/main/java/com/streamvault/feature/catalog/navigation")
         )
         val files = graphRoots
             .flatMap { root -> root.walkTopDown().filter { it.extension == "kt" }.toList() }
         assertThat(files.map { it.name }).containsAtLeast(
             "WelcomeGraph.kt",
             "ProviderGraph.kt",
-            "HomeGraph.kt",
             "LiveGraph.kt",
             "CatalogGraph.kt",
             "SystemGraph.kt"
