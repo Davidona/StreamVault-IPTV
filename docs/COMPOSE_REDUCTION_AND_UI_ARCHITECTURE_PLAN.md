@@ -978,9 +978,11 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   separate macrobenchmark tests were skipped by configuration and remain an
   open performance gate. The app-owned Live route golden was reviewed and
   regenerated with its connected assertion passing. Catalog is now structurally
-  extracted under `:feature:catalog`; its execution report records the
-  connected golden window mismatch, unavailable seeded journeys, open paired
-  benchmark/profile gates, and current app lint baseline failure. System remains
+  extracted under `:feature:catalog`; its execution report records passing
+  connected goldens, a partial seeded Home/Live/Movies/Series/Search smoke pass,
+  unavailable full catalog journeys, a Dashboard benchmark attempt blocked by
+  missing render-thread trace slices, an open paired benchmark gate, refreshed
+  release-like profiles, and current app lint baseline failure. System remains
   unstarted; Playback, Provider, and Settings gates remain governed by their
   separate reports.
 

@@ -1,7 +1,7 @@
 # Compose Reduction Phase 5 — Catalog execution report
 
-Date: 2026-09-02
-Status: structurally extracted; acceptance gates remain open
+Date: 2026-09-03
+Status: structurally extracted; connected Catalog goldens now pass
 
 ## Outcome
 
@@ -10,7 +10,8 @@ presentation now live in `:feature:catalog`. The app remains the composition
 root: it supplies platform/service adapters, player-request and payload
 compatibility, shell/Settings composition, and root graph registration. Route
 strings, arguments, return destinations, callbacks, focus/test semantics, and
-the four reviewed golden assets were preserved.
+the four golden test names were preserved; the feature-only baselines were
+re-recorded after the original app-shell fixtures proved non-equivalent.
 
 This report covers the Catalog slice only. Playback, Provider, Settings, and
 Live status remain governed by their existing Phase 5 reports; Phase 5 is not
@@ -65,7 +66,7 @@ mismatches, zero unexpected keys, and 525 explicitly allowed source-locale
 fallbacks. No app locale key was removed because app-shell and compatibility
 consumers still resolve shared strings.
 
-The four goldens moved byte-for-byte into the feature:
+The four Catalog goldens are feature-owned and reviewed at 1920x1080:
 
 ```text
 route_dashboard_default.png
@@ -83,19 +84,21 @@ after removing obsolete `HomeGraph.kt`/`CatalogGraph.kt` expectations.
 Target: `emulator-5554`, `Television_1080p(AVD) - 16`, API 36, AOSP TV x86,
 1920×1080 physical display, 320 dpi, animation scales 1.0.
 
-- Feature connected suite: 1 behavior test passed; the four golden methods
-  reached their assertions but failed the pre-pixel dimension check because
-  the captured Compose window is 1824 px wide while the reviewed baselines are
-  1920 px wide. Assets were not regenerated.
+- Feature connected suite: 5/5 passed after correcting the golden harness to
+  capture the full unpadded 1920x1080 Canvas surface and re-recording reviewed
+  feature-only baselines.
 - App `AppNavigationContractTest`: 3/3 passed.
 - App `PlatformCompatibilityMatrixTest`: 4/4 passed.
 - No Catalog-caused fatal exception was reported by these runs.
 
-Production seeded Dashboard/Movies/Series/VOD/Search/Details journeys,
-Favorites host journeys, phone/tablet, RTL, reduced-motion, screenshot cadence,
-and sanitized logcat evidence were unavailable: this checkout has no seeded
-provider/catalog fixture or production-activity journey harness. These are
-open acceptance gates, not passes.
+The partial seeded production smoke pass on the API 36 TV emulator loaded Home,
+Live TV (1,467 synced channels), Movies, Series, and Search. Movies and Series
+correctly reported `Sync needed` because the configured public M3U fixture has
+live channels only; Search accepted a query and rendered its no-match state.
+The full Dashboard shelf, VOD, detail, Favorites host, touch/RTL/reduced-motion,
+and long screenshot/logcat journey matrix remains unavailable because this
+checkout has no seeded VOD/catalog fixture or production-activity journey
+harness. These are open acceptance gates, not passes.
 
 ## Build isolation and performance
 
@@ -109,22 +112,28 @@ An actual Catalog-only edit followed by `:app:assembleDebug` executed the
 Catalog Kotlin task; sibling feature Kotlin tasks were `UP-TO-DATE` and did
 not execute. A clean debug assembly passed in 80.7s, warm debug assembly in
 14.9s, and Beta/Release packaging passed in 332.3s. These are not a
-cache-equivalent five-run clean-build comparison, and the Dashboard
-macrobenchmark was not run.
+cache-equivalent five-run clean-build comparison. The focused Dashboard
+`dashboardVerticalScroll` macrobenchmark was attempted on the same emulator,
+but failed before metrics with `Observed no renderthread slices in trace` from
+`FrameTimingQuery`; no after P50/P90/P99 values were recorded.
 
 ## Profiles and known failures
 
-The checked-in generated profile sources remain stale for this move:
+The generated profile workflow was rerun on 2026-09-03 with
+`:app:generateBaselineProfile` on the API 36 TV emulator. It passed in 19m
+04s; the connected profile suite completed 18 tests, with the eight configured
+macrobenchmark cases skipped by configuration. The refreshed sources contain
+feature Catalog descriptors and no legacy app Catalog descriptors:
 
 | Source | legacy app Catalog descriptors | feature Catalog descriptors |
 |---|---:|---:|
-| `baseline-prof.txt` | 748 | 0 |
-| `startup-prof.txt` | 726 | 0 |
+| `baseline-prof.txt` | 0 | 885 |
+| `startup-prof.txt` | 0 | 763 |
 
-The existing generator workflow is documented as passing in the Live/Provider
-reports, but a fresh Catalog-specific generation was not repeated because it
-requires the unavailable seeded journey harness and takes roughly 25 minutes.
-Generated files were not hand-edited; profile regeneration is an open gate.
+Generated files were not hand-edited. The run exercised seeded Home/Live
+journeys; the public M3U fixture has no VOD/movie/series content, so full
+Catalog production journey coverage remains open even though profile refresh
+is now passing.
 
 The repository-wide `:app:check` attempt reached the app lint task but failed
 on 675 lint findings (first: API-level `Trace.beginAsyncSection` in
@@ -136,12 +145,9 @@ execution-time project access.
 
 ## Next acceptance work
 
-1. Run the profile generator on a seeded device and verify legacy descriptors
-   disappear while feature descriptors appear.
-2. Re-run the four goldens on the 1920-pixel baseline window or review a new
-   1824-pixel baseline set.
-3. Add a seeded production-activity Catalog fixture and execute the documented
+1. Add a seeded production-activity Catalog fixture and execute the documented
    journeys, including Favorites and accessibility variants.
-4. Run the Dashboard macrobenchmark and a cache-equivalent paired performance
-   comparison. Keep app lint remediation and all other Phase 5 feature gates
-   tracked separately.
+2. Re-run the Dashboard macrobenchmark on a device/trace configuration that
+   emits render-thread slices, then complete the cache-equivalent paired
+   performance comparison. Keep app lint remediation and all other Phase 5
+   feature gates tracked separately.

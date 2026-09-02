@@ -112,7 +112,12 @@ stale app Home/EPG descriptors and nonzero `feature/live` descriptors; the
 eight separate macrobenchmark tests were skipped by configuration and remain
 an open performance gate. The app-route Live golden was reviewed and
 regenerated from the current palette, with its connected assertion passing.
-Catalog extraction is structurally implemented through connected validation and
-current-checkout build-isolation samples. Its four golden/window checks,
-seeded production journeys, paired macrobenchmark comparison, and fresh
-baseline-profile generation remain open. System remains unstarted.
+Catalog extraction is structurally implemented with passing connected golden
+checks and current-checkout build-isolation samples. A partial seeded
+Home/Live/Movies/Series/Search smoke pass is recorded; full VOD/detail,
+Favorites, accessibility, and production journey coverage remains unavailable.
+The Dashboard macrobenchmark was attempted but the emulator emitted no
+render-thread slices, so no frame metrics were produced; the paired comparison
+and repository-wide app lint remain open.
+The release-like profile workflow now passes with feature Catalog descriptors.
+System remains unstarted.

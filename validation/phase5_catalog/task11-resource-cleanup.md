@@ -10,14 +10,18 @@ The four Catalog route baselines now live in
 
 | Fixture | Previous path | New path | Content check |
 | --- | --- | --- | --- |
-| `route_dashboard_default.png` | `app/src/androidTest/assets/ui-goldens/` | `feature/catalog/src/androidTest/assets/ui-goldens/` | Git blob unchanged (`89a9ab988988ddd75a1806c9f35f094ed5701df5`) |
-| `route_movies_landing.png` | app | feature | Git blob unchanged (`0765a4041b16abf63e66f1975a120234b27ff0d2`) |
-| `route_series_detail.png` | app | feature | Git blob unchanged (`0e15b61d39b6d6cfb2e5794dcc234886278ce1c0`) |
-| `route_search_results.png` | app | feature | Git blob unchanged (`b10b54fd369396b897171e8d2787f6fadb5bccee`) |
+| `route_dashboard_default.png` | `app/src/androidTest/assets/ui-goldens/` | `feature/catalog/src/androidTest/assets/ui-goldens/` | Re-recorded feature fixture; reviewed SHA-256 `BB9A46C4F9DB40769DD5D3AF620931DAF278A9D09FEA3AFCDC5DB2D09BBFC4A8` |
+| `route_movies_landing.png` | app | feature | Re-recorded feature fixture; reviewed SHA-256 `B43061A9E119619CC510587BF942E6C8E06F33FAA696EC10D3C3C004DA641A02` |
+| `route_series_detail.png` | app | feature | Re-recorded feature fixture; reviewed SHA-256 `D21266C13E1F141CD8950DCA38BDFE273904BE761400D2062FE4E72BB6C247E4` |
+| `route_search_results.png` | app | feature | Re-recorded feature fixture; reviewed SHA-256 `36AA09E63BB632F44DA4C31D662D14D1D9ED66E2811CFB601E7DCC3DB2B7E001` |
 
 `CatalogPresentationGoldenTest` owns the same four test names and baseline
-names. `PremiumRouteGoldenTest` retains only the live and saved/guide/settings
-app-shell fixtures.
+names. The original app-shell assets were not semantically equivalent to the
+feature-only fixture, and their padded test node captured 1824×984 instead of
+the full 1920×1080 target. The feature test now captures an unpadded
+1920×1080 Canvas surface and its reviewed assets are checked in above.
+`PremiumRouteGoldenTest` retains only the live and saved/guide/settings app-shell
+fixtures.
 
 ## Resource audit
 

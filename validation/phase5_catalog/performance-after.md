@@ -53,4 +53,21 @@ Additional guardrails:
 - `:app:assembleBeta :app:assembleRelease`: PASS, 332.3s.
 
 These are current-checkout samples, not a cache-equivalent five-run clean-build
-comparison. The formal macrobenchmark and paired performance gates remain open.
+comparison.
+
+## Dashboard macrobenchmark attempt
+
+The focused `dashboardVerticalScroll` benchmark was attempted against the same
+API 36 TV emulator after installing the benchmark and release artifacts:
+
+```text
+./gradlew.bat :benchmark:connectedBenchmarkBenchmarkAndroidTest
+  -Pandroid.testInstrumentationRunnerArguments.class=
+  com.streamvault.benchmark.StreamVaultMacrobenchmark#dashboardVerticalScroll
+```
+
+The run reached the device but failed before emitting frame metrics with
+`IllegalStateException: Observed no renderthread slices in trace` from
+`FrameTimingQuery`. No P50/P90/P99 after values were recorded, so the formal
+cache-equivalent paired performance gate remains open pending a device/trace
+configuration that produces render-thread slices.

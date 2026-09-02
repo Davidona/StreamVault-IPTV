@@ -24,13 +24,14 @@
 - Do not close Playback, Provider, Settings, or Live gates from this slice.
 - Run `graphify update .` after code changes.
 
-## Execution status (2026-09-02)
+## Execution status (2026-09-03)
 
 Tasks 0–12 are implemented and their evidence is recorded under
-`validation/phase5_catalog/`. Task 13 structural/build-isolation work is also
-recorded in `performance-after.md`; the connected golden window, seeded
-journeys, Dashboard macrobenchmark, fresh profile generation, and repository-
-wide app lint remain open or unavailable as documented in
+`validation/phase5_catalog/`. Task 13 structural/build-isolation and profile
+work is also recorded there. The available seeded Home/Live/Movies/Series/
+Search smoke pass is documented; full seeded journeys, the Dashboard
+macrobenchmark (attempted but blocked by missing render-thread trace slices),
+and repository-wide app lint remain open or unavailable as documented in
 `docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md`. Do not interpret this
 status as completion of Phase 5.
 

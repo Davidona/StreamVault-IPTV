@@ -1,13 +1,11 @@
 package com.streamvault.feature.catalog
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -15,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.tv.material3.MaterialTheme
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.core.ui.components.shell.AppSectionHeader
@@ -93,7 +92,12 @@ class CatalogPresentationGoldenTest {
         composeRule.setContent {
             StreamVaultTheme {
                 MaterialTheme {
-                    Box(Modifier.fillMaxSize().padding(24.dp).testTag("golden")) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(AppColors.Canvas)
+                            .testTag("golden")
+                    ) {
                         content()
                     }
                 }

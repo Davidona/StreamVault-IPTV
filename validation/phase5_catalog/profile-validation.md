@@ -1,23 +1,24 @@
 # Catalog profile validation
 
-Date: 2026-09-02
+Date: 2026-09-03
 
-The checked-in generated profile sources were inspected after the Catalog move.
-They currently contain the pre-extraction app-package descriptors and no
-`com/streamvault/feature/catalog` descriptors:
+The generated profile workflow was rerun on 2026-09-03 with
+`:app:generateBaselineProfile` on `emulator-5554` (`Television_1080p(AVD)`,
+API 36). It passed in 19m 04s; the connected profile suite finished 18 tests,
+with the eight configured macrobenchmark cases skipped by configuration.
+
+The refreshed profile sources now contain feature Catalog descriptors and no
+legacy app Catalog descriptors:
 
 | Source | Legacy app Catalog matches | Feature Catalog matches |
 |---|---:|---:|
-| `app/src/main/generated/baselineProfiles/baseline-prof.txt` | 748 | 0 |
-| `app/src/main/generated/baselineProfiles/startup-prof.txt` | 726 | 0 |
+| `app/src/main/generated/baselineProfiles/baseline-prof.txt` | 0 | 885 |
+| `app/src/main/generated/baselineProfiles/startup-prof.txt` | 0 | 763 |
 
-This is an open gate. The existing Phase 5 Live/Provider reports record a
-successful profile-generation workflow on the same API 36 TV emulator, but a
-fresh Catalog-specific `:app:generateBaselineProfile` run was not repeated in
-this slice because that workflow takes roughly 25 minutes and requires seeded
-profile journeys. The generated files were not hand-edited. Re-run the
-existing generator, then verify that legacy Catalog descriptors are absent and
-feature descriptors are present before claiming profile completion.
+The generated files were not hand-edited. The profile run exercised seeded
+Home/Live journeys; the public M3U fixture does not provide VOD/movie/series
+content, so it is profile evidence rather than full Catalog journey coverage.
 
 The current packaging guardrail (`:app:assembleBeta` and
-`:app:assembleRelease`) passed; it does not substitute for profile generation.
+`:app:assembleRelease`) passed after generation. The Dashboard macrobenchmark
+remains open because its configured test is skipped.
