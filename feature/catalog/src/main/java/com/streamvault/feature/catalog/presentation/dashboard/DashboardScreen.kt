@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.dashboard
+package com.streamvault.feature.catalog.presentation.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,25 +50,25 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import com.streamvault.app.R
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.catalog.R
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.ChannelLogoBadge
-import com.streamvault.app.ui.components.ChannelProgressTicker
-import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.components.CategoryRow
-import com.streamvault.app.ui.components.ChannelCard
-import com.streamvault.app.ui.components.ContinueWatchingRow
-import com.streamvault.app.ui.components.MovieCard
+import com.streamvault.feature.catalog.presentation.components.CatalogChannelProgressTicker
+import com.streamvault.feature.catalog.presentation.components.CategoryRow
+import com.streamvault.feature.catalog.presentation.components.ChannelCard
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
+import com.streamvault.feature.catalog.presentation.components.MovieCard
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.app.ui.components.SeriesCard
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.shell.AppHeroHeader
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
-import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.app.ui.time.createDateTimeFormat
+import com.streamvault.feature.catalog.presentation.time.LocalCatalogTimeFormat
+import com.streamvault.feature.catalog.presentation.time.createCatalogDateTimeFormat
+import com.streamvault.feature.catalog.api.CatalogDashboardShelfCustomizationContent
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.ui.design.AppColors.Brand as Primary
 import com.streamvault.core.ui.design.AppColors.Focus as FocusBorder
 import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceElevated
@@ -94,20 +94,21 @@ import com.streamvault.core.ui.interaction.TvIconButton
 
 @Composable
 fun DashboardScreen(
-    onNavigate: (String) -> Unit,
+    onDestinationRequested: (AppDestination) -> Unit,
     onAddProvider: () -> Unit,
     onRecentChannelClick: (Channel, Long?) -> Unit,
     onFavoriteChannelClick: (Channel, Long?) -> Unit,
     onMovieClick: (Movie) -> Unit,
     onSeriesClick: (Series) -> Unit,
     onPlaybackHistoryClick: (PlaybackHistory) -> Unit,
-    currentRoute: String,
+    scaffold: CatalogScaffoldContent,
+    dashboardShelfCustomizationContent: CatalogDashboardShelfCustomizationContent,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recordingChannelIds by viewModel.recordingChannelIds.collectAsStateWithLifecycle()
     val scheduledChannelIds by viewModel.scheduledChannelIds.collectAsStateWithLifecycle()
-    val nowMs by ChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
+    val nowMs by CatalogChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val provider = uiState.provider
     val snackbarHostState = remember { SnackbarHostState() }
     var showHomeCustomizationDialog by remember { mutableStateOf(false) }
@@ -120,21 +121,21 @@ fun DashboardScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AppScreenScaffold(
-            currentRoute = currentRoute,
-            onNavigate = onNavigate,
-            title = stringResource(R.string.nav_home),
-            subtitle = provider?.name,
-            navigationChrome = AppNavigationChrome.TopBar,
-            compactHeader = true,
-            showScreenHeader = false
+        scaffold(
+            AppDestination.Home,
+            stringResource(R.string.nav_home),
+            provider?.name,
+            CatalogNavigationChrome.TopBar,
+            true,
+            true,
+            false
         ) {
             if (provider == null) {
                 EmptyDashboard(
                     onAddProvider = onAddProvider,
-                    onOpenSettings = { onNavigate(Routes.SETTINGS) }
+                    onOpenSettings = { onDestinationRequested(AppDestination.Settings()) }
                 )
-                return@AppScreenScaffold
+                return@scaffold
             }
             val orderedSections = rememberDashboardSections(uiState)
             val onContinueWatchingItemClick: (PlaybackHistory) -> Unit = { history ->
@@ -176,7 +177,7 @@ fun DashboardScreen(
                     item(key = "provider_warnings") {
                         DashboardProviderWarningCard(
                             warnings = uiState.providerWarnings,
-                            onOpenSettings = { onNavigate(Routes.SETTINGS) }
+                            onOpenSettings = { onDestinationRequested(com.streamvault.core.navigation.AppDestination.Settings()) }
                         )
                     }
                 }
@@ -184,7 +185,7 @@ fun DashboardScreen(
                     item(key = "update_notice") {
                         DashboardUpdateCard(
                             notice = updateNotice,
-                            onOpenSettings = { onNavigate(Routes.SETTINGS) },
+                            onOpenSettings = { onDestinationRequested(AppDestination.Settings()) },
                             onInstallUpdate = viewModel::installDownloadedUpdate
                         )
                     }
@@ -201,15 +202,15 @@ fun DashboardScreen(
                         shortcuts = uiState.liveShortcuts,
                         onShortcutClick = { shortcut ->
                             shortcut.categoryId?.let { categoryId ->
-                                onNavigate(Routes.liveTv(categoryId))
-                            } ?: onNavigate(Routes.LIVE_TV)
+                                onDestinationRequested(AppDestination.LiveTv(categoryId))
+                            } ?: onDestinationRequested(AppDestination.LiveTv())
                         }
                     )
 
                     AppHomeDashboardShelf.FAVORITE_CHANNELS -> FavoriteChannelsRow(
                         title = stringResource(R.string.dashboard_favorite_channels),
                         channels = uiState.favoriteChannels,
-                        onSeeAll = { onNavigate(Routes.liveTv(com.streamvault.domain.model.VirtualCategoryIds.FAVORITES)) },
+                        onSeeAll = { onDestinationRequested(AppDestination.LiveTv(com.streamvault.domain.model.VirtualCategoryIds.FAVORITES)) },
                         onChannelClick = { channel ->
                             onFavoriteChannelClick(channel, uiState.currentCombinedProfileId)
                         }
@@ -219,7 +220,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_recent_channels),
                         items = uiState.recentChannels,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.liveTv(com.streamvault.domain.model.VirtualCategoryIds.RECENT)) }
+                        onSeeAll = { onDestinationRequested(AppDestination.LiveTv(com.streamvault.domain.model.VirtualCategoryIds.RECENT)) }
                     ) { channel ->
                         ChannelCard(
                             channel = channel,
@@ -246,7 +247,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_recent_movies),
                         items = uiState.recentMovies,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.MOVIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
                     ) { movie ->
                         MovieCard(
                             movie = movie,
@@ -258,7 +259,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_recent_series),
                         items = uiState.recentSeries,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.SERIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Series) }
                     ) { series ->
                         SeriesCard(
                             series = series,
@@ -271,7 +272,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_favorite_movies),
                         items = uiState.favoriteMovies,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.MOVIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
                     ) { movie ->
                         MovieCard(movie = movie, onClick = { onMovieClick(movie) })
                     }
@@ -280,7 +281,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_favorite_series),
                         items = uiState.favoriteSeries,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.SERIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Series) }
                     ) { series ->
                         SeriesCard(
                             series = series,
@@ -305,7 +306,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_top_rated_movies),
                         items = uiState.topRatedMovies,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.MOVIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
                     ) { movie ->
                         MovieCard(movie = movie, onClick = { onMovieClick(movie) })
                     }
@@ -314,7 +315,7 @@ fun DashboardScreen(
                         title = stringResource(R.string.dashboard_recommended_movies),
                         items = uiState.recommendedMovies,
                         keySelector = { it.id },
-                        onSeeAll = { onNavigate(Routes.MOVIES) }
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
                     ) { movie ->
                         MovieCard(movie = movie, onClick = { onMovieClick(movie) })
                     }
@@ -332,10 +333,10 @@ fun DashboardScreen(
     }
 
     if (showHomeCustomizationDialog) {
-        DashboardShelfCustomizationDialog(
-            currentShelves = uiState.homeDashboardShelves,
-            onDismiss = { showHomeCustomizationDialog = false },
-            onSave = { shelves ->
+        dashboardShelfCustomizationContent(
+            uiState.homeDashboardShelves,
+            { showHomeCustomizationDialog = false },
+            { shelves ->
                 viewModel.setHomeDashboardShelves(shelves)
                 showHomeCustomizationDialog = false
             }
@@ -602,8 +603,8 @@ private fun DashboardProviderHealthCard(
     onOpenDiagnostics: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val appTimeFormat = LocalAppTimeFormat.current
-    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createDateTimeFormat() }
+    val appTimeFormat = LocalCatalogTimeFormat.current
+    val dateTimeFormat = remember(appTimeFormat) { appTimeFormat.createCatalogDateTimeFormat() }
     val syncLabel = remember(health.lastSyncedAt, dateTimeFormat) {
         if (health.lastSyncedAt <= 0L) {
             context.getString(R.string.dashboard_provider_no_sync)

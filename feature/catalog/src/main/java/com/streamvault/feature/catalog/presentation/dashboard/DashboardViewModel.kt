@@ -1,14 +1,13 @@
-package com.streamvault.app.ui.screens.dashboard
+package com.streamvault.feature.catalog.presentation.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.sync.ProviderSyncStateSource
-import com.streamvault.app.update.AppUpdateActionState
-import com.streamvault.app.update.AppUpdateInstaller
-import com.streamvault.app.update.isRemoteVersionNewer
-import com.streamvault.app.update.latestAppUpdateAction
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.api.CatalogAppUpdatePort
+import com.streamvault.feature.catalog.api.CatalogUpdateAction
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.Category
@@ -37,7 +36,6 @@ import com.streamvault.domain.usecase.GetCustomCategories
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStatus
 import android.content.Context
-import com.streamvault.app.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
@@ -75,7 +73,7 @@ class DashboardViewModel @Inject constructor(
     private val getContinueWatching: GetContinueWatching,
     private val getCustomCategories: GetCustomCategories,
     private val syncManager: ProviderSyncStateSource,
-    private val appUpdateInstaller: AppUpdateInstaller,
+    private val appUpdatePort: CatalogAppUpdatePort,
     private val recordingManager: RecordingManager
 ) : ViewModel() {
     private companion object {
@@ -674,50 +672,16 @@ class DashboardViewModel @Inject constructor(
     private fun Movie.rawMovieIdsForDashboard(): List<Long> =
         variants.map { it.rawMovieId }.ifEmpty { listOf(id) }
 
-    private fun observeUpdateNotice(): Flow<DashboardUpdateNotice?> {
-        val cachedRelease = combine(
-            preferencesRepository.cachedAppUpdateVersionName,
-            preferencesRepository.cachedAppUpdateVersionCode,
-            preferencesRepository.cachedAppUpdatePublishedAt,
-            preferencesRepository.cachedAppUpdateDownloadUrl,
-            preferencesRepository.cachedAppUpdateDownloadSha256
-        ) { latestVersionName, latestVersionCode, publishedAt, downloadUrl, downloadSha256 ->
-            DashboardCachedUpdateRelease(
-                latestVersionName = latestVersionName,
-                latestVersionCode = latestVersionCode,
-                publishedAt = publishedAt,
-                downloadUrl = downloadUrl,
-                downloadSha256 = downloadSha256
-            )
-        }
-
-        return cachedRelease.combine(appUpdateInstaller.downloadState) { release, downloadState ->
-            val latestVersionName = release.latestVersionName
-            if (latestVersionName.isNullOrBlank()) {
-                return@combine null
-            }
-
-            val updateAvailable = isRemoteVersionNewer(
-                release.latestVersionCode,
-                latestVersionName,
-                release.publishedAt
-            )
-            if (!updateAvailable) {
-                return@combine null
-            }
-
-            DashboardUpdateNotice(
-                latestVersionName = latestVersionName,
-                downloadSha256 = release.downloadSha256,
-                actionState = latestAppUpdateAction(
-                    latestVersionName = latestVersionName,
-                    downloadUrl = release.downloadUrl,
-                    isUpdateAvailable = updateAvailable,
-                    downloadState = downloadState
+    private fun observeUpdateNotice(): Flow<DashboardUpdateNotice?> =
+        appUpdatePort.notice.map { notice ->
+            notice?.let {
+                DashboardUpdateNotice(
+                    latestVersionName = it.latestVersionName,
+                    downloadSha256 = it.downloadSha256,
+                    actionState = it.action
                 )
-            )
+            }
         }
-    }
 
     private fun buildFeature(
         providerName: String,
@@ -864,7 +828,7 @@ class DashboardViewModel @Inject constructor(
     fun installDownloadedUpdate() {
         viewModelScope.launch {
             val expectedSha256 = _uiState.value.updateNotice?.downloadSha256
-            when (val result = appUpdateInstaller.installDownloadedUpdate(expectedSha256)) {
+            when (val result = appUpdatePort.installDownloadedUpdate(expectedSha256)) {
                 is com.streamvault.domain.model.Result.Error -> {
                     _uiState.value = _uiState.value.copy(userMessage = result.message)
                 }
@@ -924,14 +888,6 @@ private data class DashboardSnapshot(
     val pinnedSeriesCategories: Map<String, List<Series>> = emptyMap()
 )
 
-private data class DashboardCachedUpdateRelease(
-    val latestVersionName: String?,
-    val latestVersionCode: Int?,
-    val publishedAt: String?,
-    val downloadUrl: String?,
-    val downloadSha256: String?
-)
-
 data class DashboardUiState(
     val provider: Provider? = null,
     val homeDashboardShelves: List<AppHomeDashboardShelf> = AppHomeDashboardShelf.defaultOrder,
@@ -965,13 +921,13 @@ data class DashboardUiState(
 data class DashboardUpdateNotice(
     val latestVersionName: String,
     val downloadSha256: String?,
-    val actionState: AppUpdateActionState
+    val actionState: CatalogUpdateAction
 ) {
     val installReady: Boolean
-        get() = actionState == AppUpdateActionState.InstallLatest
+        get() = actionState == CatalogUpdateAction.InstallLatest
 
     val installPermissionRequired: Boolean
-        get() = actionState == AppUpdateActionState.InstallPermissionRequired
+        get() = actionState == CatalogUpdateAction.InstallPermissionRequired
 }
 
 data class DashboardProviderHealth(

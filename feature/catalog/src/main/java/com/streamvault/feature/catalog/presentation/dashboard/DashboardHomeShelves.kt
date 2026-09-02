@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.dashboard
+package com.streamvault.feature.catalog.presentation.dashboard
 
 import com.streamvault.domain.model.AppHomeDashboardShelf
 

@@ -7,7 +7,13 @@ import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.CatalogDetailNavigationActions
 import com.streamvault.app.navigation.toPlayerNavigationRequest
 import com.streamvault.app.navigation.toLivePlayerRequest
-import com.streamvault.app.ui.screens.dashboard.DashboardScreen
+import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.app.ui.components.shell.AppScreenScaffold
+import com.streamvault.feature.catalog.api.CatalogDashboardShelfCustomizationContent
+import com.streamvault.feature.catalog.api.CatalogNavigationChrome
+import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.feature.catalog.presentation.dashboard.DashboardScreen
+import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
@@ -20,9 +26,7 @@ internal fun NavGraphBuilder.registerHomeGraph(
 ) {
     composable(AppRoutePatterns.HOME) {
         DashboardScreen(
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
+            onDestinationRequested = onTopLevelDestinationRequested,
             onAddProvider = {
                 actions.navigate(AppDestination.ProviderSetup())
             },
@@ -68,7 +72,38 @@ internal fun NavGraphBuilder.registerHomeGraph(
                     )
                 }
             },
-            currentRoute = AppRoutePatterns.HOME
+            scaffold = homeScaffold(onTopLevelDestinationRequested),
+            dashboardShelfCustomizationContent = homeShelfCustomizationContent()
         )
     }
 }
+
+private fun homeScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit
+): CatalogScaffoldContent = { _, title, subtitle, chrome, topBarVisible, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = AppRoutePatterns.HOME,
+        onNavigate = { route ->
+            AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
+        },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = when (chrome) {
+            CatalogNavigationChrome.Rail -> AppNavigationChrome.Rail
+            CatalogNavigationChrome.TopBar -> AppNavigationChrome.TopBar
+        },
+        topBarVisible = topBarVisible,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content
+    )
+}
+
+private fun homeShelfCustomizationContent(): CatalogDashboardShelfCustomizationContent =
+    { currentShelves, onDismiss, onSave ->
+        DashboardShelfCustomizationDialog(
+            currentShelves = currentShelves,
+            onDismiss = onDismiss,
+            onSave = onSave
+        )
+    }
