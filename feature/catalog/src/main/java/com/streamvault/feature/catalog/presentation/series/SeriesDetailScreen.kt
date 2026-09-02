@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.series
+package com.streamvault.feature.catalog.presentation.series
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -57,18 +57,19 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import com.streamvault.app.MainActivity
-import com.streamvault.app.R
-import com.streamvault.feature.playback.cast.CastUiEvent
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.feature.catalog.presentation.catalogMessageText
+import com.streamvault.feature.catalog.presentation.components.EpisodeRowCard
+import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
+import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.time.formatPositionMs
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.app.util.formatPositionMs
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
-import com.streamvault.app.ui.components.shell.EpisodeRowCard
-import com.streamvault.app.ui.components.shell.ExternalRatingsStrip
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
-import com.streamvault.app.ui.model.formatVodRatingLabel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Season
@@ -87,19 +88,22 @@ fun SeriesDetailScreen(
     onEpisodeClick: (Episode) -> Unit,
     onResumeClick: ((Episode) -> Unit)? = null,
     onBack: () -> Unit,
+    platformHost: CatalogPlatformHost? = null,
     viewModel: SeriesDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val series = uiState.series
     val context = LocalContext.current
-    val mainActivity = remember(context) { context.findMainActivity() }
 
-    LaunchedEffect(viewModel, context, mainActivity) {
-        viewModel.castEvents.collect { event ->
+    LaunchedEffect(viewModel, context, platformHost) {
+        viewModel.uiEvents.collect { event ->
             when (event) {
-                CastUiEvent.OpenRouteChooser -> mainActivity?.openCastRouteChooser()
-                is CastUiEvent.ShowMessage ->
-                    Toast.makeText(context, context.getString(event.messageResId), Toast.LENGTH_SHORT).show()
+                CatalogUiEvent.OpenCastRouteChooser -> platformHost?.openCastRouteChooser()
+                is CatalogUiEvent.ShowMessage -> Toast.makeText(
+                    context,
+                    context.catalogMessageText(event.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -152,7 +156,7 @@ fun SeriesDetailScreen(
             }
         },
         onDownloadEpisode = { episode ->
-            viewModel.downloadEpisode(context, episode)
+            viewModel.downloadEpisode(episode)
         },
         onCastResumeEpisode = viewModel::castResumeEpisode,
         onCastEpisode = viewModel::castEpisode,
@@ -727,8 +731,3 @@ private fun copyStreamUrlToClipboard(context: android.content.Context, url: Stri
     Toast.makeText(context, context.getString(R.string.stream_url_copied), Toast.LENGTH_SHORT).show()
 }
 
-private tailrec fun Context.findMainActivity(): MainActivity? = when (this) {
-    is MainActivity -> this
-    is ContextWrapper -> baseContext.findMainActivity()
-    else -> null
-}

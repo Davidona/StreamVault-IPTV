@@ -4,19 +4,20 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.compose.ui.platform.LocalContext
 import com.streamvault.app.navigation.AppNavigationPayloads
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
 import com.streamvault.app.navigation.CatalogDetailNavigationActions
 import com.streamvault.app.navigation.toLivePlayerRequest
 import com.streamvault.app.navigation.toPlayerNavigationRequest
-import com.streamvault.app.ui.screens.movies.MovieDetailScreen
 import com.streamvault.app.ui.screens.search.SearchScreen
-import com.streamvault.app.ui.screens.series.SeriesDetailScreen
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.feature.catalog.presentation.movies.MoviesScreen
+import com.streamvault.feature.catalog.presentation.movies.MovieDetailScreen
 import com.streamvault.feature.catalog.presentation.series.SeriesScreen
+import com.streamvault.feature.catalog.presentation.series.SeriesDetailScreen
 import com.streamvault.feature.catalog.presentation.vod.VodScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
@@ -125,6 +126,7 @@ internal fun NavGraphBuilder.registerCatalogGraph(
             .takeIf { it.isNotBlank() }
             ?.let(AppRouteCodec::decode)
         val movieId = backStackEntry.arguments?.getLong("movieId") ?: -1L
+        val platformHost = LocalContext.current as? com.streamvault.feature.catalog.api.CatalogPlatformHost
         MovieDetailScreen(
             onPlay = { movie ->
                 actions.openPlayer(
@@ -136,7 +138,8 @@ internal fun NavGraphBuilder.registerCatalogGraph(
                     )
                 )
             },
-            onBack = { actions.returnTo(returnDestination) }
+            onBack = { actions.returnTo(returnDestination) },
+            platformHost = platformHost
         )
     }
 
@@ -153,6 +156,7 @@ internal fun NavGraphBuilder.registerCatalogGraph(
             .takeIf { it.isNotBlank() }
             ?.let(AppRouteCodec::decode)
         val seriesId = backStackEntry.arguments?.getLong("seriesId") ?: -1L
+        val platformHost = LocalContext.current as? com.streamvault.feature.catalog.api.CatalogPlatformHost
         SeriesDetailScreen(
             onEpisodeClick = { episode ->
                 actions.openPlayer(
@@ -164,7 +168,8 @@ internal fun NavGraphBuilder.registerCatalogGraph(
                     )
                 )
             },
-            onBack = { actions.returnTo(returnDestination) }
+            onBack = { actions.returnTo(returnDestination) },
+            platformHost = platformHost
         )
     }
 }

@@ -1,26 +1,17 @@
-package com.streamvault.app.ui.screens.series
+package com.streamvault.feature.catalog.presentation.series
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.R
-import com.streamvault.feature.playback.R as PlaybackFeatureR
-import com.streamvault.feature.playback.api.CastMediaRequest
-import com.streamvault.feature.playback.cast.CastMediaRequestFactory
-import com.streamvault.feature.playback.cast.CastMediaRequestBuildResult
-import com.streamvault.feature.playback.cast.CastPlaybackEvent
-import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
-import com.streamvault.feature.playback.cast.CastPlaybackReportMode
-import com.streamvault.feature.playback.cast.CastStartResult
-import com.streamvault.feature.playback.cast.CastUiEvent
-import com.streamvault.feature.playback.cast.toCastBuildFailureMessageRes
-import com.streamvault.feature.playback.cast.toCastPlaybackMessageRes
-import com.streamvault.feature.playback.cast.toCastUnsupportedMessageRes
-import com.streamvault.app.navigation.SERIES_DETAIL_PRESENTATION_HINT_KEY
-import com.streamvault.app.plugins.StreamVaultPluginManager
-import com.streamvault.app.service.DownloadForegroundService
+import com.streamvault.feature.catalog.api.CatalogCastPlaybackEvent
+import com.streamvault.feature.catalog.api.CatalogCastPort
+import com.streamvault.feature.catalog.api.CatalogCastRequest
+import com.streamvault.feature.catalog.api.CatalogCastStartResult
+import com.streamvault.feature.catalog.api.CatalogDownloadStarter
+import com.streamvault.feature.catalog.api.CatalogMessage
+import com.streamvault.feature.catalog.api.CatalogStreamPreparer
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.feature.catalog.navigation.CatalogRoutePatterns
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.DownloadContentType
@@ -62,10 +53,10 @@ class SeriesDetailViewModel @Inject constructor(
     private val externalRatingsRepository: ExternalRatingsRepository,
     private val favoriteRepository: FavoriteRepository,
     private val preferencesRepository: PreferencesRepository,
-    private val pluginManager: StreamVaultPluginManager,
+    private val streamPreparer: CatalogStreamPreparer,
     private val downloadManager: DownloadManager,
-    private val castMediaRequestFactory: CastMediaRequestFactory,
-    private val castPlaybackCoordinator: CastPlaybackCoordinator
+    private val downloadStarter: CatalogDownloadStarter,
+    private val castPort: CatalogCastPort
 ) : ViewModel() {
 
     private val seriesId: Long = checkNotNull(
@@ -73,13 +64,14 @@ class SeriesDetailViewModel @Inject constructor(
             ?: savedStateHandle.get<String>("seriesId")?.toLongOrNull()
     )
     private val knownPresentationHint: SeriesDetailPresentationHint? =
-        savedStateHandle[SERIES_DETAIL_PRESENTATION_HINT_KEY]
+        savedStateHandle[CatalogRoutePatterns.SERIES_DETAIL_PRESENTATION_HINT_KEY]
 
     private val _uiState = MutableStateFlow(SeriesDetailUiState())
     val uiState: StateFlow<SeriesDetailUiState> = _uiState.asStateFlow()
 
-    private val _castEvents = MutableSharedFlow<CastUiEvent>()
-    val castEvents: SharedFlow<CastUiEvent> = _castEvents.asSharedFlow()
+    private val _uiEvents = MutableSharedFlow<CatalogUiEvent>()
+    val uiEvents: SharedFlow<CatalogUiEvent> = _uiEvents.asSharedFlow()
+    val castEvents: SharedFlow<CatalogUiEvent> = uiEvents
 
     private var castPlaybackReportMode = CastPlaybackReportMode.NONE
 
@@ -194,7 +186,7 @@ class SeriesDetailViewModel @Inject constructor(
             is Result.Error -> return Result.error(result.message, result.exception)
             Result.Loading -> return Result.error("Could not resolve stream URL")
         }
-        return when (val prepared = pluginManager.preparePlaybackStreamInfo(streamInfo)) {
+        return when (val prepared = streamPreparer.prepare(streamInfo)) {
             is Result.Success -> prepared.data.url.trim().takeIf { it.isNotBlank() }
                 ?.let { Result.success(it) }
                 ?: Result.error("Could not resolve stream URL")
@@ -234,7 +226,7 @@ class SeriesDetailViewModel @Inject constructor(
         _uiState.update { it.copy(selectedSeason = season) }
     }
 
-    fun downloadEpisode(context: Context, episode: Episode) {
+    fun downloadEpisode(episode: Episode) {
         val series = _uiState.value.series ?: return
         viewModelScope.launch {
             val resolvedUrl = resolveCopyStreamUrl(episode)
@@ -257,16 +249,16 @@ class SeriesDetailViewModel @Inject constructor(
                     val result = downloadManager.enqueueDownload(request)
                     when (result) {
                         is Result.Success -> {
-                            DownloadForegroundService.startDownload(context, result.data.id)
-                            Toast.makeText(context, context.getString(R.string.download_started), Toast.LENGTH_SHORT).show()
+                            downloadStarter.startDownload(result.data.id)
+                            _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.DownloadStarted))
                         }
                         is Result.Error ->
-                            Toast.makeText(context, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+                            _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.DownloadFailed))
                         Result.Loading -> Unit
                     }
                 }
                 is Result.Error ->
-                    Toast.makeText(context, context.getString(R.string.download_error_no_url), Toast.LENGTH_SHORT).show()
+                    _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.DownloadUrlUnavailable))
                 Result.Loading -> Unit
             }
         }
@@ -287,29 +279,22 @@ class SeriesDetailViewModel @Inject constructor(
                 val streamInfo = when (val result = seriesRepository.getEpisodeStreamInfo(episode)) {
                     is Result.Success -> result.data
                     is Result.Error -> {
-                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+                        _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.CastItemUnavailable))
                         return@launch
                     }
                     Result.Loading -> {
-                        _castEvents.emit(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_item_unavailable))
+                        _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.CastItemUnavailable))
                         return@launch
                     }
                 }
-                val request = when (val buildResult = castMediaRequestFactory.buildFromStreamInfo(
+                val request = CatalogCastRequest(
                     streamInfo = streamInfo,
                     title = "${series.name} - S${episode.seasonNumber}E${episode.episodeNumber}",
                     subtitle = episode.title,
                     artworkUrl = episode.coverUrl ?: series.posterUrl ?: series.backdropUrl,
-                    isLive = false,
                     startPositionMs = episode.watchProgress
-                )) {
-                    is CastMediaRequestBuildResult.Success -> buildResult.request
-                    is CastMediaRequestBuildResult.Unsupported -> {
-                        _castEvents.emit(CastUiEvent.ShowMessage(buildResult.reason.toCastBuildFailureMessageRes()))
-                        return@launch
-                    }
-                }
-                keepCastingPending = emitCastResult(castPlaybackCoordinator.startCasting(request), request)
+                )
+                keepCastingPending = emitCastResult(castPort.startCasting(request))
             } finally {
                 if (!keepCastingPending) {
                     _uiState.update { it.copy(isCasting = false) }
@@ -320,21 +305,21 @@ class SeriesDetailViewModel @Inject constructor(
 
     private fun observeCastPlaybackEvents() {
         viewModelScope.launch {
-            castPlaybackCoordinator.playbackEvents.collect { event ->
+            castPort.playbackEvents.collect { event ->
                 handleCastPlaybackEvent(event)
             }
         }
     }
 
-    private suspend fun handleCastPlaybackEvent(event: CastPlaybackEvent) {
+    private suspend fun handleCastPlaybackEvent(event: CatalogCastPlaybackEvent) {
         val reportMode = castPlaybackReportMode
         if (reportMode == CastPlaybackReportMode.NONE) return
-        if (event is CastPlaybackEvent.RouteSelectionCancelled) {
+        if (event is CatalogCastPlaybackEvent.RouteSelectionCancelled) {
             castPlaybackReportMode = CastPlaybackReportMode.NONE
             _uiState.update { it.copy(isCasting = false) }
             return
         }
-        val isSuccess = event is CastPlaybackEvent.MediaLoadSucceeded
+        val isSuccess = event is CatalogCastPlaybackEvent.Finished && event.succeeded
         if (isSuccess && reportMode == CastPlaybackReportMode.FAILURES_ONLY) {
             castPlaybackReportMode = CastPlaybackReportMode.NONE
             _uiState.update { it.copy(isCasting = false) }
@@ -342,25 +327,26 @@ class SeriesDetailViewModel @Inject constructor(
         }
         castPlaybackReportMode = CastPlaybackReportMode.NONE
         _uiState.update { it.copy(isCasting = false) }
-        _castEvents.emit(CastUiEvent.ShowMessage(event.toCastPlaybackMessageRes()))
+        val finished = event as? CatalogCastPlaybackEvent.Finished ?: return
+        _uiEvents.emit(CatalogUiEvent.ShowMessage(finished.message))
     }
 
-    private suspend fun emitCastResult(result: CastStartResult, request: CastMediaRequest): Boolean {
-        _castEvents.emit(
+    private suspend fun emitCastResult(result: CatalogCastStartResult): Boolean {
+        _uiEvents.emit(
             when (result) {
-                CastStartResult.STARTED -> {
+                CatalogCastStartResult.Started -> {
                     castPlaybackReportMode = CastPlaybackReportMode.FAILURES_ONLY
-                    CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started)
+                    CatalogUiEvent.ShowMessage(CatalogMessage.CastStarted)
                 }
-                CastStartResult.ROUTE_SELECTION_REQUIRED -> {
+                CatalogCastStartResult.RouteSelectionRequired -> {
                     castPlaybackReportMode = CastPlaybackReportMode.SUCCESS_AND_FAILURE
-                    CastUiEvent.OpenRouteChooser
+                    CatalogUiEvent.OpenCastRouteChooser
                 }
-                CastStartResult.UNAVAILABLE -> CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_unavailable)
-                CastStartResult.UNSUPPORTED -> CastUiEvent.ShowMessage(request.toCastUnsupportedMessageRes())
+                CatalogCastStartResult.Unavailable -> CatalogUiEvent.ShowMessage(CatalogMessage.CastUnavailable)
+                is CatalogCastStartResult.Unsupported -> CatalogUiEvent.ShowMessage(result.message)
             }
         )
-        return result == CastStartResult.STARTED || result == CastStartResult.ROUTE_SELECTION_REQUIRED
+        return result == CatalogCastStartResult.Started || result == CatalogCastStartResult.RouteSelectionRequired
     }
 
     private fun findResumeEpisode(series: Series): Episode? {
@@ -391,3 +377,9 @@ data class SeriesDetailUiState(
     val isLoadingExternalRatings: Boolean = false,
     val externalRatings: ExternalRatings = ExternalRatings.unavailable()
 )
+
+private enum class CastPlaybackReportMode {
+    NONE,
+    FAILURES_ONLY,
+    SUCCESS_AND_FAILURE
+}

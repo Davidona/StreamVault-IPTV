@@ -1,10 +1,9 @@
-package com.streamvault.app.ui.screens.movies
+package com.streamvault.feature.catalog.presentation.movies
 
 import android.content.Intent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.ContextWrapper
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -54,18 +53,19 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import com.streamvault.app.MainActivity
-import com.streamvault.app.R
-import com.streamvault.feature.playback.cast.CastUiEvent
-import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.feature.catalog.R
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.feature.catalog.presentation.catalogMessageText
+import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
+import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.time.formatPositionMs
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.app.util.formatPositionMs
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
-import com.streamvault.app.ui.components.shell.ExternalRatingsStrip
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.app.ui.model.formatVodRatingLabel
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.VodMovieVariant
@@ -79,19 +79,22 @@ import kotlinx.coroutines.launch
 fun MovieDetailScreen(
     onPlay: (Movie) -> Unit,
     onBack: () -> Unit,
+    platformHost: CatalogPlatformHost? = null,
     viewModel: MovieDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val movie = uiState.movie
     val context = LocalContext.current
-    val mainActivity = remember(context) { context.findMainActivity() }
 
-    LaunchedEffect(viewModel, context, mainActivity) {
-        viewModel.castEvents.collect { event ->
+    LaunchedEffect(viewModel, context, platformHost) {
+        viewModel.uiEvents.collect { event ->
             when (event) {
-                CastUiEvent.OpenRouteChooser -> mainActivity?.openCastRouteChooser()
-                is CastUiEvent.ShowMessage ->
-                    Toast.makeText(context, context.getString(event.messageResId), Toast.LENGTH_SHORT).show()
+                CatalogUiEvent.OpenCastRouteChooser -> platformHost?.openCastRouteChooser()
+                is CatalogUiEvent.ShowMessage -> Toast.makeText(
+                    context,
+                    context.catalogMessageText(event.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -139,7 +142,7 @@ fun MovieDetailScreen(
                         Result.Loading -> null
                     }
                 },
-                onDownload = {},
+                onDownload = viewModel::downloadMovie,
                 onCast = viewModel::castMovie,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onSelectVariant = viewModel::selectMovieVariant,
@@ -174,7 +177,7 @@ private fun MovieDetailContent(
     val coroutineScope = rememberCoroutineScope()
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val playButtonFocusRequester = remember { FocusRequester() }
-    val onDownload: () -> Unit = { viewModel.downloadMovie(context) }
+    val onDownload: () -> Unit = viewModel::downloadMovie
 
     LaunchedEffect(movie.id) {
         playButtonFocusRequester.requestFocusSafely(
@@ -586,12 +589,6 @@ private fun resolveTrailerUrl(rawTrailer: String?): String? {
         trailer.startsWith("www.youtube.com/", ignoreCase = true) || trailer.startsWith("youtube.com/", ignoreCase = true) -> "https://$trailer"
         else -> "https://www.youtube.com/watch?v=$trailer"
     }
-}
-
-private tailrec fun Context.findMainActivity(): MainActivity? = when (this) {
-    is MainActivity -> this
-    is ContextWrapper -> baseContext.findMainActivity()
-    else -> null
 }
 
 @Composable

@@ -1,18 +1,16 @@
-package com.streamvault.app.ui.screens.movies
+package com.streamvault.feature.catalog.presentation.movies
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.MainDispatcherRule
-import com.streamvault.app.R
-import com.streamvault.feature.playback.R as PlaybackFeatureR
-import com.streamvault.feature.playback.api.CastMediaRequest
-import com.streamvault.feature.playback.cast.CastMediaRequestFactory
-import com.streamvault.feature.playback.cast.CastPlaybackEvent
-import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
-import com.streamvault.feature.playback.cast.CastStartResult
-import com.streamvault.feature.playback.cast.CastUiEvent
-import com.streamvault.app.plugins.StreamVaultPluginManager
+import com.streamvault.feature.catalog.api.CatalogCastPlaybackEvent
+import com.streamvault.feature.catalog.api.CatalogCastPort
+import com.streamvault.feature.catalog.api.CatalogCastRequest
+import com.streamvault.feature.catalog.api.CatalogCastStartResult
+import com.streamvault.feature.catalog.api.CatalogMessage
+import com.streamvault.feature.catalog.api.CatalogStreamPreparer
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.feature.catalog.presentation.CatalogMainDispatcherRule
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
@@ -47,21 +45,21 @@ import org.mockito.kotlin.whenever
 class MovieDetailViewModelCastingTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule = CatalogMainDispatcherRule()
 
     @Test
     fun `castMovie emits route chooser and preserves resume position`() = runBlocking {
         val movie = movie(watchProgress = 42_000L)
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(movie = movie, coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(movie = movie, castPort = castPort)
 
         try {
             val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
 
-            assertThat(withTimeout(5_000L) { event.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
-            assertThat(coordinator.lastRequest?.url).isEqualTo("https://example.test/movie.m3u8")
-            assertThat(coordinator.lastRequest?.startPositionMs).isEqualTo(42_000L)
+            assertThat(withTimeout(5_000L) { event.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
+            assertThat(castPort.lastRequest?.streamInfo?.url).isEqualTo("https://example.test/movie.m3u8")
+            assertThat(castPort.lastRequest?.startPositionMs).isEqualTo(42_000L)
             assertThat(viewModel.uiState.value.isCasting).isTrue()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -70,15 +68,15 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie emits unsupported message from coordinator result`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.UNSUPPORTED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.Unsupported(CatalogMessage.CastUnsupported))
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_stream_unsupported))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastUnsupported))
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -86,19 +84,19 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie reports started after route-selected media load succeeds`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
 
             val lifecycleEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
-            coordinator.emit(CastPlaybackEvent.MediaLoadSucceeded("Movie"))
+            castPort.emit(CatalogCastPlaybackEvent.Finished(true, CatalogMessage.CastStarted))
 
             assertThat(withTimeout(5_000L) { lifecycleEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastStarted))
             assertThat(viewModel.uiState.value.isCasting).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -107,20 +105,20 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie reports receiver load failure after immediate start`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.STARTED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.Started)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val startEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
             assertThat(withTimeout(5_000L) { startEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_started))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastStarted))
 
             val lifecycleEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
-            coordinator.emit(CastPlaybackEvent.MediaLoadFailed(title = "Movie", statusCode = 2100))
+            castPort.emit(CatalogCastPlaybackEvent.Finished(false, CatalogMessage.CastLoadFailed))
 
             assertThat(withTimeout(5_000L) { lifecycleEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_load_failed))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastLoadFailed))
             assertThat(viewModel.uiState.value.isCasting).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -129,16 +127,16 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie resets pending state when route selection is cancelled`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
             assertThat(viewModel.uiState.value.isCasting).isTrue()
 
-            coordinator.emit(CastPlaybackEvent.RouteSelectionCancelled)
+            castPort.emit(CatalogCastPlaybackEvent.RouteSelectionCancelled)
 
             withTimeout(5_000L) { viewModel.uiState.first { !it.isCasting } }
             assertThat(viewModel.uiState.value.isCasting).isFalse()
@@ -149,17 +147,17 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie ignores repeated launches while route selection is pending`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castMovie()
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
 
             viewModel.castMovie()
 
-            assertThat(coordinator.startCount).isEqualTo(1)
+            assertThat(castPort.startCount).isEqualTo(1)
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -167,13 +165,14 @@ class MovieDetailViewModelCastingTest {
 
     @Test
     fun `castMovie explains streams that need header rewrite when cast remains unsupported`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.UNSUPPORTED)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.Unsupported(CatalogMessage.CastUnsupported))
+        val streamInfo = StreamInfo(
+            url = "https://example.test/movie.m3u8",
+            headers = mapOf("Cookie" to "session=abc")
+        )
         val viewModel = createViewModel(
-            streamInfo = StreamInfo(
-                url = "https://example.test/movie.m3u8",
-                headers = mapOf("Cookie" to "session=abc")
-            ),
-            coordinator = coordinator
+            streamInfo = streamInfo,
+            castPort = castPort
         )
 
         try {
@@ -181,8 +180,8 @@ class MovieDetailViewModelCastingTest {
             viewModel.castMovie()
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_headers_unsupported))
-            assertThat(coordinator.lastRequest?.requiresCastRewrite).isTrue()
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastUnsupported))
+            assertThat(castPort.lastRequest?.streamInfo).isEqualTo(streamInfo)
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -191,7 +190,7 @@ class MovieDetailViewModelCastingTest {
     private suspend fun createViewModel(
         movie: Movie = movie(),
         streamInfo: StreamInfo = StreamInfo(url = "https://example.test/movie.m3u8"),
-        coordinator: FakeCastPlaybackCoordinator = FakeCastPlaybackCoordinator()
+        castPort: FakeCatalogCastPort = FakeCatalogCastPort()
     ): MovieDetailViewModel {
         val provider = Provider(
             id = movie.providerId,
@@ -236,21 +235,26 @@ class MovieDetailViewModelCastingTest {
             externalRatingsRepository = externalRatingsRepository,
             favoriteRepository = favoriteRepository,
             preferencesRepository = mock<PreferencesRepository>(),
-            pluginManager = mock<StreamVaultPluginManager>(),
+            streamPreparer = object : CatalogStreamPreparer {
+                override suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo> =
+                    Result.success(streamInfo)
+            },
             downloadManager = mock<DownloadManager>(),
-            castMediaRequestFactory = CastMediaRequestFactory(),
-            castPlaybackCoordinator = coordinator
+            downloadStarter = object : com.streamvault.feature.catalog.api.CatalogDownloadStarter {
+                override fun startDownload(downloadId: String) = Unit
+            },
+            castPort = castPort
         )
     }
 
-    private class FakeCastPlaybackCoordinator(
-        var result: CastStartResult = CastStartResult.STARTED
-    ) : CastPlaybackCoordinator {
-        private val mutablePlaybackEvents = MutableSharedFlow<CastPlaybackEvent>(extraBufferCapacity = 8)
-        override val playbackEvents: SharedFlow<CastPlaybackEvent> = mutablePlaybackEvents.asSharedFlow()
-        var lastRequest: CastMediaRequest? = null
+    private class FakeCatalogCastPort(
+        var result: CatalogCastStartResult = CatalogCastStartResult.Started
+    ) : CatalogCastPort {
+        private val mutablePlaybackEvents = MutableSharedFlow<CatalogCastPlaybackEvent>(extraBufferCapacity = 8)
+        override val playbackEvents: SharedFlow<CatalogCastPlaybackEvent> = mutablePlaybackEvents.asSharedFlow()
+        var lastRequest: CatalogCastRequest? = null
 
-        override suspend fun startCasting(request: CastMediaRequest): CastStartResult {
+        override suspend fun startCasting(request: CatalogCastRequest): CatalogCastStartResult {
             lastRequest = request
             startCount += 1
             return result
@@ -258,7 +262,7 @@ class MovieDetailViewModelCastingTest {
 
         var startCount: Int = 0
 
-        suspend fun emit(event: CastPlaybackEvent) {
+        suspend fun emit(event: CatalogCastPlaybackEvent) {
             mutablePlaybackEvents.emit(event)
         }
     }

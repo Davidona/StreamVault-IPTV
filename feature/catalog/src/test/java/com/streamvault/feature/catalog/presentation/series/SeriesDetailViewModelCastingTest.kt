@@ -1,18 +1,17 @@
-package com.streamvault.app.ui.screens.series
+package com.streamvault.feature.catalog.presentation.series
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.MainDispatcherRule
-import com.streamvault.app.R
-import com.streamvault.feature.playback.R as PlaybackFeatureR
-import com.streamvault.feature.playback.api.CastMediaRequest
-import com.streamvault.feature.playback.cast.CastMediaRequestFactory
-import com.streamvault.feature.playback.cast.CastPlaybackEvent
-import com.streamvault.feature.playback.cast.CastPlaybackCoordinator
-import com.streamvault.feature.playback.cast.CastStartResult
-import com.streamvault.feature.playback.cast.CastUiEvent
-import com.streamvault.app.plugins.StreamVaultPluginManager
+import com.streamvault.feature.catalog.api.CatalogCastPlaybackEvent
+import com.streamvault.feature.catalog.api.CatalogCastPort
+import com.streamvault.feature.catalog.api.CatalogCastRequest
+import com.streamvault.feature.catalog.api.CatalogCastStartResult
+import com.streamvault.feature.catalog.api.CatalogDownloadStarter
+import com.streamvault.feature.catalog.api.CatalogMessage
+import com.streamvault.feature.catalog.api.CatalogStreamPreparer
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.feature.catalog.presentation.CatalogMainDispatcherRule
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
@@ -49,23 +48,23 @@ import org.mockito.kotlin.whenever
 class SeriesDetailViewModelCastingTest {
 
     @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule = CatalogMainDispatcherRule()
 
     @Test
     fun `castEpisode uses selected episode and preserves watch progress`() = runBlocking {
         val selectedEpisode = episode(id = 22L, episodeNumber = 2, watchProgress = 65_000L)
         val series = series(episodes = listOf(episode(id = 21L, episodeNumber = 1), selectedEpisode))
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(series = series, coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(series = series, castPort = castPort)
 
         try {
             val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castEpisode(selectedEpisode)
 
-            assertThat(withTimeout(5_000L) { event.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
-            assertThat(coordinator.lastRequest?.title).isEqualTo("Series - S1E2")
-            assertThat(coordinator.lastRequest?.subtitle).isEqualTo("Episode 2")
-            assertThat(coordinator.lastRequest?.startPositionMs).isEqualTo(65_000L)
+            assertThat(withTimeout(5_000L) { event.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
+            assertThat(castPort.lastRequest?.title).isEqualTo("Series - S1E2")
+            assertThat(castPort.lastRequest?.subtitle).isEqualTo("Episode 2")
+            assertThat(castPort.lastRequest?.startPositionMs).isEqualTo(65_000L)
             assertThat(viewModel.uiState.value.isCasting).isTrue()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -74,15 +73,15 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `castEpisode emits unavailable message from coordinator result`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.UNAVAILABLE)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.Unavailable)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castEpisode(episode())
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_unavailable))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastUnavailable))
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -90,19 +89,19 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `castEpisode reports session failure after route selection`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castEpisode(episode())
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
 
             val lifecycleEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
-            coordinator.emit(CastPlaybackEvent.SessionStartFailed(errorCode = 7))
+            castPort.emit(CatalogCastPlaybackEvent.Finished(false, CatalogMessage.CastSessionFailed))
 
             assertThat(withTimeout(5_000L) { lifecycleEvent.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_session_failed))
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastSessionFailed))
             assertThat(viewModel.uiState.value.isCasting).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
@@ -111,16 +110,16 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `castEpisode resets pending state when route selection is cancelled`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castEpisode(episode())
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
             assertThat(viewModel.uiState.value.isCasting).isTrue()
 
-            coordinator.emit(CastPlaybackEvent.RouteSelectionCancelled)
+            castPort.emit(CatalogCastPlaybackEvent.RouteSelectionCancelled)
 
             withTimeout(5_000L) { viewModel.uiState.first { !it.isCasting } }
             assertThat(viewModel.uiState.value.isCasting).isFalse()
@@ -131,17 +130,17 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `castEpisode ignores repeated launches while route selection is pending`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.ROUTE_SELECTION_REQUIRED)
-        val viewModel = createViewModel(coordinator = coordinator)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.RouteSelectionRequired)
+        val viewModel = createViewModel(castPort = castPort)
 
         try {
             val routeEvent = async(start = CoroutineStart.UNDISPATCHED) { viewModel.castEvents.first() }
             viewModel.castEpisode(episode())
-            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CastUiEvent.OpenRouteChooser)
+            assertThat(withTimeout(5_000L) { routeEvent.await() }).isEqualTo(CatalogUiEvent.OpenCastRouteChooser)
 
             viewModel.castEpisode(episode(id = 22L, episodeNumber = 2))
 
-            assertThat(coordinator.startCount).isEqualTo(1)
+            assertThat(castPort.startCount).isEqualTo(1)
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -149,14 +148,15 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `castEpisode explains streams that need proxy rewrite when cast remains unsupported`() = runBlocking {
-        val coordinator = FakeCastPlaybackCoordinator(CastStartResult.UNSUPPORTED)
+        val castPort = FakeCatalogCastPort(CatalogCastStartResult.Unsupported(CatalogMessage.CastUnsupported))
+        val streamInfo = StreamInfo(
+            url = "https://example.test/episode.m3u8",
+            proxyHost = "proxy.example.test",
+            proxyPort = 8080
+        )
         val viewModel = createViewModel(
-            streamInfo = StreamInfo(
-                url = "https://example.test/episode.m3u8",
-                proxyHost = "proxy.example.test",
-                proxyPort = 8080
-            ),
-            coordinator = coordinator
+            streamInfo = streamInfo,
+            castPort = castPort
         )
 
         try {
@@ -164,8 +164,8 @@ class SeriesDetailViewModelCastingTest {
             viewModel.castEpisode(episode())
 
             assertThat(withTimeout(5_000L) { event.await() })
-                .isEqualTo(CastUiEvent.ShowMessage(PlaybackFeatureR.string.cast_proxy_unsupported))
-            assertThat(coordinator.lastRequest?.requiresCastRewrite).isTrue()
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.CastUnsupported))
+            assertThat(castPort.lastRequest?.streamInfo).isEqualTo(streamInfo)
         } finally {
             viewModel.viewModelScope.cancel()
         }
@@ -174,7 +174,7 @@ class SeriesDetailViewModelCastingTest {
     private suspend fun createViewModel(
         series: Series = series(),
         streamInfo: StreamInfo = StreamInfo(url = "https://example.test/episode.m3u8"),
-        coordinator: FakeCastPlaybackCoordinator = FakeCastPlaybackCoordinator()
+        castPort: FakeCatalogCastPort = FakeCatalogCastPort()
     ): SeriesDetailViewModel {
         val provider = Provider(
             id = series.providerId,
@@ -209,21 +209,26 @@ class SeriesDetailViewModelCastingTest {
             externalRatingsRepository = externalRatingsRepository,
             favoriteRepository = favoriteRepository,
             preferencesRepository = mock<PreferencesRepository>(),
-            pluginManager = mock<StreamVaultPluginManager>(),
+            streamPreparer = object : CatalogStreamPreparer {
+                override suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo> =
+                    Result.success(streamInfo)
+            },
             downloadManager = mock<DownloadManager>(),
-            castMediaRequestFactory = CastMediaRequestFactory(),
-            castPlaybackCoordinator = coordinator
+            downloadStarter = object : CatalogDownloadStarter {
+                override fun startDownload(downloadId: String) = Unit
+            },
+            castPort = castPort
         )
     }
 
-    private class FakeCastPlaybackCoordinator(
-        var result: CastStartResult = CastStartResult.STARTED
-    ) : CastPlaybackCoordinator {
-        private val mutablePlaybackEvents = MutableSharedFlow<CastPlaybackEvent>(extraBufferCapacity = 8)
-        override val playbackEvents: SharedFlow<CastPlaybackEvent> = mutablePlaybackEvents.asSharedFlow()
-        var lastRequest: CastMediaRequest? = null
+    private class FakeCatalogCastPort(
+        var result: CatalogCastStartResult = CatalogCastStartResult.Started
+    ) : CatalogCastPort {
+        private val mutablePlaybackEvents = MutableSharedFlow<CatalogCastPlaybackEvent>(extraBufferCapacity = 8)
+        override val playbackEvents: SharedFlow<CatalogCastPlaybackEvent> = mutablePlaybackEvents.asSharedFlow()
+        var lastRequest: CatalogCastRequest? = null
 
-        override suspend fun startCasting(request: CastMediaRequest): CastStartResult {
+        override suspend fun startCasting(request: CatalogCastRequest): CatalogCastStartResult {
             lastRequest = request
             startCount += 1
             return result
@@ -231,7 +236,7 @@ class SeriesDetailViewModelCastingTest {
 
         var startCount: Int = 0
 
-        suspend fun emit(event: CastPlaybackEvent) {
+        suspend fun emit(event: CatalogCastPlaybackEvent) {
             mutablePlaybackEvents.emit(event)
         }
     }
