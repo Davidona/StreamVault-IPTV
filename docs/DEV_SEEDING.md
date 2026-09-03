@@ -37,6 +37,30 @@ m3u.dev.name=iptv-org France
 Browse [`iptv-org/iptv`](https://github.com/iptv-org/iptv) for other
 country/category playlists.
 
+### Option C — Deterministic local Catalog fixture
+
+For Catalog movie/series/detail journeys without a provider account, run the
+checked-in fixture from the repository root:
+
+```bash
+python -m unittest tools.tests.test_catalog_xtream_fixture
+python tools/catalog_xtream_fixture.py --port 8765
+```
+
+Then configure the debug build with the emulator host mapping:
+
+```properties
+xtream.dev.server=http://10.0.2.2:8765
+xtream.dev.username=fixture
+xtream.dev.password=fixture
+xtream.dev.name=Catalog Fixture
+```
+
+The fixture serves one live channel, two movies, two series, and deterministic
+detail/episode metadata. It is for local diagnostic and acceptance journeys;
+stop the process and remove the four entries after testing. The script never
+contacts an external provider.
+
 ## How it works
 
 `WelcomeViewModel.maybeSeedDevProvider()` runs once at app start, before
