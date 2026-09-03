@@ -983,7 +983,9 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   and a diagnostic temporary Xtream fixture run covering VOD/series details,
   episodes, saved filters, and cross-type Search. The checked-in
   `tools/catalog_xtream_fixture.py` now provides a rerunnable development
-  seed; the remaining action/direct-Favorites/accessibility journeys,
+  seed, and `tools/catalog_connected_validation.py` provides a semantic ADB
+  journey for the fixture-backed Home/Movies/Series/detail/favorite/saved/
+  Search path; the remaining action/direct-Favorites/accessibility journeys,
   successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and

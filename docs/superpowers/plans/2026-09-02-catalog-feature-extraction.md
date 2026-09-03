@@ -33,8 +33,10 @@ Search smoke pass is documented. A temporary local Xtream fixture follow-up
 also exercised VOD/series details, episodes, saved filters, and cross-type
 Search in the production activity; its semantic evidence is in
 `validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The checked-in
-`tools/catalog_xtream_fixture.py` now provides a rerunnable development seed
-for the remaining Dashboard/action/direct-Favorites/accessibility journeys;
+`tools/catalog_xtream_fixture.py` now provides a rerunnable development seed,
+and `tools/catalog_connected_validation.py` provides a semantic ADB journey
+for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path.
+The remaining Dashboard/action/direct-Favorites/accessibility journeys;
 repository-wide app lint remains open.
 A focused Dashboard macrobenchmark rerun now passes after public-M3U
 live-channel activity populates a scrollable seeded Home shelf, but it is
@@ -1005,10 +1007,25 @@ git commit -m 'test(catalog): complete ownership and golden migration'
 - Create: `validation/phase5_catalog/task12_screenshots/`
 - Create: `tools/catalog_xtream_fixture.py`
 - Create: `tools/tests/test_catalog_xtream_fixture.py`
+- Create: `tools/catalog_connected_validation.py`
+- Create: `tools/tests/test_catalog_connected_validation.py`
 
 **Interfaces:**
 - Consumes: Task 11 assembled app/feature tests and an available API 36 TV emulator with seeded data.
 - Produces: connected, focus/input, route, visual, and end-to-end Catalog evidence with explicit unavailable/failure reporting.
+
+For the deterministic fixture-backed semantic subset, start
+`python tools/catalog_xtream_fixture.py --port 8765`, install a debug APK
+configured with the four `xtream.dev.*` entries from `docs/DEV_SEEDING.md`,
+then run:
+
+```powershell
+python tools/catalog_connected_validation.py --adb E:\androidSdk\platform-tools\adb.exe --serial emulator-5554
+```
+
+The harness writes UIAutomator XML and `report.json` under the
+ignored `build/catalog-validation` directory. It never edits
+`local.properties` or claims download/Cast receiver success.
 
 - [ ] **Step 1: Verify device/package state**
 

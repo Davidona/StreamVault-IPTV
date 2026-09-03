@@ -61,6 +61,18 @@ detail/episode metadata. It is for local diagnostic and acceptance journeys;
 stop the process and remove the four entries after testing. The script never
 contacts an external provider.
 
+For the repeatable TV semantic journey, with the fixture-configured debug APK
+installed, run:
+
+```powershell
+python tools/catalog_connected_validation.py --adb E:\androidSdk\platform-tools\adb.exe --serial emulator-5554
+```
+
+The harness drives production D-pad/UIAutomator semantics and writes its XML
+snapshots and `report.json` under the ignored `build/catalog-validation`
+directory. It does not edit `local.properties` or claim Cast/download receiver
+success.
+
 ## How it works
 
 `WelcomeViewModel.maybeSeedDevProvider()` runs once at app start, before

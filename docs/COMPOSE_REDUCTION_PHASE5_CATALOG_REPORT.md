@@ -109,8 +109,9 @@ Series 2). The semantic route/title/count evidence and the exact fixture
 limitations are recorded in
 `validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The fixture is
 now available as the checked-in development tool
-`tools/catalog_xtream_fixture.py`; this remains diagnostic evidence, not a
-production-provider pass.
+`tools/catalog_xtream_fixture.py`; the repeatable semantic journey is exposed
+by `tools/catalog_connected_validation.py`. This remains diagnostic evidence,
+not a production-provider pass.
 
 The remaining Dashboard customization, load-more/reorder/return, download,
 Cast chooser, direct Favorites-host, touch/phone/tablet, RTL,

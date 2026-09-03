@@ -33,6 +33,27 @@ included in this evidence.
 4. Exercise the journeys below with D-pad/UIAutomator, then stop the server and
    remove the four local fixture entries.
 
+The repeatable semantic subset can be driven by the checked-in ADB harness
+after the fixture-configured debug APK is installed:
+
+```powershell
+python tools/catalog_connected_validation.py --adb E:\androidSdk\platform-tools\adb.exe --serial emulator-5554
+```
+
+It writes UIAutomator snapshots and `report.json` under the ignored
+`build/catalog-validation` directory. The harness uses the production TV
+focus/input path and does not mutate `local.properties`.
+
+## Harness result (2026-09-03)
+
+The command passed on `emulator-5554` (API 36 AOSP TV, 1920x1080) with
+`com.streamvault.app.debug`. It proved these surfaces in one run: Home,
+Movies browse, movie detail and favourite toggle, the Movies `Saved` filter,
+Series browse, series detail with Season 1 and both episodes, and Search with
+the five grouped fixture results. The report and UI dumps are local ignored
+artifacts under `build/catalog-validation-fixture`; no provider credentials or
+raw URLs are checked in.
+
 The fixture test uses an ephemeral loopback port and does not require Android.
 The production-activity run uses port 8765 because that is the emulator-host
 mapping used by `10.0.2.2`.
