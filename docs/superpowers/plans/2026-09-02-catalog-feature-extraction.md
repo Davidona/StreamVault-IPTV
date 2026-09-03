@@ -1003,6 +1003,8 @@ git commit -m 'test(catalog): complete ownership and golden migration'
 - Create: `validation/phase5_catalog/task12-connected-validation.md`
 - Create: `validation/phase5_catalog/task12-device-journeys.md`
 - Create: `validation/phase5_catalog/task12_screenshots/`
+- Create: `tools/catalog_xtream_fixture.py`
+- Create: `tools/tests/test_catalog_xtream_fixture.py`
 
 **Interfaces:**
 - Consumes: Task 11 assembled app/feature tests and an available API 36 TV emulator with seeded data.
