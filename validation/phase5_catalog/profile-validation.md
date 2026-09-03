@@ -20,5 +20,8 @@ Home/Live journeys; the public M3U fixture does not provide VOD/movie/series
 content, so it is profile evidence rather than full Catalog journey coverage.
 
 The current packaging guardrail (`:app:assembleBeta` and
-`:app:assembleRelease`) passed after generation. The Dashboard macrobenchmark
-remains open because its configured test is skipped.
+`:app:assembleRelease`) passed after generation. The configured profile suite
+still skips its eight ordinary macrobenchmark cases. Separately, the focused
+Dashboard `dashboardVerticalScroll` diagnostic rerun passed after seeded
+recent-channel data made Home scrollable; it does not close the required
+cache-equivalent paired performance comparison.

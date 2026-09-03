@@ -116,8 +116,12 @@ Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. A partial seeded
 Home/Live/Movies/Series/Search smoke pass is recorded; full VOD/detail,
 Favorites, accessibility, and production journey coverage remains unavailable.
-The Dashboard macrobenchmark was attempted but the emulator emitted no
-render-thread slices, so no frame metrics were produced; the paired comparison
-and repository-wide app lint remain open.
+A focused Dashboard macrobenchmark rerun passed 1/1 with five warm iterations
+once public-M3U live-channel activity populated a scrollable Home shelf
+(`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99
+63.1/78.9/89.7/106.1). The earlier empty Home fixture emitted no render-thread
+slices; the rerun is diagnostic after-run evidence, not a cache-equivalent
+paired comparison. The paired comparison and repository-wide app lint remain
+open.
 The release-like profile workflow now passes with feature Catalog descriptors.
 System remains unstarted.

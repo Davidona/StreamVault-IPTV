@@ -29,9 +29,11 @@
 Tasks 0–12 are implemented and their evidence is recorded under
 `validation/phase5_catalog/`. Task 13 structural/build-isolation and profile
 work is also recorded there. The available seeded Home/Live/Movies/Series/
-Search smoke pass is documented; full seeded journeys, the Dashboard
-macrobenchmark (attempted but blocked by missing render-thread trace slices),
-and repository-wide app lint remain open or unavailable as documented in
+Search smoke pass is documented; full seeded journeys and repository-wide app
+lint remain open or unavailable. A focused Dashboard macrobenchmark rerun now
+passes after public-M3U live-channel activity populates a scrollable seeded Home
+shelf, but it is diagnostic after-run evidence rather than the required
+cache-equivalent paired comparison. These limitations are documented in
 `docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md`. Do not interpret this
 status as completion of Phase 5.
 

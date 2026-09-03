@@ -980,9 +980,10 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   regenerated with its connected assertion passing. Catalog is now structurally
   extracted under `:feature:catalog`; its execution report records passing
   connected goldens, a partial seeded Home/Live/Movies/Series/Search smoke pass,
-  unavailable full catalog journeys, a Dashboard benchmark attempt blocked by
-  missing render-thread trace slices, an open paired benchmark gate, refreshed
-  release-like profiles, and current app lint baseline failure. System remains
+  unavailable full catalog journeys, a successful diagnostic Dashboard benchmark
+  rerun after populating a scrollable seeded Home shelf, an open paired
+  benchmark gate, refreshed release-like profiles, and current app lint baseline
+  failure. System remains
   unstarted; Playback, Provider, and Settings gates remain governed by their
   separate reports.
 

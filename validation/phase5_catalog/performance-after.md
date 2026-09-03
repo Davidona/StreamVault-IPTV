@@ -55,19 +55,32 @@ Additional guardrails:
 These are current-checkout samples, not a cache-equivalent five-run clean-build
 comparison.
 
-## Dashboard macrobenchmark attempt
+## Dashboard macrobenchmark diagnostic run
 
-The focused `dashboardVerticalScroll` benchmark was attempted against the same
-API 36 TV emulator after installing the benchmark and release artifacts:
+The focused `dashboardVerticalScroll` benchmark was rerun against the same API
+36 TV emulator after installing the benchmark and seeded debug artifacts:
 
 ```text
-./gradlew.bat :benchmark:connectedBenchmarkBenchmarkAndroidTest
-  -Pandroid.testInstrumentationRunnerArguments.class=
-  com.streamvault.benchmark.StreamVaultMacrobenchmark#dashboardVerticalScroll
+./gradlew.bat :benchmark:connectedBenchmarkBenchmarkAndroidTest `
+  '-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.benchmark.StreamVaultMacrobenchmark#dashboardVerticalScroll' `
+  --no-daemon --console=plain --warning-mode=none
 ```
 
-The run reached the device but failed before emitting frame metrics with
-`IllegalStateException: Observed no renderthread slices in trace` from
-`FrameTimingQuery`. No P50/P90/P99 after values were recorded, so the formal
-cache-equivalent paired performance gate remains open pending a device/trace
-configuration that produces render-thread slices.
+Before this run, the seeded debug app had accumulated recent-channel data by
+opening public-M3U live channels. That made the Home `LazyColumn` scrollable;
+the earlier no-data fixture had no scrollable content and produced
+`IllegalStateException: Observed no renderthread slices in trace` before
+metrics. The rerun passed 1/1 test with five warm iterations and emitted:
+
+| Metric | Result |
+|---|---|
+| `frameCount` | min 88, median 91, max 98 |
+| `frameDurationCpuMs` | P50 60.0, P90 70.7, P95 78.7, P99 92.7 |
+| `frameOverrunMs` | P50 63.1, P90 78.9, P95 89.7, P99 106.1 |
+
+The five Perfetto traces and the raw metric message are retained in the
+Gradle-connected-test output directory. This is actionable after-run evidence,
+but not a cache-equivalent paired before/after comparison: no equivalent
+pre-extraction run was captured in this continuation, and the public M3U
+fixture still lacks VOD/series content. Keep the formal paired performance gate
+open.

@@ -115,10 +115,17 @@ An actual Catalog-only edit followed by `:app:assembleDebug` executed the
 Catalog Kotlin task; sibling feature Kotlin tasks were `UP-TO-DATE` and did
 not execute. A clean debug assembly passed in 80.7s, warm debug assembly in
 14.9s, and Beta/Release packaging passed in 332.3s. These are not a
-cache-equivalent five-run clean-build comparison. The focused Dashboard
-`dashboardVerticalScroll` macrobenchmark was attempted on the same emulator,
-but failed before metrics with `Observed no renderthread slices in trace` from
-`FrameTimingQuery`; no after P50/P90/P99 values were recorded.
+cache-equivalent five-run clean-build comparison. A focused Dashboard
+`dashboardVerticalScroll` rerun on the same emulator passed 1/1 with five warm
+iterations after public-M3U live-channel activity populated a scrollable Home
+recent-channel shelf. It emitted `frameCount` min/median/max 88/91/98,
+`frameDurationCpuMs` P50/P90/P95/P99 60.0/70.7/78.7/92.7, and
+`frameOverrunMs` P50/P90/P95/P99 63.1/78.9/89.7/106.1. The earlier empty Home
+fixture had no scrollable content and failed before metrics with
+`Observed no renderthread slices in trace` from `FrameTimingQuery`. This rerun
+is diagnostic after-run evidence only: no cache-equivalent pre-extraction run
+was captured, and the public M3U fixture still lacks VOD/series content, so the
+formal paired performance gate remains open.
 
 ## Profiles and known failures
 
@@ -150,7 +157,7 @@ execution-time project access.
 
 1. Add a seeded production-activity Catalog fixture and execute the documented
    journeys, including Favorites and accessibility variants.
-2. Re-run the Dashboard macrobenchmark on a device/trace configuration that
-   emits render-thread slices, then complete the cache-equivalent paired
-   performance comparison. Keep app lint remediation and all other Phase 5
-   feature gates tracked separately.
+2. Capture a cache-equivalent pre-extraction run and pair it with the
+   successful Dashboard benchmark evidence, using the same seeded content,
+   device, iteration count, and compilation mode. Keep app lint remediation and
+   all other Phase 5 feature gates tracked separately.
