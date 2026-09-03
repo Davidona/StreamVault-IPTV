@@ -19,8 +19,9 @@ The available seeded production surfaces were checked on-device:
   0, Series 0); the earlier `CNN` query also rendered its no-match state.
 
 The on-device logcat spot scan showed the provider-sync HTTP 200/staging path
-and no app fatal exception; unrelated platform Cast/StrictMode noise was not
-treated as Catalog evidence.
+and no `com.streamvault.app.debug` fatal exception. Repeated UIAutomator dumps
+emitted their own `UiAutomationService ... already registered` noise, and
+platform Cast/StrictMode noise was not treated as Catalog evidence.
 
 Full Catalog journeys were **not run** because this fixture has live channels
 only and this checkout has no VOD/movie/series seed or production-activity
