@@ -98,10 +98,22 @@ correctly reported `Sync needed` because the configured public M3U fixture has
 live channels only; Search accepted `3ABN` and rendered seven Live TV results
 (Movies 0, Series 0), while the earlier `CNN` query rendered its no-match
 state.
-The full Dashboard shelf, VOD, detail, Favorites host, touch/RTL/reduced-motion,
-and long screenshot/logcat journey matrix remains unavailable because this
-checkout has no seeded VOD/catalog fixture or production-activity journey
-harness. These are open acceptance gates, not passes.
+
+As a follow-up, a temporary local Xtream-compatible fixture was used with the
+same debug `MainActivity` on this emulator. It returned one live channel, two
+movies, two series, movie metadata, and two episodes per series. The run
+rendered Dashboard media shelves, Movies and Series browse cards, movie and
+series details, season/episode rows, movie and series favourite toggles, saved
+filters, and a five-result cross-type Search query (Live TV 1, Movies 2,
+Series 2). The semantic route/title/count evidence and the exact fixture
+limitations are recorded in
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. This is
+diagnostic evidence from a temporary ignored server, not a committed fixture
+harness or a production-provider pass.
+
+The remaining Dashboard customization, load-more/reorder/return, download,
+Cast chooser, direct Favorites-host, touch/phone/tablet, RTL,
+reduced-motion/accessibility, and long screenshot/logcat matrix are still open.
 
 ## Build isolation and performance
 
@@ -141,9 +153,9 @@ feature Catalog descriptors and no legacy app Catalog descriptors:
 | `startup-prof.txt` | 0 | 763 |
 
 Generated files were not hand-edited. The run exercised seeded Home/Live
-journeys; the public M3U fixture has no VOD/movie/series content, so full
-Catalog production journey coverage remains open even though profile refresh
-is now passing.
+journeys; the public M3U fixture has no VOD/movie/series content. The separate
+temporary Xtream journey run is documented as diagnostic and does not change
+the profile input or close the full Catalog production journey gate.
 
 The repository-wide `:app:check` attempt reached the app lint task but failed
 on 675 lint findings (first: API-level `Trace.beginAsyncSection` in
@@ -155,8 +167,10 @@ execution-time project access.
 
 ## Next acceptance work
 
-1. Add a seeded production-activity Catalog fixture and execute the documented
-   journeys, including Favorites and accessibility variants.
+1. Promote the temporary Xtream responses into a committed, rerunnable
+   production-activity fixture (or use approved provider data), then execute
+   the remaining Dashboard, browse, detail-action, direct Favorites, and
+   accessibility journeys.
 2. Capture a cache-equivalent pre-extraction run and pair it with the
    successful Dashboard benchmark evidence, using the same seeded content,
    device, iteration count, and compilation mode. Keep app lint remediation and

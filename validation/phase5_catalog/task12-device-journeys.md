@@ -23,10 +23,12 @@ and no `com.streamvault.app.debug` fatal exception. Repeated UIAutomator dumps
 emitted their own `UiAutomationService ... already registered` noise, and
 platform Cast/StrictMode noise was not treated as Catalog evidence.
 
-Full Catalog journeys were **not run** because this fixture has live channels
-only and this checkout has no VOD/movie/series seed or production-activity
-journey harness. The route captures used for this pass are ignored local files;
-no production screenshots or raw logcat are committed.
+Full VOD/series Catalog journeys were **not run in this public-M3U pass**
+because that fixture has live channels only. The route captures used for this
+pass are ignored local files; no production screenshots or raw logcat are
+committed. A later temporary Xtream fixture follow-up exercised the missing
+movie/series/detail/search paths; see
+`task14-xtream-fixture-journeys.md` for its scope and remaining limitations.
 
 Unavailable journey set:
 

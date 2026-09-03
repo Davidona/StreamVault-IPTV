@@ -29,11 +29,16 @@
 Tasks 0–12 are implemented and their evidence is recorded under
 `validation/phase5_catalog/`. Task 13 structural/build-isolation and profile
 work is also recorded there. The available seeded Home/Live/Movies/Series/
-Search smoke pass is documented; full seeded journeys and repository-wide app
-lint remain open or unavailable. A focused Dashboard macrobenchmark rerun now
-passes after public-M3U live-channel activity populates a scrollable seeded Home
-shelf, but it is diagnostic after-run evidence rather than the required
-cache-equivalent paired comparison. These limitations are documented in
+Search smoke pass is documented. A temporary local Xtream fixture follow-up
+also exercised VOD/series details, episodes, saved filters, and cross-type
+Search in the production activity; its semantic evidence is in
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. A committed
+rerunnable fixture is still needed for the remaining Dashboard/action/direct-
+Favorites/accessibility journeys, and repository-wide app lint remains open.
+A focused Dashboard macrobenchmark rerun now passes after public-M3U
+live-channel activity populates a scrollable seeded Home shelf, but it is
+diagnostic after-run evidence rather than the required cache-equivalent paired
+comparison. These limitations are documented in
 `docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md`. Do not interpret this
 status as completion of Phase 5.
 

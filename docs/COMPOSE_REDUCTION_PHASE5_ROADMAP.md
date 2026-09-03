@@ -113,9 +113,12 @@ eight separate macrobenchmark tests were skipped by configuration and remain
 an open performance gate. The app-route Live golden was reviewed and
 regenerated from the current palette, with its connected assertion passing.
 Catalog extraction is structurally implemented with passing connected golden
-checks and current-checkout build-isolation samples. A partial seeded
-Home/Live/Movies/Series/Search smoke pass is recorded; full VOD/detail,
-Favorites, accessibility, and production journey coverage remains unavailable.
+checks and current-checkout build-isolation samples. The public-M3U seeded
+Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic
+temporary Xtream fixture run covering VOD/series details, episodes, saved
+filters, and cross-type Search; the semantic evidence is recorded in the
+Catalog validation directory. A committed rerunnable fixture is still needed
+for the remaining Dashboard/action/direct-Favorites/accessibility journeys.
 A focused Dashboard macrobenchmark rerun passed 1/1 with five warm iterations
 once public-M3U live-channel activity populated a scrollable Home shelf
 (`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99

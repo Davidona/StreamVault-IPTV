@@ -979,11 +979,13 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   open performance gate. The app-owned Live route golden was reviewed and
   regenerated with its connected assertion passing. Catalog is now structurally
   extracted under `:feature:catalog`; its execution report records passing
-  connected goldens, a partial seeded Home/Live/Movies/Series/Search smoke pass,
-  unavailable full catalog journeys, a successful diagnostic Dashboard benchmark
-  rerun after populating a scrollable seeded Home shelf, an open paired
-  benchmark gate, refreshed release-like profiles, and current app lint baseline
-  failure. System remains
+  connected goldens, a public-M3U Home/Live/Movies/Series/Search smoke pass,
+  and a diagnostic temporary Xtream fixture run covering VOD/series details,
+  episodes, saved filters, and cross-type Search. The committed-fixture,
+  remaining action/direct-Favorites/accessibility journeys, successful
+  diagnostic Dashboard benchmark rerun after populating a scrollable seeded
+  Home shelf, open paired benchmark gate, refreshed release-like profiles, and
+  current app lint baseline failure remain explicitly tracked. System remains
   unstarted; Playback, Provider, and Settings gates remain governed by their
   separate reports.
 
