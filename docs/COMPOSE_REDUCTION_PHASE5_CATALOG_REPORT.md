@@ -113,9 +113,14 @@ now available as the checked-in development tool
 by `tools/catalog_connected_validation.py`. This remains diagnostic evidence,
 not a production-provider pass.
 
-The remaining Dashboard customization, load-more/reorder/return, download,
-Cast chooser, direct Favorites-host, touch/phone/tablet, RTL,
-reduced-motion/accessibility, and long screenshot/logcat matrix are still open.
+The same semantic harness now also opens the Settings-owned Dashboard shelf
+customization dialog through TV focus, proves cancel leaves the persisted
+seven-shelf order unchanged, saves a six-shelf edit, and resets/saves the
+default order again. The rerun and surface list are recorded in
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The remaining
+browse load-more/reorder/return, download, Cast chooser, direct Favorites-host,
+touch/phone/tablet, RTL, reduced-motion/accessibility, and long screenshot/logcat
+matrix are still open.
 
 ## Build isolation and performance
 
@@ -170,9 +175,8 @@ execution-time project access.
 ## Next acceptance work
 
 1. Use the checked-in Xtream fixture (or approved provider data) to execute the
-   remaining Dashboard, browse, detail-action, direct Favorites, and
-   accessibility journeys, and keep the fixture invocation in the validation
-   protocol.
+   remaining browse, detail-action, direct Favorites, and accessibility
+   journeys, and keep the fixture invocation in the validation protocol.
 2. Capture a cache-equivalent pre-extraction run and pair it with the
    successful Dashboard benchmark evidence, using the same seeded content,
    device, iteration count, and compilation mode. Keep app lint remediation and

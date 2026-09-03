@@ -1,7 +1,9 @@
+import re
 import unittest
 
 
 from tools.catalog_connected_validation import (
+    _focused_target_matches,
     assert_snapshot,
     extract_ui_strings,
     parse_bounds,
@@ -30,6 +32,15 @@ class CatalogConnectedValidationTest(unittest.TestCase):
             assert_snapshot(dump, required=("Fixture Series One",))
         with self.assertRaisesRegex(AssertionError, "forbidden marker 'Sync needed'"):
             assert_snapshot(dump, forbidden=("Sync needed",))
+
+    def test_focused_target_matches_walks_to_clickable_parent(self):
+        dump = """<hierarchy>
+          <node text="" clickable="true" focused="false" bounds="[0,0][300,100]">
+            <node text="Save Order" clickable="false" focused="true" bounds="[10,10][200,80]" />
+          </node>
+        </hierarchy>"""
+
+        self.assertTrue(_focused_target_matches(dump, [re.compile(r"^Save Order$")]))
 
 
 if __name__ == "__main__":

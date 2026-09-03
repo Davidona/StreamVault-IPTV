@@ -329,6 +329,63 @@ class AdbClient:
             self.key("KEYCODE_DPAD_RIGHT")
         raise CatalogValidationError("Could not focus a matching detail action.")
 
+    def focus_and_activate_dialog_action(
+        self,
+        patterns: Sequence[str],
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+        max_steps: int = 10,
+    ) -> str:
+        """Walk a scrollable TV dialog to a matching footer/action control."""
+
+        compiled = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
+        deadline = time.monotonic() + timeout
+        # The dialog's body owns vertical focus until its footer row is reached.
+        # Batch those transitions without a dump after every key; a UIAutomator
+        # dump/pull is comparatively slow on the TV emulator and can otherwise
+        # exhaust the journey timeout before the footer receives focus.
+        for _ in range(max_steps):
+            self.key("KEYCODE_DPAD_DOWN")
+        for _ in range(3):
+            self.key("KEYCODE_DPAD_LEFT")
+        self.key("KEYCODE_DPAD_DOWN")
+        for _ in range(4):
+            if time.monotonic() >= deadline:
+                break
+            dump = self.snapshot("focus_dialog_action")
+            if _focused_target_matches(dump, compiled):
+                self.key("KEYCODE_DPAD_CENTER")
+                return "activated"
+            self.key("KEYCODE_DPAD_RIGHT")
+        raise CatalogValidationError("Could not focus a matching dialog action.")
+
+    def open_settings_customization(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Open the Settings-owned Dashboard shelf dialog through TV focus."""
+
+        # App Settings starts on the Providers category.  Move to Browsing,
+        # select it, then move into the remembered content row for Customize
+        # Home.  This keeps the probe on the production remote path instead of
+        # relying on coordinate taps that are unreliable in TV touch mode.
+        self.key("KEYCODE_DPAD_DOWN")
+        self.key("KEYCODE_DPAD_DOWN")
+        self.key("KEYCODE_DPAD_CENTER")
+        self.wait_for(
+            "settings_customization_ready",
+            required=("Customize Home", "7 shelves"),
+            timeout=timeout,
+        )
+        time.sleep(0.5)
+        self.key("KEYCODE_DPAD_RIGHT")
+        time.sleep(0.2)
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            dump = self.snapshot("focus_customize_home")
+            if _focused_target_contains(dump, "Customize Home"):
+                self.key("KEYCODE_DPAD_CENTER")
+                return
+            self.key("KEYCODE_DPAD_DOWN")
+        raise CatalogValidationError("Could not focus the Settings Customize Home row.")
+
     def navigate(self, route: str, package: str, activity: str) -> None:
         if route not in TOP_LEVEL_DESTINATIONS:
             raise CatalogValidationError(f"Unknown top-level route '{route}'.")
@@ -434,7 +491,11 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
     # SearchInput is already the focused TV control when Search opens; center activates its
     # editable field (a coordinate tap does not reliably switch TV read-only mode).
     client.key("KEYCODE_DPAD_CENTER")
-    client.shell("input", "text", "Fixture")
+    # Send one character at a time.  API 36 TV occasionally drops an adjacent
+    # key when the Compose text field is still switching out of read-only mode.
+    for character in "Fixture":
+        client.shell("input", "text", character)
+        time.sleep(0.1)
     # Commit the TV text field before attempting to scroll the result column.  Without an IME
     # action, DPAD/swipe input remains owned by the editable control and the result rows stay
     # below the viewport.
@@ -451,6 +512,57 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         required=("Fixture Movie One", "Fixture Series One"),
         timeout=timeout,
     )
+    client.navigate("settings", package, activity)
+    client.wait_for(
+        "settings_route",
+        required=("streamvault.destination:settings",),
+        timeout=timeout,
+    )
+    client.open_settings_customization(timeout=timeout)
+    client.wait_for(
+        "dashboard_customization",
+        required=("Customize Home", "Visible on Home", "Cancel", "Save Order"),
+        timeout=timeout,
+    )
+    # The dialog initially focuses the first enabled shelf's Remove action.
+    # Remove it, then cancel through the footer to prove the draft is not persisted.
+    client.key("KEYCODE_DPAD_CENTER")
+    client.wait_for(
+        "dashboard_customization_removed",
+        required=("Recent Channels", "Save Order"),
+        forbidden=("Favorite Channels",),
+        timeout=timeout,
+    )
+    client.focus_and_activate_dialog_action((r"^Cancel$",), timeout=timeout)
+    client.wait_for(
+        "dashboard_customization_cancelled",
+        required=("streamvault.destination:settings", "Customize Home", "7 shelves"),
+        forbidden=("Visible on Home",),
+        timeout=timeout,
+    )
+
+    # Repeat the edit, save it, then reset and save the default order.  The row
+    # count is the durable semantic signal for both save operations.
+    client.key("KEYCODE_DPAD_CENTER")
+    client.wait_for("dashboard_customization_resave", required=("Visible on Home", "Save Order"), timeout=timeout)
+    client.key("KEYCODE_DPAD_CENTER")
+    client.focus_and_activate_dialog_action((r"^Save Order$",), timeout=timeout)
+    client.wait_for(
+        "dashboard_customization_saved",
+        required=("streamvault.destination:settings", "Customize Home", "6 shelves"),
+        forbidden=("Visible on Home",),
+        timeout=timeout,
+    )
+    client.key("KEYCODE_DPAD_CENTER")
+    client.wait_for("dashboard_customization_reset", required=("Visible on Home", "Save Order"), timeout=timeout)
+    client.focus_and_activate_dialog_action((r"^Reset$",), timeout=timeout)
+    client.focus_and_activate_dialog_action((r"^Save Order$",), timeout=timeout)
+    client.wait_for(
+        "dashboard_customization_restored",
+        required=("streamvault.destination:settings", "Customize Home", "7 shelves"),
+        forbidden=("Visible on Home",),
+        timeout=timeout,
+    )
     return [
         "home",
         "movies_browse",
@@ -460,6 +572,12 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         "series_detail",
         "search_fixture",
         "search_fixture_content",
+        "settings_route",
+        "settings_customization_ready",
+        "dashboard_customization",
+        "dashboard_customization_cancelled",
+        "dashboard_customization_saved",
+        "dashboard_customization_restored",
     ]
 
 

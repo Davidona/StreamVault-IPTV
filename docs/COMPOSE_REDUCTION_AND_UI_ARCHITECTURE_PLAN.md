@@ -985,7 +985,9 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   `tools/catalog_xtream_fixture.py` now provides a rerunnable development
   seed, and `tools/catalog_connected_validation.py` provides a semantic ADB
   journey for the fixture-backed Home/Movies/Series/detail/favorite/saved/
-  Search path; the remaining action/direct-Favorites/accessibility journeys,
+  Search path plus the Settings-owned Dashboard shelf customization
+  cancel/save/reset flow; the remaining browse/action/direct-Favorites/
+  accessibility journeys,
   successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and

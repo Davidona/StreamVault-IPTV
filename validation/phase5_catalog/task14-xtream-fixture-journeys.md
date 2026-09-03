@@ -54,6 +54,14 @@ the five grouped fixture results. The report and UI dumps are local ignored
 artifacts under `build/catalog-validation-fixture`; no provider credentials or
 raw URLs are checked in.
 
+A follow-up run with the same fixture and emulator also passed the Settings-
+owned Dashboard shelf customization dialog. It opened the dialog through the
+TV focus path, removed a shelf and cancelled without changing the persisted
+`7 shelves` setting, saved the removal to `6 shelves`, then reset and saved the
+default order back to `7 shelves`. The semantic report is under
+`build/catalog-validation-customization-8` and includes the settings route,
+dialog, cancel, save, and restore surfaces.
+
 The fixture test uses an ephemeral loopback port and does not require Android.
 The production-activity run uses port 8765 because that is the emulator-host
 mapping used by `10.0.2.2`.
@@ -101,7 +109,6 @@ The run does not close the full Phase 5 acceptance gate. The public M3U flow
 remains live-only, and the following journeys still need to be executed against
 the checked-in fixture (or approved provider data):
 
-- Dashboard customization save/cancel and focus traversal;
 - browse load-more, reorder, return-route, download enqueue, and Cast chooser;
 - direct Favorites host rendering and reorder/save/cancel;
 - touch-mode, phone/tablet, RTL, reduced-motion, and accessibility variants;

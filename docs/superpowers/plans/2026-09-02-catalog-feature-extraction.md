@@ -35,8 +35,9 @@ Search in the production activity; its semantic evidence is in
 `validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The checked-in
 `tools/catalog_xtream_fixture.py` now provides a rerunnable development seed,
 and `tools/catalog_connected_validation.py` provides a semantic ADB journey
-for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path.
-The remaining Dashboard/action/direct-Favorites/accessibility journeys;
+for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path and
+the Settings-owned Dashboard shelf customization cancel/save/reset flow. The
+remaining browse/action/direct-Favorites/accessibility journeys;
 repository-wide app lint remains open.
 A focused Dashboard macrobenchmark rerun now passes after public-M3U
 live-channel activity populates a scrollable seeded Home shelf, but it is

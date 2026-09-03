@@ -120,9 +120,9 @@ filters, and cross-type Search; the semantic evidence is recorded in the
 Catalog validation directory. The checked-in `tools/catalog_xtream_fixture.py`
 now provides a rerunnable development seed, and
 `tools/catalog_connected_validation.py` provides a semantic ADB journey for
-the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path. The
-remaining Dashboard/action/direct-Favorites/accessibility journeys remain
-open.
+the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path and
+Settings-owned Dashboard shelf customization cancel/save/reset flow. The
+remaining browse/action/direct-Favorites/accessibility journeys remain open.
 A focused Dashboard macrobenchmark rerun passed 1/1 with five warm iterations
 once public-M3U live-channel activity populated a scrollable Home shelf
 (`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99
