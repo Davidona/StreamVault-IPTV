@@ -308,12 +308,40 @@ class AdbClient:
                 return
         raise CatalogValidationError(f"Could not focus a card containing marker '{marker}'.")
 
+    def focus_and_activate_browse_card(
+        self,
+        marker: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        """Focus the first fixture card in a modern browse grid and activate it."""
+
+        compiled = [re.compile(re.escape(marker), re.IGNORECASE)]
+        deadline = time.monotonic() + timeout
+        # From the shell rail, Down twice enters the browse lens row.  Three
+        # Left transitions align its x-column with the first fixture card;
+        # Down then lands on the first card in the grid (Movie/Series One).
+        self.key("KEYCODE_DPAD_DOWN")
+        self.key("KEYCODE_DPAD_DOWN")
+        for _ in range(3):
+            self.key("KEYCODE_DPAD_LEFT")
+        self.key("KEYCODE_DPAD_DOWN")
+        for _ in range(4):
+            if time.monotonic() >= deadline:
+                break
+            dump = self.snapshot(f"focus_browse_card_{_safe_name(marker)}")
+            if _focused_target_matches(dump, compiled):
+                self.key("KEYCODE_DPAD_CENTER")
+                return
+            self.key("KEYCODE_DPAD_RIGHT")
+        raise CatalogValidationError(f"Could not focus browse card '{marker}'.")
+
     def focus_and_activate_matching(
         self,
         patterns: Sequence[str],
         *,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
-        max_steps: int = 8,
+        max_steps: int = 10,
     ) -> str:
         """Activate a currently visible action by walking the focused row."""
 
@@ -334,62 +362,155 @@ class AdbClient:
         patterns: Sequence[str],
         *,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
-        max_steps: int = 10,
+        max_steps: int = 8,
     ) -> str:
-        """Walk a scrollable TV dialog to a matching footer/action control."""
+        """Walk a TV dialog's focused controls to a matching footer/action."""
 
         compiled = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
         deadline = time.monotonic() + timeout
-        # The dialog's body owns vertical focus until its footer row is reached.
-        # Batch those transitions without a dump after every key; a UIAutomator
-        # dump/pull is comparatively slow on the TV emulator and can otherwise
-        # exhaust the journey timeout before the footer receives focus.
+        # Dialog body rows can recompose after Remove, leaving focus on an Add
+        # control.  Batch the vertical transition to the footer, then probe a
+        # small horizontal neighborhood (Cancel -> Reset -> Save Order).  This
+        # keeps the path semantic while avoiding a slow dump after every D-pad
+        # event on the TV emulator.
+        def probe() -> bool:
+            if time.monotonic() >= deadline:
+                return False
+            dump = self.snapshot("focus_dialog_action")
+            if _focused_target_matches(dump, compiled):
+                self.key("KEYCODE_DPAD_CENTER")
+                return True
+            return False
+
+        if probe():
+            return "activated"
         for _ in range(max_steps):
             self.key("KEYCODE_DPAD_DOWN")
         for _ in range(3):
             self.key("KEYCODE_DPAD_LEFT")
         self.key("KEYCODE_DPAD_DOWN")
+        if probe():
+            return "activated"
+        for _ in range(3):
+            self.key("KEYCODE_DPAD_LEFT")
+        if probe():
+            return "activated"
         for _ in range(4):
-            if time.monotonic() >= deadline:
-                break
-            dump = self.snapshot("focus_dialog_action")
-            if _focused_target_matches(dump, compiled):
-                self.key("KEYCODE_DPAD_CENTER")
+            if probe():
                 return "activated"
             self.key("KEYCODE_DPAD_RIGHT")
         raise CatalogValidationError("Could not focus a matching dialog action.")
 
-    def open_settings_customization(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
-        """Open the Settings-owned Dashboard shelf dialog through TV focus."""
+    def focus_and_activate_browse_entry(
+        self,
+        marker: str = "Browse Full Movie Library",
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        """Open the full-library browse entry through the TV focus path."""
 
-        # App Settings starts on the Providers category.  Move to Browsing,
-        # select it, then move into the remembered content row for Customize
-        # Home.  This keeps the probe on the production remote path instead of
-        # relying on coordinate taps that are unreliable in TV touch mode.
+        compiled = [re.compile(re.escape(marker), re.IGNORECASE)]
+        deadline = time.monotonic() + timeout
+        # The modern browse hero focuses the first lens after one Down; the
+        # full-library entry is three Left transitions from that lens.
+        self.key("KEYCODE_DPAD_DOWN")
+        for _ in range(3):
+            if time.monotonic() >= deadline:
+                break
+            self.key("KEYCODE_DPAD_LEFT")
+        dump = self.snapshot("focus_browse_entry")
+        if not _focused_target_matches(dump, compiled):
+            raise CatalogValidationError(f"Could not focus browse entry '{marker}'.")
+        self.key("KEYCODE_DPAD_CENTER")
+
+    def focus_and_activate_load_more(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Focus and activate the selected-category Load more card."""
+
+        # A swipe leaves focus on the shell rail.  The first Down enters the
+        # last visible grid row; the remaining transitions reach the footer
+        # card after the 60-item page.
+        for _ in range(7):
+            self.key("KEYCODE_DPAD_DOWN")
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            dump = self.snapshot("focus_load_more")
+            if _focused_target_contains(dump, "Load more"):
+                self.key("KEYCODE_DPAD_CENTER")
+                return
+            self.key("KEYCODE_DPAD_DOWN")
+        raise CatalogValidationError("Could not focus the selected-category Load more card.")
+
+    def open_settings_browsing(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Select the Settings Browsing category and focus its first row."""
+
         self.key("KEYCODE_DPAD_DOWN")
         self.key("KEYCODE_DPAD_DOWN")
         self.key("KEYCODE_DPAD_CENTER")
+        self.wait_for(
+            "settings_browsing_ready",
+            required=("Customize Home", "7 shelves"),
+            timeout=timeout,
+        )
+        time.sleep(0.3)
+        self.key("KEYCODE_DPAD_RIGHT")
+
+    def set_infinite_scroll(self, enabled: bool, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Set the Settings VOD pagination mode through the TV remote path."""
+
+        # Browsing content starts at Live TV Channel Mode.  Infinite scroll is
+        # the eighteenth row in that list (0-based index 17).
+        for _ in range(17):
+            self.key("KEYCODE_DPAD_DOWN")
+        dump = self.snapshot("focus_infinite_scroll")
+        if not _focused_target_contains(dump, "Infinite scroll"):
+            raise CatalogValidationError("Could not focus the Settings Infinite scroll row.")
+        values = extract_ui_strings(dump)
+        current_enabled = "Load the next page as you scroll near the end." in values
+        if current_enabled != enabled:
+            self.key("KEYCODE_DPAD_CENTER")
+            time.sleep(0.4)
+        expected = "Load the next page as you scroll near the end." if enabled else "Show a Load more button for the next page."
+        self.wait_for("settings_infinite_scroll_updated", required=("Infinite scroll", expected), timeout=timeout)
+
+    def open_settings_customization(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Open the Settings-owned Dashboard shelf dialog through TV focus."""
+
+        # Re-entering Settings after changing pagination can preserve the
+        # Browsing content focus.  In that case the two Down events below may
+        # activate Customize Home immediately, so recognize the already-open
+        # dialog before trying to select the row again.
+        initial = self.snapshot("settings_customization_initial")
+        if "Customize top navigation" in extract_ui_strings(initial):
+            return
+
+        # Select the Browsing category through a semantic UIAutomator target,
+        # then normalize focus to the shell before stepping into the exact
+        # Customize Home row.  This avoids relying on the remembered D-pad
+        # position after the pagination journey, where the same key sequence
+        # can land on Top navigation instead.
+        self.tap_marker("Browsing", timeout=timeout)
         self.wait_for(
             "settings_customization_ready",
             required=("Customize Home", "7 shelves"),
             timeout=timeout,
         )
-        time.sleep(0.5)
-        self.key("KEYCODE_DPAD_RIGHT")
-        time.sleep(0.2)
-        deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
-            dump = self.snapshot("focus_customize_home")
-            if _focused_target_contains(dump, "Customize Home"):
-                self.key("KEYCODE_DPAD_CENTER")
-                return
+        for _ in range(40):
+            self.key("KEYCODE_DPAD_UP")
+        for _ in range(3):
             self.key("KEYCODE_DPAD_DOWN")
-        raise CatalogValidationError("Could not focus the Settings Customize Home row.")
+        focused = self.snapshot("focus_customize_home")
+        if not _focused_target_contains(focused, "Customize Home"):
+            raise CatalogValidationError("Could not focus the Settings Customize Home row.")
+        self.key("KEYCODE_DPAD_CENTER")
 
     def navigate(self, route: str, package: str, activity: str) -> None:
         if route not in TOP_LEVEL_DESTINATIONS:
             raise CatalogValidationError(f"Unknown top-level route '{route}'.")
         if route == "home":
+            # Recreate the activity so a deep grid/detail surface cannot retain
+            # its remembered destination when the explicit launcher intent is
+            # delivered to an existing task.
+            self.shell("am", "force-stop", package)
             self.shell("am", "start", "-W", "-a", "android.intent.action.VIEW", "-n", f"{package}/{activity}")
             return
         for _ in range(40):
@@ -452,7 +573,23 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         required=("streamvault.destination:movies", "Fixture Movie One", "Fixture Movie Two"),
         timeout=timeout,
     )
-    client.focus_and_activate_marker("Fixture Movie One")
+    client.focus_and_activate_browse_entry(timeout=timeout)
+    client.wait_for(
+        "movies_full_library",
+        required=("streamvault.destination:movies", "Filters & Sort", "Fixture Movie One", "Fixture Movie Two"),
+        timeout=timeout,
+    )
+    client.key("KEYCODE_BACK")
+    client.wait_for(
+        "movies_after_full_library",
+        required=("streamvault.destination:movies", "Browse Full Movie Library", "Top Rated", "Newest Movies"),
+        timeout=timeout,
+    )
+    # The selected-library grid remembers its last scroll offset across Back;
+    # return it to the top before reusing the card-focus probe for Movie One.
+    for _ in range(4):
+        client.shell("input", "swipe", "960", "250", "960", "900", "500")
+    client.focus_and_activate_browse_card("Fixture Movie One", timeout=timeout)
     client.wait_for("movie_detail", required=("Fixture Movie One", "Play", "Copy URL", "Download", "Cast"), timeout=timeout)
     _ensure_favorite(client, timeout=timeout)
     client.key("KEYCODE_BACK")
@@ -466,7 +603,7 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         required=("streamvault.destination:series", "Fixture Series One", "Fixture Series Two"),
         timeout=timeout,
     )
-    client.focus_and_activate_marker("Fixture Series One")
+    client.focus_and_activate_browse_card("Fixture Series One", timeout=timeout)
     client.wait_for("series_detail", required=("Fixture Series One", "Season 1"), timeout=timeout)
     _ensure_favorite(client, timeout=timeout)
     client.wait_for_any("series_favorite", ("Remove from favourites", "Remove from favorites"), timeout=timeout)
@@ -518,6 +655,62 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         required=("streamvault.destination:settings",),
         timeout=timeout,
     )
+    client.open_settings_browsing(timeout=timeout)
+    client.set_infinite_scroll(False, timeout=timeout)
+    client.navigate("movies", package, activity)
+    client.wait_for(
+        "movies_pagination_route",
+        required=("streamvault.destination:movies", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    client.focus_and_activate_browse_entry(timeout=timeout)
+    client.wait_for(
+        "movies_pagination_library",
+        required=("Filters & Sort", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    for _ in range(20):
+        client.shell("input", "swipe", "960", "900", "960", "250", "500")
+    client.wait_for(
+        "movies_pagination_ready",
+        required=("Load more (60/63)",),
+        timeout=timeout,
+    )
+    client.focus_and_activate_load_more(timeout=timeout)
+    for _ in range(4):
+        client.shell("input", "swipe", "960", "900", "960", "250", "500")
+    client.wait_for(
+        "movies_pagination_loaded",
+        required=("Pagination Movie 63",),
+        forbidden=("Load more (60/63)",),
+        timeout=timeout,
+    )
+    # After appending the second page, focus can remain inside the deep grid
+    # and repeated DPAD_UP presses do not reliably reach the shell rail.  Reset
+    # the top-level surface through the production activity entry point before
+    # exercising the Settings route again.
+    client.navigate("home", package, activity)
+    client.wait_for(
+        "home_after_pagination",
+        required=("streamvault.destination:home", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    client.navigate("settings", package, activity)
+    client.wait_for(
+        "settings_route_after_pagination",
+        required=("streamvault.destination:settings",),
+        timeout=timeout,
+    )
+    client.open_settings_browsing(timeout=timeout)
+    client.set_infinite_scroll(True, timeout=timeout)
+    # Re-enter the Settings destination so the customization helper starts
+    # from the category rail rather than the Infinite scroll content row.
+    client.navigate("settings", package, activity)
+    client.wait_for(
+        "settings_route_before_customization",
+        required=("streamvault.destination:settings",),
+        timeout=timeout,
+    )
     client.open_settings_customization(timeout=timeout)
     client.wait_for(
         "dashboard_customization",
@@ -566,6 +759,8 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
     return [
         "home",
         "movies_browse",
+        "movies_full_library",
+        "movies_after_full_library",
         "movie_detail",
         "movies_saved",
         "series_browse",
@@ -573,6 +768,15 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         "search_fixture",
         "search_fixture_content",
         "settings_route",
+        "settings_browsing_ready",
+        "settings_infinite_scroll_updated",
+        "movies_pagination_route",
+        "movies_pagination_library",
+        "movies_pagination_ready",
+        "movies_pagination_loaded",
+        "home_after_pagination",
+        "settings_route_after_pagination",
+        "settings_route_before_customization",
         "settings_customization_ready",
         "dashboard_customization",
         "dashboard_customization_cancelled",

@@ -16,10 +16,13 @@ then the settings were removed after the run. Route captures remain ignored
 local artifacts; the fixture is a development diagnostic, not a production-
 provider claim.
 
-The fixture returned one live channel, two movies, two series, movie metadata,
-and one season with two episodes per series. All observed player-API, XMLTV,
-and image requests returned HTTP 200. No credentials or raw provider URLs are
-included in this evidence.
+The fixture returns one live channel, 63 movies, 63 series, movie metadata,
+and one season with two episodes per series. The first two movie/series items
+remain stable fixture titles for detail and Search assertions; the remaining
+items are generated in pagination categories so the selected-library flow can
+prove a second page. All observed player-API, XMLTV, and image requests
+returned HTTP 200. No credentials or raw provider URLs are included in this
+evidence.
 
 ## Rerun protocol
 
@@ -48,19 +51,23 @@ focus/input path and does not mutate `local.properties`.
 
 The command passed on `emulator-5554` (API 36 AOSP TV, 1920x1080) with
 `com.streamvault.app.debug`. It proved these surfaces in one run: Home,
-Movies browse, movie detail and favourite toggle, the Movies `Saved` filter,
-Series browse, series detail with Season 1 and both episodes, and Search with
-the five grouped fixture results. The report and UI dumps are local ignored
-artifacts under `build/catalog-validation-fixture`; no provider credentials or
-raw URLs are checked in.
+Movies browse and full-library entry/back, movie detail and favourite toggle,
+the Movies `Saved` filter, Series browse, series detail with Season 1 and both
+episodes, Search with the five grouped fixture results, Settings Browsing, and
+the VOD pagination toggle. With Infinite scroll disabled, the selected Movies
+library reached `Load more (60/63)`; semantic focus activated it and the next
+page rendered through `Pagination Movie 63` with the button gone. Infinite
+scroll was restored to enabled before the Dashboard customization checks.
+The report and UI dumps are local ignored artifacts under
+`build/catalog-validation-pagination-final-15`; no provider credentials or raw
+URLs are checked in.
 
-A follow-up run with the same fixture and emulator also passed the Settings-
-owned Dashboard shelf customization dialog. It opened the dialog through the
-TV focus path, removed a shelf and cancelled without changing the persisted
-`7 shelves` setting, saved the removal to `6 shelves`, then reset and saved the
-default order back to `7 shelves`. The semantic report is under
-`build/catalog-validation-customization-8` and includes the settings route,
-dialog, cancel, save, and restore surfaces.
+The same run passed the Settings-owned Dashboard shelf customization dialog.
+It opened the dialog through semantic Settings targets, removed a shelf and
+cancelled without changing the persisted `7 shelves` setting, saved the removal
+to `6 shelves`, then reset and saved the default order back to `7 shelves`.
+The report includes the settings route, dialog, cancel, save, and restore
+surfaces.
 
 The fixture test uses an ephemeral loopback port and does not require Android.
 The production-activity run uses port 8765 because that is the emulator-host
@@ -72,6 +79,8 @@ mapping used by `10.0.2.2`.
 |---|---|
 | Dashboard | `streamvault.destination:home`; Recently Added Movies and Recently Updated Series each rendered two fixture cards. |
 | Movies browse | `streamvault.destination:movies`; two titles, one category, Top Rated/Newest shelves, and both movie cards rendered. |
+| Movies full-library entry/back | Browse hero activated `Browse Full Movie Library`; the selected library rendered `Filters & Sort` and returned to the modern browse surface through Back. |
+| Movies pagination | With Infinite scroll off, the selected library rendered `Load more (60/63)` after 20 swipes; activation appended the second page through `Pagination Movie 63` and removed the button. Infinite scroll was then restored on. |
 | Movie detail | `Fixture Movie One` rendered rating, release date, duration, genre, director, cast, plot, Play/Copy URL/Download/Cast/Trailer actions, and favourite toggle. |
 | Movies saved filter | Movies `Saved` filter rendered exactly `Fixture Movie One` after the detail toggle. |
 | Series browse | `streamvault.destination:series`; two titles, one category, and both series cards rendered. |
@@ -109,7 +118,8 @@ The run does not close the full Phase 5 acceptance gate. The public M3U flow
 remains live-only, and the following journeys still need to be executed against
 the checked-in fixture (or approved provider data):
 
-- browse load-more, reorder, return-route, download enqueue, and Cast chooser;
+- browse reorder and the Series selected-library load-more path;
+- download completion and Cast receiver chooser;
 - direct Favorites host rendering and reorder/save/cancel;
 - touch-mode, phone/tablet, RTL, reduced-motion, and accessibility variants;
 - cache-equivalent before/after Dashboard performance comparison.

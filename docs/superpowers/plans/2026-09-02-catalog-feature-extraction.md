@@ -35,9 +35,11 @@ Search in the production activity; its semantic evidence is in
 `validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The checked-in
 `tools/catalog_xtream_fixture.py` now provides a rerunnable development seed,
 and `tools/catalog_connected_validation.py` provides a semantic ADB journey
-for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path and
-the Settings-owned Dashboard shelf customization cancel/save/reset flow. The
-remaining browse/action/direct-Favorites/accessibility journeys;
+for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path,
+Movies full-library entry/back, the `Load more (60/63)` → `Pagination Movie 63`
+second-page transition with Infinite scroll restored on, and the Settings-owned
+Dashboard shelf customization cancel/save/reset flow. The remaining Series
+pagination, browse reorder, action/direct-Favorites/accessibility journeys;
 repository-wide app lint remains open.
 A focused Dashboard macrobenchmark rerun now passes after public-M3U
 live-channel activity populates a scrollable seeded Home shelf, but it is
@@ -1183,6 +1185,53 @@ git commit -m 'docs(catalog): report phase 5 feature extraction'
 ```
 
 If generated profile paths differ, stage only files produced by the verified generator and list their actual paths in `profile-validation.md`.
+
+---
+
+### Task 14: Exercise deterministic Xtream VOD pagination and Settings controls
+
+**Files:**
+- Create: `tools/catalog_xtream_fixture.py`
+- Create: `tools/catalog_connected_validation.py`
+- Create: `validation/phase5_catalog/task14-xtream-fixture-journeys.md`
+- Test: `tools/tests/test_catalog_xtream_fixture.py`
+
+**Interfaces:**
+- Consumes: the existing debug `xtream.dev.*` provider hooks and production TV
+  navigation/activity.
+- Produces: a local-only Xtream fixture with one live channel, 63 movies, 63
+  series, detail metadata, and two episodes per series; a semantic ADB journey
+  that proves the fixture-backed Catalog and Settings paths without seeding
+  application state or changing production provider behavior.
+
+- [x] **Step 1: Add deterministic fixture data and contract tests**
+
+  Keep the first two movie/series titles stable for detail and Search checks;
+  place generated items in pagination categories and assert the 63-item shape
+  in the fixture unit test. The fixture uses an ephemeral port in unit tests
+  and port 8765 only for the emulator's `10.0.2.2` host mapping.
+
+- [x] **Step 2: Add the semantic connected journey**
+
+  Prove Home/Movies/Series/detail/favorite/saved/Search, Movies full-library
+  entry/back, Settings Infinite scroll off, `Load more (60/63)` activation
+  through `Pagination Movie 63`, restoration of Infinite scroll on, and
+  Dashboard customization cancel/save/reset. Persist UIAutomator snapshots and
+  a JSON report under ignored `build/` output.
+
+- [x] **Step 3: Run the TV journey and record bounded evidence**
+
+  The API 36 AOSP TV run passed 5/5 feature connected tests and the semantic
+  journey in `build/catalog-validation-pagination-final-15`. The fixture was
+  stopped and its temporary local properties are removed after validation.
+
+- [ ] **Step 4: Finish the remaining Catalog acceptance gates**
+
+  Execute Series selected-library pagination, browse reorder, download
+  completion, Cast receiver chooser, direct Favorites-host reorder/save/cancel,
+  touch/phone/tablet/RTL/reduced-motion/accessibility variants, and a
+  cache-equivalent Dashboard performance comparison. Keep app lint and other
+  Phase 5 gates separate from Catalog ownership.
 
 ## Exit Criteria
 

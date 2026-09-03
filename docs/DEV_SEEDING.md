@@ -56,10 +56,12 @@ xtream.dev.password=fixture
 xtream.dev.name=Catalog Fixture
 ```
 
-The fixture serves one live channel, two movies, two series, and deterministic
-detail/episode metadata. It is for local diagnostic and acceptance journeys;
-stop the process and remove the four entries after testing. The script never
-contacts an external provider.
+The fixture serves one live channel, 63 movies, 63 series, and deterministic
+detail/episode metadata. The first two movie/series entries are stable named
+fixtures; generated pagination-category entries make the 60-item page boundary
+reproducible. It is for local diagnostic and acceptance journeys; stop the
+process and remove the four entries after testing. The script never contacts
+an external provider.
 
 For the repeatable TV semantic journey, with the fixture-configured debug APK
 installed, run:

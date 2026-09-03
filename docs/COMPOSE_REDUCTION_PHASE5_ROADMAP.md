@@ -115,14 +115,17 @@ regenerated from the current palette, with its connected assertion passing.
 Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. The public-M3U seeded
 Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic
-temporary Xtream fixture run covering VOD/series details, episodes, saved
-filters, and cross-type Search; the semantic evidence is recorded in the
-Catalog validation directory. The checked-in `tools/catalog_xtream_fixture.py`
-now provides a rerunnable development seed, and
-`tools/catalog_connected_validation.py` provides a semantic ADB journey for
-the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path and
-Settings-owned Dashboard shelf customization cancel/save/reset flow. The
-remaining browse/action/direct-Favorites/accessibility journeys remain open.
+temporary Xtream fixture run covering 63-item VOD/series catalogs, VOD/series
+details, episodes, saved filters, and cross-type Search; the semantic evidence
+is recorded in the Catalog validation directory. The checked-in
+`tools/catalog_xtream_fixture.py` now provides a rerunnable development seed,
+and `tools/catalog_connected_validation.py` provides a semantic ADB journey
+for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path,
+Movies full-library entry/back, Movies `Load more (60/63)` → `Pagination Movie
+63`, Infinite scroll off/on restoration, and Settings-owned Dashboard shelf
+customization cancel/save/reset flow. Series pagination, browse reorder,
+download/Cast completion, direct-Favorites, and accessibility journeys remain
+open.
 A focused Dashboard macrobenchmark rerun passed 1/1 with five warm iterations
 once public-M3U live-channel activity populated a scrollable Home shelf
 (`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99

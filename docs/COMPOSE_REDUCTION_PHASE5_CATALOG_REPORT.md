@@ -100,11 +100,13 @@ live channels only; Search accepted `3ABN` and rendered seven Live TV results
 state.
 
 As a follow-up, a temporary local Xtream-compatible fixture was used with the
-same debug `MainActivity` on this emulator. It returned one live channel, two
-movies, two series, movie metadata, and two episodes per series. The run
-rendered Dashboard media shelves, Movies and Series browse cards, movie and
-series details, season/episode rows, movie and series favourite toggles, saved
-filters, and a five-result cross-type Search query (Live TV 1, Movies 2,
+same debug `MainActivity` on this emulator. It returns one live channel, 63
+movies, 63 series, movie metadata, and two episodes per series. The first two
+items are stable fixture titles; generated pagination-category items make the
+second-page boundary deterministic. The run rendered Dashboard media shelves,
+Movies and Series browse cards, the Movies full-library entry/back path, movie
+and series details, season/episode rows, movie and series favourite toggles,
+saved filters, and a five-result cross-type Search query (Live TV 1, Movies 2,
 Series 2). The semantic route/title/count evidence and the exact fixture
 limitations are recorded in
 `validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The fixture is
@@ -113,14 +115,18 @@ now available as the checked-in development tool
 by `tools/catalog_connected_validation.py`. This remains diagnostic evidence,
 not a production-provider pass.
 
-The same semantic harness now also opens the Settings-owned Dashboard shelf
-customization dialog through TV focus, proves cancel leaves the persisted
-seven-shelf order unchanged, saves a six-shelf edit, and resets/saves the
-default order again. The rerun and surface list are recorded in
-`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The remaining
-browse load-more/reorder/return, download, Cast chooser, direct Favorites-host,
-touch/phone/tablet, RTL, reduced-motion/accessibility, and long screenshot/logcat
-matrix are still open.
+The same semantic harness now also opens Settings Browsing, switches Infinite
+scroll off, proves the selected Movies library reaches `Load more (60/63)`,
+activates the control to render `Pagination Movie 63`, and restores Infinite
+scroll on. It then opens the Settings-owned Dashboard shelf customization
+dialog through TV focus, proves cancel leaves the persisted seven-shelf order
+unchanged, saves a six-shelf edit, and resets/saves the default order again.
+The rerun and surface list are recorded in
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. Movie
+pagination and the Movies browse return path are covered; Series pagination,
+browse reorder, download completion, Cast chooser, direct Favorites-host,
+touch/phone/tablet, RTL, reduced-motion/accessibility, and the paired
+performance matrix remain open.
 
 ## Build isolation and performance
 

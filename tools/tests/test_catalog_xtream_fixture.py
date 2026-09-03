@@ -19,7 +19,9 @@ class CatalogXtreamFixtureTest(unittest.TestCase):
         movies = FIXTURE.payload("get_vod_streams", {})
         series = FIXTURE.payload("get_series_info", {"series_id": ["2001"]})
 
-        self.assertEqual([1001, 1002], [item["stream_id"] for item in movies])
+        self.assertEqual(63, len(movies))
+        self.assertEqual([1001, 1002], [item["stream_id"] for item in movies[:2]])
+        self.assertEqual("Pagination Movies", movies[-1]["category_name"])
         self.assertEqual("Fixture Series One", series["info"]["name"])
         self.assertEqual(2, len(series["episodes"]["1"]))
 

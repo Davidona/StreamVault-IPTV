@@ -980,14 +980,16 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   regenerated with its connected assertion passing. Catalog is now structurally
   extracted under `:feature:catalog`; its execution report records passing
   connected goldens, a public-M3U Home/Live/Movies/Series/Search smoke pass,
-  and a diagnostic temporary Xtream fixture run covering VOD/series details,
-  episodes, saved filters, and cross-type Search. The checked-in
-  `tools/catalog_xtream_fixture.py` now provides a rerunnable development
-  seed, and `tools/catalog_connected_validation.py` provides a semantic ADB
-  journey for the fixture-backed Home/Movies/Series/detail/favorite/saved/
-  Search path plus the Settings-owned Dashboard shelf customization
-  cancel/save/reset flow; the remaining browse/action/direct-Favorites/
-  accessibility journeys,
+  and a diagnostic temporary Xtream fixture run covering 63-item VOD/series
+  catalogs, VOD/series details, episodes, saved filters, and cross-type Search.
+  The checked-in `tools/catalog_xtream_fixture.py` now provides a rerunnable
+  development seed, and `tools/catalog_connected_validation.py` provides a
+  semantic ADB journey for the fixture-backed Home/Movies/Series/detail/
+  favorite/saved/Search path, Movies full-library entry/back,
+  `Load more (60/63)` → `Pagination Movie 63`, Infinite scroll off/on
+  restoration, and the Settings-owned Dashboard shelf customization
+  cancel/save/reset flow. Series pagination, browse reorder, download/Cast
+  completion, direct-Favorites, and accessibility journeys,
   successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and

@@ -26,9 +26,11 @@ LIVE_CATEGORIES = [
 ]
 VOD_CATEGORIES = [
     {"category_id": "201", "category_name": "Fixture Movies", "parent_id": 0, "is_adult": 0},
+    {"category_id": "202", "category_name": "Pagination Movies", "parent_id": 0, "is_adult": 0},
 ]
 SERIES_CATEGORIES = [
     {"category_id": "301", "category_name": "Fixture Series", "parent_id": 0, "is_adult": 0},
+    {"category_id": "302", "category_name": "Pagination Series", "parent_id": 0, "is_adult": 0},
 ]
 
 
@@ -56,7 +58,7 @@ def live_streams() -> list[dict[str, object]]:
 
 
 def vod_streams() -> list[dict[str, object]]:
-    return [
+    streams = [
         {
             "num": 1,
             "name": "Fixture Movie One",
@@ -90,10 +92,35 @@ def vod_streams() -> list[dict[str, object]]:
             "is_adult": 0,
         },
     ]
+    # Keep the first two named fixture entries stable for the detail/search
+    # journey, then add a second category large enough to cross the Catalog's
+    # 60-item selected-category page boundary.  The pagination names/category
+    # deliberately omit "Fixture" so the five-result search assertion remains
+    # focused on the acceptance entries above.
+    for index in range(3, 64):
+        streams.append(
+            {
+                "num": index,
+                "name": f"Pagination Movie {index:02d}",
+                "stream_type": "movie",
+                "stream_id": 1000 + index,
+                "stream_icon": f"{ASSET_BASE}/movie-two.svg",
+                "cover_big": f"{ASSET_BASE}/movie-two.svg",
+                "added": str(1704000000 - index),
+                "category_id": "202",
+                "category_name": "Pagination Movies",
+                "container_extension": "mp4",
+                "rating": "5.0",
+                "rating_5based": "2.5",
+                "tmdb": str(9000 + index),
+                "is_adult": 0,
+            }
+        )
+    return streams
 
 
 def series_streams() -> list[dict[str, object]]:
-    return [
+    streams = [
         {
             "series_id": 2001,
             "name": "Fixture Series One",
@@ -131,6 +158,27 @@ def series_streams() -> list[dict[str, object]]:
             "is_adult": 0,
         },
     ]
+    for index in range(3, 64):
+        streams.append(
+            {
+                "series_id": 2000 + index,
+                "name": f"Pagination Series {index:02d}",
+                "cover": f"{ASSET_BASE}/series-two.svg",
+                "cover_big": f"{ASSET_BASE}/series-two.svg",
+                "movie_image": f"{ASSET_BASE}/series-two.svg",
+                "plot": "A deterministic series pagination fixture.",
+                "description": "A deterministic series pagination fixture.",
+                "genre": "Drama",
+                "releaseDate": "2023-01-01",
+                "rating": "5.0",
+                "rating_5based": "2.5",
+                "category_id": "302",
+                "category_name": "Pagination Series",
+                "last_modified": str(1704000000 - index),
+                "is_adult": 0,
+            }
+        )
+    return streams
 
 
 def movie_info(stream_id: int) -> dict[str, object]:
