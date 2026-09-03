@@ -9,17 +9,33 @@ physical 1920x1080 at 320 dpi.
 The public M3U seed used by Task 12 contains live channels only, so it cannot
 exercise the Catalog's movie, series, detail, or saved-content paths. To test
 whether the open journey gate was caused by the provider data rather than the
-extracted UI, a temporary local Xtream-compatible HTTP fixture was run on the
+extracted UI, the checked-in `tools/catalog_xtream_fixture.py` was run on the
 host at port 8765. The emulator reached it through `10.0.2.2`; the debug APK
 was configured through the existing `xtream.dev.*` `local.properties` hooks,
-then the settings were removed after the run. The fixture process and route
-captures remain ignored local artifacts and are not application code or a
-production-provider claim.
+then the settings were removed after the run. Route captures remain ignored
+local artifacts; the fixture is a development diagnostic, not a production-
+provider claim.
 
 The fixture returned one live channel, two movies, two series, movie metadata,
 and one season with two episodes per series. All observed player-API, XMLTV,
 and image requests returned HTTP 200. No credentials or raw provider URLs are
 included in this evidence.
+
+## Rerun protocol
+
+1. Run `python -m unittest tools.tests.test_catalog_xtream_fixture`.
+2. Add the four `xtream.dev.*` entries described in `docs/DEV_SEEDING.md` to
+   the ignored root `local.properties`, using `http://10.0.2.2:8765` as the
+   server and the fixture account values.
+3. Start `python tools/catalog_xtream_fixture.py --port 8765` from the repo
+   root, build/install the debug APK, clear `com.streamvault.app.debug`, and
+   launch `MainActivity`.
+4. Exercise the journeys below with D-pad/UIAutomator, then stop the server and
+   remove the four local fixture entries.
+
+The fixture test uses an ephemeral loopback port and does not require Android.
+The production-activity run uses port 8765 because that is the emulator-host
+mapping used by `10.0.2.2`.
 
 ## Journey results
 
@@ -45,12 +61,13 @@ in because they contain no additional contract beyond the semantic dumps.
 This run demonstrates that the extracted Catalog production activity can load
 seeded VOD/series data, navigate detail and season/episode surfaces, toggle
 movie and series favourites, apply saved filters, and search across all three
-content types. It narrows the previous Task 12 blocker: the checkout lacks a
-committed/reusable production-activity fixture harness, not a Catalog UI path.
+content types. It narrows the previous Task 12 blocker: the checkout lacked a
+fixture capable of exercising these paths, not a Catalog UI path. The checked-
+in fixture now makes this diagnostic run rerunnable.
 
-The run does not close the full Phase 5 acceptance gate. The temporary server
-was not committed, the public M3U flow remains live-only, and the following
-journeys still need a stable rerunnable fixture or approved provider data:
+The run does not close the full Phase 5 acceptance gate. The public M3U flow
+remains live-only, and the following journeys still need to be executed against
+the checked-in fixture (or approved provider data):
 
 - Dashboard customization save/cancel and focus traversal;
 - browse load-more, reorder, return-route, download enqueue, and Cast chooser;

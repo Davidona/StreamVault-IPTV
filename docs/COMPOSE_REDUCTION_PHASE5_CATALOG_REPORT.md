@@ -107,9 +107,10 @@ series details, season/episode rows, movie and series favourite toggles, saved
 filters, and a five-result cross-type Search query (Live TV 1, Movies 2,
 Series 2). The semantic route/title/count evidence and the exact fixture
 limitations are recorded in
-`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. This is
-diagnostic evidence from a temporary ignored server, not a committed fixture
-harness or a production-provider pass.
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. The fixture is
+now available as the checked-in development tool
+`tools/catalog_xtream_fixture.py`; this remains diagnostic evidence, not a
+production-provider pass.
 
 The remaining Dashboard customization, load-more/reorder/return, download,
 Cast chooser, direct Favorites-host, touch/phone/tablet, RTL,
@@ -167,10 +168,10 @@ execution-time project access.
 
 ## Next acceptance work
 
-1. Promote the temporary Xtream responses into a committed, rerunnable
-   production-activity fixture (or use approved provider data), then execute
-   the remaining Dashboard, browse, detail-action, direct Favorites, and
-   accessibility journeys.
+1. Use the checked-in Xtream fixture (or approved provider data) to execute the
+   remaining Dashboard, browse, detail-action, direct Favorites, and
+   accessibility journeys, and keep the fixture invocation in the validation
+   protocol.
 2. Capture a cache-equivalent pre-extraction run and pair it with the
    successful Dashboard benchmark evidence, using the same seeded content,
    device, iteration count, and compilation mode. Keep app lint remediation and

@@ -981,8 +981,10 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   extracted under `:feature:catalog`; its execution report records passing
   connected goldens, a public-M3U Home/Live/Movies/Series/Search smoke pass,
   and a diagnostic temporary Xtream fixture run covering VOD/series details,
-  episodes, saved filters, and cross-type Search. The committed-fixture,
-  remaining action/direct-Favorites/accessibility journeys, successful
+  episodes, saved filters, and cross-type Search. The checked-in
+  `tools/catalog_xtream_fixture.py` now provides a rerunnable development
+  seed; the remaining action/direct-Favorites/accessibility journeys,
+  successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and
   current app lint baseline failure remain explicitly tracked. System remains
