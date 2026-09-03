@@ -56,6 +56,17 @@ the route markers, titles, metadata, episode count, result counts, and saved
 filter cards. Screenshots were captured locally for review but are not checked
 in because they contain no additional contract beyond the semantic dumps.
 
+## Detail action probes
+
+On the movie detail surface, D-pad activation reached Copy URL, Download, and
+Cast without a Catalog crash or lost focus. The Download probe started and
+stopped `DownloadForegroundService`; the fixture intentionally does not serve
+media-file transfer URLs, so a completed download is not claimed. The Cast
+probe had no receiver available on the emulator and did not produce a chooser;
+receiver-backed Cast behavior remains open. Copy URL activation was dispatched
+but the API 36 shell does not expose a supported clipboard-read command for
+independent verification.
+
 ## Interpretation and remaining gates
 
 This run demonstrates that the extracted Catalog production activity can load
