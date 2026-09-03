@@ -92,9 +92,12 @@ Target: `emulator-5554`, `Television_1080p(AVD) - 16`, API 36, AOSP TV x86,
 - No Catalog-caused fatal exception was reported by these runs.
 
 The partial seeded production smoke pass on the API 36 TV emulator loaded Home,
-Live TV (1,467 synced channels), Movies, Series, and Search. Movies and Series
+Live TV (1,319 synced channels in the latest run), Movies, Series, and Search.
+Movies and Series
 correctly reported `Sync needed` because the configured public M3U fixture has
-live channels only; Search accepted a query and rendered its no-match state.
+live channels only; Search accepted `3ABN` and rendered seven Live TV results
+(Movies 0, Series 0), while the earlier `CNN` query rendered its no-match
+state.
 The full Dashboard shelf, VOD, detail, Favorites host, touch/RTL/reduced-motion,
 and long screenshot/logcat journey matrix remains unavailable because this
 checkout has no seeded VOD/catalog fixture or production-activity journey

@@ -12,10 +12,11 @@ The available seeded production surfaces were checked on-device:
 
 - Home loaded on `streamvault.destination:home` (the update notice was visible).
 - Live TV loaded on `streamvault.destination:live_tv` and exposed the seeded
-  channel/category surface.
+  channel/category surface (`All Channels` showed 1,319 channels in this run).
 - Movies and Series loaded on their routes and correctly reported `Sync needed`
   because the M3U fixture has no VOD payload.
-- Search accepted the query `CNN` and rendered the no-match state.
+- Search accepted the query `3ABN` and rendered seven Live TV results (Movies
+  0, Series 0); the earlier `CNN` query also rendered its no-match state.
 
 The on-device logcat spot scan showed the provider-sync HTTP 200/staging path
 and no app fatal exception; unrelated platform Cast/StrictMode noise was not
