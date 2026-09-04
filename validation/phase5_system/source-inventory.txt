@@ -1,0 +1,8 @@
+app/src/main/java/com/streamvault/app/ui/screens/welcome/WelcomeScreen.kt
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsUiState.kt
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsViewModel.kt
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt
+app/src/main/java/com/streamvault/app/navigation/graph/WelcomeGraph.kt
+app/src/main/java/com/streamvault/app/navigation/graph/SystemGraph.kt

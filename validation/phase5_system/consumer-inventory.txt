@@ -1,0 +1,17 @@
+AppNavHost.kt -> registerWelcomeGraph(actions, startupReady, onStartupNavigationRequested)
+AppNavHost.kt -> registerSystemGraph(actions, onTopLevelDestinationRequested)
+WelcomeGraph.kt -> WelcomeScreen
+SystemGraph.kt -> DownloadsScreen, PluginsScreen
+DownloadsScreen.kt -> DownloadsViewModel, AppScreenScaffold, app R
+DownloadsViewModel.kt -> domain DownloadManager, Android document picker and ACTION_VIEW
+PluginsScreen.kt -> PluginsViewModel, app plugin models, AppScreenScaffold
+PluginsViewModel.kt -> StreamVaultPluginManager, ProviderSourceRegistry, app plugin models
+PluginModels.kt -> StreamVaultPluginContract, PluginPlaybackRouting, StreamVaultPluginManager
+PluginMessengerClient.kt -> StreamVaultPluginContract
+StreamVaultPluginManager.kt -> StreamVaultPluginContract, InstalledStreamVaultPlugin,
+  plugin discovery/IPC/provider/playback infrastructure
+PluginPlaybackRoutingTest.kt -> StreamVaultPluginContract, InstalledStreamVaultPlugin
+StreamVaultPluginOwnerTest.kt -> StreamVaultPluginOwner
+
+Generated baseline-profile and lint references also exist under app/build output
+and app/lint-baseline.xml; they are regenerated/maintained after source moves.

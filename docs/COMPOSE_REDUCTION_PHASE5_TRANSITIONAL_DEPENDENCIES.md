@@ -221,3 +221,18 @@ callbacks and `LiveEpgScaffoldContent` adapter; the feature owns Guide state,
 preview lifecycle calls, controls, dialogs, hero/grid composition, and default
 EPG strings. EPG behavior tests, non-default locale parity, golden/runtime
 checks, and legacy cleanup remain open.
+
+## System extraction inventory (Task 0, 2026-09-04)
+
+Approved project dependencies: `:core:navigation`, `:core:ui`, `:domain`.
+Direct `:data` imports: none.
+App adapters: `SystemWelcomePort` maps `SyncProgressBus` and app `BuildConfig`;
+`SystemPluginManagementPort` delegates to `StreamVaultPluginManager` and
+`ProviderSourceRegistry`.
+Phase 7 follow-up: keep these ports narrow; do not move plugin IPC, provider
+ownership, playback routing, or Android startup infrastructure into the feature.
+
+The pre-extraction source, import, resource, test, and consumer evidence is in
+`validation/phase5_system/`. The System module remains unimplemented until the
+characterization, boundary, and performance gates in the approved plan are
+verified.
