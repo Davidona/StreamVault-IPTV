@@ -82,7 +82,7 @@ class DownloadsPresentationTest {
         composeRule.onNodeWithText("50%").assertIsDisplayed()
         composeRule.onNodeWithText("Failed").assertIsDisplayed()
         composeRule.onNodeWithText("Resume").performClick()
-        composeRule.onNodeWithText("Delete").performClick()
+        composeRule.onAllNodesWithText("Delete")[1].performClick()
 
         assertThat(resumedId).isEqualTo("failed")
         assertThat(deletedId).isEqualTo("failed")

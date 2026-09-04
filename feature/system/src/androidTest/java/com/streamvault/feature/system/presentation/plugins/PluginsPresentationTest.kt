@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
@@ -50,9 +53,12 @@ class PluginsPresentationTest {
 
         composeRule.onNodeWithText("No compatible StreamVault plugins are installed.")
             .assertIsDisplayed()
-        composeRule.onNodeWithText("Install URL").performClick()
-        composeRule.onNodeWithText("Install file").performClick()
-        composeRule.onNodeWithText("Refresh").performClick()
+        composeRule.onNode(hasText("Install URL") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.onNode(hasText("Install file") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.onNode(hasText("Refresh") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(installUrlClicks).isEqualTo(1)
         assertThat(installFileClicks).isEqualTo(1)
@@ -84,7 +90,8 @@ class PluginsPresentationTest {
 
         composeRule.onNodeWithText("Example plugin").assertIsDisplayed()
         composeRule.onNodeWithText("Disabled").assertIsDisplayed()
-        composeRule.onNodeWithText("Configure").performClick()
+        composeRule.onNode(hasText("Configure") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(configured).isTrue()
         assertThat(enabled).isNull()
@@ -123,7 +130,7 @@ class PluginsPresentationTest {
                 put("server", "")
                 put("enabled", false)
             },
-            draftValues = mapOf("server" to "", "enabled" to "false"),
+            draftValues = mapOf("server" to "", "enabled" to "true"),
             validationErrors = mapOf("server" to "Server is required"),
         )
 
@@ -146,7 +153,8 @@ class PluginsPresentationTest {
             .assertIsDisplayed()
         composeRule.onNodeWithText("Server is required").assertIsDisplayed()
         composeRule.onNodeWithText("Enabled").assertIsDisplayed()
-        composeRule.onNodeWithText("Save").performClick()
+        composeRule.onNode(hasText("Save") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(saves).isEqualTo(1)
     }

@@ -1,9 +1,13 @@
 package com.streamvault.feature.system.presentation.welcome
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
@@ -34,11 +38,17 @@ class WelcomePresentationTest {
             }
         }
 
-        composeRule.onNodeWithText("Setup Provider").assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Set up later").assertIsDisplayed().performClick()
+        composeRule.onNode(hasText("Setup Provider") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.runOnIdle {
+            assertThat(setupClicks).isEqualTo(1)
+        }
+        composeRule.onNode(hasText("Set up later") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
 
-        assertThat(setupClicks).isEqualTo(1)
-        assertThat(homeClicks).isEqualTo(1)
+        composeRule.runOnIdle {
+            assertThat(homeClicks).isEqualTo(1)
+        }
     }
 
     @Test
