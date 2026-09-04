@@ -1324,6 +1324,9 @@
     <string name="player_diagnostics_av_sync_custom">On (custom sync path)</string>
     <string name="player_diagnostics_av_sync_waiting">On (waiting for playback restart)</string>
     <string name="player_diagnostics_video_bitrate">Video Bitrate</string>
+    <string name="player_diagnostics_frame_rate">Frame Rate</string>
+    <string name="player_diagnostics_stream_bitrate">Stream Bitrate</string>
+    <string name="player_diagnostics_bandwidth_estimate">Network Bandwidth</string>
     <string name="player_diagnostics_dropped_frames">Dropped Frames</string>
     <string name="player_diagnostics_last_failure">Last Failure</string>
     <string name="player_diagnostics_recovery_actions">Recovery Actions</string>
