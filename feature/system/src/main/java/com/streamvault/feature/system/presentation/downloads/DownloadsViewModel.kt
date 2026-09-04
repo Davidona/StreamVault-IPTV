@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.downloads
+package com.streamvault.feature.system.presentation.downloads
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,7 @@ import android.net.Uri
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.app.R
+import com.streamvault.feature.system.R
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.repository.DownloadManager
 import dagger.hilt.android.lifecycle.HiltViewModel

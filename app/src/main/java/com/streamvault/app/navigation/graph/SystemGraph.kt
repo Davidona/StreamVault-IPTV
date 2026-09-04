@@ -4,10 +4,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
-import com.streamvault.app.ui.screens.downloads.DownloadsScreen
 import com.streamvault.app.ui.screens.plugins.PluginsScreen
+import com.streamvault.app.ui.components.shell.AppNavigationChrome
+import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.feature.system.api.SystemScaffoldContent
+import com.streamvault.feature.system.presentation.downloads.DownloadsScreen
 
 internal fun NavGraphBuilder.registerSystemGraph(
     actions: NavigationActions,
@@ -15,10 +18,7 @@ internal fun NavGraphBuilder.registerSystemGraph(
 ) {
     composable(AppRoutePatterns.DOWNLOADS) {
         DownloadsScreen(
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            },
-            currentRoute = AppRoutePatterns.DOWNLOADS
+            scaffold = appSystemScaffold(onTopLevelDestinationRequested)
         )
     }
 
@@ -31,4 +31,19 @@ internal fun NavGraphBuilder.registerSystemGraph(
         )
     }
 
+}
+
+private fun appSystemScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit
+): SystemScaffoldContent = { currentDestination, title, subtitle, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(currentDestination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = AppNavigationChrome.TopBar,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content
+    )
 }

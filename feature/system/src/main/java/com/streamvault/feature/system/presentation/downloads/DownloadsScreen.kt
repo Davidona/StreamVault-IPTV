@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.downloads
+package com.streamvault.feature.system.presentation.downloads
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -49,18 +48,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.streamvault.app.R
+import com.streamvault.feature.system.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadStatus
+import com.streamvault.feature.system.api.SystemScaffoldContent
 
 @Composable
 fun DownloadsScreen(
-    onNavigate: (String) -> Unit,
-    currentRoute: String,
+    scaffold: SystemScaffoldContent,
     viewModel: DownloadsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -77,57 +75,16 @@ fun DownloadsScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AppScreenScaffold(
-            currentRoute = currentRoute,
-            onNavigate = onNavigate,
-            title = stringResource(R.string.nav_downloads),
-            subtitle = uiState.storageConfig.displayName,
-            navigationChrome = AppNavigationChrome.TopBar,
-            compactHeader = true,
-            showScreenHeader = false
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                val downloadFolderLabel = uiState.storageConfig.displayName
-                    ?: uiState.storageConfig.treeUri
-                    ?: stringResource(R.string.download_folder_default)
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Button(onClick = { folderPicker.launch(null) }) {
-                        Text(text = stringResource(R.string.download_folder_change))
-                    }
-                    Text(
-                        text = downloadFolderLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = AppColors.TextTertiary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .padding(top = 4.dp)
-                    )
-                }
-
-                when {
-                    uiState.isLoading -> DownloadsLoadingState()
-                    uiState.downloads.isEmpty() -> DownloadsEmptyState()
-                    else -> DownloadsGrid(
-                        downloads = uiState.downloads,
-                        onOpenClick = { download ->
-                            viewModel.playDownload(download)?.let(context::startActivity)
-                        },
-                        onResumeClick = viewModel::resumeDownload,
-                        onDeleteClick = viewModel::showDeleteConfirm
-                    )
-                }
-            }
-        }
-
+        DownloadsContent(
+            uiState = uiState,
+            scaffold = scaffold,
+            onChangeFolder = { folderPicker.launch(null) },
+            onOpen = { download -> viewModel.playDownload(download)?.let(context::startActivity) },
+            onResume = viewModel::resumeDownload,
+            onDelete = viewModel::showDeleteConfirm,
+            onConfirmDelete = viewModel::confirmDelete,
+            onDismissDelete = viewModel::dismissDeleteConfirm
+        )
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -136,11 +93,71 @@ fun DownloadsScreen(
         )
     }
 
+}
+
+@Composable
+internal fun DownloadsContent(
+    uiState: DownloadsUiState,
+    scaffold: SystemScaffoldContent,
+    onChangeFolder: () -> Unit,
+    onOpen: (DownloadItem) -> Unit,
+    onResume: (DownloadItem) -> Unit,
+    onDelete: (DownloadItem) -> Unit,
+    onConfirmDelete: () -> Unit,
+    onDismissDelete: () -> Unit,
+) {
+    scaffold(
+        AppDestination.Downloads,
+        stringResource(R.string.nav_downloads),
+        uiState.storageConfig.displayName,
+        true,
+        false
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            val downloadFolderLabel = uiState.storageConfig.displayName
+                ?: uiState.storageConfig.treeUri
+                ?: stringResource(R.string.download_folder_default)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                Button(onClick = onChangeFolder) {
+                    Text(text = stringResource(R.string.download_folder_change))
+                }
+                Text(
+                    text = downloadFolderLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppColors.TextTertiary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .padding(top = 4.dp)
+                )
+            }
+
+            when {
+                uiState.isLoading -> DownloadsLoadingState()
+                uiState.downloads.isEmpty() -> DownloadsEmptyState()
+                else -> DownloadsGrid(
+                    downloads = uiState.downloads,
+                    onOpenClick = onOpen,
+                    onResumeClick = onResume,
+                    onDeleteClick = onDelete
+                )
+            }
+        }
+    }
+
     uiState.deleteConfirmItem?.let { item ->
         DeleteConfirmDialog(
             item = item,
-            onConfirm = viewModel::confirmDelete,
-            onDismiss = viewModel::dismissDeleteConfirm
+            onConfirm = onConfirmDelete,
+            onDismiss = onDismissDelete
         )
     }
 }
@@ -304,7 +321,7 @@ private fun DownloadCard(
 
             download.totalBytes?.let { size ->
                 Text(
-                    text = formatFileSize(size),
+                    text = formatDownloadFileSize(size),
                     style = MaterialTheme.typography.labelSmall,
                     color = AppColors.TextTertiary,
                     modifier = Modifier.padding(top = 4.dp)
@@ -458,7 +475,7 @@ fun HandleDownloadsUserMessage(
     }
 }
 
-private fun formatFileSize(bytes: Long): String {
+internal fun formatDownloadFileSize(bytes: Long): String {
     return when {
         bytes < 1024L -> "$bytes B"
         bytes < 1024L * 1024 -> "${bytes / 1024} KB"

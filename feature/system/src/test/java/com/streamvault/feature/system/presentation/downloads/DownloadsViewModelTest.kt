@@ -1,9 +1,14 @@
-package com.streamvault.app.ui.screens.downloads
+package com.streamvault.feature.system.presentation.downloads
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.R
+import com.streamvault.feature.system.R
 import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadRequest
@@ -26,7 +31,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @RunWith(RobolectricTestRunner::class)
@@ -71,6 +80,67 @@ class DownloadsViewModelTest {
     }
 
     @Test
+    fun resolvablePlaybackStopsManagerBeforeResolvingIntent() {
+        val manager = RecordingDownloadManager()
+        val application = mock<Context>()
+        val packageManager = mock<PackageManager>()
+        whenever(application.packageManager).thenReturn(packageManager)
+        whenever(
+            packageManager.resolveActivity(any(), eq(PackageManager.MATCH_DEFAULT_ONLY))
+        ).thenAnswer {
+            manager.events += "resolve"
+            ResolveInfo()
+        }
+        val viewModel = createViewModel(manager, application)
+
+        val intent = viewModel.playDownload(
+            downloadFixture("playable").copy(outputUri = "content://downloads/movie")
+        )
+
+        assertThat(intent?.action).isEqualTo(Intent.ACTION_VIEW)
+        assertThat(intent?.type).isEqualTo("video/*")
+        assertThat(intent?.flags).isEqualTo(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        assertThat(manager.events).containsExactly("stopped", "resolve").inOrder()
+    }
+
+    @Test
+    fun resumeUsesSelectedIdAndPublishesMessage() = runTest {
+        val manager = RecordingDownloadManager()
+        val viewModel = createViewModel(manager)
+
+        viewModel.resumeDownload(downloadFixture("download-8"))
+        advanceUntilIdle()
+
+        assertThat(manager.resumedIds).containsExactly("download-8")
+        assertThat(viewModel.uiState.value.userMessage).isEqualTo("Downloads resumed")
+    }
+
+    @Test
+    fun folderSelectionPersistsPermissionAndDisplayName() = runTest {
+        val manager = RecordingDownloadManager()
+        val application = mock<Context>()
+        val resolver = mock<android.content.ContentResolver>()
+        val cursor = mock<Cursor>()
+        val treeUri = Uri.parse("content://downloads/tree/movies")
+        whenever(application.contentResolver).thenReturn(resolver)
+        whenever(resolver.query(any(), any(), anyOrNull(), anyOrNull(), anyOrNull()))
+            .thenReturn(cursor)
+        whenever(cursor.moveToFirst()).thenReturn(true)
+        whenever(cursor.getColumnIndex("DISPLAY_NAME")).thenReturn(0)
+        whenever(cursor.getString(0)).thenReturn("Movies")
+        val viewModel = createViewModel(manager, application)
+
+        viewModel.onFolderSelected(treeUri)
+        advanceUntilIdle()
+
+        verify(resolver).takePersistableUriPermission(
+            treeUri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        )
+        assertThat(manager.storageUpdates).containsExactly(treeUri.toString() to "Movies")
+    }
+
+    @Test
     fun changeDownloadFolderCreatesDocumentTreeIntent() {
         val viewModel = createViewModel(RecordingDownloadManager())
 
@@ -78,8 +148,10 @@ class DownloadsViewModelTest {
             .isEqualTo("android.intent.action.OPEN_DOCUMENT_TREE")
     }
 
-    private fun createViewModel(manager: RecordingDownloadManager): DownloadsViewModel {
-        val application = mock<Context>()
+    private fun createViewModel(
+        manager: RecordingDownloadManager,
+        application: Context = mock()
+    ): DownloadsViewModel {
         whenever(application.getString(R.string.downloads_deleted)).thenReturn("Downloads deleted")
         whenever(application.getString(R.string.downloads_resumed)).thenReturn("Downloads resumed")
         return DownloadsViewModel(
@@ -102,6 +174,9 @@ class DownloadsViewModelTest {
         private val storage = MutableStateFlow(DownloadStorageConfig())
         val deletedIds = mutableListOf<String>()
         var playbackStoppedCount = 0
+        val events = mutableListOf<String>()
+        val resumedIds = mutableListOf<String>()
+        val storageUpdates = mutableListOf<Pair<String?, String?>>()
 
         override fun observeAllDownloads(): Flow<List<DownloadItem>> = downloads
 
@@ -112,7 +187,10 @@ class DownloadsViewModelTest {
         override suspend fun enqueueDownload(request: DownloadRequest): Result<DownloadItem> =
             Result.error("not used")
 
-        override suspend fun resumeDownload(id: String): Result<Unit> = Result.Success(Unit)
+        override suspend fun resumeDownload(id: String): Result<Unit> {
+            resumedIds += id
+            return Result.Success(Unit)
+        }
 
         override suspend fun recoverInterruptedDownloads(): Result<Int> = Result.Success(0)
 
@@ -122,6 +200,7 @@ class DownloadsViewModelTest {
 
         override fun onPlaybackStopped() {
             playbackStoppedCount++
+            events += "stopped"
         }
 
         override suspend fun deleteDownload(id: String): Result<Unit> {
@@ -132,6 +211,17 @@ class DownloadsViewModelTest {
         override suspend fun updateStorageConfig(
             treeUri: String?,
             displayName: String?
-        ): Result<DownloadStorageConfig> = Result.Success(storage.value)
+        ): Result<DownloadStorageConfig> {
+            storageUpdates += treeUri to displayName
+            return Result.Success(storage.value)
+        }
+    }
+
+    @Test
+    fun fileSizeFormattingPreservesBinaryThresholds() {
+        assertThat(formatDownloadFileSize(1023)).isEqualTo("1023 B")
+        assertThat(formatDownloadFileSize(1024)).isEqualTo("1 KB")
+        assertThat(formatDownloadFileSize(1024L * 1024)).isEqualTo("1 MB")
+        assertThat(formatDownloadFileSize(1024L * 1024 * 1024)).isEqualTo("1 GB")
     }
 }
