@@ -5,8 +5,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.streamvault.app.navigation.graph.registerLiveGraph
-import com.streamvault.app.navigation.graph.registerSystemGraph
-import com.streamvault.app.navigation.graph.registerWelcomeGraph
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
@@ -32,6 +30,9 @@ import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.feature.catalog.navigation.registerCatalogGraph
 import com.streamvault.feature.settings.presentation.DashboardShelfCustomizationDialog
 import com.streamvault.domain.model.ContentType
+import com.streamvault.feature.system.api.SystemScaffoldContent
+import com.streamvault.feature.system.navigation.SystemRoutePatterns
+import com.streamvault.feature.system.navigation.registerSystemGraph
 
 @Composable
 internal fun AppNavHost(
@@ -51,9 +52,14 @@ internal fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = AppRoutePatterns.WELCOME
+        startDestination = SystemRoutePatterns.WELCOME
     ) {
-        registerWelcomeGraph(actions, startupReady, onStartupNavigationRequested)
+        registerSystemGraph(
+            actions = actions,
+            startupReady = startupReady,
+            onStartupNavigationRequested = onStartupNavigationRequested,
+            scaffold = appSystemScaffold(onTopLevelDestinationRequested),
+        )
         registerProviderGraph(
             actions = actions,
             startupReady = startupReady,
@@ -162,8 +168,22 @@ internal fun AppNavHost(
                 )
             }
         )
-        registerSystemGraph(actions, onTopLevelDestinationRequested)
     }
+}
+
+private fun appSystemScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
+): SystemScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(destination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = AppNavigationChrome.TopBar,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content,
+    )
 }
 
 private fun appCatalogScaffold(

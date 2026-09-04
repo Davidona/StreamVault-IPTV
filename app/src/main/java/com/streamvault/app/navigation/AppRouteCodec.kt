@@ -7,22 +7,23 @@ import com.streamvault.core.navigation.AppDestination
 import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import com.streamvault.feature.catalog.navigation.CatalogRoutePatterns
+import com.streamvault.feature.system.navigation.SystemRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
-    const val WELCOME = "welcome"
+    const val WELCOME = SystemRoutePatterns.WELCOME
     const val HOME = CatalogRoutePatterns.HOME
     const val LIVE_TV = LiveRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = LiveRoutePatterns.LIVE_TV_DESTINATION
     const val MOVIES = CatalogRoutePatterns.MOVIES
     const val SERIES = CatalogRoutePatterns.SERIES
     const val VOD = CatalogRoutePatterns.VOD
-    const val DOWNLOADS = "downloads"
+    const val DOWNLOADS = SystemRoutePatterns.DOWNLOADS
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
-    const val PLUGINS = "plugins"
+    const val PLUGINS = SystemRoutePatterns.PLUGINS
     const val PLAYER = PlaybackRoutePatterns.PLAYER
     const val SEARCH = CatalogRoutePatterns.SEARCH
     const val SEARCH_DESTINATION = CatalogRoutePatterns.SEARCH_DESTINATION

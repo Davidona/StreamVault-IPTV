@@ -378,16 +378,12 @@ abstract class VerifyFeatureNavigationBoundaryTask : DefaultTask() {
 
     @TaskAction
     fun verify() {
-        val expectedFiles = setOf(
-            "WelcomeGraph.kt",
-            "LiveGraph.kt",
-            "SystemGraph.kt"
-        )
+        val expectedFiles = setOf("LiveGraph.kt")
         val files = sourceRoot.get().asFile.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .toList()
-        check(files.map { it.name }.containsAll(expectedFiles)) {
-            "Missing feature graph registrations: ${expectedFiles - files.map { it.name }.toSet()}"
+        check(files.map { it.name }.toSet() == expectedFiles) {
+            "App-local graph registrations must be exactly $expectedFiles, found ${files.map { it.name }}"
         }
         val violations = files
             .filter { source ->

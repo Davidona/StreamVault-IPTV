@@ -5,3 +5,9 @@ object SystemRoutePatterns {
     const val DOWNLOADS = "downloads"
     const val PLUGINS = "plugins"
 }
+
+internal fun systemGraphRoutes(): List<String> = listOf(
+    SystemRoutePatterns.WELCOME,
+    SystemRoutePatterns.DOWNLOADS,
+    SystemRoutePatterns.PLUGINS,
+)
