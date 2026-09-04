@@ -1,6 +1,6 @@
 # Phase 5 System extraction — profile validation
 
-Date: 2026-09-04.
+Date: 2026-09-05 (updated after an additional ADB retry).
 
 ## Supported workflow
 
@@ -68,6 +68,29 @@ sequence exposed the release Home route, focused Live TV navigation, and the
 seeded Live surface with `All Channels` containing 1,321 channels. This
 separates the app's reachable seeded surface from the benchmark's lost-window
 condition; it does not close the general profile gate.
+
+A minimal benchmark-harness synchronization change was then made in
+`benchmark/src/main/java/com/streamvault/benchmark/BenchmarkConfig.kt`: the
+release target now waits for UiAutomator idle after `startActivityAndWait()`.
+With the same `E:\\androidSdk\\platform-tools\\adb.exe` TV emulator, the
+isolated `criticalJourneys` retry progressed beyond the initial
+`Active window root not found` condition through seeded Home/Live navigation,
+channel selection, and player setup. The profile collector remained unstable
+through iteration 4, and the later player-preview step again lost the active
+window root; the run was stopped safely. This improves benchmark
+synchronization but does not produce a complete general profile.
+
+The isolated `startup` retry completed successfully after the harness change:
+
+```text
+./gradlew.bat :benchmark:connectedNonMinifiedReleaseAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.benchmark.BaselineProfileGenerator#startup' --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 8m 24s — 1/1 test
+```
+
+The startup result confirms that the synchronization change does not regress
+the startup profile journey. It does not change the status of the general
+baseline-profile refresh: the checked-in generated profiles remain stale and
+were not manually edited.
 
 The maintained files under `app/src/main/generated/baselineProfiles/` were
 not manually edited. They still contain stale pre-extraction System entries,

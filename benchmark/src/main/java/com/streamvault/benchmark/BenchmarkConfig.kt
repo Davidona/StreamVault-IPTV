@@ -58,6 +58,7 @@ private val device: UiDevice
 internal fun MacrobenchmarkScope.startTargetApp() {
     pressHome()
     startActivityAndWait()
+    device.waitForIdle()
 }
 
 /** Starts the separately seeded debug fixture used by the interaction journeys. */
