@@ -37,6 +37,17 @@ import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.ProviderSetupRequest
+import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
+import com.streamvault.feature.system.api.PluginActionResult
+import com.streamvault.feature.system.api.PluginConfigurationSchema
+import com.streamvault.feature.system.api.PluginConfigurationSnapshot
+import com.streamvault.feature.system.api.PluginDiscoveryState
+import com.streamvault.feature.system.api.PluginDiscoveryStatus
+import com.streamvault.feature.system.api.StreamVaultPluginComponent
+import com.streamvault.feature.system.api.StreamVaultPluginContract
+import com.streamvault.feature.system.api.StreamVaultPluginManifest
+import com.streamvault.feature.system.api.StreamVaultPluginOwner
+import com.streamvault.feature.system.api.owner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI

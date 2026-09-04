@@ -2,40 +2,11 @@ package com.streamvault.app.plugins
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.entity.PluginProviderOwnershipEntity
+import com.streamvault.feature.system.api.StreamVaultPluginComponent
+import com.streamvault.feature.system.api.StreamVaultPluginOwner
 import org.junit.Test
 
-class StreamVaultPluginOwnerTest {
-
-    @Test
-    fun `plugin owner remains distinct when packages reuse a manifest ID`() {
-        val first = StreamVaultPluginOwner("com.example.first", "FirstService", "shared-id")
-        val second = StreamVaultPluginOwner("com.example.second", "SecondService", "shared-id")
-
-        assertThat(first).isNotEqualTo(second)
-    }
-
-    @Test
-    fun `plugin owner remains distinct for two services in one package`() {
-        val first = StreamVaultPluginOwner("com.example.plugin", "FirstService", "shared-id")
-        val second = StreamVaultPluginOwner("com.example.plugin", "SecondService", "shared-id")
-
-        assertThat(first).isNotEqualTo(second)
-    }
-
-    @Test
-    fun `plugin owner lazy list key is a bundle safe string`() {
-        val owner = StreamVaultPluginOwner(
-            "com.streamvault.plugin.adaptivebridge",
-            "com.streamvault.plugin.adaptivebridge.StreamVaultAdaptiveBridgePluginService",
-            "com.streamvault.plugins.adaptivebridge"
-        )
-
-        val key: String = owner.toBundleSafeKey()
-
-        assertThat(key).isNotEmpty()
-        assertThat(key).isNotEqualTo(owner.copy(manifestId = "com.streamvault.plugins.other").toBundleSafeKey())
-    }
-
+class StreamVaultPluginOwnershipTest {
     @Test
     fun `manifest rename retains sole provider owned by the same component`() {
         val ownership = ownership(
@@ -46,7 +17,11 @@ class StreamVaultPluginOwnerTest {
         )
 
         val selected = selectPluginOwnership(
-            StreamVaultPluginOwner("com.example.plugin", "PluginService", "new-id"),
+            StreamVaultPluginOwner(
+                "com.example.plugin",
+                "PluginService",
+                "new-id"
+            ),
             listOf(ownership)
         )
 
@@ -55,7 +30,11 @@ class StreamVaultPluginOwnerTest {
 
     @Test
     fun `manifest rename never adopts an ambiguous component mapping`() {
-        val owner = StreamVaultPluginOwner("com.example.plugin", "PluginService", "new-id")
+        val owner = StreamVaultPluginOwner(
+            "com.example.plugin",
+            "PluginService",
+            "new-id"
+        )
         val ownerships = listOf(
             ownership(owner.packageName, owner.serviceClassName, "old-a", 41L),
             ownership(owner.packageName, owner.serviceClassName, "old-b", 42L)
@@ -75,7 +54,12 @@ class StreamVaultPluginOwnerTest {
 
         val orphaned = orphanedPluginOwnerships(
             listOf(ownership),
-            setOf(StreamVaultPluginComponent(ownership.packageName, ownership.serviceClassName))
+            setOf(
+                StreamVaultPluginComponent(
+                    ownership.packageName,
+                    ownership.serviceClassName
+                )
+            )
         )
 
         assertThat(orphaned).isEmpty()
@@ -88,7 +72,12 @@ class StreamVaultPluginOwnerTest {
 
         val orphaned = orphanedPluginOwnerships(
             listOf(installed, removed),
-            setOf(StreamVaultPluginComponent(installed.packageName, installed.serviceClassName))
+            setOf(
+                StreamVaultPluginComponent(
+                    installed.packageName,
+                    installed.serviceClassName
+                )
+            )
         )
 
         assertThat(orphaned).containsExactly(removed)

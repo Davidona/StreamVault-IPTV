@@ -1,4 +1,4 @@
-package com.streamvault.app.plugins
+package com.streamvault.feature.system.api
 
 object StreamVaultPluginContract {
     const val API_VERSION = 1

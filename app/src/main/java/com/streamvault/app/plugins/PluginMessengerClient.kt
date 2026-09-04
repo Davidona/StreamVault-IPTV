@@ -12,6 +12,7 @@ import android.os.Message
 import android.os.Messenger
 import android.os.RemoteException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.streamvault.feature.system.api.StreamVaultPluginContract
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton

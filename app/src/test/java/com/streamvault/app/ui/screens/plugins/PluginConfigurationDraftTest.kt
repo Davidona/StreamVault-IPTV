@@ -1,15 +1,15 @@
 package com.streamvault.app.ui.screens.plugins
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.plugins.InstalledStreamVaultPlugin
-import com.streamvault.app.plugins.PluginActionResult
-import com.streamvault.app.plugins.PluginConfigurationField
-import com.streamvault.app.plugins.PluginConfigurationSchema
-import com.streamvault.app.plugins.PluginConfigurationSection
-import com.streamvault.app.plugins.PluginConfigurationSnapshot
-import com.streamvault.app.plugins.StreamVaultPluginContract
+import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
+import com.streamvault.feature.system.api.PluginActionResult
+import com.streamvault.feature.system.api.PluginConfigurationField
+import com.streamvault.feature.system.api.PluginConfigurationSchema
+import com.streamvault.feature.system.api.PluginConfigurationSection
+import com.streamvault.feature.system.api.PluginConfigurationSnapshot
+import com.streamvault.feature.system.api.StreamVaultPluginContract
 import com.streamvault.app.plugins.StreamVaultPluginManager
-import com.streamvault.app.plugins.StreamVaultPluginManifest
+import com.streamvault.feature.system.api.StreamVaultPluginManifest
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.provider.ProviderSourceRegistry
 import kotlinx.coroutines.Dispatchers
