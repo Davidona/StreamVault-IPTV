@@ -2,6 +2,8 @@
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -26,6 +28,7 @@ import com.streamvault.core.ui.theme.TextSecondary
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 
 @Composable
 fun ReorderTopBar(
@@ -36,10 +39,11 @@ fun ReorderTopBar(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
+    val reducedMotionEnabled = rememberReducedMotionEnabled()
     AnimatedVisibility(
         visible = visible,
-        enter = slideInVertically(initialOffsetY = { -it }),
-        exit = slideOutVertically(targetOffsetY = { -it }),
+        enter = if (reducedMotionEnabled) EnterTransition.None else slideInVertically(initialOffsetY = { -it }),
+        exit = if (reducedMotionEnabled) ExitTransition.None else slideOutVertically(targetOffsetY = { -it }),
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 20.dp)

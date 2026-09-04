@@ -142,6 +142,7 @@ class FavoritesViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(FavoritesUiState())
     val uiState: StateFlow<FavoritesUiState> = _uiState.asStateFlow()
+    private var reorderOriginalSections: List<FavoriteSectionUiModel>? = null
 
     init {
         val providerIdsFlow = providerRepository.getProviders()
@@ -336,6 +337,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     fun enterReorderMode(sectionKey: String, item: FavoriteUiModel) {
+        reorderOriginalSections = _uiState.value.sections
         _uiState.update {
             it.copy(
                 isReorderMode = true,
@@ -345,8 +347,21 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
+    fun cancelReorderMode() {
+        val originalSections = reorderOriginalSections
+        reorderOriginalSections = null
+        _uiState.update {
+            it.copy(
+                sections = originalSections ?: it.sections,
+                isReorderMode = false,
+                reorderSectionKey = null,
+                reorderItem = null
+            )
+        }
+    }
+
     fun exitReorderMode() {
-        _uiState.update { it.copy(isReorderMode = false, reorderSectionKey = null, reorderItem = null) }
+        cancelReorderMode()
     }
 
     fun selectFilter(filter: SavedLibraryFilter) {
@@ -569,13 +584,18 @@ class FavoritesViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (val result = favoriteRepository.reorderFavorites(section.items.map { it.favorite })) {
-                is Result.Success -> exitReorderMode()
+                is Result.Success -> completeReorderMode()
                 is Result.Error -> _uiState.update {
                     it.copy(userMessage = "Unable to save reorder: ${result.errorMessageOrNull() ?: "Unknown error"}")
                 }
                 Result.Loading -> Unit
             }
         }
+    }
+
+    private fun completeReorderMode() {
+        reorderOriginalSections = null
+        _uiState.update { it.copy(isReorderMode = false, reorderSectionKey = null, reorderItem = null) }
     }
 
     private fun observeFavoriteItems(favoritesFlow: Flow<List<Favorite>>): Flow<List<FavoriteUiModel>> {

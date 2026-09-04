@@ -1,6 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 import com.streamvault.feature.catalog.presentation.components.channelProgressFraction
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.design.AppColors
@@ -234,9 +236,10 @@ fun LiveChannelRowSurface(
             append(catchUpLabel)
         }
     }
+    val reducedMotionEnabled = rememberReducedMotionEnabled()
     val scale by animateFloatAsState(
         targetValue = if (isDragging) FocusSpec.FocusedScale else 1f,
-        animationSpec = AppMotion.FocusSpec,
+        animationSpec = if (reducedMotionEnabled) snap() else AppMotion.FocusSpec,
         label = "liveRowScale"
     )
 

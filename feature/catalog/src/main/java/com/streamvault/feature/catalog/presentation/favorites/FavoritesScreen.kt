@@ -2,7 +2,10 @@ package com.streamvault.feature.catalog.presentation.favorites
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -79,6 +82,7 @@ import kotlinx.coroutines.launch
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 
 @Composable
 fun FavoritesScreen(
@@ -94,6 +98,7 @@ fun FavoritesScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val reducedMotionEnabled = rememberReducedMotionEnabled()
     val homeShelfGlobalTitle = stringResource(R.string.saved_preset_home_shelf_global_title)
     val homeShelfGlobalSubtitle = stringResource(R.string.saved_preset_home_shelf_global_subtitle)
     val providerScopedSections = remember(
@@ -603,7 +608,8 @@ fun FavoritesScreen(
                                     onMoveUp = { viewModel.moveItem(-1) },
                                     onMoveDown = { viewModel.moveItem(1) },
                                     onConfirm = { viewModel.saveReorder() },
-                                    onCancel = { viewModel.exitReorderMode() }
+                                    onCancel = viewModel::cancelReorderMode,
+                                    reducedMotionEnabled = reducedMotionEnabled
                                 )
                             }
                         }
@@ -611,8 +617,8 @@ fun FavoritesScreen(
 
                         androidx.compose.animation.AnimatedVisibility(
                             visible = uiState.isReorderMode && activeReorderSection != null,
-                            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut(),
+                            enter = if (reducedMotionEnabled) EnterTransition.None else slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
+                            exit = if (reducedMotionEnabled) ExitTransition.None else slideOutHorizontally(targetOffsetX = { it }) + fadeOut(),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(top = 24.dp)
@@ -685,7 +691,7 @@ fun FavoritesScreen(
     }
 
     if (uiState.isReorderMode) {
-        BackHandler(onBack = viewModel::exitReorderMode)
+        BackHandler(onBack = viewModel::cancelReorderMode)
     }
 }
 
@@ -1035,9 +1041,14 @@ private fun FavoriteRow(
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    reducedMotionEnabled: Boolean
 ) {
-    val scale by animateFloatAsState(if (isReorderingThis) 1.03f else 1f, label = "favoriteRowScale")
+    val scale by animateFloatAsState(
+        targetValue = if (isReorderingThis) 1.03f else 1f,
+        animationSpec = if (reducedMotionEnabled) snap() else androidx.compose.animation.core.spring(),
+        label = "favoriteRowScale"
+    )
 
     TvClickableSurface(
         onClick = onClick,

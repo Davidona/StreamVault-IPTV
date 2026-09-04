@@ -1,12 +1,37 @@
 package com.streamvault.feature.catalog.presentation.vod
 
+import android.view.KeyEvent
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
+import com.streamvault.domain.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class CatalogVodHelpersTest {
+    @Test
+    fun modernPreview_isHiddenWhileReorderingWithoutSelectedCategory() {
+        assertThat(shouldShowVodPreview(selectedCategory = null, isReorderMode = false)).isEqualTo(true)
+        assertThat(shouldShowVodPreview(selectedCategory = null, isReorderMode = true)).isEqualTo(false)
+        assertThat(shouldShowVodPreview(selectedCategory = "Favorites", isReorderMode = true)).isEqualTo(false)
+    }
+
+    @Test
+    fun reorderMoveDirection_treatsGridArrowsAsEarlierOrLater() {
+        assertThat(vodReorderMoveDirection(KeyEvent.KEYCODE_DPAD_UP))
+            .isEqualTo(VodReorderMoveDirection.EARLIER)
+        assertThat(vodReorderMoveDirection(KeyEvent.KEYCODE_DPAD_LEFT))
+            .isEqualTo(VodReorderMoveDirection.EARLIER)
+        assertThat(vodReorderMoveDirection(KeyEvent.KEYCODE_DPAD_DOWN))
+            .isEqualTo(VodReorderMoveDirection.LATER)
+        assertThat(vodReorderMoveDirection(KeyEvent.KEYCODE_DPAD_RIGHT))
+            .isEqualTo(VodReorderMoveDirection.LATER)
+        assertThat(vodReorderMoveDirection(KeyEvent.KEYCODE_BACK)).isNull()
+    }
+
     @Test
     fun reorderMovement_preservesIdentityAndNoOpEdges() {
         val items = listOf("a", "b", "c")
@@ -58,4 +83,32 @@ class CatalogVodHelpersTest {
         assertThat(matchesVodGroupMembership(null, 7L)).isFalse()
         assertThat(matchesVodGroupMembership(7L, 8L)).isFalse()
     }
+
+    @Test
+    fun previewFavorites_preservesFavoritePositionWhenLoaderReturnsDifferentOrder() = runBlocking {
+        val movieOne = Movie(id = 1L, name = "Movie One")
+        val movieTwo = Movie(id = 2L, name = "Movie Two")
+        val result = buildVodPreviewCatalog(
+            allFavorites = listOf(
+                Favorite(id = 1L, providerId = 1L, contentId = 1L, contentType = ContentType.MOVIE, position = 1024),
+                Favorite(id = 2L, providerId = 1L, contentId = 2L, contentType = ContentType.MOVIE, position = 0)
+            ),
+            customCategories = emptyList(),
+            providerCategories = emptyList(),
+            providerCategoryCounts = emptyMap(),
+            libraryCount = 2,
+            hiddenProviderCategoryIds = emptySet(),
+            loadItemsByIds = { listOf(movieOne, movieTwo) },
+            providerPreviews = emptyMap(),
+            itemIds = Movie::letId,
+            itemCategoryId = Movie::categoryId,
+            copyWithFavorite = { movie, isFavorite -> movie.copy(isFavorite = isFavorite) }
+        )
+
+        assertThat(result.grouped[VodBrowseDefaults.FAVORITES_CATEGORY].orEmpty().map(Movie::id))
+            .containsExactly(2L, 1L)
+            .inOrder()
+    }
 }
+
+private fun Movie.letId(): List<Long> = listOf(id)

@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import com.streamvault.core.ui.components.SearchInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalConfiguration
@@ -88,7 +89,10 @@ import com.streamvault.domain.model.VodViewMode
 import com.streamvault.feature.catalog.presentation.vod.HandleVodUserMessage
 import com.streamvault.feature.catalog.presentation.vod.ProtectedVodPinDialog
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
+import com.streamvault.feature.catalog.presentation.vod.VodReorderMoveDirection
+import com.streamvault.feature.catalog.presentation.vod.shouldShowVodPreview
 import com.streamvault.feature.catalog.presentation.vod.vodActiveFilterSortDetail
+import com.streamvault.feature.catalog.presentation.vod.vodReorderMoveDirection
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -252,6 +256,8 @@ fun MoviesScreen(
                 onLoadMore = viewModel::loadMoreSelectedCategory,
                 onLoadMorePreviewRows = viewModel::loadMorePreviewRows,
                 onDismissReorder = viewModel::exitCategoryReorderMode,
+                onMoveReorderItemUp = viewModel::moveItemUp,
+                onMoveReorderItemDown = viewModel::moveItemDown,
                 onToggleCategoryPinned = viewModel::toggleCategoryPinned,
                 initialFocusRequester = initialContentFocusRequester
             )
@@ -353,6 +359,8 @@ private fun MoviesVodContent(
     onLoadMore: () -> Unit,
     onLoadMorePreviewRows: () -> Unit,
     onDismissReorder: () -> Unit,
+    onMoveReorderItemUp: (Movie) -> Unit,
+    onMoveReorderItemDown: (Movie) -> Unit,
     onToggleCategoryPinned: (Category) -> Unit,
     initialFocusRequester: FocusRequester
 ) {
@@ -504,12 +512,14 @@ private fun MoviesVodContent(
             onOpenFresh = onOpenFresh,
             onLoadMore = onLoadMore,
             onDismissReorder = onDismissReorder,
+            onMoveReorderItemUp = onMoveReorderItemUp,
+            onMoveReorderItemDown = onMoveReorderItemDown,
             initialFocusRequester = initialFocusRequester
         )
         return
     }
 
-    if (uiState.selectedCategory == null) {
+    if (shouldShowVodPreview(uiState.selectedCategory, uiState.isReorderMode)) {
         val previewListState = androidx.compose.foundation.lazy.rememberLazyListState()
         InfiniteScrollEffect(
             listState = previewListState,
@@ -928,6 +938,27 @@ private fun MoviesVodContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(2f / 3f)
+                        .then(
+                            if (isDraggingThis) {
+                                Modifier.onKeyEvent { event ->
+                                    if (event.type != androidx.compose.ui.input.key.KeyEventType.KeyDown) {
+                                        false
+                                    } else {
+                                        when (vodReorderMoveDirection(event.nativeKeyEvent.keyCode)) {
+                                            VodReorderMoveDirection.EARLIER -> {
+                                                onMoveReorderItemUp(movie)
+                                                true
+                                            }
+                                            VodReorderMoveDirection.LATER -> {
+                                                onMoveReorderItemDown(movie)
+                                                true
+                                            }
+                                            null -> false
+                                        }
+                                    }
+                                }
+                            } else Modifier
+                        )
                         .then(if (!showSearchBar && movie.id == initialGridMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier),
                     onClick = {
                         if (uiState.isReorderMode) {
@@ -982,6 +1013,8 @@ private fun MoviesVodClassicContent(
     onOpenFresh: () -> Unit,
     onLoadMore: () -> Unit,
     onDismissReorder: () -> Unit,
+    onMoveReorderItemUp: (Movie) -> Unit,
+    onMoveReorderItemDown: (Movie) -> Unit,
     initialFocusRequester: FocusRequester
 ) {
     val allLabel = stringResource(R.string.vod_classic_all)
@@ -1286,10 +1319,31 @@ private fun MoviesVodClassicContent(
                             isLocked = isLocked,
                             isReorderMode = uiState.isReorderMode,
                             isDragging = isDraggingThis,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(2f / 3f)
-                                .then(if (!showSearchBar && movie.id == initialGridMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(2f / 3f)
+                            .then(
+                                if (isDraggingThis) {
+                                    Modifier.onKeyEvent { event ->
+                                        if (event.type != androidx.compose.ui.input.key.KeyEventType.KeyDown) {
+                                            false
+                                        } else {
+                                            when (vodReorderMoveDirection(event.nativeKeyEvent.keyCode)) {
+                                                VodReorderMoveDirection.EARLIER -> {
+                                                    onMoveReorderItemUp(movie)
+                                                    true
+                                                }
+                                                VodReorderMoveDirection.LATER -> {
+                                                    onMoveReorderItemDown(movie)
+                                                    true
+                                                }
+                                                null -> false
+                                            }
+                                        }
+                                    }
+                                } else Modifier
+                            )
+                            .then(if (!showSearchBar && movie.id == initialGridMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier),
                             onClick = {
                                 if (uiState.isReorderMode) {
                                     draggingMovie = if (isDraggingThis) null else movie

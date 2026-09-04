@@ -114,6 +114,69 @@ def extract_ui_strings(dump: str) -> set[str]:
     return values
 
 
+def download_card_is_completed(dump: str, title: str) -> bool:
+    """Return whether the title's clickable Downloads card shows completion and an output path."""
+
+    try:
+        root = ET.fromstring(dump)
+    except ET.ParseError as exc:
+        raise CatalogValidationError(f"UIAutomator returned invalid XML: {exc}") from exc
+
+    for card in root.iter("node"):
+        if card.attrib.get("clickable") != "true":
+            continue
+        values = {
+            value
+            for node in card.iter("node")
+            for value in (
+                (node.attrib.get("text") or "").strip(),
+                (node.attrib.get("content-desc") or "").strip(),
+            )
+            if value
+        }
+        if title not in values or "Completed" not in values:
+            continue
+        if any(value.startswith("/") and "Download" in value for value in values):
+            return True
+    return False
+
+
+def ordered_markers(dump: str, markers: Sequence[str]) -> list[str]:
+    """Return matching semantic markers in their top-to-bottom UI order."""
+
+    nodes = _parse_nodes(dump)
+    matches: list[tuple[int, int, str]] = []
+    for marker in markers:
+        matching_nodes = [
+            node
+            for node in nodes
+            if marker in {node.text, node.content_description}
+            and node.bounds is not None
+        ]
+        if matching_nodes:
+            left, top, _, _ = matching_nodes[0].bounds  # type: ignore[misc]
+            matches.append((top, left, marker))
+    return [marker for _, _, marker in sorted(matches)]
+
+
+def ordered_reorder_markers(dump: str, markers: Sequence[str]) -> list[str]:
+    """Return reorder-card markers from left to right in the visible grid."""
+
+    nodes = _parse_nodes(dump)
+    matches: list[tuple[int, int, str]] = []
+    for marker in markers:
+        matching_nodes = [
+            node
+            for node in nodes
+            if marker in {node.text, node.content_description}
+            and node.bounds is not None
+        ]
+        if matching_nodes:
+            left, top, _, _ = matching_nodes[0].bounds  # type: ignore[misc]
+            matches.append((left, top, marker))
+    return [marker for _, _, marker in sorted(matches)]
+
+
 def assert_snapshot(
     dump: str,
     *,
@@ -240,6 +303,28 @@ class AdbClient:
             f"Latest dump is in {self.output_directory}."
         )
 
+    def wait_for_marker_order(
+        self,
+        label: str,
+        markers: Sequence[str],
+        expected: Sequence[str],
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> str:
+        """Wait until visible markers have the expected top-to-bottom order."""
+
+        deadline = time.monotonic() + timeout
+        last_dump = ""
+        while time.monotonic() < deadline:
+            last_dump = self.snapshot(label)
+            if ordered_reorder_markers(last_dump, markers) == list(expected):
+                return last_dump
+            time.sleep(0.5)
+        raise CatalogValidationError(
+            f"Timed out waiting for {label}; expected order: {', '.join(expected)}. "
+            f"Latest dump is in {self.output_directory}."
+        )
+
     def wait_for_any(
         self,
         label: str,
@@ -257,6 +342,25 @@ class AdbClient:
             time.sleep(0.5)
         raise CatalogValidationError(
             f"Timed out waiting for {label}; expected one of: {', '.join(alternatives)}. "
+            f"Latest dump is in {self.output_directory}."
+        )
+
+    def wait_for_download_completed(
+        self,
+        label: str,
+        title: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> str:
+        deadline = time.monotonic() + timeout
+        last_dump = ""
+        while time.monotonic() < deadline:
+            last_dump = self.snapshot(label)
+            if download_card_is_completed(last_dump, title):
+                return last_dump
+            time.sleep(0.5)
+        raise CatalogValidationError(
+            f"Timed out waiting for completed download card '{title}'. "
             f"Latest dump is in {self.output_directory}."
         )
 
@@ -356,6 +460,121 @@ class AdbClient:
                 return "activated"
             self.key("KEYCODE_DPAD_RIGHT")
         raise CatalogValidationError("Could not focus a matching detail action.")
+
+    def focus_and_long_press_marker(
+        self,
+        marker: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        """Focus a visible TV surface and hold its activation key."""
+
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            dump = self.snapshot(f"focus_long_press_{_safe_name(marker)}")
+            if _focused_target_contains(dump, marker):
+                self.shell(
+                    "input",
+                    "keyevent",
+                    "--duration",
+                    "1400",
+                    "KEYCODE_DPAD_CENTER",
+                )
+                return
+            self.key("KEYCODE_DPAD_DOWN")
+        raise CatalogValidationError(f"Could not focus marker '{marker}' for long press.")
+
+    def focus_and_activate_browse_action(
+        self,
+        marker: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        """Focus and activate an action chip in the modern browse row."""
+
+        compiled = [re.compile(re.escape(marker), re.IGNORECASE)]
+        deadline = time.monotonic() + timeout
+        # The centered projection of the hero enters the action row at Top Rated
+        # on the TV emulator.  Move left through the semantic row until the
+        # requested action is focused.
+        self.key("KEYCODE_DPAD_DOWN")
+        dump = self.snapshot(f"focus_browse_action_{_safe_name(marker)}")
+        focused_bounds = _focused_target_bounds(dump)
+        if focused_bounds and focused_bounds[2] - focused_bounds[0] > 1000:
+            # Direct navigation can leave focus on the top navigation item.  In
+            # that state the first Down enters the hero and the second enters
+            # the action row.
+            self.key("KEYCODE_DPAD_DOWN")
+            dump = self.snapshot(f"focus_browse_action_{_safe_name(marker)}")
+            focused_bounds = _focused_target_bounds(dump)
+        horizontal_direction = (
+            "KEYCODE_DPAD_RIGHT"
+            if focused_bounds and focused_bounds[0] < 700
+            else "KEYCODE_DPAD_LEFT"
+        )
+        for _ in range(8):
+            if time.monotonic() >= deadline:
+                break
+            if _focused_target_matches(dump, compiled):
+                self.key("KEYCODE_DPAD_CENTER")
+                return
+            self.key(horizontal_direction)
+            dump = self.snapshot(f"focus_browse_action_{_safe_name(marker)}")
+        raise CatalogValidationError(f"Could not focus browse action '{marker}'.")
+
+    def focus_and_activate_reorder_card(
+        self,
+        marker: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        """Focus and select a card in the reorder grid."""
+
+        compiled = [re.compile(re.escape(marker), re.IGNORECASE)]
+        deadline = time.monotonic() + timeout
+        # Reorder mode initially focuses the Home shell item.  Down reaches the
+        # card aligned with that item; the neighboring card is one Left away.
+        directions = (
+            "KEYCODE_DPAD_DOWN",
+            "KEYCODE_DPAD_LEFT",
+            "KEYCODE_DPAD_RIGHT",
+            "KEYCODE_DPAD_DOWN",
+            "KEYCODE_DPAD_UP",
+            "KEYCODE_DPAD_LEFT",
+            "KEYCODE_DPAD_RIGHT",
+        )
+        for direction in directions:
+            if time.monotonic() >= deadline:
+                break
+            self.key(direction)
+            dump = self.snapshot(f"focus_reorder_card_{_safe_name(marker)}")
+            if _focused_target_matches(dump, compiled):
+                self.key("KEYCODE_DPAD_CENTER")
+                # The click callback updates the Compose selection state
+                # asynchronously; let that state reach the card before the
+                # movement key is sent by the journey.
+                time.sleep(0.4)
+                return
+        raise CatalogValidationError(f"Could not focus reorder card '{marker}'.")
+
+    def focus_and_activate_reorder_save(self, *, timeout: float = DEFAULT_TIMEOUT_SECONDS) -> None:
+        """Leave the selected card and activate the reorder dialog's save action."""
+
+        deadline = time.monotonic() + timeout
+        # Center clears the selected-card state.  Up enters the footer rail on
+        # Cancel, then Right reaches Save Order.
+        self.key("KEYCODE_DPAD_CENTER")
+        time.sleep(0.4)
+        self.key("KEYCODE_DPAD_UP")
+        for _ in range(4):
+            if time.monotonic() >= deadline:
+                break
+            dump = self.snapshot("focus_reorder_save")
+            if _focused_target_contains(dump, "Save Order"):
+                self.key("KEYCODE_DPAD_CENTER")
+                return
+            self.key("KEYCODE_DPAD_RIGHT")
+        raise CatalogValidationError("Could not focus the reorder Save Order action.")
 
     def focus_and_activate_dialog_action(
         self,
@@ -530,6 +749,23 @@ def _focused_target_contains(dump: str, marker: str) -> bool:
     return _focused_target_matches(dump, [re.compile(re.escape(marker), re.IGNORECASE)])
 
 
+def _focused_target_bounds(dump: str) -> tuple[int, int, int, int] | None:
+    try:
+        root = ET.fromstring(dump)
+    except ET.ParseError as exc:
+        raise CatalogValidationError(f"UIAutomator returned invalid XML: {exc}") from exc
+    parents = {child: parent for parent in root.iter() for child in parent}
+    focused = next((node for node in root.iter("node") if node.attrib.get("focused") == "true"), None)
+    if focused is None:
+        return None
+    target = focused
+    while target is not None and target.attrib.get("clickable") != "true":
+        target = parents.get(target)
+    if target is None:
+        return None
+    return parse_bounds(target.attrib.get("bounds") or "")
+
+
 def _focused_target_matches(dump: str, patterns: Sequence[re.Pattern[str]]) -> bool:
     try:
         root = ET.fromstring(dump)
@@ -553,6 +789,347 @@ def _focused_target_matches(dump: str, patterns: Sequence[re.Pattern[str]]) -> b
         )
         for pattern in patterns
     )
+
+
+def selected_library_pagination_contract(content_type: str) -> dict[str, str]:
+    """Return the semantic markers for a selected-library pagination journey."""
+
+    contracts = {
+        "movies": {
+            "route": "movies",
+            "entry_marker": "Browse Full Movie Library",
+            "fixture_marker": "Fixture Movie One",
+            "loaded_marker": "Pagination Movie 63",
+            "page_marker": "Load more (60/63)",
+        },
+        "series": {
+            "route": "series",
+            "entry_marker": "Browse Full Series Library",
+            "fixture_marker": "Fixture Series One",
+            "loaded_marker": "Pagination Series 63",
+            "page_marker": "Load more (60/63)",
+        },
+    }
+    try:
+        return contracts[content_type]
+    except KeyError as exc:
+        raise CatalogValidationError(
+            f"Unknown selected-library pagination content type '{content_type}'."
+        ) from exc
+
+
+def browse_reorder_contract(content_type: str) -> dict[str, str]:
+    """Return the semantic markers for a browse reorder journey."""
+
+    contracts = {
+        "movies": {
+            "route": "movies",
+            "category_marker": "★ Favorites",
+            "options_marker": "Reorder Items",
+            "mode_marker": "Reordering ★ Favorites",
+            "first_marker": "Fixture Movie One",
+            "second_marker": "Fixture Movie Two",
+        },
+        "series": {
+            "route": "series",
+            "category_marker": "★ Favorites",
+            "options_marker": "Reorder Items",
+            "mode_marker": "Reordering ★ Favorites",
+            "first_marker": "Fixture Series One",
+            "second_marker": "Fixture Series Two",
+        },
+    }
+    try:
+        return contracts[content_type]
+    except KeyError as exc:
+        raise CatalogValidationError(
+            f"Unknown browse reorder content type '{content_type}'."
+        ) from exc
+
+
+def reorder_move_action(
+    current_order: Sequence[str],
+    target_order: Sequence[str],
+    first_marker: str,
+    second_marker: str,
+) -> tuple[str, str]:
+    """Return the card marker and D-pad direction needed to swap two cards."""
+
+    if len(current_order) != 2 or len(target_order) != 2:
+        raise ValueError("reorder validation expects exactly two visible cards")
+    if list(current_order) == list(target_order):
+        raise ValueError("reorder validation requires different current and target orders")
+    if list(current_order) != [first_marker, second_marker] and list(current_order) != [second_marker, first_marker]:
+        raise ValueError("reorder validation received unknown current markers")
+    if list(target_order) != list(reversed(current_order)):
+        raise ValueError("reorder validation expects the target order to be the reverse")
+
+    if list(current_order) == [first_marker, second_marker]:
+        return second_marker, "KEYCODE_DPAD_UP"
+    return second_marker, "KEYCODE_DPAD_DOWN"
+
+
+def run_selected_library_pagination(
+    client: AdbClient,
+    package: str,
+    activity: str,
+    content_type: str,
+    timeout: float,
+) -> list[str]:
+    """Prove the second page of one selected Catalog library."""
+
+    contract = selected_library_pagination_contract(content_type)
+    prefix = f"{content_type}_pagination"
+    client.navigate(contract["route"], package, activity)
+    client.wait_for(
+        f"{prefix}_route",
+        required=(
+            f"streamvault.destination:{contract['route']}",
+            contract["fixture_marker"],
+        ),
+        timeout=timeout,
+    )
+    client.focus_and_activate_browse_entry(contract["entry_marker"], timeout=timeout)
+    client.wait_for(
+        f"{prefix}_library",
+        required=("Filters & Sort", contract["fixture_marker"]),
+        timeout=timeout,
+    )
+    for _ in range(20):
+        client.shell("input", "swipe", "960", "900", "960", "250", "500")
+    client.wait_for(
+        f"{prefix}_ready",
+        required=(contract["page_marker"],),
+        timeout=timeout,
+    )
+    client.focus_and_activate_load_more(timeout=timeout)
+    for _ in range(4):
+        client.shell("input", "swipe", "960", "900", "960", "250", "500")
+    client.wait_for(
+        f"{prefix}_loaded",
+        required=(contract["loaded_marker"],),
+        forbidden=(contract["page_marker"],),
+        timeout=timeout,
+    )
+    return [
+        f"{prefix}_route",
+        f"{prefix}_library",
+        f"{prefix}_ready",
+        f"{prefix}_loaded",
+    ]
+
+
+def ensure_secondary_favorite(
+    client: AdbClient,
+    package: str,
+    activity: str,
+    content_type: str,
+    timeout: float,
+) -> list[str]:
+    """Ensure the second fixture item is favorited for a two-card reorder proof."""
+
+    contract = browse_reorder_contract(content_type)
+    category_marker = "Fixture Movies" if content_type == "movies" else "Fixture Series"
+    prefix = f"{content_type}_second_favorite"
+    # A detail Back can restore the Favorites grid as the selected surface.
+    # Recreate the activity through Home so the next route starts on the modern
+    # preview and exposes its Categories action consistently.
+    client.navigate("home", package, activity)
+    client.wait_for(
+        f"{prefix}_initial_home",
+        required=("streamvault.destination:home", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    client.navigate(contract["route"], package, activity)
+    client.wait_for(
+        f"{prefix}_route",
+        required=(
+            f"streamvault.destination:{contract['route']}",
+            contract["first_marker"],
+            contract["second_marker"],
+        ),
+        timeout=timeout,
+    )
+    client.focus_and_activate_browse_action("Categories", timeout=timeout)
+    client.wait_for(
+        f"{prefix}_picker",
+        required=("Browse categories", category_marker),
+        timeout=timeout,
+    )
+    client.focus_and_activate_marker(category_marker, timeout=timeout)
+    client.wait_for(
+        f"{prefix}_category",
+        required=(
+            f"streamvault.destination:{contract['route']}",
+            contract["first_marker"],
+            contract["second_marker"],
+        ),
+        timeout=timeout,
+    )
+    client.focus_and_activate_browse_card(contract["second_marker"], timeout=timeout)
+    detail_required = (
+        (contract["second_marker"], "Copy URL")
+        if content_type == "movies"
+        else (contract["second_marker"], "Season 1")
+    )
+    client.wait_for(f"{prefix}_detail", required=detail_required, timeout=timeout)
+    _ensure_favorite(client, timeout=timeout)
+    client.key("KEYCODE_BACK")
+    client.wait_for(
+        f"{prefix}_after_detail",
+        required=(
+            f"streamvault.destination:{contract['route']}",
+            contract["second_marker"],
+        ),
+        timeout=timeout,
+    )
+    client.navigate("home", package, activity)
+    client.wait_for(
+        f"{prefix}_home",
+        required=("streamvault.destination:home", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    return [
+        f"{prefix}_initial_home",
+        f"{prefix}_route",
+        f"{prefix}_picker",
+        f"{prefix}_category",
+        f"{prefix}_detail",
+        f"{prefix}_after_detail",
+        f"{prefix}_home",
+    ]
+
+
+def run_browse_reorder(
+    client: AdbClient,
+    package: str,
+    activity: str,
+    content_type: str,
+    timeout: float,
+) -> list[str]:
+    """Prove browse reorder changes, persists, and can be restored."""
+
+    contract = browse_reorder_contract(content_type)
+    prefix = f"{content_type}_browse_reorder"
+
+    def enter_reorder(stage: str) -> str:
+        client.navigate(contract["route"], package, activity)
+        client.wait_for(
+            f"{prefix}_{stage}_route",
+            required=(
+                f"streamvault.destination:{contract['route']}",
+                contract["first_marker"],
+                contract["second_marker"],
+            ),
+            timeout=timeout,
+        )
+        client.focus_and_activate_browse_action("Categories", timeout=timeout)
+        client.wait_for(
+            f"{prefix}_{stage}_picker",
+            required=("Browse categories", contract["category_marker"]),
+            timeout=timeout,
+        )
+        client.focus_and_long_press_marker(contract["category_marker"], timeout=timeout)
+        client.wait_for(
+            f"{prefix}_{stage}_options",
+            required=(contract["category_marker"], contract["options_marker"]),
+            timeout=timeout,
+        )
+        client.focus_and_activate_dialog_action((rf"^{re.escape(contract['options_marker'])}$",), timeout=timeout)
+        return client.wait_for(
+            f"{prefix}_{stage}_mode",
+            required=(
+                contract["mode_marker"],
+                contract["first_marker"],
+                contract["second_marker"],
+            ),
+            timeout=timeout,
+        )
+
+    mode_dump = enter_reorder("initial")
+    original_order = ordered_reorder_markers(
+        mode_dump,
+        (contract["first_marker"], contract["second_marker"]),
+    )
+    valid_orders = [
+        [contract["first_marker"], contract["second_marker"]],
+        [contract["second_marker"], contract["first_marker"]],
+    ]
+    if original_order not in valid_orders:
+        raise CatalogValidationError(
+            f"Unexpected {content_type} reorder order: {', '.join(original_order)}."
+        )
+
+    changed_order = valid_orders[1] if original_order == valid_orders[0] else valid_orders[0]
+    move_marker, move_direction = reorder_move_action(
+        original_order,
+        changed_order,
+        contract["first_marker"],
+        contract["second_marker"],
+    )
+    client.focus_and_activate_reorder_card(move_marker, timeout=timeout)
+    client.key(move_direction)
+    client.wait_for_marker_order(
+        f"{prefix}_changed",
+        (contract["first_marker"], contract["second_marker"]),
+        changed_order,
+        timeout=timeout,
+    )
+    client.focus_and_activate_reorder_save(timeout=timeout)
+    saved_dump = client.wait_for_marker_order(
+        f"{prefix}_saved",
+        (contract["first_marker"], contract["second_marker"]),
+        changed_order,
+        timeout=timeout,
+    )
+    if contract["mode_marker"] in extract_ui_strings(saved_dump):
+        raise CatalogValidationError(f"{content_type} reorder remained in edit mode after Save Order.")
+
+    persisted_dump = enter_reorder("persisted")
+    persisted_order = ordered_reorder_markers(
+        persisted_dump,
+        (contract["first_marker"], contract["second_marker"]),
+    )
+    if persisted_order != changed_order:
+        raise CatalogValidationError(
+            f"{content_type} reorder did not persist: expected {', '.join(changed_order)}, "
+            f"got {', '.join(persisted_order)}."
+        )
+
+    move_marker, move_direction = reorder_move_action(
+        changed_order,
+        original_order,
+        contract["first_marker"],
+        contract["second_marker"],
+    )
+    client.focus_and_activate_reorder_card(move_marker, timeout=timeout)
+    client.key(move_direction)
+    client.wait_for_marker_order(
+        f"{prefix}_restored",
+        (contract["first_marker"], contract["second_marker"]),
+        original_order,
+        timeout=timeout,
+    )
+    client.focus_and_activate_reorder_save(timeout=timeout)
+    restored_saved_dump = client.wait_for_marker_order(
+        f"{prefix}_restored_saved",
+        (contract["first_marker"], contract["second_marker"]),
+        original_order,
+        timeout=timeout,
+    )
+    if contract["mode_marker"] in extract_ui_strings(restored_saved_dump):
+        raise CatalogValidationError(f"{content_type} reorder remained in edit mode after restore Save Order.")
+    return [
+        f"{prefix}_initial_route",
+        f"{prefix}_initial_picker",
+        f"{prefix}_initial_options",
+        f"{prefix}_initial_mode",
+        f"{prefix}_changed",
+        f"{prefix}_saved",
+        f"{prefix}_persisted_mode",
+        f"{prefix}_restored",
+        f"{prefix}_restored_saved",
+    ]
 
 
 def run_journey(client: AdbClient, package: str, activity: str, timeout: float) -> list[str]:
@@ -591,9 +1168,29 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         client.shell("input", "swipe", "960", "250", "960", "900", "500")
     client.focus_and_activate_browse_card("Fixture Movie One", timeout=timeout)
     client.wait_for("movie_detail", required=("Fixture Movie One", "Play", "Copy URL", "Download", "Cast"), timeout=timeout)
+    client.focus_and_activate_matching((r"^Download$",), timeout=timeout)
     _ensure_favorite(client, timeout=timeout)
     client.key("KEYCODE_BACK")
     client.wait_for("movies_after_detail", required=("streamvault.destination:movies", "Fixture Movie One"), timeout=timeout)
+    client.navigate("downloads", package, activity)
+    client.wait_for_download_completed(
+        "movie_download_completed",
+        "Fixture Movie One",
+        timeout=timeout,
+    )
+    movie_second_favorite_surfaces = ensure_secondary_favorite(
+        client,
+        package,
+        activity,
+        "movies",
+        timeout,
+    )
+    client.navigate("movies", package, activity)
+    client.wait_for(
+        "movies_before_saved",
+        required=("streamvault.destination:movies", "Fixture Movie One", "Fixture Movie Two"),
+        timeout=timeout,
+    )
     client.tap_marker("Saved")
     client.wait_for("movies_saved", required=("streamvault.destination:movies", "Fixture Movie One", "Saved"), timeout=timeout)
 
@@ -616,6 +1213,34 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
     )
     client.key("KEYCODE_BACK")
     client.wait_for("series_after_detail", required=("streamvault.destination:series", "Fixture Series One"), timeout=timeout)
+
+    series_second_favorite_surfaces = ensure_secondary_favorite(
+        client,
+        package,
+        activity,
+        "series",
+        timeout,
+    )
+    movie_browse_reorder_surfaces = run_browse_reorder(
+        client,
+        package,
+        activity,
+        "movies",
+        timeout,
+    )
+    client.navigate("home", package, activity)
+    client.wait_for(
+        "home_before_series_reorder",
+        required=("streamvault.destination:home", "Fixture Movie One"),
+        timeout=timeout,
+    )
+    series_browse_reorder_surfaces = run_browse_reorder(
+        client,
+        package,
+        activity,
+        "series",
+        timeout,
+    )
 
     # Detail screens intentionally omit the shell; the preceding Back returns to Series browse
     # before the normal top-navigation path is exercised here.
@@ -657,34 +1282,16 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
     )
     client.open_settings_browsing(timeout=timeout)
     client.set_infinite_scroll(False, timeout=timeout)
-    client.navigate("movies", package, activity)
+    run_selected_library_pagination(client, package, activity, "movies", timeout)
+    # Recreate the activity between deep selected-library grids so the Series
+    # route starts from a deterministic shell focus position.
+    client.navigate("home", package, activity)
     client.wait_for(
-        "movies_pagination_route",
-        required=("streamvault.destination:movies", "Fixture Movie One"),
+        "home_before_series_pagination",
+        required=("streamvault.destination:home", "Fixture Movie One"),
         timeout=timeout,
     )
-    client.focus_and_activate_browse_entry(timeout=timeout)
-    client.wait_for(
-        "movies_pagination_library",
-        required=("Filters & Sort", "Fixture Movie One"),
-        timeout=timeout,
-    )
-    for _ in range(20):
-        client.shell("input", "swipe", "960", "900", "960", "250", "500")
-    client.wait_for(
-        "movies_pagination_ready",
-        required=("Load more (60/63)",),
-        timeout=timeout,
-    )
-    client.focus_and_activate_load_more(timeout=timeout)
-    for _ in range(4):
-        client.shell("input", "swipe", "960", "900", "960", "250", "500")
-    client.wait_for(
-        "movies_pagination_loaded",
-        required=("Pagination Movie 63",),
-        forbidden=("Load more (60/63)",),
-        timeout=timeout,
-    )
+    run_selected_library_pagination(client, package, activity, "series", timeout)
     # After appending the second page, focus can remain inside the deep grid
     # and repeated DPAD_UP presses do not reliably reach the shell rail.  Reset
     # the top-level surface through the production activity entry point before
@@ -762,9 +1369,16 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         "movies_full_library",
         "movies_after_full_library",
         "movie_detail",
+        "movie_download_completed",
+        "movies_before_saved",
+        *movie_second_favorite_surfaces,
         "movies_saved",
         "series_browse",
         "series_detail",
+        *series_second_favorite_surfaces,
+        *movie_browse_reorder_surfaces,
+        "home_before_series_reorder",
+        *series_browse_reorder_surfaces,
         "search_fixture",
         "search_fixture_content",
         "settings_route",
@@ -774,6 +1388,11 @@ def run_journey(client: AdbClient, package: str, activity: str, timeout: float) 
         "movies_pagination_library",
         "movies_pagination_ready",
         "movies_pagination_loaded",
+        "series_pagination_route",
+        "series_pagination_library",
+        "series_pagination_ready",
+        "series_pagination_loaded",
+        "home_before_series_pagination",
         "home_after_pagination",
         "settings_route_after_pagination",
         "settings_route_before_customization",

@@ -988,8 +988,11 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   favorite/saved/Search path, Movies full-library entry/back,
   `Load more (60/63)` → `Pagination Movie 63`, Infinite scroll off/on
   restoration, and the Settings-owned Dashboard shelf customization
-  cancel/save/reset flow. Series pagination, browse reorder, download/Cast
-  completion, direct-Favorites, and accessibility journeys,
+  cancel/save/reset flow. Series pagination, browse reorder, movie download
+  completion, and direct Favorites test-host rendering/Back cancellation are
+  covered; Catalog RTL/large-text semantics and reduced-motion instrumentation
+  also pass. Cast receiver chooser, touch/device variants, and accessibility
+  service journeys,
   successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and

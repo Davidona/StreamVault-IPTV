@@ -39,7 +39,9 @@ suspend fun <Item> buildVodPreviewCatalog(
         .map(Favorite::contentId)
         .toList()
     if (favoritesIds.isNotEmpty()) {
-        val preview = loadItemsByIds(favoritesIds.take(VodBrowseDefaults.PREVIEW_ROW_LIMIT))
+        val previewIds = favoritesIds.take(VodBrowseDefaults.PREVIEW_ROW_LIMIT)
+        val preview = loadItemsByIds(previewIds)
+            .orderByRequestedIds(previewIds, itemIds)
             .filterNot { item -> itemCategoryId(item) in hiddenProviderCategoryIds }
             .let { items -> markVodFavorites(items, globalFavoriteIds, itemIds, copyWithFavorite) }
         if (preview.isNotEmpty()) {
@@ -102,6 +104,16 @@ suspend fun <Item> buildVodPreviewCatalog(
         categoryCounts = countMap,
         libraryCount = libraryCount
     )
+}
+
+private fun <Item> List<Item>.orderByRequestedIds(
+    requestedIds: List<Long>,
+    itemIds: (Item) -> List<Long>
+): List<Item> {
+    val positions = requestedIds.withIndex().associate { it.value to it.index }
+    return sortedBy { item ->
+        itemIds(item).mapNotNull(positions::get).minOrNull() ?: Int.MAX_VALUE
+    }
 }
 
 fun <Item> buildVodSearchCatalog(

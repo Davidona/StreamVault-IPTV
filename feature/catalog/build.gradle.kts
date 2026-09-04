@@ -202,4 +202,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockito.kotlin) {
+        exclude(group = "org.mockito", module = "mockito-core")
+    }
+    androidTestImplementation("org.mockito:mockito-android:5.18.0")
 }

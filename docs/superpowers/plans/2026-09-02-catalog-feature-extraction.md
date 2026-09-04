@@ -37,14 +37,23 @@ Search in the production activity; its semantic evidence is in
 and `tools/catalog_connected_validation.py` provides a semantic ADB journey
 for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path,
 Movies full-library entry/back, the `Load more (60/63)` → `Pagination Movie 63`
-second-page transition with Infinite scroll restored on, and the Settings-owned
-Dashboard shelf customization cancel/save/reset flow. The remaining Series
-pagination, browse reorder, action/direct-Favorites/accessibility journeys;
-repository-wide app lint remains open.
+second-page transition with Infinite scroll restored on, the `Pagination Series
+63` second-page transition, Movie/Series Favorites browse reorder
+save/persistence/restore, and the Settings-owned Dashboard shelf
+customization cancel/save/reset flow. Download completion is now covered by
+the fixture-backed production Downloads journey. RTL/large-text semantics and
+  the reduced-motion Catalog instrumentation run also pass. The same 7-test
+  Catalog instrumentation suite passes with AOSP TalkBack enabled, but the
+  fixture-driven production TalkBack traversal loses semantic D-pad focus in
+  the current ADB harness. Cast receiver chooser, the remaining production
+  accessibility journey, cache-equivalent performance, and repository-wide
+  app lint remain open.
 A focused Dashboard macrobenchmark rerun now passes after public-M3U
 live-channel activity populates a scrollable seeded Home shelf, but it is
 diagnostic after-run evidence rather than the required cache-equivalent paired
-comparison. These limitations are documented in
+comparison. The paired Dashboard benchmark is explicitly deferred until the
+computer/device has capacity for the baseline and current runs. These
+limitations are documented in
 `docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md`. Do not interpret this
 status as completion of Phase 5.
 
@@ -1069,9 +1078,16 @@ Favorites: direct test-host rendering and reorder/save/cancel because no route e
 
 Expected: no crash, stuck focus, lost top navigation, wrong return destination, duplicate callback, incorrect list identity, or new error state.
 
-- [ ] **Step 5: Exercise phone/tablet and accessibility variants when available**
+- [ ] **Step 5: Exercise phone/tablet and remaining accessibility variants when available**
 
-Run representative browse/detail/search journeys in touch mode, RTL locale, and reduced-motion/animation-disabled configuration. If a device/configuration is unavailable, record it as unavailable rather than passed.
+Run representative browse/detail/search journeys in touch mode, phone/tablet
+profiles, and through an accessibility service when available. The Catalog
+behavior test covers RTL/large-text semantics, the connected suite has passed
+with animations disabled and with AOSP TalkBack enabled, and the fixture
+journey has exposed a TalkBack-sensitive semantic D-pad harness limitation;
+retain that evidence rather than treating it as a production accessibility
+pass. If a device/configuration is unavailable, record it as unavailable
+rather than passed.
 
 - [ ] **Step 6: Capture and scan logs**
 
@@ -1138,9 +1154,15 @@ Expected: Catalog and required app integration tasks run; sibling feature Kotlin
 
 Expected: PASS. Record duration and artifact sizes; compare clean-build regression against the plan's 5% guardrail with measurement noise disclosed.
 
-- [ ] **Step 4: Run the Dashboard Macrobenchmark comparison**
+- [ ] **Step 4: Run the Dashboard Macrobenchmark comparison (deferred)**
 
 Run the existing seeded `dashboardVerticalScroll` benchmark with the same emulator/device, iteration count, compilation mode, and package used by the baseline. Record frame count and P50/P90/P99 overrun metrics before/after. Do not infer a runtime win from unmatched device/build conditions.
+
+This gate is intentionally deferred in the current Catalog continuation because
+the computer is under heavy load. The diagnostic after-run benchmark evidence
+already recorded in `performance-after.md` is not a substitute for the paired
+comparison; resume this step only when the baseline and current runs can be
+completed on the same device under stable load.
 
 - [ ] **Step 5: Regenerate and inspect profiles**
 
@@ -1215,23 +1237,31 @@ If generated profile paths differ, stage only files produced by the verified gen
 
   Prove Home/Movies/Series/detail/favorite/saved/Search, Movies full-library
   entry/back, Settings Infinite scroll off, `Load more (60/63)` activation
-  through `Pagination Movie 63`, restoration of Infinite scroll on, and
-  Dashboard customization cancel/save/reset. Persist UIAutomator snapshots and
-  a JSON report under ignored `build/` output.
+  through `Pagination Movie 63`, restoration of Infinite scroll on, Dashboard
+  customization cancel/save/reset, and Movie/Series Favorites browse reorder
+  with save, persistence, and restore. The journey also downloads `Fixture Movie
+  One` and proves the production Downloads card reaches `Completed` with an
+  output path. Persist UIAutomator snapshots and a JSON report under ignored
+  `build/` output.
 
 - [x] **Step 3: Run the TV journey and record bounded evidence**
 
-  The API 36 AOSP TV run passed 5/5 feature connected tests and the semantic
-  journey in `build/catalog-validation-pagination-final-15`. The fixture was
-  stopped and its temporary local properties are removed after validation.
+  The API 36 AOSP TV run passed 7/7 feature connected tests and the latest
+  fixture-backed semantic journey in
+  `build/catalog-validation-download-completion-retry`. It proved Movie and
+  Series selected-library pagination, Favorites browse reorder persistence, and
+  fixture-backed movie download completion. A focused direct host test also
+  rendered the real Favorites composable and verified Activity Back cancels
+  reorder without introducing a production route. The fixture was stopped and
+  its temporary local properties were removed after validation.
 
 - [ ] **Step 4: Finish the remaining Catalog acceptance gates**
 
-  Execute Series selected-library pagination, browse reorder, download
-  completion, Cast receiver chooser, direct Favorites-host reorder/save/cancel,
-  touch/phone/tablet/RTL/reduced-motion/accessibility variants, and a
-  cache-equivalent Dashboard performance comparison. Keep app lint and other
-  Phase 5 gates separate from Catalog ownership.
+  Execute the Cast receiver chooser, touch/phone/tablet and remaining
+  production accessibility variants. The cache-equivalent Dashboard
+  performance comparison is deferred until the benchmark environment has
+  stable capacity; keep app lint and other Phase 5 gates separate from Catalog
+  ownership.
 
 ## Exit Criteria
 

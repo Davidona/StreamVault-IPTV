@@ -570,12 +570,12 @@ private fun MovieVersionSelector(
     }
 }
 
-private fun copyStreamUrlToClipboard(context: android.content.Context, url: String?) {
+internal fun copyStreamUrlToClipboard(context: android.content.Context, url: String?) {
     if (url.isNullOrBlank()) {
         Toast.makeText(context, context.getString(R.string.stream_url_copy_failed), Toast.LENGTH_SHORT).show()
         return
     }
-    context.getSystemService(ClipboardManager::class.java)
+    (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)
         ?.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.stream_url_clip_label), url))
     Toast.makeText(context, context.getString(R.string.stream_url_copied), Toast.LENGTH_SHORT).show()
 }

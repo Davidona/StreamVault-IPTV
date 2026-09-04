@@ -38,6 +38,27 @@ fun incrementVodSelectedCategoryLoadLimit(
     selectedCategoryLoadLimit.update { it + VodBrowseDefaults.SELECTED_CATEGORY_PAGE_SIZE }
 }
 
+/**
+ * Modern VOD preview shelves are the browse surface only when no category is
+ * selected. Reorder mode is a distinct grid surface even when it was entered
+ * from the preview's category picker.
+ */
+fun shouldShowVodPreview(selectedCategory: String?, isReorderMode: Boolean): Boolean =
+    selectedCategory == null && !isReorderMode
+
+enum class VodReorderMoveDirection {
+    EARLIER,
+    LATER
+}
+
+fun vodReorderMoveDirection(keyCode: Int): VodReorderMoveDirection? = when (keyCode) {
+    android.view.KeyEvent.KEYCODE_DPAD_UP,
+    android.view.KeyEvent.KEYCODE_DPAD_LEFT -> VodReorderMoveDirection.EARLIER
+    android.view.KeyEvent.KEYCODE_DPAD_DOWN,
+    android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> VodReorderMoveDirection.LATER
+    else -> null
+}
+
 inline fun <State> setVodSearchQuery(
     query: String,
     searchQuery: MutableStateFlow<String>,

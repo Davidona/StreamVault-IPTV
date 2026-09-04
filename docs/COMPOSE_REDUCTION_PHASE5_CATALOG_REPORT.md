@@ -1,6 +1,6 @@
 # Compose Reduction Phase 5 — Catalog execution report
 
-Date: 2026-09-03
+Date: 2026-09-04
 Status: structurally extracted; connected Catalog goldens now pass
 
 ## Outcome
@@ -87,6 +87,9 @@ Target: `emulator-5554`, `Television_1080p(AVD) - 16`, API 36, AOSP TV x86,
 - Feature connected suite: 5/5 passed after correcting the golden harness to
   capture the full unpadded 1920x1080 Canvas surface and re-recording reviewed
   feature-only baselines.
+- Latest direct-Favorites-host-inclusive Catalog connected rerun: 6/6 passed;
+  this added the real Favorites composable host and Activity Back cancellation
+  regression on the same target.
 - App `AppNavigationContractTest`: 3/3 passed.
 - App `PlatformCompatibilityMatrixTest`: 4/4 passed.
 - No Catalog-caused fatal exception was reported by these runs.
@@ -116,17 +119,39 @@ by `tools/catalog_connected_validation.py`. This remains diagnostic evidence,
 not a production-provider pass.
 
 The same semantic harness now also opens Settings Browsing, switches Infinite
-scroll off, proves the selected Movies library reaches `Load more (60/63)`,
-activates the control to render `Pagination Movie 63`, and restores Infinite
-scroll on. It then opens the Settings-owned Dashboard shelf customization
-dialog through TV focus, proves cancel leaves the persisted seven-shelf order
-unchanged, saves a six-shelf edit, and resets/saves the default order again.
-The rerun and surface list are recorded in
-`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. Movie
-pagination and the Movies browse return path are covered; Series pagination,
-browse reorder, download completion, Cast chooser, direct Favorites-host,
-touch/phone/tablet, RTL, reduced-motion/accessibility, and the paired
-performance matrix remain open.
+scroll off, proves the selected Movies and Series libraries reach `Load more
+(60/63)`, activates the controls to render `Pagination Movie 63` and
+`Pagination Series 63`, and restores Infinite scroll on. It then opens the
+Settings-owned Dashboard shelf customization dialog through TV focus, proves
+cancel leaves the persisted seven-shelf order unchanged, saves a six-shelf
+edit, and resets/saves the default order again. The latest rerun also enters
+the Favorites reorder surface for both Movies and Series, moves each fixture
+pair in both directions, verifies the saved order after leaving edit mode,
+re-enters to prove persistence, and restores the original order. Its report
+is `build/catalog-validation-download-completion-retry/report.json`; the full
+surface list is recorded in
+`validation/phase5_catalog/task14-xtream-fixture-journeys.md`. Movie and
+Series pagination, browse reorder, the Movies browse return path, and
+download completion are covered. A direct test host now renders the real
+Favorites composable and verifies Activity Back cancels reorder; the host is
+not a production route. A focused Catalog behavior test now covers merged card
+semantics and RTL placement at 1.5x font scale, and the full Catalog
+instrumentation suite passes with animator scale 0. Cast chooser,
+touch/phone/tablet, the full production accessibility-service journey, and
+the paired performance matrix remain open. The same 7-test Catalog
+instrumentation suite also passed with the API 36 AOSP TalkBack service
+enabled. The fixture journey reached the Catalog reorder surface under
+TalkBack, but the semantic ADB harness could not maintain its D-pad focus
+path consistently (`Reorder Items` on one run, the first browse card on the
+next); direct TalkBack instrumentation evidence is therefore positive, while
+the production fixture accessibility journey remains unclosed.
+The direct Favorites composable remains intentionally unregistered by the
+Catalog architecture plan; its direct host now exercises the real reorder
+panel and BackHandler, while the ViewModel cancel/Back path restores the
+preview without persisting it, with focused host and unit regressions.
+Copy URL is independently covered by a focused Robolectric clipboard-read
+regression; the API 36 shell limitation remains documented as a device-shell
+evidence limitation.
 
 ## Build isolation and performance
 
@@ -151,6 +176,8 @@ fixture had no scrollable content and failed before metrics with
 is diagnostic after-run evidence only: no cache-equivalent pre-extraction run
 was captured, and the public M3U fixture still lacks VOD/series content, so the
 formal paired performance gate remains open.
+That benchmark comparison is explicitly deferred until the computer/device has
+stable capacity for matched baseline and current runs.
 
 ## Profiles and known failures
 
@@ -181,8 +208,10 @@ execution-time project access.
 ## Next acceptance work
 
 1. Use the checked-in Xtream fixture (or approved provider data) to execute the
-   remaining browse, detail-action, direct Favorites, and accessibility
-   journeys, and keep the fixture invocation in the validation protocol.
+   remaining browse, detail-action, and production accessibility-service journeys,
+   and keep the fixture invocation in the validation protocol. Direct TalkBack
+   Catalog instrumentation is already passing; the end-to-end fixture harness
+   still needs a stable TalkBack-compatible focus path.
 2. Capture a cache-equivalent pre-extraction run and pair it with the
    successful Dashboard benchmark evidence, using the same seeded content,
    device, iteration count, and compilation mode. Keep app lint remediation and

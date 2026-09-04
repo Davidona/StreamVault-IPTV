@@ -1,6 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -52,6 +53,7 @@ import coil3.compose.AsyncImage
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 import com.streamvault.feature.catalog.presentation.components.MoviePosterCard
 import com.streamvault.feature.catalog.presentation.components.SeriesPosterCard
 import com.streamvault.core.ui.components.shell.StatusPill
@@ -92,6 +94,7 @@ fun FocusableCard(
     var isFocused by remember { mutableStateOf(false) }
     val sounds = rememberTvInteractionSounds()
     val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+    val reducedMotionEnabled = rememberReducedMotionEnabled()
 
     val scale by animateFloatAsState(
         targetValue = if (isFocused) {
@@ -99,7 +102,7 @@ fun FocusableCard(
         } else {
             if (isDragging) FocusSpec.FocusedScale else 1f
         },
-        animationSpec = tween(durationMillis = 160),
+        animationSpec = if (reducedMotionEnabled) snap() else tween(durationMillis = 160),
         label = "cardScale"
     )
 

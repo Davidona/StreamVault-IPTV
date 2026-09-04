@@ -123,9 +123,14 @@ and `tools/catalog_connected_validation.py` provides a semantic ADB journey
 for the fixture-backed Home/Movies/Series/detail/favorite/saved/Search path,
 Movies full-library entry/back, Movies `Load more (60/63)` → `Pagination Movie
 63`, Infinite scroll off/on restoration, and Settings-owned Dashboard shelf
-customization cancel/save/reset flow. Series pagination, browse reorder,
-download/Cast completion, direct-Favorites, and accessibility journeys remain
-open.
+  customization cancel/save/reset flow. Series pagination, browse reorder,
+  movie download completion, and direct Favorites test-host rendering/Back
+  cancellation are covered. Catalog RTL/large-text semantics and a reduced-
+  motion connected run also pass. The same Catalog instrumentation suite
+  passes with AOSP TalkBack enabled, but the fixture-driven production
+  TalkBack traversal loses semantic D-pad focus in the current ADB harness.
+  Cast receiver chooser, touch/device variants, and a complete production
+  accessibility-service audit remain open.
 A focused Dashboard macrobenchmark rerun passed 1/1 with five warm iterations
 once public-M3U live-channel activity populated a scrollable Home shelf
 (`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99
@@ -133,5 +138,8 @@ once public-M3U live-channel activity populated a scrollable Home shelf
 slices; the rerun is diagnostic after-run evidence, not a cache-equivalent
 paired comparison. The paired comparison and repository-wide app lint remain
 open.
+The paired Dashboard comparison is intentionally deferred until the
+benchmark environment has stable capacity for matched baseline and current
+runs.
 The release-like profile workflow now passes with feature Catalog descriptors.
 System remains unstarted.

@@ -20,6 +20,7 @@ from urllib.parse import parse_qs, urlparse
 
 DEFAULT_PORT = 8765
 ASSET_BASE = f"http://10.0.2.2:{DEFAULT_PORT}/assets"
+MEDIA_BYTES = b"StreamVault Catalog fixture media bytes\n"
 
 LIVE_CATEGORIES = [
     {"category_id": "101", "category_name": "Fixture Live", "parent_id": 0, "is_adult": 0},
@@ -341,6 +342,17 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+        if parsed.path.startswith(("/movie/", "/series/")):
+            path_parts = parsed.path.strip("/").split("/")
+            if len(path_parts) == 4 and path_parts[3].endswith(".mp4"):
+                self.log_message("media=%s", path_parts[0])
+                body = MEDIA_BYTES
+                self.send_response(200)
+                self.send_header("Content-Type", "video/mp4")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
         if parsed.path.startswith("/assets/"):
             label = parsed.path.rsplit("/", 1)[-1].replace(".svg", "").replace("-", " ").title()
             body = (

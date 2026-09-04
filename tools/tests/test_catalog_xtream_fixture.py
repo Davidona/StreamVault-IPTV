@@ -40,6 +40,22 @@ class CatalogXtreamFixtureTest(unittest.TestCase):
             server.server_close()
             thread.join(timeout=2)
 
+    def test_http_handler_serves_deterministic_movie_media(self):
+        server = FIXTURE.ThreadingHTTPServer(("127.0.0.1", 0), FIXTURE.Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            url = f"http://127.0.0.1:{server.server_address[1]}/movie/fixture/fixture/1001.mp4"
+            with urlopen(url, timeout=2) as response:
+                self.assertEqual(200, response.status)
+                self.assertEqual("video/mp4", response.headers["Content-Type"])
+                body = response.read()
+            self.assertEqual(FIXTURE.MEDIA_BYTES, body)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
 
 if __name__ == "__main__":
     unittest.main()
