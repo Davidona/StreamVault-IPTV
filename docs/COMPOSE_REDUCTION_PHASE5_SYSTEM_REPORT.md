@@ -214,12 +214,14 @@ are in `validation/phase5_system/performance-after.md`.
 The supported profile command was corrected from the stale plan path
 `:benchmark:pixel2Api36Setup` to the current app-level
 `:app:generateBaselineProfile`. Startup collection completed and emitted a
-fresh profile containing nonzero System descriptors. The seeded critical
-journey then stalled at 1/10 without diagnostic output and was stopped safely;
-the checked-in generated profiles were not hand-edited and still contain stale
-pre-extraction System descriptors. A future successful end-to-end generator
-run must promote fresh output through the existing workflow. See
-`validation/phase5_system/profile-validation.md`.
+fresh profile containing nonzero System descriptors. The release benchmark
+harness now waits for UiAutomator idle after launching the target; the isolated
+startup retry still passed 1/1, while the seeded critical journey progressed
+through Live/player setup before the collector remained unstable and later
+lost the active UI window. The checked-in generated profiles were not
+hand-edited and still contain stale pre-extraction System descriptors. A
+future successful end-to-end generator run must promote fresh output through
+the existing workflow. See `validation/phase5_system/profile-validation.md`.
 
 `graphify update .` completed with 16,550 nodes and 32,460 edges. The refreshed
 graph resolves feature `SystemGraph` ownership and an `AppNavHost` to
