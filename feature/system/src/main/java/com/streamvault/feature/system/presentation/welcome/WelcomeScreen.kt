@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.welcome
+package com.streamvault.feature.system.presentation.welcome
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,18 +34,17 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.app.BuildConfig
-import com.streamvault.app.R
+import com.streamvault.feature.system.R
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.data.sync.SyncProgressBus
-import com.streamvault.data.sync.SyncProgressAggregate
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.sync.Section
 import com.streamvault.domain.usecase.M3uProviderSetupCommand
 import com.streamvault.domain.usecase.ValidateAndAddProvider
 import com.streamvault.domain.usecase.XtreamProviderSetupCommand
+import com.streamvault.feature.system.api.SystemWelcomePort
+import com.streamvault.feature.system.api.WelcomeSyncProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +62,7 @@ import kotlinx.coroutines.launch
 class WelcomeViewModel @Inject constructor(
     private val providerRepository: ProviderRepository,
     private val validateAndAddProvider: ValidateAndAddProvider,
-    syncProgressBus: SyncProgressBus
+    private val welcomePort: SystemWelcomePort,
 ) : ViewModel() {
 
     private val _hasProviders = MutableStateFlow<Boolean?>(null)
@@ -71,8 +70,8 @@ class WelcomeViewModel @Inject constructor(
 
     private val acceptingProgress = MutableStateFlow(true)
 
-    val syncProgress: StateFlow<SyncProgressAggregate?> =
-        combine(syncProgressBus.aggregate, acceptingProgress) { progress, accept ->
+    val syncProgress: StateFlow<WelcomeSyncProgress?> =
+        combine(welcomePort.syncProgress, acceptingProgress) { progress, accept ->
             if (accept) progress else null
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -94,28 +93,29 @@ class WelcomeViewModel @Inject constructor(
     private suspend fun maybeSeedDevProvider() {
         if (providerRepository.getProviders().first().isNotEmpty()) return
 
-        val xtreamServer = BuildConfig.XTREAM_DEV_SERVER
-        val xtreamUser = BuildConfig.XTREAM_DEV_USERNAME
-        val xtreamPass = BuildConfig.XTREAM_DEV_PASSWORD
+        val devConfig = welcomePort.devProviderConfig
+        val xtreamServer = devConfig.xtreamServer
+        val xtreamUser = devConfig.xtreamUsername
+        val xtreamPass = devConfig.xtreamPassword
         if (xtreamServer.isNotBlank() && xtreamUser.isNotBlank() && xtreamPass.isNotBlank()) {
             validateAndAddProvider.loginXtream(
                 XtreamProviderSetupCommand(
                     serverUrl = xtreamServer,
                     username = xtreamUser,
                     password = xtreamPass,
-                    name = BuildConfig.XTREAM_DEV_NAME.ifBlank { "Dev (seeded)" },
+                    name = devConfig.xtreamName.ifBlank { "Dev (seeded)" },
                     xtreamFastSyncEnabled = true
                 )
             )
             return
         }
 
-        val m3uUrl = BuildConfig.M3U_DEV_URL
+        val m3uUrl = devConfig.m3uUrl
         if (m3uUrl.isNotBlank()) {
             validateAndAddProvider.addM3u(
                 M3uProviderSetupCommand(
                     url = m3uUrl,
-                    name = BuildConfig.M3U_DEV_NAME.ifBlank { "Dev M3U (seeded)" }
+                    name = devConfig.m3uName.ifBlank { "Dev M3U (seeded)" }
                 )
             )
         }
@@ -140,6 +140,21 @@ fun WelcomeScreen(
         }
     }
 
+    WelcomeContent(
+        hasProviders = hasProviders,
+        syncProgress = syncProgress,
+        onNavigateToHome = onNavigateToHome,
+        onNavigateToSetup = onNavigateToSetup,
+    )
+}
+
+@Composable
+internal fun WelcomeContent(
+    hasProviders: Boolean?,
+    syncProgress: WelcomeSyncProgress?,
+    onNavigateToHome: () -> Unit,
+    onNavigateToSetup: () -> Unit,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -176,7 +191,7 @@ fun WelcomeScreen(
 
 @Composable
 private fun WelcomeLoadingCard(
-    syncProgress: SyncProgressAggregate?,
+    syncProgress: WelcomeSyncProgress?,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -188,7 +203,7 @@ private fun WelcomeLoadingCard(
         modifier = Modifier.padding(horizontal = 36.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-            val representativeProgress = syncProgress?.representative?.progress
+            val representativeProgress = syncProgress
             val pillLabel = if (representativeProgress != null) {
                 stringResource(sectionLabelRes(representativeProgress.section))
             } else {
