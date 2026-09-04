@@ -29,6 +29,7 @@ dependencies {
     kover(project(":player"))
     kover(project(":feature:playback"))
     kover(project(":feature:provider"))
+    kover(project(":feature:system"))
 }
 
 tasks.register("verifyLintBaseline") {
