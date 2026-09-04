@@ -258,7 +258,8 @@ Task 9 structural, resource, unit-test, compilation, lint, and assembly gates
 are recorded in `validation/phase5_system/task9-structural-verification.md`.
 App-wide lint remains a pre-existing baseline-drift failure and is not a
 System extraction failure. Task 10 connected acceptance and reviewed goldens
-pass 19/19, and the paired incremental thresholds pass. The full System
+pass 19/19, the paired incremental thresholds pass, and the steady-state
+clean/warm build-overhead guardrail passes. The full System
 execution report is `docs/COMPOSE_REDUCTION_PHASE5_SYSTEM_REPORT.md`; the
-supported profile refresh and cache-equivalent clean/warm comparison remain
-open follow-ups.
+supported general profile refresh, physical-device/accessibility gates, and
+authorized production-provider/plugin journeys remain open follow-ups.

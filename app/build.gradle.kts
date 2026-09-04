@@ -325,7 +325,11 @@ abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
     // tasks omit the dependency to avoid a cycle. Beta/release merges remain explicit even when
     // generation and assembly are requested together.
     val profileGenerationRequested = gradle.startParameter.taskNames.any { taskName ->
-        taskName.substringAfterLast(':') == "generateBaselineProfile"
+        taskName.substringAfterLast(':') in setOf(
+            "generateBaselineProfile",
+            "copyBaselineProfileIntoSrc",
+            "mergeBaselineProfile",
+        )
     }
     setOf(
         "mergeBetaArtProfile",

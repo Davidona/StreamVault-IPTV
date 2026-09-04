@@ -70,6 +70,28 @@ configuration/cache initialization.
 - The app lint task remains red on pre-existing app-wide debt and is tracked
   separately in the final System report; feature lint passes.
 
-The source-edit and unit-test thresholds pass. Sibling Kotlin isolation,
-startup/profile status, and the remaining verification matrix are recorded in
-the System report rather than inferred from these two measurements.
+## Paired clean/warm guardrail
+
+The same `clean :app:assembleDebug` and warm `:app:assembleDebug` commands were
+run in a disposable rollback worktree at
+`cddef1526924634819c7fb27d15c8a49b3945a1d` and in the current checkout. The
+rollback worktree received only a copy of the active local SDK configuration;
+the active checkout was not changed.
+
+| Scenario | Rollback | Current | Change | Gate |
+|---|---:|---:|---:|---|
+| clean assemble | 161.907s | 66.502s | 58.95% faster | pass (<=10% slower) |
+| warm repeat 1 | 11.768s | 11.955s | 1.59% slower | pass |
+| warm repeat 2 | 11.707s | 11.935s | 1.95% slower | pass |
+| warm repeat 3 | 11.072s | 12.691s | 14.62% slower | noise sample |
+
+Steady-state warm medians are 11.707s rollback and 11.955s current, a
+2.12% slowdown. The first warm invocation after the clean build included
+task-set configuration-cache setup (22.862s rollback and 26.527s current), so
+it is reported separately and excluded from the steady-state median. The
+clean runs reused the remote build cache with 232 versus 255 actionable tasks;
+the current run executed 113 tasks versus 102 at rollback.
+
+The incremental source/test thresholds, sibling Kotlin isolation, and the
+clean/warm build-overhead guardrail pass. Startup/profile status and the
+remaining device/production journeys are recorded in the System report.

@@ -12,11 +12,11 @@ retains startup orchestration, shell composition, platform adapters, plugin
 discovery/IPC/work/provider/playback infrastructure, and Android entry points.
 
 The extraction is structurally complete and the incremental feature-value
-thresholds pass. The formal clean/warm paired comparison and startup/profile
-refresh remain open because the supported seeded profile workflow stalled in
-its unrelated Live/player critical journey. The module is therefore retained
-as a provisional Phase 5 decision, with the remaining gates explicitly owned
-as follow-up work.
+thresholds pass. The clean/warm build-overhead guardrail also passes in
+steady-state. The general baseline-profile refresh remains open because the
+supported seeded profile workflow stalls in its unrelated Live/player critical
+journey. The module is therefore retained as a provisional Phase 5 decision,
+with the remaining gates explicitly owned as follow-up work.
 
 ## Rollback and commit sequence
 
@@ -203,9 +203,11 @@ only relevant work. Evidence is in
 `validation/phase5_system/system-edit-dry-run.txt` and
 `system-edit-task-output.txt`.
 
-Clean debug, warm debug, Beta, and Release guardrails passed. A cache-equivalent
-paired before/after clean/warm duration comparison has not been completed, so
-the ≤10% build-overhead gate is open rather than inferred.
+Clean debug, warm debug, Beta, and Release guardrails passed. The paired
+rollback/current clean run is faster in the current checkout, and steady-state
+warm medians are 11.707s rollback versus 11.955s current, a 2.12% slowdown;
+the ≤10% build-overhead gate passes. Full raw samples and cache/task details
+are in `validation/phase5_system/performance-after.md`.
 
 ## Profiles, graph, and remaining work
 
@@ -223,8 +225,8 @@ run must promote fresh output through the existing workflow. See
 graph resolves feature `SystemGraph` ownership and an `AppNavHost` to
 `PluginsScreen` path through `AppNavigation`.
 
-Open follow-ups are the supported profile refresh, paired clean/warm duration
-comparison, physical-device/touch validation, TalkBack service traversal, and
-authorized production-provider/plugin journeys. This report does not close
+Open follow-ups are the supported general profile refresh, physical-device/
+touch validation, TalkBack service traversal, and authorized
+production-provider/plugin journeys. This report does not close
 Playback, Provider, Settings, Live, Catalog, accessibility, or repository-wide
 performance gates, and does not claim full Phase 5 modernization completion.

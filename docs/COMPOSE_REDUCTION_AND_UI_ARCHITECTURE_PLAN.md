@@ -999,10 +999,11 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and
   current app lint baseline failure remain explicitly tracked. System is now
   structurally extracted under `:feature:system`; its connected acceptance
-  passes 19/19 and paired incremental thresholds pass. The System profile
-  refresh, paired clean/warm comparison, physical-device/accessibility gates,
-  and authorized production journeys remain open; Playback, Provider, and
-  Settings gates remain governed by their separate reports.
+  passes 19/19, paired incremental thresholds pass, and the steady-state
+  clean/warm guardrail passes. The System profile refresh,
+  physical-device/accessibility gates, and authorized production journeys
+  remain open; Playback, Provider, and Settings gates remain governed by their
+  separate reports.
 
 ### Phase 6 - Optional Views migrations
 

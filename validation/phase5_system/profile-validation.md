@@ -31,11 +31,30 @@ com/streamvault/feature/system/navigation/SystemGraphKt
 com/streamvault/app/system/AppSystemWelcomeAdapter
 ```
 
-The subsequent `criticalJourneys` method remained at `1/10` with no failure
-diagnostic for the bounded collection window. It was stopped safely; the
-overall generator process therefore ended with user-interrupt status and did
-not complete the profile install/copy step. This benchmark journey exercises
-seeded Home/Live/player navigation and does not cover the System routes.
+The isolated startup command was:
+
+```text
+./gradlew.bat :benchmark:connectedNonMinifiedReleaseAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.benchmark.BaselineProfileGenerator#startup' --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 4m 59s — 1/1 test
+```
+
+The fresh artifact was emitted under
+`benchmark/build/outputs/connected_android_test_additional_output/nonMinifiedRelease/connected/Television_1080p(AVD) - 16/`;
+the timestamped startup profile was 3,240,532 bytes. Its scan returned no old
+app Welcome/Downloads/Plugins or old app graph descriptors and returned
+nonzero `feature/system` descriptors.
+
+The subsequent independent `criticalJourneys` run started 1 test, remained at
+`0/1`, and produced no failure diagnostic during the bounded collection
+window. It was stopped safely. The earlier full generator run showed the same
+behavior as `1/10`. This benchmark journey exercises seeded Home/Live/player
+navigation and does not cover the System routes.
+
+The first direct `:app:copyBaselineProfileIntoSrc --dry-run` exposed a cycle in
+the existing app profile-task wiring. The build guard now treats direct
+`copyBaselineProfileIntoSrc` and `mergeBaselineProfile` requests as profile
+generation requests, and the same dry run completes successfully. An actual
+copy still requires a completed general baseline collection.
 
 The maintained files under `app/src/main/generated/baselineProfiles/` were
 not manually edited. They still contain stale pre-extraction System entries,
@@ -48,6 +67,8 @@ source because the supported generator did not finish its complete workflow.
 
 - Baseline-profile refresh is open and must be rerun when the seeded benchmark
   journey completes end-to-end.
+- The direct copy-task dependency cycle is fixed and covered by a successful
+  dry run.
 - No claim is made that the stale checked-in generated profile is refreshed.
 - No physical Android device was available; only the TV emulator was present.
 - The System extraction does not alter player composition, stream preparation,
