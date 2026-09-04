@@ -9,16 +9,8 @@
     <string name="nav_settings">Nastavení</string>
     <string name="welcome_enter_app">Zadejte aplikaci</string>
     <string name="welcome_manage_providers">Spravovat poskytovatele</string>
-    <string name="welcome_setup_provider">Poskytovatel nastavení</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Příprava vaší knihovny</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Prémiové IPTV do obýváku</string>
-    <string name="welcome_subtitle">Pohodlně si užijte živé kanály, zpětné sledování, filmy a seriály v nativním prostředí Android TV.</string>
     <string name="welcome_feature_live">Rychlé procházení živého vysílání s důrazem na ovládání dálkovým ovladačem</string>
     <string name="welcome_feature_library">Filmy a seriály z velké knihovny bez nepořádku</string>
     <string name="welcome_feature_player">Jednotné překryvy přehrávače, přístup k průvodci a uložený obsah</string>

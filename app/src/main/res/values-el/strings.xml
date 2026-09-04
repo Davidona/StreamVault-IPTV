@@ -9,16 +9,8 @@
     <string name="nav_settings">Ρυθμίσεις</string>
     <string name="welcome_enter_app">Είσοδος στην εφαρμογή</string>
     <string name="welcome_manage_providers">Διαχείριση παρόχων</string>
-    <string name="welcome_setup_provider">Ρύθμιση παρόχου</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Προετοιμασία της βιβλιοθήκης σας</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Premium IPTV για το σαλόνι</string>
-    <string name="welcome_subtitle">Χαλαρώστε με ζωντανά κανάλια, catch-up προβολή, ταινίες και σειρές με μια εμπειρία Android TV πρώτης κατηγορίας.</string>
     <string name="welcome_feature_live">Γρήγορη περιήγηση σε ζωντανά με έμφαση στο τηλεχειριστήριο</string>
     <string name="welcome_feature_library">Ταινίες και σειρές σε μεγάλη βιβλιοθήκη χωρίς ακαταστασία</string>
     <string name="welcome_feature_player">Ενιαία overlays αναπαραγωγής, πρόσβαση στον οδηγό και αποθηκευμένο περιεχόμενο</string>

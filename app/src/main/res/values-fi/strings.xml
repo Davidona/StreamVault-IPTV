@@ -9,16 +9,8 @@
     <string name="nav_settings">Asetukset</string>
     <string name="welcome_enter_app">Anna App</string>
     <string name="welcome_manage_providers">Hallinnoi palveluntarjoajia</string>
-    <string name="welcome_setup_provider">Asennustarjoaja</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Valmistelee kirjastoasi</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Premium IPTV olohuoneeseen</string>
-    <string name="welcome_subtitle">Nojaa takaisin live-kanaviin, katseluhetkiin, elokuviin ja sarjoihin ensimmäisen osapuolen Android TV -kokemuksella.</string>
     <string name="welcome_feature_live">Nopea live-selaus kaukosäätimellä</string>
     <string name="welcome_feature_library">Suuren kirjaston elokuvat ja sarjat ilman sotkua</string>
     <string name="welcome_feature_player">Yhtenäiset soittimen peittokuvat, opas ja tallennettu sisältö</string>

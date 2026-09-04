@@ -9,16 +9,8 @@
     <string name="nav_settings">Instellingen</string>
     <string name="welcome_enter_app">Voer app in</string>
     <string name="welcome_manage_providers">Beheer aanbieders</string>
-    <string name="welcome_setup_provider">Installatieprovider</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Uw bibliotheek voorbereiden</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Premium IPTV voor de woonkamer</string>
-    <string name="welcome_subtitle">Geniet van live kanalen, terugblik, films en series met een eersteklas Android TV-ervaring.</string>
     <string name="welcome_feature_live">Snel live browsen met focus op afstand</string>
     <string name="welcome_feature_library">Films en series met een grote bibliotheek zonder rommel</string>
     <string name="welcome_feature_player">Uniforme speler-overlays, gidstoegang en opgeslagen inhoud</string>

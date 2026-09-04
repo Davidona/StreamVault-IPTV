@@ -9,16 +9,8 @@
     <string name="nav_settings">Impostazioni</string>
     <string name="welcome_enter_app">Accedi all\'app</string>
     <string name="welcome_manage_providers">Gestisci fornitori</string>
-    <string name="welcome_setup_provider">Fornitore di installazione</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Preparare la tua libreria</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">IPTV premium per il soggiorno</string>
-    <string name="welcome_subtitle">Rilassati sui canali live, sulla visione di recupero, sui film e sulle serie con un\'esperienza Android TV proprietaria.</string>
     <string name="welcome_feature_live">Navigazione live veloce con messa a fuoco remota</string>
     <string name="welcome_feature_library">Film e serie di grandi dimensioni senza confusione</string>
     <string name="welcome_feature_player">Overlay del lettore unificato, accesso alla guida e contenuto salvato</string>

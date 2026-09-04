@@ -236,3 +236,27 @@ The pre-extraction source, import, resource, test, and consumer evidence is in
 `validation/phase5_system/`. The System module remains unimplemented until the
 characterization, boundary, and performance gates in the approved plan are
 verified.
+
+## System extraction status (Task 9, 2026-09-04)
+
+The System presentation slice is now feature-owned: Welcome, Downloads,
+Plugins, and their `SystemGraph` live under `:feature:system`; `AppNavHost`
+supplies only navigation actions and the app scaffold adapter. The app supplies
+the two narrow transitional adapters named above:
+`AppSystemWelcomeAdapter` maps BuildConfig and `SyncProgressBus`, while
+`AppSystemPluginManagementAdapter` delegates plugin operations to the existing
+app runtime and provider-source registry.
+
+The feature has zero direct `:data`, `:player`, `:app`, or sibling-feature
+production imports and depends only on `:core:navigation`, `:core:ui`, and
+`:domain`. The plugin manager, messenger, work coordinator, provider registry,
+and playback routing remain app-owned. The 33-string locale audit is recorded
+in `validation/phase5_system/task9-resource-cleanup.md`; 30 feature-only app
+duplicates were removed and the three shared keys remain intentionally
+app-owned.
+
+Task 9 structural, resource, unit-test, compilation, lint, and assembly gates
+are recorded in `validation/phase5_system/task9-structural-verification.md`.
+App-wide lint remains a pre-existing baseline-drift failure and is not a
+System extraction failure. Connected acceptance, reviewed goldens, and paired
+performance measurements remain open under Tasks 10-11.

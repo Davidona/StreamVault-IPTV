@@ -9,16 +9,8 @@
     <string name="nav_settings">设置</string>
     <string name="welcome_enter_app">进入应用</string>
     <string name="welcome_manage_providers">管理提供商</string>
-    <string name="welcome_setup_provider">设置提供商</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">正在准备您的媒体库</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">客厅里的高级 IPTV</string>
-    <string name="welcome_subtitle">轻松观看直播频道、回看、电影和剧集，享受原生 Android TV 体验。</string>
     <string name="welcome_feature_live">面向遥控器优化的快速直播浏览</string>
     <string name="welcome_feature_library">海量电影和剧集，界面简洁不杂乱</string>
     <string name="welcome_feature_player">统一播放器叠层、指南访问和已保存内容</string>

@@ -9,16 +9,8 @@
     <string name="nav_settings">Настройки</string>
     <string name="welcome_enter_app">Войти в приложение</string>
     <string name="welcome_manage_providers">Управление провайдерами</string>
-    <string name="welcome_setup_provider">Настроить провайдера</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Подготовка вашей библиотеки</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Премиум IPTV для гостиной</string>
-    <string name="welcome_subtitle">Откиньтесь и смотрите прямые каналы, архив, фильмы и сериалы в нативном Android TV-интерфейсе.</string>
     <string name="welcome_feature_live">Быстрый просмотр эфира с удобным управлением с пульта</string>
     <string name="welcome_feature_library">Фильмы и сериалы из большой библиотеки без лишнего</string>
     <string name="welcome_feature_player">Единые оверлеи плеера, доступ к гиду и сохранённый контент</string>

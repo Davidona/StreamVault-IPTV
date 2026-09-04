@@ -9,16 +9,8 @@
     <string name="nav_settings">Beállítások elemre</string>
     <string name="welcome_enter_app">Belépés az appba</string>
     <string name="welcome_manage_providers">Szolgáltatók kezelése</string>
-    <string name="welcome_setup_provider">Szolgáltató beállítása</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">Könyvtár előkészítése</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">Prémium IPTV a nappaliba</string>
-    <string name="welcome_subtitle">Dőlj hátra élő csatornák, visszanézés, filmek és sorozatok között egy Android TV-élménnyel.</string>
     <string name="welcome_feature_live">Gyors élő böngészés távirányítós fókuszra optimalizálva</string>
     <string name="welcome_feature_library">Nagy könyvtárú filmek és sorozatok rendetlenség nélkül</string>
     <string name="welcome_feature_player">Egységes lejátszó-átfedések, műsorújság-hozzáférés és mentett tartalmak</string>

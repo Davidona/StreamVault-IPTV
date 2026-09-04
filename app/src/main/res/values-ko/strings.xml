@@ -9,16 +9,8 @@
     <string name="nav_settings">설정</string>
     <string name="welcome_enter_app">앱 시작</string>
     <string name="welcome_manage_providers">공급자 관리</string>
-    <string name="welcome_setup_provider">공급자 설정</string>
     <string name="welcome_version">v1.0.3</string>
-    <string name="welcome_loading_title">라이브러리 준비 중</string>
     
-    <string name="sync_section_live">Live</string>
-    <string name="sync_section_vod">VOD</string>
-    <string name="sync_section_series">Series</string>
-    <string name="sync_items_indexed_format">%1$d items indexed</string>
-    <string name="welcome_tagline">거실을 위한 프리미엄 IPTV</string>
-    <string name="welcome_subtitle">라이브 채널, 다시보기, 영화, 시리즈를 Android TV에 최적화된 환경으로 편하게 즐기세요.</string>
     <string name="welcome_feature_live">리모컨 중심의 빠른 라이브 탐색</string>
     <string name="welcome_feature_library">깔끔한 대형 라이브러리 영화와 시리즈</string>
     <string name="welcome_feature_player">통합 플레이어 오버레이, 가이드 접근, 저장 콘텐츠</string>

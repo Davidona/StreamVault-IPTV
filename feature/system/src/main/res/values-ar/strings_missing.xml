@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="welcome_setup_later">إعداد لاحقًا</string>
+  <string name="welcome_loading_subtitle">جارٍ فتح الشاشة المناسبة لهذا الجهاز.</string>
+  <string name="nav_downloads">التنزيلات</string>
+  <string name="downloads_loading">جارٍ تحميل التنزيلات…</string>
+  <string name="downloads_empty_title">لا توجد تنزيلات بعد</string>
+  <string name="downloads_empty_hint">نزّل أفلامًا أو حلقات من شاشات التفاصيل وستظهر هنا.</string>
+  <string name="downloads_no_thumb">لا يوجد ملصق</string>
+  <string name="downloads_status_completed">مكتمل</string>
+  <string name="downloads_status_downloading">جارٍ التنزيل</string>
+  <string name="downloads_status_failed">فشل</string>
+  <string name="downloads_status_pending">قيد الانتظار</string>
+  <string name="downloads_status_paused">متوقّف مؤقتًا</string>
+  <string name="downloads_status_cancelled">أُلغي</string>
+  <string name="downloads_item_title">تنزيل بدون عنوان</string>
+  <string name="downloads_delete_confirm_title">حذف التنزيل</string>
+  <string name="downloads_delete_confirm_msg">هل تريد حذف %1$s من التنزيلات؟</string>
+  <string name="downloads_delete_confirm_delete">حذف</string>
+  <string name="downloads_deleted">تم حذف التنزيل</string>
+  <string name="download_folder_change">تغيير مجلد التنزيل</string>
+  <string name="download_folder_default">مجلد التنزيلات الافتراضي</string>
+  <string name="download_resume">استئناف</string>
+  <string name="download_delete">حذف</string>
+  <string name="downloads_resumed">تم استئناف التنزيل</string>
+</resources>
