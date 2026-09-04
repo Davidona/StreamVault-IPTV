@@ -233,9 +233,8 @@ Phase 7 follow-up: keep these ports narrow; do not move plugin IPC, provider
 ownership, playback routing, or Android startup infrastructure into the feature.
 
 The pre-extraction source, import, resource, test, and consumer evidence is in
-`validation/phase5_system/`. The System module remains unimplemented until the
-characterization, boundary, and performance gates in the approved plan are
-verified.
+`validation/phase5_system/`. The Task 0 note above records the pre-extraction
+state; the current implementation and gate status are recorded below.
 
 ## System extraction status (Task 9, 2026-09-04)
 
@@ -258,5 +257,8 @@ app-owned.
 Task 9 structural, resource, unit-test, compilation, lint, and assembly gates
 are recorded in `validation/phase5_system/task9-structural-verification.md`.
 App-wide lint remains a pre-existing baseline-drift failure and is not a
-System extraction failure. Connected acceptance, reviewed goldens, and paired
-performance measurements remain open under Tasks 10-11.
+System extraction failure. Task 10 connected acceptance and reviewed goldens
+pass 19/19, and the paired incremental thresholds pass. The full System
+execution report is `docs/COMPOSE_REDUCTION_PHASE5_SYSTEM_REPORT.md`; the
+supported profile refresh and cache-equivalent clean/warm comparison remain
+open follow-ups.

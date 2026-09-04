@@ -96,6 +96,8 @@ out of :app without behavior or stability regressions.
   docs/superpowers/plans/2026-09-02-catalog-feature-extraction.md
 - Catalog execution report:
   docs/COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md
+- System extraction implementation plan:
+  docs/superpowers/plans/2026-09-04-system-feature-extraction.md
 - Transitional dependency ledger:
   docs/COMPOSE_REDUCTION_PHASE5_TRANSITIONAL_DEPENDENCIES.md
 
@@ -142,4 +144,11 @@ The paired Dashboard comparison is intentionally deferred until the
 benchmark environment has stable capacity for matched baseline and current
 runs.
 The release-like profile workflow now passes with feature Catalog descriptors.
-System remains unstarted.
+System presentation extraction is structurally complete under `:feature:system`:
+Welcome, Downloads, Plugins, controller-free graph registration, resources,
+contracts, and tests are feature-owned while app adapters and plugin/platform
+runtime remain app-owned. Connected acceptance passes 19/19 and paired
+incremental source/test thresholds pass. The supported System profile refresh,
+paired clean/warm comparison, physical-device/touch validation, accessibility
+service traversal, and authorized production-provider/plugin journeys remain
+open; see `COMPOSE_REDUCTION_PHASE5_SYSTEM_REPORT.md`.

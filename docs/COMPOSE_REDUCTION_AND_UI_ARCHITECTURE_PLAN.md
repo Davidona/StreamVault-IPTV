@@ -897,6 +897,7 @@ Detailed delivery artifacts:
 - [Catalog feature extraction design](superpowers/specs/2026-09-02-phase-5-catalog-feature-extraction-design.md)
 - [Catalog feature extraction implementation plan](superpowers/plans/2026-09-02-catalog-feature-extraction.md)
 - [Catalog feature extraction execution report](COMPOSE_REDUCTION_PHASE5_CATALOG_REPORT.md)
+- [System feature extraction implementation plan](superpowers/plans/2026-09-04-system-feature-extraction.md)
 
 Recommended extraction order:
 
@@ -996,9 +997,12 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   successful
   diagnostic Dashboard benchmark rerun after populating a scrollable seeded
   Home shelf, open paired benchmark gate, refreshed release-like profiles, and
-  current app lint baseline failure remain explicitly tracked. System remains
-  unstarted; Playback, Provider, and Settings gates remain governed by their
-  separate reports.
+  current app lint baseline failure remain explicitly tracked. System is now
+  structurally extracted under `:feature:system`; its connected acceptance
+  passes 19/19 and paired incremental thresholds pass. The System profile
+  refresh, paired clean/warm comparison, physical-device/accessibility gates,
+  and authorized production journeys remain open; Playback, Provider, and
+  Settings gates remain governed by their separate reports.
 
 ### Phase 6 - Optional Views migrations
 
