@@ -56,6 +56,19 @@ the existing app profile-task wiring. The build guard now treats direct
 generation requests, and the same dry run completes successfully. An actual
 copy still requires a completed general baseline collection.
 
+A later retry used the available TV emulator through
+`E:\\androidSdk\\platform-tools\\adb.exe` (`emulator-5554`, 1920x1080) and
+force-stopped both app packages before starting the isolated
+`criticalJourneys` test. The release activity launched and the benchmark
+process remained alive, but the test stayed at `0/1`; logcat repeatedly
+reported `UiDevice` `Active window root not found` while searching for the
+`streamvault.destination:live_tv` route. The retry was stopped safely and the
+benchmark package was force-stopped. Afterward, a direct ADB launch and D-pad
+sequence exposed the release Home route, focused Live TV navigation, and the
+seeded Live surface with `All Channels` containing 1,321 channels. This
+separates the app's reachable seeded surface from the benchmark's lost-window
+condition; it does not close the general profile gate.
+
 The maintained files under `app/src/main/generated/baselineProfiles/` were
 not manually edited. They still contain stale pre-extraction System entries,
 including old app `WelcomeGraph`, `SystemGraph`, Welcome, Downloads, and
