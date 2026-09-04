@@ -1,11 +1,10 @@
-package com.streamvault.app.ui.screens.plugins
+package com.streamvault.feature.system.presentation.plugins
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
 import com.streamvault.feature.system.api.StreamVaultPluginContract
-import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.feature.system.api.StreamVaultPluginManifest
-import com.streamvault.domain.provider.ProviderSourceRegistry
+import com.streamvault.feature.system.api.SystemPluginManagementPort
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -16,7 +15,10 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyBlocking
 import org.mockito.kotlin.wheneverBlocking
 
@@ -37,12 +39,11 @@ class PluginsViewModelTest {
     @Test
     fun refreshPublishesDiscoveredPluginsAndProviderSources() = runTest {
         val plugin = pluginFixture()
-        val manager = mock<StreamVaultPluginManager>()
-        val registry = mock<ProviderSourceRegistry>()
-        wheneverBlocking { manager.discoverPlugins() }.thenReturn(listOf(plugin))
-        wheneverBlocking { registry.sources() }.thenReturn(emptyList())
+        val port = mock<SystemPluginManagementPort>()
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(listOf(plugin))
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
 
-        val viewModel = PluginsViewModel(manager, registry)
+        val viewModel = PluginsViewModel(port)
         advanceUntilIdle()
 
         assertThat(viewModel.uiState.value.isLoading).isFalse()
@@ -52,12 +53,11 @@ class PluginsViewModelTest {
 
     @Test
     fun blankInstallUrlPublishesExistingValidationMessage() = runTest {
-        val manager = mock<StreamVaultPluginManager>()
-        val registry = mock<ProviderSourceRegistry>()
-        wheneverBlocking { manager.discoverPlugins() }.thenReturn(emptyList())
-        wheneverBlocking { registry.sources() }.thenReturn(emptyList())
+        val port = mock<SystemPluginManagementPort>()
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(emptyList())
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
 
-        val viewModel = PluginsViewModel(manager, registry)
+        val viewModel = PluginsViewModel(port)
         advanceUntilIdle()
 
         viewModel.updateInstallUrl("  ")
@@ -70,20 +70,42 @@ class PluginsViewModelTest {
     @Test
     fun localInstallDelegatesUriAndRefreshesState() = runTest {
         val uri = mock<android.net.Uri>()
-        val manager = mock<StreamVaultPluginManager>()
-        val registry = mock<ProviderSourceRegistry>()
-        wheneverBlocking { manager.discoverPlugins() }.thenReturn(emptyList())
-        wheneverBlocking { registry.sources() }.thenReturn(emptyList())
-        wheneverBlocking { manager.installApkFromUri(uri) }
+        val port = mock<SystemPluginManagementPort>()
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(emptyList())
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
+        wheneverBlocking { port.installApkFromUri(uri) }
             .thenReturn(com.streamvault.domain.model.Result.Success(Unit))
 
-        val viewModel = PluginsViewModel(manager, registry)
+        val viewModel = PluginsViewModel(port)
         advanceUntilIdle()
         viewModel.installFromLocalUri(uri)
         advanceUntilIdle()
 
-        verifyBlocking(manager) { installApkFromUri(uri) }
+        verifyBlocking(port) { installApkFromUri(uri) }
         assertThat(viewModel.uiState.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun enablePassesProgressAndPublishesUnchangedResultMessage() = runTest {
+        val plugin = pluginFixture()
+        val enabledPlugin = plugin.copy(enabled = true)
+        val port = mock<SystemPluginManagementPort>()
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(listOf(plugin), listOf(enabledPlugin))
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
+        wheneverBlocking { port.setPluginEnabled(eq(plugin), eq(true), any()) }
+            .thenAnswer { invocation ->
+                invocation.getArgument<(String) -> Unit>(2)("Syncing plugin provider...")
+                com.streamvault.feature.system.api.PluginActionResult(true, "Plugin enabled")
+            }
+        val viewModel = PluginsViewModel(port)
+        advanceUntilIdle()
+
+        viewModel.setPluginEnabled(plugin, true)
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.plugins).containsExactly(enabledPlugin)
+        assertThat(viewModel.uiState.value.userMessage).isEqualTo("Plugin enabled")
+        assertThat(viewModel.uiState.value.syncProgress).isNull()
     }
 
     private fun pluginFixture() = InstalledStreamVaultPlugin(

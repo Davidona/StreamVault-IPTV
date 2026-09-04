@@ -4,13 +4,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.streamvault.app.navigation.AppRouteCodec
 import com.streamvault.app.navigation.AppRoutePatterns
-import com.streamvault.app.ui.screens.plugins.PluginsScreen
 import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.feature.system.presentation.downloads.DownloadsScreen
+import com.streamvault.feature.system.presentation.plugins.PluginsScreen
 
 internal fun NavGraphBuilder.registerSystemGraph(
     actions: NavigationActions,
@@ -24,10 +24,7 @@ internal fun NavGraphBuilder.registerSystemGraph(
 
     composable(AppRoutePatterns.PLUGINS) {
         PluginsScreen(
-            currentRoute = AppRoutePatterns.PLUGINS,
-            onNavigate = { route ->
-                AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
-            }
+            scaffold = appSystemScaffold(onTopLevelDestinationRequested)
         )
     }
 

@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.plugins
+package com.streamvault.feature.system.presentation.plugins
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -7,12 +7,11 @@ import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
 import com.streamvault.feature.system.api.PluginConfigurationAction
 import com.streamvault.feature.system.api.PluginConfigurationField
 import com.streamvault.feature.system.api.PluginConfigurationSchema
-import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.feature.system.api.StreamVaultPluginOwner
 import com.streamvault.feature.system.api.owner
+import com.streamvault.feature.system.api.SystemPluginManagementPort
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.provider.ProviderSource
-import com.streamvault.domain.provider.ProviderSourceRegistry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,8 +57,7 @@ data class ActivePluginConfiguration(
 
 @HiltViewModel
 class PluginsViewModel @Inject constructor(
-    private val pluginManager: StreamVaultPluginManager,
-    private val providerSourceRegistry: ProviderSourceRegistry
+    private val pluginManagement: SystemPluginManagementPort
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PluginsUiState(isLoading = true))
     val uiState: StateFlow<PluginsUiState> = _uiState.asStateFlow()
@@ -75,8 +73,8 @@ class PluginsViewModel @Inject constructor(
     fun refreshPlugins() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, syncProgress = null) }
-            val result = runCatching { pluginManager.discoverPlugins() }
-            val sources = runCatching { providerSourceRegistry.sources() }
+            val result = runCatching { pluginManagement.discoverPlugins() }
+            val sources = runCatching { pluginManagement.providerSources() }
             _uiState.update { state ->
                 state.copy(
                     plugins = result.getOrDefault(emptyList()),
@@ -102,7 +100,7 @@ class PluginsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isInstalling = true, userMessage = "Preparing plugin installer...") }
-            val result = pluginManager.installApkFromUrl(url)
+            val result = pluginManagement.installApkFromUrl(url)
             _uiState.update {
                 it.copy(
                     isInstalling = false,
@@ -116,7 +114,7 @@ class PluginsViewModel @Inject constructor(
     fun installFromLocalUri(uri: Uri) {
         viewModelScope.launch {
             _uiState.update { it.copy(isInstalling = true, userMessage = "Preparing selected APK...") }
-            val result = pluginManager.installApkFromUri(uri)
+            val result = pluginManagement.installApkFromUri(uri)
             _uiState.update {
                 it.copy(
                     isInstalling = false,
@@ -136,11 +134,11 @@ class PluginsViewModel @Inject constructor(
                     userMessage = null
                 )
             }
-            val result = pluginManager.setPluginEnabled(plugin, enabled) { progress ->
+            val result = pluginManagement.setPluginEnabled(plugin, enabled) { progress ->
                 _uiState.update { it.copy(syncProgress = progress) }
             }
-            val refreshed = runCatching { pluginManager.discoverPlugins() }.getOrDefault(_uiState.value.plugins)
-            val refreshedSources = runCatching { providerSourceRegistry.sources() }
+            val refreshed = runCatching { pluginManagement.discoverPlugins() }.getOrDefault(_uiState.value.plugins)
+            val refreshedSources = runCatching { pluginManagement.providerSources() }
                 .getOrDefault(_uiState.value.providerSources)
             _uiState.update {
                 it.copy(
@@ -156,7 +154,7 @@ class PluginsViewModel @Inject constructor(
 
     fun openPluginConfiguration(plugin: InstalledStreamVaultPlugin) {
         if (plugin.manifest.usesActivityConfiguration || !plugin.manifest.supportsHostRenderedConfiguration) {
-            val result = pluginManager.openPluginConfiguration(plugin)
+            val result = pluginManagement.openPluginConfiguration(plugin)
             _uiState.update { it.copy(userMessage = result.message) }
             return
         }
@@ -169,7 +167,7 @@ class PluginsViewModel @Inject constructor(
                     userMessage = null
                 )
             }
-            when (val result = pluginManager.loadPluginConfiguration(plugin)) {
+            when (val result = pluginManagement.loadPluginConfiguration(plugin)) {
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
@@ -231,9 +229,9 @@ class PluginsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.updateConfiguration { it.copy(isSaving = true, validationErrors = emptyMap()) }
             val valuesJson = configuration.schema.toValuesJson(configuration.draftValues).toString()
-            val result = pluginManager.savePluginConfiguration(configuration.plugin, valuesJson)
+            val result = pluginManagement.savePluginConfiguration(configuration.plugin, valuesJson)
             val refreshedValues = if (result.success) {
-                pluginManager.loadPluginConfigurationValues(configuration.plugin).getOrNull()
+                pluginManagement.loadPluginConfigurationValues(configuration.plugin).getOrNull()
             } else {
                 null
             }
@@ -253,7 +251,7 @@ class PluginsViewModel @Inject constructor(
         val configuration = _uiState.value.configuration ?: return
         viewModelScope.launch {
             _uiState.updateConfiguration { it.copy(isSaving = true, validationErrors = emptyMap()) }
-            when (val result = pluginManager.loadPluginConfiguration(configuration.plugin)) {
+            when (val result = pluginManagement.loadPluginConfiguration(configuration.plugin)) {
                 is Result.Error -> {
                     _uiState.updateConfiguration { it.copy(isSaving = false) }
                     _uiState.update { it.copy(userMessage = result.message) }
@@ -279,9 +277,9 @@ class PluginsViewModel @Inject constructor(
         val configuration = _uiState.value.configuration ?: return
         viewModelScope.launch {
             _uiState.updateConfiguration { it.copy(runningActionId = action.id) }
-            val result = pluginManager.runPluginConfigurationAction(configuration.plugin, action.id)
+            val result = pluginManagement.runPluginConfigurationAction(configuration.plugin, action.id)
             if (result.success && action.refreshAfterRun) {
-                pluginManager.loadPluginConfiguration(configuration.plugin).getOrNull()?.let { snapshot ->
+                pluginManagement.loadPluginConfiguration(configuration.plugin).getOrNull()?.let { snapshot ->
                     _uiState.update {
                         it.copy(
                             configuration = ActivePluginConfiguration(

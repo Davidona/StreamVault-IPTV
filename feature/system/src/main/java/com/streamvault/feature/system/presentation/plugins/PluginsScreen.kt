@@ -1,5 +1,6 @@
-package com.streamvault.app.ui.screens.plugins
+package com.streamvault.feature.system.presentation.plugins
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -51,17 +52,16 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.app.navigation.Routes
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
 import com.streamvault.feature.system.api.PluginConfigurationAction
 import com.streamvault.feature.system.api.PluginConfigurationField
 import com.streamvault.feature.system.api.PluginConfigurationSection
 import com.streamvault.feature.system.api.owner
 import com.streamvault.feature.system.api.toBundleSafeKey
+import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.app.ui.components.shell.AppNavigationChrome
-import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.FocusSpec
@@ -72,74 +72,125 @@ import com.streamvault.core.ui.theme.Primary
 
 @Composable
 fun PluginsScreen(
-    currentRoute: String,
-    onNavigate: (String) -> Unit,
+    scaffold: SystemScaffoldContent,
     modifier: Modifier = Modifier,
     viewModel: PluginsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showInstallUrlDialog by remember { mutableStateOf(false) }
+    val actions = PluginsActions(
+        onUpdateInstallUrl = viewModel::updateInstallUrl,
+        onInstallFromLocalUri = viewModel::installFromLocalUri,
+        onInstallFromUrl = {
+            showInstallUrlDialog = false
+            viewModel.installFromUrl()
+        },
+        onRefreshPlugins = viewModel::refreshPlugins,
+        onSetPluginEnabled = viewModel::setPluginEnabled,
+        onOpenPluginConfiguration = viewModel::openPluginConfiguration,
+        onClosePluginConfiguration = viewModel::closePluginConfiguration,
+        onRefreshPluginConfiguration = viewModel::refreshPluginConfiguration,
+        onSavePluginConfiguration = viewModel::savePluginConfiguration,
+        onUpdateConfigurationValue = viewModel::updateConfigurationValue,
+        onRunConfigurationAction = viewModel::runConfigurationAction,
+        onClearMessage = viewModel::clearMessage,
+    )
     val apkPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) viewModel.installFromLocalUri(uri)
+        if (uri != null) actions.onInstallFromLocalUri(uri)
     }
 
     LaunchedEffect(uiState.userMessage) {
         uiState.userMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
-            viewModel.clearMessage()
+            actions.onClearMessage()
         }
     }
 
-    AppScreenScaffold(
-        currentRoute = currentRoute,
-        onNavigate = onNavigate,
-        title = "Plugins",
-        subtitle = "Install companion APKs, activate capabilities, and sync plugin providers.",
+    PluginsContent(
+        uiState = uiState,
+        scaffold = scaffold,
+        showInstallUrlDialog = showInstallUrlDialog,
+        onShowInstallUrlDialog = { showInstallUrlDialog = true },
+        onDismissInstallUrlDialog = { showInstallUrlDialog = false },
+        onInstallFromFile = {
+            apkPicker.launch(
+                arrayOf(
+                    "application/vnd.android.package-archive",
+                    "application/octet-stream",
+                    "*/*"
+                )
+            )
+        },
+        actions = actions,
         modifier = modifier,
-        navigationChrome = AppNavigationChrome.TopBar,
-        compactHeader = true
+        snackbarHostState = snackbarHostState
+    )
+}
+
+internal data class PluginsActions(
+    val onUpdateInstallUrl: (String) -> Unit,
+    val onInstallFromLocalUri: (Uri) -> Unit,
+    val onInstallFromUrl: () -> Unit,
+    val onRefreshPlugins: () -> Unit,
+    val onSetPluginEnabled: (InstalledStreamVaultPlugin, Boolean) -> Unit,
+    val onOpenPluginConfiguration: (InstalledStreamVaultPlugin) -> Unit,
+    val onClosePluginConfiguration: () -> Unit,
+    val onRefreshPluginConfiguration: () -> Unit,
+    val onSavePluginConfiguration: () -> Unit,
+    val onUpdateConfigurationValue: (String, String) -> Unit,
+    val onRunConfigurationAction: (PluginConfigurationAction) -> Unit,
+    val onClearMessage: () -> Unit,
+)
+
+@Composable
+internal fun PluginsContent(
+    uiState: PluginsUiState,
+    scaffold: SystemScaffoldContent,
+    showInstallUrlDialog: Boolean,
+    onShowInstallUrlDialog: () -> Unit,
+    onDismissInstallUrlDialog: () -> Unit,
+    onInstallFromFile: () -> Unit,
+    actions: PluginsActions,
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState? = null,
+) {
+    scaffold(
+        AppDestination.Plugins,
+        "Plugins",
+        "Install companion APKs, activate capabilities, and sync plugin providers.",
+        true,
+        true
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val configuration = uiState.configuration
             if (configuration != null) {
                 PluginConfigurationPanel(
                     configuration = configuration,
-                    onBack = viewModel::closePluginConfiguration,
-                    onRefresh = viewModel::refreshPluginConfiguration,
-                    onSave = viewModel::savePluginConfiguration,
-                    onValueChange = viewModel::updateConfigurationValue,
-                    onRunAction = viewModel::runConfigurationAction
+                    onBack = actions.onClosePluginConfiguration,
+                    onRefresh = actions.onRefreshPluginConfiguration,
+                    onSave = actions.onSavePluginConfiguration,
+                    onValueChange = actions.onUpdateConfigurationValue,
+                    onRunAction = actions.onRunConfigurationAction
                 )
             } else {
                 PluginInstallPanel(
                     isInstalling = uiState.isInstalling,
-                    onInstallFromUrl = { showInstallUrlDialog = true },
-                    onInstallFromFile = {
-                        apkPicker.launch(
-                            arrayOf(
-                                "application/vnd.android.package-archive",
-                                "application/octet-stream",
-                                "*/*"
-                            )
-                        )
-                    },
-                    onRefresh = viewModel::refreshPlugins
+                    onInstallFromUrl = onShowInstallUrlDialog,
+                    onInstallFromFile = onInstallFromFile,
+                    onRefresh = actions.onRefreshPlugins
                 )
 
                 if (showInstallUrlDialog) {
                     PluginInstallUrlDialog(
                         installUrl = uiState.installUrl,
                         isInstalling = uiState.isInstalling,
-                        onInstallUrlChange = viewModel::updateInstallUrl,
-                        onDismiss = { showInstallUrlDialog = false },
-                        onInstall = {
-                            showInstallUrlDialog = false
-                            viewModel.installFromUrl()
-                        }
+                        onInstallUrlChange = actions.onUpdateInstallUrl,
+                        onDismiss = onDismissInstallUrlDialog,
+                        onInstall = actions.onInstallFromUrl
                     )
                 }
 
@@ -176,15 +227,17 @@ fun PluginsScreen(
                         PluginCard(
                             plugin = plugin,
                             busy = uiState.activePluginOwner == plugin.owner,
-                            onEnabledChange = { enabled -> viewModel.setPluginEnabled(plugin, enabled) },
-                            onOpenConfiguration = { viewModel.openPluginConfiguration(plugin) }
+                            onEnabledChange = { enabled -> actions.onSetPluginEnabled(plugin, enabled) },
+                            onOpenConfiguration = { actions.onOpenPluginConfiguration(plugin) }
                         )
                     }
                     item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
             }
         }
-        SnackbarHost(hostState = snackbarHostState)
+        snackbarHostState?.let { hostState ->
+            SnackbarHost(hostState = hostState)
+        }
     }
 }
 

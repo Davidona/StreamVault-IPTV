@@ -1,4 +1,4 @@
-package com.streamvault.app.ui.screens.plugins
+package com.streamvault.feature.system.presentation.plugins
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
@@ -8,10 +8,9 @@ import com.streamvault.feature.system.api.PluginConfigurationSchema
 import com.streamvault.feature.system.api.PluginConfigurationSection
 import com.streamvault.feature.system.api.PluginConfigurationSnapshot
 import com.streamvault.feature.system.api.StreamVaultPluginContract
-import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.feature.system.api.StreamVaultPluginManifest
+import com.streamvault.feature.system.api.SystemPluginManagementPort
 import com.streamvault.domain.model.Result
-import com.streamvault.domain.provider.ProviderSourceRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -47,14 +46,13 @@ class PluginConfigurationDraftTest {
     @Test
     fun requiredBlankValueIsRejectedBeforePluginSave() = runTest {
         val plugin = pluginFixture()
-        val manager = mock<StreamVaultPluginManager>()
-        val registry = mock<ProviderSourceRegistry>()
+        val port = mock<SystemPluginManagementPort>()
         val snapshot = configurationSnapshot(plugin)
-        wheneverBlocking { manager.discoverPlugins() }.thenReturn(listOf(plugin))
-        wheneverBlocking { registry.sources() }.thenReturn(emptyList())
-        wheneverBlocking { manager.loadPluginConfiguration(plugin) }.thenReturn(Result.Success(snapshot))
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(listOf(plugin))
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
+        wheneverBlocking { port.loadPluginConfiguration(plugin) }.thenReturn(Result.Success(snapshot))
 
-        val viewModel = PluginsViewModel(manager, registry)
+        val viewModel = PluginsViewModel(port)
         advanceUntilIdle()
         viewModel.openPluginConfiguration(plugin)
         advanceUntilIdle()
@@ -70,23 +68,22 @@ class PluginConfigurationDraftTest {
     @Test
     fun validDraftSerializesTypedFieldsAndRefreshesSavedValues() = runTest {
         val plugin = pluginFixture()
-        val manager = mock<StreamVaultPluginManager>()
-        val registry = mock<ProviderSourceRegistry>()
+        val port = mock<SystemPluginManagementPort>()
         val snapshot = configurationSnapshot(plugin)
         val updatedValues = buildJsonObject {
             put("server", "https://updated.example")
             put("port", 9090)
             put("enabled", true)
         }
-        wheneverBlocking { manager.discoverPlugins() }.thenReturn(listOf(plugin))
-        wheneverBlocking { registry.sources() }.thenReturn(emptyList())
-        wheneverBlocking { manager.loadPluginConfiguration(plugin) }.thenReturn(Result.Success(snapshot))
-        wheneverBlocking { manager.savePluginConfiguration(eq(plugin), any()) }
+        wheneverBlocking { port.discoverPlugins() }.thenReturn(listOf(plugin))
+        wheneverBlocking { port.providerSources() }.thenReturn(emptyList())
+        wheneverBlocking { port.loadPluginConfiguration(plugin) }.thenReturn(Result.Success(snapshot))
+        wheneverBlocking { port.savePluginConfiguration(eq(plugin), any()) }
             .thenReturn(PluginActionResult(true, "Plugin settings saved"))
-        wheneverBlocking { manager.loadPluginConfigurationValues(plugin) }
+        wheneverBlocking { port.loadPluginConfigurationValues(plugin) }
             .thenReturn(Result.Success(updatedValues))
 
-        val viewModel = PluginsViewModel(manager, registry)
+        val viewModel = PluginsViewModel(port)
         advanceUntilIdle()
         viewModel.openPluginConfiguration(plugin)
         advanceUntilIdle()
