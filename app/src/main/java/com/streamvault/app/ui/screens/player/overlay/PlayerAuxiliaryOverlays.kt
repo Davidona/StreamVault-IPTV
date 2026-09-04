@@ -874,7 +874,14 @@ fun DiagnosticsOverlay(
                         PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_video))
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_resolution), "${stats.width}x${stats.height}")
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_video_codec), stats.videoCodec)
-                        PlayerMetaRow(stringResource(R.string.player_diagnostics_video_bitrate), "${stats.videoBitrate / 1000} kbps")
+                        PlayerMetaRow(stringResource(R.string.player_diagnostics_frame_rate), formatDiagnosticsFrameRateLabel(stats))
+                        PlayerMetaRow(stringResource(R.string.player_diagnostics_stream_bitrate), formatBitsPerSecondLabel(stats.measuredBitrate))
+                        if (stats.videoBitrate > 0) {
+                            PlayerMetaRow(stringResource(R.string.player_diagnostics_video_bitrate), "${stats.videoBitrate / 1000} kbps")
+                        }
+                        if (stats.bandwidthEstimate > 0L) {
+                            PlayerMetaRow(stringResource(R.string.player_diagnostics_bandwidth_estimate), formatBitsPerSecondLabel(stats.bandwidthEstimate))
+                        }
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_dropped_frames), stats.droppedFrames.toString())
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_video_stalls), diagnostics.videoStallCount.toString())
                         if (diagnostics.lastVideoFrameAgoMs > 0L) {
@@ -1000,6 +1007,29 @@ private fun DiagnosticsScrollCue(label: String) {
             textAlign = TextAlign.Center
         )
     }
+}
+
+/**
+ * Measured rendered frame rate, with the declared container value in brackets when the two are
+ * both known. Falls back to the declared value alone, then "Unknown". Many live MPEG-TS streams
+ * declare no frame rate at all, which is why the measured value comes first.
+ */
+private fun formatDiagnosticsFrameRateLabel(stats: PlayerStats): String {
+    val measured = com.streamvault.domain.model.formatFrameRateLabel(stats.measuredFrameRate)
+    val declared = com.streamvault.domain.model.formatFrameRateLabel(stats.frameRate)
+    return when {
+        measured != null && declared != null && measured != declared -> "$measured fps (stream $declared)"
+        measured != null -> "$measured fps"
+        declared != null -> "$declared fps"
+        else -> "Unknown"
+    }
+}
+
+/** Bits-per-second as "8.4 Mbps" / "640 kbps", or "Unknown" for 0. */
+private fun formatBitsPerSecondLabel(bps: Long): String = when {
+    bps <= 0L -> "Unknown"
+    bps >= 1_000_000L -> String.format(java.util.Locale.US, "%.1f Mbps", bps / 1_000_000.0)
+    else -> "${bps / 1000} kbps"
 }
 
 private fun formatOffsetLabel(offsetMs: Int): String = when {

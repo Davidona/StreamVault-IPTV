@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.TransferListener
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.PlaybackTransportPolicy
@@ -24,7 +25,9 @@ internal fun shouldUsePlatformHttpDataSource(resolvedStreamType: ResolvedStreamT
 @UnstableApi
 class PlayerDataSourceFactoryProvider(
     private val context: Context,
-    private val baseClient: OkHttpClient
+    private val baseClient: OkHttpClient,
+    /** Receives byte counts for foreground (non-preload) playback; used for measured bitrate stats. */
+    private val transferListener: TransferListener? = null
 ) {
     private companion object {
         private const val TAG = "PlayerDataSource"
@@ -108,6 +111,9 @@ class PlayerDataSourceFactoryProvider(
             }
         }
         val defaultFactory = DefaultDataSource.Factory(context, upstreamFactory)
+        if (!preload && transferListener != null) {
+            defaultFactory.setTransferListener(transferListener)
+        }
         val factory = if (shouldWrapDataSourceReadStats(resolvedStreamType)) {
             PlayerDataSourceReadStatsFactory(
                 upstream = defaultFactory,

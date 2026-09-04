@@ -173,6 +173,12 @@ data class PlayerStats(
     val videoStallCount: Int = 0,
     val lastVideoFrameAgoMs: Long = 0,
     val videoBitrate: Int = 0,
+    /** Frame rate declared by the stream/container; 0 when not declared (common for MPEG-TS). */
+    val frameRate: Float = 0f,
+    /** Nominal frame rate detected once from frame timestamps and then locked; 0 until detected. */
+    val measuredFrameRate: Float = 0f,
+    /** Running average of the whole-stream network bitrate in bps, rounded to 0.1 Mbps; 0 until measured. */
+    val measuredBitrate: Long = 0L,
     val droppedFrames: Int = 0,
     val width: Int = 0,
     val height: Int = 0,

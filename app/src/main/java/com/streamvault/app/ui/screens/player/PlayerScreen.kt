@@ -1399,7 +1399,7 @@ fun PlayerScreen(
                     onStopCasting = viewModel::stopCasting,
                     timeshiftUiState = timeshiftUiState,
                     onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it },
-                    resolutionLabel = videoFormat.resolutionLabel.takeIf { it.isNotBlank() && !videoFormat.isEmpty }
+                    resolutionLabel = buildChannelInfoResolutionLabel(videoFormat)
                 )
             }
         }
@@ -1412,6 +1412,13 @@ private fun AspectRatio.toPlayerSurfaceResizeMode(): PlayerSurfaceResizeMode = w
     AspectRatio.ZOOM -> PlayerSurfaceResizeMode.ZOOM
 }
 
+/** Pill shown in the bottom channel info bar: "1080p" or "1080p · 25fps" once the frame rate is known. */
+private fun buildChannelInfoResolutionLabel(videoFormat: VideoFormat): String? {
+    if (videoFormat.isEmpty || videoFormat.resolutionLabel.isBlank()) return null
+    val frameRateLabel = videoFormat.frameRateLabel ?: return videoFormat.resolutionLabel
+    return "${videoFormat.resolutionLabel} · ${frameRateLabel}fps"
+}
+
 private fun buildResolutionBadgeLabel(
     videoFormat: VideoFormat,
     videoTracks: List<PlayerTrack>,
@@ -1419,11 +1426,14 @@ private fun buildResolutionBadgeLabel(
 ): String? {
     if (videoFormat.isEmpty) return null
     val selectedTrack = videoTracks.firstOrNull(PlayerTrack::isSelected)
-    return if (selectedTrack == null || selectedTrack.id == PLAYER_TRACK_AUTO_ID) {
+    val label = if (selectedTrack == null || selectedTrack.id == PLAYER_TRACK_AUTO_ID) {
         autoResolutionLabel
     } else {
         selectedTrack.name
     }
+    // Append the measured frame rate when the stream reports one (issue #220).
+    val frameRateLabel = videoFormat.frameRateLabel ?: return label
+    return "$label · ${frameRateLabel}fps"
 }
 
 @Composable

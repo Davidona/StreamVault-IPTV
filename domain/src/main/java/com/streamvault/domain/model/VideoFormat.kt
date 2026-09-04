@@ -28,5 +28,22 @@ data class VideoFormat(
             else -> "Unknown"
         }
     
+    /**
+     * Frame rate as a compact label ("25", "29.97", "50"), or null when the stream did not
+     * report one. Many live MPEG-TS feeds omit it, so callers must handle null.
+     */
+    val frameRateLabel: String? get() = formatFrameRateLabel(frameRate)
+
     val isEmpty: Boolean get() = width == 0 && height == 0
+}
+
+/** Formats a frame rate without a trailing ".00" for whole numbers; null when unknown (<= 0). */
+fun formatFrameRateLabel(frameRate: Float): String? {
+    if (frameRate <= 0f) return null
+    val rounded = Math.round(frameRate * 100f) / 100f
+    return if (rounded == rounded.toInt().toFloat()) {
+        rounded.toInt().toString()
+    } else {
+        String.format(java.util.Locale.US, "%.2f", rounded).trimEnd('0')
+    }
 }
