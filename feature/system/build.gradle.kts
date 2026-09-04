@@ -17,6 +17,8 @@ android {
     defaultConfig {
         minSdk = 25
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["recordGoldens"] =
+            (providers.gradleProperty("systemGoldens.record").orNull == "true").toString()
     }
 
     compileOptions {
