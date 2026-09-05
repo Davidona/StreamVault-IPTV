@@ -67,11 +67,11 @@
 - Modify: affected settings tests
 
 **Interfaces:**
-- Produces: `SettingsOperations.observeProgramCount(providerId): Flow<Int>`, `observeXtreamIndexJobs(providerId)`, `observeXtreamLiveOnboarding(providerId)`, and `retryProviderSection(providerId, section, onProgress)` using `SettingsSyncSection` and immutable domain snapshots.
+- Produces: `SettingsOperations.observeProgramCount(providerId): Flow<Int>`, `observeXtreamIndexJobs()`, `observeIncompleteXtreamLiveOnboarding()`, `syncProvider(providerId, force)`, `retryProviderSection(providerId, section, onProgress)`, `rebuildXtreamIndex(providerId, onProgress)`, and `scheduleBackgroundEpgSync(providerId)` using `SettingsSyncSection` and immutable domain snapshots.
 
 - [ ] Add failing domain/feature tests for operational snapshot mapping and sync-section delegation.
 - [ ] Define domain snapshots and `SettingsSyncSection` without Room annotations or data imports.
-- [ ] Implement `SettingsOperationsImpl` by delegating to the existing DAOs and `ProviderSyncCommands`, mapping every field explicitly.
+- [ ] Implement `SettingsOperationsImpl` by delegating to the existing DAOs and `ProviderSyncCommands`, mapping every field and sync section explicitly.
 - [ ] Bind the implementation with Hilt and replace DAO/sync injections and helper parameters in settings.
 - [ ] Move entity-to-UI conversion to domain-snapshot-to-UI conversion and migrate tests.
 - [ ] Run focused settings and data adapter tests until green.
