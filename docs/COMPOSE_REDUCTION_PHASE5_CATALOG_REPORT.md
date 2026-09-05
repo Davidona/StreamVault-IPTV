@@ -13,9 +13,10 @@ strings, arguments, return destinations, callbacks, focus/test semantics, and
 the four golden test names were preserved; the feature-only baselines were
 re-recorded after the original app-shell fixtures proved non-equivalent.
 
-This report covers the Catalog slice only. Playback, Provider, Settings, and
-Live status remain governed by their existing Phase 5 reports; Phase 5 is not
-complete and `:feature:system` is still unstarted.
+This report covers the Catalog slice only. Playback, Provider, Settings, Live,
+and System status remain governed by their existing Phase 5 reports; Phase 5 is
+not complete because cross-slice acceptance and paired-performance gates remain
+open. `:feature:system` is now structurally extracted.
 
 ## Delivery sequence and rollback
 

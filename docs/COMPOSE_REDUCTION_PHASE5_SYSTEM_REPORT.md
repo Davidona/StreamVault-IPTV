@@ -217,11 +217,15 @@ The supported profile command was corrected from the stale plan path
 UiAutomator idle after launching the target. The startup journey passed 1/1,
 and the seeded critical journey subsequently completed successfully. The
 supported `:app:copyBaselineProfileIntoSrc` workflow then passed its connected
-run with zero failures and refreshed both generated sources. Each source has
+run with zero failures and refreshed both generated sources. The explicit
+Macrobenchmark selector subsequently completed all 8/8 journeys with zero
+failures and zero skipped tests; both release cold-start methods completed ten
+iterations and all six seeded interaction methods completed five. Each source has
 nonzero `feature/system` descriptors and no old app Welcome/Downloads/Plugins,
 `WelcomeGraph`, or `SystemGraph` descriptors. See
-`validation/phase5_system/profile-validation.md` for the command and scan
-evidence.
+`validation/phase5_system/profile-validation.md` and
+`validation/phase5_system/macrobenchmark-validation.md` for the command and
+scan/benchmark evidence.
 
 `graphify update .` completed with 16,550 nodes and 32,460 edges. The refreshed
 graph resolves feature `SystemGraph` ownership and an `AppNavHost` to

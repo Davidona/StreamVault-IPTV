@@ -55,6 +55,11 @@ private val instrumentation: Instrumentation
 private val device: UiDevice
     get() = UiDevice.getInstance(instrumentation)
 
+/** Ensures independent cold-start iterations begin with the release target stopped. */
+internal fun MacrobenchmarkScope.stopTargetApp() {
+    device.executeShellCommand("am force-stop $RELEASE_TARGET_PACKAGE")
+}
+
 internal fun MacrobenchmarkScope.startTargetApp() {
     pressHome()
     startActivityAndWait()

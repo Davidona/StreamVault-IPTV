@@ -975,10 +975,13 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   clean-build guardrails remain open. Current-checkout clean/warm samples and
   Beta/Release packaging are recorded. Profile generation now passes on the
   seeded API 36 TV emulator, with fresh sources containing zero stale app
-  Home/EPG descriptors and nonzero `feature/live` descriptors; the eight
-  separate macrobenchmark tests were skipped by configuration and remain an
-  open performance gate. The app-owned Live route golden was reviewed and
-  regenerated with its connected assertion passing. Catalog is now structurally
+  Home/EPG descriptors and nonzero `feature/live` descriptors. The explicit
+  Macrobenchmark selector now runs all eight journeys: 8/8 passed, 0 skipped,
+  including both 10-iteration release cold-start methods and six seeded
+  interaction journeys; the emulator execution gate is closed. Matched paired
+  performance and physical-device measurements remain open. The app-owned Live
+  route golden was reviewed and regenerated with its connected assertion
+  passing. Catalog is now structurally
   extracted under `:feature:catalog`; its execution report records passing
   connected goldens, a public-M3U Home/Live/Movies/Series/Search smoke pass,
   and a diagnostic temporary Xtream fixture run covering 63-item VOD/series

@@ -28,7 +28,10 @@ class StreamVaultMacrobenchmark {
         metrics = listOf(StartupTimingMetric()),
         compilationMode = CompilationMode.None(),
         startupMode = StartupMode.COLD,
-        iterations = STARTUP_BENCHMARK_ITERATIONS
+        iterations = STARTUP_BENCHMARK_ITERATIONS,
+        setupBlock = {
+            stopTargetApp()
+        }
     ) {
         startTargetApp()
     }
@@ -41,7 +44,10 @@ class StreamVaultMacrobenchmark {
             baselineProfileMode = BaselineProfileMode.Require
         ),
         startupMode = StartupMode.COLD,
-        iterations = STARTUP_BENCHMARK_ITERATIONS
+        iterations = STARTUP_BENCHMARK_ITERATIONS,
+        setupBlock = {
+            stopTargetApp()
+        }
     ) {
         startTargetApp()
     }

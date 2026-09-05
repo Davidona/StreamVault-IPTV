@@ -132,6 +132,14 @@ following Live checkpoints (plus the final lint fix):
   missing FrameTiming/navigation measurements; the macrobenchmark gate remains
   open and no generated profile was hand-edited.
 
+- The explicit Macrobenchmark rerun on 2026-09-05 completed 8/8 tests with
+  0 failures and 0 skipped after the cold-start methods began force-stopping
+  the release target in per-iteration setup. Both release startup methods
+  completed 10 iterations; the six seeded interaction journeys completed five
+  iterations each. This closes the emulator execution gate. The matched paired
+  performance comparison and physical-device measurement remain open. Full
+  metrics are recorded in `validation/phase5_system/macrobenchmark-validation.md`.
+
 ## Runtime acceptance
 
 Using `E:\androidSdk\platform-tools\adb.exe` on `emulator-5554`
@@ -309,14 +317,17 @@ local fixture server was stopped.
   final-tree warm no-change samples passed with a 13.690s median.
   `verifyBaselineProfileSources`, Beta assembly, and Release assembly pass
   against the regenerated 49,409 baseline / 32,151 startup rules. The
-  baseline-profile producer's eight macrobenchmark tests were skipped by
-  configuration, so
-  macrobenchmark performance remains open even though profile generation and
-  descriptor freshness now pass. Details are in
+  baseline-profile producer's aggregate task still selects only its profile
+  rules, but the explicit Macrobenchmark rerun now passes all eight journeys.
+  The matched paired macrobenchmark comparison remains open even though
+  profile generation, descriptor freshness, and emulator execution now pass.
+  Details are in
   `validation/phase5_live/profile-validation.md`.
 - Deferred — neighboring slices: Playback, Provider, and Settings
   acceptance/performance gates remain governed by their existing reports. The
   separate Provider and Settings `check` tasks pass; the aggregate neighboring
   command stops at the pre-existing Playback lint gate (29 errors, first at
-  `PlayerOverlayGoldenTest.kt:51`). Catalog and System were not started. Phase
-  5 is not complete until the deferred gates and remaining slices are resolved.
+  `PlayerOverlayGoldenTest.kt:51`). Catalog and System extraction slices are
+  now structurally complete; Phase 5 is not complete until the deferred
+  acceptance, paired-performance, physical-device, and production-credential
+  gates are resolved.

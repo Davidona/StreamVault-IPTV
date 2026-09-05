@@ -309,6 +309,6 @@ the app source tree.
 
 Phase 5 structural extraction: **complete**.
 Runtime playback acceptance: **open pending live-recovery stability, manual
-journeys, and macrobenchmark/physical-device validation**. The focused and full
+journeys, matched macrobenchmark comparison, and physical-device validation**. The focused and full
 release-like profile journeys passed after the benchmark harness fix, including
 baseline-profile generation, merge, and installation.

@@ -110,10 +110,17 @@ The exhaustive fixture-dependent journeys and formal paired performance and
 clean-build guardrails remain explicit. Current-checkout clean/warm samples
 and successful Beta/Release packaging are recorded. Profile generation now
 passes on the seeded API 36 TV emulator, with fresh sources containing zero
-stale app Home/EPG descriptors and nonzero `feature/live` descriptors; the
-eight separate macrobenchmark tests were skipped by configuration and remain
-an open performance gate. The app-route Live golden was reviewed and
-regenerated from the current palette, with its connected assertion passing.
+stale app Home/EPG descriptors and nonzero `feature/live` descriptors. The
+explicit Macrobenchmark selector now runs all eight journeys: 8/8 passed, 0
+skipped, including both 10-iteration release cold-start methods and six
+seeded interaction journeys. This closes the emulator execution gate; matched
+paired performance and physical-device measurements remain open. The app-route
+Live golden was reviewed and regenerated from the current palette, with its
+connected assertion passing.
+All six feature `testDebugUnitTest` tasks pass. Feature lint passes for
+Provider, Settings, Live, Catalog, and System; Playback lint remains blocked by
+29 existing translation/Compose errors, and repository-wide app lint remains
+blocked by its pre-existing debt.
 Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. The public-M3U seeded
 Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic
