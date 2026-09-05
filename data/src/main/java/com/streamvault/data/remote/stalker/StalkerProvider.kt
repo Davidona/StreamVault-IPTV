@@ -81,6 +81,9 @@ data class StalkerVodCatalogItem(
     val item: VodCatalogItem
 )
 
+/** Internal control-flow signal that aborts a live channel stream once a cap is reached. */
+private object LiveStreamCapReached : Exception("live stream cap reached")
+
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -138,6 +141,7 @@ internal companion object {
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
         private val sharedAuthCache = ConcurrentHashMap<String, CachedAuth>()
+        private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
         private val resolvedStreamUrlCache = ConcurrentHashMap<String, CachedResolvedUrl>()
@@ -145,6 +149,7 @@ internal companion object {
 
         fun clearSharedAuthCacheForTests() {
             sharedAuthCache.clear()
+            sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
         }
 
@@ -157,6 +162,8 @@ internal companion object {
             if (providerId <= 0L) return
             val authPrefix = "provider:$providerId|"
             sharedAuthCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthCache::remove)
+            val portalPrefix = "portal:$providerId|"
+            sharedPortalAuthCache.keys.filter { it.startsWith(portalPrefix) }.forEach(sharedPortalAuthCache::remove)
             sharedAuthFailureCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthFailureCache::remove)
             resolvedStreamUrlCache.keys
                 .filter { it.startsWith("$providerId|") }
@@ -166,6 +173,7 @@ internal companion object {
 
         private fun trimSharedCaches() {
             trimMap(sharedAuthCache, MAX_AUTH_CACHE_ENTRIES)
+            trimMap(sharedPortalAuthCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(sharedAuthFailureCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(resolvedStreamUrlCache, MAX_RESOLVED_URL_CACHE_ENTRIES)
             while (missingVodClassificationLogged.size > MAX_MISSING_CLASSIFICATION_ENTRIES) {
@@ -223,7 +231,11 @@ internal companion object {
             authFailureCache = null
             categoryCache.clear()
             sharedAuthCache.remove(authCacheKey())
+            if (providerId > 0L) {
+                sharedPortalAuthCache.remove(portalIdentityKey())
+            }
             sharedAuthFailureCache.remove(authCacheKey())
+            portalStateStore?.clearResumableAuth(providerId)
             clearResolvedStreamUrlCache()
             api.invalidateSessionScopes(providerId)
         }
@@ -409,9 +421,13 @@ internal companion object {
         return session to profile
     }
 
-    suspend fun streamLiveStreams(onChannel: suspend (Channel) -> Unit): Result<Int> {
+    suspend fun streamLiveStreams(
+        onChannel: suspend (Channel) -> Unit,
+        maxChannels: Int? = null
+    ): Result<Int> {
         return runWithAuthorizedSession { session, _ ->
             val pendingItems = ArrayList<StalkerItemRecord>(LIVE_IDENTITY_BATCH_SIZE)
+            var acceptedCount = 0
 
             suspend fun flushPendingItems() {
                 if (pendingItems.isEmpty()) return
@@ -422,17 +438,38 @@ internal companion object {
                 pendingItems.clear()
             }
 
-            when (val result = api.streamLiveStreams(session, currentDeviceProfile()) { item ->
-                pendingItems += item
-                if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
-                    flushPendingItems()
+            val result = try {
+                api.streamLiveStreams(session, currentDeviceProfile()) { item ->
+                    if (maxChannels != null && acceptedCount >= maxChannels) {
+                        throw LiveStreamCapReached
+                    }
+                    pendingItems += item
+                    acceptedCount++
+                    if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
+                        flushPendingItems()
+                    }
                 }
-            }) {
+            } catch (capReached: LiveStreamCapReached) {
+                // API layers that surface the abort as a thrown exception (test fakes).
+                flushPendingItems()
+                return@runWithAuthorizedSession Result.success(acceptedCount)
+            }
+
+            when (result) {
                 is Result.Success -> {
                     flushPendingItems()
                     Result.success(result.data)
                 }
-                is Result.Error -> Result.error(result.message, result.exception)
+                is Result.Error -> {
+                    if (maxChannels != null && result.exception is LiveStreamCapReached) {
+                        // The cap aborted the streaming request mid-parse; treat the partial
+                        // catalog as a successful (capped) load.
+                        flushPendingItems()
+                        Result.success(acceptedCount)
+                    } else {
+                        Result.error(result.message, result.exception)
+                    }
+                }
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
         }
@@ -470,6 +507,25 @@ internal companion object {
         }.let { result -> mapResolvedPage(ContentType.MOVIE, result) { item ->
             toMovie(item, requestedCategoryId = null)
         } }
+
+    /**
+     * Portal-backed VOD search (the same `get_ordered_list` + `search` query the portal's own
+     * STB UI uses). Searches the entire VOD catalog server-side, regardless of category, and
+     * pages through results with the portal's native page size.
+     */
+    suspend fun searchVodPage(query: String, page: Int): Result<StalkerPagedResult<Movie>> {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) {
+            return Result.success(
+                StalkerPagedResult(items = emptyList(), page = page, totalPages = 0, pageSize = 0)
+            )
+        }
+        return mapPagedItems(ContentType.MOVIE, null) { session, profile, _ ->
+            api.getVodStreamsPage(session, profile, null, page, searchQuery = trimmedQuery)
+        }.let { result -> mapResolvedPage(ContentType.MOVIE, result) { item ->
+            toMovie(item, requestedCategoryId = null)
+        } }
+    }
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
@@ -776,6 +832,32 @@ internal companion object {
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
         }
+    }
+
+    /**
+     * The portal `ch_id` parameter only understands the numeric portal channel id.
+     * The XMLTV-style guide key some channels carry is never valid there, so it is
+     * only tried as a fallback when the numeric id returns nothing.
+     */
+    override suspend fun getShortEpg(request: com.streamvault.domain.provider.GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+        val numericResult = numericKey?.let { getShortEpg(it, request.limit) }
+        if (numericResult is Result.Success && numericResult.data.isNotEmpty()) return numericResult
+        val xmlKey = request.epgChannelId?.takeIf { it.isNotBlank() }?.takeUnless { it == numericKey }
+        if (xmlKey != null) {
+            val xmlResult = getShortEpg(xmlKey, request.limit)
+            if (xmlResult is Result.Success && xmlResult.data.isNotEmpty()) return xmlResult
+        }
+        return numericResult ?: Result.error("Short EPG lookup returned no programs")
+    }
+
+    override suspend fun getEpg(request: com.streamvault.domain.provider.GuideRequest): Result<List<Program>> {
+        // get_epg_info only understands the numeric portal channel id; unlike short EPG
+        // there is no cheap fallback key, so a non-numeric request fails fast instead of
+        // burning a slow portal call that cannot succeed.
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+            ?: return Result.error("EPG lookup needs a numeric portal channel id")
+        return getEpg(numericKey)
     }
 
     suspend fun resolvePlaybackInfo(
@@ -1402,6 +1484,9 @@ is Result.Success -> {
                 sessionCache = null
                 accountProfileCache = null
                 sharedAuthCache.remove(authCacheKey())
+                if (providerId > 0L) {
+                    sharedPortalAuthCache.remove(portalIdentityKey())
+                }
                 api.invalidateSessionScopes(providerId)
             }
             (authFailureCache ?: sharedAuthFailureCache[authCacheKey()])?.let { failure ->
@@ -1421,6 +1506,31 @@ is Result.Success -> {
                 }
                 sharedAuthCache.remove(authCacheKey(), cachedAuth)
                 api.invalidateSessionScopes(providerId)
+            }
+            if (providerId > 0L) {
+                sharedPortalAuthCache[portalIdentityKey()]?.let { cachedAuth ->
+                    if (!cachedAuth.session.isExpired() &&
+                        cachedAuth.profile.expirationDate?.let { it > System.currentTimeMillis() } != false
+                    ) {
+                        sessionCache = cachedAuth.session
+                        accountProfileCache = cachedAuth.profile
+                        sharedAuthCache[authCacheKey()] = cachedAuth
+                        return@withLock Result.success(cachedAuth.session to cachedAuth.profile)
+                    }
+                    sharedPortalAuthCache.remove(portalIdentityKey(), cachedAuth)
+                    api.invalidateSessionScopes(providerId)
+                }
+            }
+            if (providerId > 0L) {
+                portalStateStore?.resumableAuth(providerId, configurationGeneration)?.let { resumed ->
+                    sessionCache = resumed.session
+                    accountProfileCache = resumed.profile
+                    val cachedAuth = CachedAuth(session = resumed.session, profile = resumed.profile)
+                    sharedAuthCache[authCacheKey()] = cachedAuth
+                    sharedPortalAuthCache[portalIdentityKey()] = cachedAuth
+                    StalkerTelemetry.strategySelected(providerId, "RESUMED_SESSION", "PERSISTED_TOKEN")
+                    return@withLock Result.success(resumed.session to resumed.profile)
+                }
             }
 
             val persistedState = portalStateStore?.getValidated(providerId)
@@ -1485,8 +1595,17 @@ is Result.Success -> {
                 onProgress = onProgress
             ).copy(providerId = providerId)
             val initialAuthResult = discoveryCoordinator.authenticate(profile)
+            val initialAuthThrottled = (initialAuthResult as? Result.Error)?.exception?.isPortalThrottle() == true
             val finalAuthResult = when {
                 initialAuthResult !is Result.Error -> initialAuthResult
+                // A throttled portal must not get an instant repair handshake: the retry
+                // fires milliseconds later and converts a soft throttle into a hard 429.
+                // Surface the throttle so callers back off; the persisted session and
+                // failure cooldown already cover the retry.
+                initialAuthThrottled -> {
+                    StalkerTelemetry.strategySelected(providerId, "AUTH_THROTTLE_BACKOFF", "THROTTLED_AUTH_RETRY_SKIPPED")
+                    initialAuthResult
+                }
                 persistedEndpointUrl != null -> {
                     portalStateStore?.markEndpointUnhealthy(
                         providerId,
@@ -1532,6 +1651,12 @@ is Result.Success -> {
                         session = authResult.data.first,
                         profile = authResult.data.second
                     )
+                    if (providerId > 0L) {
+                        sharedPortalAuthCache[portalIdentityKey()] = CachedAuth(
+                            session = authResult.data.first,
+                            profile = authResult.data.second
+                        )
+                    }
                     trimSharedCaches()
                     portalStateStore?.recordAuthentication(
                         providerId = providerId,
@@ -2102,10 +2227,9 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             else -> type
         }
         val targetId = categoryId ?: return null
-        val cached = categoryCache[normalizedType]
-        if (cached != null) {
-            return cached.firstOrNull { it.id == targetId }?.rawId
-        }
+        // A populated cache that misses must not short-circuit: fall through to the persisted
+        // identity map and the live category fetch before giving up.
+        categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId?.let { return it }
         identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return it }
         when (val categoriesResult = when (normalizedType) {
             ContentType.LIVE -> getLiveCategories()
@@ -2114,9 +2238,16 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             ContentType.SERIES -> getSeriesCategories()
             ContentType.SERIES_EPISODE -> Result.success(emptyList())
         }) {
-            is Result.Success -> return categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
-            else -> return null
+            is Result.Success -> {
+                categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId?.let { return it }
+            }
+            else -> Unit
         }
+        // Last resort for portals whose stored category ids are the portal's own numeric ids
+        // while the identity map is keyed to another epoch's surrogates: numeric ids pass
+        // through to the portal unchanged. Synthetic surrogate ids (>= the high floor) are
+        // never sent because the portal cannot resolve them.
+        return targetId.takeIf { it in 1L until FALLBACK_SURROGATE_FLOOR }?.toString()
     }
 
     /**
@@ -2129,13 +2260,17 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         if (url.isNullOrBlank()) return null
         if (url.startsWith("http://", true) || url.startsWith("https://", true)) return url
         if (!url.startsWith("/")) return url
-        val origin = runCatching { URI(portalUrl) }.getOrNull() ?: return url
-        val scheme = origin.scheme?.takeIf { it == "http" || it == "https" } ?: "https"
-        val host = origin.host?.takeIf(String::isNotBlank) ?: return url
-        val port = origin.port.takeIf { it > 0 }
-        val authority = if (port != null && port != (if (scheme == "https") 443 else 80)) "$host:$port" else host
-        return "$scheme://$authority$url"
+        return StalkerLogoUrlResolver.resolvePortalUrl(portalUrl, url)
     }
+
+    /**
+     * Resolves a channel logo URL into an absolute URL. Some Ministra portals return the
+     * channel `logo` field as a bare filename (`536.png`) that lives under the portal's
+     * `misc/logos/{size}/` directory — the convention STBEmu uses when it requests
+     * `/stalker_portal/misc/logos/120/536.png`. See [StalkerLogoUrlResolver].
+     */
+    private fun resolveChannelLogoUrl(url: String?): String? =
+        StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, url)
 
     private fun toChannel(item: StalkerItemRecord): Channel? {
         val numericId = stableItemId(ContentType.LIVE, item.id)
@@ -2164,7 +2299,7 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         return Channel(
             id = 0L,
             name = resolvedName,
-            logoUrl = resolvePortalUrl(item.logoUrl),
+            logoUrl = resolveChannelLogoUrl(item.logoUrl),
             categoryId = category.id,
             categoryName = category.name,
             streamUrl = streamUrl,
@@ -2577,6 +2712,28 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             .digest(normalized.toByteArray(Charsets.UTF_8))
             .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
         return "provider:$providerId|$digest"
+    }
+
+    /**
+     * Stable cross-instance session identity. Unlike [authCacheKey], this deliberately excludes
+     * volatile learned hints (fingerprint/recipe/endpoint/cookie/playback/profile/device extras)
+     * so a sync-side provider built from persisted learning can reuse the activation session
+     * instead of firing a second handshake into the portal rate limiter.
+     */
+    private fun portalIdentityKey(): String {
+        val normalized = listOf(
+            System.identityHashCode(api).toString(),
+            providerId.toString(),
+            StalkerUrlFactory.normalizePortalUrl(portalUrl),
+            normalizedMacAddress(),
+            authMode.name,
+            normalizedUsername(),
+            normalizedPassword()
+        ).joinToString(separator = "\u001f")
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(normalized.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
+        return "portal:$providerId|$digest"
     }
 
     private fun authMutexKey(): String = "provider:$providerId|auth"

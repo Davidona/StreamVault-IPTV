@@ -291,7 +291,7 @@ class EpgViewModel @Inject constructor(
 
     companion object {
         const val MAX_CHANNELS = 60
-        private const val MAX_XTREAM_GUIDE_FALLBACK_CHANNELS = 10
+        private const val MAX_XTREAM_GUIDE_FALLBACK_CHANNELS = 60
         private const val MAX_XTREAM_GUIDE_FALLBACK_PROGRAMS = 6
         const val LOOKBACK_MS = 60 * 60 * 1000L
         const val LOOKAHEAD_MS = 6 * 60 * 60 * 1000L
@@ -324,6 +324,9 @@ class EpgViewModel @Inject constructor(
     private var guideFallbackJob: Job? = null
     private var prefetchJob: Deferred<GuidePrefetchedPage?>? = null
     private var loadMoreJob: Job? = null
+    // Guide keys that returned successfully-but-empty from on-demand fetch this session.
+    // Skipped on later pages so channels without portal EPG don't cost a request per visit.
+    private val knownEmptyGuideKeys = mutableSetOf<String>()
     private var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
     private var previewPlayerEngine: PlayerEngine? = null
     private var previewSessionVersion: Long = 0L
@@ -1827,6 +1830,7 @@ class EpgViewModel @Inject constructor(
         val missingChannels = channels.filter { channel ->
             val lookupKey = channel.guideLookupKey()
             lookupKey != null &&
+                lookupKey !in knownEmptyGuideKeys &&
                 channel.streamId > 0L &&
                 existingProgramsByChannel[lookupKey].isNullOrEmpty()
         }
@@ -1847,17 +1851,30 @@ class EpgViewModel @Inject constructor(
         )
 
         return fallbackChannels.mapNotNull { channel ->
-            val programs = (programsByRequest[
+            val fetchResult = programsByRequest[
                 LiveStreamProgramRequest(
                     streamId = channel.streamId,
                     epgChannelId = channel.epgChannelId
                 )
-            ] as? com.streamvault.domain.model.Result.Success)?.data
+            ]
+            val programs = (fetchResult as? com.streamvault.domain.model.Result.Success)?.data
                 .orEmpty()
                 .filter { program -> program.endTime > windowStart && program.startTime < windowEnd }
                 .sortedBy { program -> program.startTime }
             val lookupKey = channel.guideLookupKey() ?: return@mapNotNull null
-            if (programs.isEmpty()) null else lookupKey to programs
+            if (programs.isEmpty()) {
+                // Successful but empty: the portal has no guide for this channel right
+                // now. Remember for this session so later pages skip it instantly.
+                // Errors are left out so transient failures retry on the next page.
+                if (fetchResult is com.streamvault.domain.model.Result.Success) {
+                    knownEmptyGuideKeys += lookupKey
+                }
+                null
+            } else {
+                // Fresh data may have appeared since a previous empty result.
+                knownEmptyGuideKeys -= lookupKey
+                lookupKey to programs
+            }
         }.toMap()
     }
 

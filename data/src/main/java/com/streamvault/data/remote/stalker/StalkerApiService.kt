@@ -330,7 +330,8 @@ interface StalkerApiService {
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         categoryId: String?,
-        page: Int
+        page: Int,
+        searchQuery: String? = null
     ): Result<StalkerPagedItems>
 
     suspend fun getSeriesCategories(

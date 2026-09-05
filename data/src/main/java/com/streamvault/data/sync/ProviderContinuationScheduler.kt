@@ -13,6 +13,13 @@ internal class ProviderContinuationScheduler(
             workScheduler.scheduleBackgroundEpg(providerId)
         }
 
+        // A bootstrap-scoped initial sync hands the remainder (full live catalog, EPG) to a
+        // durable full re-sync. With the live success timestamp left stale by the bootstrap,
+        // the resume re-fetches the complete live catalog and EPG per the provider's mode.
+        if (work.any { it.operation == SyncContinuationOperation.FULL_CATALOG }) {
+            workScheduler.scheduleProviderResume(providerId)
+        }
+
         val indexWork = work.filter { it.operation == SyncContinuationOperation.INDEX_CATALOG }
         when (snapshot.provider.type) {
             ProviderType.XTREAM_CODES -> indexWork

@@ -1926,6 +1926,77 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodStreamsPage_sends_search_parameter_when_searchQuery_is_set() = runTest {
+        var requestedSearch: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSearch = chain.request().url.queryParameter("search")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"17160","name":"Damadol","category_id":"20","cmd":"ffmpeg http://example.com/damadol.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPage(
+            stalkerSession(),
+            stalkerProfile(),
+            categoryId = null,
+            page = 1,
+            searchQuery = "damadol"
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSearch).isEqualTo("damadol")
+        val page = (result as Result.Success).data
+        assertThat(page.items).hasSize(1)
+        assertThat(page.advertisedTotalItems).isEqualTo(1)
+    }
+
+    @Test
+    fun getVodStreamsPage_omits_search_parameter_when_searchQuery_is_blank() = runTest {
+        var requestedSearch: String? = "unset"
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSearch = chain.request().url.queryParameter("search")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":14,"max_page_items":14,"data":[{"id":"1","name":"Movie","category_id":"1","cmd":"ffmpeg http://example.com/m.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPage(
+            stalkerSession(),
+            stalkerProfile(),
+            categoryId = "42",
+            page = 1,
+            searchQuery = "   "
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSearch).isNull()
+    }
+
+    @Test
     fun getVodStreamsPage_treats_199_as_incomplete_and_200_as_complete_when_total_is_200() = runTest {
         val service = OkHttpStalkerApiService(
             okHttpClient = fakeClient(
@@ -2950,6 +3021,35 @@ class OkHttpStalkerApiServiceTest {
         assertThat(error.message).contains("Please contact your provider to register this device.")
         // Terminal: no bootstrap/catalog call may follow a conflicted profile.
         assertThat(requestedActions).containsExactly("handshake", "get_profile").inOrder()
+    }
+
+    @Test
+    fun authenticate_tokenlessHandshake_abortsAsRateLimitedWithoutFurtherHandshakes() = runTest {
+        val requestedActions = mutableListOf<String>()
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    requestedActions += request.url.queryParameter("action").orEmpty()
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body("""{"js":{}}""".toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.authenticate(stalkerProfile())
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        val error = result as Result.Error
+        assertThat(error.exception).isInstanceOf(StalkerApiError.RateLimited::class.java)
+        // Soft throttle: no recipe-loop follow-up handshake may fire into the limiter.
+        assertThat(requestedActions).containsExactly("handshake")
     }
 
     @Test

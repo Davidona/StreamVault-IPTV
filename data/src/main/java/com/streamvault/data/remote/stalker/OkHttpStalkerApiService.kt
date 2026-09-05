@@ -208,8 +208,21 @@ class OkHttpStalkerApiService @Inject constructor(
                     val token = handshakePayload.findString("token")
                         ?.takeIf { it.isNotBlank() }
                         ?: run {
-                            lastError = IOException("Portal handshake did not return a token.")
-                            continue
+                            // A 200 without a token is the portal soft-throttling us. Treat it
+                            // like a 429: abort discovery instead of firing more handshakes
+                            // into the limiter, and let callers back off and retry later.
+                            val throttled = StalkerApiError.RateLimited(
+                                message = "Portal handshake did not return a token.",
+                                httpStatus = 200
+                            )
+                            StalkerTelemetry.authenticationAttempt(
+                                profile.providerId,
+                                recipe.compatibilityProfileId,
+                                endpointFamily,
+                                "HANDSHAKE",
+                                authenticationFailureOutcome(throttled)
+                            )
+                            return Result.error(throttled.message.orEmpty(), throttled)
                         }
                     val handshakeRandom = handshakePayload.findString("random").orEmpty()
                     resolvedLoadUrl(loadUrl, attemptProfile)?.let { redirectedLoadUrl ->
@@ -732,7 +745,8 @@ class OkHttpStalkerApiService @Inject constructor(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         categoryId: String?,
-        page: Int
+        page: Int,
+        searchQuery: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
@@ -743,6 +757,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                searchQuery?.takeIf { it.isNotBlank() }?.let { put("search", it) }
             }
         )
     }
@@ -1358,6 +1373,11 @@ class OkHttpStalkerApiService @Inject constructor(
         // The aggregate safety limit belongs to bulk loads. A single-page request must preserve
         // the requested cursor so a resumed catalog can move past the historical page-200 cap.
         val safePage = page.coerceAtLeast(1)
+        android.util.Log.d(
+            "VODCAT",
+            "fetchPagedItemPage url=${session.loadUrl}?${(baseQuery + ("p" to safePage.toString()))
+                .entries.joinToString("&") { "${it.key}=${it.value}" }}"
+        )
         val payload = requestJson(
             url = session.loadUrl,
             profile = profile,
@@ -2578,6 +2598,11 @@ class OkHttpStalkerApiService @Inject constructor(
         val requestPriority = when {
             request.url.queryParameter("action").equals("create_link", ignoreCase = true) ->
                 StalkerNetworkPriority.INTERACTIVE
+            request.url.queryParameter("action").equals("get_short_epg", ignoreCase = true) ->
+                // Short EPG payloads are tiny now/next windows; PREFETCH spacing (500ms +
+                // token bucket at ~1/s) keeps on-demand guide pages fast while still
+                // pacing the portal.
+                StalkerNetworkPriority.PREFETCH
             currentCoroutineContext()[StalkerRequestPriorityContext]?.priority in setOf(
                 com.streamvault.domain.model.StalkerRequestPriority.EPG,
                 com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX

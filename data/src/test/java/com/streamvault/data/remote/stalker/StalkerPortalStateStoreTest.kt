@@ -144,8 +144,36 @@ class StalkerPortalStateStoreTest {
             .isEqualTo("https://portal.test/load.php")
     }
 
-    private class FakePortalStateDao : StalkerPortalStateDao {
-        private val rows = mutableMapOf<Long, StalkerPortalStateEntity>()
+    @Test
+    fun `resumable session round-trips and respects generation age and clearing`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao)
+        val session = StalkerSession(
+            loadUrl = "https://portal.test/load.php",
+            portalReferer = "https://portal.test/c/",
+            token = "tok123"
+        ).copy(authenticatedAtMillis = 10_000L)
+        store.recordAuthentication(
+            providerId = 11L,
+            session = session,
+            profile = StalkerProviderProfile(accountName = "Room"),
+            now = 10_000L,
+            configurationGeneration = 7L
+        )
+
+        val resumed = store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 70_000L)
+        assertThat(resumed?.session?.token).isEqualTo("tok123")
+        assertThat(resumed?.profile?.accountName).isEqualTo("Room")
+
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 8L, now = 70_000L)).isNull()
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 10_000L + 31L * 60L * 1000L)).isNull()
+        assertThat(store.resumableAuth(providerId = 99L, configurationGeneration = 7L, now = 70_000L)).isNull()
+
+        store.clearResumableAuth(11L)
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 70_000L)).isNull()
+    }
+
+    private class FakePortalStateDao : StalkerPortalStateDao {        private val rows = mutableMapOf<Long, StalkerPortalStateEntity>()
 
         override suspend fun get(providerId: Long): StalkerPortalStateEntity? = rows[providerId]
 
