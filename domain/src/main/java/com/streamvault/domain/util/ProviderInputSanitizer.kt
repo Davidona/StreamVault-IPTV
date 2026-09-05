@@ -1,4 +1,4 @@
-package com.streamvault.data.util
+package com.streamvault.domain.util
 
 object ProviderInputSanitizer {
     const val MAX_PROVIDER_NAME_LENGTH = 80
@@ -55,39 +55,6 @@ object ProviderInputSanitizer {
         }
         return raw
     }
-
-    suspend fun resolveUrlProtocol(url: String): String {
-        // If the input already carries any scheme (http, https, file, content, …)
-        // respect it — only schemeless input needs protocol probing. In particular
-        // this keeps file:// and content:// playlist/EPG URLs intact.
-        if (URL_SCHEME_REGEX.containsMatchIn(url)) return url
-        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            val httpsUrl = "https://$url"
-            try {
-                val urlObj = java.net.URL(httpsUrl)
-                val connection = urlObj.openConnection() as java.net.HttpURLConnection
-                connection.connectTimeout = 3000
-                connection.readTimeout = 3000
-                connection.requestMethod = "HEAD"
-                connection.instanceFollowRedirects = false
-                connection.connect()
-                val responseCode = connection.responseCode
-                connection.disconnect()
-                if (httpsProbeAccepts(responseCode)) httpsUrl else "http://$url"
-            } catch (_: Exception) {
-                "http://$url"
-            }
-        }
-    }
-
-    /**
-     * Decides whether an HTTPS probe response proves the endpoint genuinely
-     * serves content over HTTPS. Only 2xx qualifies: a 3xx redirect usually
-     * points elsewhere (frequently back to plain HTTP), and 4xx/5xx at the
-     * probe target are treated as "not usable over HTTPS", so we fall back to
-     * HTTP — the common case for self-hosted / third-party IPTV endpoints.
-     */
-    internal fun httpsProbeAccepts(responseCode: Int): Boolean = responseCode in 200..299
 
     fun normalizeUsername(input: String): String = sanitizeSingleLine(input, MAX_USERNAME_LENGTH).trim()
 
@@ -182,5 +149,4 @@ object ProviderInputSanitizer {
     private val HEADER_SEPARATOR_REGEX = Regex("\\s*\\|\\s*")
     private val MAC_ADDRESS_REGEX = Regex("^[0-9A-F]{2}(?::[0-9A-F]{2}){5}$")
     private val URL_PROTOCOL_REGEX = Regex("^https?://", RegexOption.IGNORE_CASE)
-    private val URL_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://")
 }

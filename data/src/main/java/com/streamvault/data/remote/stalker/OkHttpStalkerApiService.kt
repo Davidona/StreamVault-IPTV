@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import android.util.Log
 import com.google.gson.JsonObject as GsonJsonObject
 import com.google.gson.JsonParser

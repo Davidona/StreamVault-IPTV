@@ -46,13 +46,13 @@ kover {
 val allowedProjectDependencies = setOf(
     ":core:navigation",
     ":core:ui",
-    ":domain",
-    ":data"
+    ":domain"
 )
 
 val forbiddenFeatureProviderSourceTokens = listOf(
     "import com.streamvault.app",
     "com.streamvault.app",
+    "com.streamvault.data",
     "MainActivity",
     "NavHostController",
     "NavController"
@@ -109,6 +109,7 @@ val verifyFeatureProviderBoundary = tasks.register("verifyFeatureProviderBoundar
         val fixtureViolations = findForbiddenFeatureProviderSourceReferences(fixtureRoot)
         val requiredFixtureViolations = setOf(
             "AppPackageImport.kt:3: import com.streamvault.app",
+            "DataImport.kt:3: com.streamvault.data",
             "FullyQualifiedAppReference.kt:3: com.streamvault.app",
             "MainActivityReference.java:4: MainActivity",
             "RootNavigation.kt:3: NavHostController",
@@ -149,7 +150,6 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":domain"))
-    implementation(project(":data"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
@@ -169,6 +169,7 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.core.ktx)
     implementation(libs.zxing.core)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

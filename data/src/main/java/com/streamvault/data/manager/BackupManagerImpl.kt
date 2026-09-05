@@ -60,7 +60,7 @@ import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.provider.guidePolicy
 import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.provider.toAccountRuntime
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.manager.BackupData
 import com.streamvault.domain.manager.ActiveLiveSourceBackup
 import com.streamvault.domain.manager.BackupConflictStrategy

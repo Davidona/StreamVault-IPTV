@@ -2,6 +2,7 @@ package com.streamvault.data.remote.stalker
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerMagPreset
 import com.streamvault.domain.model.StalkerProfileVerification
 import com.streamvault.domain.model.StalkerProtocolFamily

@@ -84,9 +84,7 @@ import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.theme.*
-import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
-import com.streamvault.data.remote.stalker.StalkerAdvancedOptionsCodec
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerCatalogMode
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProfileVerification
@@ -96,7 +94,7 @@ import com.streamvault.domain.manager.DriveBackupSnapshot
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.BarcodeFormat
 import android.graphics.Bitmap
-import com.streamvault.data.util.ProviderInputSanitizer
+import com.streamvault.domain.util.ProviderInputSanitizer
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
@@ -156,7 +154,7 @@ fun ProviderSetupScreen(
     var stalkerApiUserAgent by rememberSaveable { mutableStateOf("") }
     var stalkerPlayerUserAgent by rememberSaveable { mutableStateOf("") }
     var stalkerPlayerHeaders by rememberSaveable { mutableStateOf("") }
-    var stalkerXUserAgentLink by rememberSaveable { mutableStateOf(StalkerAdvancedOptions.LINK_ETHERNET) }
+    var stalkerXUserAgentLink by rememberSaveable { mutableStateOf(ProviderStalkerAdvancedOptions.LINK_ETHERNET) }
     var stalkerProxyEnabled by rememberSaveable { mutableStateOf(false) }
     var stalkerProxyHost by rememberSaveable { mutableStateOf("") }
     var stalkerProxyPort by rememberSaveable { mutableStateOf("") }
@@ -282,8 +280,8 @@ fun ProviderSetupScreen(
             stalkerDeviceId = uiState.stalkerDeviceId
             stalkerDeviceId2 = uiState.stalkerDeviceId2
             stalkerSignature = uiState.stalkerSignature
-            val advanced = StalkerAdvancedOptionsCodec.decode(uiState.stalkerAdvancedOptionsJson)
-            val legacy = StalkerAdvancedOptionsCodec.decodeLegacyEditFields(uiState.stalkerAdvancedOptionsJson)
+            val advanced = ProviderStalkerAdvancedOptionsCodec.decode(uiState.stalkerAdvancedOptionsJson)
+            val legacy = ProviderStalkerAdvancedOptionsCodec.decodeLegacyEditFields(uiState.stalkerAdvancedOptionsJson)
             stalkerSerialNumber = uiState.stalkerSerialNumber.ifBlank { legacy.serialNumber }
             stalkerDeviceId = uiState.stalkerDeviceId.ifBlank { legacy.deviceId }
             stalkerDeviceId2 = uiState.stalkerDeviceId2.ifBlank { legacy.deviceId2 }
@@ -296,7 +294,7 @@ fun ProviderSetupScreen(
             }
             stalkerPlayerUserAgent = advanced.playerUserAgent.ifBlank { legacy.playerUserAgent }
             stalkerPlayerHeaders = advanced.playerHeaders.ifBlank { legacy.playerHeaders }
-            stalkerXUserAgentLink = advanced.normalizedLink.takeIf { advanced != StalkerAdvancedOptions() }
+            stalkerXUserAgentLink = advanced.normalizedLink.takeIf { advanced != ProviderStalkerAdvancedOptions() }
                 ?: legacy.xUserAgentLink
             stalkerProxyEnabled = if (advanced.proxyEnabled || advanced.proxyHost.isNotBlank() || advanced.proxyPort != null) {
                 advanced.proxyEnabled
@@ -311,8 +309,8 @@ fun ProviderSetupScreen(
     }
 
     fun buildStalkerAdvancedOptionsJson(): String =
-        StalkerAdvancedOptionsCodec.encode(
-            StalkerAdvancedOptions(
+        ProviderStalkerAdvancedOptionsCodec.encode(
+            ProviderStalkerAdvancedOptions(
                 hwVersion = stalkerHwVersion.trim(),
                 apiUserAgent = stalkerApiUserAgent.trim(),
                 playerUserAgent = stalkerPlayerUserAgent.trim(),
@@ -383,7 +381,7 @@ fun ProviderSetupScreen(
             stalkerHwVersion.isNotBlank() ||
             stalkerApiUserAgent.isNotBlank() ||
             stalkerPlayerUserAgent.isNotBlank() ||
-            stalkerXUserAgentLink != StalkerAdvancedOptions.LINK_ETHERNET ||
+            stalkerXUserAgentLink != ProviderStalkerAdvancedOptions.LINK_ETHERNET ||
             stalkerProxyEnabled ||
             stalkerProxyHost.isNotBlank() ||
             stalkerProxyPort.isNotBlank() ||

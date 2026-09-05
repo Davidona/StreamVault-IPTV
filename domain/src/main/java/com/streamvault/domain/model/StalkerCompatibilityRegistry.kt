@@ -1,10 +1,5 @@
-package com.streamvault.data.remote.stalker
+package com.streamvault.domain.model
 
-import com.streamvault.domain.model.StalkerBootstrapRecipe
-import com.streamvault.domain.model.StalkerCompatibilityProfileIds
-import com.streamvault.domain.model.StalkerMagPreset
-import com.streamvault.domain.model.StalkerProfileVerification
-import com.streamvault.domain.model.StalkerProtocolFamily
 import java.util.Locale
 
 enum class StalkerBrowserEngine { QT_WEBKIT, EKIOH, ANDROID }

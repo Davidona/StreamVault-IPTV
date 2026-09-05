@@ -1,6 +1,5 @@
 package com.streamvault.feature.provider.setup
 
-import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode
@@ -51,7 +50,7 @@ internal data class ProviderAdvancedOptions(
     val onStalkerPlayerUserAgentChange: (String) -> Unit,
     val stalkerPlayerHeaders: String,
     val onStalkerPlayerHeadersChange: (String) -> Unit,
-    val stalkerXUserAgentLink: String = StalkerAdvancedOptions.LINK_ETHERNET,
+    val stalkerXUserAgentLink: String = ProviderStalkerAdvancedOptions.LINK_ETHERNET,
     val onStalkerXUserAgentLinkChange: (String) -> Unit = {},
     val stalkerProxyEnabled: Boolean = false,
     val onStalkerProxyEnabledChange: (Boolean) -> Unit = {},

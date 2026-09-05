@@ -13,7 +13,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.theme.AccentAmber
 import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProfileVerification
 import com.streamvault.domain.model.StalkerProtocolPreference

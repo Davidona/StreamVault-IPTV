@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerBootstrapRecipe

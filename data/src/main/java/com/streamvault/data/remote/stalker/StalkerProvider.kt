@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import android.util.Log
 import com.streamvault.data.util.AdultContentClassifier
 import com.streamvault.data.util.UrlSecurityPolicy

@@ -37,11 +37,13 @@ import com.streamvault.data.remote.stalker.StalkerApiService
 import com.streamvault.data.remote.stalker.StalkerPlaybackMode
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerIdentityStrategy
 import com.streamvault.data.remote.stalker.StalkerApiError
 import com.streamvault.data.remote.xtream.XtreamProvider
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.security.CredentialDecryptionException
+import com.streamvault.data.util.ProviderUrlProtocolResolver
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.ProviderSyncWorker
 import com.streamvault.data.sync.ProviderWorkflowDisposition
@@ -51,7 +53,7 @@ import com.streamvault.data.sync.ProviderWorkflowCommitFence
 import com.streamvault.data.sync.hasUsableLiveCatalogForActivation
 import com.streamvault.data.local.entity.ProviderWorkflowPhase
 import com.streamvault.data.local.entity.ProviderWorkflowReason
-import com.streamvault.data.util.ProviderInputSanitizer
+import com.streamvault.domain.util.ProviderInputSanitizer
 import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.*
@@ -541,7 +543,7 @@ class ProviderRepositoryImpl @Inject constructor(
         val normalizedServerUrl = ProviderInputSanitizer.normalizeUrl(serverUrl)
         val normalizedUsername = ProviderInputSanitizer.normalizeUsername(username)
         val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
-        val resolvedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(normalizedServerUrl)
+        val resolvedServerUrl = ProviderUrlProtocolResolver.resolve(normalizedServerUrl)
 
         ProviderInputSanitizer.validateUrl(resolvedServerUrl)?.let { message ->
             return Result.error(message)
@@ -683,7 +685,7 @@ class ProviderRepositoryImpl @Inject constructor(
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
     ): Result<Provider> = try {
-        val normalizedUrl = ProviderInputSanitizer.resolveUrlProtocol(
+        val normalizedUrl = ProviderUrlProtocolResolver.resolve(
             ProviderInputSanitizer.normalizeUrl(url)
         )
         val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
@@ -773,7 +775,7 @@ class ProviderRepositoryImpl @Inject constructor(
         id: Long? = null
     ): Result<Provider> {
         return try {
-            val normalizedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(
+            val normalizedServerUrl = ProviderUrlProtocolResolver.resolve(
                 ProviderInputSanitizer.normalizeUrl(serverUrl)
             )
             val normalizedUsername = ProviderInputSanitizer.normalizeUsername(username)
@@ -849,7 +851,7 @@ class ProviderRepositoryImpl @Inject constructor(
         id: Long? = null
     ): Result<Provider> {
         return try {
-            val normalizedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(
+            val normalizedServerUrl = ProviderUrlProtocolResolver.resolve(
                 ProviderInputSanitizer.normalizeUrl(serverUrl)
             )
             val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
@@ -964,7 +966,7 @@ class ProviderRepositoryImpl @Inject constructor(
         }
         val requestedCompatibility = StalkerCompatibilityRegistry.find(requestedProfileId)
         if (requestedCompatibility?.identityStrategy ==
-            com.streamvault.data.remote.stalker.StalkerIdentityStrategy.MANUAL_FIELDS_REQUIRED &&
+            StalkerIdentityStrategy.MANUAL_FIELDS_REQUIRED &&
             normalizedSerialNumber.isBlank() && normalizedDeviceId.isBlank() && normalizedSignature.isBlank()
         ) {
             return Result.error(

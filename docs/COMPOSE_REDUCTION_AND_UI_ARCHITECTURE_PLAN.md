@@ -13,6 +13,8 @@ The Phase 1 source decomposition is now code-complete: `PlayerControlsOverlayHos
 
 The full `:app:testDebugUnitTest` task now passes after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. No production behavior was changed; existing coroutine opt-in warnings remain.
 
+Phase 7 has started with the provider setup boundary. `:feature:provider` no longer depends on `:data` or imports data-layer types. Stalker setup draft models and JSON persistence are feature-owned, shared Stalker compatibility and input-normalization policy now live in `:domain`, and provider implementations expose setup failures through a small domain contract instead of presentation code inspecting concrete Xtream or credential exceptions. The provider boundary verification task now rejects both project-level `:data` dependencies and source-level `com.streamvault.data` references. The remaining Phase 7 work is the settings/preferences boundary, the player capability API, final dependency pruning, and final naming/documentation cleanup.
+
 The ProviderSetup slice now also places the source selector panel, provider-specific form content, and advanced-options section in dedicated files; the root continues to own draft state, launchers, effects, and ViewModel calls. The second no-behavior-change decomposition moved the remaining provider branches into explicit Xtream, Stalker, M3U, and Jellyfin form composables, and moved completion, compatibility-selector, validation-error, and password-transformation leaves into dedicated same-package files.
 
 The AppNavigation split is now complete for Phase 1: startup resolution, route/request contracts, navigation adapters, external-navigation dispatch, and graph registration are in dedicated same-package files; `AppNavigation.kt` retains state collection and orchestration only. No typed-route or module boundary was introduced.
@@ -1053,6 +1055,33 @@ Exit criteria:
 - No presentation package imports DAOs or remote provider implementation classes.
 - Concrete Media3 use is confined to player/platform implementation code.
 - Temporary migration dependencies are removed or explicitly documented with owners.
+
+Phase 7 checkpoint 1 - provider boundary (complete):
+
+- `:feature:provider` depends on `:domain`, `:core:ui`, and `:core:navigation`, with no direct `:data` dependency.
+- Provider setup owns its editable Stalker advanced-options models and compatibility-preserving JSON codec.
+- Reusable Stalker compatibility metadata and provider input normalization are domain APIs rather than remote-provider implementation details.
+- Data-layer provider and credential exceptions implement the domain-facing `ProviderSetupFailure` contract; presentation maps that contract to user-facing messages without importing concrete data exceptions.
+- The automated provider boundary rejects future Gradle or source-level data coupling.
+
+Current dependency direction for this checkpoint:
+
+```text
+:feature:provider ---> :domain <--- :data
+        |                              |
+        +----> :core:ui                +----> concrete provider implementations
+        +----> :core:navigation
+```
+
+Validation recorded for this checkpoint:
+
+- `:domain:test`
+- `:feature:provider:testDebugUnitTest`
+- Focused data tests for Stalker compatibility, credential handling, and Xtream requests
+- `:data:compileDebugKotlin :data:compileDebugUnitTestKotlin`
+- `:app:assembleDebug`
+
+The provider boundary task currently emits existing Gradle configuration-cache compatibility warnings because its custom verification action accesses project/script objects at execution time. The verification itself passes; making that custom task configuration-cache-safe remains dependency/build cleanup work.
 
 ## 12. Validation strategy
 

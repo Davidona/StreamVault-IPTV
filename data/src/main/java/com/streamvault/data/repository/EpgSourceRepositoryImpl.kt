@@ -25,7 +25,8 @@ import com.streamvault.data.parser.XmltvParser
 import com.streamvault.data.parser.XmltvIngestionLimits
 import com.streamvault.data.parser.XmltvLimitExceeded
 import com.streamvault.data.parser.XmltvLimitKind
-import com.streamvault.data.util.ProviderInputSanitizer
+import com.streamvault.domain.util.ProviderInputSanitizer
+import com.streamvault.data.util.ProviderUrlProtocolResolver
 import com.streamvault.data.util.runSuspendCatching
 import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.data.remote.http.HttpRequestProfile
@@ -157,7 +158,7 @@ class EpgSourceRepositoryImpl @Inject constructor(
     ): Result<EpgSource> {
         val trimmed = url.trim()
         if (trimmed.isBlank()) return Result.error("URL cannot be empty")
-        val trimmedUrl = ProviderInputSanitizer.resolveUrlProtocol(trimmed)
+        val trimmedUrl = ProviderUrlProtocolResolver.resolve(trimmed)
         val validationError = UrlSecurityPolicy.validateOptionalEpgUrl(trimmedUrl)
         if (validationError != null) return Result.error(validationError)
 
@@ -183,7 +184,7 @@ class EpgSourceRepositoryImpl @Inject constructor(
 
     override suspend fun updateSource(source: EpgSource): Result<Unit> {
         val trimmed = source.url.trim()
-        val trimmedUrl = if (trimmed.isBlank()) trimmed else ProviderInputSanitizer.resolveUrlProtocol(trimmed)
+        val trimmedUrl = if (trimmed.isBlank()) trimmed else ProviderUrlProtocolResolver.resolve(trimmed)
         val validationError = UrlSecurityPolicy.validateOptionalEpgUrl(trimmedUrl)
         if (validationError != null) return Result.error(validationError)
 

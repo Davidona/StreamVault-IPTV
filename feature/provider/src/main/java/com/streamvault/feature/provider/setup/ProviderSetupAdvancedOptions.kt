@@ -28,7 +28,6 @@ import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.*
-import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode
@@ -138,7 +137,7 @@ internal fun AdvancedProviderOptionsSection(
     onStalkerPlayerUserAgentChange: (String) -> Unit = {},
     stalkerPlayerHeaders: String = "",
     onStalkerPlayerHeadersChange: (String) -> Unit = {},
-    stalkerXUserAgentLink: String = StalkerAdvancedOptions.LINK_ETHERNET,
+    stalkerXUserAgentLink: String = ProviderStalkerAdvancedOptions.LINK_ETHERNET,
     onStalkerXUserAgentLinkChange: (String) -> Unit = {},
     stalkerProxyEnabled: Boolean = false,
     onStalkerProxyEnabledChange: (Boolean) -> Unit = {},
@@ -187,7 +186,7 @@ internal fun AdvancedProviderOptionsSection(
                     stalkerApiUserAgent.isNotBlank() ||
                     stalkerPlayerUserAgent.isNotBlank() ||
                     stalkerPlayerHeaders.isNotBlank() ||
-                    stalkerXUserAgentLink != StalkerAdvancedOptions.LINK_ETHERNET ||
+                    stalkerXUserAgentLink != ProviderStalkerAdvancedOptions.LINK_ETHERNET ||
                     stalkerProxyEnabled ||
                     stalkerProxyHost.isNotBlank() ||
                     stalkerProxyPort.isNotBlank() ||
@@ -618,14 +617,14 @@ internal fun AdvancedProviderOptionsSection(
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             StalkerLinkOptionButton(
-                                text = StalkerAdvancedOptions.LINK_ETHERNET,
-                                selected = stalkerXUserAgentLink == StalkerAdvancedOptions.LINK_ETHERNET,
-                                onClick = { onStalkerXUserAgentLinkChange(StalkerAdvancedOptions.LINK_ETHERNET) }
+                                text = ProviderStalkerAdvancedOptions.LINK_ETHERNET,
+                                selected = stalkerXUserAgentLink == ProviderStalkerAdvancedOptions.LINK_ETHERNET,
+                                onClick = { onStalkerXUserAgentLinkChange(ProviderStalkerAdvancedOptions.LINK_ETHERNET) }
                             )
                             StalkerLinkOptionButton(
-                                text = StalkerAdvancedOptions.LINK_WIFI,
-                                selected = stalkerXUserAgentLink == StalkerAdvancedOptions.LINK_WIFI,
-                                onClick = { onStalkerXUserAgentLinkChange(StalkerAdvancedOptions.LINK_WIFI) }
+                                text = ProviderStalkerAdvancedOptions.LINK_WIFI,
+                                selected = stalkerXUserAgentLink == ProviderStalkerAdvancedOptions.LINK_WIFI,
+                                onClick = { onStalkerXUserAgentLinkChange(ProviderStalkerAdvancedOptions.LINK_WIFI) }
                             )
                         }
                     }
