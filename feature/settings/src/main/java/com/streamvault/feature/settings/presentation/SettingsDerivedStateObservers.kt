@@ -91,7 +91,7 @@ internal fun observeProviderDiagnostics(
 
 internal fun observeCategoryManagement(
     activeProviderIdFlow: Flow<Long?>,
-    preferencesRepository: com.streamvault.data.preferences.PreferencesRepository,
+    preferencesRepository: com.streamvault.domain.settings.SettingsPreferences,
     categoryRepository: CategoryRepository
 ): Flow<CategoryManagementSnapshot> {
     return activeProviderIdFlow.flatMapLatest { providerId ->
@@ -116,7 +116,7 @@ internal fun observeCategoryManagement(
 
 private fun observeCategorySortModes(
     providerId: Long,
-    preferencesRepository: com.streamvault.data.preferences.PreferencesRepository
+    preferencesRepository: com.streamvault.domain.settings.SettingsPreferences
 ): Flow<Map<ContentType, CategorySortMode>> {
     return combine(
         preferencesRepository.getCategorySortMode(providerId, ContentType.LIVE),
@@ -133,7 +133,7 @@ private fun observeCategorySortModes(
 
 private fun observeHiddenCategoryIdsByType(
     providerId: Long,
-    preferencesRepository: com.streamvault.data.preferences.PreferencesRepository
+    preferencesRepository: com.streamvault.domain.settings.SettingsPreferences
 ): Flow<Map<ContentType, Set<Long>>> {
     return combine(
         preferencesRepository.getHiddenCategoryIds(providerId, ContentType.LIVE),

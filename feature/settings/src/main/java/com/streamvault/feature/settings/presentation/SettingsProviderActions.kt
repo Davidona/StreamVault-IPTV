@@ -16,7 +16,7 @@ import com.streamvault.domain.usecase.SyncProviderCommand
 import com.streamvault.domain.usecase.SyncProviderResult
 import com.streamvault.domain.util.PersistedTimestampPolicy
 import com.streamvault.data.sync.ProviderSyncCommands
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,7 +34,7 @@ internal fun shouldAutoSyncProvider(
 internal class SettingsProviderActions(
     private val providerRepository: ProviderRepository,
     private val combinedM3uRepository: CombinedM3uRepository,
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: SettingsPreferences,
     private val syncProvider: SyncProvider,
     private val syncManager: ProviderSyncCommands,
     private val syncMetadataRepository: SyncMetadataRepository,

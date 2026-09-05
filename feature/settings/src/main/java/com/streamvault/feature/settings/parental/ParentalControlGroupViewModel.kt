@@ -3,7 +3,7 @@ package com.streamvault.feature.settings.parental
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Result
@@ -45,7 +45,7 @@ data class ParentalControlGroupUiState(
 @HiltViewModel
 class ParentalControlGroupViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: SettingsPreferences,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

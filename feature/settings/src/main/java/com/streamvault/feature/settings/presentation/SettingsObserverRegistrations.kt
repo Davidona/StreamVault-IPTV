@@ -3,7 +3,7 @@ package com.streamvault.feature.settings.presentation
 import android.content.Context
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
 import com.streamvault.data.local.dao.ProgramDao
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.repository.CategoryRepository
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 internal fun registerSettingsAppUpdateObservers(
     scope: CoroutineScope,
-    preferencesRepository: PreferencesRepository,
+    preferencesRepository: SettingsPreferences,
     appUpdateActions: SettingsAppUpdateActions,
     appUpdatePort: SettingsAppUpdatePort,
     uiState: MutableStateFlow<SettingsUiState>
@@ -100,7 +100,7 @@ internal fun registerCombinedProfileObservers(
 internal fun registerRecordingObservers(
     scope: CoroutineScope,
     recordingManager: RecordingManager,
-    preferencesRepository: PreferencesRepository,
+    preferencesRepository: SettingsPreferences,
     uiState: MutableStateFlow<SettingsUiState>
 ) {
     scope.launch {
@@ -137,7 +137,7 @@ internal fun registerRecordingObservers(
 internal fun registerEpgObservers(
     scope: CoroutineScope,
     epgSourceRepository: EpgSourceRepository,
-    preferencesRepository: PreferencesRepository,
+    preferencesRepository: SettingsPreferences,
     uiState: MutableStateFlow<SettingsUiState>
 ) {
     scope.launch {
@@ -160,7 +160,7 @@ internal fun registerDerivedStateObservers(
     seriesRepository: SeriesRepository,
     programDao: ProgramDao,
     application: Context,
-    preferencesRepository: PreferencesRepository,
+    preferencesRepository: SettingsPreferences,
     activeProviderIdFlow: Flow<Long?>,
     categoryRepository: CategoryRepository,
     combinedM3uRepository: CombinedM3uRepository,

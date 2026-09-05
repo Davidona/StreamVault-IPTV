@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.streamvault.feature.settings.R
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.Result
 import com.streamvault.feature.settings.api.SettingsUpdateActionState
 
 internal class SettingsAppUpdateActions(
     private val appContext: Context,
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: SettingsPreferences,
     private val appUpdatePort: SettingsAppUpdatePort,
     private val uiState: MutableStateFlow<SettingsUiState>
 ) {

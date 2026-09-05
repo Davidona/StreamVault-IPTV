@@ -1,7 +1,7 @@
 package com.streamvault.feature.settings.presentation
 
 import com.streamvault.data.local.entity.XtreamLiveOnboardingStateEntity
-import com.streamvault.data.preferences.DatabaseMaintenanceSnapshot
+import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.ContentType

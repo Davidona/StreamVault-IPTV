@@ -19,6 +19,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.streamvault.data.local.dao.ChannelPreferenceDao
 import com.streamvault.data.local.dao.SearchHistoryDao
+import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -150,7 +152,7 @@ class PreferencesRepository @Inject constructor(
     private val channelPreferenceDao: ChannelPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
-) : ParentalControlSessionStore, ParentalPinVerifier {
+) : ParentalControlSessionStore, ParentalPinVerifier, SettingsPreferences {
     private val preferencesDataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { cause ->
@@ -369,15 +371,15 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.DEFAULT_VIEW_MODE]
     }
 
-    val isIncognitoMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val isIncognitoMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.IS_INCOGNITO_MODE] ?: false
     }
 
-    val useXtreamTextClassification: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val useXtreamTextClassification: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.XTREAM_TEXT_CLASSIFICATION] ?: true // default ON
     }
 
-    val xtreamBase64TextCompatibility: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val xtreamBase64TextCompatibility: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.XTREAM_BASE64_TEXT_COMPATIBILITY] ?: false
     }
 
@@ -389,45 +391,45 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.PLAYER_MUTED] ?: false
     }
 
-    val playerMediaSessionEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerMediaSessionEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_MEDIA_SESSION_ENABLED] ?: true
     }
 
-    val playerFastRetryOnTransientFailures: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerFastRetryOnTransientFailures: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_FAST_RETRY_ON_TRANSIENT_FAILURES] ?: false
     }
 
-    val playerAudioDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
+    override val playerAudioDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
         parseDecoderModePreference(
             saved = preferences[PreferencesKeys.PLAYER_AUDIO_DECODER_MODE],
             legacySaved = preferences[PreferencesKeys.PLAYER_DECODER_MODE]
         )
     }
 
-    val playerVideoDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
+    override val playerVideoDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
         parseDecoderModePreference(
             saved = preferences[PreferencesKeys.PLAYER_VIDEO_DECODER_MODE],
             legacySaved = preferences[PreferencesKeys.PLAYER_DECODER_MODE]
         )
     }
 
-    val playerPlaybackBufferMode: Flow<PlaybackBufferMode> = context.dataStore.data.map { preferences ->
+    override val playerPlaybackBufferMode: Flow<PlaybackBufferMode> = context.dataStore.data.map { preferences ->
         parsePlaybackBufferModePreference(preferences[PreferencesKeys.PLAYER_PLAYBACK_BUFFER_MODE])
     }
 
-    val playerSurfaceMode: Flow<PlayerSurfaceMode> = context.dataStore.data.map { preferences ->
+    override val playerSurfaceMode: Flow<PlayerSurfaceMode> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SURFACE_MODE]
             ?.let { saved -> PlayerSurfaceMode.entries.firstOrNull { it.name == saved } }
             ?: PlayerSurfaceMode.AUTO
     }
 
-    val playerLiveStreamFormatMode: Flow<LiveStreamFormatMode> = context.dataStore.data.map { preferences ->
+    override val playerLiveStreamFormatMode: Flow<LiveStreamFormatMode> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_STREAM_FORMAT_MODE]
             ?.let { saved -> LiveStreamFormatMode.entries.firstOrNull { it.name == saved } }
             ?: LiveStreamFormatMode.AUTO
     }
 
-    val playerVodHttpProtocolMode: Flow<VodHttpProtocolMode> = context.dataStore.data.map { preferences ->
+    override val playerVodHttpProtocolMode: Flow<VodHttpProtocolMode> = context.dataStore.data.map { preferences ->
         (
             preferences[PreferencesKeys.PLAYER_VOD_HTTP_PROTOCOL_MODE]
                 ?: preferences[PreferencesKeys.LEGACY_PLAYER_MOVIE_HTTP_PROTOCOL_MODE]
@@ -436,100 +438,100 @@ class PreferencesRepository @Inject constructor(
             ?: VodHttpProtocolMode.COMPATIBILITY_HTTP1
     }
 
-    val playerAudioOutputPreference: Flow<AudioOutputPreference> = context.dataStore.data.map { preferences ->
+    override val playerAudioOutputPreference: Flow<AudioOutputPreference> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_AUDIO_OUTPUT_PREFERENCE]
             ?.let { saved -> AudioOutputPreference.entries.firstOrNull { it.name == saved } }
             ?: AudioOutputPreference.AUTO
     }
 
-    val playerCompatibilityMemoryEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerCompatibilityMemoryEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_COMPATIBILITY_MEMORY_ENABLED] ?: true
     }
 
-    val playerPlaybackSpeed: Flow<Float> = context.dataStore.data.map { preferences ->
+    override val playerPlaybackSpeed: Flow<Float> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_PLAYBACK_SPEED]
             ?.toFloatOrNull()
             ?.coerceIn(0.5f, 2f)
             ?: 1f
     }
 
-    val playerExternalPlaybackMode: Flow<com.streamvault.domain.model.ExternalPlaybackMode> = context.dataStore.data.map { preferences ->
+    override val playerExternalPlaybackMode: Flow<com.streamvault.domain.model.ExternalPlaybackMode> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_EXTERNAL_PLAYBACK_MODE]
             ?.let { saved -> com.streamvault.domain.model.ExternalPlaybackMode.fromStorageValue(saved) }
             ?: com.streamvault.domain.model.ExternalPlaybackMode.INTERNAL_PLAYER
     }
 
-    val playerAudioVideoOffsetMs: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerAudioVideoOffsetMs: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_OFFSET_MS] ?: 0)
             .coerceIn(AUDIO_VIDEO_OFFSET_MIN_MS, AUDIO_VIDEO_OFFSET_MAX_MS)
     }
 
-    val playerAudioVideoSyncEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerAudioVideoSyncEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_SYNC_ENABLED] ?: false
     }
 
-    val preferredAudioLanguage: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val preferredAudioLanguage: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PREFERRED_AUDIO_LANGUAGE]
             ?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: "auto"
     }
 
-    val playerSubtitleTextScale: Flow<Float> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleTextScale: Flow<Float> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE]
             ?.toFloatOrNull()
             ?.coerceIn(0.75f, 1.75f)
             ?: 1f
     }
 
-    val playerSubtitleTextColor: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleTextColor: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_COLOR] ?: 0xFFFFFFFF.toInt()
     }
 
-    val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] ?: 0x80000000.toInt()
     }
 
-    val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_TRANSLATION_ENABLED] ?: false
     }
 
-    val playerLiveTranslationEndpoint: Flow<String> = context.dataStore.data.map { preferences ->
+    override val playerLiveTranslationEndpoint: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_TRANSLATION_ENDPOINT]
             ?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: "http://10.0.2.2:8765"
     }
 
-    val playerControlsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerControlsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_CONTROLS_TIMEOUT_SECONDS] ?: 5).coerceIn(2, 60)
     }
 
-    val playerLiveOverlayTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerLiveOverlayTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 4).coerceIn(2, 60)
     }
 
-    val playerNoticeTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerNoticeTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_NOTICE_TIMEOUT_SECONDS] ?: 6).coerceIn(2, 60)
     }
 
-    val playerDiagnosticsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerDiagnosticsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS] ?: 15).coerceIn(2, 60)
     }
 
-    val playerWifiMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val playerWifiMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
     }
 
-    val playerEthernetMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val playerEthernetMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
     }
 
-    val playerTimeshiftEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_TIMESHIFT_ENABLED] ?: false
     }
 
-    val playerTimeshiftDepthMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftDepthMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         when (preferences[PreferencesKeys.PLAYER_TIMESHIFT_DEPTH_MINUTES] ?: 30) {
             15, 30, 60 -> preferences[PreferencesKeys.PLAYER_TIMESHIFT_DEPTH_MINUTES] ?: 30
             in Int.MIN_VALUE..22 -> 15
@@ -538,41 +540,41 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val playerTimeshiftBackend: Flow<TimeshiftBackendPreference> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftBackend: Flow<TimeshiftBackendPreference> = context.dataStore.data.map { preferences ->
         parseTimeshiftBackendPreference(preferences[PreferencesKeys.PLAYER_TIMESHIFT_BACKEND])
     }
 
-    val defaultStopPlaybackTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val defaultStopPlaybackTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         sanitizePlaybackTimerMinutes(preferences[PreferencesKeys.DEFAULT_STOP_PLAYBACK_TIMER_MINUTES] ?: 0)
     }
 
-    val defaultIdleStandbyTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val defaultIdleStandbyTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         sanitizePlaybackTimerMinutes(preferences[PreferencesKeys.DEFAULT_IDLE_STANDBY_TIMER_MINUTES] ?: 0)
     }
 
-    val lastSpeedTestMegabits: Flow<Double?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestMegabits: Flow<Double?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_MEGABITS]?.toDoubleOrNull()
     }
 
-    val lastSpeedTestTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    val lastSpeedTestTransport: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestTransport: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_TRANSPORT]?.takeIf { it.isNotBlank() }
     }
 
-    val lastSpeedTestRecommendedHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestRecommendedHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_RECOMMENDED_HEIGHT]?.takeIf { it > 0 }
     }
 
-    val lastSpeedTestEstimated: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestEstimated: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_ESTIMATED] ?: false
     }
 
     val recentSearchQueries: Flow<List<String>> = getRecentSearchQueries(SearchHistoryScope.ALL, null)
 
-    val parentalControlLevel: Flow<Int> = context.dataStore.data
+    override val parentalControlLevel: Flow<Int> = context.dataStore.data
         .map { preferences ->
             val stored = preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL] ?: 2 // Default to 2 = PRIVATE
             // Migration: users who had the old HIDDEN level (stored as 2) are promoted to the new
@@ -582,9 +584,9 @@ class PreferencesRepository @Inject constructor(
             if (!migrated && stored == 2) 3 else stored
         }
 
-    val hasParentalPin: Flow<Boolean> = context.dataStore.data.map(::hasStoredParentalPin)
+    override val hasParentalPin: Flow<Boolean> = context.dataStore.data.map(::hasStoredParentalPin)
 
-    suspend fun setLastActiveProviderId(id: Long) {
+    override suspend fun setLastActiveProviderId(id: Long) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LAST_ACTIVE_PROVIDER_ID] = id
         }
@@ -616,32 +618,32 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setParentalControlLevel(level: Int) {
+    override suspend fun setParentalControlLevel(level: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL] = level
             preferences[PreferencesKeys.PARENTAL_V2_MIGRATED] = true
         }
     }
 
-    suspend fun setIncognitoMode(enabled: Boolean) {
+    override suspend fun setIncognitoMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_INCOGNITO_MODE] = enabled
         }
     }
 
-    suspend fun setUseXtreamTextClassification(enabled: Boolean) {
+    override suspend fun setUseXtreamTextClassification(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.XTREAM_TEXT_CLASSIFICATION] = enabled
         }
     }
 
-    suspend fun setXtreamBase64TextCompatibility(enabled: Boolean) {
+    override suspend fun setXtreamBase64TextCompatibility(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.XTREAM_BASE64_TEXT_COMPATIBILITY] = enabled
         }
     }
 
-    suspend fun bumpXtreamTextImportGeneration(): Long {
+    override suspend fun bumpXtreamTextImportGeneration(): Long {
         var nextGeneration = 0L
         context.dataStore.edit { preferences ->
             nextGeneration = (preferences[PreferencesKeys.XTREAM_TEXT_IMPORT_GENERATION] ?: 0L) + 1L
@@ -650,16 +652,16 @@ class PreferencesRepository @Inject constructor(
         return nextGeneration
     }
 
-    suspend fun getXtreamTextImportGeneration(): Long {
+    override suspend fun getXtreamTextImportGeneration(): Long {
         return xtreamTextImportGeneration.first()
     }
 
-    suspend fun getXtreamTextImportAppliedGeneration(providerId: Long): Long {
+    override suspend fun getXtreamTextImportAppliedGeneration(providerId: Long): Long {
         val key = longPreferencesKey(xtreamTextImportAppliedGenerationKey(providerId))
         return context.dataStore.data.first()[key] ?: 0L
     }
 
-    suspend fun markXtreamTextImportApplied(providerId: Long, generation: Long) {
+    override suspend fun markXtreamTextImportApplied(providerId: Long, generation: Long) {
         val key = longPreferencesKey(xtreamTextImportAppliedGenerationKey(providerId))
         context.dataStore.edit { preferences ->
             if (generation <= 0L) {
@@ -670,23 +672,23 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val preventStandbyDuringPlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val preventStandbyDuringPlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PREVENT_STANDBY_DURING_PLAYBACK] ?: true
     }
 
-    val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.AUTO_PLAY_NEXT_EPISODE] ?: true
     }
 
-    val autoCheckAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoCheckAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.AUTO_CHECK_APP_UPDATES] ?: true
     }
 
-    val autoDownloadAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoDownloadAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.AUTO_DOWNLOAD_APP_UPDATES] ?: false
     }
 
-    val lastAppUpdateCheckTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastAppUpdateCheckTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_CHECK_TIMESTAMP]?.takeIf { it > 0L }
     }
 
@@ -694,7 +696,7 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.LAST_APP_UPDATE_ATTEMPT_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    val lastAppUpdateFailureTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastAppUpdateFailureTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_FAILURE_TIMESTAMP]?.takeIf { it > 0L }
     }
 
@@ -714,35 +716,35 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOADED_VERSION_NAME]?.takeIf { it.isNotBlank() }
     }
 
-    val cachedAppUpdateVersionName: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateVersionName: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_LATEST_VERSION_NAME]?.takeIf { it.isNotBlank() }
     }
 
-    val cachedAppUpdateVersionCode: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateVersionCode: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_LATEST_VERSION_CODE]
     }
 
-    val cachedAppUpdateReleaseUrl: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateReleaseUrl: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_RELEASE_URL]?.takeIf { it.isNotBlank() }
     }
 
-    val cachedAppUpdateDownloadUrl: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateDownloadUrl: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_URL]?.takeIf { it.isNotBlank() }
     }
 
-    val cachedAppUpdateDownloadSha256: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateDownloadSha256: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_SHA256]?.takeIf { it.isNotBlank() }
     }
 
-    val cachedAppUpdateReleaseNotes: Flow<String> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateReleaseNotes: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_RELEASE_NOTES].orEmpty()
     }
 
-    val cachedAppUpdatePublishedAt: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdatePublishedAt: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_PUBLISHED_AT]?.takeIf { it.isNotBlank() }
     }
 
-    val lastMaintenanceSnapshot: Flow<DatabaseMaintenanceSnapshot?> = context.dataStore.data.map { preferences ->
+    override val lastMaintenanceSnapshot: Flow<DatabaseMaintenanceSnapshot?> = context.dataStore.data.map { preferences ->
         val ranAt = preferences[PreferencesKeys.LAST_MAINTENANCE_AT] ?: return@map null
         DatabaseMaintenanceSnapshot(
             ranAt = ranAt,
@@ -765,19 +767,19 @@ class PreferencesRepository @Inject constructor(
         )
     }
 
-    val zapAutoRevert: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val zapAutoRevert: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.ZAP_AUTO_REVERT] ?: true
     }
 
-    val recordingWifiOnly: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val recordingWifiOnly: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.RECORDING_WIFI_ONLY] ?: false
     }
 
-    val recordingPaddingBeforeMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val recordingPaddingBeforeMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.RECORDING_PADDING_BEFORE_MINUTES] ?: 0).coerceIn(0, 30)
     }
 
-    val recordingPaddingAfterMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val recordingPaddingAfterMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.RECORDING_PADDING_AFTER_MINUTES] ?: 0).coerceIn(0, 30)
     }
 
@@ -791,25 +793,25 @@ class PreferencesRepository @Inject constructor(
         (preferences[PreferencesKeys.MAX_CONCURRENT_STREAMS] ?: 2).coerceIn(1, 4)
     }
 
-    suspend fun setZapAutoRevert(enabled: Boolean) {
+    override suspend fun setZapAutoRevert(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.ZAP_AUTO_REVERT] = enabled
         }
     }
 
-    suspend fun setRecordingWifiOnly(enabled: Boolean) {
+    override suspend fun setRecordingWifiOnly(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.RECORDING_WIFI_ONLY] = enabled
         }
     }
 
-    suspend fun setRecordingPaddingBeforeMinutes(minutes: Int) {
+    override suspend fun setRecordingPaddingBeforeMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.RECORDING_PADDING_BEFORE_MINUTES] = minutes.coerceIn(0, 30)
         }
     }
 
-    suspend fun setRecordingPaddingAfterMinutes(minutes: Int) {
+    override suspend fun setRecordingPaddingAfterMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.RECORDING_PADDING_AFTER_MINUTES] = minutes.coerceIn(0, 30)
         }
@@ -832,31 +834,31 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPreventStandbyDuringPlayback(prevent: Boolean) {
+    override suspend fun setPreventStandbyDuringPlayback(prevent: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PREVENT_STANDBY_DURING_PLAYBACK] = prevent
         }
     }
 
-    suspend fun setAutoPlayNextEpisode(enabled: Boolean) {
+    override suspend fun setAutoPlayNextEpisode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_PLAY_NEXT_EPISODE] = enabled
         }
     }
 
-    suspend fun setAutoCheckAppUpdates(enabled: Boolean) {
+    override suspend fun setAutoCheckAppUpdates(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_CHECK_APP_UPDATES] = enabled
         }
     }
 
-    suspend fun setAutoDownloadAppUpdates(enabled: Boolean) {
+    override suspend fun setAutoDownloadAppUpdates(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_DOWNLOAD_APP_UPDATES] = enabled
         }
     }
 
-    suspend fun setLastAppUpdateCheckTimestamp(timestampMs: Long?) {
+    override suspend fun setLastAppUpdateCheckTimestamp(timestampMs: Long?) {
         context.dataStore.edit { preferences ->
             if (timestampMs == null || timestampMs <= 0L) {
                 preferences.remove(PreferencesKeys.LAST_APP_UPDATE_CHECK_TIMESTAMP)
@@ -866,7 +868,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setLastAppUpdateFailureTimestamp(timestampMs: Long?) {
+    override suspend fun setLastAppUpdateFailureTimestamp(timestampMs: Long?) {
         context.dataStore.edit { preferences ->
             if (timestampMs == null || timestampMs <= 0L) {
                 preferences.remove(PreferencesKeys.LAST_APP_UPDATE_FAILURE_TIMESTAMP)
@@ -876,7 +878,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setLastAppUpdateAttemptTimestamp(timestampMs: Long?) {
+    override suspend fun setLastAppUpdateAttemptTimestamp(timestampMs: Long?) {
         context.dataStore.edit { preferences ->
             if (timestampMs == null || timestampMs <= 0L) {
                 preferences.remove(PreferencesKeys.LAST_APP_UPDATE_ATTEMPT_TIMESTAMP)
@@ -886,7 +888,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setLastAppUpdateOutcome(outcome: String?) {
+    override suspend fun setLastAppUpdateOutcome(outcome: String?) {
         context.dataStore.edit { preferences ->
             if (outcome.isNullOrBlank()) {
                 preferences.remove(PreferencesKeys.LAST_APP_UPDATE_OUTCOME)
@@ -926,7 +928,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setCachedAppUpdateRelease(
+    override suspend fun setCachedAppUpdateRelease(
         versionName: String?,
         versionCode: Int?,
         releaseUrl: String?,
@@ -1024,93 +1026,93 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerMediaSessionEnabled(enabled: Boolean) {
+    override suspend fun setPlayerMediaSessionEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_MEDIA_SESSION_ENABLED] = enabled
         }
     }
 
-    suspend fun setPlayerFastRetryOnTransientFailures(enabled: Boolean) {
+    override suspend fun setPlayerFastRetryOnTransientFailures(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_FAST_RETRY_ON_TRANSIENT_FAILURES] = enabled
         }
     }
 
-    suspend fun setPlayerAudioDecoderMode(mode: DecoderMode) {
+    override suspend fun setPlayerAudioDecoderMode(mode: DecoderMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_AUDIO_DECODER_MODE] = mode.name
         }
     }
 
-    suspend fun setPlayerVideoDecoderMode(mode: DecoderMode) {
+    override suspend fun setPlayerVideoDecoderMode(mode: DecoderMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_VIDEO_DECODER_MODE] = mode.name
         }
     }
 
-    suspend fun setPlayerPlaybackBufferMode(mode: PlaybackBufferMode) {
+    override suspend fun setPlayerPlaybackBufferMode(mode: PlaybackBufferMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_PLAYBACK_BUFFER_MODE] = mode.name
         }
     }
 
-    suspend fun setPlayerAudioOutputPreference(preference: AudioOutputPreference) {
+    override suspend fun setPlayerAudioOutputPreference(preference: AudioOutputPreference) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_AUDIO_OUTPUT_PREFERENCE] = preference.name
         }
     }
 
-    suspend fun setPlayerCompatibilityMemoryEnabled(enabled: Boolean) {
+    override suspend fun setPlayerCompatibilityMemoryEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_COMPATIBILITY_MEMORY_ENABLED] = enabled
         }
     }
 
-    suspend fun setPlayerSurfaceMode(mode: PlayerSurfaceMode) {
+    override suspend fun setPlayerSurfaceMode(mode: PlayerSurfaceMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SURFACE_MODE] = mode.name
         }
     }
 
-    suspend fun setPlayerLiveStreamFormatMode(mode: LiveStreamFormatMode) {
+    override suspend fun setPlayerLiveStreamFormatMode(mode: LiveStreamFormatMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_LIVE_STREAM_FORMAT_MODE] = mode.name
         }
     }
 
-    suspend fun setPlayerVodHttpProtocolMode(mode: VodHttpProtocolMode) {
+    override suspend fun setPlayerVodHttpProtocolMode(mode: VodHttpProtocolMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_VOD_HTTP_PROTOCOL_MODE] = mode.name
             preferences.remove(PreferencesKeys.LEGACY_PLAYER_MOVIE_HTTP_PROTOCOL_MODE)
         }
     }
 
-    suspend fun setPlayerPlaybackSpeed(speed: Float) {
+    override suspend fun setPlayerPlaybackSpeed(speed: Float) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_PLAYBACK_SPEED] = speed.coerceIn(0.5f, 2f).toString()
         }
     }
 
-    suspend fun setPlayerExternalPlaybackMode(mode: com.streamvault.domain.model.ExternalPlaybackMode) {
+    override suspend fun setPlayerExternalPlaybackMode(mode: com.streamvault.domain.model.ExternalPlaybackMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_EXTERNAL_PLAYBACK_MODE] = mode.storageValue
         }
     }
 
-    suspend fun setPlayerAudioVideoOffsetMs(offsetMs: Int) {
+    override suspend fun setPlayerAudioVideoOffsetMs(offsetMs: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_OFFSET_MS] =
                 offsetMs.coerceIn(AUDIO_VIDEO_OFFSET_MIN_MS, AUDIO_VIDEO_OFFSET_MAX_MS)
         }
     }
 
-    suspend fun setPlayerAudioVideoSyncEnabled(enabled: Boolean) {
+    override suspend fun setPlayerAudioVideoSyncEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_SYNC_ENABLED] = enabled
         }
     }
 
-    suspend fun setPreferredAudioLanguage(languageTag: String?) {
+    override suspend fun setPreferredAudioLanguage(languageTag: String?) {
         context.dataStore.edit { preferences ->
             val normalized = languageTag
                 ?.trim()
@@ -1123,31 +1125,31 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerSubtitleTextScale(scale: Float) {
+    override suspend fun setPlayerSubtitleTextScale(scale: Float) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE] = scale.coerceIn(0.75f, 1.75f).toString()
         }
     }
 
-    suspend fun setPlayerSubtitleTextColor(colorArgb: Int) {
+    override suspend fun setPlayerSubtitleTextColor(colorArgb: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_COLOR] = colorArgb
         }
     }
 
-    suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int) {
+    override suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] = colorArgb
         }
     }
 
-    suspend fun setPlayerLiveTranslationEnabled(enabled: Boolean) {
+    override suspend fun setPlayerLiveTranslationEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_LIVE_TRANSLATION_ENABLED] = enabled
         }
     }
 
-    suspend fun setPlayerLiveTranslationEndpoint(endpoint: String) {
+    override suspend fun setPlayerLiveTranslationEndpoint(endpoint: String) {
         context.dataStore.edit { preferences ->
             val normalized = endpoint.trim()
             if (normalized.isBlank()) {
@@ -1158,31 +1160,31 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerControlsTimeoutSeconds(seconds: Int) {
+    override suspend fun setPlayerControlsTimeoutSeconds(seconds: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_CONTROLS_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
     }
 
-    suspend fun setPlayerLiveOverlayTimeoutSeconds(seconds: Int) {
+    override suspend fun setPlayerLiveOverlayTimeoutSeconds(seconds: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
     }
 
-    suspend fun setPlayerNoticeTimeoutSeconds(seconds: Int) {
+    override suspend fun setPlayerNoticeTimeoutSeconds(seconds: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_NOTICE_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
     }
 
-    suspend fun setPlayerDiagnosticsTimeoutSeconds(seconds: Int) {
+    override suspend fun setPlayerDiagnosticsTimeoutSeconds(seconds: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
     }
 
-    suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?) {
+    override suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?) {
         context.dataStore.edit { preferences ->
             val normalized = maxHeight?.takeIf { it > 0 }
             if (normalized == null) {
@@ -1193,7 +1195,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerEthernetMaxVideoHeight(maxHeight: Int?) {
+    override suspend fun setPlayerEthernetMaxVideoHeight(maxHeight: Int?) {
         context.dataStore.edit { preferences ->
             val normalized = maxHeight?.takeIf { it > 0 }
             if (normalized == null) {
@@ -1204,13 +1206,13 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerTimeshiftEnabled(enabled: Boolean) {
+    override suspend fun setPlayerTimeshiftEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_TIMESHIFT_ENABLED] = enabled
         }
     }
 
-    suspend fun setPlayerTimeshiftDepthMinutes(minutes: Int) {
+    override suspend fun setPlayerTimeshiftDepthMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_TIMESHIFT_DEPTH_MINUTES] = when (minutes) {
                 15, 30, 60 -> minutes
@@ -1221,25 +1223,25 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerTimeshiftBackend(preference: TimeshiftBackendPreference) {
+    override suspend fun setPlayerTimeshiftBackend(preference: TimeshiftBackendPreference) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_TIMESHIFT_BACKEND] = preference.name
         }
     }
 
-    suspend fun setDefaultStopPlaybackTimerMinutes(minutes: Int) {
+    override suspend fun setDefaultStopPlaybackTimerMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_STOP_PLAYBACK_TIMER_MINUTES] = sanitizePlaybackTimerMinutes(minutes)
         }
     }
 
-    suspend fun setDefaultIdleStandbyTimerMinutes(minutes: Int) {
+    override suspend fun setDefaultIdleStandbyTimerMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_IDLE_STANDBY_TIMER_MINUTES] = sanitizePlaybackTimerMinutes(minutes)
         }
     }
 
-    suspend fun setLastSpeedTestResult(
+    override suspend fun setLastSpeedTestResult(
         megabitsPerSecond: Double?,
         measuredAtMs: Long?,
         transport: String?,
@@ -1324,7 +1326,7 @@ class PreferencesRepository @Inject constructor(
         clearLegacyRecentSearchQueries()
     }
 
-    suspend fun setParentalPin(pin: String) {
+    override suspend fun setParentalPin(pin: String) {
         val salt = ByteArray(PIN_SALT_BYTES).also { secureRandom.nextBytes(it) }
         val hash = hashPin(pin, salt)
         val saltBase64 = java.util.Base64.getEncoder().encodeToString(salt)
@@ -1453,23 +1455,23 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val appLanguage: Flow<String> = context.dataStore.data.map { preferences ->
+    override val appLanguage: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.APP_LANGUAGE] ?: "system"
     }
 
-    val remoteShortcutPreferences: Flow<RemoteShortcutPreferences> = context.dataStore.data.map { preferences ->
+    override val remoteShortcutPreferences: Flow<RemoteShortcutPreferences> = context.dataStore.data.map { preferences ->
         decodeRemoteShortcutPreferences { profile, button ->
             preferences[stringPreferencesKey(remoteShortcutKey(profile, button))]
         }
     }
 
-    suspend fun setAppLanguage(language: String) {
+    override suspend fun setAppLanguage(language: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_LANGUAGE] = language
         }
     }
 
-    suspend fun setRemoteShortcutSelection(
+    override suspend fun setRemoteShortcutSelection(
         profile: RemoteShortcutProfile,
         button: RemoteColorButton,
         selection: RemoteShortcutSelection
@@ -1485,109 +1487,109 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val appLandingDestination: Flow<AppLandingDestination> = context.dataStore.data.map { preferences ->
+    override val appLandingDestination: Flow<AppLandingDestination> = context.dataStore.data.map { preferences ->
         AppLandingDestination.fromStorage(preferences[PreferencesKeys.APP_LANDING_DESTINATION])
     }
 
-    val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = context.dataStore.data.map { preferences ->
+    override val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = context.dataStore.data.map { preferences ->
         decodeAppTopLevelDestinations(preferences[PreferencesKeys.APP_TOP_LEVEL_DESTINATIONS])
     }
 
-    val appHomeDashboardShelves: Flow<List<AppHomeDashboardShelf>> = context.dataStore.data.map { preferences ->
+    override val appHomeDashboardShelves: Flow<List<AppHomeDashboardShelf>> = context.dataStore.data.map { preferences ->
         decodeAppHomeDashboardShelves(preferences[PreferencesKeys.APP_HOME_DASHBOARD_SHELVES])
     }
 
-    suspend fun setAppLandingDestination(destination: AppLandingDestination) {
+    override suspend fun setAppLandingDestination(destination: AppLandingDestination) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_LANDING_DESTINATION] = destination.storageValue
         }
     }
 
-    suspend fun setAppTopLevelDestinations(destinations: List<AppTopLevelDestination>) {
+    override suspend fun setAppTopLevelDestinations(destinations: List<AppTopLevelDestination>) {
         val normalized = AppTopLevelDestination.normalizeForStorage(destinations)
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_TOP_LEVEL_DESTINATIONS] = encodeAppTopLevelDestinations(normalized)
         }
     }
 
-    suspend fun setAppHomeDashboardShelves(shelves: List<AppHomeDashboardShelf>) {
+    override suspend fun setAppHomeDashboardShelves(shelves: List<AppHomeDashboardShelf>) {
         val normalized = AppHomeDashboardShelf.normalizeForStorage(shelves)
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_HOME_DASHBOARD_SHELVES] = encodeAppHomeDashboardShelves(normalized)
         }
     }
 
-    val appTimeFormat: Flow<AppTimeFormat> = context.dataStore.data.map { preferences ->
+    override val appTimeFormat: Flow<AppTimeFormat> = context.dataStore.data.map { preferences ->
         AppTimeFormat.fromStorage(preferences[PreferencesKeys.APP_TIME_FORMAT])
     }
 
-    suspend fun setAppTimeFormat(format: AppTimeFormat) {
+    override suspend fun setAppTimeFormat(format: AppTimeFormat) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_TIME_FORMAT] = format.storageValue
         }
     }
 
-    val liveTvChannelMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val liveTvChannelMode: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LIVE_TV_CHANNEL_MODE]
     }
 
-    suspend fun setLiveTvChannelMode(mode: String) {
+    override suspend fun setLiveTvChannelMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_TV_CHANNEL_MODE] = mode
         }
     }
 
-    val showLiveSourceSwitcher: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showLiveSourceSwitcher: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SHOW_LIVE_SOURCE_SWITCHER] ?: false
     }
 
-    suspend fun setShowLiveSourceSwitcher(enabled: Boolean) {
+    override suspend fun setShowLiveSourceSwitcher(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_LIVE_SOURCE_SWITCHER] = enabled
         }
     }
 
-    val showFavoritesCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showFavoritesCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SHOW_FAVORITES_CATEGORY] ?: true
     }
 
-    suspend fun setShowFavoritesCategory(enabled: Boolean) {
+    override suspend fun setShowFavoritesCategory(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_FAVORITES_CATEGORY] = enabled
         }
     }
 
-    val showAllChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showAllChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SHOW_ALL_CHANNELS_CATEGORY] ?: true
     }
 
-    suspend fun setShowAllChannelsCategory(enabled: Boolean) {
+    override suspend fun setShowAllChannelsCategory(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_ALL_CHANNELS_CATEGORY] = enabled
         }
     }
 
-    val showRecentChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showRecentChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SHOW_RECENT_CHANNELS_CATEGORY] ?: true
     }
 
-    suspend fun setShowRecentChannelsCategory(enabled: Boolean) {
+    override suspend fun setShowRecentChannelsCategory(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_RECENT_CHANNELS_CATEGORY] = enabled
         }
     }
 
-    val liveTvQuickFilterVisibility: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val liveTvQuickFilterVisibility: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LIVE_TV_QUICK_FILTER_VISIBILITY]
     }
 
-    suspend fun setLiveTvQuickFilterVisibility(mode: String) {
+    override suspend fun setLiveTvQuickFilterVisibility(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_TV_QUICK_FILTER_VISIBILITY] = mode
         }
     }
 
-    val liveTvCategoryFilters: Flow<List<String>> = context.dataStore.data.map { preferences ->
+    override val liveTvCategoryFilters: Flow<List<String>> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LIVE_TV_CATEGORY_FILTERS]
             ?.split('\n')
             .orEmpty()
@@ -1605,7 +1607,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun addLiveTvCategoryFilter(filter: String): Boolean {
+    override suspend fun addLiveTvCategoryFilter(filter: String): Boolean {
         val normalized = filter.trim()
         if (normalized.isBlank()) return false
         val current = liveTvCategoryFilters.first()
@@ -1616,7 +1618,7 @@ class PreferencesRepository @Inject constructor(
         return true
     }
 
-    suspend fun removeLiveTvCategoryFilter(filter: String): Boolean {
+    override suspend fun removeLiveTvCategoryFilter(filter: String): Boolean {
         val current = liveTvCategoryFilters.first()
         val updated = current.filterNot { it.equals(filter, ignoreCase = true) }
         if (updated.size == current.size) {
@@ -1626,51 +1628,51 @@ class PreferencesRepository @Inject constructor(
         return true
     }
 
-    val hideDecorativeLiveRows: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val hideDecorativeLiveRows: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.HIDE_DECORATIVE_LIVE_ROWS] ?: true
     }
 
-    suspend fun setHideDecorativeLiveRows(hide: Boolean) {
+    override suspend fun setHideDecorativeLiveRows(hide: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.HIDE_DECORATIVE_LIVE_ROWS] = hide
         }
     }
 
-    val liveChannelNumberingMode: Flow<ChannelNumberingMode> = context.dataStore.data.map { preferences ->
+    override val liveChannelNumberingMode: Flow<ChannelNumberingMode> = context.dataStore.data.map { preferences ->
         ChannelNumberingMode.fromStorage(preferences[PreferencesKeys.LIVE_CHANNEL_NUMBERING_MODE])
     }
 
-    suspend fun setLiveChannelNumberingMode(mode: ChannelNumberingMode) {
+    override suspend fun setLiveChannelNumberingMode(mode: ChannelNumberingMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_CHANNEL_NUMBERING_MODE] = mode.storageValue
         }
     }
 
-    val liveChannelGroupingMode: Flow<LiveChannelGroupingMode> = context.dataStore.data.map { preferences ->
+    override val liveChannelGroupingMode: Flow<LiveChannelGroupingMode> = context.dataStore.data.map { preferences ->
         LiveChannelGroupingMode.fromStorage(preferences[PreferencesKeys.LIVE_CHANNEL_GROUPING_MODE])
     }
 
-    suspend fun setLiveChannelGroupingMode(mode: LiveChannelGroupingMode) {
+    override suspend fun setLiveChannelGroupingMode(mode: LiveChannelGroupingMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_CHANNEL_GROUPING_MODE] = mode.storageValue
         }
     }
 
-    val groupedChannelLabelMode: Flow<GroupedChannelLabelMode> = context.dataStore.data.map { preferences ->
+    override val groupedChannelLabelMode: Flow<GroupedChannelLabelMode> = context.dataStore.data.map { preferences ->
         GroupedChannelLabelMode.fromStorage(preferences[PreferencesKeys.GROUPED_CHANNEL_LABEL_MODE])
     }
 
-    suspend fun setGroupedChannelLabelMode(mode: GroupedChannelLabelMode) {
+    override suspend fun setGroupedChannelLabelMode(mode: GroupedChannelLabelMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.GROUPED_CHANNEL_LABEL_MODE] = mode.storageValue
         }
     }
 
-    val liveVariantPreferenceMode: Flow<LiveVariantPreferenceMode> = context.dataStore.data.map { preferences ->
+    override val liveVariantPreferenceMode: Flow<LiveVariantPreferenceMode> = context.dataStore.data.map { preferences ->
         LiveVariantPreferenceMode.fromStorage(preferences[PreferencesKeys.LIVE_VARIANT_PREFERENCE_MODE])
     }
 
-    suspend fun setLiveVariantPreferenceMode(mode: LiveVariantPreferenceMode) {
+    override suspend fun setLiveVariantPreferenceMode(mode: LiveVariantPreferenceMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_VARIANT_PREFERENCE_MODE] = mode.storageValue
         }
@@ -1725,21 +1727,21 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val vodDuplicateHandlingMode: Flow<VodDuplicateHandlingMode> = context.dataStore.data.map { preferences ->
+    override val vodDuplicateHandlingMode: Flow<VodDuplicateHandlingMode> = context.dataStore.data.map { preferences ->
         VodDuplicateHandlingMode.fromStorage(preferences[PreferencesKeys.VOD_DUPLICATE_HANDLING_MODE])
     }
 
-    suspend fun setVodDuplicateHandlingMode(mode: VodDuplicateHandlingMode) {
+    override suspend fun setVodDuplicateHandlingMode(mode: VodDuplicateHandlingMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_DUPLICATE_HANDLING_MODE] = mode.storageValue
         }
     }
 
-    val vodVariantPreferenceMode: Flow<VodVariantPreferenceMode> = context.dataStore.data.map { preferences ->
+    override val vodVariantPreferenceMode: Flow<VodVariantPreferenceMode> = context.dataStore.data.map { preferences ->
         VodVariantPreferenceMode.fromStorage(preferences[PreferencesKeys.VOD_VARIANT_PREFERENCE_MODE])
     }
 
-    suspend fun setVodVariantPreferenceMode(mode: VodVariantPreferenceMode) {
+    override suspend fun setVodVariantPreferenceMode(mode: VodVariantPreferenceMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_VARIANT_PREFERENCE_MODE] = mode.storageValue
         }
@@ -1794,34 +1796,34 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val vodViewMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val vodViewMode: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.VOD_VIEW_MODE]
     }
 
-    suspend fun setVodViewMode(mode: String) {
+    override suspend fun setVodViewMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_VIEW_MODE] = mode
         }
     }
 
-    val vodInfiniteScroll: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val vodInfiniteScroll: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.VOD_INFINITE_SCROLL] ?: true
     }
 
-    suspend fun setVodInfiniteScroll(enabled: Boolean) {
+    override suspend fun setVodInfiniteScroll(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_INFINITE_SCROLL] = enabled
         }
     }
 
-    val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode> =
+    override val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode> =
         context.dataStore.data.map { preferences ->
             com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(
                 preferences[PreferencesKeys.VOD_CATEGORY_LOAD_MODE]
             )
         }
 
-    suspend fun setVodCategoryLoadMode(mode: com.streamvault.domain.model.VodCategoryLoadMode) {
+    override suspend fun setVodCategoryLoadMode(mode: com.streamvault.domain.model.VodCategoryLoadMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_CATEGORY_LOAD_MODE] = mode.storageValue
         }
@@ -1847,11 +1849,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val guideDefaultCategoryId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val guideDefaultCategoryId: Flow<Long?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.GUIDE_DEFAULT_CATEGORY_ID]
     }
 
-    suspend fun setGuideDefaultCategoryId(categoryId: Long) {
+    override suspend fun setGuideDefaultCategoryId(categoryId: Long) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.GUIDE_DEFAULT_CATEGORY_ID] = categoryId
         }
@@ -1915,7 +1917,7 @@ class PreferencesRepository @Inject constructor(
             .filter { it.value != 0 }
             .joinToString(",") { "${it.key}:${it.value}" }
 
-    val epgTimeShiftsByProvider: Flow<Map<Long, Int>> = context.dataStore.data.map { prefs ->
+    override val epgTimeShiftsByProvider: Flow<Map<Long, Int>> = context.dataStore.data.map { prefs ->
         decodeEpgTimeShifts(prefs[PreferencesKeys.EPG_TIME_SHIFT_BY_PROVIDER])
     }
 
@@ -1925,7 +1927,7 @@ class PreferencesRepository @Inject constructor(
     suspend fun getEpgTimeShiftMinutes(providerId: Long): Int =
         epgTimeShiftsByProvider.first()[providerId] ?: 0
 
-    suspend fun setEpgTimeShiftMinutes(providerId: Long, minutes: Int) {
+    override suspend fun setEpgTimeShiftMinutes(providerId: Long, minutes: Int) {
         context.dataStore.edit { prefs ->
             val current = decodeEpgTimeShifts(prefs[PreferencesKeys.EPG_TIME_SHIFT_BY_PROVIDER]).toMutableMap()
             if (minutes == 0) current.remove(providerId) else current[providerId] = minutes
@@ -1956,7 +1958,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    fun getHiddenCategoryIds(providerId: Long, type: ContentType): Flow<Set<Long>> {
+    override fun getHiddenCategoryIds(providerId: Long, type: ContentType): Flow<Set<Long>> {
         val key = stringPreferencesKey(hiddenCategoriesKey(providerId, type))
         return context.dataStore.data.map { preferences ->
             preferences[key]
@@ -1967,7 +1969,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setCategoryHidden(
+    override suspend fun setCategoryHidden(
         providerId: Long,
         type: ContentType,
         categoryId: Long,
@@ -1993,7 +1995,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setHiddenCategoryIds(
+    override suspend fun setHiddenCategoryIds(
         providerId: Long,
         type: ContentType,
         categoryIds: Set<Long>
@@ -2156,7 +2158,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    fun getCategorySortMode(providerId: Long, type: ContentType): Flow<CategorySortMode> {
+    override fun getCategorySortMode(providerId: Long, type: ContentType): Flow<CategorySortMode> {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
         return context.dataStore.data.map { preferences ->
             preferences[key]
@@ -2165,7 +2167,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setCategorySortMode(providerId: Long, type: ContentType, mode: CategorySortMode) {
+    override suspend fun setCategorySortMode(providerId: Long, type: ContentType, mode: CategorySortMode) {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
         context.dataStore.edit { preferences ->
             preferences[key] = mode.name
@@ -2211,21 +2213,21 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val multiViewCenterTwoSlotLayout: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val multiViewCenterTwoSlotLayout: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_CENTER_TWO_SLOT_LAYOUT] ?: false
     }
 
-    suspend fun setMultiViewCenterTwoSlotLayout(enabled: Boolean) {
+    override suspend fun setMultiViewCenterTwoSlotLayout(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MULTIVIEW_CENTER_TWO_SLOT_LAYOUT] = enabled
         }
     }
 
-    val multiViewRespectProviderConnectionLimit: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val multiViewRespectProviderConnectionLimit: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_RESPECT_PROVIDER_CONNECTION_LIMIT] ?: true
     }
 
-    suspend fun setMultiViewRespectProviderConnectionLimit(enabled: Boolean) {
+    override suspend fun setMultiViewRespectProviderConnectionLimit(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MULTIVIEW_RESPECT_PROVIDER_CONNECTION_LIMIT] = enabled
         }
@@ -2268,7 +2270,7 @@ class PreferencesRepository @Inject constructor(
         channelPreferenceDao.setAudioVideoOffset(channelId = channelId, offsetMs = null)
     }
 
-    suspend fun clearAllRecentData() {
+    override suspend fun clearAllRecentData() {
         channelPreferenceDao.deleteAll()
         searchHistoryDao.deleteAll()
         context.dataStore.edit { preferences ->
@@ -2541,24 +2543,4 @@ class PreferencesRepository @Inject constructor(
 data class ParentalPinBackupData(
     val hash: String,
     val saltBase64: String
-)
-
-data class DatabaseMaintenanceSnapshot(
-    val ranAt: Long,
-    val deletedPrograms: Int,
-    val deletedExternalProgrammes: Int,
-    val deletedOrphanEpisodes: Int,
-    val deletedStaleFavorites: Int,
-    val vacuumRan: Boolean,
-    val mainDbBytes: Long,
-    val walBytes: Long,
-    val reclaimableBytes: Long,
-    val channelRows: Long,
-    val movieRows: Long,
-    val seriesRows: Long,
-    val episodeRows: Long,
-    val programRows: Long,
-    val epgProgrammeRows: Long,
-    val playbackHistoryRows: Long,
-    val favoriteRows: Long
 )

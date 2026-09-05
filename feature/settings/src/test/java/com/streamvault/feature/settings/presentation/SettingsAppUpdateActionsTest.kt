@@ -2,7 +2,7 @@ package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
 import com.streamvault.feature.settings.api.SettingsReleaseInfo
 import com.streamvault.feature.settings.api.SettingsUpdateDownloadState
@@ -25,7 +25,7 @@ class SettingsAppUpdateActionsTest {
     @Test
     fun `failed check records failure without replacing cached release`() = runTest(StandardTestDispatcher()) {
         val application = mock<Context>()
-        val preferences = mock<PreferencesRepository>()
+        val preferences = mock<SettingsPreferences>()
         val updatePort = mock<SettingsAppUpdatePort>()
         val uiState = MutableStateFlow(SettingsUiState())
         whenever(updatePort.fetchLatestRelease()).thenReturn(Result.error("HTTP 500"))

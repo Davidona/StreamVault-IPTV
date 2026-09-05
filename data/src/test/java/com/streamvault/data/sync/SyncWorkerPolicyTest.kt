@@ -3,7 +3,7 @@ package com.streamvault.data.sync
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteFullException
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.preferences.DatabaseMaintenanceSnapshot
+import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.mockito.kotlin.mock

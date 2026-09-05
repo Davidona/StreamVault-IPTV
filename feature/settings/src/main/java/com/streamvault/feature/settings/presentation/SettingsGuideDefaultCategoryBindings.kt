@@ -1,7 +1,7 @@
 package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ContentType
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.flowOf
 fun observeGuideDefaultCategoryOptions(
     combinedM3uRepository: CombinedM3uRepository,
     channelRepository: ChannelRepository,
-    preferencesRepository: PreferencesRepository,
+    preferencesRepository: SettingsPreferences,
     getCustomCategories: GetCustomCategories
 ): Flow<List<Category>> {
     return combinedM3uRepository.getActiveLiveSource().flatMapLatest { activeSource ->

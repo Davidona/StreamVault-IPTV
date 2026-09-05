@@ -17,7 +17,7 @@ import com.streamvault.data.local.dao.ProgramDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.dao.XtreamLiveOnboardingDao
 import com.streamvault.data.local.entity.XtreamIndexJobEntity
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.SyncRepairSection
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -104,7 +104,7 @@ class SettingsViewModel @Inject constructor(
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository,
     private val programDao: ProgramDao,
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: SettingsPreferences,
     private val internetSpeedTestRunner: InternetSpeedTestRunner,
     private val backupManager: BackupManager,
     private val backupRestoreStatusStore: BackupRestoreStatusStore,

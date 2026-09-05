@@ -2,7 +2,7 @@ package com.streamvault.feature.settings.parental
 
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.repository.CategoryRepository
@@ -18,7 +18,7 @@ import org.mockito.kotlin.whenever
 class ParentalControlGroupViewModelTest {
 
     private val categoryRepository: CategoryRepository = mock()
-    private val preferencesRepository: PreferencesRepository = mock()
+    private val preferencesRepository: SettingsPreferences = mock()
 
     @Test
     fun adultCategoryRemainsProtectedWhenProtectionIsToggled() = runTest {

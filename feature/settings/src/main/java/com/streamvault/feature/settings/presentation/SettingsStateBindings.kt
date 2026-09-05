@@ -8,7 +8,7 @@ import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
-import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.combine
 fun observeSettingsPreferenceSnapshot(
     providerRepository: ProviderRepository,
     activeProviderIdFlow: Flow<Long?>,
-    preferencesRepository: PreferencesRepository
+    preferencesRepository: SettingsPreferences
 ): Flow<SettingsPreferenceSnapshot> {
     return combine(
         providerRepository.getProviders(),
