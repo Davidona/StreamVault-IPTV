@@ -585,6 +585,46 @@ class ProviderRepositoryImplTest {
     }
 
     @Test
+    fun `refreshProviderData activates xtream when sync commits vod despite partial epg`() = runTest {
+        whenever(providerDao.getById(9L)).thenReturn(
+            ProviderEntity(
+                id = 9L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "https://example.com",
+                username = "user",
+                isActive = false,
+                status = ProviderStatus.PARTIAL,
+                lastSyncedAt = 0L
+            )
+        )
+        whenever(syncManager.sync(9L, false, null, null, null)).thenReturn(Result.success(Unit))
+        whenever(syncManager.currentSyncState(9L)).thenReturn(
+            SyncState.Partial("EPG was empty")
+        )
+        whenever(channelDao.getCount(9L)).thenReturn(flowOf(0))
+        whenever(syncMetadataRepository.getMetadata(9L)).thenReturn(
+            SyncMetadata(providerId = 9L, movieCount = 63, seriesCount = 63)
+        )
+
+        val result = repository.refreshProviderData(
+            providerId = 9L,
+            force = false,
+            movieFastSyncOverride = null,
+            epgSyncModeOverride = null,
+            onProgress = null
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        verify(providerDao).setActive(9L)
+        val updatedProvider = argumentCaptor<ProviderEntity>()
+        verify(providerDao).update(updatedProvider.capture())
+        assertThat(updatedProvider.firstValue.isActive).isTrue()
+        assertThat(updatedProvider.firstValue.status).isEqualTo(ProviderStatus.PARTIAL)
+        verify(syncManager, never()).scheduleProviderSyncResume(9L)
+    }
+
+    @Test
     fun `validateM3u edit path rejects update when new URL already belongs to a different provider`() = runTest {
         val editTarget = Provider(
             id = 5L,

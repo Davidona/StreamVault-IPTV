@@ -1797,7 +1797,15 @@ class ProviderRepositoryImpl @Inject constructor(
                 )
                 shouldResume = true
             } else {
-                updateProviderSyncStatus(providerId, finalStatus, System.currentTimeMillis())
+                if (provider != null) {
+                    providerDao.setActive(providerId)
+                }
+                updateProviderSyncStatus(
+                    providerId,
+                    finalStatus,
+                    lastSyncedAt = System.currentTimeMillis(),
+                    isActive = true
+                )
                 shouldScheduleEpg = true
             }
         }

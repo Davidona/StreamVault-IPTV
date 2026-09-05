@@ -239,7 +239,7 @@ class ProviderSyncWorker(
                     } else {
                         entryPoint.syncCommands().sync(provider.id, force = false)
                     }
-                    if (requestedProviderId == provider.id) {
+                    if (requestedProviderId == provider.id || !provider.isActive) {
                         reconcileTargetedProviderStatusFenced(entryPoint, provider, result)
                     }
                     when (result) {
