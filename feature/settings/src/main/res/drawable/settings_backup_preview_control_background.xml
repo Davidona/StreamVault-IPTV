@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/settings_backup_preview_canvas" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item android:state_focused="true">
+        <shape>
+            <solid android:color="@color/settings_backup_preview_surface_emphasis" />
+            <corners android:radius="24dp" />
+            <stroke
+                android:width="3dp"
+                android:color="@color/settings_backup_preview_focus" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/settings_backup_preview_surface_emphasis" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</selector>

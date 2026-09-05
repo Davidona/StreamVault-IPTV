@@ -26,6 +26,11 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
