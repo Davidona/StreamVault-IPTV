@@ -208,8 +208,21 @@ class OkHttpStalkerApiService @Inject constructor(
                     val token = handshakePayload.findString("token")
                         ?.takeIf { it.isNotBlank() }
                         ?: run {
-                            lastError = IOException("Portal handshake did not return a token.")
-                            continue
+                            // A 200 without a token is the portal soft-throttling us. Treat it
+                            // like a 429: abort discovery instead of firing more handshakes
+                            // into the limiter, and let callers back off and retry later.
+                            val throttled = StalkerApiError.RateLimited(
+                                message = "Portal handshake did not return a token.",
+                                httpStatus = 200
+                            )
+                            StalkerTelemetry.authenticationAttempt(
+                                profile.providerId,
+                                recipe.compatibilityProfileId,
+                                endpointFamily,
+                                "HANDSHAKE",
+                                authenticationFailureOutcome(throttled)
+                            )
+                            return Result.error(throttled.message.orEmpty(), throttled)
                         }
                     val handshakeRandom = handshakePayload.findString("random").orEmpty()
                     resolvedLoadUrl(loadUrl, attemptProfile)?.let { redirectedLoadUrl ->

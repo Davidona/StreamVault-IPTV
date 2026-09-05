@@ -138,6 +138,7 @@ internal companion object {
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
         private val sharedAuthCache = ConcurrentHashMap<String, CachedAuth>()
+        private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
         private val resolvedStreamUrlCache = ConcurrentHashMap<String, CachedResolvedUrl>()
@@ -145,6 +146,7 @@ internal companion object {
 
         fun clearSharedAuthCacheForTests() {
             sharedAuthCache.clear()
+            sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
         }
 
@@ -157,6 +159,8 @@ internal companion object {
             if (providerId <= 0L) return
             val authPrefix = "provider:$providerId|"
             sharedAuthCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthCache::remove)
+            val portalPrefix = "portal:$providerId|"
+            sharedPortalAuthCache.keys.filter { it.startsWith(portalPrefix) }.forEach(sharedPortalAuthCache::remove)
             sharedAuthFailureCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthFailureCache::remove)
             resolvedStreamUrlCache.keys
                 .filter { it.startsWith("$providerId|") }
@@ -166,6 +170,7 @@ internal companion object {
 
         private fun trimSharedCaches() {
             trimMap(sharedAuthCache, MAX_AUTH_CACHE_ENTRIES)
+            trimMap(sharedPortalAuthCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(sharedAuthFailureCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(resolvedStreamUrlCache, MAX_RESOLVED_URL_CACHE_ENTRIES)
             while (missingVodClassificationLogged.size > MAX_MISSING_CLASSIFICATION_ENTRIES) {
@@ -223,7 +228,11 @@ internal companion object {
             authFailureCache = null
             categoryCache.clear()
             sharedAuthCache.remove(authCacheKey())
+            if (providerId > 0L) {
+                sharedPortalAuthCache.remove(portalIdentityKey())
+            }
             sharedAuthFailureCache.remove(authCacheKey())
+            portalStateStore?.clearResumableAuth(providerId)
             clearResolvedStreamUrlCache()
             api.invalidateSessionScopes(providerId)
         }
@@ -1402,6 +1411,9 @@ is Result.Success -> {
                 sessionCache = null
                 accountProfileCache = null
                 sharedAuthCache.remove(authCacheKey())
+                if (providerId > 0L) {
+                    sharedPortalAuthCache.remove(portalIdentityKey())
+                }
                 api.invalidateSessionScopes(providerId)
             }
             (authFailureCache ?: sharedAuthFailureCache[authCacheKey()])?.let { failure ->
@@ -1421,6 +1433,31 @@ is Result.Success -> {
                 }
                 sharedAuthCache.remove(authCacheKey(), cachedAuth)
                 api.invalidateSessionScopes(providerId)
+            }
+            if (providerId > 0L) {
+                sharedPortalAuthCache[portalIdentityKey()]?.let { cachedAuth ->
+                    if (!cachedAuth.session.isExpired() &&
+                        cachedAuth.profile.expirationDate?.let { it > System.currentTimeMillis() } != false
+                    ) {
+                        sessionCache = cachedAuth.session
+                        accountProfileCache = cachedAuth.profile
+                        sharedAuthCache[authCacheKey()] = cachedAuth
+                        return@withLock Result.success(cachedAuth.session to cachedAuth.profile)
+                    }
+                    sharedPortalAuthCache.remove(portalIdentityKey(), cachedAuth)
+                    api.invalidateSessionScopes(providerId)
+                }
+            }
+            if (providerId > 0L) {
+                portalStateStore?.resumableAuth(providerId, configurationGeneration)?.let { resumed ->
+                    sessionCache = resumed.session
+                    accountProfileCache = resumed.profile
+                    val cachedAuth = CachedAuth(session = resumed.session, profile = resumed.profile)
+                    sharedAuthCache[authCacheKey()] = cachedAuth
+                    sharedPortalAuthCache[portalIdentityKey()] = cachedAuth
+                    StalkerTelemetry.strategySelected(providerId, "RESUMED_SESSION", "PERSISTED_TOKEN")
+                    return@withLock Result.success(resumed.session to resumed.profile)
+                }
             }
 
             val persistedState = portalStateStore?.getValidated(providerId)
@@ -1485,8 +1522,17 @@ is Result.Success -> {
                 onProgress = onProgress
             ).copy(providerId = providerId)
             val initialAuthResult = discoveryCoordinator.authenticate(profile)
+            val initialAuthThrottled = (initialAuthResult as? Result.Error)?.exception?.isPortalThrottle() == true
             val finalAuthResult = when {
                 initialAuthResult !is Result.Error -> initialAuthResult
+                // A throttled portal must not get an instant repair handshake: the retry
+                // fires milliseconds later and converts a soft throttle into a hard 429.
+                // Surface the throttle so callers back off; the persisted session and
+                // failure cooldown already cover the retry.
+                initialAuthThrottled -> {
+                    StalkerTelemetry.strategySelected(providerId, "AUTH_THROTTLE_BACKOFF", "THROTTLED_AUTH_RETRY_SKIPPED")
+                    initialAuthResult
+                }
                 persistedEndpointUrl != null -> {
                     portalStateStore?.markEndpointUnhealthy(
                         providerId,
@@ -1532,6 +1578,12 @@ is Result.Success -> {
                         session = authResult.data.first,
                         profile = authResult.data.second
                     )
+                    if (providerId > 0L) {
+                        sharedPortalAuthCache[portalIdentityKey()] = CachedAuth(
+                            session = authResult.data.first,
+                            profile = authResult.data.second
+                        )
+                    }
                     trimSharedCaches()
                     portalStateStore?.recordAuthentication(
                         providerId = providerId,
@@ -2577,6 +2629,28 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             .digest(normalized.toByteArray(Charsets.UTF_8))
             .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
         return "provider:$providerId|$digest"
+    }
+
+    /**
+     * Stable cross-instance session identity. Unlike [authCacheKey], this deliberately excludes
+     * volatile learned hints (fingerprint/recipe/endpoint/cookie/playback/profile/device extras)
+     * so a sync-side provider built from persisted learning can reuse the activation session
+     * instead of firing a second handshake into the portal rate limiter.
+     */
+    private fun portalIdentityKey(): String {
+        val normalized = listOf(
+            System.identityHashCode(api).toString(),
+            providerId.toString(),
+            StalkerUrlFactory.normalizePortalUrl(portalUrl),
+            normalizedMacAddress(),
+            authMode.name,
+            normalizedUsername(),
+            normalizedPassword()
+        ).joinToString(separator = "\u001f")
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(normalized.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
+        return "portal:$providerId|$digest"
     }
 
     private fun authMutexKey(): String = "provider:$providerId|auth"
