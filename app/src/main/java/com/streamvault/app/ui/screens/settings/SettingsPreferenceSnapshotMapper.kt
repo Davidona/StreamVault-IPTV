@@ -72,6 +72,7 @@ internal fun SettingsUiState.applyPreferenceSnapshot(snapshot: SettingsPreferenc
         vodViewMode = snapshot.vodViewMode,
         vodCategoryLoadMode = snapshot.vodCategoryLoadMode,
         vodInfiniteScroll = snapshot.vodInfiniteScroll,
+        vodPortalSearch = snapshot.vodPortalSearch,
         vodDuplicateHandlingMode = snapshot.vodDuplicateHandlingMode,
         vodVariantPreferenceMode = snapshot.vodVariantPreferenceMode,
         guideDefaultCategoryId = snapshot.guideDefaultCategoryId,

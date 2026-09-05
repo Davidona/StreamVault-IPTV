@@ -732,7 +732,8 @@ class OkHttpStalkerApiService @Inject constructor(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         categoryId: String?,
-        page: Int
+        page: Int,
+        searchQuery: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
@@ -743,6 +744,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                searchQuery?.takeIf { it.isNotBlank() }?.let { put("search", it) }
             }
         )
     }
@@ -1358,6 +1360,11 @@ class OkHttpStalkerApiService @Inject constructor(
         // The aggregate safety limit belongs to bulk loads. A single-page request must preserve
         // the requested cursor so a resumed catalog can move past the historical page-200 cap.
         val safePage = page.coerceAtLeast(1)
+        android.util.Log.d(
+            "VODCAT",
+            "fetchPagedItemPage url=${session.loadUrl}?${(baseQuery + ("p" to safePage.toString()))
+                .entries.joinToString("&") { "${it.key}=${it.value}" }}"
+        )
         val payload = requestJson(
             url = session.loadUrl,
             profile = profile,

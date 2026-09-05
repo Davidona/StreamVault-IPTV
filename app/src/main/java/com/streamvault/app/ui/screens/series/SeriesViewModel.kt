@@ -171,7 +171,10 @@ class SeriesViewModel @Inject constructor(
                             sortMode = sortMode
                         ).let { categories ->
                             if (provider.type == ProviderType.STALKER_PORTAL) {
-                                categories.filterNot(::isLikelyProviderWideStalkerCategory)
+                                val filtered = categories.filterNot(::isLikelyProviderWideStalkerCategory)
+                                // Same wildcard-only fallback as Movies: don't empty the tab when "*"/"All"
+                                // is the only bucket holding the catalog.
+                                if (filtered.isNotEmpty()) filtered else categories
                             } else {
                                 categories
                             }

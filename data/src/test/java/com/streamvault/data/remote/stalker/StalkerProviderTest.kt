@@ -225,6 +225,90 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun getVodStreamsPage_fallsBackToNumericCategoryId_whenIdentityIsUnknown() = runTest {
+        // No category cache, no identity map, and an empty live category fetch: the raw
+        // numeric category id must still be sent to the portal instead of being dropped
+        // (a dropped category makes the portal return its default listing for every shelf).
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = emptyList(),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie",
+                    streamUrl = "https://cdn.example.com/movie.mp4",
+                    isSeries = false
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 9,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:58",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getVodStreamsPage(categoryId = 104L, page = 1)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.lastVodCategoryId).isEqualTo("104")
+    }
+
+    @Test
+    fun searchVod_forwardsQueryToPortal_andMapsMovieResults() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "17160",
+                    name = "Damadol",
+                    streamUrl = "https://cdn.example.com/damadol.mp4",
+                    isSeries = false
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 9,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:58",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.searchVodPage("damadol", 1)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.lastVodSearchQuery).isEqualTo("damadol")
+        val page = (result as Result.Success).data
+        assertThat(page.items.map { it.name }).containsExactly("Damadol")
+    }
+
+    @Test
+    fun searchVod_blankQuery_returnsEmptyPageWithoutCallingPortal() = runTest {
+        val api = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val provider = StalkerProvider(
+            providerId = 9,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:58",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.searchVodPage("   ", 1)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.items).isEmpty()
+        assertThat(api.lastVodSearchQuery).isNull()
+    }
+
+    @Test
     fun unifiedVodPage_keepsMixedProviderOrder_andDefaultsMissingMarkerToMovie() = runTest {
         val api = FakeStalkerApiService(
             profile = StalkerProviderProfile(accountName = "Room"),
@@ -1180,12 +1264,23 @@ class StalkerProviderTest {
             categoryId: String?
         ) = Result.success(emptyList<StalkerItemRecord>())
 
+        var lastVodSearchQuery: String? = null
+            private set
+        var lastVodCategoryId: String? = null
+            private set
+
         override suspend fun getVodStreamsPage(
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             categoryId: String?,
-            page: Int
-        ) = Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+            page: Int,
+            searchQuery: String?
+        ): Result<StalkerPagedItems> = Result.success(
+            StalkerPagedItems(vodPageItems, page, page, vodPageItems.size)
+        ).also {
+            lastVodCategoryId = categoryId
+            lastVodSearchQuery = searchQuery
+        }
 
         override suspend fun getSeriesCategories(
             session: StalkerSession,

@@ -106,6 +106,7 @@ internal fun observeSettingsPreferenceSnapshot(
             vodViewMode = VodViewMode.MODERN,
             vodCategoryLoadMode = VodCategoryLoadMode.PAGED,
             vodInfiniteScroll = true,
+            vodPortalSearch = true,
             vodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,
             vodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,
             guideDefaultCategoryId = VirtualCategoryIds.FAVORITES,
@@ -248,6 +249,8 @@ internal fun observeSettingsPreferenceSnapshot(
         snapshot.copy(vodCategoryLoadMode = vodCategoryLoadMode)
     }.combine(preferencesRepository.vodInfiniteScroll) { snapshot, vodInfiniteScroll ->
         snapshot.copy(vodInfiniteScroll = vodInfiniteScroll)
+    }.combine(preferencesRepository.vodPortalSearch) { snapshot, vodPortalSearch ->
+        snapshot.copy(vodPortalSearch = vodPortalSearch)
     }.combine(preferencesRepository.vodDuplicateHandlingMode) { snapshot, vodDuplicateHandlingMode ->
         snapshot.copy(vodDuplicateHandlingMode = vodDuplicateHandlingMode)
     }.combine(preferencesRepository.vodVariantPreferenceMode) { snapshot, vodVariantPreferenceMode ->

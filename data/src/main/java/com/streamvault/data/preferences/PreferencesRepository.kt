@@ -205,6 +205,7 @@ class PreferencesRepository @Inject constructor(
         val LIVE_VARIANT_OBSERVATIONS = stringPreferencesKey("live_variant_observations")
         val VOD_VIEW_MODE = stringPreferencesKey("vod_view_mode")
         val VOD_INFINITE_SCROLL = booleanPreferencesKey("vod_infinite_scroll")
+        val VOD_PORTAL_SEARCH = booleanPreferencesKey("vod_portal_search")
         val VOD_CATEGORY_LOAD_MODE = stringPreferencesKey("vod_category_load_mode")
         val VOD_DUPLICATE_HANDLING_MODE = stringPreferencesKey("vod_duplicate_handling_mode")
         val VOD_VARIANT_PREFERENCE_MODE = stringPreferencesKey("vod_variant_preference_mode")
@@ -1811,6 +1812,16 @@ class PreferencesRepository @Inject constructor(
     suspend fun setVodInfiniteScroll(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_INFINITE_SCROLL] = enabled
+        }
+    }
+
+    val vodPortalSearch: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.VOD_PORTAL_SEARCH] ?: true
+    }
+
+    suspend fun setVodPortalSearch(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.VOD_PORTAL_SEARCH] = enabled
         }
     }
 

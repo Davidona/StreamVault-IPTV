@@ -171,7 +171,11 @@ class MoviesViewModel @Inject constructor(
                             sortMode = sortMode
                         ).let { categories ->
                             if (provider.type == ProviderType.STALKER_PORTAL) {
-                                categories.filterNot(::isLikelyProviderWideStalkerCategory)
+                                val filtered = categories.filterNot(::isLikelyProviderWideStalkerCategory)
+                                // Some portals only expose a provider-wide "*" / "All" bucket. Hiding it
+                                // empties the tab while libraryCount still reports the full catalog,
+                                // so keep the original list when filtering would remove everything.
+                                if (filtered.isNotEmpty()) filtered else categories
                             } else {
                                 categories
                             }
@@ -204,8 +208,7 @@ class MoviesViewModel @Inject constructor(
                             libraryCount = 0
                         )
                     }
-                }
-                .flatMapLatest { params ->
+                }                    .flatMapLatest { params ->
                     _previewBatchSize.flatMapLatest { batchSize ->
                         if (params.query.isBlank()) {
                             val categoryIds = params.providerCategories.take(batchSize).map { it.id }

@@ -228,9 +228,12 @@ class SeriesRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    filteredCategories.filterNot { category ->
+                    val nonWildcard = filteredCategories.filterNot { category ->
                         stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
                     }
+                    // Same wildcard-only fallback as movies: don't empty the tab when "*"
+                    // is the only bucket holding the catalog.
+                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
@@ -238,6 +241,7 @@ class SeriesRepositoryImpl @Inject constructor(
                     send(emptyMap())
                     return@channelFlow
                 }
+                val allowWildcardHydration = previewCategories.size == filteredCategories.size
                 if (provider != null &&
                     (provider.type == ProviderType.XTREAM_CODES || provider.type == ProviderType.STALKER_PORTAL)
                 ) {
@@ -247,7 +251,7 @@ class SeriesRepositoryImpl @Inject constructor(
                             categoryId = category.categoryId,
                             provider = provider,
                             requiredCount = limitPerCategory,
-                            allowStalkerWildcard = false
+                            allowStalkerWildcard = allowWildcardHydration
                         )
                     }
                 }

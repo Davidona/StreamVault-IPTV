@@ -277,6 +277,16 @@ internal fun LazyListScope.settingsBrowsingSection(
             onCheckedChange = { viewModel.setVodInfiniteScroll(it) },
             indent = 24.dp
         )
+        SwitchSettingsRow(
+            label = stringResource(R.string.settings_vod_portal_search),
+            value = stringResource(
+                if (uiState.vodPortalSearch) R.string.settings_vod_portal_search_on
+                else R.string.settings_vod_portal_search_off
+            ),
+            checked = uiState.vodPortalSearch,
+            onCheckedChange = { viewModel.setVodPortalSearch(it) },
+            indent = 24.dp
+        )
         ClickableSettingsRow(
             label = stringResource(R.string.settings_vod_duplicate_handling_mode),
             value = stringResource(uiState.vodDuplicateHandlingMode.labelResId()),

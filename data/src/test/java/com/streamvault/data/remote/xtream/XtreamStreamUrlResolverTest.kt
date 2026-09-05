@@ -826,7 +826,8 @@ class XtreamStreamUrlResolverTest {
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             categoryId: String?,
-            page: Int
+            page: Int,
+            searchQuery: String?
         ): Result<StalkerPagedItems> = Result.success(
             StalkerPagedItems(items = emptyList(), page = page, totalPages = page, pageSize = 0)
         )
