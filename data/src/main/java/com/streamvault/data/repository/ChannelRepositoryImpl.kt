@@ -5,11 +5,14 @@ import android.util.Log
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.FavoriteDao
+import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.ChannelBrowseEntity
 import com.streamvault.data.local.entity.CategoryCount
 import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderConfigurationCodec
+import com.streamvault.data.remote.stalker.StalkerLogoUrlResolver
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.util.rankSearchResults
 import com.streamvault.data.util.toFtsPrefixQuery
@@ -25,11 +28,14 @@ import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.LiveChannelVariantAttributes
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.util.ChannelNormalizer
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -53,8 +59,13 @@ class ChannelRepositoryImpl @Inject constructor(
     private val favoriteDao: FavoriteDao,
     private val preferencesRepository: PreferencesRepository,
     private val parentalControlManager: com.streamvault.domain.manager.ParentalControlManager,
-    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver
+    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver,
+    private val providerSnapshotDao: ProviderSnapshotDao,
+    private val providerConfigurationCodec: ProviderConfigurationCodec
 ) : ChannelRepository {
+    // Portal install roots by provider id, so bare-filename channel logos (e.g. "536.png")
+    // stored by earlier syncs can be resolved on read without a DB hit per channel.
+    private val stalkerPortalRootCache = ConcurrentHashMap<Long, String>()
     private companion object {
         const val TAG = "ChannelRepository"
         const val GLOBAL_SEARCH_LIMIT = 500
@@ -837,11 +848,32 @@ class ChannelRepositoryImpl @Inject constructor(
     private fun ChannelBrowseEntity.resolveLogoUrl(): String? {
         val supplierLogo = logoUrl?.takeIf { it.isNotBlank() }
         val epgLogo = epgIconUrl?.takeIf { it.isNotBlank() }
-        return when (channelLogoSourcePolicy) {
+        val selected = when (channelLogoSourcePolicy) {
             ChannelLogoSourcePolicy.SUPPLIER_PREFERRED -> supplierLogo ?: epgLogo
             ChannelLogoSourcePolicy.EPG_PREFERRED -> epgLogo ?: supplierLogo
             ChannelLogoSourcePolicy.SUPPLIER_ONLY -> supplierLogo
             ChannelLogoSourcePolicy.EPG_ONLY -> epgLogo
         }
+        // Some Stalker portals return the channel logo as a bare filename ("536.png"); rows
+        // imported before the write-time fix still store it that way. Resolve it against the
+        // portal's misc/logos/ directory so those rows render without needing a re-sync.
+        if (selected.isNullOrBlank()) return null
+        if (selected.startsWith("http://", true) || selected.startsWith("https://", true)) return selected
+        if (selected.startsWith("/") || selected.contains('/')) return selected
+        val portalUrl = stalkerPortalRoot(providerId) ?: return selected
+        return StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, selected)
+    }
+
+    private fun stalkerPortalRoot(providerId: Long): String? {
+        stalkerPortalRootCache[providerId]?.let { return it.ifBlank { null } }
+        val config = providerSnapshotDao.getConfigSync(providerId)
+        val decoded = config?.takeIf { it.type == ProviderType.STALKER_PORTAL }?.let { entity ->
+            runCatching {
+                providerConfigurationCodec.decode(entity.type, entity.encryptedConfigJson)
+            }.getOrNull()
+        }
+        val portalUrl = (decoded as? StalkerConfig)?.portalUrl?.trim().orEmpty()
+        stalkerPortalRootCache[providerId] = portalUrl
+        return portalUrl.ifBlank { null }
     }
 }
