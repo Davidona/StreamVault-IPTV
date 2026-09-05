@@ -161,7 +161,9 @@ class VodViewModel @Inject constructor(
             val sortBy = values[7] as LibrarySortBy
             val portalSearchEnabled = values[8] as Boolean
             val category = snapshot.rows.firstOrNull { it.category.id == categoryId }?.category
-            val portalSearchActive = provider != null && category != null && query.isNotBlank() &&
+            // Portal search is server-side and must not depend on the local catalog:
+            // on initial setup the catalog hasn't synced yet, so `category` can be null.
+            val portalSearchActive = provider != null && query.isNotBlank() &&
                 portalSearchEnabled && provider.type == ProviderType.STALKER_PORTAL
             when {
                 portalSearchActive -> flow {

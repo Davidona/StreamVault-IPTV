@@ -30,7 +30,9 @@ internal data class SyncContinuation(
 
 internal enum class SyncContinuationOperation {
     INDEX_CATALOG,
-    REFRESH_GUIDE
+    REFRESH_GUIDE,
+    /** Re-runs the full provider sync in background to complete a bootstrap-scoped initial sync. */
+    FULL_CATALOG
 }
 
 internal enum class SyncActivation {

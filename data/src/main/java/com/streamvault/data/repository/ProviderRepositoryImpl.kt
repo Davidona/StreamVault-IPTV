@@ -1401,13 +1401,18 @@ class ProviderRepositoryImpl @Inject constructor(
         return try {
         val pendingEdit = target.pendingEdit
         if (pendingEdit == null) {
+            // Fresh setup: bootstrap the catalog (capped live channels, category shells,
+            // EPG deferred) so onboarding completes fast; a background resume finishes the rest.
             syncManager.sync(
                 providerId = target.providerData.id,
                 force = false,
                 onProgress = onProgress,
-                trackInitialLiveOnboarding = trackInitialLiveOnboarding
+                trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+                bootstrap = true
             )
         } else {
+            // Provider edits keep the full synchronous sync: the replacement catalog must be
+            // complete before the staged configuration is promoted.
             syncManager.syncWithProviderOverride(
                 providerId = target.providerData.id,
                 // A staged edit must validate and publish the replacement catalog even when the

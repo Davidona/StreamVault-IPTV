@@ -717,11 +717,48 @@ class StalkerProviderTest {
         )
         val emitted = mutableListOf<Long>()
 
-        val result = provider.streamLiveStreams { channel -> emitted += channel.streamId }
+        val result = provider.streamLiveStreams(onChannel = { channel -> emitted += channel.streamId })
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         assertThat(emitted).hasSize(1_001)
         assertThat(transactionRunner.transactionCount).isEqualTo(3)
+    }
+
+    @Test
+    fun streamLiveStreams_caps_emission_when_maxChannels_is_set() = runTest {
+        val transactionRunner = CountingTransactionRunner()
+        val resolver = StalkerRemoteIdentityResolver(FakeIdentityDao(), transactionRunner)
+        val liveStreams = (1..1_001).map { id ->
+            StalkerItemRecord(
+                id = id.toString(),
+                name = "Channel $id",
+                categoryId = "10",
+                cmd = "ffmpeg http://cdn.example.com/$id.ts"
+            )
+        }
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = liveStreams
+            ),
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            identityResolver = resolver
+        )
+        val emitted = mutableListOf<Long>()
+
+        val result = provider.streamLiveStreams(
+            maxChannels = 5,
+            onChannel = { channel -> emitted += channel.streamId }
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(emitted).hasSize(5)
+        assertThat(emitted).containsExactly(1L, 2L, 3L, 4L, 5L)
     }
 
     @Test
