@@ -1091,14 +1091,16 @@ class SyncManager @Inject constructor(
         movieFastSyncOverride: Boolean?,
         epgSyncModeOverride: ProviderEpgSyncMode?,
         onProgress: ((String) -> Unit)?,
-        trackInitialLiveOnboarding: Boolean
+        trackInitialLiveOnboarding: Boolean,
+        bootstrap: Boolean
     ): com.streamvault.domain.model.Result<Unit> = syncWithProviderOverride(
         providerId = providerId,
         force = force,
         movieFastSyncOverride = movieFastSyncOverride,
         epgSyncModeOverride = epgSyncModeOverride,
         onProgress = onProgress,
-        trackInitialLiveOnboarding = trackInitialLiveOnboarding
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        bootstrap = bootstrap
     )
 
     /**
@@ -1113,7 +1115,8 @@ class SyncManager @Inject constructor(
         onProgress: ((String) -> Unit)?,
         trackInitialLiveOnboarding: Boolean,
         providerOverride: Provider?,
-        afterCatalogApply: (suspend () -> Unit)?
+        afterCatalogApply: (suspend () -> Unit)?,
+        bootstrap: Boolean
     ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
         var progressSession: SyncProgressSession? = null
         try {
@@ -1150,7 +1153,8 @@ class SyncManager @Inject constructor(
                             onProgress = onProgress,
                             trackInitialLiveOnboarding = trackInitialLiveOnboarding,
                             deferProviderStateUntilCatalogCommit = providerOverride != null,
-                            afterCatalogApply = catalogCommitGate::apply
+                            afterCatalogApply = catalogCommitGate::apply,
+                            bootstrap = bootstrap
                         )
                     )) {
                         is CapabilityResolution.Available -> resolution.capability

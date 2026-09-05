@@ -107,7 +107,8 @@ internal class SyncManagerPlanDelegate(
             force = request.force,
             onProgress = request.onProgress,
             afterCatalogApply = request.afterCatalogApply,
-            deferProviderStateUntilCatalogCommit = request.deferProviderStateUntilCatalogCommit
+            deferProviderStateUntilCatalogCommit = request.deferProviderStateUntilCatalogCommit,
+            bootstrap = request.bootstrap
         )
 
     override suspend fun syncStalkerLive(request: SectionProviderSyncRequest): SyncOutcome =

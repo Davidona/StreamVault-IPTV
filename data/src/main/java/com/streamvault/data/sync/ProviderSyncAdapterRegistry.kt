@@ -11,7 +11,12 @@ internal data class FullProviderSyncRequest(
     val onProgress: ((String) -> Unit)?,
     val trackInitialLiveOnboarding: Boolean,
     val deferProviderStateUntilCatalogCommit: Boolean,
-    val afterCatalogApply: suspend () -> Unit
+    val afterCatalogApply: suspend () -> Unit,
+    /**
+     * Limits the initial-onboarding sync to a small usable subset (capped live channels,
+     * category shells, EPG deferred). The remainder is handed off to a background full sync.
+     */
+    val bootstrap: Boolean = false
 )
 
 internal data class SectionProviderSyncRequest(

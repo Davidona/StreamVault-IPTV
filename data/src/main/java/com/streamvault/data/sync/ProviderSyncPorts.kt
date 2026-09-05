@@ -18,7 +18,8 @@ interface ProviderSyncCommands {
         movieFastSyncOverride: Boolean? = null,
         epgSyncModeOverride: ProviderEpgSyncMode? = null,
         onProgress: ((String) -> Unit)? = null,
-        trackInitialLiveOnboarding: Boolean = false
+        trackInitialLiveOnboarding: Boolean = false,
+        bootstrap: Boolean = false
     ): Result<Unit>
 
     suspend fun syncWithProviderOverride(
@@ -29,7 +30,8 @@ interface ProviderSyncCommands {
         onProgress: ((String) -> Unit)? = null,
         trackInitialLiveOnboarding: Boolean = false,
         providerOverride: Provider? = null,
-        afterCatalogApply: (suspend () -> Unit)? = null
+        afterCatalogApply: (suspend () -> Unit)? = null,
+        bootstrap: Boolean = false
     ): Result<Unit>
 
     suspend fun syncEpg(

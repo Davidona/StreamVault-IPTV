@@ -81,6 +81,9 @@ data class StalkerVodCatalogItem(
     val item: VodCatalogItem
 )
 
+/** Internal control-flow signal that aborts a live channel stream once a cap is reached. */
+private object LiveStreamCapReached : Exception("live stream cap reached")
+
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -418,9 +421,13 @@ internal companion object {
         return session to profile
     }
 
-    suspend fun streamLiveStreams(onChannel: suspend (Channel) -> Unit): Result<Int> {
+    suspend fun streamLiveStreams(
+        onChannel: suspend (Channel) -> Unit,
+        maxChannels: Int? = null
+    ): Result<Int> {
         return runWithAuthorizedSession { session, _ ->
             val pendingItems = ArrayList<StalkerItemRecord>(LIVE_IDENTITY_BATCH_SIZE)
+            var acceptedCount = 0
 
             suspend fun flushPendingItems() {
                 if (pendingItems.isEmpty()) return
@@ -431,17 +438,38 @@ internal companion object {
                 pendingItems.clear()
             }
 
-            when (val result = api.streamLiveStreams(session, currentDeviceProfile()) { item ->
-                pendingItems += item
-                if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
-                    flushPendingItems()
+            val result = try {
+                api.streamLiveStreams(session, currentDeviceProfile()) { item ->
+                    if (maxChannels != null && acceptedCount >= maxChannels) {
+                        throw LiveStreamCapReached
+                    }
+                    pendingItems += item
+                    acceptedCount++
+                    if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
+                        flushPendingItems()
+                    }
                 }
-            }) {
+            } catch (capReached: LiveStreamCapReached) {
+                // API layers that surface the abort as a thrown exception (test fakes).
+                flushPendingItems()
+                return@runWithAuthorizedSession Result.success(acceptedCount)
+            }
+
+            when (result) {
                 is Result.Success -> {
                     flushPendingItems()
                     Result.success(result.data)
                 }
-                is Result.Error -> Result.error(result.message, result.exception)
+                is Result.Error -> {
+                    if (maxChannels != null && result.exception is LiveStreamCapReached) {
+                        // The cap aborted the streaming request mid-parse; treat the partial
+                        // catalog as a successful (capped) load.
+                        flushPendingItems()
+                        Result.success(acceptedCount)
+                    } else {
+                        Result.error(result.message, result.exception)
+                    }
+                }
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
         }
