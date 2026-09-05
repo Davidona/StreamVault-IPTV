@@ -3024,6 +3024,35 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun authenticate_tokenlessHandshake_abortsAsRateLimitedWithoutFurtherHandshakes() = runTest {
+        val requestedActions = mutableListOf<String>()
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    requestedActions += request.url.queryParameter("action").orEmpty()
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body("""{"js":{}}""".toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.authenticate(stalkerProfile())
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        val error = result as Result.Error
+        assertThat(error.exception).isInstanceOf(StalkerApiError.RateLimited::class.java)
+        // Soft throttle: no recipe-loop follow-up handshake may fire into the limiter.
+        assertThat(requestedActions).containsExactly("handshake")
+    }
+
+    @Test
     fun authenticate_classifies_status2_envelope_as_device_not_registered() = runTest {
         val service = OkHttpStalkerApiService(
             okHttpClient = OkHttpClient.Builder()
