@@ -9,6 +9,8 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.PlaybackHistory
+import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryKind
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -55,6 +58,7 @@ data class VodUiState(
     val isLoadingSelectedCategory: Boolean = false,
     val isLoadingMoreSelectedCategory: Boolean = false,
     val vodInfiniteScroll: Boolean = true,
+    val isPortalSearch: Boolean = false,
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
@@ -74,7 +78,8 @@ private data class SelectedVodSnapshot(
     val category: Category? = null,
     val items: List<VodCatalogItem> = emptyList(),
     val localTotal: Int = 0,
-    val hydration: VodCategoryHydration? = null
+    val hydration: VodCategoryHydration? = null,
+    val isPortalSearch: Boolean = false
 )
 
 @HiltViewModel
@@ -96,6 +101,9 @@ class VodViewModel @Inject constructor(
     private val selectedCategoryId = MutableStateFlow<Long?>(null)
     private val selectedItemLimit = MutableStateFlow(SELECTED_PAGE_SIZE)
     private val searchQuery = MutableStateFlow("")
+    private val searchPage = MutableStateFlow(1)
+    private val portalSearchEnabled = preferencesRepository.vodPortalSearch
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
     private val selectedLibraryFilterType = MutableStateFlow(LibraryFilterType.ALL)
     private val selectedLibrarySortBy = MutableStateFlow(LibrarySortBy.LIBRARY)
     private var remotePageRequestInFlight = false
@@ -137,8 +145,10 @@ class VodViewModel @Inject constructor(
         catalog,
         selectedItemLimit,
         searchQuery,
+        searchPage,
         selectedLibraryFilterType,
-        selectedLibrarySortBy
+        selectedLibrarySortBy,
+        portalSearchEnabled
     ) { values -> values }
         .flatMapLatest { values ->
             val provider = values[0] as Provider?
@@ -146,13 +156,33 @@ class VodViewModel @Inject constructor(
             val snapshot = values[2] as UnifiedVodCatalogSnapshot
             val limit = values[3] as Int
             val query = values[4] as String
-            val filterType = values[5] as LibraryFilterType
-            val sortBy = values[6] as LibrarySortBy
+            val page = values[5] as Int
+            val filterType = values[6] as LibraryFilterType
+            val sortBy = values[7] as LibrarySortBy
+            val portalSearchEnabled = values[8] as Boolean
             val category = snapshot.rows.firstOrNull { it.category.id == categoryId }?.category
-            if (provider == null || category == null) {
-                flowOf(SelectedVodSnapshot())
-            } else {
-                combine(
+            val portalSearchActive = provider != null && category != null && query.isNotBlank() &&
+                portalSearchEnabled && provider.type == ProviderType.STALKER_PORTAL
+            when {
+                portalSearchActive -> flow {
+                    // STB-style portal search: the portal searches its whole VOD catalog
+                    // server-side; results page with the portal's native page size.
+                    val providerId = provider?.id ?: return@flow
+                    val result = vodRepository.searchVod(providerId, query, page)
+                    val searchItems = (result as? Result.Success)?.data?.items.orEmpty()
+                    val totalCount = (result as? Result.Success)?.data?.totalCount ?: 0
+                    emit(
+                        SelectedVodSnapshot(
+                            category = category,
+                            items = searchItems,
+                            localTotal = totalCount,
+                            hydration = null,
+                            isPortalSearch = true
+                        )
+                    )
+                }
+                provider == null || category == null -> flowOf(SelectedVodSnapshot())
+                else -> combine(
                     vodRepository.getCategoryItems(provider.id, category.id),
                     vodRepository.observeHydration(provider.id, category.id),
                     playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 500)
@@ -183,7 +213,8 @@ class VodViewModel @Inject constructor(
         val sortBy = values[7] as LibrarySortBy
         val requiresCompleteCatalog = query.isNotBlank() ||
             filterType != LibraryFilterType.ALL || sortBy != LibrarySortBy.LIBRARY
-        val isCompletingBrowse = selectedContent.category != null && requiresCompleteCatalog &&
+        val isCompletingBrowse = !selectedContent.isPortalSearch &&
+            selectedContent.category != null && requiresCompleteCatalog &&
             selectedContent.hydration?.isComplete != true
         VodUiState(
             provider = provider,
@@ -199,6 +230,7 @@ class VodViewModel @Inject constructor(
             isLoadingSelectedCategory = selectedContent.hydration?.isInitialLoading == true || isCompletingBrowse,
             isLoadingMoreSelectedCategory = selectedContent.hydration?.isAppending == true,
             vodInfiniteScroll = infiniteScroll,
+            isPortalSearch = selectedContent.isPortalSearch,
             searchQuery = query,
             selectedLibraryFilterType = filterType,
             selectedLibrarySortBy = sortBy,
@@ -216,7 +248,8 @@ class VodViewModel @Inject constructor(
         completeHydrationJob = null
         selectedItemLimit.value = SELECTED_PAGE_SIZE
         selectedCategoryId.value = category?.id
-        if (category == null) return
+        searchPage.value = 1
+        if (category == null || isPortalSearchActive()) return
         val providerId = activeProvider.value?.id ?: return
         viewModelScope.launch {
             if (searchQuery.value.isNotBlank() ||
@@ -235,6 +268,11 @@ class VodViewModel @Inject constructor(
         val category = state.selectedCategory ?: return
         val providerId = state.provider?.id ?: return
         if (!state.canLoadMoreSelectedCategory || remotePageRequestInFlight) return
+        if (state.isPortalSearch) {
+            // Portal search pages through the portal's own search results.
+            searchPage.value += 1
+            return
+        }
         val needsRemotePage = state.selectedLoadedCount >= state.selectedTotalCount
         selectedItemLimit.value += SELECTED_PAGE_SIZE
         if (!needsRemotePage) return
@@ -254,8 +292,9 @@ class VodViewModel @Inject constructor(
 
     fun setSearchQuery(query: String) {
         searchQuery.value = query
+        searchPage.value = 1
         selectedItemLimit.value = SELECTED_PAGE_SIZE
-        if (query.isNotBlank()) ensureCompleteForBrowseOperation()
+        if (query.isNotBlank() && !isPortalSearchActive()) ensureCompleteForBrowseOperation()
     }
 
     fun setSelectedLibraryFilterType(filterType: LibraryFilterType) {
@@ -268,6 +307,13 @@ class VodViewModel @Inject constructor(
         selectedLibrarySortBy.value = sortBy
         selectedItemLimit.value = SELECTED_PAGE_SIZE
         if (sortBy != LibrarySortBy.LIBRARY) ensureCompleteForBrowseOperation()
+    }
+
+    private fun isPortalSearchActive(): Boolean {
+        val provider = uiState.value.provider
+        return searchQuery.value.isNotBlank() &&
+            portalSearchEnabled.value &&
+            provider?.type == ProviderType.STALKER_PORTAL
     }
 
     private fun ensureCompleteForBrowseOperation() {

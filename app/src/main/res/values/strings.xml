@@ -572,6 +572,9 @@
     <string name="settings_vod_infinite_scroll">Infinite scroll</string>
     <string name="settings_vod_infinite_scroll_on">Load the next page as you scroll near the end.</string>
     <string name="settings_vod_infinite_scroll_off">Show a Load more button for the next page.</string>
+    <string name="settings_vod_portal_search">Portal-backed search</string>
+    <string name="settings_vod_portal_search_on">Search the provider\'s full catalog server-side, like the portal\'s own STB app.</string>
+    <string name="settings_vod_portal_search_off">Filter only the items already downloaded in this category.</string>
     <string name="settings_vod_complete_on_open">Load entire VOD category on open</string>
     <string name="settings_vod_complete_on_open_on">Fetch every Stalker page before finishing the initial load.</string>
     <string name="settings_vod_complete_on_open_off">Show the first Stalker page immediately, then load more as needed.</string>

@@ -5,16 +5,26 @@ import com.streamvault.data.local.dao.MovieDao
 import com.streamvault.data.local.dao.SeriesDao
 import com.streamvault.data.local.dao.VodCatalogEntryDao
 import com.streamvault.data.local.dao.VodCategoryHydrationDao
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.mapper.toDomain
+import com.streamvault.data.mapper.toEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderCapabilityResolver
+import com.streamvault.data.provider.TypedProviderClientFactory
+import com.streamvault.data.provider.toLegacyProvider
+import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryHydration
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import com.streamvault.domain.model.VodCategoryLoadMode
+import com.streamvault.domain.model.VodSearchResult
+import com.streamvault.domain.provider.CapabilityResolution
 import com.streamvault.domain.repository.VodRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +51,9 @@ class VodRepositoryImpl @Inject constructor(
     private val vodCatalogEntryDao: VodCatalogEntryDao,
     private val categoryDao: CategoryDao,
     private val preferencesRepository: PreferencesRepository,
-    private val syncManager: CatalogHydrationCommands
+    private val syncManager: CatalogHydrationCommands,
+    private val providerCapabilityResolver: ProviderCapabilityResolver,
+    private val typedProviderClientFactory: TypedProviderClientFactory
 ) : VodRepository {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -50,12 +62,45 @@ class VodRepositoryImpl @Inject constructor(
         preferencesRepository.parentalControlLevel,
         preferencesRepository.getHiddenCategoryIds(providerId, ContentType.VOD)
     ) { entities, parentalLevel, hiddenIds ->
-        entities.asSequence()
-            .filterNot { it.categoryId in hiddenIds }
-            .filter { parentalLevel < 3 || (!it.isAdult && !it.isUserProtected) }
-            .map { it.toDomain() }
-            .toList()
+        entities to (parentalLevel to hiddenIds)
+    }.flatMapLatest { pair ->
+        val entities = pair.first
+        val filters = pair.second
+        val parentalLevel = filters.first
+        val vodHiddenIds = filters.second
+        val unified = filterUnifiedCategories(entities, parentalLevel, vodHiddenIds)
+        if (unified.isNotEmpty()) {
+            flowOf(unified)
+        } else {
+            // A UNIFIED_VOD portal that was synced before its layout flip stores the unified
+            // catalog as SPLIT-era MOVIE-type categories while the account runtime reports
+            // UNIFIED_VOD (the sync's own reconcileStoredCategoryTypes relabels these rows on
+            // the next catalog sync). Category ids are layout-independent, so read the MOVIE
+            // rows instead of rendering an empty tab until that sync runs.
+            flow {
+                val movieHiddenIds = preferencesRepository
+                    .getHiddenCategoryIds(providerId, ContentType.MOVIE)
+                    .first()
+                emit(
+                    filterUnifiedCategories(
+                        categoryDao.getByProviderAndTypeSync(providerId, ContentType.MOVIE.name),
+                        parentalLevel,
+                        vodHiddenIds + movieHiddenIds
+                    )
+                )
+            }
+        }
     }
+
+    private fun filterUnifiedCategories(
+        entities: List<CategoryEntity>,
+        parentalLevel: Int,
+        hiddenIds: Set<Long>
+    ): List<Category> = entities.asSequence()
+        .filterNot { it.categoryId in hiddenIds }
+        .filter { parentalLevel < 3 || (!it.isAdult && !it.isUserProtected) }
+        .map { it.toDomain() }
+        .toList()
 
     override fun getCategoryPreview(
         providerId: Long,
@@ -132,6 +177,69 @@ class VodRepositoryImpl @Inject constructor(
             categoryId = categoryId,
             request = VodCategoryHydrationRequest.COMPLETE
         )
+
+    override suspend fun searchVod(
+        providerId: Long,
+        query: String,
+        page: Int
+    ): Result<VodSearchResult> {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) {
+            return Result.success(VodSearchResult(emptyList(), 0, page, 0))
+        }
+        val provider = loadCompatibilityProvider(providerId)
+        if (provider?.type != ProviderType.STALKER_PORTAL) {
+            return Result.error("Portal-backed VOD search is only available for Stalker portal providers.")
+        }
+        val stalkerProvider = createStalkerProvider(providerId)
+        return when (val result = stalkerProvider.searchVodPage(trimmedQuery, page)) {
+            is Result.Success -> {
+                val page = result.data
+                // Portal search movies arrive transient (id == 0), exactly like every other
+                // StalkerProvider VOD payload, and only get their real row id once persisted.
+                // Resolve them against the local movies table before handing them to the UI:
+                // otherwise every result shares stableId "movie:0" and the VOD grid crashes
+                // with duplicate LazyGrid keys (and movie-detail lookups by id would fail).
+                val entities = page.items.map { movie -> movie.toEntity() }.filter { it.streamId > 0L }
+                if (entities.isNotEmpty()) {
+                    movieDao.upsertCategoryPage(providerId, entities)
+                }
+                val persistedByStreamId = if (entities.isEmpty()) {
+                    emptyMap()
+                } else {
+                    movieDao.getByStreamIds(providerId, entities.map { it.streamId })
+                        .associateBy { it.streamId }
+                }
+                val items = page.items.mapNotNull { movie ->
+                    persistedByStreamId[movie.streamId]?.toDomain()?.let(VodCatalogItem::MovieItem)
+                }
+                Result.success(
+                    VodSearchResult(
+                        items = items,
+                        totalCount = page.advertisedTotalItems ?: page.items.size,
+                        page = page.page,
+                        pageSize = page.pageSize
+                    )
+                )
+            }
+            is Result.Error -> Result.error(result.message, result.exception)
+            is Result.Loading -> Result.error("Unexpected loading state")
+        }
+    }
+
+    private suspend fun loadCompatibilityProvider(providerId: Long): Provider? =
+        providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
+
+    private suspend fun createStalkerProvider(providerId: Long): StalkerProvider {
+        val snapshot = providerCapabilityResolver.snapshot(providerId)
+            ?: throw IllegalStateException("Provider $providerId has no typed configuration")
+        return when (val resolution = typedProviderClientFactory.stalker(snapshot)) {
+            is CapabilityResolution.Available -> resolution.capability
+            is CapabilityResolution.ConfigurationError -> throw IllegalStateException(resolution.reason)
+            is CapabilityResolution.Restricted -> throw IllegalStateException(resolution.reason)
+            is CapabilityResolution.Unsupported -> throw IllegalStateException(resolution.reason)
+        }
+    }
 
     private fun observeOrderedItems(
         providerId: Long,

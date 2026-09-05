@@ -480,6 +480,25 @@ internal companion object {
             toMovie(item, requestedCategoryId = null)
         } }
 
+    /**
+     * Portal-backed VOD search (the same `get_ordered_list` + `search` query the portal's own
+     * STB UI uses). Searches the entire VOD catalog server-side, regardless of category, and
+     * pages through results with the portal's native page size.
+     */
+    suspend fun searchVodPage(query: String, page: Int): Result<StalkerPagedResult<Movie>> {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) {
+            return Result.success(
+                StalkerPagedResult(items = emptyList(), page = page, totalPages = 0, pageSize = 0)
+            )
+        }
+        return mapPagedItems(ContentType.MOVIE, null) { session, profile, _ ->
+            api.getVodStreamsPage(session, profile, null, page, searchQuery = trimmedQuery)
+        }.let { result -> mapResolvedPage(ContentType.MOVIE, result) { item ->
+            toMovie(item, requestedCategoryId = null)
+        } }
+    }
+
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
 
@@ -2180,10 +2199,9 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             else -> type
         }
         val targetId = categoryId ?: return null
-        val cached = categoryCache[normalizedType]
-        if (cached != null) {
-            return cached.firstOrNull { it.id == targetId }?.rawId
-        }
+        // A populated cache that misses must not short-circuit: fall through to the persisted
+        // identity map and the live category fetch before giving up.
+        categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId?.let { return it }
         identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return it }
         when (val categoriesResult = when (normalizedType) {
             ContentType.LIVE -> getLiveCategories()
@@ -2192,9 +2210,16 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             ContentType.SERIES -> getSeriesCategories()
             ContentType.SERIES_EPISODE -> Result.success(emptyList())
         }) {
-            is Result.Success -> return categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
-            else -> return null
+            is Result.Success -> {
+                categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId?.let { return it }
+            }
+            else -> Unit
         }
+        // Last resort for portals whose stored category ids are the portal's own numeric ids
+        // while the identity map is keyed to another epoch's surrogates: numeric ids pass
+        // through to the portal unchanged. Synthetic surrogate ids (>= the high floor) are
+        // never sent because the portal cannot resolve them.
+        return targetId.takeIf { it in 1L until FALLBACK_SURROGATE_FLOOR }?.toString()
     }
 
     /**
