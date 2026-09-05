@@ -13,5 +13,6 @@ class SettingsModuleBoundaryTest {
         assertThat(text).contains("verifyFeatureSettingsBoundary")
         assertThat(text).contains(":core:navigation")
         assertThat(text).doesNotContain("project(\":app\")")
+        assertThat(text).doesNotContain("project(\":data\")")
     }
 }

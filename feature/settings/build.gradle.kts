@@ -47,7 +47,6 @@ val allowedProjectDependencies = setOf(
     ":core:navigation",
     ":core:ui",
     ":domain",
-    ":data",
     ":player",
 )
 
@@ -61,12 +60,18 @@ val forbiddenFeatureSettingsSourceTokens = listOf(
     "NavController",
 )
 
-fun findForbiddenFeatureSettingsSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
+val forbiddenFeatureSettingsFixtureTokens = forbiddenFeatureSettingsSourceTokens +
+    "import com.streamvault.data"
+
+fun findForbiddenFeatureSettingsSourceReferences(
+    sourceRoot: java.io.File,
+    forbiddenTokens: List<String> = forbiddenFeatureSettingsSourceTokens,
+): List<String> = sourceRoot
     .walkTopDown()
     .filter { it.isFile && it.extension in setOf("kt", "java") }
     .flatMap { file ->
         file.readLines().flatMapIndexed { index, line ->
-            forbiddenFeatureSettingsSourceTokens.filter(line::contains).map { token ->
+            forbiddenTokens.filter(line::contains).map { token ->
                 "${file.relativeTo(sourceRoot)}:${index + 1}: ${token}"
             }
         }
@@ -109,7 +114,10 @@ val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundar
         }
 
         val fixtureRoot = layout.projectDirectory.asFile.resolve("src/test/resources/boundary-fixtures")
-        val fixtureViolations = findForbiddenFeatureSettingsSourceReferences(fixtureRoot)
+        val fixtureViolations = findForbiddenFeatureSettingsSourceReferences(
+            fixtureRoot,
+            forbiddenFeatureSettingsFixtureTokens,
+        )
         val requiredFixtureViolations = setOf(
             "AppPackageImport.kt:3: import com.streamvault.app",
             "FullyQualifiedAppReference.kt:3: com.streamvault.app",
@@ -117,7 +125,8 @@ val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundar
             "RootNavigation.kt:3: NavHostController",
             "RootNavigation.java:4: NavController",
             "ProviderFeatureImport.kt:3: import com.streamvault.feature.provider",
-            "PlaybackFeatureImport.java:3: import com.streamvault.feature.playback"
+            "PlaybackFeatureImport.java:3: import com.streamvault.feature.playback",
+            "DataImport.kt:3: import com.streamvault.data",
         )
         check(fixtureViolations.containsAll(requiredFixtureViolations)) {
             ":feature:settings boundary fixtures are not detected: " +
