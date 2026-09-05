@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d דקה</item>
             <item quantity="other">%1$d דקות</item>

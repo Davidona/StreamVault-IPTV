@@ -1,19 +1,19 @@
-<resources>
-    <string name="cast_started">Casting to the connected device.</string>
-    <string name="cast_unavailable">Google Cast is unavailable on this device.</string>
-    <string name="cast_stream_unsupported">This stream format is not supported by Google Cast.</string>
-    <string name="cast_protocol_unsupported">RTSP and RTMP streams are not supported for casting.</string>
-    <string name="cast_drm_unsupported">DRM-protected streams are not supported by Google Cast in this app.</string>
-    <string name="cast_item_unavailable">This item cannot be sent to a Cast receiver.</string>
-    <string name="cast_local_url_unsupported">This stream uses a local or device-only URL that Chromecast cannot reach directly.</string>
-    <string name="cast_headers_unsupported">This stream needs HTTP headers or cookies that Chromecast cannot use directly.</string>
-    <string name="cast_user_agent_unsupported">This stream needs a custom User-Agent that Chromecast cannot use directly.</string>
-    <string name="cast_proxy_unsupported">This stream needs the app proxy settings, so Chromecast cannot use it directly.</string>
-    <string name="cast_invalid_ssl_unsupported">This stream uses SSL handling that Chromecast cannot use directly.</string>
-    <string name="cast_session_failed">The Cast session could not be started.</string>
-    <string name="cast_load_failed">The Cast receiver could not load this stream.</string>
-    <string name="cast_receiver_unavailable">The connected Cast receiver is not ready for playback.</string>
-    <string name="cast_selection_cancelled">Cast device selection was cancelled.</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Casting to the connected device.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast is unavailable on this device.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">This stream format is not supported by Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP and RTMP streams are not supported for casting.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-protected streams are not supported by Google Cast in this app.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">This item cannot be sent to a Cast receiver.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">This stream uses a local or device-only URL that Chromecast cannot reach directly.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">This stream needs HTTP headers or cookies that Chromecast cannot use directly.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">This stream needs a custom User-Agent that Chromecast cannot use directly.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">This stream needs the app proxy settings, so Chromecast cannot use it directly.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">This stream uses SSL handling that Chromecast cannot use directly.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">The Cast session could not be started.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">The Cast receiver could not load this stream.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">The connected Cast receiver is not ready for playback.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Cast device selection was cancelled.</string>
     <string name="add_group_close_cd">Close</string>
     <string name="player_archive_title">Program Archive</string>
     <string name="player_no_archive">No archived programs found</string>

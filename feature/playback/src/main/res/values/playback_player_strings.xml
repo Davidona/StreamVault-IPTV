@@ -1,12 +1,12 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d minute</item>
             <item quantity="other">%1$d minutes</item>
         </plurals>
-    <string name="cast_disconnected">Cast session disconnected.</string>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Cast session disconnected.</string>
     <string name="channel_number_name_format">%1$d. %2$s</string>
     <string name="epg_catchup_available">Catch-up available (%1$d days)</string>
-    <string name="epg_catchup_available_unknown">Catch-up available</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Catch-up available</string>
     <string name="epg_no_info">No EPG information</string>
     <string name="epg_now_playing">Now Playing</string>
     <string name="epg_title">TV Guide</string>
@@ -67,7 +67,7 @@
     <string name="player_diagnostics_archive">Archive</string>
     <string name="player_diagnostics_audio_codec">Audio Codec</string>
     <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
-    <string name="player_diagnostics_audio_decoder_mode">Audio Decoder Mode</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Audio Decoder Mode</string>
     <string name="player_diagnostics_audio_output_path">Audio Path</string>
     <string name="player_diagnostics_av_offset">A/V Offset</string>
     <string name="player_diagnostics_av_sync">A/V Sync</string>
@@ -98,7 +98,7 @@
     <string name="player_diagnostics_troubleshooting">Troubleshooting</string>
     <string name="player_diagnostics_video_bitrate">Video Bitrate</string>
     <string name="player_diagnostics_video_codec">Video Codec</string>
-    <string name="player_diagnostics_video_decoder_mode">Video Decoder Mode</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Video Decoder Mode</string>
     <string name="player_diagnostics_video_stalls">Video Stalls</string>
     <string name="player_epg_overlay_hint">Browse guide details here. Select the catch-up pill to open archive history.</string>
     <string name="player_epg_short">EPG</string>
@@ -182,7 +182,7 @@
     <string name="player_timer_warning_idle">Standby allowed in %1$s</string>
     <string name="player_timer_warning_stop">Playback stops in %1$s</string>
     <string name="player_track_audio">Select Audio Track</string>
-    <string name="player_track_live_translation">Real-time translation</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Real-time translation</string>
     <string name="player_track_off">Off</string>
     <string name="player_track_subs">Select Subtitles</string>
     <string name="player_try_alternate_stream">Try another path</string>

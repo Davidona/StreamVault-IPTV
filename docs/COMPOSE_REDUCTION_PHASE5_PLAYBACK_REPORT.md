@@ -299,6 +299,18 @@ The two tested channels are also related streams from the same public 3ABN
 source, so a source-window interaction remains possible; this evidence does
 not yet justify changing the recovery policy.
 
+### Playback lint and connected golden follow-up (2026-09-05)
+
+The extracted Playback module now passes `:feature:playback:lintDebug` after
+targeted Compose/resource fixes: the golden fixture caches its
+`FocusRequester`, MultiView uses `LocalActivity` and a recomposition-aware
+`stringResource`, and the historically default-locale-only strings and
+intentional `one`/`other` plurals carry narrow lint annotations. The focused
+connected `PlayerOverlayGoldenTest` then passed 6/6 on the API 36 TV emulator.
+The full feature sweep also passed all six feature unit-test tasks and all six
+feature lint tasks. Repository-wide `:app:lintDebug` remains separately blocked
+by its existing app-wide debt.
+
 ## Graph and final status
 
 `graphify update .` was run after this report and plan update. It rebuilt

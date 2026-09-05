@@ -1,10 +1,10 @@
 package com.streamvault.feature.playback.multiview
 
-import android.app.Activity
 import android.view.View
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -75,7 +75,6 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import com.streamvault.feature.playback.R
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.components.dialogs.PinEntryDialog
@@ -151,7 +150,7 @@ fun MultiViewScreen(
     }
 
     // Prevent screen from sleeping while watching multiview
-    val multiViewWindow = (LocalContext.current as? Activity)?.window
+    val multiViewWindow = LocalActivity.current?.window
     DisposableEffect(Unit) {
         multiViewWindow?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose { multiViewWindow?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
@@ -755,7 +754,7 @@ private fun ReplaceSlotDialog(
 
     // Parental PIN state
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
     var showPinDialog by remember { mutableStateOf(false) }
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingLockedCategory by remember { mutableStateOf<com.streamvault.domain.model.Category?>(null) }
@@ -897,7 +896,7 @@ private fun ReplaceSlotDialog(
                             onSelectCategory(cat)
                         }
                     } else {
-                        pinError = context.getString(R.string.home_incorrect_pin)
+                        pinError = incorrectPinMessage
                     }
                 }
             },

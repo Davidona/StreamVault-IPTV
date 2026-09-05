@@ -324,10 +324,9 @@ local fixture server was stopped.
   Details are in
   `validation/phase5_live/profile-validation.md`.
 - Deferred — neighboring slices: Playback, Provider, and Settings
-  acceptance/performance gates remain governed by their existing reports. The
-  separate Provider and Settings `check` tasks pass; the aggregate neighboring
-  command stops at the pre-existing Playback lint gate (29 errors, first at
-  `PlayerOverlayGoldenTest.kt:51`). Catalog and System extraction slices are
-  now structurally complete; Phase 5 is not complete until the deferred
+  acceptance/performance gates remain governed by their existing reports. All
+  six feature unit-test and lint tasks now pass; repository-wide app lint still
+  has its pre-existing debt. Catalog and System extraction slices are now
+  structurally complete; Phase 5 is not complete until the deferred
   acceptance, paired-performance, physical-device, and production-credential
   gates are resolved.

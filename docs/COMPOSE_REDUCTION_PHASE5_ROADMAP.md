@@ -117,10 +117,8 @@ seeded interaction journeys. This closes the emulator execution gate; matched
 paired performance and physical-device measurements remain open. The app-route
 Live golden was reviewed and regenerated from the current palette, with its
 connected assertion passing.
-All six feature `testDebugUnitTest` tasks pass. Feature lint passes for
-Provider, Settings, Live, Catalog, and System; Playback lint remains blocked by
-29 existing translation/Compose errors, and repository-wide app lint remains
-blocked by its pre-existing debt.
+All six feature `testDebugUnitTest` tasks pass. Feature lint now passes for all
+six slices; repository-wide app lint remains blocked by its pre-existing debt.
 Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. The public-M3U seeded
 Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic

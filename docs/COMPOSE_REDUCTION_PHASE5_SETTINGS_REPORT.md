@@ -766,11 +766,12 @@ gradlew.bat :feature:settings:check :feature:provider:check \
 BUILD FAILED at :feature:playback:lintDebug
 ```
 
-Settings and provider checks had progressed successfully. The failure is an
-existing playback lint error in
+Settings and provider checks had progressed successfully. At the time of this
+neighboring check, the failure was an existing playback lint error in
 `feature/playback/src/androidTest/.../PlayerOverlayGoldenTest.kt:51`
-(`RememberInComposition` for `FocusRequester()`); playback remains outside this
-slice and was not modified.
+(`RememberInComposition` for `FocusRequester()`). Playback remained outside the
+Settings slice and was not modified by that Settings change; the lint failure
+was subsequently resolved in the Phase 5 closeout.
 
 With the Android SDK at `E:\androidSdk` and a `Television_1080p(AVD)` API 36
 emulator available, the focused settings connected suite was executed:
