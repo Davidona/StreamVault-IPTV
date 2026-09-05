@@ -1,6 +1,6 @@
 # Compose Reduction Phase 5 — System feature extraction report
 
-Date: 2026-09-04
+Date: 2026-09-05
 
 ## Outcome
 
@@ -13,10 +13,10 @@ discovery/IPC/work/provider/playback infrastructure, and Android entry points.
 
 The extraction is structurally complete and the incremental feature-value
 thresholds pass. The clean/warm build-overhead guardrail also passes in
-steady-state. The general baseline-profile refresh remains open because the
-supported seeded profile workflow stalls in its unrelated Live/player critical
-journey. The module is therefore retained as a provisional Phase 5 decision,
-with the remaining gates explicitly owned as follow-up work.
+steady-state. The supported seeded baseline/startup profile workflow now
+completes and the generated sources have been promoted through Gradle. The
+module remains provisional only for the explicitly unavailable physical-device,
+accessibility-service, and authorized production-journey gates.
 
 ## Rollback and commit sequence
 
@@ -213,22 +213,22 @@ are in `validation/phase5_system/performance-after.md`.
 
 The supported profile command was corrected from the stale plan path
 `:benchmark:pixel2Api36Setup` to the current app-level
-`:app:generateBaselineProfile`. Startup collection completed and emitted a
-fresh profile containing nonzero System descriptors. The release benchmark
-harness now waits for UiAutomator idle after launching the target; the isolated
-startup retry still passed 1/1, while the seeded critical journey progressed
-through Live/player setup before the collector remained unstable and later
-lost the active UI window. The checked-in generated profiles were not
-hand-edited and still contain stale pre-extraction System descriptors. A
-future successful end-to-end generator run must promote fresh output through
-the existing workflow. See `validation/phase5_system/profile-validation.md`.
+`:app:generateBaselineProfile`. The release benchmark harness now waits for
+UiAutomator idle after launching the target. The startup journey passed 1/1,
+and the seeded critical journey subsequently completed successfully. The
+supported `:app:copyBaselineProfileIntoSrc` workflow then passed its connected
+run with zero failures and refreshed both generated sources. Each source has
+nonzero `feature/system` descriptors and no old app Welcome/Downloads/Plugins,
+`WelcomeGraph`, or `SystemGraph` descriptors. See
+`validation/phase5_system/profile-validation.md` for the command and scan
+evidence.
 
 `graphify update .` completed with 16,550 nodes and 32,460 edges. The refreshed
 graph resolves feature `SystemGraph` ownership and an `AppNavHost` to
 `PluginsScreen` path through `AppNavigation`.
 
-Open follow-ups are the supported general profile refresh, physical-device/
-touch validation, TalkBack service traversal, and authorized
-production-provider/plugin journeys. This report does not close
+Open follow-ups are physical-device/touch validation, TalkBack service
+traversal, and authorized production-provider/plugin journeys. This report does
+not close
 Playback, Provider, Settings, Live, Catalog, accessibility, or repository-wide
 performance gates, and does not claim full Phase 5 modernization completion.

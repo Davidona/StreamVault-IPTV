@@ -1000,10 +1000,10 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   current app lint baseline failure remain explicitly tracked. System is now
   structurally extracted under `:feature:system`; its connected acceptance
   passes 19/19, paired incremental thresholds pass, and the steady-state
-  clean/warm guardrail passes. The System profile refresh,
-  physical-device/accessibility gates, and authorized production journeys
-  remain open; Playback, Provider, and Settings gates remain governed by their
-  separate reports.
+  clean/warm guardrail passes. The System profile refresh is promoted through
+  the supported Gradle workflow; physical-device/accessibility gates and
+  authorized production journeys remain open. Playback, Provider, and Settings
+  gates remain governed by their separate reports.
 
 ### Phase 6 - Optional Views migrations
 

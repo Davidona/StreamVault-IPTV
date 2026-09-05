@@ -1,6 +1,6 @@
 # Phase 5 System extraction — profile validation
 
-Date: 2026-09-05 (updated after an additional ADB retry).
+Date: 2026-09-05 (updated after supported profile promotion).
 
 ## Supported workflow
 
@@ -89,25 +89,43 @@ BUILD SUCCESSFUL in 8m 24s — 1/1 test
 
 The startup result confirms that the synchronization change does not regress
 the startup profile journey. It does not change the status of the general
-baseline-profile refresh: the checked-in generated profiles remain stale and
-were not manually edited.
+baseline-profile refresh at that point in the retry sequence: the checked-in
+generated profiles were still stale and were not manually edited.
 
-The maintained files under `app/src/main/generated/baselineProfiles/` were
-not manually edited. They still contain stale pre-extraction System entries,
-including old app `WelcomeGraph`, `SystemGraph`, Welcome, Downloads, and
-Plugins descriptors. The generated fresh startup output was inspected during
-the run and had no old app System descriptors, but it was not promoted into
-source because the supported generator did not finish its complete workflow.
+The successful critical journey was then followed by the supported promotion
+workflow:
+
+```text
+./gradlew.bat :app:copyBaselineProfileIntoSrc --no-daemon --console=plain --warning-mode=none
+BUILD SUCCESSFUL in 26m 29s
+```
+
+The connected task reported 0 failures (18/10 completed with eight skipped
+entries). Gradle generated and copied the beta sources with 49,059 baseline
+rules and 30,237 startup rules, then merged the startup rules into the
+baseline source. The checked-in source files are now:
+
+```text
+app/src/main/generated/baselineProfiles/baseline-prof.txt — 5,652,478 bytes
+app/src/main/generated/baselineProfiles/startup-prof.txt  — 3,221,129 bytes
+```
+
+The source scan found 126 `feature/system` descriptors and 15
+`AppSystem` adapter descriptors in each file, with no old app Welcome,
+Downloads, Plugins, `WelcomeGraph`, or `SystemGraph` descriptors. The files
+were produced by Gradle; no generated profile rules were hand-edited.
 
 ## Interpretation
 
-- Baseline-profile refresh is open and must be rerun when the seeded benchmark
-  journey completes end-to-end.
+- Baseline/startup profile refresh is complete through the supported Gradle
+  workflow, including successful seeded critical-journey collection and
+  source promotion.
 - The direct copy-task dependency cycle is fixed and covered by a successful
   dry run.
-- No claim is made that the stale checked-in generated profile is refreshed.
+- The refreshed source contains feature-owned System descriptors and removes
+  the old app-owned System screen/graph descriptors.
 - No physical Android device was available; only the TV emulator was present.
 - The System extraction does not alter player composition, stream preparation,
   recovery, lifecycle, surfaces, or playback routing. The critical-journey
-  stall is consequently recorded as a benchmark/seeded-environment follow-up,
-  not as evidence of a System presentation failure.
+  retries and successful final run are consequently recorded as benchmark
+  evidence, not as evidence of a System presentation failure.

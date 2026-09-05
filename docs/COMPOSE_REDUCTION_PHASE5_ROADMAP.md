@@ -149,6 +149,7 @@ Welcome, Downloads, Plugins, controller-free graph registration, resources,
 contracts, and tests are feature-owned while app adapters and plugin/platform
 runtime remain app-owned. Connected acceptance passes 19/19 and paired
 incremental source/test thresholds and the steady-state clean/warm guardrail
-pass. The supported System profile refresh, physical-device/touch validation,
-accessibility service traversal, and authorized production-provider/plugin
-journeys remain open; see `COMPOSE_REDUCTION_PHASE5_SYSTEM_REPORT.md`.
+pass. The supported System profile refresh now passes through the generated
+source promotion workflow. Physical-device/touch validation, accessibility
+service traversal, and authorized production-provider/plugin journeys remain
+open; see `COMPOSE_REDUCTION_PHASE5_SYSTEM_REPORT.md`.
