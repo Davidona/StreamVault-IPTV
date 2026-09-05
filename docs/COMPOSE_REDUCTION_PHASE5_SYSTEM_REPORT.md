@@ -147,10 +147,21 @@ The final focused matrix completed successfully in 1m29s with 324 actionable
 tasks, including the System boundary, feature lint, connected-test compile,
 feature assembly, app tests, and app debug assembly.
 
-`:app:lintDebug` remains red from existing app-wide debt (675 errors); the
-first unchanged error is `AppStartupCoordinator.kt:192`, `NewApi` on
-`Trace.beginAsyncSection`. No app lint baseline or startup code was changed by
-this extraction.
+At the System extraction checkpoint, `:app:lintDebug` was red from existing
+app-wide debt (675 errors); the first error was `AppStartupCoordinator.kt:192`,
+`NewApi` on `Trace.beginAsyncSection`. The follow-up lint/resource cleanup below
+records the current repository-wide result.
+
+### Phase 5 lint/resource follow-up (2026-09-05)
+
+The final app resource audit removed 667 stale feature-resource duplicates from
+the app's default and localized string files; feature modules remain the owners
+of those resources. The follow-up also corrected the API-level Trace guard and
+the app shell's Compose resource access and modifier ordering. The full local
+unit/lint sweep passed, including `:app:lintDebug` and all six feature lint and
+unit-test tasks. `:app:lintDebug` reports no new issues; 374 findings remain
+filtered by the existing baseline, while stale baseline entries are tracked for
+separate pruning.
 
 ## Connected acceptance and visual review
 

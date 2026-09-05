@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.streamvault.app.MainActivity
@@ -44,8 +45,8 @@ fun AppScreenScaffold(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     title: String,
-    subtitle: String? = null,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
     navigationChrome: AppNavigationChrome = AppNavigationChrome.Rail,
     topBarVisible: Boolean = true,
     compactHeader: Boolean = false,
@@ -117,14 +118,15 @@ internal fun rememberAppDestinationItems(): List<UiDestination> {
         ?.catalogLayout
         ?: CatalogLayout.SPLIT
 
-    return remember(configuredDestinations, catalogLayout) {
-        buildDestinationItems(configuredDestinations, catalogLayout).map { item ->
-            UiDestination(
-                id = item.route,
-                label = context.getString(item.labelRes),
-                icon = item.icon
-            )
-        }
+    val destinationItems = remember(configuredDestinations, catalogLayout) {
+        buildDestinationItems(configuredDestinations, catalogLayout)
+    }
+    return destinationItems.map { item ->
+        UiDestination(
+            id = item.route,
+            label = stringResource(item.labelRes),
+            icon = item.icon
+        )
     }
 }
 

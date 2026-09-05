@@ -325,8 +325,8 @@ local fixture server was stopped.
   `validation/phase5_live/profile-validation.md`.
 - Deferred — neighboring slices: Playback, Provider, and Settings
   acceptance/performance gates remain governed by their existing reports. All
-  six feature unit-test and lint tasks now pass; repository-wide app lint still
-  has its pre-existing debt. Catalog and System extraction slices are now
+  six feature unit-test and lint tasks now pass; the current `:app:lintDebug`
+  gate also passes with the existing baseline. Catalog and System extraction slices are now
   structurally complete; Phase 5 is not complete until the deferred
   acceptance, paired-performance, physical-device, and production-credential
   gates are resolved.

@@ -118,7 +118,9 @@ paired performance and physical-device measurements remain open. The app-route
 Live golden was reviewed and regenerated from the current palette, with its
 connected assertion passing.
 All six feature `testDebugUnitTest` tasks pass. Feature lint now passes for all
-six slices; repository-wide app lint remains blocked by its pre-existing debt.
+six slices, and `:app:lintDebug` now passes after removing stale app-owned
+feature-resource duplicates and fixing the remaining API/Compose findings. The
+lint baseline still contains stale historical entries to prune separately.
 Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. The public-M3U seeded
 Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic
@@ -143,8 +145,8 @@ once public-M3U live-channel activity populated a scrollable Home shelf
 (`frameCount` min/median/max 88/91/98; `frameOverrunMs` P50/P90/P95/P99
 63.1/78.9/89.7/106.1). The earlier empty Home fixture emitted no render-thread
 slices; the rerun is diagnostic after-run evidence, not a cache-equivalent
-paired comparison. The paired comparison and repository-wide app lint remain
-open.
+paired comparison. The paired comparison remains open; the current app lint
+gate itself passes with the existing baseline.
 The paired Dashboard comparison is intentionally deferred until the
 benchmark environment has stable capacity for matched baseline and current
 runs.

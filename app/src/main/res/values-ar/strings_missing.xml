@@ -1,49 +1,23 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="nav_plugins">الإضافات</string>
-    <string name="live_quick_filter_hidden_categories">الفئات المخفية (%1$d)</string>
     <string name="hidden_categories_dialog_title">الفئات المخفية</string>
     <string name="hidden_categories_dialog_subtitle">اختر الفئات التي تريد استعادتها.</string>
     <string name="hidden_categories_dialog_unhide_all">إظهار الكل</string>
     <string name="hidden_categories_dialog_close">إغلاق</string>
-    <string name="dashboard_favorite_movies">الأفلام المفضلة</string>
-    <string name="dashboard_favorite_series">المسلسلات المفضلة</string>
-    <string name="dashboard_top_rated_movies">الأفلام الأعلى تقييمًا</string>
-    <string name="dashboard_recommended_movies">أفلام موصى بها</string>
     <string name="dashboard_customize_home">تخصيص الشاشة الرئيسية</string>
     <string name="dashboard_customize_home_subtitle">اختر الأرفف التي تظهر هنا، وأضِف صفوفًا جديدة، وأعِد ترتيبها في أي وقت.</string>
     <string name="dashboard_customize_home_action">تخصيص</string>
     <string name="channel_action_hide">إخفاء هذه القناة</string>
-    <string name="live_quick_filter_hidden_channels">القنوات المخفية (%1$d)</string>
     <string name="hidden_channels_dialog_title">القنوات المخفية</string>
     <string name="hidden_channels_dialog_subtitle">اختر القنوات التي تريد استعادتها.</string>
     <string name="hidden_channels_dialog_unhide_all">إظهار الكل</string>
     <string name="hidden_channels_dialog_close">إغلاق</string>
     <string name="settings_crash_report_share_failed">لا يوجد تطبيق يمكنه استلام تقرير العطل.</string>
     <string name="settings_crash_report_missing">لا يتوفر تقرير عطل.</string>
-    <string name="player_open_in_external_player">فتح في مشغّل خارجي</string>
     <string name="player_no_external_player">لا يوجد مشغّل خارجي مثبّت</string>
     <string name="player_unsafe_stream_url">لا يمكن فتح هذا البث في مشغّل خارجي</string>
     <string name="player_external_launch_failed">فشل تشغيل المشغّل الخارجي</string>
-    <string name="player_format_short">التنسيق</string>
-    <string name="player_stream_format">تنسيق البث</string>
-    <string name="player_action_format">التنسيق</string>
-    <string name="player_diagnostics_audio_decoder">مفكِّك ترميز الصوت</string>
-    <string name="player_diagnostics_audio_output_path">مسار الصوت</string>
-    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
-    <string name="player_diagnostics_compatibility_source">مصدر التوافق</string>
-    <string name="player_diagnostics_compatibility_note">ملاحظة التوافق</string>
-    <string name="player_diagnostics_compatibility_note_value">قد يستخدم التشغيل مسار صوت مُكتسبًا أو مدعومًا بالتوافق لهذا البث.</string>
-    <string name="series_detail_versions">النسخ</string>
-    <string name="stream_url_copy">نسخ الرابط</string>
-    <string name="stream_url_copied">تم نسخ رابط البث</string>
-    <string name="stream_url_copy_failed">تعذّر استخراج رابط البث</string>
-    <string name="stream_url_clip_label">رابط البث</string>
-    <string name="movie_detail_versions">النسخ</string>
-    <string name="dashboard_continue_watching_movies">متابعة مشاهدة الأفلام</string>
-    <string name="dashboard_continue_watching_series">متابعة مشاهدة المسلسلات</string>
-    <string name="download_button_label">تنزيل</string>
-    <string name="download_started">بدأ التنزيل</string>
     <string name="download_failed">فشل التنزيل: %1$s</string>
     <string name="download_completed">اكتمل التنزيل</string>
     <string name="download_cancelled">تم إلغاء التنزيل</string>
@@ -55,5 +29,4 @@
     <string name="downloads_empty">لا توجد تنزيلات بعد</string>
     <string name="downloads_delete_confirm">هل تريد حذف هذا التنزيل؟</string>
     <string name="download_play_local">تشغيل</string>
-    <string name="download_error_no_url">تعذّر استخراج رابط البث للتنزيل</string>
 </resources>

@@ -188,13 +188,13 @@ private suspend fun runWithAndroidTrace(name: String, block: suspend () -> Unit)
 
 private object PlatformStartupTraceSink : StartupTraceSink {
     override fun beginAsyncSection(name: String, cookie: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Trace.beginAsyncSection(name, cookie)
         }
     }
 
     override fun endAsyncSection(name: String, cookie: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Trace.endAsyncSection(name, cookie)
         }
     }

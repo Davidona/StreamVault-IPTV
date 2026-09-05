@@ -1,36 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="nav_plugins">Plugins</string>
-    <string name="dashboard_favorite_movies">Favorite Movies</string>
-    <string name="dashboard_favorite_series">Favorite Series</string>
-    <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-    <string name="dashboard_recommended_movies">Recommended Movies</string>
     <string name="dashboard_customize_home">Customize Home</string>
     <string name="dashboard_customize_home_subtitle">Choose which shelves appear here, add more rows, and reorder them any time.</string>
     <string name="dashboard_customize_home_action">Customize</string>
-    <string name="player_open_in_external_player">Open in external player</string>
     <string name="player_no_external_player">No external player installed</string>
     <string name="player_unsafe_stream_url">This stream cannot be opened in an external player</string>
     <string name="player_external_launch_failed">External player failed to start</string>
-    <string name="player_format_short">Format</string>
-    <string name="player_stream_format">Stream Format</string>
-    <string name="player_action_format">Format</string>
-    <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
-    <string name="player_diagnostics_audio_output_path">Audio Path</string>
-    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
-    <string name="player_diagnostics_compatibility_source">Compatibility Source</string>
-    <string name="player_diagnostics_compatibility_note">Compatibility Note</string>
-    <string name="player_diagnostics_compatibility_note_value">Playback may be using a learned or compatibility-assisted audio path for this stream.</string>
-    <string name="series_detail_versions">Versions</string>
-    <string name="stream_url_copy">Copy URL</string>
-    <string name="stream_url_copied">Stream URL copied</string>
-    <string name="stream_url_copy_failed">Could not resolve stream URL</string>
-    <string name="stream_url_clip_label">Stream URL</string>
-    <string name="movie_detail_versions">Versions</string>
-    <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-    <string name="dashboard_continue_watching_series">Continue Watching Series</string>
-    <string name="download_button_label">Download</string>
-    <string name="download_started">Download started</string>
     <string name="download_failed">Download failed: %1$s</string>
     <string name="download_completed">Download completed</string>
     <string name="download_cancelled">Download cancelled</string>
@@ -42,5 +18,4 @@
     <string name="downloads_empty">No downloads yet</string>
     <string name="downloads_delete_confirm">Delete this download?</string>
     <string name="download_play_local">Play</string>
-    <string name="download_error_no_url">Could not resolve stream URL for download</string>
 </resources>

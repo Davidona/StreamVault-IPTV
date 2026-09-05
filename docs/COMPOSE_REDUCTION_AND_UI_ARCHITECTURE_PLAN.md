@@ -996,11 +996,11 @@ paths, plus reversible quick-filter save/reload/remove persistence. The full
   completion, and direct Favorites test-host rendering/Back cancellation are
   covered; Catalog RTL/large-text semantics and reduced-motion instrumentation
   also pass. Cast receiver chooser, touch/device variants, and accessibility
-  service journeys,
-  successful
-  diagnostic Dashboard benchmark rerun after populating a scrollable seeded
-  Home shelf, open paired benchmark gate, refreshed release-like profiles, and
-  current app lint baseline failure remain explicitly tracked. System is now
+  service journeys remain open. The successful diagnostic Dashboard benchmark
+  rerun after populating a scrollable seeded Home shelf, the open paired
+  benchmark gate, and refreshed release-like profiles remain explicitly
+  tracked; current app lint now passes with stale baseline entries still
+  tracked for separate pruning. System is now
   structurally extracted under `:feature:system`; its connected acceptance
   passes 19/19, paired incremental thresholds pass, and the steady-state
   clean/warm guardrail passes. The System profile refresh is promoted through

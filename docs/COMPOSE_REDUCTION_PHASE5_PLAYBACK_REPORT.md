@@ -308,8 +308,8 @@ targeted Compose/resource fixes: the golden fixture caches its
 intentional `one`/`other` plurals carry narrow lint annotations. The focused
 connected `PlayerOverlayGoldenTest` then passed 6/6 on the API 36 TV emulator.
 The full feature sweep also passed all six feature unit-test tasks and all six
-feature lint tasks. Repository-wide `:app:lintDebug` remains separately blocked
-by its existing app-wide debt.
+feature lint tasks. The current `:app:lintDebug` gate now passes with the
+existing baseline; stale baseline entries remain separate cleanup work.
 
 ## Graph and final status
 
