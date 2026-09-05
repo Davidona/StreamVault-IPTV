@@ -1255,7 +1255,11 @@ class StalkerProviderTest {
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
         private var authenticationFailuresBeforeSuccess: Int = 0,
-        private var authenticationError: Throwable? = null
+        private var authenticationError: Throwable? = null,
+        private val shortEpgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        val shortEpgCalls: MutableList<String> = mutableListOf(),
+        val epgCalls: MutableList<String> = mutableListOf()
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
@@ -1355,13 +1359,19 @@ class StalkerProviderTest {
             profile: StalkerDeviceProfile,
             channelId: String,
             limit: Int
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            shortEpgCalls += channelId
+            return Result.success(shortEpgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getEpg(
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             channelId: String
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            epgCalls += channelId
+            return Result.success(epgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getBulkEpg(
             session: StalkerSession,
@@ -1485,6 +1495,111 @@ class StalkerProviderTest {
         assertThat(result).isInstanceOf(Result.Success::class.java)
         val success = result as Result.Success
         assertThat(success.data.url).isEqualTo("http://cdn.example.com/live/stream.ts")
+    }
+
+    @Test
+    fun getShortEpg_request_prefers_numeric_portal_id_over_xmltv_key() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "66" to listOf(
+                    StalkerProgramRecord(
+                        id = "p1",
+                        channelId = "66",
+                        title = "Christ in Prophecy",
+                        description = "Prophecy",
+                        startTimeMillis = 1_788_573_600_000L,
+                        endTimeMillis = 1_788_575_400_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "http://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(
+            com.streamvault.domain.provider.GuideRequest(streamId = 66L, epgChannelId = "daystar.us")
+        ) as Result.Success
+
+        assertThat(result.data.map { it.title }).containsExactly("Christ in Prophecy")
+        assertThat(api.shortEpgCalls).containsExactly("66")
+    }
+
+    @Test
+    fun getShortEpg_request_falls_back_to_xmltv_key_when_numeric_id_is_empty() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "daystar.us" to listOf(
+                    StalkerProgramRecord(
+                        id = "p1",
+                        channelId = "daystar.us",
+                        title = "Christ in Prophecy",
+                        description = "Prophecy",
+                        startTimeMillis = 1_788_573_600_000L,
+                        endTimeMillis = 1_788_575_400_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "http://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(
+            com.streamvault.domain.provider.GuideRequest(streamId = 66L, epgChannelId = "daystar.us")
+        ) as Result.Success
+
+        assertThat(result.data.map { it.title }).containsExactly("Christ in Prophecy")
+        assertThat(api.shortEpgCalls).containsExactly("66", "daystar.us")
+    }
+
+    @Test
+    fun getEpg_request_uses_numeric_portal_id() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            epgByChannel = mapOf(
+                "66" to listOf(
+                    StalkerProgramRecord(
+                        id = "p1",
+                        channelId = "66",
+                        title = "Evening News",
+                        description = "News",
+                        startTimeMillis = 1_788_573_600_000L,
+                        endTimeMillis = 1_788_575_400_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "http://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getEpg(
+            com.streamvault.domain.provider.GuideRequest(streamId = 66L, epgChannelId = "daystar.us")
+        ) as Result.Success
+
+        assertThat(result.data.map { it.title }).containsExactly("Evening News")
+        assertThat(api.epgCalls).containsExactly("66")
     }
 
     private object DirectTransactionRunner : DatabaseTransactionRunner {
