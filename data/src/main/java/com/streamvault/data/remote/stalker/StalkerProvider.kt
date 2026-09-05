@@ -2207,13 +2207,17 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         if (url.isNullOrBlank()) return null
         if (url.startsWith("http://", true) || url.startsWith("https://", true)) return url
         if (!url.startsWith("/")) return url
-        val origin = runCatching { URI(portalUrl) }.getOrNull() ?: return url
-        val scheme = origin.scheme?.takeIf { it == "http" || it == "https" } ?: "https"
-        val host = origin.host?.takeIf(String::isNotBlank) ?: return url
-        val port = origin.port.takeIf { it > 0 }
-        val authority = if (port != null && port != (if (scheme == "https") 443 else 80)) "$host:$port" else host
-        return "$scheme://$authority$url"
+        return StalkerLogoUrlResolver.resolvePortalUrl(portalUrl, url)
     }
+
+    /**
+     * Resolves a channel logo URL into an absolute URL. Some Ministra portals return the
+     * channel `logo` field as a bare filename (`536.png`) that lives under the portal's
+     * `misc/logos/{size}/` directory — the convention STBEmu uses when it requests
+     * `/stalker_portal/misc/logos/120/536.png`. See [StalkerLogoUrlResolver].
+     */
+    private fun resolveChannelLogoUrl(url: String?): String? =
+        StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, url)
 
     private fun toChannel(item: StalkerItemRecord): Channel? {
         val numericId = stableItemId(ContentType.LIVE, item.id)
@@ -2242,7 +2246,7 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         return Channel(
             id = 0L,
             name = resolvedName,
-            logoUrl = resolvePortalUrl(item.logoUrl),
+            logoUrl = resolveChannelLogoUrl(item.logoUrl),
             categoryId = category.id,
             categoryName = category.name,
             streamUrl = streamUrl,

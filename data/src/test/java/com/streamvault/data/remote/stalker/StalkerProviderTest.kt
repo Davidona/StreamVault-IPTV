@@ -677,6 +677,109 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun getLiveStreams_resolves_bare_filename_logos_under_misc_logos() = runTest {
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = listOf(
+                    StalkerItemRecord(
+                        id = "536",
+                        name = "NEWS 18 PUNJAB HARYANA",
+                        cmd = "ffmpeg http://localhost/ch/536_",
+                        streamUrl = "http://localhost/ch/536_",
+                        logoUrl = "536.png"
+                    )
+                )
+            ),
+            portalUrl = "http://alex.rocktv.be/stalker_portal/server/load.php",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getLiveStreams()
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val success = result as Result.Success
+        assertThat(success.data.single().logoUrl)
+            .isEqualTo("http://alex.rocktv.be/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
+    fun getLiveStreams_resolves_bare_filename_logos_from_plain_portal_base() = runTest {
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = listOf(
+                    StalkerItemRecord(
+                        id = "1",
+                        name = "APTN 4K cc",
+                        cmd = "ffmpeg http://localhost/ch/1_",
+                        streamUrl = "http://localhost/ch/1_",
+                        logoUrl = "1.png"
+                    )
+                )
+            ),
+            portalUrl = "http://alex.rocktv.be/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getLiveStreams()
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val success = result as Result.Success
+        assertThat(success.data.single().logoUrl)
+            .isEqualTo("http://alex.rocktv.be/misc/logos/120/1.png")
+    }
+
+    @Test
+    fun getLiveStreams_keeps_absolute_and_root_relative_logos_unchanged() = runTest {
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = listOf(
+                    StalkerItemRecord(
+                        id = "11",
+                        name = "CBC ICI 4K cc",
+                        cmd = "ffmpeg http://localhost/ch/11_",
+                        streamUrl = "http://localhost/ch/11_",
+                        logoUrl = "https://cdn.example.com/11.png"
+                    ),
+                    StalkerItemRecord(
+                        id = "12",
+                        name = "CBS 4K cc",
+                        cmd = "ffmpeg http://localhost/ch/12_",
+                        streamUrl = "http://localhost/ch/12_",
+                        logoUrl = "/stalker_portal/misc/logos/120/12.png"
+                    )
+                )
+            ),
+            portalUrl = "http://alex.rocktv.be/stalker_portal/server/load.php",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getLiveStreams()
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val success = result as Result.Success
+        val logos = success.data.map { it.logoUrl }
+        assertThat(logos).containsExactly(
+            "https://cdn.example.com/11.png",
+            "http://alex.rocktv.be/stalker_portal/misc/logos/120/12.png"
+        )
+    }
+
+    @Test
     fun buildCatchUpUrls_returns_internal_archive_candidates_for_live_token() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
