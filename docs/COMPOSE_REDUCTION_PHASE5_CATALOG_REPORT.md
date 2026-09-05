@@ -215,5 +215,5 @@ execution-time project access.
    still needs a stable TalkBack-compatible focus path.
 2. Capture a cache-equivalent pre-extraction run and pair it with the
    successful Dashboard benchmark evidence, using the same seeded content,
-   device, iteration count, and compilation mode. Keep lint-baseline pruning
-   and all other Phase 5 feature gates tracked separately.
+   device, iteration count, and compilation mode. Keep the 374 accepted lint
+   findings and all other Phase 5 feature gates tracked separately.

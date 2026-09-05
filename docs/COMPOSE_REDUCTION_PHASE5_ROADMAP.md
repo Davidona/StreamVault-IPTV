@@ -120,7 +120,8 @@ connected assertion passing.
 All six feature `testDebugUnitTest` tasks pass. Feature lint now passes for all
 six slices, and `:app:lintDebug` now passes after removing stale app-owned
 feature-resource duplicates and fixing the remaining API/Compose findings. The
-lint baseline still contains stale historical entries to prune separately.
+lint baseline now contains only the 374 current findings accepted for separate
+remediation.
 Catalog extraction is structurally implemented with passing connected golden
 checks and current-checkout build-isolation samples. The public-M3U seeded
 Home/Live/Movies/Series/Search smoke pass is supplemented by a diagnostic

@@ -159,9 +159,9 @@ the app's default and localized string files; feature modules remain the owners
 of those resources. The follow-up also corrected the API-level Trace guard and
 the app shell's Compose resource access and modifier ordering. The full local
 unit/lint sweep passed, including `:app:lintDebug` and all six feature lint and
-unit-test tasks. `:app:lintDebug` reports no new issues; 374 findings remain
-filtered by the existing baseline, while stale baseline entries are tracked for
-separate pruning.
+unit-test tasks. `:app:lintDebug` reports no new issues; 374 existing findings
+remain filtered by the maintained baseline, with stale historical entries
+removed.
 
 ## Connected acceptance and visual review
 

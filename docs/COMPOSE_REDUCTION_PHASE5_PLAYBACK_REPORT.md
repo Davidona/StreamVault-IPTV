@@ -309,7 +309,8 @@ intentional `one`/`other` plurals carry narrow lint annotations. The focused
 connected `PlayerOverlayGoldenTest` then passed 6/6 on the API 36 TV emulator.
 The full feature sweep also passed all six feature unit-test tasks and all six
 feature lint tasks. The current `:app:lintDebug` gate now passes with the
-existing baseline; stale baseline entries remain separate cleanup work.
+maintained baseline covering 374 current findings; stale historical entries have
+been removed.
 
 ## Graph and final status
 

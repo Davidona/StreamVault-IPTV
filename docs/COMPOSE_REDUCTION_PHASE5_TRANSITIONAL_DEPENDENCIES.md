@@ -257,7 +257,8 @@ app-owned.
 Task 9 structural, resource, unit-test, compilation, lint, and assembly gates
 are recorded in `validation/phase5_system/task9-structural-verification.md`.
 The follow-up app resource/code cleanup now makes `:app:lintDebug` pass with the
-existing baseline; stale baseline entries remain separate cleanup work. Task 10
+maintained baseline covering 374 current findings; stale historical entries have
+been removed. Task 10
 connected acceptance and reviewed goldens pass 19/19, the paired incremental
 thresholds pass, and the steady-state clean/warm build-overhead guardrail
 passes. The full System
