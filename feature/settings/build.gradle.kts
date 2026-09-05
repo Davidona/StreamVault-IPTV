@@ -61,7 +61,8 @@ val forbiddenFeatureSettingsSourceTokens = listOf(
 )
 
 val forbiddenFeatureSettingsFixtureTokens = forbiddenFeatureSettingsSourceTokens +
-    "import com.streamvault.data"
+    "import com.streamvault.data" +
+    "com.streamvault.data"
 
 fun findForbiddenFeatureSettingsSourceReferences(
     sourceRoot: java.io.File,
@@ -127,6 +128,8 @@ val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundar
             "ProviderFeatureImport.kt:3: import com.streamvault.feature.provider",
             "PlaybackFeatureImport.java:3: import com.streamvault.feature.playback",
             "DataImport.kt:3: import com.streamvault.data",
+            "DataImport.kt:3: com.streamvault.data",
+            "FullyQualifiedDataReference.kt:3: com.streamvault.data",
         )
         check(fixtureViolations.containsAll(requiredFixtureViolations)) {
             ":feature:settings boundary fixtures are not detected: " +

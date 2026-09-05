@@ -40,3 +40,28 @@ Ran `graphify update .` successfully after modifying code files. Graphify rebuil
 ## Commit scope
 
 The commit contains only the Task 1 boundary build/test/fixture changes and this report. The captured test log remains uncommitted.
+
+## Round 1/5 fix
+
+Finding addressed: the fixture guard previously proved only detection of the import phrase `import com.streamvault.data`; it did not prove detection of fully-qualified `com.streamvault.data...` usages.
+
+Fix details:
+
+- Test file: `feature/settings/src/test/java/com/streamvault/feature/settings/SettingsModuleBoundaryTest.kt` now asserts that the build logic contains the broader `com.streamvault.data` token.
+- Fixture file: `feature/settings/src/test/resources/boundary-fixtures/FullyQualifiedDataReference.kt` adds a fully-qualified `com.streamvault.data.sync.SyncProgressBus` reference.
+- Build logic: `feature/settings/build.gradle.kts` adds the broader `com.streamvault.data` token to fixture-only scanning and requires both the import and fully-qualified fixture violations. The production token list and production source scan remain unchanged for Task 4.
+
+Exact command:
+
+```text
+gradlew.bat :feature:settings:verifyFeatureSettingsBoundary --no-daemon
+```
+
+Result: expected RED, exit code 1. The task failed specifically on the existing project dependency:
+
+```text
+:feature:settings project dependencies must be exactly [:core:navigation, :core:ui, :domain, :player]; found
+[:core:navigation, :core:ui, :data, :domain, :player]
+```
+
+The task did not fail because of the fixture scan, confirming the broader-token fixture logic is accepted while the current `:data` dependency remains the RED cause. The prior untracked `task-1-boundary-test.log` was removed after this evidence was recorded; the rerun output was not persisted to a new log.
