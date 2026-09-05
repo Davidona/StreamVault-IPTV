@@ -1077,6 +1077,136 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun authenticate_reusesSessionAcrossInstancesWithDifferentLearnedHints() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room")
+        )
+        val activation = StalkerProvider(
+            providerId = 21,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(activation.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+
+        // Sync-side instance built from persisted learning: same portal identity, but
+        // different volatile hints. Must reuse the session, not fire a second handshake.
+        val sync = StalkerProvider(
+            providerId = 21,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            magPresetHint = com.streamvault.domain.model.StalkerMagPreset.MAG254_STRICT,
+            bootstrapRecipeHint = com.streamvault.domain.model.StalkerBootstrapRecipe.STRICT_MAG,
+            endpointPreferenceHint = com.streamvault.domain.model.StalkerEndpointPreference.SERVER_LOAD,
+            cookieModeHint = com.streamvault.domain.model.StalkerCookieMode.BOTH,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(sync.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_resumesPersistedSessionAfterProcessRestartWithoutHandshake() = runTest {
+        val dao = ResumableAuthFakePortalStateDao()
+        val store = StalkerPortalStateStore(dao)
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room")
+        )
+        val first = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(first.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+
+        // Simulate a process restart: all in-memory session caches are gone, but the
+        // persisted portal state (same DB) survives. No handshake may fire.
+        StalkerProvider.clearSharedAuthCacheForTests()
+        val restarted = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(restarted.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_skipsEndpointRepairRetryWhenThrottled() = runTest {
+        val dao = ResumableAuthFakePortalStateDao()
+        val store = StalkerPortalStateStore(dao)
+        // Arm the cached-endpoint repair path (working endpoint + recipe) but leave no
+        // resumable session, so authentication must go to the wire exactly once.
+        store.recordAuthentication(
+            providerId = 23,
+            session = StalkerSession(
+                loadUrl = "https://portal.example.com/server/load.php",
+                portalReferer = "https://portal.example.com/c/",
+                token = "stale-token"
+            ),
+            profile = StalkerProviderProfile(accountName = "Room"),
+            configurationGeneration = 0L
+        )
+        store.clearResumableAuth(23)
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            authenticationError = StalkerApiError.RateLimited()
+        )
+        val provider = StalkerProvider(
+            providerId = 23,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        val result = provider.authenticate()
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        // The repair retry would fire a second handshake milliseconds later and convert
+        // a soft throttle into a hard 429. It must be skipped.
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    private class ResumableAuthFakePortalStateDao : StalkerPortalStateDao {        private val rows = mutableMapOf<Long, StalkerPortalStateEntity>()
+
+        override suspend fun get(providerId: Long): StalkerPortalStateEntity? = rows[providerId]
+
+        override suspend fun upsert(entity: StalkerPortalStateEntity) {
+            rows[entity.providerId] = entity
+        }
+
+        override suspend fun invalidate(providerId: Long): Int = if (rows.remove(providerId) != null) 1 else 0
+    }
+
+    @Test
     fun resolvePlaybackInfo_dedicatedPlayerUserAgentOverridesCustomHeaderUserAgent() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
@@ -1124,7 +1254,8 @@ class StalkerProviderTest {
         private val seriesCategoriesResult: Result<List<StalkerCategoryRecord>>? = null,
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
-        private var authenticationFailuresBeforeSuccess: Int = 0
+        private var authenticationFailuresBeforeSuccess: Int = 0,
+        private var authenticationError: Throwable? = null
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
@@ -1139,6 +1270,9 @@ class StalkerProviderTest {
             if (authenticationFailuresBeforeSuccess > 0) {
                 authenticationFailuresBeforeSuccess -= 1
                 return Result.error("authentication failed")
+            }
+            authenticationError?.let { error ->
+                return Result.error(error.message.orEmpty(), error)
             }
             return Result.success(
                 StalkerSession(

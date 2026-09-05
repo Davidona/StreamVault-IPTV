@@ -3050,6 +3050,15 @@ interface CategoryDao {
 
     @Query("UPDATE categories SET is_user_protected = :isProtected WHERE provider_id = :providerId AND category_id = :categoryId AND type = :type")
     suspend fun updateProtectionStatus(providerId: Long, categoryId: Long, type: String, isProtected: Boolean)
+
+    /**
+     * Relabels stored categories after a catalog-layout/data mismatch (e.g. a persisted
+     * UNIFIED_VOD layout with rows still stored as SPLIT-era MOVIE/SERIES types). Category and
+     * item ids are layout-independent, so relabeling preserves the indexed catalog instead of
+     * forcing a full re-download.
+     */
+    @Query("UPDATE categories SET type = :toType WHERE provider_id = :providerId AND type = :fromType")
+    suspend fun retargetType(providerId: Long, fromType: String, toType: String): Int
 }
 
 @Dao
