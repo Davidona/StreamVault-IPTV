@@ -24,7 +24,7 @@ class PlaybackModuleBoundaryTest {
     }
 
     @Test
-    fun `boundary guard rejects Kotlin and Java app and root navigation fixtures`() {
+    fun `boundary guard detects app root navigation and Media3 implementation fixtures`() {
         val fixtureViolations = boundaryReportValue("fixtureViolations")
 
         assertThat(fixtureViolations).contains("AppPackageImport.kt:3: import com.streamvault.app")

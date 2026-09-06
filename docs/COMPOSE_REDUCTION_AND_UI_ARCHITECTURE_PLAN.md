@@ -1081,7 +1081,7 @@ Validation recorded for this checkpoint:
 - `:data:compileDebugKotlin :data:compileDebugUnitTestKotlin`
 - `:app:assembleDebug`
 
-The provider boundary task currently emits existing Gradle configuration-cache compatibility warnings because its custom verification action accesses project/script objects at execution time. The verification itself passes; making that custom task configuration-cache-safe remains dependency/build cleanup work.
+The provider, settings, and playback boundary tasks now use typed task inputs and configuration-time dependency snapshots, so the boundary verification path is configuration-cache compatible. A warm rerun of all three verification tasks reused the configuration cache successfully on 2026-09-06.
 
 Phase 7 checkpoint 2 - settings boundary (complete):
 
@@ -1120,7 +1120,7 @@ Automated validation recorded for this checkpoint on 2026-09-06:
 - `:player:testDebugUnitTest :feature:playback:testDebugUnitTest :feature:live:testDebugUnitTest :app:assembleDebug`
 - Both commands completed with `BUILD SUCCESSFUL` and zero failed tests.
 
-Live TV device acceptance passed on 2026-09-06 using the `Television_1080p` AOSP TV emulator. Two channels were each captured for 61 screenshots at a two-second cadence; both had 61 unique frame hashes and a healthy `PLAYING` media session with `error=null`. Sanitized evidence is recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md) and [`validation/phase7_player_capability/live-validation.log`](../validation/phase7_player_capability/live-validation.log).
+Live TV device acceptance passed on 2026-09-06 using the `Television_1080p` AOSP TV emulator. Two channels were each captured for 61 screenshots with a two-second sleep interval between captures; both had 61 unique frame hashes and a healthy `PLAYING` media session with `error=null`. Fresh startup logs recorded HLS prepare and first-frame success for both channels. Sanitized evidence is recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md) and [`validation/phase7_player_capability/live-validation.log`](../validation/phase7_player_capability/live-validation.log).
 
 The remaining final dependency/package cleanup is still outstanding Phase 7 work.
 

@@ -1,4 +1,15 @@
+import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 
 plugins {
     alias(libs.plugins.android.library)
@@ -62,80 +73,54 @@ val forbiddenFeatureSettingsSourceTokens = listOf(
     "NavController",
 )
 
-fun findForbiddenFeatureSettingsSourceReferences(
-    sourceRoot: java.io.File,
-    forbiddenTokens: List<String> = forbiddenFeatureSettingsSourceTokens,
-): List<String> = sourceRoot
-    .walkTopDown()
-    .filter { it.isFile && it.extension in setOf("kt", "java") }
-    .flatMap { file ->
-        file.readLines().flatMapIndexed { index, line ->
-            forbiddenTokens.filter(line::contains).map { token ->
-                "${file.relativeTo(sourceRoot)}:${index + 1}: ${token}"
-            }
-        }
-    }
-    .toList()
+abstract class VerifyFeatureSettingsBoundaryTask : DefaultTask() {
+    @get:Input
+    abstract val expectedProjectDependencies: SetProperty<String>
 
-val featureSettingsBoundaryReport = layout.buildDirectory.file(
-    "reports/feature-settings-boundary/report.txt"
-)
+    @get:Input
+    abstract val actualProjectDependencies: SetProperty<String>
 
-val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundary") {
-    group = "verification"
-    description = "Verifies that settings feature source and dependencies remain app-independent."
-    outputs.file(featureSettingsBoundaryReport)
-    outputs.upToDateWhen { false }
-    notCompatibleWithConfigurationCache(
-        "The boundary scan reads resolved Gradle model state at execution time."
-    )
+    @get:Input
+    abstract val forbiddenSourceTokens: ListProperty<String>
 
-    doLast {
-        val projectDependencyPaths = configurations
-            .flatMap { configuration ->
-                configuration.dependencies
-                    .withType<ProjectDependency>()
-                    .filter { dependency -> dependency.path != project.path }
-                    .map { dependency -> dependency.path }
-            }
-            .toSet()
+    @get:Input
+    abstract val requiredFixtureViolations: SetProperty<String>
 
-        check(projectDependencyPaths == allowedProjectDependencies) {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val productionSourceRoot: DirectoryProperty
+
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val fixtureRoot: DirectoryProperty
+
+    @get:OutputFile
+    abstract val reportFile: RegularFileProperty
+
+    @TaskAction
+    fun verifyBoundary() {
+        val projectDependencyPaths = actualProjectDependencies.get()
+        check(projectDependencyPaths == expectedProjectDependencies.get()) {
             ":feature:settings project dependencies must be exactly " +
-                "${allowedProjectDependencies.sorted()}; found ${projectDependencyPaths.sorted()}"
+                "${expectedProjectDependencies.get().sorted()}; found ${projectDependencyPaths.sorted()}"
         }
 
-        val sourceRoot = layout.projectDirectory.asFile.resolve("src/main")
-        val violations = findForbiddenFeatureSettingsSourceReferences(sourceRoot)
+        val violations = findForbiddenSourceReferences(productionSourceRoot.get().asFile)
         check(violations.isEmpty()) {
             ":feature:settings contains forbidden app, feature, or root navigation references:\n" +
                 violations.joinToString("\n")
         }
 
-        val fixtureRoot = layout.projectDirectory.asFile.resolve("src/test/resources/boundary-fixtures")
-        val fixtureViolations = findForbiddenFeatureSettingsSourceReferences(
-            fixtureRoot,
-        )
-        val requiredFixtureViolations = setOf(
-            "AppPackageImport.kt:3: import com.streamvault.app",
-            "FullyQualifiedAppReference.kt:3: com.streamvault.app",
-            "MainActivityReference.java:4: MainActivity",
-            "RootNavigation.kt:3: NavHostController",
-            "RootNavigation.java:4: NavController",
-            "ProviderFeatureImport.kt:3: import com.streamvault.feature.provider",
-            "PlaybackFeatureImport.java:3: import com.streamvault.feature.playback",
-            "DataImport.kt:3: import com.streamvault.data",
-            "DataImport.kt:3: com.streamvault.data",
-            "FullyQualifiedDataReference.kt:3: com.streamvault.data",
-        )
-        check(fixtureViolations.containsAll(requiredFixtureViolations)) {
+        val fixtureViolations = findForbiddenSourceReferences(fixtureRoot.get().asFile)
+        val requiredViolations = requiredFixtureViolations.get()
+        check(fixtureViolations.containsAll(requiredViolations)) {
             ":feature:settings boundary fixtures are not detected: " +
-                "${requiredFixtureViolations - fixtureViolations.toSet()}"
+                "${requiredViolations - fixtureViolations.toSet()}"
         }
 
-        val reportFile = featureSettingsBoundaryReport.get().asFile
-        reportFile.parentFile.mkdirs()
-        reportFile.writeText(
+        val report = reportFile.get().asFile
+        report.parentFile.mkdirs()
+        report.writeText(
             listOf(
                 "projectDependencies=${projectDependencyPaths.sorted().joinToString(",")}",
                 "mainSourceViolations=${violations.joinToString("|")}",
@@ -148,6 +133,48 @@ val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundar
                 "and Kotlin/Java fixture coverage."
         )
     }
+
+    private fun findForbiddenSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
+        .walkTopDown()
+        .filter { it.isFile && it.extension in setOf("kt", "java") }
+        .flatMap { file ->
+            file.readLines().flatMapIndexed { index, line ->
+                forbiddenSourceTokens.get().filter(line::contains).map { token ->
+                    "${file.relativeTo(sourceRoot)}:${index + 1}: $token"
+                }
+            }
+        }
+        .toList()
+}
+
+val featureSettingsBoundaryReport = layout.buildDirectory.file(
+    "reports/feature-settings-boundary/report.txt"
+)
+
+val verifyFeatureSettingsBoundary = tasks.register<VerifyFeatureSettingsBoundaryTask>(
+    "verifyFeatureSettingsBoundary"
+) {
+    group = "verification"
+    description = "Verifies that settings feature source and dependencies remain app-independent."
+    expectedProjectDependencies.set(allowedProjectDependencies)
+    forbiddenSourceTokens.set(forbiddenFeatureSettingsSourceTokens)
+    requiredFixtureViolations.set(
+        setOf(
+            "AppPackageImport.kt:3: import com.streamvault.app",
+            "FullyQualifiedAppReference.kt:3: com.streamvault.app",
+            "MainActivityReference.java:4: MainActivity",
+            "RootNavigation.kt:3: NavHostController",
+            "RootNavigation.java:4: NavController",
+            "ProviderFeatureImport.kt:3: import com.streamvault.feature.provider",
+            "PlaybackFeatureImport.java:3: import com.streamvault.feature.playback",
+            "DataImport.kt:3: import com.streamvault.data",
+            "DataImport.kt:3: com.streamvault.data",
+            "FullyQualifiedDataReference.kt:3: com.streamvault.data"
+        )
+    )
+    productionSourceRoot.set(layout.projectDirectory.dir("src/main"))
+    fixtureRoot.set(layout.projectDirectory.dir("src/test/resources/boundary-fixtures"))
+    reportFile.set(featureSettingsBoundaryReport)
 }
 
 tasks.named("check") {
@@ -200,4 +227,17 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.truth)
+}
+
+val featureSettingsProjectDependencies = configurations
+    .flatMap { configuration ->
+        configuration.dependencies
+            .withType<ProjectDependency>()
+            .filter { dependency -> dependency.path != project.path }
+            .map { dependency -> dependency.path }
+    }
+    .toSet()
+
+verifyFeatureSettingsBoundary.configure {
+    actualProjectDependencies.set(featureSettingsProjectDependencies)
 }

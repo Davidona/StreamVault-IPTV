@@ -1,4 +1,15 @@
+import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 
 plugins {
     alias(libs.plugins.android.library)
@@ -61,89 +72,65 @@ val forbiddenFeaturePlaybackSourceTokens = listOf(
     "androidx.media3"
 )
 
-fun findForbiddenFeaturePlaybackSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
-    .walkTopDown()
-    .filter { it.isFile && it.extension in setOf("kt", "java") }
-    .flatMap { file ->
-        file.readLines().flatMapIndexed { index, line ->
-            forbiddenFeaturePlaybackSourceTokens.filter(line::contains).map { token ->
-                "${file.relativeTo(sourceRoot)}:${index + 1}: $token"
-            }
-        }
-    }
-    .toList()
+abstract class VerifyFeaturePlaybackBoundaryTask : DefaultTask() {
+    @get:Input
+    abstract val expectedProjectDependencies: SetProperty<String>
 
-val featurePlaybackBoundaryReport = layout.buildDirectory.file(
-    "reports/feature-playback-boundary/report.txt"
-)
+    @get:Input
+    abstract val actualProjectDependencies: SetProperty<String>
 
-val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundary") {
-    group = "verification"
-    description = "Verifies the playback presentation-implementation source and dependency boundary."
-    outputs.file(featurePlaybackBoundaryReport)
-    outputs.upToDateWhen { false }
-    notCompatibleWithConfigurationCache(
-        "The boundary scan reads resolved Gradle model state at execution time."
-    )
+    @get:Input
+    abstract val directMedia3Dependencies: SetProperty<String>
 
-    doLast {
-        val projectDependencyPaths = configurations
-            .flatMap { configuration ->
-                configuration.dependencies
-                    .withType<ProjectDependency>()
-                    .filter { dependency -> dependency.path != project.path }
-                    .map { dependency -> dependency.path }
-            }
-            .toSet()
+    @get:Input
+    abstract val forbiddenSourceTokens: ListProperty<String>
 
-        check(projectDependencyPaths == allowedProjectDependencies) {
+    @get:Input
+    abstract val requiredFixtureViolations: SetProperty<String>
+
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val productionSourceRoot: DirectoryProperty
+
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val fixtureRoot: DirectoryProperty
+
+    @get:OutputFile
+    abstract val reportFile: RegularFileProperty
+
+    @TaskAction
+    fun verifyBoundary() {
+        val projectDependencyPaths = actualProjectDependencies.get()
+        check(projectDependencyPaths == expectedProjectDependencies.get()) {
             ":feature:playback project dependencies must be exactly " +
-                "${allowedProjectDependencies.sorted()}; found ${projectDependencyPaths.sorted()}"
+                "${expectedProjectDependencies.get().sorted()}; found ${projectDependencyPaths.sorted()}"
         }
 
-        val directMedia3Dependencies = configurations
-            .flatMap { configuration ->
-                configuration.dependencies
-                    .filterIsInstance<org.gradle.api.artifacts.ExternalModuleDependency>()
-                    .filter { dependency -> dependency.group == "androidx.media3" }
-                    .map { dependency -> "${dependency.group}:${dependency.name}" }
-            }
-            .toSet()
-
-        check(directMedia3Dependencies.isEmpty()) {
-            ":feature:playback must not declare Media3 directly; found ${directMedia3Dependencies.sorted()}"
+        val media3Dependencies = directMedia3Dependencies.get()
+        check(media3Dependencies.isEmpty()) {
+            ":feature:playback must not declare Media3 directly; found ${media3Dependencies.sorted()}"
         }
 
-        val sourceRoot = layout.projectDirectory.asFile.resolve("src/main")
-        val violations = findForbiddenFeaturePlaybackSourceReferences(sourceRoot)
-
+        val violations = findForbiddenSourceReferences(productionSourceRoot.get().asFile)
         check(violations.isEmpty()) {
-            ":feature:playback contains forbidden app or root navigation references:\n" +
+            ":feature:playback contains forbidden app, root navigation, or Media3 implementation references:\n" +
                 violations.joinToString("\n")
         }
 
-        val fixtureRoot = layout.projectDirectory.asFile.resolve("src/test/resources/boundary-fixtures")
-        val fixtureViolations = findForbiddenFeaturePlaybackSourceReferences(fixtureRoot)
-        val requiredFixtureViolations = setOf(
-            "AppPackageImport.kt:3: import com.streamvault.app",
-            "FullyQualifiedAppReference.kt:3: com.streamvault.app",
-            "MainActivityReference.java:4: MainActivity",
-            "RootNavigation.kt:3: NavHostController",
-            "RootNavigation.java:4: NavController",
-            "Media3EngineImport.kt:3: Media3PlayerEngine",
-            "Media3FullyQualifiedReference.java:4: androidx.media3"
-        )
-        check(fixtureViolations.containsAll(requiredFixtureViolations)) {
+        val fixtureViolations = findForbiddenSourceReferences(fixtureRoot.get().asFile)
+        val requiredViolations = requiredFixtureViolations.get()
+        check(fixtureViolations.containsAll(requiredViolations)) {
             ":feature:playback boundary fixtures are not detected: " +
-                "${requiredFixtureViolations - fixtureViolations.toSet()}"
+                "${requiredViolations - fixtureViolations.toSet()}"
         }
 
-        val reportFile = featurePlaybackBoundaryReport.get().asFile
-        reportFile.parentFile.mkdirs()
-        reportFile.writeText(
+        val report = reportFile.get().asFile
+        report.parentFile.mkdirs()
+        report.writeText(
             listOf(
                 "projectDependencies=${projectDependencyPaths.sorted().joinToString(",")}",
-                "directMedia3Dependencies=${directMedia3Dependencies.sorted().joinToString(",")}",
+                "directMedia3Dependencies=${media3Dependencies.sorted().joinToString(",")}",
                 "mainSourceViolations=${violations.joinToString("|")}",
                 "fixtureViolations=${fixtureViolations.joinToString("|")}"
             ).joinToString("\n")
@@ -154,6 +141,45 @@ val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundar
                 "no direct Media3 dependencies, no forbidden source references, and Kotlin/Java fixture coverage."
         )
     }
+
+    private fun findForbiddenSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
+        .walkTopDown()
+        .filter { it.isFile && it.extension in setOf("kt", "java") }
+        .flatMap { file ->
+            file.readLines().flatMapIndexed { index, line ->
+                forbiddenSourceTokens.get().filter(line::contains).map { token ->
+                    "${file.relativeTo(sourceRoot)}:${index + 1}: $token"
+                }
+            }
+        }
+        .toList()
+}
+
+val featurePlaybackBoundaryReport = layout.buildDirectory.file(
+    "reports/feature-playback-boundary/report.txt"
+)
+
+val verifyFeaturePlaybackBoundary = tasks.register<VerifyFeaturePlaybackBoundaryTask>(
+    "verifyFeaturePlaybackBoundary"
+) {
+    group = "verification"
+    description = "Verifies the playback presentation-implementation source and dependency boundary."
+    expectedProjectDependencies.set(allowedProjectDependencies)
+    forbiddenSourceTokens.set(forbiddenFeaturePlaybackSourceTokens)
+    requiredFixtureViolations.set(
+        setOf(
+            "AppPackageImport.kt:3: import com.streamvault.app",
+            "FullyQualifiedAppReference.kt:3: com.streamvault.app",
+            "MainActivityReference.java:4: MainActivity",
+            "RootNavigation.kt:3: NavHostController",
+            "RootNavigation.java:4: NavController",
+            "Media3EngineImport.kt:3: Media3PlayerEngine",
+            "Media3FullyQualifiedReference.java:4: androidx.media3"
+        )
+    )
+    productionSourceRoot.set(layout.projectDirectory.dir("src/main"))
+    fixtureRoot.set(layout.projectDirectory.dir("src/test/resources/boundary-fixtures"))
+    reportFile.set(featurePlaybackBoundaryReport)
 }
 
 tasks.named("check") {
@@ -206,4 +232,27 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.truth)
+}
+
+val featurePlaybackProjectDependencies = configurations
+    .flatMap { configuration ->
+        configuration.dependencies
+            .withType<ProjectDependency>()
+            .filter { dependency -> dependency.path != project.path }
+            .map { dependency -> dependency.path }
+    }
+    .toSet()
+
+val featurePlaybackDirectMedia3Dependencies = configurations
+    .flatMap { configuration ->
+        configuration.dependencies
+            .filterIsInstance<org.gradle.api.artifacts.ExternalModuleDependency>()
+            .filter { dependency -> dependency.group == "androidx.media3" }
+            .map { dependency -> "${dependency.group}:${dependency.name}" }
+    }
+    .toSet()
+
+verifyFeaturePlaybackBoundary.configure {
+    actualProjectDependencies.set(featurePlaybackProjectDependencies)
+    directMedia3Dependencies.set(featurePlaybackDirectMedia3Dependencies)
 }

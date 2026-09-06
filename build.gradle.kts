@@ -88,7 +88,7 @@ tasks.register("verifyCoreNavigationBoundary") {
 
 tasks.register("verifyFeaturePlaybackBoundary") {
     group = "verification"
-    description = "Verifies that :feature:playback remains independent from :app and root navigation controllers."
+    description = "Verifies that :feature:playback remains independent from :app, root navigation, and Media3 implementation details."
     dependsOn(":feature:playback:verifyFeaturePlaybackBoundary")
 }
 
