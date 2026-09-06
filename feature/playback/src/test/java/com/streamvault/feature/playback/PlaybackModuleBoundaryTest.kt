@@ -32,6 +32,16 @@ class PlaybackModuleBoundaryTest {
         assertThat(fixtureViolations).contains("MainActivityReference.java:4: MainActivity")
         assertThat(fixtureViolations).contains("RootNavigation.kt:3: NavHostController")
         assertThat(fixtureViolations).contains("RootNavigation.java:4: NavController")
+        assertThat(fixtureViolations)
+            .contains("Media3EngineImport.kt:3: Media3PlayerEngine")
+        assertThat(fixtureViolations)
+            .contains("Media3FullyQualifiedReference.java:4: androidx.media3")
+    }
+
+    @Test
+    fun `playback feature does not declare Media3 directly`() {
+        val buildFile = java.io.File("build.gradle.kts").readText()
+        assertThat(buildFile).doesNotContain("implementation(libs.media3.exoplayer)")
     }
 
     @Test
