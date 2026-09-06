@@ -13,13 +13,9 @@ import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
-import com.streamvault.data.local.dao.ProgramDao
-import com.streamvault.data.local.dao.XtreamIndexJobDao
-import com.streamvault.data.local.dao.XtreamLiveOnboardingDao
-import com.streamvault.data.local.entity.XtreamIndexJobEntity
 import com.streamvault.domain.settings.SettingsPreferences
-import com.streamvault.data.sync.ProviderSyncCommands
-import com.streamvault.data.sync.SyncRepairSection
+import com.streamvault.domain.settings.SettingsOperations
+import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.model.VodCategoryLoadMode
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
@@ -103,7 +99,7 @@ class SettingsViewModel @Inject constructor(
     private val channelRepository: ChannelRepository,
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository,
-    private val programDao: ProgramDao,
+    private val settingsOperations: SettingsOperations,
     private val preferencesRepository: SettingsPreferences,
     private val internetSpeedTestRunner: InternetSpeedTestRunner,
     private val backupManager: BackupManager,
@@ -111,9 +107,6 @@ class SettingsViewModel @Inject constructor(
     private val driveBackupSyncManager: DriveBackupSyncManager,
     private val recordingManager: RecordingManager,
     private val parentalControlManager: ParentalControlManager,
-    private val syncManager: ProviderSyncCommands,
-    private val xtreamIndexJobDao: XtreamIndexJobDao,
-    private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
     private val syncMetadataRepository: SyncMetadataRepository,
     private val playbackHistoryRepository: com.streamvault.domain.repository.PlaybackHistoryRepository,
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
@@ -164,14 +157,14 @@ class SettingsViewModel @Inject constructor(
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
         syncProvider = syncProvider,
-        syncManager = syncManager,
+        settingsOperations = settingsOperations,
         syncMetadataRepository = syncMetadataRepository,
         surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState
     )
     private val syncActions = SettingsSyncActions(
         appContext = application,
-        syncManager = syncManager,
+        settingsOperations = settingsOperations,
         surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState,
         refreshProvider = { scope, providerId, syncMode, progressPrefix, startedAt, sectionLabel, isCancelable ->
@@ -214,7 +207,7 @@ class SettingsViewModel @Inject constructor(
             syncMetadataRepository = syncMetadataRepository,
             movieRepository = movieRepository,
             seriesRepository = seriesRepository,
-            programDao = programDao,
+            settingsOperations = settingsOperations,
             application = appContext,
             preferencesRepository = preferencesRepository,
             activeProviderIdFlow = activeProviderIdFlow,
@@ -313,7 +306,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun registerXtreamIndexJobObserver() {
         viewModelScope.launch {
-            xtreamIndexJobDao.observeAll().collect { jobs ->
+            settingsOperations.observeXtreamIndexJobs().collect { jobs ->
                 val jobWarningsByProvider = jobs
                     .groupBy { it.providerId }
                     .mapValues { (_, providerJobs) ->
@@ -364,7 +357,7 @@ class SettingsViewModel @Inject constructor(
 
     private fun registerXtreamLiveOnboardingObserver() {
         viewModelScope.launch {
-            xtreamLiveOnboardingDao.observeIncomplete().collect { states ->
+            settingsOperations.observeIncompleteXtreamLiveOnboarding().collect { states ->
                 _uiState.update { state ->
                     val providerIds = state.providers.map { it.id }.toSet()
                     state.copy(
@@ -380,7 +373,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun XtreamIndexJobEntity.toSettingsWarningMessage(): String? {
+    private fun SettingsXtreamIndexJob.toSettingsWarningMessage(): String? {
         val label = when (section) {
             "LIVE" -> "Live TV"
             "MOVIE" -> "Movies"
@@ -1234,7 +1227,7 @@ class SettingsViewModel @Inject constructor(
                 }
                 if (provider == null) {
                     failures += reference.serverUrl
-                } else if (syncManager.sync(provider.id, force = true) is Result.Error) {
+                } else if (settingsOperations.syncProvider(provider.id, force = true) is Result.Error) {
                     failures += provider.name
                 }
             }

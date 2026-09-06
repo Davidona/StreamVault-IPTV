@@ -15,7 +15,7 @@ import com.streamvault.domain.usecase.SyncProvider
 import com.streamvault.domain.usecase.SyncProviderCommand
 import com.streamvault.domain.usecase.SyncProviderResult
 import com.streamvault.domain.util.PersistedTimestampPolicy
-import com.streamvault.data.sync.ProviderSyncCommands
+import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +36,7 @@ internal class SettingsProviderActions(
     private val combinedM3uRepository: CombinedM3uRepository,
     private val preferencesRepository: SettingsPreferences,
     private val syncProvider: SyncProvider,
-    private val syncManager: ProviderSyncCommands,
+    private val settingsOperations: SettingsOperations,
     private val syncMetadataRepository: SyncMetadataRepository,
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
     private val uiState: MutableStateFlow<SettingsUiState>
@@ -385,7 +385,7 @@ internal class SettingsProviderActions(
                     syncingProviderName = providerName
                 )
             }
-            syncManager.scheduleBackgroundEpgSync(providerId)
+            settingsOperations.scheduleBackgroundEpgSync(providerId)
         }
 
         uiState.update { state ->
@@ -429,7 +429,7 @@ internal class SettingsProviderActions(
                 currentGeneration.takeIf { it > appliedGeneration }
             }
         val result = if (provider?.type == ProviderType.XTREAM_CODES) {
-            syncManager.rebuildXtreamIndex(providerId) { message ->
+            settingsOperations.rebuildXtreamIndex(providerId) { message ->
                 uiState.update { state ->
                     state.copy(syncProgress = message, syncingProviderName = providerName)
                 }

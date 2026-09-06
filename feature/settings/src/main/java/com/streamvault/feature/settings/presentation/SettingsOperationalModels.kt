@@ -1,6 +1,6 @@
 package com.streamvault.feature.settings.presentation
 
-import com.streamvault.data.local.entity.XtreamLiveOnboardingStateEntity
+import com.streamvault.domain.settings.SettingsXtreamLiveOnboarding
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.CategorySortMode
@@ -89,7 +89,7 @@ data class XtreamLiveOnboardingUiModel(
         }.joinToString(" • ")
 }
 
-fun XtreamLiveOnboardingStateEntity.toUiModel(): XtreamLiveOnboardingUiModel =
+fun SettingsXtreamLiveOnboarding.toUiModel(): XtreamLiveOnboardingUiModel =
     XtreamLiveOnboardingUiModel(
         phase = phase,
         importStrategy = importStrategy.orEmpty(),

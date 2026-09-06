@@ -3,8 +3,8 @@ package com.streamvault.feature.settings.presentation
 import android.content.Context
 import com.streamvault.feature.settings.R
 import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
-import com.streamvault.data.sync.ProviderSyncCommands
-import com.streamvault.data.sync.SyncRepairSection
+import com.streamvault.domain.settings.SettingsOperations
+import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 internal class SettingsSyncActions(
     private val appContext: Context,
-    private val syncManager: ProviderSyncCommands,
+    private val settingsOperations: SettingsOperations,
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
     private val uiState: MutableStateFlow<SettingsUiState>,
     private val refreshProvider: (CoroutineScope, Long, SettingsProviderSyncMode, String?, Long, String?, Boolean) -> Job
@@ -109,11 +109,11 @@ internal class SettingsSyncActions(
                 )
             }
             val section = when (action) {
-                ProviderWarningAction.EPG -> SyncRepairSection.EPG
-                ProviderWarningAction.MOVIES -> SyncRepairSection.MOVIES
-                ProviderWarningAction.SERIES -> SyncRepairSection.SERIES
+                ProviderWarningAction.EPG -> SettingsSyncSection.EPG
+                ProviderWarningAction.MOVIES -> SettingsSyncSection.MOVIES
+                ProviderWarningAction.SERIES -> SettingsSyncSection.SERIES
             }
-            val result = syncManager.retrySection(providerId, section) { progress ->
+            val result = settingsOperations.retryProviderSection(providerId, section) { progress ->
                 uiState.update { state ->
                     state.copy(
                         syncProgress = progress,
@@ -194,10 +194,10 @@ internal class SettingsSyncActions(
             selections.forEach { selection ->
                 val sectionLabel = selection.label(appContext)
                 val section = when (selection) {
-                    ProviderSyncSelection.TV -> SyncRepairSection.LIVE
-                    ProviderSyncSelection.MOVIES -> SyncRepairSection.MOVIES
-                    ProviderSyncSelection.SERIES -> SyncRepairSection.SERIES
-                    ProviderSyncSelection.EPG -> SyncRepairSection.EPG
+                    ProviderSyncSelection.TV -> SettingsSyncSection.LIVE
+                    ProviderSyncSelection.MOVIES -> SettingsSyncSection.MOVIES
+                    ProviderSyncSelection.SERIES -> SettingsSyncSection.SERIES
+                    ProviderSyncSelection.EPG -> SettingsSyncSection.EPG
                     ProviderSyncSelection.SYNC_NOW, ProviderSyncSelection.REBUILD_INDEX -> null
                 } ?: return@forEach
 
@@ -212,7 +212,7 @@ internal class SettingsSyncActions(
                     )
                 }
 
-                when (val result = syncManager.retrySection(providerId, section) { progress ->
+                when (val result = settingsOperations.retryProviderSection(providerId, section) { progress ->
                     uiState.update { state ->
                         state.copy(
                             syncProgress = progress,

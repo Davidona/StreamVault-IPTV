@@ -2,7 +2,7 @@ package com.streamvault.feature.settings.presentation
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.settings.SettingsPreferences
-import com.streamvault.data.sync.SyncManager
+import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
@@ -33,7 +33,7 @@ class SettingsProviderActionsTest {
     private val combinedM3uRepository: CombinedM3uRepository = mock()
     private val preferencesRepository: SettingsPreferences = mock()
     private val syncProvider: SyncProvider = mock()
-    private val syncManager: SyncManager = mock()
+    private val settingsOperations: SettingsOperations = mock()
     private val syncMetadataRepository: SyncMetadataRepository = mock()
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort = mock()
     private val uiState = MutableStateFlow(SettingsUiState())
@@ -43,7 +43,7 @@ class SettingsProviderActionsTest {
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
         syncProvider = syncProvider,
-        syncManager = syncManager,
+        settingsOperations = settingsOperations,
         syncMetadataRepository = syncMetadataRepository,
         surfaceRefreshPort = surfaceRefreshPort,
         uiState = uiState

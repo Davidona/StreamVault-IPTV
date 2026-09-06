@@ -2,7 +2,7 @@ package com.streamvault.feature.settings.presentation
 
 import android.content.Context
 import com.streamvault.feature.settings.api.SettingsAppUpdatePort
-import com.streamvault.data.local.dao.ProgramDao
+import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingItem
@@ -158,7 +158,7 @@ internal fun registerDerivedStateObservers(
     syncMetadataRepository: SyncMetadataRepository,
     movieRepository: MovieRepository,
     seriesRepository: SeriesRepository,
-    programDao: ProgramDao,
+    settingsOperations: SettingsOperations,
     application: Context,
     preferencesRepository: SettingsPreferences,
     activeProviderIdFlow: Flow<Long?>,
@@ -174,7 +174,7 @@ internal fun registerDerivedStateObservers(
             syncMetadataRepository = syncMetadataRepository,
             movieRepository = movieRepository,
             seriesRepository = seriesRepository,
-            programDao = programDao,
+            settingsOperations = settingsOperations,
             application = application
         ).collect { diagnosticsByProvider ->
             uiState.update { it.copy(diagnosticsByProvider = diagnosticsByProvider) }
