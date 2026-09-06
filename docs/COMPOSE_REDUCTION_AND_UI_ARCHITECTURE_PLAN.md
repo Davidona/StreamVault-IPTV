@@ -1114,6 +1114,8 @@ Current dependency direction for this checkpoint:
         +----> PlayerEngine capability API
 ```
 
+The playback feature still retains a transitional `:data` dependency for content resolution and player preference access. Removing that edge and the remaining data-layer imports is final Phase 7 cleanup, not part of this checkpoint.
+
 Automated validation recorded for this checkpoint on 2026-09-06:
 
 - `:feature:playback:verifyFeaturePlaybackBoundary :feature:playback:testDebugUnitTest --tests "com.streamvault.feature.playback.PlaybackModuleBoundaryTest"`

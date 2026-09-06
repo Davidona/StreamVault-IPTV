@@ -1,7 +1,7 @@
 # Player Capability Boundary Design
 
-Date: 2026-09-06  
-Status: Approved for planning  
+Date: 2026-09-06
+Status: Approved for planning
 Phase: 7, checkpoint 3
 
 ## Goal

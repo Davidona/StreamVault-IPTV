@@ -1,9 +1,9 @@
 # Phase 7 player capability acceptance
 
-Validation date: 2026-09-06  
-Build: `app-debug.apk` from commit `d6b5f273`  
-Device: `Television_1080p` AOSP TV emulator, `emulator-5554`  
-Capture method: binary-safe `cmd.exe` redirection from `adb exec-out screencap -p`  
+Validation date: 2026-09-06
+Build: `app-debug.apk` from commit `d6b5f273`
+Device: `Television_1080p` AOSP TV emulator, `emulator-5554`
+Capture method: binary-safe `cmd.exe` redirection from `adb exec-out screencap -p`
 Capture loop: 2-second sleep interval between captures
 Window: 61 screenshots per channel; measured wall-clock windows were 188 seconds for channel 1 and 201 seconds for channel 2 because each capture also includes ADB overhead.
 
