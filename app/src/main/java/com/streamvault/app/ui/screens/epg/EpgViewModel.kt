@@ -1,5 +1,6 @@
 package com.streamvault.app.ui.screens.epg
 
+import com.streamvault.app.ui.model.GuideCachePolicy
 import com.streamvault.app.ui.model.isArchivePlayable
 import com.streamvault.app.ui.model.guideLookupKey
 import androidx.lifecycle.ViewModel
@@ -293,14 +294,9 @@ class EpgViewModel @Inject constructor(
         const val MAX_CHANNELS = 60
         private const val MAX_XTREAM_GUIDE_FALLBACK_CHANNELS = 60
         private const val MAX_XTREAM_GUIDE_FALLBACK_PROGRAMS = 6
-        // Portal EPG ids that are shared placeholders with no per-channel schedule. They must
-        // never be fetched (they waste a paced request) or displayed as if they carried data.
-        private val EPG_SENTINEL_KEYS = setOf("glotv")
         // Fetch guide fallback in small chunks so the grid fills progressively instead of
         // waiting for the whole page of paced requests.
         private const val GUIDE_FALLBACK_CHUNK_SIZE = 12
-        // Re-probe a channel whose on-demand fetch returned empty after this long.
-        private const val GUIDE_EMPTY_KEY_TTL_MILLIS = 24 * 60 * 60 * 1000L
         const val LOOKBACK_MS = 60 * 60 * 1000L
         const val LOOKAHEAD_MS = 6 * 60 * 60 * 1000L
         const val HALF_HOUR_SHIFT_MS = 30 * 60 * 1000L
@@ -1733,7 +1729,7 @@ class EpgViewModel @Inject constructor(
         // Sentinel keys (shared portal placeholders like "glotv") must never surface cached
         // placeholder rows as if they were this channel's real schedule.
         val programsByChannel = (resolvedPrograms + legacyPrograms)
-            .filterKeys { it !in EPG_SENTINEL_KEYS }
+            .filterKeys { it !in GuideCachePolicy.EPG_SENTINEL_KEYS }
         return GuideProgramsResult(
             programsByChannel = programsByChannel,
             failedCount = countMissingGuideEntries(channels, programsByChannel)
@@ -1860,28 +1856,21 @@ class EpgViewModel @Inject constructor(
 
         ensurePersistedEmptyGuideKeys(providerId)
         val persistedFresh = persistedEmptyGuideKeys[providerId].orEmpty()
-        val now = System.currentTimeMillis()
 
         // Sentinel keys (shared portal placeholders) never carry a real schedule; remember
         // them as empty without spending a paced request.
-        val sentinelKeys = channels.mapNotNull(Channel::guideLookupKey)
-            .filter { it in EPG_SENTINEL_KEYS }
-            .toSet()
+        val sentinelKeys = GuideCachePolicy.sentinelKeysOf(channels)
         if (sentinelKeys.isNotEmpty()) {
             knownEmptyGuideKeys += sentinelKeys
             preferencesRepository.addEmptyGuideKeys(providerId, sentinelKeys)
         }
 
-        val missingChannels = channels.filter { channel ->
-            val lookupKey = channel.guideLookupKey()
-            lookupKey != null &&
-                lookupKey !in knownEmptyGuideKeys &&
-                // Durable empty-key cache: skip ids that returned empty recently instead of
-                // re-fetching them on every page visit / app launch.
-                persistedFresh[lookupKey]?.let { now - it < GUIDE_EMPTY_KEY_TTL_MILLIS } != true &&
-                channel.streamId > 0L &&
-                existingProgramsByChannel[lookupKey].isNullOrEmpty()
-        }
+        val missingChannels = GuideCachePolicy.requestableChannels(
+            channels = channels,
+            sessionEmptyKeys = knownEmptyGuideKeys,
+            persistedEmptyAt = persistedFresh,
+            existingProgramsByChannel = existingProgramsByChannel
+        )
         if (missingChannels.isEmpty()) {
             return emptyMap()
         }
