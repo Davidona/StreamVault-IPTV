@@ -69,6 +69,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
+import com.streamvault.app.ui.design.AppColors
 import com.streamvault.app.ui.components.rememberCrossfadeImageModel
 import com.streamvault.app.ui.model.isArchivePlayable
 import com.streamvault.app.ui.screens.player.NumericChannelInputState
@@ -612,7 +613,7 @@ private fun PlayerBottomBar(
                 Modifier.fillMaxWidth()
             },
             shape = RoundedCornerShape(if (isVod) 20.dp else 28.dp),
-            colors = SurfaceDefaults.colors(containerColor = Color(0xFF0C1624).copy(alpha = 0.92f))
+            colors = SurfaceDefaults.colors(containerColor = AppColors.CanvasElevated.copy(alpha = 0.92f))
         ) {
             Column(
                 modifier = Modifier

@@ -452,7 +452,7 @@ private fun MovieDetailHeroText(
                 modifier = Modifier.focusRequester(playButtonFocusRequester),
                 colors = ButtonDefaults.colors(
                     containerColor = AppColors.Brand,
-                    contentColor = Color.White
+                    contentColor = Color.Black
                 )
             ) {
                 Text(
@@ -510,7 +510,7 @@ private fun MovieDetailHeroText(
                 onClick = onToggleFavorite,
                 colors = ButtonDefaults.colors(
                     containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    contentColor = if (movie.isFavorite) Color.White else AppColors.TextSecondary
+                    contentColor = if (movie.isFavorite) Color.Black else AppColors.TextSecondary
                 )
             ) {
                 Icon(

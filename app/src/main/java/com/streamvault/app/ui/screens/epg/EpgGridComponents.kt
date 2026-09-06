@@ -58,6 +58,7 @@ import com.streamvault.app.ui.model.guideLookupKey
 import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createTimeFormatter
 import com.streamvault.app.ui.theme.FocusBorder
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
 import com.streamvault.app.ui.theme.OnSurface
 import com.streamvault.app.ui.theme.OnSurfaceDim
 import com.streamvault.app.ui.theme.Primary
@@ -184,6 +185,7 @@ internal fun EpgGrid(
                 scrollState = horizontalScrollState
             )
             Spacer(modifier = Modifier.height(4.dp))
+            Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = verticalListState,
                 modifier = Modifier.fillMaxSize(),
@@ -224,6 +226,8 @@ internal fun EpgGrid(
                     )
                 }
             }
+                MaterialVerticalScrollbar(state = verticalListState)
+        }
         }
     }
 }

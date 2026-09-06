@@ -433,7 +433,7 @@ internal fun ReorderSidePanel(
                     onClick = onSave,
                     colors = ButtonDefaults.colors(
                         containerColor = Primary,
-                        contentColor = Color.White
+                        contentColor = Color.Black
                     ),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.action_save), maxLines = 1) }

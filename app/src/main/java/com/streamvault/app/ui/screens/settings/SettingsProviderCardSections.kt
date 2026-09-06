@@ -23,6 +23,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.app.R
 import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.app.ui.theme.FocusBorder
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.theme.ErrorColor
 import com.streamvault.app.ui.theme.OnBackground
@@ -234,7 +235,7 @@ private fun ProviderActionButton(
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
                 shape = RoundedCornerShape(6.dp)
             )
         ),

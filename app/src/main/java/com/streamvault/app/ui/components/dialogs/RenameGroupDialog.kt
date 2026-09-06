@@ -186,9 +186,9 @@ fun RenameGroupDialog(
                         ),
                         colors = ButtonDefaults.colors(
                             containerColor = Primary,
-                            contentColor = Color.White,
+                            contentColor = Color.Black,
                             focusedContainerColor = Primary.copy(alpha = 0.84f),
-                            focusedContentColor = Color.White
+                            focusedContentColor = Color.Black
                         ),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(

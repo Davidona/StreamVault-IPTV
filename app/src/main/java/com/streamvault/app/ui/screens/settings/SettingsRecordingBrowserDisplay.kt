@@ -105,7 +105,7 @@ internal fun recordingStatusLabel(status: RecordingStatus): String = when (statu
 internal fun recordingStatusAccent(status: RecordingStatus): Color = when (status) {
     RecordingStatus.RECORDING -> Primary
     RecordingStatus.SCHEDULED -> Secondary
-    RecordingStatus.COMPLETED -> Color(0xFF7BA7FF)
+    RecordingStatus.COMPLETED -> Color(0xFF4FD1C5)
     RecordingStatus.FAILED -> ErrorColor
     RecordingStatus.CANCELLED -> OnSurfaceDim
 }

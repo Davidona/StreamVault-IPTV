@@ -41,6 +41,7 @@ import com.streamvault.app.ui.components.TvEmptyState
 import com.streamvault.app.ui.theme.ErrorColor
 import com.streamvault.app.ui.theme.OnBackground
 import com.streamvault.app.ui.design.FocusSpec
+import com.streamvault.app.ui.theme.FocusBorder
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.theme.OnSurface
 import com.streamvault.app.ui.theme.OnSurfaceDim
@@ -263,7 +264,7 @@ private fun RecordingPickerRow(
                 shape = RoundedCornerShape(12.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
                 shape = RoundedCornerShape(12.dp)
             )
         ),

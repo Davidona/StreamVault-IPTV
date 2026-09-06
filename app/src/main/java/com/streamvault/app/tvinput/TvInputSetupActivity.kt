@@ -44,12 +44,14 @@ import com.streamvault.app.ui.theme.OnBackground
 import com.streamvault.app.ui.theme.OnSurfaceDim
 import com.streamvault.app.ui.theme.Primary
 import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.app.ui.theme.SurfaceElevated
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.repository.ProviderRepository
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,13 +63,17 @@ import kotlinx.coroutines.launch
 class TvInputSetupActivity : ComponentActivity() {
     private val viewModel: TvInputSetupViewModel by viewModels()
 
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inputId = intent.getStringExtra(TvInputInfo.EXTRA_INPUT_ID)
             ?: ComponentName(this, StreamVaultTvInputService::class.java).flattenToShortString()
         viewModel.startSetup(inputId)
         setContent {
-            StreamVaultTheme {
+            val darkTheme by preferencesRepository.darkTheme.collectAsState(initial = false)
+            StreamVaultTheme(useDarkTheme = darkTheme) {
                 TvInputSetupRoute(
                     onOpenProviderSetup = {
                         startActivity(

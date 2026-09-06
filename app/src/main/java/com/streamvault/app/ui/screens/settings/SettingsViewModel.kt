@@ -463,6 +463,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setDarkTheme(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setDarkTheme(enabled)
+        }
+    }
+
     fun setAppLandingDestination(destination: AppLandingDestination) {
         viewModelScope.launch {
             preferencesRepository.setAppLandingDestination(

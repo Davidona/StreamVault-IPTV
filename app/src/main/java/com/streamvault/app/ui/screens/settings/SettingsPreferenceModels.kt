@@ -48,6 +48,7 @@ internal data class SettingsPreferenceSnapshot(
     val parentalControlLevel: Int,
     val hasParentalPin: Boolean,
     val appLanguage: String,
+    val darkTheme: Boolean,
     val appLandingDestination: AppLandingDestination,
     val appTopLevelDestinations: List<AppTopLevelDestination>,
     val appHomeDashboardShelves: List<AppHomeDashboardShelf>,

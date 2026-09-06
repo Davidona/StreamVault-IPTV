@@ -58,7 +58,7 @@ internal fun SettingsNavigationRail(
         SettingsNavEntry(
             label = stringResource(R.string.settings_backup_restore),
             icon = "B",
-            accent = Color(0xFF42A5F5)
+            accent = Color(0xFF9575CD)
         ),
         SettingsNavEntry(
             label = "EPG Sources",

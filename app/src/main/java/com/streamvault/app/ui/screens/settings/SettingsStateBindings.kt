@@ -46,6 +46,7 @@ internal fun observeSettingsPreferenceSnapshot(
             parentalControlLevel = level,
             hasParentalPin = hasParentalPin,
             appLanguage = "system",
+            darkTheme = false,
             appLandingDestination = AppLandingDestination.HOME,
             appTopLevelDestinations = AppTopLevelDestination.defaultOrder,
             appHomeDashboardShelves = AppHomeDashboardShelf.defaultOrder,
@@ -126,6 +127,8 @@ internal fun observeSettingsPreferenceSnapshot(
         )
     }.combine(preferencesRepository.appLanguage) { snapshot, language ->
         snapshot.copy(appLanguage = language)
+    }.combine(preferencesRepository.darkTheme) { snapshot, darkTheme ->
+        snapshot.copy(darkTheme = darkTheme)
     }.combine(preferencesRepository.appLandingDestination) { snapshot, destination ->
         snapshot.copy(appLandingDestination = destination)
     }.combine(preferencesRepository.appTopLevelDestinations) { snapshot, destinations ->

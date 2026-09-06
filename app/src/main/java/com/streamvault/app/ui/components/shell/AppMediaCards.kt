@@ -157,7 +157,7 @@ fun LiveChannelRowCard(
                             StatusPill(label = stringResource(R.string.badge_saved), containerColor = AppColors.Warning, contentColor = Color.Black)
                         }
                         if (hasUsableArchive) {
-                            StatusPill(label = stringResource(R.string.badge_catch_up), containerColor = AppColors.Brand)
+                            StatusPill(label = stringResource(R.string.badge_catch_up), containerColor = AppColors.Brand, contentColor = Color.Black)
                         }
                     }
                 }

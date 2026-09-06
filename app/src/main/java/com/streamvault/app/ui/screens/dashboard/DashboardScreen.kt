@@ -69,6 +69,8 @@ import com.streamvault.app.ui.time.LocalAppTimeFormat
 import com.streamvault.app.ui.time.createDateTimeFormat
 import com.streamvault.app.ui.design.AppColors.Brand as Primary
 import com.streamvault.app.ui.design.AppColors.Focus as FocusBorder
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.streamvault.app.ui.design.AppColors.SurfaceElevated as SurfaceElevated
 import com.streamvault.app.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
 import com.streamvault.app.ui.design.AppColors.TextPrimary as OnBackground
@@ -115,6 +117,8 @@ fun DashboardScreen(
         }
     }
 
+    val dashboardListState = rememberLazyListState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         AppScreenScaffold(
             currentRoute = currentRoute,
@@ -152,7 +156,9 @@ fun DashboardScreen(
                 }
             }
 
+            Box(modifier = Modifier.fillMaxSize()) {
             androidx.compose.foundation.lazy.LazyColumn(
+                state = dashboardListState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 28.dp)
             ) {
@@ -305,6 +311,8 @@ fun DashboardScreen(
                 }
             }
             }
+            MaterialVerticalScrollbar(state = dashboardListState)
+        }
         }
 
         SnackbarHost(
@@ -502,7 +510,7 @@ private fun DashboardShortcutCard(
     val accentColor = when (shortcut.type) {
         DashboardShortcutType.FAVORITES -> Color(0xFFFFC857)
         DashboardShortcutType.RECENT -> Color(0xFF4FD1C5)
-        DashboardShortcutType.LAST_GROUP -> Color(0xFF60A5FA)
+        DashboardShortcutType.LAST_GROUP -> Color(0xFFA78BFA)
         DashboardShortcutType.CUSTOM_GROUP -> Primary
     }
 

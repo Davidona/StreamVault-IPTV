@@ -185,6 +185,7 @@ class PreferencesRepository @Inject constructor(
         val PARENTAL_PIN_SALT = stringPreferencesKey("parental_pin_salt")
         val DEFAULT_CATEGORY_ID = longPreferencesKey("default_category_id")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
+        val DARK_THEME = booleanPreferencesKey("dark_theme")
         val APP_LANDING_DESTINATION = stringPreferencesKey("app_landing_destination")
         val APP_TOP_LEVEL_DESTINATIONS = stringPreferencesKey("app_top_level_destinations")
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
@@ -1457,6 +1458,10 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.APP_LANGUAGE] ?: "system"
     }
 
+    val darkTheme: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.DARK_THEME] ?: false
+    }
+
     val remoteShortcutPreferences: Flow<RemoteShortcutPreferences> = context.dataStore.data.map { preferences ->
         decodeRemoteShortcutPreferences { profile, button ->
             preferences[stringPreferencesKey(remoteShortcutKey(profile, button))]
@@ -1466,6 +1471,12 @@ class PreferencesRepository @Inject constructor(
     suspend fun setAppLanguage(language: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_LANGUAGE] = language
+        }
+    }
+
+    suspend fun setDarkTheme(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DARK_THEME] = enabled
         }
     }
 
