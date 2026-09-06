@@ -9,8 +9,7 @@ class PlaybackModuleBoundaryTest {
         ":core:navigation",
         ":core:ui",
         ":domain",
-        ":player",
-        ":data"
+        ":player"
     )
 
     @Test
@@ -24,7 +23,7 @@ class PlaybackModuleBoundaryTest {
     }
 
     @Test
-    fun `boundary guard detects app root navigation and Media3 implementation fixtures`() {
+    fun `boundary guard detects forbidden implementation fixtures`() {
         val fixtureViolations = boundaryReportValue("fixtureViolations")
 
         assertThat(fixtureViolations).contains("AppPackageImport.kt:3: import com.streamvault.app")
@@ -36,6 +35,10 @@ class PlaybackModuleBoundaryTest {
             .contains("Media3EngineImport.kt:3: Media3PlayerEngine")
         assertThat(fixtureViolations)
             .contains("Media3FullyQualifiedReference.java:4: androidx.media3")
+        assertThat(fixtureViolations)
+            .contains("DataPackageImport.kt:3: import com.streamvault.data")
+        assertThat(fixtureViolations)
+            .contains("DataFullyQualifiedReference.java:4: com.streamvault.data.")
     }
 
     @Test

@@ -20,6 +20,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.streamvault.data.local.dao.ChannelPreferenceDao
 import com.streamvault.data.local.dao.SearchHistoryDao
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
+import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
@@ -152,7 +153,7 @@ class PreferencesRepository @Inject constructor(
     private val channelPreferenceDao: ChannelPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
-) : ParentalControlSessionStore, ParentalPinVerifier, SettingsPreferences {
+) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences {
     private val preferencesDataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { cause ->
@@ -354,7 +355,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val lastActiveProviderId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastActiveProviderId: Flow<Long?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.LAST_ACTIVE_PROVIDER_ID]
     }
 
@@ -387,7 +388,7 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.XTREAM_TEXT_IMPORT_GENERATION] ?: 0L
     }
 
-    val playerMuted: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerMuted: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_MUTED] ?: false
     }
 
@@ -1020,7 +1021,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setPlayerMuted(muted: Boolean) {
+    override suspend fun setPlayerMuted(muted: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_MUTED] = muted
         }
@@ -1423,7 +1424,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    fun getLastLiveCategoryId(providerId: Long): Flow<Long?> {
+    override fun getLastLiveCategoryId(providerId: Long): Flow<Long?> {
         val key = longPreferencesKey("last_live_category_id_$providerId")
         return context.dataStore.data.map { preferences ->
             preferences[key]
@@ -1682,7 +1683,7 @@ class PreferencesRepository @Inject constructor(
         decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS])
     }
 
-    suspend fun setPreferredLiveVariant(providerId: Long, logicalGroupId: String, rawChannelId: Long) {
+    override suspend fun setPreferredLiveVariant(providerId: Long, logicalGroupId: String, rawChannelId: Long) {
         if (providerId <= 0L || logicalGroupId.isBlank() || rawChannelId <= 0L) return
         context.dataStore.edit { preferences ->
             val updated = decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS]).toMutableMap()
@@ -1714,11 +1715,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val liveVariantObservations: Flow<Map<Long, LiveChannelObservedQuality>> = context.dataStore.data.map { preferences ->
+    override val liveVariantObservations: Flow<Map<Long, LiveChannelObservedQuality>> = context.dataStore.data.map { preferences ->
         decodeLiveVariantObservations(preferences[PreferencesKeys.LIVE_VARIANT_OBSERVATIONS])
     }
 
-    suspend fun recordLiveVariantObservation(rawChannelId: Long, observedQuality: LiveChannelObservedQuality) {
+    override suspend fun recordLiveVariantObservation(rawChannelId: Long, observedQuality: LiveChannelObservedQuality) {
         if (rawChannelId <= 0L) return
         context.dataStore.edit { preferences ->
             val updated = decodeLiveVariantObservations(preferences[PreferencesKeys.LIVE_VARIANT_OBSERVATIONS]).toMutableMap()
@@ -1783,11 +1784,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val vodVariantObservations: Flow<Map<Long, VodVariantObservation>> = context.dataStore.data.map { preferences ->
+    override val vodVariantObservations: Flow<Map<Long, VodVariantObservation>> = context.dataStore.data.map { preferences ->
         decodeVodVariantObservations(preferences[PreferencesKeys.VOD_VARIANT_OBSERVATIONS])
     }
 
-    suspend fun recordVodVariantObservation(rawItemId: Long, observation: VodVariantObservation) {
+    override suspend fun recordVodVariantObservation(rawItemId: Long, observation: VodVariantObservation) {
         if (rawItemId <= 0L) return
         context.dataStore.edit { preferences ->
             val updated = decodeVodVariantObservations(preferences[PreferencesKeys.VOD_VARIANT_OBSERVATIONS]).toMutableMap()
@@ -2174,7 +2175,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    fun getMultiViewPreset(presetIndex: Int): Flow<List<Long>> {
+    override fun getMultiViewPreset(presetIndex: Int): Flow<List<Long>> {
         val key = when (presetIndex) {
             0 -> PreferencesKeys.MULTIVIEW_PRESET_1
             1 -> PreferencesKeys.MULTIVIEW_PRESET_2
@@ -2188,7 +2189,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setMultiViewPreset(presetIndex: Int, channelIds: List<Long>) {
+    override suspend fun setMultiViewPreset(presetIndex: Int, channelIds: List<Long>) {
         val key = when (presetIndex) {
             0 -> PreferencesKeys.MULTIVIEW_PRESET_1
             1 -> PreferencesKeys.MULTIVIEW_PRESET_2
@@ -2203,11 +2204,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val multiViewPerformanceMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val multiViewPerformanceMode: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_PERFORMANCE_MODE]
     }
 
-    suspend fun setMultiViewPerformanceMode(mode: String) {
+    override suspend fun setMultiViewPerformanceMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MULTIVIEW_PERFORMANCE_MODE] = mode
         }
@@ -2234,7 +2235,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getAspectRatioForChannel(channelId: Long): Flow<String?> {
+    override fun getAspectRatioForChannel(channelId: Long): Flow<String?> {
         return channelPreferenceDao.observeAspectRatio(channelId).flatMapLatest { persistedRatio ->
             if (persistedRatio != null) {
                 flowOf(persistedRatio)
@@ -2247,7 +2248,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setAspectRatioForChannel(channelId: Long, ratio: String) {
+    override suspend fun setAspectRatioForChannel(channelId: Long, ratio: String) {
         channelPreferenceDao.setAspectRatio(channelId, ratio)
         val key = stringPreferencesKey("aspect_ratio_$channelId")
         context.dataStore.edit { preferences ->
@@ -2255,18 +2256,18 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    fun observeAudioVideoOffsetForChannel(channelId: Long): Flow<Int?> =
+    override fun observeAudioVideoOffsetForChannel(channelId: Long): Flow<Int?> =
         channelPreferenceDao.observeAudioVideoOffset(channelId)
             .map { offset -> offset?.coerceIn(AUDIO_VIDEO_OFFSET_MIN_MS, AUDIO_VIDEO_OFFSET_MAX_MS) }
 
-    suspend fun setAudioVideoOffsetForChannel(channelId: Long, offsetMs: Int) {
+    override suspend fun setAudioVideoOffsetForChannel(channelId: Long, offsetMs: Int) {
         channelPreferenceDao.setAudioVideoOffset(
             channelId = channelId,
             offsetMs = offsetMs.coerceIn(AUDIO_VIDEO_OFFSET_MIN_MS, AUDIO_VIDEO_OFFSET_MAX_MS)
         )
     }
 
-    suspend fun clearAudioVideoOffsetForChannel(channelId: Long) {
+    override suspend fun clearAudioVideoOffsetForChannel(channelId: Long) {
         channelPreferenceDao.setAudioVideoOffset(channelId = channelId, offsetMs = null)
     }
 

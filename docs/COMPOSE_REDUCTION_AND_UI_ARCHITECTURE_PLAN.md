@@ -13,7 +13,7 @@ The Phase 1 source decomposition is now code-complete: `PlayerControlsOverlayHos
 
 The full `:app:testDebugUnitTest` task now passes after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. No production behavior was changed; existing coroutine opt-in warnings remain.
 
-Phase 7 has completed the provider setup, settings/preferences, and player capability boundaries. `:feature:provider` no longer depends on `:data` or imports data-layer types; `:feature:settings` consumes domain contracts instead of Room/DataStore/provider-sync implementations; and `:feature:playback` consumes player-owned subtitle and PCM capabilities without direct Media3 dependencies or source references. The remaining Phase 7 work is final dependency pruning and final naming/documentation cleanup.
+Phase 7 dependency/API implementation work is complete for provider setup, settings/preferences, and playback. `:feature:provider` and `:feature:settings` no longer depend on `:data` or import data-layer types; `:feature:playback` now consumes domain-owned player preferences and playback-resolution contracts, has no `:data` dependency, and remains free of direct Media3 dependencies or source references. Manual smoke and broader baseline follow-up gates remain tracked separately.
 
 The ProviderSetup slice now also places the source selector panel, provider-specific form content, and advanced-options section in dedicated files; the root continues to own draft state, launchers, effects, and ViewModel calls. The second no-behavior-change decomposition moved the remaining provider branches into explicit Xtream, Stalker, M3U, and Jellyfin form composables, and moved completion, compatibility-selector, validation-error, and password-transformation leaves into dedicated same-package files.
 
@@ -1104,7 +1104,7 @@ Phase 7 checkpoint 3 - player capability boundary (automated checkpoint complete
 - `PlayerEngine` is the approved capability API for playback presentation code; `:feature:playback` retains its `:player` dependency without reaching into `Media3PlayerEngine`.
 - Nullable subtitle text (`String?`) and the player-owned `PlayerPcmEncoding` model replace Media3 subtitle cue and PCM encoding values at the presentation boundary.
 - `:feature:playback` has no direct Media3 dependency and no `Media3PlayerEngine` or `androidx.media3` source references.
-- The automated playback boundary rejects future direct Media3 declarations and Kotlin or Java source regressions while retaining the existing app and root-navigation guards.
+- The automated playback boundary rejects future direct Media3 or data-layer declarations and Kotlin or Java source regressions while retaining the existing app and root-navigation guards.
 
 Current dependency direction for this checkpoint:
 
@@ -1114,17 +1114,33 @@ Current dependency direction for this checkpoint:
         +----> PlayerEngine capability API
 ```
 
-The playback feature still retains a transitional `:data` dependency for content resolution and player preference access. Removing that edge and the remaining data-layer imports is final Phase 7 cleanup, not part of this checkpoint.
+Phase 7 checkpoint 4 - playback data boundary (complete):
+
+- `:feature:playback` depends only on `:core:navigation`, `:core:ui`, `:domain`, and `:player`; the transitional `:data` dependency is removed.
+- `PlayerPreferences` owns the player/multiview preference contract; `PreferencesRepository` remains the data-backed implementation bound by the app.
+- `PlayerPlaybackResolver` exposes domain `ResolvedPlayback` results; the app adapter translates data resolver metadata and known provider/credential failures.
+- The internal playback token codec used by live recovery is domain-owned, so playback has no `com.streamvault.data` imports in main or test source.
+
+Current dependency direction for this checkpoint:
+
+```text
+:feature:playback ---> :domain <--- :data
+        |                 ^          |
+        +----> :player    |          +----> persistence/provider implementations
+                          |
+                         :app adapter and Hilt bindings
+```
 
 Automated validation recorded for this checkpoint on 2026-09-06:
 
-- `:feature:playback:verifyFeaturePlaybackBoundary :feature:playback:testDebugUnitTest --tests "com.streamvault.feature.playback.PlaybackModuleBoundaryTest"`
-- `:player:testDebugUnitTest :feature:playback:testDebugUnitTest :feature:live:testDebugUnitTest :app:assembleDebug`
-- Both commands completed with `BUILD SUCCESSFUL` and zero failed tests.
+- Cold and warm `:feature:playback:verifyFeaturePlaybackBoundary --configuration-cache` runs passed; the warm run reused configuration cache.
+- Playback boundary, domain, data, settings, player, and live unit-test suites passed with zero failures/errors/skips (1,742 tests total).
+- `:app:testDebugUnitTest --tests com.streamvault.app.playback.AppPlayerPlaybackResolverTest` passed.
+- `:app:assembleDebug` passed.
 
 Live TV device acceptance passed on 2026-09-06 using the `Television_1080p` AOSP TV emulator. Two channels were each captured for 61 screenshots with a two-second sleep interval between captures; both had 61 unique frame hashes and a healthy `PLAYING` media session with `error=null`. Fresh startup logs recorded HLS prepare and first-frame success for both channels. Sanitized evidence is recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md) and [`validation/phase7_player_capability/live-validation.log`](../validation/phase7_player_capability/live-validation.log).
 
-The remaining final dependency/package cleanup is still outstanding Phase 7 work.
+The remaining manual player smoke test and broader baseline follow-up items are not dependency-boundary blockers and remain listed in the plan checklist.
 
 ## 12. Validation strategy
 

@@ -58,8 +58,7 @@ val allowedProjectDependencies = setOf(
     ":core:navigation",
     ":core:ui",
     ":domain",
-    ":player",
-    ":data"
+    ":player"
 )
 
 val forbiddenFeaturePlaybackSourceTokens = listOf(
@@ -69,7 +68,9 @@ val forbiddenFeaturePlaybackSourceTokens = listOf(
     "NavHostController",
     "NavController",
     "Media3PlayerEngine",
-    "androidx.media3"
+    "androidx.media3",
+    "import com.streamvault.data",
+    "com.streamvault.data."
 )
 
 abstract class VerifyFeaturePlaybackBoundaryTask : DefaultTask() {
@@ -114,7 +115,7 @@ abstract class VerifyFeaturePlaybackBoundaryTask : DefaultTask() {
 
         val violations = findForbiddenSourceReferences(productionSourceRoot.get().asFile)
         check(violations.isEmpty()) {
-            ":feature:playback contains forbidden app, root navigation, or Media3 implementation references:\n" +
+            ":feature:playback contains forbidden app, data, root navigation, or Media3 implementation references:\n" +
                 violations.joinToString("\n")
         }
 
@@ -137,8 +138,8 @@ abstract class VerifyFeaturePlaybackBoundaryTask : DefaultTask() {
         )
 
         println(
-            "Verified :feature:playback presentation-implementation boundary: approved dependencies, " +
-                "no direct Media3 dependencies, no forbidden source references, and Kotlin/Java fixture coverage."
+            "Verified :feature:playback boundary: approved dependencies, no direct Media3 dependencies, " +
+                "no forbidden source references, and Kotlin/Java fixture coverage."
         )
     }
 
@@ -174,7 +175,9 @@ val verifyFeaturePlaybackBoundary = tasks.register<VerifyFeaturePlaybackBoundary
             "RootNavigation.kt:3: NavHostController",
             "RootNavigation.java:4: NavController",
             "Media3EngineImport.kt:3: Media3PlayerEngine",
-            "Media3FullyQualifiedReference.java:4: androidx.media3"
+            "Media3FullyQualifiedReference.java:4: androidx.media3",
+            "DataPackageImport.kt:3: import com.streamvault.data",
+            "DataFullyQualifiedReference.java:4: com.streamvault.data."
         )
     )
     productionSourceRoot.set(layout.projectDirectory.dir("src/main"))
@@ -197,7 +200,6 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":domain"))
     implementation(project(":player"))
-    implementation(project(":data"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

@@ -1,8 +1,5 @@
 package com.streamvault.feature.playback.player
 
-import com.streamvault.data.remote.xtream.ProviderPlaybackResolver
-import com.streamvault.data.remote.stalker.StalkerPlaybackResolutionException
-import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
@@ -11,6 +8,9 @@ import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.model.VodMovieVariant
+import com.streamvault.domain.provider.PlayerCredentialFailure
+import com.streamvault.domain.provider.PlayerPlaybackResolutionFailure
+import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.SeriesRepository
@@ -26,7 +26,7 @@ class PlayerContentResolver @Inject constructor(
     private val channelRepository: ChannelRepository,
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository,
-    private val providerPlaybackResolver: ProviderPlaybackResolver
+    private val playerPlaybackResolver: PlayerPlaybackResolver
 ) {
     internal suspend fun resolvePlaybackStream(
         logicalUrl: String,
@@ -47,10 +47,10 @@ class PlayerContentResolver @Inject constructor(
         channelRepository = channelRepository,
         movieRepository = movieRepository,
         seriesRepository = seriesRepository,
-        xtreamStreamUrlResolver = providerPlaybackResolver
+        playerPlaybackResolver = playerPlaybackResolver
     )
 
-    internal fun isInternalStreamUrl(url: String?): Boolean = providerPlaybackResolver.isInternalStreamUrl(url)
+    internal fun isInternalStreamUrl(url: String?): Boolean = playerPlaybackResolver.isInternalStreamUrl(url)
 
     internal suspend fun getMovie(movieId: Long): Movie? = movieRepository.getMovie(movieId)
 
@@ -78,7 +78,7 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
     channelRepository: ChannelRepository,
     movieRepository: MovieRepository,
     seriesRepository: SeriesRepository,
-    xtreamStreamUrlResolver: ProviderPlaybackResolver
+    playerPlaybackResolver: PlayerPlaybackResolver
 ): PlayerPlaybackStreamResolution {
     var fallbackStreamId: Long? = null
     var fallbackContainerExtension: String? = null
@@ -160,14 +160,14 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
         }
     }
 
-    try {
-        xtreamStreamUrlResolver.resolveAndCommitMetadata(
+    when (val resolution = playerPlaybackResolver.resolveAndCommitMetadata(
             url = logicalUrl,
             fallbackProviderId = providerId.takeIf { it > 0 },
             fallbackStreamId = fallbackStreamId,
             fallbackContentType = contentType,
             fallbackContainerExtension = fallbackContainerExtension
-        )?.let { resolved ->
+        )) {
+        is Result.Success -> resolution.data?.let { resolved ->
             val ext = resolved.containerExtension ?: fallbackContainerExtension
             return PlayerPlaybackStreamResolution(
                 streamInfo = StreamInfo(
@@ -185,20 +185,24 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 )
             )
         }
-    } catch (e: CredentialDecryptionException) {
-        return PlayerPlaybackStreamResolution(
-            streamInfo = null,
-            credentialFailureMessage = e.message ?: CredentialDecryptionException.MESSAGE
-        )
-    } catch (e: StalkerPlaybackResolutionException) {
-        return PlayerPlaybackStreamResolution(
-            streamInfo = null,
-            resolutionFailureMessage = e.message
-                ?: "We couldn't resolve a playable Stalker stream for this item."
-        )
+        is Result.Error -> return when (val failure = resolution.exception) {
+            is PlayerCredentialFailure -> PlayerPlaybackStreamResolution(
+                streamInfo = null,
+                credentialFailureMessage = resolution.message
+            )
+            is PlayerPlaybackResolutionFailure -> PlayerPlaybackStreamResolution(
+                streamInfo = null,
+                resolutionFailureMessage = resolution.message
+            )
+            else -> PlayerPlaybackStreamResolution(
+                streamInfo = null,
+                resolutionFailureMessage = resolution.message
+            )
+        }
+        Result.Loading -> Unit
     }
 
-    val isLogicalInternalUrl = xtreamStreamUrlResolver.isInternalStreamUrl(logicalUrl)
+    val isLogicalInternalUrl = playerPlaybackResolver.isInternalStreamUrl(logicalUrl)
     if (isLogicalInternalUrl) {
         return PlayerPlaybackStreamResolution(
             streamInfo = null,

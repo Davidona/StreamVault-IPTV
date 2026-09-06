@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.player.di.AuxiliaryPlayerEngine
 import com.streamvault.domain.playback.associateByAnyRawId
-import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -20,6 +19,7 @@ import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.UnlockParentalCategory
 import com.streamvault.domain.usecase.UnlockParentalCategoryCommand
+import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.player.PlayerEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,7 +40,7 @@ class MultiViewViewModel @Inject constructor(
     val multiViewManager: MultiViewManager,
     @AuxiliaryPlayerEngine
     private val playerEngineProvider: Provider<PlayerEngine>,
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: PlayerPreferences,
     private val channelRepository: ChannelRepository,
     private val favoriteRepository: FavoriteRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,

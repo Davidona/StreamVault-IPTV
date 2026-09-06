@@ -1,19 +1,19 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.remote.xtream.XtreamStreamKind
-import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.LiveChannelVariant
+import com.streamvault.domain.provider.ProviderInternalStreamKind
+import com.streamvault.domain.provider.ProviderInternalStreamUrl
 import org.junit.Test
 
 class PlayerAlternateStreamSupportTest {
     @Test
     fun buildXtreamLiveTsFallbackUrl_convertsLiveHlsInternalUrlToTs() {
         val channel = Channel(id = 10, name = "Live", providerId = 7, streamId = 61351)
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "m3u8"
         )
@@ -25,9 +25,9 @@ class PlayerAlternateStreamSupportTest {
         )
 
         assertThat(fallbackUrl).isEqualTo(
-            XtreamUrlFactory.buildInternalStreamUrl(
+            ProviderInternalStreamUrl.build(
                 providerId = 7,
-                kind = XtreamStreamKind.LIVE,
+                kind = ProviderInternalStreamKind.LIVE,
                 streamId = 61351,
                 containerExtension = "ts"
             )
@@ -45,9 +45,9 @@ class PlayerAlternateStreamSupportTest {
         )
 
         assertThat(fallbackUrl).isEqualTo(
-            XtreamUrlFactory.buildInternalStreamUrl(
+            ProviderInternalStreamUrl.build(
                 providerId = 7,
-                kind = XtreamStreamKind.LIVE,
+                kind = ProviderInternalStreamKind.LIVE,
                 streamId = 61351,
                 containerExtension = "ts"
             )
@@ -65,9 +65,9 @@ class PlayerAlternateStreamSupportTest {
         )
 
         assertThat(fallbackUrl).isEqualTo(
-            XtreamUrlFactory.buildInternalStreamUrl(
+            ProviderInternalStreamUrl.build(
                 providerId = 7,
-                kind = XtreamStreamKind.LIVE,
+                kind = ProviderInternalStreamKind.LIVE,
                 streamId = 61351,
                 containerExtension = "ts"
             )
@@ -77,9 +77,9 @@ class PlayerAlternateStreamSupportTest {
     @Test
     fun buildXtreamLiveTsFallbackUrl_ignoresNonLiveInternalUrl() {
         val channel = Channel(id = 10, name = "Movie", providerId = 7, streamId = 61351)
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.MOVIE,
+            kind = ProviderInternalStreamKind.MOVIE,
             streamId = 61351,
             containerExtension = "m3u8"
         )
@@ -96,9 +96,9 @@ class PlayerAlternateStreamSupportTest {
     @Test
     fun buildXtreamLiveTsFallbackUrl_ignoresAlreadyTsLiveUrl() {
         val channel = Channel(id = 10, name = "Live", providerId = 7, streamId = 61351)
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "ts"
         )
@@ -115,9 +115,9 @@ class PlayerAlternateStreamSupportTest {
     @Test
     fun selectXtreamLiveTsFallbackUrl_skipsTriedFallback() {
         val channel = Channel(id = 10, name = "Live", providerId = 7, streamId = 61351)
-        val fallbackUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val fallbackUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "ts"
         )
@@ -136,9 +136,9 @@ class PlayerAlternateStreamSupportTest {
     @Test
     fun selectXtreamLiveTsFallbackUrl_skipsFailedFallback() {
         val channel = Channel(id = 10, name = "Live", providerId = 7, streamId = 61351)
-        val fallbackUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val fallbackUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "ts"
         )
@@ -156,15 +156,15 @@ class PlayerAlternateStreamSupportTest {
 
     @Test
     fun selectNextLiveRecoveryCandidate_prefersTsFallbackBeforeVariantsWhenRequested() {
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "m3u8"
         )
-        val variantUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val variantUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61352,
             containerExtension = "m3u8"
         )
@@ -200,9 +200,9 @@ class PlayerAlternateStreamSupportTest {
 
         assertThat(candidate?.kind).isEqualTo(LiveRecoveryCandidateKind.XTREAM_TS_FALLBACK)
         assertThat(candidate?.url).isEqualTo(
-            XtreamUrlFactory.buildInternalStreamUrl(
+            ProviderInternalStreamUrl.build(
                 providerId = 7,
-                kind = XtreamStreamKind.LIVE,
+                kind = ProviderInternalStreamKind.LIVE,
                 streamId = 61351,
                 containerExtension = "ts"
             )
@@ -211,9 +211,9 @@ class PlayerAlternateStreamSupportTest {
 
     @Test
     fun selectNextLiveRecoveryCandidate_skipsTsFallbackWhenDisallowed() {
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "m3u8"
         )
@@ -242,15 +242,15 @@ class PlayerAlternateStreamSupportTest {
 
     @Test
     fun selectNextLiveRecoveryCandidate_keepsVariantPreferenceByDefault() {
-        val currentUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val currentUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61351,
             containerExtension = "m3u8"
         )
-        val variantUrl = XtreamUrlFactory.buildInternalStreamUrl(
+        val variantUrl = ProviderInternalStreamUrl.build(
             providerId = 7,
-            kind = XtreamStreamKind.LIVE,
+            kind = ProviderInternalStreamKind.LIVE,
             streamId = 61352,
             containerExtension = "m3u8"
         )

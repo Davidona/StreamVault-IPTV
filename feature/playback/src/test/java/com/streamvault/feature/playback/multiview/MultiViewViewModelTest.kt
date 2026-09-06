@@ -4,13 +4,13 @@ import com.google.common.truth.Truth.assertThat
 import android.app.ActivityManager
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.usecase.UnlockParentalCategory
 import com.streamvault.player.PlayerEngine
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class MultiViewViewModelTest {
     private val manager = MultiViewManager()
     private val playerEngine: PlayerEngine = mock()
     private val playerEngineProvider: Provider<PlayerEngine> = mock()
-    private val preferences: PreferencesRepository = mock()
+    private val preferences: PlayerPreferences = mock()
     private val channels: ChannelRepository = mock()
     private val favorites: FavoriteRepository = mock()
     private val history: PlaybackHistoryRepository = mock()

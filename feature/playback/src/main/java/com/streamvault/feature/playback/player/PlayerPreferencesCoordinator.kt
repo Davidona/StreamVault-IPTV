@@ -1,9 +1,9 @@
 package com.streamvault.feature.playback.player
 
-import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.VodVariantObservation
+import com.streamvault.domain.settings.PlayerPreferences
 import javax.inject.Inject
 
 /**
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * player-specific settings source.
  */
 class PlayerPreferencesCoordinator @Inject constructor(
-    private val preferencesRepository: PreferencesRepository,
+    private val preferencesRepository: PlayerPreferences,
 ) {
     internal val appLanguage get() = preferencesRepository.appLanguage
     internal val autoPlayNextEpisode get() = preferencesRepository.autoPlayNextEpisode

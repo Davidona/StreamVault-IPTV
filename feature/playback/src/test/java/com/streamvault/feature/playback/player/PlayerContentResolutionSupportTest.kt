@@ -1,13 +1,13 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.SeriesRepository
@@ -87,7 +87,7 @@ class PlayerContentResolutionSupportTest {
             channelRepository = mock<ChannelRepository>(),
             movieRepository = mock<MovieRepository>(),
             seriesRepository = seriesRepository,
-            xtreamStreamUrlResolver = mock<XtreamStreamUrlResolver>()
+            playerPlaybackResolver = mock<PlayerPlaybackResolver>()
         )
 
         assertThat(result.streamInfo?.url).isEqualTo(expected.url)
@@ -116,7 +116,7 @@ class PlayerContentResolutionSupportTest {
             channelRepository = mock<ChannelRepository>(),
             movieRepository = mock<MovieRepository>(),
             seriesRepository = seriesRepository,
-            xtreamStreamUrlResolver = mock<XtreamStreamUrlResolver>()
+            playerPlaybackResolver = mock<PlayerPlaybackResolver>()
         )
 
         assertThat(result.streamInfo?.url).isEqualTo(expected.url)

@@ -1,8 +1,8 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.provider.PlayerCredentialFailure
 import com.streamvault.domain.repository.ProviderRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -16,7 +16,7 @@ class PlayerProviderCoordinatorTest {
     fun `catch-up credential failures become domain errors`() = runTest {
         val repository = mock<ProviderRepository>()
         whenever(repository.buildCatchUpUrls(any(), any(), any(), any()))
-            .thenThrow(CredentialDecryptionException("credentials unavailable"))
+            .thenThrow(PlayerCredentialFailure("credentials unavailable"))
 
         val result = PlayerProviderCoordinator(repository).buildCatchUpUrls(1L, 2L, 3L, 4L)
 

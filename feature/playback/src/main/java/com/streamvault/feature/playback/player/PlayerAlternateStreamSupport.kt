@@ -1,9 +1,9 @@
 package com.streamvault.feature.playback.player
 
-import com.streamvault.data.remote.xtream.XtreamStreamKind
-import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.LiveChannelVariant
+import com.streamvault.domain.provider.ProviderInternalStreamKind
+import com.streamvault.domain.provider.ProviderInternalStreamUrl
 import java.net.URI
 import java.util.Locale
 
@@ -128,8 +128,8 @@ internal fun buildXtreamLiveTsFallbackUrl(
     currentStreamUrl: String,
     currentResolvedPlaybackUrl: String
 ): String? {
-    val token = XtreamUrlFactory.parseInternalStreamUrl(currentStreamUrl)
-    if (token != null && token.kind != XtreamStreamKind.LIVE) return null
+    val token = ProviderInternalStreamUrl.parse(currentStreamUrl)
+    if (token != null && token.kind != ProviderInternalStreamKind.LIVE) return null
 
     val currentLooksLikeHls = token?.containerExtension == "m3u8" ||
         currentStreamUrl.contains("ext=m3u8", ignoreCase = true) ||
@@ -144,9 +144,9 @@ internal fun buildXtreamLiveTsFallbackUrl(
         ?: return null
     if (providerId <= 0L || streamId <= 0L) return null
 
-    return XtreamUrlFactory.buildInternalStreamUrl(
+    return ProviderInternalStreamUrl.build(
         providerId = providerId,
-        kind = XtreamStreamKind.LIVE,
+        kind = ProviderInternalStreamKind.LIVE,
         streamId = streamId,
         containerExtension = "ts"
     )
