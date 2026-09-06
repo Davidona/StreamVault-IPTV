@@ -1,10 +1,8 @@
-@file:androidx.media3.common.util.UnstableApi
-
 package com.streamvault.feature.playback.translation
 
-import androidx.media3.common.C
 import com.streamvault.player.LiveAudioPcmBuffer
 import com.streamvault.player.PlayerEngine
+import com.streamvault.player.PlayerPcmEncoding
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
@@ -217,7 +215,7 @@ internal suspend fun runCaptionDisplayLoop(
     }
 }
 
-private data class ConvertedPcmChunk(
+internal data class ConvertedPcmChunk(
     val data: ByteArray,
     val startMs: Long,
     val endMs: Long
@@ -233,8 +231,8 @@ private fun newAudioChannel(): Channel<LiveAudioPcmBuffer> = Channel(
 // — show the most current state rather than replaying stale revisions.
 private fun newCaptionChannel(): Channel<CaptionTick> = Channel(Channel.CONFLATED)
 
-private fun convertToPcm16Mono16k(buffer: LiveAudioPcmBuffer, fallbackStartMs: Long): ConvertedPcmChunk? {
-    if (buffer.encoding != C.ENCODING_PCM_16BIT || buffer.sampleRate <= 0 || buffer.channelCount <= 0) {
+internal fun convertToPcm16Mono16k(buffer: LiveAudioPcmBuffer, fallbackStartMs: Long): ConvertedPcmChunk? {
+    if (buffer.encoding != PlayerPcmEncoding.PCM_16_BIT || buffer.sampleRate <= 0 || buffer.channelCount <= 0) {
         return null
     }
     val inputFrameSize = buffer.channelCount * TARGET_BYTES_PER_SAMPLE
