@@ -40,8 +40,7 @@ class PlaybackModuleBoundaryTest {
 
     @Test
     fun `playback feature does not declare Media3 directly`() {
-        val buildFile = java.io.File("build.gradle.kts").readText()
-        assertThat(buildFile).doesNotContain("implementation(libs.media3.exoplayer)")
+        assertThat(boundaryReportValue("directMedia3Dependencies")).isEmpty()
     }
 
     @Test

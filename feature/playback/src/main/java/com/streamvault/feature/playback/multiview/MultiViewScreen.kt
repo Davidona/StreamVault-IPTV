@@ -67,7 +67,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Button
@@ -453,7 +452,6 @@ private fun GridPlayerCell(
     )
 }
 
-@OptIn(UnstableApi::class)
 @Composable
 private fun PlayerCell(
     slot: MultiViewSlot?,

@@ -37,7 +37,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.focusable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.UnstableApi
 import androidx.tv.material3.*
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.theme.*
@@ -93,7 +92,6 @@ import com.streamvault.core.navigation.AppDestination
 
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
     streamUrl: String,

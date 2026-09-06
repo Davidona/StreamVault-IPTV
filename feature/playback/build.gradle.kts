@@ -56,7 +56,9 @@ val forbiddenFeaturePlaybackSourceTokens = listOf(
     "com.streamvault.app",
     "MainActivity",
     "NavHostController",
-    "NavController"
+    "NavController",
+    "Media3PlayerEngine",
+    "androidx.media3"
 )
 
 fun findForbiddenFeaturePlaybackSourceReferences(sourceRoot: java.io.File): List<String> = sourceRoot
@@ -77,7 +79,7 @@ val featurePlaybackBoundaryReport = layout.buildDirectory.file(
 
 val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundary") {
     group = "verification"
-    description = "Verifies that playback feature source and dependencies remain app-independent."
+    description = "Verifies the playback presentation-implementation source and dependency boundary."
     outputs.file(featurePlaybackBoundaryReport)
     outputs.upToDateWhen { false }
     notCompatibleWithConfigurationCache(
@@ -99,6 +101,19 @@ val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundar
                 "${allowedProjectDependencies.sorted()}; found ${projectDependencyPaths.sorted()}"
         }
 
+        val directMedia3Dependencies = configurations
+            .flatMap { configuration ->
+                configuration.dependencies
+                    .filterIsInstance<org.gradle.api.artifacts.ExternalModuleDependency>()
+                    .filter { dependency -> dependency.group == "androidx.media3" }
+                    .map { dependency -> "${dependency.group}:${dependency.name}" }
+            }
+            .toSet()
+
+        check(directMedia3Dependencies.isEmpty()) {
+            ":feature:playback must not declare Media3 directly; found ${directMedia3Dependencies.sorted()}"
+        }
+
         val sourceRoot = layout.projectDirectory.asFile.resolve("src/main")
         val violations = findForbiddenFeaturePlaybackSourceReferences(sourceRoot)
 
@@ -114,7 +129,9 @@ val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundar
             "FullyQualifiedAppReference.kt:3: com.streamvault.app",
             "MainActivityReference.java:4: MainActivity",
             "RootNavigation.kt:3: NavHostController",
-            "RootNavigation.java:4: NavController"
+            "RootNavigation.java:4: NavController",
+            "Media3EngineImport.kt:3: Media3PlayerEngine",
+            "Media3FullyQualifiedReference.java:4: androidx.media3"
         )
         check(fixtureViolations.containsAll(requiredFixtureViolations)) {
             ":feature:playback boundary fixtures are not detected: " +
@@ -126,14 +143,15 @@ val verifyFeaturePlaybackBoundary = tasks.register("verifyFeaturePlaybackBoundar
         reportFile.writeText(
             listOf(
                 "projectDependencies=${projectDependencyPaths.sorted().joinToString(",")}",
+                "directMedia3Dependencies=${directMedia3Dependencies.sorted().joinToString(",")}",
                 "mainSourceViolations=${violations.joinToString("|")}",
                 "fixtureViolations=${fixtureViolations.joinToString("|")}"
             ).joinToString("\n")
         )
 
         println(
-            "Verified :feature:playback boundary: approved dependencies, no forbidden source references, " +
-                "and Kotlin/Java fixture coverage."
+            "Verified :feature:playback presentation-implementation boundary: approved dependencies, " +
+                "no direct Media3 dependencies, no forbidden source references, and Kotlin/Java fixture coverage."
         )
     }
 }
@@ -175,7 +193,6 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.mediarouter)
     implementation(libs.play.services.cast.framework)
-    implementation(libs.media3.exoplayer)
     implementation(libs.okhttp)
 
     testImplementation(libs.junit)

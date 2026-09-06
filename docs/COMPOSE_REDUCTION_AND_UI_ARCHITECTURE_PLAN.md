@@ -1099,7 +1099,30 @@ Current dependency direction for this checkpoint:
         +----> :player
 ```
 
-Player capability API work and the remaining final dependency/package cleanup are still outstanding Phase 7 work.
+Phase 7 checkpoint 3 - player capability boundary (automated checkpoint complete):
+
+- `PlayerEngine` is the approved capability API for playback presentation code; `:feature:playback` retains its `:player` dependency without reaching into `Media3PlayerEngine`.
+- Nullable subtitle text (`String?`) and the player-owned `PlayerPcmEncoding` model replace Media3 subtitle cue and PCM encoding values at the presentation boundary.
+- `:feature:playback` has no direct Media3 dependency and no `Media3PlayerEngine` or `androidx.media3` source references.
+- The automated playback boundary rejects future direct Media3 declarations and Kotlin or Java source regressions while retaining the existing app and root-navigation guards.
+
+Current dependency direction for this checkpoint:
+
+```text
+:feature:playback ---> :player ---> Media3 implementation
+        |
+        +----> PlayerEngine capability API
+```
+
+Automated validation recorded for this checkpoint on 2026-09-06:
+
+- `:feature:playback:verifyFeaturePlaybackBoundary :feature:playback:testDebugUnitTest --tests "com.streamvault.feature.playback.PlaybackModuleBoundaryTest"`
+- `:player:testDebugUnitTest :feature:playback:testDebugUnitTest :feature:live:testDebugUnitTest :app:assembleDebug`
+- Both commands completed with `BUILD SUCCESSFUL` and zero failed tests.
+
+Live TV device acceptance is pending until Task 5. No emulator or physical-device playback acceptance is claimed by this automated checkpoint.
+
+The remaining final dependency/package cleanup is still outstanding Phase 7 work.
 
 ## 12. Validation strategy
 
