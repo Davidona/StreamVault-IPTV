@@ -13,7 +13,7 @@ The Phase 1 source decomposition is now code-complete: `PlayerControlsOverlayHos
 
 The full `:app:testDebugUnitTest` task now passes after the test fixture was updated to provide the already-required `m3uClassificationRepository` mock. No production behavior was changed; existing coroutine opt-in warnings remain.
 
-Phase 7 has started with the provider setup boundary. `:feature:provider` no longer depends on `:data` or imports data-layer types. Stalker setup draft models and JSON persistence are feature-owned, shared Stalker compatibility and input-normalization policy now live in `:domain`, and provider implementations expose setup failures through a small domain contract instead of presentation code inspecting concrete Xtream or credential exceptions. The provider boundary verification task now rejects both project-level `:data` dependencies and source-level `com.streamvault.data` references. The remaining Phase 7 work is the settings/preferences boundary, the player capability API, final dependency pruning, and final naming/documentation cleanup.
+Phase 7 has completed the provider setup, settings/preferences, and player capability boundaries. `:feature:provider` no longer depends on `:data` or imports data-layer types; `:feature:settings` consumes domain contracts instead of Room/DataStore/provider-sync implementations; and `:feature:playback` consumes player-owned subtitle and PCM capabilities without direct Media3 dependencies or source references. The remaining Phase 7 work is final dependency pruning and final naming/documentation cleanup.
 
 The ProviderSetup slice now also places the source selector panel, provider-specific form content, and advanced-options section in dedicated files; the root continues to own draft state, launchers, effects, and ViewModel calls. The second no-behavior-change decomposition moved the remaining provider branches into explicit Xtream, Stalker, M3U, and Jellyfin form composables, and moved completion, compatibility-selector, validation-error, and password-transformation leaves into dedicated same-package files.
 
@@ -1120,7 +1120,7 @@ Automated validation recorded for this checkpoint on 2026-09-06:
 - `:player:testDebugUnitTest :feature:playback:testDebugUnitTest :feature:live:testDebugUnitTest :app:assembleDebug`
 - Both commands completed with `BUILD SUCCESSFUL` and zero failed tests.
 
-Live TV device acceptance is pending until Task 5. No emulator or physical-device playback acceptance is claimed by this automated checkpoint.
+Live TV device acceptance passed on 2026-09-06 using the `Television_1080p` AOSP TV emulator. Two channels were each captured for 61 screenshots at a two-second cadence; both had 61 unique frame hashes and a healthy `PLAYING` media session with `error=null`. Sanitized evidence is recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md) and [`validation/phase7_player_capability/live-validation.log`](../validation/phase7_player_capability/live-validation.log).
 
 The remaining final dependency/package cleanup is still outstanding Phase 7 work.
 
@@ -1311,7 +1311,7 @@ The modernization is complete when:
 - [x] Complete the second no-behavior-change `ProviderSetup` decomposition slice; package it as a review PR after the remaining manual gates.
 - [x] Complete the Phase 1 `AppNavigation` policy, adapter, external-request, and graph-registration split.
 - [ ] Run a manual app smoke test for player launch, controls, remote/back handling, seeking, and overlay actions.
-- [ ] Run full multi-channel Live TV validation before marking the player phase complete.
+- [x] Run full multi-channel Live TV validation before marking the player phase complete; see `validation/phase7_player_capability/README.md`.
 - [x] Add or define the Macrobenchmark module and constrained-device benchmark flows.
 - [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition after the manual smoke test.
 - [ ] Package the completed second no-behavior-change `ProviderSetupScreen` decomposition as a review PR.
