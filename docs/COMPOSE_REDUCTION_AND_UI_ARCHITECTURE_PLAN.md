@@ -1083,6 +1083,24 @@ Validation recorded for this checkpoint:
 
 The provider boundary task currently emits existing Gradle configuration-cache compatibility warnings because its custom verification action accesses project/script objects at execution time. The verification itself passes; making that custom task configuration-cache-safe remains dependency/build cleanup work.
 
+Phase 7 checkpoint 2 - settings boundary (complete):
+
+- `:feature:settings` depends on `:domain`, `:core:ui`, `:core:navigation`, and `:player`, with no direct `:data` dependency.
+- Settings presentation consumes the domain `SettingsPreferences` and `SettingsOperations` contracts; Room, DataStore, and provider-sync implementations remain in `:data`.
+- The automated settings boundary rejects direct `com.streamvault.data` imports and fully qualified references in Kotlin and Java presentation sources while retaining fixtures for both forms.
+
+Current dependency direction for this checkpoint:
+
+```text
+:feature:settings ---> :domain <--- :data
+        |                         |
+        +----> :core:ui           +----> concrete persistence and provider-sync implementations
+        +----> :core:navigation
+        +----> :player
+```
+
+Player capability API work and the remaining final dependency/package cleanup are still outstanding Phase 7 work.
+
 ## 12. Validation strategy
 
 ### 12.1 Build validation

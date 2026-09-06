@@ -55,14 +55,12 @@ val forbiddenFeatureSettingsSourceTokens = listOf(
     "com.streamvault.app",
     "import com.streamvault.feature.provider",
     "import com.streamvault.feature.playback",
+    "import com.streamvault.data",
+    "com.streamvault.data",
     "MainActivity",
     "NavHostController",
     "NavController",
 )
-
-val forbiddenFeatureSettingsFixtureTokens = forbiddenFeatureSettingsSourceTokens +
-    "import com.streamvault.data" +
-    "com.streamvault.data"
 
 fun findForbiddenFeatureSettingsSourceReferences(
     sourceRoot: java.io.File,
@@ -117,7 +115,6 @@ val verifyFeatureSettingsBoundary = tasks.register("verifyFeatureSettingsBoundar
         val fixtureRoot = layout.projectDirectory.asFile.resolve("src/test/resources/boundary-fixtures")
         val fixtureViolations = findForbiddenFeatureSettingsSourceReferences(
             fixtureRoot,
-            forbiddenFeatureSettingsFixtureTokens,
         )
         val requiredFixtureViolations = setOf(
             "AppPackageImport.kt:3: import com.streamvault.app",
@@ -167,7 +164,6 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":domain"))
-    implementation(project(":data"))
     implementation(project(":player"))
 
     implementation(platform(libs.compose.bom))
