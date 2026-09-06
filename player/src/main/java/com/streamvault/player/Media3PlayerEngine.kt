@@ -13,7 +13,6 @@ import androidx.media3.common.Format
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.text.Cue
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLivePlaybackSpeedControl
@@ -483,7 +482,7 @@ class Media3PlayerEngine @Inject constructor(
         lastMediaId = null
         playbackStarted = false
         hasRenderedFirstVideoFrame = false
-        clearInjectedSubtitleCues()
+        setInjectedSubtitleText(null)
         statsCollector.stop()
         statsCollector.reset()
         audioFocusController.onPauseOrStop()
@@ -752,12 +751,8 @@ class Media3PlayerEngine @Inject constructor(
         exoPlayer?.let { trackController.selectSubtitleTrack(it, trackId) }
     }
 
-    override fun setInjectedSubtitleCues(cues: List<Cue>) {
-        viewBinder.setInjectedSubtitleCues(cues)
-    }
-
-    override fun clearInjectedSubtitleCues() {
-        viewBinder.clearInjectedSubtitleCues()
+    override fun setInjectedSubtitleText(text: String?) {
+        viewBinder.setInjectedSubtitleText(text)
     }
 
     override fun setLiveAudioTap(tap: LiveAudioTap?) {
@@ -909,7 +904,7 @@ class Media3PlayerEngine @Inject constructor(
         _playbackState.value = PlaybackState.IDLE
         _isPlaying.value = false
         _mediaTitle.value = null
-        clearInjectedSubtitleCues()
+        setInjectedSubtitleText(null)
         trackController.resetSelections()
         statsCollector.reset()
         videoStallDetector.reset()

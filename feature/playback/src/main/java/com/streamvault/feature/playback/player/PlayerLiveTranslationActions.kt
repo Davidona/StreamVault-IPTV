@@ -76,7 +76,7 @@ internal suspend fun PlayerViewModel.evaluateLiveTranslationSession() {
 
 internal fun PlayerViewModel.stopLiveTranslationSession(clearActiveState: Boolean = true) {
     playerTranslationCoordinator.stop()
-    playerEngine.clearInjectedSubtitleCues()
+    playerEngine.setInjectedSubtitleText(null)
     _liveTranslationDetectedLanguage.value = null
     if (clearActiveState) {
         _liveTranslationActive.value = false

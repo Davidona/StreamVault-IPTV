@@ -3,7 +3,6 @@
 package com.streamvault.feature.playback.translation
 
 import androidx.media3.common.C
-import androidx.media3.common.text.Cue
 import com.streamvault.player.LiveAudioPcmBuffer
 import com.streamvault.player.PlayerEngine
 import java.io.ByteArrayOutputStream
@@ -168,13 +167,11 @@ class LiveTranslationSession(
     }
 
     private fun renderCaption(text: String) {
-        playerEngine.setInjectedSubtitleCues(
-            listOf(Cue.Builder().setText(text).build())
-        )
+        playerEngine.setInjectedSubtitleText(text)
     }
 
     private fun clearCues() {
-        playerEngine.clearInjectedSubtitleCues()
+        playerEngine.setInjectedSubtitleText(null)
     }
 }
 
