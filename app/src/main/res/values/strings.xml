@@ -35,6 +35,7 @@
     <string name="home_loading_categories">Loading categories...</string>
     <string name="home_loading_channels">Loading channels...</string>
     <string name="home_categories_title">Categories</string>
+    <string name="home_show_categories">Show categories</string>
     <string name="home_search_categories">Search categories...</string>
     <string name="home_quick_filters_title">Quick filters</string>
     <string name="home_quick_filters_button">Quick filters</string>

@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.Color
@@ -43,8 +44,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import com.streamvault.app.device.rememberIsTelevisionDevice
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.app.ui.components.CategoryRow
@@ -92,6 +98,7 @@ import java.util.Date
 import java.util.Locale
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.interaction.TvButton
+import com.streamvault.app.ui.interaction.TvIconButton
 import com.streamvault.app.ui.remote.LiveBrowseRemoteShortcutHandler
 import com.streamvault.app.ui.remote.dispatchLiveBrowseRemoteShortcut
 import com.streamvault.app.ui.remote.remoteColorButtonForKeyCode
@@ -203,6 +210,8 @@ fun HomeScreen(
     var showAddQuickFilterDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenCategoriesDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenChannelsDialog by rememberSaveable { mutableStateOf(false) }
+    var isCategorySidebarHidden by rememberSaveable { mutableStateOf(false) }
+    var revealSidebarNonce by remember { mutableStateOf(0) }
 
     // Parental Control State
     var showPinDialog by rememberSaveable { mutableStateOf(false) }
@@ -272,6 +281,12 @@ fun HomeScreen(
             showSplitManagerDialog -> showSplitManagerDialog = false
             isReorderMode -> viewModel.exitChannelReorderMode()
         }
+    }
+
+    // Reveal the categories sidebar again on Back (overlays keep their own handler).
+    BackHandler(enabled = isCategorySidebarHidden && !hasOverlay) {
+        isCategorySidebarHidden = false
+        revealSidebarNonce++
     }
 
     HomeDialogsHost(
@@ -528,6 +543,23 @@ fun HomeScreen(
                     pendingCategoryContentJumpCategoryId = null
                 }
 
+                // Re-focus the last category when the sidebar is revealed with Back.
+                LaunchedEffect(revealSidebarNonce) {
+                    if (revealSidebarNonce == 0) return@LaunchedEffect
+                    preferredRestoreTarget = FocusRestoreTarget.CATEGORY.name
+                    kotlinx.coroutines.delay(120)
+                    var restored = requestCategoryFocus(lastFocusedCategoryId)
+                    if (!restored) {
+                        kotlinx.coroutines.delay(150)
+                        restored = requestCategoryFocus(lastFocusedCategoryId)
+                    }
+                    if (!restored) {
+                        val fallbackCategoryId =
+                            (unlockedVisibleCategories.firstOrNull() ?: visibleCategories.firstOrNull())?.id
+                        requestCategoryFocus(fallbackCategoryId)
+                    }
+                }
+
                 LaunchedEffect(uiState.categories, uiState.selectedCategory?.id, uiState.parentalControlLevel, isReorderMode) {
                     if (isReorderMode) return@LaunchedEffect
                     val selectedCategory = uiState.selectedCategory ?: return@LaunchedEffect
@@ -596,6 +628,8 @@ fun HomeScreen(
                     }.getOrDefault(FocusRestoreTarget.CHANNEL)
 
                     pendingRestoreTarget = when {
+                        isCategorySidebarHidden && canRestoreChannel -> FocusRestoreTarget.CHANNEL
+                        isCategorySidebarHidden -> null
                         restoreTarget == FocusRestoreTarget.CATEGORY && canRestoreCategory -> FocusRestoreTarget.CATEGORY
                         canRestoreChannel -> FocusRestoreTarget.CHANNEL
                         canRestoreCategory -> FocusRestoreTarget.CATEGORY
@@ -648,6 +682,8 @@ fun HomeScreen(
                             visibleCategories.any { it.id == lastFocusedCategoryId }
 
                         pendingRestoreTarget = when {
+                            isCategorySidebarHidden && canRestoreChannel -> FocusRestoreTarget.CHANNEL
+                            isCategorySidebarHidden -> null
                             restoreTarget == FocusRestoreTarget.CATEGORY && canRestoreCategory -> FocusRestoreTarget.CATEGORY
                             canRestoreChannel -> FocusRestoreTarget.CHANNEL
                             canRestoreCategory -> FocusRestoreTarget.CATEGORY
@@ -712,10 +748,18 @@ fun HomeScreen(
                             dispatchLiveBrowseRemoteShortcut(action, handler)
                         }
                 ) {
-                    // Sidebar - Categories
+                    // Sidebar - Categories (hidden after picking a category; Back brings it back)
                     val categorySearchFocusRequester = remember { FocusRequester() }
                     val focusManager = LocalFocusManager.current
-                    
+                    val categoryListState = rememberLazyListState()
+
+                    AnimatedVisibility(
+                        visible = !isCategorySidebarHidden,
+                        enter = fadeIn(animationSpec = tween(200)) +
+                            expandHorizontally(animationSpec = tween(200), expandFrom = Alignment.Start),
+                        exit = fadeOut(animationSpec = tween(200)) +
+                            shrinkHorizontally(animationSpec = tween(200), shrinkTowards = Alignment.Start)
+                    ) {
                     Column(
                         modifier = Modifier
                             .width(sidebarWidth)
@@ -929,6 +973,7 @@ fun HomeScreen(
                         }
 
                         LazyColumn(
+                            state = categoryListState,
                             modifier = Modifier.fillMaxWidth(),
                             contentPadding = PaddingValues(bottom = 16.dp)
                         ) {
@@ -953,6 +998,11 @@ fun HomeScreen(
                                         showPinDialog = true
                                     } else {
                                         viewModel.selectCategory(category)
+                                        // Hide the categories sidebar; Back reveals it again.
+                                        if (!isCategorySidebarHidden) {
+                                            isCategorySidebarHidden = true
+                                            pendingCategoryContentJumpCategoryId = category.id
+                                        }
                                     }
                                 },
                                 onLongClick = {
@@ -998,6 +1048,7 @@ fun HomeScreen(
                         }
                     }
                 }
+                    } // AnimatedVisibility — categories sidebar
 
                 // Content - Channel Grid / Pro Preview
                 Row(
@@ -1073,19 +1124,47 @@ fun HomeScreen(
                                     }
                                 )
                             }
-                            SearchInput(
-                                value = uiState.channelSearchQuery,
-                                onValueChange = {
-                                    if (!isReorderMode) {
-                                        viewModel.updateChannelSearchQuery(it)
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Mirrors the hardware Back handler: restores the categories
+                                // sidebar hidden by the last category selection.
+                                AnimatedVisibility(
+                                    visible = isCategorySidebarHidden,
+                                    enter = fadeIn(animationSpec = tween(200)) +
+                                        expandHorizontally(animationSpec = tween(200), expandFrom = Alignment.Start),
+                                    exit = fadeOut(animationSpec = tween(200)) +
+                                        shrinkHorizontally(animationSpec = tween(200), shrinkTowards = Alignment.Start)
+                                ) {
+                                    TvIconButton(
+                                        onClick = {
+                                            isCategorySidebarHidden = false
+                                            revealSidebarNonce++
+                                        },
+                                        enabled = !isReorderMode,
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = stringResource(R.string.home_show_categories)
+                                        )
                                     }
-                                },
-                                placeholder = stringResource(R.string.home_search_channels),
-                                onSearch = {},
-                                focusRequester = channelSearchFocusRequester,
-                                modifier = Modifier.width(channelSearchWidth),
-                                enabled = !isReorderMode
-                            )
+                                }
+                                SearchInput(
+                                    value = uiState.channelSearchQuery,
+                                    onValueChange = {
+                                        if (!isReorderMode) {
+                                            viewModel.updateChannelSearchQuery(it)
+                                        }
+                                    },
+                                    placeholder = stringResource(R.string.home_search_channels),
+                                    onSearch = {},
+                                    focusRequester = channelSearchFocusRequester,
+                                    modifier = Modifier.width(channelSearchWidth),
+                                    enabled = !isReorderMode
+                                )
+                            }
                         }
 
                         Crossfade(
