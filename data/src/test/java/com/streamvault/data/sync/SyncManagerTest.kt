@@ -3629,6 +3629,51 @@ class SyncManagerTest {
         assertThat(metadata?.epgCount).isEqualTo(1)
     }
 
+
+    @Test
+    fun retrySection_epg_stalker_skips_dead_epg_info_after_first_empty_channel() = runTest {
+        val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
+            serverUrl = "http://example.com",
+            username = "",
+            password = "",
+            stalkerMacAddress = "00:11:22:33:44:55",
+            epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
+            epgUrl = ""
+        )
+        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity = providerEntity)
+
+        org.mockito.kotlin.whenever(stalkerApiService.authenticate(any())).thenReturn(
+            Result.success(
+                StalkerSession(
+                    loadUrl = "http://example.com/stalker_portal/server/load.php",
+                    portalReferer = "http://example.com/stalker_portal/c/",
+                    token = "token"
+                ) to StalkerProviderProfile(accountName = "Stalker")
+            )
+        )
+        org.mockito.kotlin.whenever(channelDao.getGuideSyncEntriesByProvider(1L)).thenReturn(
+            (1..5).map { index ->
+                ChannelGuideSyncEntity(
+                    streamId = 100L + index,
+                    name = "Channel $index",
+                    epgChannelId = "guide-$index"
+                )
+            }
+        )
+        stalkerApiService.stubStreamBulkEpg(programs = emptyList())
+        (1..5).forEach { index ->
+            stalkerApiService.stubStreamEpg(channelId = "guide-$index", programs = emptyList())
+        }
+        org.mockito.kotlin.whenever(programDao.countByProvider(1L)).thenReturn(0)
+
+        val result = manager.retrySection(providerId = 1L, section = SyncRepairSection.EPG)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        // Bulk + first channel both empty: the remaining dead calls must be skipped.
+        org.mockito.kotlin.verify(stalkerApiService, org.mockito.kotlin.times(1))
+            .streamEpg(any(), any(), any(), any(), any())
+    }
+
     @Test
     fun retrySection_epg_stalker_dedupes_same_guide_key_within_one_run() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(

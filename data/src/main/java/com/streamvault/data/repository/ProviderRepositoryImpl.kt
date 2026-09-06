@@ -1875,7 +1875,12 @@ class ProviderRepositoryImpl @Inject constructor(
                             streamId = request.streamId,
                             epgChannelId = request.epgChannelId,
                             limit = limit,
-                            guide = guide
+                            guide = guide,
+                            // Stalker portals answer get_short_epg for on-demand hydration; a
+                            // per-channel get_epg_info fallback is slow (portals without guide
+                            // data stall 6-7s and return nothing) and duplicates the bulk EPG
+                            // sync, so on-demand hydration stays short-EPG only for them.
+                            shortEpgOnly = providerEntity.type == ProviderType.STALKER_PORTAL
                         )
                     }
                 }
@@ -2080,7 +2085,8 @@ class ProviderRepositoryImpl @Inject constructor(
         streamId: Long,
         epgChannelId: String?,
         limit: Int,
-        guide: GuideSource
+        guide: GuideSource,
+        shortEpgOnly: Boolean = false
     ): Result<List<Program>> {
         if (providerId <= 0L || streamId <= 0L) {
             return Result.error("Live stream context is unavailable.")
@@ -2098,6 +2104,12 @@ class ProviderRepositoryImpl @Inject constructor(
             return Result.success(
                 normalizeXtreamPrograms(providerId, epgChannelId ?: streamId.toString(), shortPrograms)
             )
+        }
+        if (shortEpgOnly) {
+            // Short EPG is the authoritative on-demand source for these providers; skip the
+            // per-channel full-EPG probe so channels without guide data resolve fast instead
+            // of stalling on a get_epg_info request that returns nothing.
+            return Result.success(emptyList())
         }
         return when (val fullResult = guide.getEpg(request)) {
             is Result.Success -> Result.success(

@@ -778,6 +778,32 @@ internal companion object {
         }
     }
 
+    /**
+     * The portal `ch_id` parameter only understands the numeric portal channel id.
+     * The XMLTV-style guide key some channels carry is never valid there, so it is
+     * only tried as a fallback when the numeric id returns nothing.
+     */
+    override suspend fun getShortEpg(request: com.streamvault.domain.provider.GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+        val numericResult = numericKey?.let { getShortEpg(it, request.limit) }
+        if (numericResult is Result.Success && numericResult.data.isNotEmpty()) return numericResult
+        val xmlKey = request.epgChannelId?.takeIf { it.isNotBlank() }?.takeUnless { it == numericKey }
+        if (xmlKey != null) {
+            val xmlResult = getShortEpg(xmlKey, request.limit)
+            if (xmlResult is Result.Success && xmlResult.data.isNotEmpty()) return xmlResult
+        }
+        return numericResult ?: Result.error("Short EPG lookup returned no programs")
+    }
+
+    override suspend fun getEpg(request: com.streamvault.domain.provider.GuideRequest): Result<List<Program>> {
+        // get_epg_info only understands the numeric portal channel id; unlike short EPG
+        // there is no cheap fallback key, so a non-numeric request fails fast instead of
+        // burning a slow portal call that cannot succeed.
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+            ?: return Result.error("EPG lookup needs a numeric portal channel id")
+        return getEpg(numericKey)
+    }
+
     suspend fun resolvePlaybackInfo(
         kind: StalkerStreamKind,
         cmd: String,

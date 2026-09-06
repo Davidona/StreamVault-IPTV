@@ -8,6 +8,7 @@ import com.streamvault.app.player.PreviewHandoffSource
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.app.ui.screens.multiview.MultiViewManager
+import com.streamvault.app.ui.model.GuideCachePolicy
 import com.streamvault.app.ui.model.applyProviderCategoryDisplayPreferences
 import com.streamvault.app.ui.model.orderedByRequestedRawIds
 import com.streamvault.app.ui.model.guideLookupKey
@@ -114,6 +115,9 @@ class HomeViewModel @Inject constructor(
     private val _preferredInitialCategoryId = MutableStateFlow<Long?>(null)
     private val _visibleChannelWindow = MutableStateFlow<Set<Long>>(emptySet())
     private val _epgProgramMap = MutableStateFlow<Map<String, Program>>(emptyMap())
+    // Guide keys that returned successfully-but-empty this session; skipped by later
+    // now-playing fallback runs so the same paced requests are not repeated.
+    private val homeSessionEmptyGuideKeys = mutableSetOf<String>()
     private var epgJob: Job? = null
     private var loadChannelsJob: Job? = null
     private var categoriesJob: Job? = null
@@ -1288,12 +1292,21 @@ class HomeViewModel @Inject constructor(
             return emptyMap()
         }
 
-        val missingChannels = channels.filter { channel ->
-            val lookupKey = channel.guideLookupKey()
-            lookupKey != null &&
-                channel.streamId > 0L &&
-                !existingPrograms.containsKey(lookupKey)
+        // Sentinel keys (shared portal placeholders like "glotv") never carry a schedule;
+        // remember them as empty without spending a paced request.
+        val sentinelKeys = GuideCachePolicy.sentinelKeysOf(channels)
+        if (sentinelKeys.isNotEmpty()) {
+            homeSessionEmptyGuideKeys += sentinelKeys
+            preferencesRepository.addEmptyGuideKeys(providerId, sentinelKeys)
         }
+
+        val persistedEmpty = preferencesRepository.getEmptyGuideKeys(providerId)
+        val missingChannels = GuideCachePolicy.requestableChannels(
+            channels = channels,
+            sessionEmptyKeys = homeSessionEmptyGuideKeys,
+            persistedEmptyAt = persistedEmpty,
+            existingProgramsByChannel = existingPrograms.mapValues { (_, program) -> listOf(program) }
+        )
         if (missingChannels.isEmpty()) {
             return emptyMap()
         }
@@ -1311,18 +1324,41 @@ class HomeViewModel @Inject constructor(
             limit = 6
         )
 
-        return fallbackChannels.mapNotNull { channel ->
-            val programs = (programsByRequest[
+        val newlyEmpty = mutableSetOf<String>()
+        val recovered = mutableSetOf<String>()
+        val result = fallbackChannels.mapNotNull { channel ->
+            val lookupKey = channel.guideLookupKey() ?: return@mapNotNull null
+            val fetchResult = programsByRequest[
                 LiveStreamProgramRequest(
                     streamId = channel.streamId,
                     epgChannelId = channel.epgChannelId
                 )
-            ] as? Result.Success)?.data.orEmpty()
+            ]
+            val programs = (fetchResult as? Result.Success)?.data.orEmpty()
+            if (programs.isEmpty()) {
+                // Successful but empty: remember it so later window updates skip it instantly.
+                // Errors are left out so transient failures retry on the next emission.
+                if (fetchResult is Result.Success) {
+                    newlyEmpty += lookupKey
+                }
+                return@mapNotNull null
+            }
+            // Fresh data may have appeared since a previous empty result.
+            recovered += lookupKey
             val currentProgram = programs.firstOrNull { it.startTime <= now && it.endTime > now }
                 ?: programs.firstOrNull()
-            val lookupKey = channel.guideLookupKey() ?: return@mapNotNull null
             currentProgram?.let { lookupKey to it }
         }.toMap()
+
+        if (newlyEmpty.isNotEmpty()) {
+            homeSessionEmptyGuideKeys += newlyEmpty
+            preferencesRepository.addEmptyGuideKeys(providerId, newlyEmpty)
+        }
+        if (recovered.isNotEmpty()) {
+            homeSessionEmptyGuideKeys -= recovered
+            preferencesRepository.removeEmptyGuideKeys(providerId, recovered)
+        }
+        return result
     }
 
     fun updateVisibleChannelWindow(channelIds: List<Long>, focusedChannelId: Long? = null) {

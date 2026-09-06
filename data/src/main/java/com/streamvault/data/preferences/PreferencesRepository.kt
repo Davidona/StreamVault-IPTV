@@ -670,6 +670,36 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    /**
+     * Provider-scoped cache of guide keys whose on-demand short-EPG fetch returned empty.
+     * Values are the epoch millis when emptiness was last observed, so callers can re-probe
+     * after a TTL instead of treating the portal's guide as permanently absent.
+     */
+    suspend fun getEmptyGuideKeys(providerId: Long): Map<String, Long> =
+        decodeEmptyGuideKeys(context.dataStore.data.first()[emptyGuideKeysKey(providerId)])
+
+    suspend fun addEmptyGuideKeys(providerId: Long, keys: Set<String>) {
+        if (keys.isEmpty()) return
+        val now = System.currentTimeMillis()
+        context.dataStore.edit { preferences ->
+            val merged = decodeEmptyGuideKeys(preferences[emptyGuideKeysKey(providerId)]) +
+                keys.associateWith { now }
+            preferences[emptyGuideKeysKey(providerId)] = encodeEmptyGuideKeys(merged)
+        }
+    }
+
+    suspend fun removeEmptyGuideKeys(providerId: Long, keys: Set<String>) {
+        if (keys.isEmpty()) return
+        context.dataStore.edit { preferences ->
+            val pruned = decodeEmptyGuideKeys(preferences[emptyGuideKeysKey(providerId)]) - keys
+            if (pruned.isEmpty()) {
+                preferences.remove(emptyGuideKeysKey(providerId))
+            } else {
+                preferences[emptyGuideKeysKey(providerId)] = encodeEmptyGuideKeys(pruned)
+            }
+        }
+    }
+
     val preventStandbyDuringPlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PREVENT_STANDBY_DURING_PLAYBACK] ?: true
     }
@@ -2289,6 +2319,26 @@ class PreferencesRepository @Inject constructor(
         val secret = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec)
         return java.util.Base64.getEncoder().encodeToString(secret.encoded)
     }
+
+    private fun emptyGuideKeysKey(providerId: Long): Preferences.Key<String> =
+        stringPreferencesKey("guide_empty_keys_v1_${providerId}")
+
+    private fun encodeEmptyGuideKeys(values: Map<String, Long>): String =
+        values.entries
+            .sortedBy { it.key }
+            .joinToString("\n") { (key, lastEmptyAt) -> "$key\t$lastEmptyAt" }
+
+    private fun decodeEmptyGuideKeys(encoded: String?): Map<String, Long> =
+        encoded.orEmpty()
+            .lineSequence()
+            .filter { it.isNotBlank() }
+            .mapNotNull { line ->
+                val tab = line.indexOf('\t')
+                if (tab <= 0) return@mapNotNull null
+                val timestamp = line.substring(tab + 1).toLongOrNull() ?: return@mapNotNull null
+                line.substring(0, tab) to timestamp
+            }
+            .toMap()
 
     private fun hiddenCategoriesKey(providerId: Long, type: ContentType): String =
         "hidden_categories_${providerId}_${type.name}"

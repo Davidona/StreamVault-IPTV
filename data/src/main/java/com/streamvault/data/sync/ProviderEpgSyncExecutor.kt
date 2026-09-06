@@ -231,6 +231,7 @@ internal class ProviderEpgSyncExecutor(
         val bulkCoveredChannelKeys = linkedSetOf<String>()
         var importedProgramCount = 0
         var providerRateLimited = false
+        var bulkEpgReturnedEmpty = false
 
         suspend fun flushPrograms() {
             if (insertBuffer.isEmpty()) return
@@ -272,6 +273,11 @@ internal class ProviderEpgSyncExecutor(
             }.let { result ->
                 if (result is Result.Error) {
                     throw result.exception ?: IllegalStateException(result.message)
+                } else if (result is Result.Success && result.data == 0) {
+                    // Bulk call succeeded but carried no programs: on portals with a broken
+                    // get_epg_info this is the signal to probe one per-channel request and
+                    // then skip the rest instead of grinding through all of them.
+                    bulkEpgReturnedEmpty = true
                 }
             }
         }.onFailure { error ->
@@ -298,6 +304,7 @@ internal class ProviderEpgSyncExecutor(
         fallbackGuideRequests.forEachIndexed { index, request ->
             if (ignorePerChannelGuide) return@forEachIndexed
             progress(provider.id, onProgress, "Downloading portal EPG... ${index + 1} of ${fallbackGuideRequests.size}")
+            var channelRecordCount = 0
             runSuspendCatching {
                 var perChannelRecordCount = 0
                 val foreignChannelIds = HashSet<String>()
@@ -318,6 +325,7 @@ internal class ProviderEpgSyncExecutor(
                             channelId = request.channelKey
                         ).toEntity()
                         perChannelRecordCount++
+                        channelRecordCount = perChannelRecordCount
                         if (perChannelRecordCount >= STALKER_PER_CHANNEL_RECORD_SANITY_CAP || foreignChannelIds.size > 1) {
                             throw StalkerBrokenPerChannelEpgException(request.channelName)
                         }
@@ -326,6 +334,18 @@ internal class ProviderEpgSyncExecutor(
                 }
                 if (streamResult is Result.Error) {
                     throw streamResult.exception ?: IllegalStateException(streamResult.message)
+                }
+                if (channelRecordCount == 0 && bulkEpgReturnedEmpty && !providerRateLimited) {
+                    // Bulk and the first per-channel request both came back empty: this
+                    // portal's get_epg_info is dead, so skip the remaining calls instead
+                    // of grinding through every channel. The guide fills on demand via
+                    // short EPG when its pages are opened.
+                    ignorePerChannelGuide = true
+                    Log.w(
+                        TAG,
+                        "Stalker portal get_epg_info returned no programs for provider ${provider.id}; " +
+                            "skipping remaining per-channel requests."
+                    )
                 }
             }.onFailure { error ->
                 if (error.hasStalkerRateLimit()) {
