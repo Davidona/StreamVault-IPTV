@@ -293,6 +293,14 @@ class EpgViewModel @Inject constructor(
         const val MAX_CHANNELS = 60
         private const val MAX_XTREAM_GUIDE_FALLBACK_CHANNELS = 60
         private const val MAX_XTREAM_GUIDE_FALLBACK_PROGRAMS = 6
+        // Portal EPG ids that are shared placeholders with no per-channel schedule. They must
+        // never be fetched (they waste a paced request) or displayed as if they carried data.
+        private val EPG_SENTINEL_KEYS = setOf("glotv")
+        // Fetch guide fallback in small chunks so the grid fills progressively instead of
+        // waiting for the whole page of paced requests.
+        private const val GUIDE_FALLBACK_CHUNK_SIZE = 12
+        // Re-probe a channel whose on-demand fetch returned empty after this long.
+        private const val GUIDE_EMPTY_KEY_TTL_MILLIS = 24 * 60 * 60 * 1000L
         const val LOOKBACK_MS = 60 * 60 * 1000L
         const val LOOKAHEAD_MS = 6 * 60 * 60 * 1000L
         const val HALF_HOUR_SHIFT_MS = 30 * 60 * 1000L
@@ -322,11 +330,14 @@ class EpgViewModel @Inject constructor(
     val programReminderUiState: StateFlow<ProgramReminderUiState> = _programReminderUiState.asStateFlow()
     private var overrideSearchJob: Job? = null
     private var guideFallbackJob: Job? = null
+    private var guideFallbackContext: GuideFallbackContext? = null
     private var prefetchJob: Deferred<GuidePrefetchedPage?>? = null
     private var loadMoreJob: Job? = null
     // Guide keys that returned successfully-but-empty from on-demand fetch this session.
     // Skipped on later pages so channels without portal EPG don't cost a request per visit.
     private val knownEmptyGuideKeys = mutableSetOf<String>()
+    // Durable empty-key cache (per provider) so the same ids are not re-fetched after relaunch.
+    private val persistedEmptyGuideKeys = mutableMapOf<Long, Map<String, Long>>()
     private var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
     private var previewPlayerEngine: PlayerEngine? = null
     private var previewSessionVersion: Long = 0L
@@ -1719,7 +1730,10 @@ class EpgViewModel @Inject constructor(
             emptyMap()
         }
 
-        val programsByChannel = resolvedPrograms + legacyPrograms
+        // Sentinel keys (shared portal placeholders like "glotv") must never surface cached
+        // placeholder rows as if they were this channel's real schedule.
+        val programsByChannel = (resolvedPrograms + legacyPrograms)
+            .filterKeys { it !in EPG_SENTINEL_KEYS }
         return GuideProgramsResult(
             programsByChannel = programsByChannel,
             failedCount = countMissingGuideEntries(channels, programsByChannel)
@@ -1762,7 +1776,15 @@ class EpgViewModel @Inject constructor(
         channels: List<Channel>,
         existingProgramsByChannel: Map<String, List<Program>>
     ) {
+        // The guide observation re-emits whenever any upstream flow changes (e.g. the
+        // catalog sync writing categories/channels). Cancelling and restarting an identical
+        // in-flight fallback would starve the chunked short-EPG fetch before it completes,
+        // so let a matching job run to completion and only (re)start when the context differs.
+        if (guideFallbackJob?.isActive == true && guideFallbackContext == snapshotContext) {
+            return
+        }
         guideFallbackJob?.cancel()
+        guideFallbackContext = snapshotContext
         if (channels.isEmpty()) {
             return
         }
@@ -1777,33 +1799,41 @@ class EpgViewModel @Inject constructor(
                         channels = providerChannels,
                         existingProgramsByChannel = existingProgramsByChannel + this,
                         windowStart = snapshotContext.guideWindowStart,
-                        windowEnd = snapshotContext.guideWindowEnd
+                        windowEnd = snapshotContext.guideWindowEnd,
+                        // Publish each fetched chunk so the grid fills progressively instead of
+                        // waiting for the entire page of paced requests.
+                        onPartial = { additions -> publishGuideFallbackUpdate(snapshotContext, additions) }
                     )
                     putAll(providerPrograms)
                 }
             }
-            if (fallbackProgramsByChannel.isEmpty()) {
-                return@launch
+            // Final pass covers any additions that were not published incrementally.
+            publishGuideFallbackUpdate(snapshotContext, fallbackProgramsByChannel)
+        }
+    }
+
+    private fun publishGuideFallbackUpdate(
+        snapshotContext: GuideFallbackContext,
+        additions: Map<String, List<Program>>
+    ) {
+        if (additions.isEmpty()) return
+        baseGuideSnapshot.update { currentSnapshot ->
+            if (currentSnapshot == null || !currentSnapshot.matches(snapshotContext)) {
+                return@update currentSnapshot
             }
 
-            baseGuideSnapshot.update { currentSnapshot ->
-                if (currentSnapshot == null || !currentSnapshot.matches(snapshotContext)) {
-                    return@update currentSnapshot
-                }
+            val mergedProgramsByChannel = currentSnapshot.baseProgramsByChannel + additions
+            val visibleChannels = currentSnapshot.visibleChannels
+            val channelsWithSchedule = countChannelsWithSchedule(visibleChannels, mergedProgramsByChannel)
+            val hasUpcomingData = hasUpcomingGuideData(mergedProgramsByChannel, currentSnapshot.guideWindowStart)
 
-                val mergedProgramsByChannel = currentSnapshot.baseProgramsByChannel + fallbackProgramsByChannel
-                val visibleChannels = currentSnapshot.visibleChannels
-                val channelsWithSchedule = countChannelsWithSchedule(visibleChannels, mergedProgramsByChannel)
-                val hasUpcomingData = hasUpcomingGuideData(mergedProgramsByChannel, currentSnapshot.guideWindowStart)
-
-                currentSnapshot.copy(
-                    baseProgramsByChannel = mergedProgramsByChannel,
-                    failedScheduleCount = countMissingGuideEntries(visibleChannels, mergedProgramsByChannel),
-                    lastUpdatedAt = System.currentTimeMillis(),
-                    baseChannelsWithSchedule = channelsWithSchedule,
-                    baseGuideStale = visibleChannels.isNotEmpty() && (channelsWithSchedule == 0 || !hasUpcomingData)
-                )
-            }
+            currentSnapshot.copy(
+                baseProgramsByChannel = mergedProgramsByChannel,
+                failedScheduleCount = countMissingGuideEntries(visibleChannels, mergedProgramsByChannel),
+                lastUpdatedAt = System.currentTimeMillis(),
+                baseChannelsWithSchedule = channelsWithSchedule,
+                baseGuideStale = visibleChannels.isNotEmpty() && (channelsWithSchedule == 0 || !hasUpcomingData)
+            )
         }
     }
 
@@ -1813,7 +1843,8 @@ class EpgViewModel @Inject constructor(
         channels: List<Channel>,
         existingProgramsByChannel: Map<String, List<Program>>,
         windowStart: Long,
-        windowEnd: Long
+        windowEnd: Long,
+        onPartial: (Map<String, List<Program>>) -> Unit = {}
     ): Map<String, List<Program>> {
         if (provider.guideSourcePolicy == GuideSourcePolicy.EXTERNAL_ONLY ||
             provider.guideSourcePolicy == GuideSourcePolicy.DISABLED
@@ -1827,10 +1858,27 @@ class EpgViewModel @Inject constructor(
             return emptyMap()
         }
 
+        ensurePersistedEmptyGuideKeys(providerId)
+        val persistedFresh = persistedEmptyGuideKeys[providerId].orEmpty()
+        val now = System.currentTimeMillis()
+
+        // Sentinel keys (shared portal placeholders) never carry a real schedule; remember
+        // them as empty without spending a paced request.
+        val sentinelKeys = channels.mapNotNull(Channel::guideLookupKey)
+            .filter { it in EPG_SENTINEL_KEYS }
+            .toSet()
+        if (sentinelKeys.isNotEmpty()) {
+            knownEmptyGuideKeys += sentinelKeys
+            preferencesRepository.addEmptyGuideKeys(providerId, sentinelKeys)
+        }
+
         val missingChannels = channels.filter { channel ->
             val lookupKey = channel.guideLookupKey()
             lookupKey != null &&
                 lookupKey !in knownEmptyGuideKeys &&
+                // Durable empty-key cache: skip ids that returned empty recently instead of
+                // re-fetching them on every page visit / app launch.
+                persistedFresh[lookupKey]?.let { now - it < GUIDE_EMPTY_KEY_TTL_MILLIS } != true &&
                 channel.streamId > 0L &&
                 existingProgramsByChannel[lookupKey].isNullOrEmpty()
         }
@@ -1839,43 +1887,69 @@ class EpgViewModel @Inject constructor(
         }
 
         val fallbackChannels = missingChannels.take(MAX_XTREAM_GUIDE_FALLBACK_CHANNELS)
-        val programsByRequest = providerRepository.getProgramsForLiveStreams(
-            providerId = providerId,
-            requests = fallbackChannels.map { channel ->
-                LiveStreamProgramRequest(
-                    streamId = channel.streamId,
-                    epgChannelId = channel.epgChannelId
-                )
-            },
-            limit = MAX_XTREAM_GUIDE_FALLBACK_PROGRAMS
-        )
+        val result = linkedMapOf<String, List<Program>>()
 
-        return fallbackChannels.mapNotNull { channel ->
-            val fetchResult = programsByRequest[
-                LiveStreamProgramRequest(
-                    streamId = channel.streamId,
-                    epgChannelId = channel.epgChannelId
-                )
-            ]
-            val programs = (fetchResult as? com.streamvault.domain.model.Result.Success)?.data
-                .orEmpty()
-                .filter { program -> program.endTime > windowStart && program.startTime < windowEnd }
-                .sortedBy { program -> program.startTime }
-            val lookupKey = channel.guideLookupKey() ?: return@mapNotNull null
-            if (programs.isEmpty()) {
-                // Successful but empty: the portal has no guide for this channel right
-                // now. Remember for this session so later pages skip it instantly.
-                // Errors are left out so transient failures retry on the next page.
-                if (fetchResult is com.streamvault.domain.model.Result.Success) {
-                    knownEmptyGuideKeys += lookupKey
+        // Fetch in small chunks so partial results can be published as they land; a full
+        // page of paced short-EPG requests would otherwise hold the grid empty for a minute.
+        fallbackChannels.chunked(GUIDE_FALLBACK_CHUNK_SIZE).forEach { chunk ->
+            val programsByRequest = providerRepository.getProgramsForLiveStreams(
+                providerId = providerId,
+                requests = chunk.map { channel ->
+                    LiveStreamProgramRequest(
+                        streamId = channel.streamId,
+                        epgChannelId = channel.epgChannelId
+                    )
+                },
+                limit = MAX_XTREAM_GUIDE_FALLBACK_PROGRAMS
+            )
+            val newlyEmpty = mutableSetOf<String>()
+            val recovered = mutableSetOf<String>()
+
+            chunk.forEach { channel ->
+                val fetchResult = programsByRequest[
+                    LiveStreamProgramRequest(
+                        streamId = channel.streamId,
+                        epgChannelId = channel.epgChannelId
+                    )
+                ]
+                val programs = (fetchResult as? com.streamvault.domain.model.Result.Success)?.data
+                    .orEmpty()
+                    .filter { program -> program.endTime > windowStart && program.startTime < windowEnd }
+                    .sortedBy { program -> program.startTime }
+                val lookupKey = channel.guideLookupKey() ?: return@forEach
+                if (programs.isEmpty()) {
+                    // Successful but empty: the portal has no guide for this channel right
+                    // now. Remember it in-memory and durably so later pages and future
+                    // sessions skip it instantly. Errors are left out so transient failures
+                    // retry on the next page.
+                    if (fetchResult is com.streamvault.domain.model.Result.Success) {
+                        newlyEmpty += lookupKey
+                    }
+                } else {
+                    // Fresh data may have appeared since a previous empty result.
+                    recovered += lookupKey
+                    result[lookupKey] = programs
                 }
-                null
-            } else {
-                // Fresh data may have appeared since a previous empty result.
-                knownEmptyGuideKeys -= lookupKey
-                lookupKey to programs
             }
-        }.toMap()
+            if (newlyEmpty.isNotEmpty()) {
+                knownEmptyGuideKeys += newlyEmpty
+                preferencesRepository.addEmptyGuideKeys(providerId, newlyEmpty)
+            }
+            if (recovered.isNotEmpty()) {
+                knownEmptyGuideKeys -= recovered
+                preferencesRepository.removeEmptyGuideKeys(providerId, recovered)
+            }
+            if (result.isNotEmpty()) {
+                onPartial(result)
+            }
+        }
+        return result
+    }
+
+    private suspend fun ensurePersistedEmptyGuideKeys(providerId: Long) {
+        if (providerId !in persistedEmptyGuideKeys) {
+            persistedEmptyGuideKeys[providerId] = preferencesRepository.getEmptyGuideKeys(providerId)
+        }
     }
 
     private fun GuideBaseSnapshot.matches(context: GuideFallbackContext): Boolean =
