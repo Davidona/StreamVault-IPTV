@@ -45,7 +45,11 @@ object ProviderInternalStreamUrl {
             ?.filter(String::isNotBlank)
             .orEmpty()
         val kind = pathSegments.getOrNull(0)
-            ?.let { segment -> ProviderInternalStreamKind.entries.firstOrNull { it.pathSegment == segment } }
+            ?.let { segment ->
+                ProviderInternalStreamKind.entries.firstOrNull {
+                    it.pathSegment.equals(segment, ignoreCase = true)
+                }
+            }
             ?: return null
         val streamId = pathSegments.getOrNull(1)?.toLongOrNull() ?: return null
         val extension = parseQuery(uri.rawQuery)["ext"]?.let(::normalizeExtension)

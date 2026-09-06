@@ -94,6 +94,19 @@ class PlayerAlternateStreamSupportTest {
     }
 
     @Test
+    fun buildXtreamLiveTsFallbackUrl_ignoresUppercaseNonLiveInternalUrl() {
+        val channel = Channel(id = 10, name = "Movie", providerId = 7, streamId = 61351)
+
+        assertThat(
+            buildXtreamLiveTsFallbackUrl(
+                channel = channel,
+                currentStreamUrl = "xtream://7/MOVIE/61351?ext=m3u8",
+                currentResolvedPlaybackUrl = "http://example.test/movie/user/pass/61351.m3u8"
+            )
+        ).isNull()
+    }
+
+    @Test
     fun buildXtreamLiveTsFallbackUrl_ignoresAlreadyTsLiveUrl() {
         val channel = Channel(id = 10, name = "Live", providerId = 7, streamId = 61351)
         val currentUrl = ProviderInternalStreamUrl.build(

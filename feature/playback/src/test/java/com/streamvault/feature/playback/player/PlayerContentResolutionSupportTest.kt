@@ -7,6 +7,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.provider.PlayerPlaybackResolutionFailure
 import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.MovieRepository
@@ -122,6 +123,43 @@ class PlayerContentResolutionSupportTest {
         assertThat(result.streamInfo?.url).isEqualTo(expected.url)
         assertThat(result.streamInfo?.userAgent).isEqualTo("StreamVault")
         assertThat(result.streamInfo?.title).isEqualTo("Current Title")
+    }
+
+    @Test
+    fun `resolvePlayerPlaybackStreamInfo preserves provider resolution failures`() = runBlocking {
+        val resolver: PlayerPlaybackResolver = mock()
+        whenever(
+            resolver.resolveAndCommitMetadata(
+                url = "xtream://7/live/61351?ext=m3u8",
+                fallbackProviderId = 7L,
+                fallbackStreamId = null,
+                fallbackContentType = ContentType.LIVE,
+                fallbackContainerExtension = null,
+                preferStableUrl = false
+            )
+        ).thenReturn(
+            Result.error(
+                "stalker unavailable",
+                PlayerPlaybackResolutionFailure("stalker unavailable")
+            )
+        )
+
+        val result = resolvePlayerPlaybackStreamInfo(
+            logicalUrl = "xtream://7/live/61351?ext=m3u8",
+            internalContentId = 0L,
+            providerId = 7L,
+            contentType = ContentType.LIVE,
+            currentTitle = "Current Title",
+            currentSeries = null,
+            currentEpisode = null,
+            channelRepository = mock<ChannelRepository>(),
+            movieRepository = mock<MovieRepository>(),
+            seriesRepository = mock<SeriesRepository>(),
+            playerPlaybackResolver = resolver
+        )
+
+        assertThat(result.streamInfo).isNull()
+        assertThat(result.resolutionFailureMessage).isEqualTo("stalker unavailable")
     }
 
     private companion object {
