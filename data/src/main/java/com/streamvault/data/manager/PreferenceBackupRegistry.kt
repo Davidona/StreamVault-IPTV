@@ -12,7 +12,7 @@ internal object PreferenceBackupRegistry {
     private val portableStorageKeys = setOf(
         "last_active_provider_id", "active_live_source_type", "active_live_source_id",
         "default_view_mode", "parental_control_level", "parental_pin_hash", "parental_pin_salt",
-        "default_category_id", "app_language", "app_landing_destination", "app_top_level_destinations",
+        "default_category_id", "app_language", "dark_theme", "app_landing_destination", "app_top_level_destinations",
         "app_home_dashboard_shelves", "app_time_format", "live_tv_channel_mode",
         "show_live_source_switcher", "show_favorites_category", "show_all_channels_category",
         "show_recent_channels_category", "live_tv_category_filters", "live_tv_quick_filter_visibility",
@@ -86,7 +86,7 @@ internal object PreferenceBackupRegistry {
         "vodVariantSelections_"
     )
     private val globalKeys = setOf(
-        "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat",
+        "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "darkTheme", "appTimeFormat",
         "defaultViewMode", "appLandingDestination", "appTopLevelDestinations", "appHomeDashboardShelves",
         "remoteShortcutPreferences", "liveTvCategoryFilters", "liveTvQuickFilterVisibility", "liveTvChannelMode",
         "showLiveSourceSwitcher", "showFavoritesCategory", "showAllChannelsCategory", "showRecentChannelsCategory",

@@ -67,6 +67,7 @@ import com.streamvault.app.ui.components.shell.AppSectionHeader
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.theme.OnBackground
 import com.streamvault.app.ui.theme.OnPrimary
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
 import com.streamvault.app.ui.theme.OnSurface
 import com.streamvault.app.ui.theme.OnSurfaceDim
 import com.streamvault.app.ui.theme.Primary
@@ -401,6 +402,7 @@ fun FavoritesScreen(
 
                 else -> {
                     Box(modifier = Modifier.fillMaxSize()) {
+                        Box(modifier = Modifier.fillMaxSize()) {
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
@@ -619,6 +621,8 @@ fun FavoritesScreen(
                                 section = activeReorderSection,
                                 movingFavoriteId = uiState.reorderItem?.id
                             )
+                        }
+                        MaterialVerticalScrollbar(state = listState)
                         }
                     }
                 }

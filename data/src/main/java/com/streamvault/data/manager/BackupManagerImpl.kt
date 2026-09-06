@@ -201,6 +201,7 @@ class BackupManagerImpl @Inject constructor(
                 put("parentalPinHash", parentalPinBackup?.hash ?: "")
                 put("parentalPinSalt", parentalPinBackup?.saltBase64 ?: "")
                 put("appLanguage", preferencesRepository.appLanguage.first())
+                put("darkTheme", preferencesRepository.darkTheme.first().toString())
                 put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
                 put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
                 put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
@@ -3140,6 +3141,7 @@ class BackupManagerImpl @Inject constructor(
             put("parentalPinHash", parentalPinBackup?.hash.orEmpty())
             put("parentalPinSalt", parentalPinBackup?.saltBase64.orEmpty())
             put("appLanguage", preferencesRepository.appLanguage.first())
+            put("darkTheme", preferencesRepository.darkTheme.first().toString())
             put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
             put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
             put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
@@ -3595,6 +3597,8 @@ class BackupManagerImpl @Inject constructor(
             ).takeIf { it.hash.isNotBlank() && it.saltBase64.isNotBlank() }
         )
         prefs["appLanguage"]?.takeIf { it.isNotBlank() }?.let { preferencesRepository.setAppLanguage(it) }
+        prefs["darkTheme"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setDarkTheme(it) }
         prefs["appTimeFormat"]?.takeIf { it.isNotBlank() }?.let { savedFormat ->
             preferencesRepository.setAppTimeFormat(
                 com.streamvault.domain.model.AppTimeFormat.fromStorage(savedFormat)

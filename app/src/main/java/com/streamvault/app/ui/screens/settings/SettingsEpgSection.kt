@@ -33,6 +33,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.foundation.lazy.items
+import com.streamvault.app.ui.design.AppColors
 import com.streamvault.app.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.TvClickableSurface
 import com.streamvault.app.ui.theme.OnSurfaceDim
@@ -182,7 +183,7 @@ private fun ProviderGuideAndLogoPolicyCard(
             .fillMaxWidth()
             .padding(bottom = 16.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF152333))
+            .background(AppColors.SurfaceElevated)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -229,11 +230,11 @@ private fun PolicyChip(
         modifier = Modifier,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Primary.copy(alpha = 0.22f) else Color(0xFF0F1B29),
-            focusedContainerColor = if (selected) Primary.copy(alpha = 0.32f) else Color(0xFF1A2A3B)
+            containerColor = if (selected) Primary.copy(alpha = 0.22f) else AppColors.Surface,
+            focusedContainerColor = if (selected) Primary.copy(alpha = 0.32f) else AppColors.SurfaceEmphasis
         ),
         border = ClickableSurfaceDefaults.border(
-            border = Border(BorderStroke(1.dp, if (selected) Primary else Color(0xFF2D4358))),
+            border = Border(BorderStroke(1.dp, if (selected) Primary else AppColors.SurfaceAccent)),
             focusedBorder = Border(BorderStroke(2.dp, Primary))
         ),
         glow = ClickableSurfaceDefaults.glow(),

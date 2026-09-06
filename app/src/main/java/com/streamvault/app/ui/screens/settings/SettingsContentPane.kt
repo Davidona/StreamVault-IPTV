@@ -2,13 +2,17 @@ package com.streamvault.app.ui.screens.settings
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
 import com.streamvault.domain.model.LegacyProvider as Provider
 
 @Composable
@@ -40,8 +44,12 @@ internal fun SettingsContentPane(
     onOpenUri: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val settingsListState = rememberLazyListState()
+
+    Box(modifier = modifier.fillMaxSize()) {
     LazyColumn(
-        modifier = modifier
+        state = settingsListState,
+        modifier = Modifier
             .fillMaxHeight()
             .imePadding(),
         contentPadding = PaddingValues(start = 20.dp, top = 76.dp, end = 20.dp, bottom = 32.dp),
@@ -208,5 +216,7 @@ internal fun SettingsContentPane(
                 onDeleteCrashReport = onDeleteCrashReport
             )
         }
+    }
+        MaterialVerticalScrollbar(state = settingsListState)
     }
 }

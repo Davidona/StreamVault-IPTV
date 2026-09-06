@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -64,6 +65,8 @@ import com.streamvault.app.ui.components.shell.AppNavigationChrome
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
 import com.streamvault.app.ui.components.shell.StatusPill
 import com.streamvault.app.ui.design.AppColors
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.streamvault.app.ui.design.FocusSpec
 import com.streamvault.app.ui.interaction.TvButton
 import com.streamvault.app.ui.theme.FocusBorder
@@ -104,6 +107,7 @@ fun PluginsScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            val pluginsListState = rememberLazyListState()
             val configuration = uiState.configuration
             if (configuration != null) {
                 PluginConfigurationPanel(
@@ -159,7 +163,9 @@ fun PluginsScreen(
                     )
                 }
 
+                Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
+                    state = pluginsListState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -182,6 +188,8 @@ fun PluginsScreen(
                     }
                     item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
+                MaterialVerticalScrollbar(state = pluginsListState)
+            }
             }
         }
         SnackbarHost(hostState = snackbarHostState)
@@ -205,9 +213,9 @@ private fun PluginButton(
     val colors = when (tone) {
         PluginButtonTone.Primary -> ButtonDefaults.colors(
             containerColor = Primary,
-            contentColor = Color.White,
+            contentColor = Color.Black,
             focusedContainerColor = Primary.copy(alpha = 0.88f),
-            focusedContentColor = Color.White,
+            focusedContentColor = Color.Black,
             disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
             disabledContentColor = AppColors.TextDisabled
         )
@@ -465,6 +473,7 @@ private fun PluginConfigurationPanel(
     onValueChange: (String, String) -> Unit,
     onRunAction: (PluginConfigurationAction) -> Unit
 ) {
+    val pluginsConfigListState = rememberLazyListState()
     val busy = configuration.isSaving || configuration.runningActionId != null
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -478,8 +487,10 @@ private fun PluginConfigurationPanel(
             onSave = onSave
         )
 
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
         LazyColumn(
-            modifier = Modifier.weight(1f),
+            state = pluginsConfigListState,
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             configuration.schema.sections.forEach { section ->
@@ -505,6 +516,8 @@ private fun PluginConfigurationPanel(
             }
 
             item { Spacer(modifier = Modifier.height(20.dp)) }
+        }
+        MaterialVerticalScrollbar(state = pluginsConfigListState)
         }
     }
 }

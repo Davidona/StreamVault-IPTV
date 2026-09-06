@@ -558,7 +558,7 @@ private fun SeriesDetailActions(
             onClick = { onResumeClick(resumeEpisode) },
             colors = ButtonDefaults.colors(
                 containerColor = AppColors.Brand,
-                contentColor = Color.White
+                contentColor = Color.Black
             )
         ) {
             Text(
@@ -614,7 +614,7 @@ private fun SeriesDetailFavoriteAction(
         onClick = onToggleFavorite,
         colors = ButtonDefaults.colors(
             containerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-            contentColor = if (series.isFavorite) Color.White else AppColors.TextSecondary
+            contentColor = if (series.isFavorite) Color.Black else AppColors.TextSecondary
         )
     ) {
         Icon(

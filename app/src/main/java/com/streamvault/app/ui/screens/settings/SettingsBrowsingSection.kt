@@ -75,6 +75,15 @@ internal fun LazyListScope.settingsBrowsingSection(
     onRemoteShortcutDialogTargetChange: (RemoteShortcutDialogTarget?) -> Unit
 ) {
     item {
+        SwitchSettingsRow(
+            label = stringResource(R.string.settings_dark_theme),
+            value = stringResource(
+                if (uiState.darkTheme) R.string.settings_enabled else R.string.settings_disabled
+            ),
+            checked = uiState.darkTheme,
+            onCheckedChange = viewModel::setDarkTheme
+        )
+        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
         ClickableSettingsRow(
             label = stringResource(R.string.settings_live_tv_channel_mode),
             value = stringResource(uiState.liveTvChannelMode.labelResId()),

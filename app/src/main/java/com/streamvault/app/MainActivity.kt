@@ -154,6 +154,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
             val appTimeFormat by preferencesRepository.appTimeFormat.collectAsState(initial = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
+            val darkTheme by preferencesRepository.darkTheme.collectAsState(initial = false)
             val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
@@ -196,7 +197,7 @@ class MainActivity : ComponentActivity() {
                 LocalLayoutDirection provides layoutDirection,
                 LocalAppTimeFormat provides appTimeFormat
             ) {
-                StreamVaultTheme {
+                StreamVaultTheme(useDarkTheme = darkTheme) {
                     when (val state = databaseStartupState) {
                         DatabaseStartupState.Opening -> DatabaseStartupScreen(state = state)
                         is DatabaseStartupState.Failed -> DatabaseStartupScreen(

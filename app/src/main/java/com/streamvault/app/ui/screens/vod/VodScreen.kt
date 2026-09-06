@@ -46,6 +46,7 @@ import com.streamvault.app.ui.components.shell.VodBrowseOptionsDialog
 import com.streamvault.app.ui.components.shell.VodCategoryOption
 import com.streamvault.app.ui.components.shell.VodCategoryPickerDialog
 import com.streamvault.app.ui.components.shell.VodSectionHeader
+import com.streamvault.app.ui.design.MaterialVerticalScrollbar
 import com.streamvault.app.ui.model.VodViewMode
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
@@ -139,6 +140,7 @@ private fun VodModernShelves(
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
     InfiniteScrollEffect(listState, true, canLoadMore, false, onLoadMore = onLoadMore)
+    Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -177,6 +179,8 @@ private fun VodModernShelves(
             }
         }
     }
+        MaterialVerticalScrollbar(state = listState)
+    }
     if (showCategoryPicker) {
         VodCategoryPickerDialog(
             title = stringResource(R.string.vod_category_picker_title),
@@ -203,6 +207,7 @@ private fun VodClassicCategories(
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
     InfiniteScrollEffect(listState, true, canLoadMore, false, onLoadMore = onLoadMore)
+    Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
         item(key = "vod_classic_actions") {
             VodActionChipRow(
@@ -228,6 +233,8 @@ private fun VodClassicCategories(
                 )
             }
         }
+    }
+        MaterialVerticalScrollbar(state = listState)
     }
     if (showCategoryPicker) {
         VodCategoryPickerDialog(

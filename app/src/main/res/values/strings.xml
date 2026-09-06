@@ -649,6 +649,7 @@
     <string name="settings_build_verification_unavailable">Verification unavailable</string>
     <string name="settings_enabled">Enabled</string>
     <string name="settings_disabled">Disabled</string>
+    <string name="settings_dark_theme">Dark theme</string>
     <string name="settings_developed_by">Developed by</string>
     <string name="settings_developer_name">David Nashash</string>
     <string name="settings_github">GitHub</string>

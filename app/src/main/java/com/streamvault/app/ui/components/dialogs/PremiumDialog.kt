@@ -329,7 +329,7 @@ fun PremiumDialogActionButton(
             containerColor = containerColor,
             contentColor = contentColor,
             focusedContainerColor = if (destructive) AppColors.Live else AppColors.SurfaceEmphasis,
-            focusedContentColor = AppColors.Focus,
+            focusedContentColor = AppColors.TextPrimary,
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.85f),
             disabledContentColor = AppColors.TextDisabled
         ),
@@ -372,7 +372,7 @@ fun PremiumDialogFooterButton(
             containerColor = containerColor,
             contentColor = contentColor,
             focusedContainerColor = if (destructive) AppColors.Live else AppColors.SurfaceEmphasis,
-            focusedContentColor = AppColors.Focus,
+            focusedContentColor = AppColors.TextPrimary,
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.85f),
             disabledContentColor = AppColors.TextDisabled
         ),

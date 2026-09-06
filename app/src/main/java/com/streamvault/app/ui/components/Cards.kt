@@ -318,7 +318,7 @@ fun ChannelCard(
                     StatusPill(label = stringResource(R.string.badge_error), containerColor = AccentRed, cornerRadius = 4.dp, horizontalPadding = 6.dp, verticalPadding = 2.dp)
                 }
                 if (hasUsableArchive) {
-                    StatusPill(label = stringResource(R.string.badge_catch_up), containerColor = Primary, cornerRadius = 4.dp, horizontalPadding = 6.dp, verticalPadding = 2.dp)
+                    StatusPill(label = stringResource(R.string.badge_catch_up), containerColor = Primary, contentColor = Color.Black, cornerRadius = 4.dp, horizontalPadding = 6.dp, verticalPadding = 2.dp)
                 }
                 if (isRecording) {
                     StatusPill(label = stringResource(R.string.badge_recording), containerColor = AccentRed, cornerRadius = 4.dp, horizontalPadding = 6.dp, verticalPadding = 2.dp)
