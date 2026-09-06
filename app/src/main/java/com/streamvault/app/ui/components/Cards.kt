@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -414,19 +416,6 @@ fun MovieCard(
         }
 
         if (!isLocked) {
-            if (showTypeBadge) {
-                StatusPill(
-                    label = stringResource(R.string.badge_movie),
-                    containerColor = Color.Black.copy(alpha = 0.72f),
-                    cornerRadius = 4.dp,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 8.dp, bottom = 8.dp)
-                )
-            }
-
             if (movie.rating > 0f) {
                 Box(
                     modifier = Modifier
@@ -439,6 +428,26 @@ fun MovieCard(
                         text = formatVodRatingLabel(movie.rating),
                         style = MaterialTheme.typography.labelSmall,
                         color = AccentAmber
+                    )
+                }
+            }
+
+            if (showTypeBadge) {
+                // Content-type icon (bottom-right). Replaces the old bottom-left MOVIE text
+                // pill; the corner stays free of the rating (top-left) and favorite star
+                // (top-right) overlays.
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 8.dp, bottom = 8.dp)
+                        .background(Color.Black.copy(alpha = 0.72f), RoundedCornerShape(4.dp))
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Movie,
+                        contentDescription = stringResource(R.string.badge_movie),
+                        tint = Color.White,
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
@@ -538,19 +547,6 @@ fun SeriesCard(
         }
 
         if (!isLocked) {
-            if (showTypeBadge) {
-                StatusPill(
-                    label = stringResource(R.string.badge_series),
-                    containerColor = Color.Black.copy(alpha = 0.72f),
-                    cornerRadius = 4.dp,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 8.dp, bottom = 8.dp)
-                )
-            }
-
             if (series.rating > 0f) {
                 Box(
                     modifier = Modifier
@@ -563,6 +559,26 @@ fun SeriesCard(
                         text = formatVodRatingLabel(series.rating),
                         style = MaterialTheme.typography.labelSmall,
                         color = AccentAmber
+                    )
+                }
+            }
+
+            if (showTypeBadge) {
+                // Content-type icon (bottom-right). Replaces the old bottom-left SERIES text
+                // pill; the corner stays free of the rating (top-left) and favorite star
+                // (top-right) overlays.
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 8.dp, bottom = 8.dp)
+                        .background(Color.Black.copy(alpha = 0.72f), RoundedCornerShape(4.dp))
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Tv,
+                        contentDescription = stringResource(R.string.badge_series),
+                        tint = Color.White,
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
