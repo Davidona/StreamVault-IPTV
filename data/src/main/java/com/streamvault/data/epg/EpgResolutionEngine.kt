@@ -265,7 +265,7 @@ class EpgResolutionEngine @Inject constructor(
      * For channels mapped to PROVIDER, reads from `programs`.
      * For unmapped channels, returns empty.
      *
-     * Returns map keyed by the channel's `epgChannelId` (the lookup key used by the guide grid).
+     * Returns map keyed by the channel's stream ID when available, otherwise its `epgChannelId`.
      */
     suspend fun getResolvedProgrammes(
         providerId: Long,
@@ -316,8 +316,8 @@ class EpgResolutionEngine @Inject constructor(
 
             for (mapping in sourceMappings) {
                 val channel = channelById[mapping.providerChannelId] ?: continue
-                val lookupKey = channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
-                    ?: channel.streamId.takeIf { it > 0L }?.toString()
+                val lookupKey = channel.streamId.takeIf { it > 0L }?.toString()
+                    ?: channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
                     ?: continue
                 val progs = programsByXmltvId[mapping.xmltvChannelId]
                     ?.map { it.toDomainProgram(providerId) }
@@ -352,8 +352,8 @@ class EpgResolutionEngine @Inject constructor(
 
             for (mapping in providerMappings) {
                 val channel = channelById[mapping.providerChannelId] ?: continue
-                val lookupKey = channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
-                    ?: channel.streamId.takeIf { it > 0L }?.toString()
+                val lookupKey = channel.streamId.takeIf { it > 0L }?.toString()
+                    ?: channel.epgChannelId?.trim()?.takeIf(String::isNotEmpty)
                     ?: continue
                 // Don't overwrite external data (external wins if already resolved)
                 if (lookupKey !in result) {

@@ -1692,10 +1692,21 @@ class EpgViewModel @Inject constructor(
             key == null || resolvedPrograms[key].isNullOrEmpty()
         }
         val legacyPrograms: Map<String, List<Program>> = if (unresolvedChannels.isNotEmpty()) {
-            val fallbackGuideKeys = unresolvedChannels.mapNotNull(Channel::guideLookupKey).distinct()
+            val fallbackProviderKeys = unresolvedChannels
+                .flatMap { channel -> channel.providerProgramLookupKeys() }
+                .distinct()
             runCatching {
-                if (fallbackGuideKeys.isEmpty()) emptyMap()
-                else epgRepository.getProgramsForChannelsSnapshot(providerId, fallbackGuideKeys, windowStart, windowEnd)
+                if (fallbackProviderKeys.isEmpty()) {
+                    emptyMap()
+                } else {
+                    val providerPrograms = epgRepository.getProgramsForChannelsSnapshot(
+                        providerId,
+                        fallbackProviderKeys,
+                        windowStart,
+                        windowEnd
+                    )
+                    mapProviderProgramsByGuideKey(unresolvedChannels, providerPrograms)
+                }
             }.getOrElse { emptyMap() }
         } else {
             emptyMap()
@@ -1921,8 +1932,12 @@ class EpgViewModel @Inject constructor(
             endTime = baseSnapshot.guideWindowEnd,
             categoryId = baseSnapshot.selectedCategoryId.takeIf { it >= 0L }
         ).first().groupBy { it.channelId }
+        val repositoryMatchedProgramsByGuideKey = mapProviderProgramsByGuideKey(
+            channels = scopedChannels,
+            programsByProviderKey = repositoryMatchedPrograms
+        )
 
-        val repositoryMatchedLookupKeys = repositoryMatchedPrograms.keys
+        val repositoryMatchedLookupKeys = repositoryMatchedProgramsByGuideKey.keys
         val matchedLookupKeys = buildList {
             scopedChannels.forEach { channel ->
                 val lookupKey = channel.guideLookupKey() ?: return@forEach
@@ -1938,12 +1953,21 @@ class EpgViewModel @Inject constructor(
         val missingMetadataPrograms = if (missingMetadataLookupKeys.isEmpty()) {
             emptyMap()
         } else {
-            epgRepository.getProgramsForChannelsSnapshot(
-                providerId = baseSnapshot.providerId,
-                channelIds = missingMetadataLookupKeys,
-                startTime = baseSnapshot.guideWindowStart,
-                endTime = baseSnapshot.guideWindowEnd
-            )
+            val missingMetadataChannels = missingMetadataLookupKeys.mapNotNull(scopedChannelsByLookup::get)
+            val providerKeys = missingMetadataChannels
+                .flatMap { channel -> channel.providerProgramLookupKeys() }
+                .distinct()
+            if (providerKeys.isEmpty()) {
+                emptyMap()
+            } else {
+                val providerPrograms = epgRepository.getProgramsForChannelsSnapshot(
+                    providerId = baseSnapshot.providerId,
+                    channelIds = providerKeys,
+                    startTime = baseSnapshot.guideWindowStart,
+                    endTime = baseSnapshot.guideWindowEnd
+                )
+                mapProviderProgramsByGuideKey(missingMetadataChannels, providerPrograms)
+            }
         }
 
         val matchedChannels = matchedLookupKeys.mapNotNull(scopedChannelsByLookup::get)
@@ -1953,11 +1977,27 @@ class EpgViewModel @Inject constructor(
                     ?: missingMetadataPrograms[lookupKey]
                     ?: emptyList()
             } else {
-                repositoryMatchedPrograms[lookupKey].orEmpty()
+                repositoryMatchedProgramsByGuideKey[lookupKey].orEmpty()
             }
         }
         return matchedChannels to matchedPrograms
     }
+
+    private fun Channel.providerProgramLookupKeys(): List<String> = buildList {
+        epgChannelId?.trim()?.takeIf { it.isNotEmpty() }?.let(::add)
+        streamId.takeIf { it > 0L }?.toString()?.let(::add)
+    }.distinct()
+
+    private fun mapProviderProgramsByGuideKey(
+        channels: List<Channel>,
+        programsByProviderKey: Map<String, List<Program>>
+    ): Map<String, List<Program>> = channels.mapNotNull { channel ->
+        val guideKey = channel.guideLookupKey() ?: return@mapNotNull null
+        val programs = channel.providerProgramLookupKeys()
+            .flatMap { providerKey -> programsByProviderKey[providerKey].orEmpty() }
+            .distinctBy { program -> Triple(program.id, program.startTime, program.endTime) }
+        if (programs.isEmpty()) null else guideKey to programs
+    }.toMap()
 
     private suspend fun loadGuideSearchScopeChannels(baseSnapshot: GuideBaseSnapshot): List<Channel> {
         val rawChannels = when {

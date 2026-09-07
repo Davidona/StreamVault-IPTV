@@ -387,7 +387,7 @@ class EpgRepositoryImpl @Inject constructor(
         endTime: Long
     ): List<Program> {
         val normalizedChannelId = epgChannelId?.trim()?.takeIf { it.isNotEmpty() }
-        val lookupKey = normalizedChannelId ?: streamId.takeIf { it > 0L }?.toString()
+        val lookupKey = streamId.takeIf { it > 0L }?.toString() ?: normalizedChannelId
         val offsetMs = shiftMsFor(providerId)
 
         if (internalChannelId > 0L && lookupKey != null) {

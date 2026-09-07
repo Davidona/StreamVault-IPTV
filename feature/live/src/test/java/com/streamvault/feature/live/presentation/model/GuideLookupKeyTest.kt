@@ -6,14 +6,20 @@ import org.junit.Test
 
 class GuideLookupKeyTest {
     @Test
-    fun usesTrimmedEpgIdBeforeStreamId() {
+    fun usesPositiveStreamIdBeforeTrimmedEpgId() {
         assertThat(Channel(1L, "One", epgChannelId = "  epg.one  ", streamId = 42L).guideLookupKey())
-            .isEqualTo("epg.one")
+            .isEqualTo("42")
     }
 
     @Test
     fun fallsBackToPositiveStreamId() {
         assertThat(Channel(1L, "One", streamId = 42L).guideLookupKey()).isEqualTo("42")
+    }
+
+    @Test
+    fun fallsBackToTrimmedEpgIdWhenStreamIdIsMissing() {
+        assertThat(Channel(1L, "One", epgChannelId = "  epg.one  ").guideLookupKey())
+            .isEqualTo("epg.one")
     }
 
     @Test

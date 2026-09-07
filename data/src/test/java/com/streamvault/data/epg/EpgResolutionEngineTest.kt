@@ -412,6 +412,57 @@ class EpgResolutionEngineTest {
     }
 
     @Test
+    fun `getResolvedProgrammes_usesStreamIdWhenEpgIdsCollide`() = runTest {
+        val now = System.currentTimeMillis()
+        val startTime = now - 3600_000
+        val endTime = now + 3600_000
+        whenever(channelEpgMappingDao.getForChannels(PROVIDER_ID, listOf(1L, 2L))).thenReturn(
+            listOf(
+                ChannelEpgMappingEntity(
+                    id = 1,
+                    providerChannelId = 1,
+                    providerId = PROVIDER_ID,
+                    sourceType = EpgSourceType.EXTERNAL.name,
+                    epgSourceId = SOURCE_1,
+                    xmltvChannelId = "external.one",
+                    matchType = EpgMatchType.MANUAL.name,
+                    confidence = 1.0f,
+                    updatedAt = now
+                ),
+                ChannelEpgMappingEntity(
+                    id = 2,
+                    providerChannelId = 2,
+                    providerId = PROVIDER_ID,
+                    sourceType = EpgSourceType.EXTERNAL.name,
+                    epgSourceId = SOURCE_1,
+                    xmltvChannelId = "external.two",
+                    matchType = EpgMatchType.MANUAL.name,
+                    confidence = 1.0f,
+                    updatedAt = now
+                )
+            )
+        )
+        whenever(channelDao.getGuideLookupsByIds(listOf(1L, 2L))).thenReturn(
+            listOf(
+                makeGuideLookup(id = 1L, epgChannelId = "shared.epg", streamId = 101L),
+                makeGuideLookup(id = 2L, epgChannelId = "shared.epg", streamId = 202L)
+            )
+        )
+        whenever(epgProgrammeDao.getForChannels(SOURCE_1, listOf("external.one", "external.two"), startTime, endTime)).thenReturn(
+            listOf(
+                EpgProgrammeEntity(id = 1, epgSourceId = SOURCE_1, xmltvChannelId = "external.one", startTime = startTime, endTime = endTime, title = "One News"),
+                EpgProgrammeEntity(id = 2, epgSourceId = SOURCE_1, xmltvChannelId = "external.two", startTime = startTime, endTime = endTime, title = "Two News")
+            )
+        )
+
+        val result = engine.getResolvedProgrammes(PROVIDER_ID, listOf(1L, 2L), startTime, endTime)
+
+        assertThat(result.keys).containsExactly("101", "202")
+        assertThat(result["101"]!!.single().title).isEqualTo("One News")
+        assertThat(result["202"]!!.single().title).isEqualTo("Two News")
+    }
+
+    @Test
     fun `getResolvedProgrammes_providerNative_returnsProgrammes`() = runTest {
         val now = System.currentTimeMillis()
         val startTime = now - 3600_000

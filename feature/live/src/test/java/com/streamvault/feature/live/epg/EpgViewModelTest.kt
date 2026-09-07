@@ -220,7 +220,7 @@ class EpgViewModelTest {
         )
         val streamId = 101L
         val channels = listOf(
-            Channel(id = 1L, name = "One", providerId = provider.id, streamId = streamId)
+            Channel(id = 1L, name = "One", providerId = provider.id, epgChannelId = "native.one", streamId = streamId)
         )
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
         whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptySet()))
@@ -238,12 +238,12 @@ class EpgViewModelTest {
         whenever(preferencesRepository.guideScheduledOnly).thenReturn(flowOf(false))
         whenever(preferencesRepository.guideAnchorTime).thenReturn(flowOf(null))
         whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any())).thenReturn(emptyMap())
-        whenever(epgRepository.getProgramsForChannelsSnapshot(eq(provider.id), eq(listOf(streamId.toString())), any(), any())).thenReturn(
+        whenever(epgRepository.getProgramsForChannelsSnapshot(eq(provider.id), eq(listOf("native.one", streamId.toString())), any(), any())).thenReturn(
             mapOf(
-                streamId.toString() to listOf(
+                "native.one" to listOf(
                     Program(
                         id = 1L,
-                        channelId = streamId.toString(),
+                        channelId = "native.one",
                         title = "Headline",
                         startTime = System.currentTimeMillis() - 60_000L,
                         endTime = System.currentTimeMillis() + 60_000L,
@@ -259,7 +259,7 @@ class EpgViewModelTest {
         waitForUiState { viewModel.uiState.value.programsByChannel[streamId.toString()].orEmpty().isNotEmpty() }
 
         assertThat(viewModel.uiState.value.programsByChannel.keys).containsExactly(streamId.toString())
-        verify(epgRepository, atLeastOnce()).getProgramsForChannelsSnapshot(eq(provider.id), eq(listOf(streamId.toString())), any(), any())
+        verify(epgRepository, atLeastOnce()).getProgramsForChannelsSnapshot(eq(provider.id), eq(listOf("native.one", streamId.toString())), any(), any())
     }
 
     @Test
