@@ -333,7 +333,7 @@ class ChannelRepositoryImpl @Inject constructor(
                     requestedEntities = filteredRequested,
                     entityPool = filteredPool.ifEmpty { filteredRequested },
                     settings = settings,
-                    stalkerPortalUrl = stalkerPortalRoot(providerId)
+                    stalkerPortalUrl = stalkerPortalRoot(requested.first().providerId)
                 )
             }.flowOn(Dispatchers.Default)
         }

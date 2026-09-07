@@ -6,6 +6,7 @@ import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.StalkerCookieMode
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerEndpointPreference
 import com.streamvault.domain.model.StalkerPlaybackBackendHint
 import com.google.gson.Gson

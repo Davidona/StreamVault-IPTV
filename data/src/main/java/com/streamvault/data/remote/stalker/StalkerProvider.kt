@@ -2216,7 +2216,6 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
 
     private fun resolveChannelLogoUrl(url: String?): String? =
         StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, url)
-    }
 
     private fun toChannel(item: StalkerItemRecord): Channel? {
         val numericId = stableItemId(ContentType.LIVE, item.id)
