@@ -23,6 +23,9 @@ All notable product changes are recorded in this document.
 - Improved Stalker authentication resilience by stopping repeated handshakes after explicit soft-throttle signals, reusing short-lived encrypted sessions across provider instances and process restarts, and restoring session cookies for resumed API requests.
 - Fixed Stalker compatibility discovery treating every tokenless HTTP 200 response as a rate limit; generic endpoint or recipe responses now continue through fallback discovery.
 - Fixed Stalker VOD category layout drift by retargeting stale stored category types before synchronization instead of forcing an unnecessary catalog re-download.
+- Improved Stalker on-demand guide loading by preferring numeric short-EPG lookups, pacing prefetch requests, and publishing guide results in bounded chunks.
+- Reduced repeated empty Stalker guide requests by sharing provider-scoped, expiring empty-key cache state between the Guide and Home now-playing fallbacks.
+- Fixed Stalker guide synchronization continuing through dead per-channel EPG endpoints after both bulk and first per-channel responses are confirmed empty.
 
 ## [1.0.17]
 

@@ -12,6 +12,7 @@ import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.PlaybackTransportMode
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.provider.GuideRequest
 import com.streamvault.domain.model.StalkerBootstrapRecipe
 import com.streamvault.domain.model.StalkerTransportGrant
 import com.streamvault.domain.model.StalkerTransportMode
@@ -43,6 +44,116 @@ class StalkerProviderTest {
         )
 
         assertThat(page.isComplete).isFalse()
+    }
+
+    @Test
+    fun shortEpgRequest_triesXmlKeyWhenNumericPortalKeyIsEmpty() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "42" to emptyList(),
+                "xml.channel" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "xml.channel",
+                        title = "Guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Guide entry")
+    }
+
+    @Test
+    fun shortEpgRequest_prefersNumericPortalKeyWhenItHasPrograms() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "42" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "42",
+                        title = "Numeric guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                ),
+                "xml.channel" to listOf(
+                    StalkerProgramRecord(
+                        id = "2",
+                        channelId = "xml.channel",
+                        title = "XML guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Numeric guide entry")
+        assertThat(api.shortEpgCalls).containsExactly("42")
+    }
+
+    @Test
+    fun fullEpgRequest_usesNumericPortalKey() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            epgByChannel = mapOf(
+                "42" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "42",
+                        title = "Full guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Full guide entry")
+        assertThat(api.epgCalls).containsExactly("42")
     }
 
     @Test
@@ -1236,6 +1347,8 @@ class StalkerProviderTest {
         private val seriesCategoriesResult: Result<List<StalkerCategoryRecord>>? = null,
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
+        private val shortEpgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
         private var authenticationFailuresBeforeSuccess: Int = 0,
         private val authenticationError: Throwable? = null
     ) : StalkerApiService {
@@ -1247,6 +1360,8 @@ class StalkerProviderTest {
             private set
         var lastAuthenticateProfile: StalkerDeviceProfile? = null
             private set
+        val shortEpgCalls: MutableList<String> = mutableListOf()
+        val epgCalls: MutableList<String> = mutableListOf()
 
         override suspend fun authenticate(profile: StalkerDeviceProfile): Result<Pair<StalkerSession, StalkerProviderProfile>> {
             authenticateCalls += 1
@@ -1339,13 +1454,19 @@ class StalkerProviderTest {
             profile: StalkerDeviceProfile,
             channelId: String,
             limit: Int
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            shortEpgCalls += channelId
+            return Result.success(shortEpgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getEpg(
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             channelId: String
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            epgCalls += channelId
+            return Result.success(epgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getBulkEpg(
             session: StalkerSession,

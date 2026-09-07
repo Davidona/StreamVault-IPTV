@@ -2653,6 +2653,8 @@ class OkHttpStalkerApiService @Inject constructor(
         val requestPriority = when {
             request.url.queryParameter("action").equals("create_link", ignoreCase = true) ->
                 StalkerNetworkPriority.INTERACTIVE
+            request.url.queryParameter("action").equals("get_short_epg", ignoreCase = true) ->
+                StalkerNetworkPriority.PREFETCH
             currentCoroutineContext()[StalkerRequestPriorityContext]?.priority in setOf(
                 com.streamvault.domain.model.StalkerRequestPriority.EPG,
                 com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX

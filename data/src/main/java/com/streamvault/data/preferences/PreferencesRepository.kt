@@ -314,6 +314,9 @@ class PreferencesRepository @Inject constructor(
         val LAST_MAINTENANCE_EPG_PROGRAMME_ROWS = longPreferencesKey("last_maintenance_epg_programme_rows")
         val LAST_MAINTENANCE_PLAYBACK_HISTORY_ROWS = longPreferencesKey("last_maintenance_playback_history_rows")
         val LAST_MAINTENANCE_FAVORITE_ROWS = longPreferencesKey("last_maintenance_favorite_rows")
+
+        fun emptyGuideKeys(providerId: Long) =
+            stringPreferencesKey("guide_empty_keys_v1_$providerId")
     }
 
     private object ParentalSessionKeys {
@@ -365,6 +368,61 @@ class PreferencesRepository @Inject constructor(
             "provider" -> ActiveLiveSource.ProviderSource(sourceId)
             "combined_m3u" -> ActiveLiveSource.CombinedM3uSource(sourceId)
             else -> null
+        }
+    }
+
+    suspend fun getEmptyGuideKeys(providerId: Long): Map<String, Long> {
+        if (providerId <= 0L) return emptyMap()
+        val key = PreferencesKeys.emptyGuideKeys(providerId)
+        val now = System.currentTimeMillis()
+        val preferences = context.dataStore.data.first()
+        val raw = preferences[key]
+        val decoded = decodeEmptyGuideKeys(raw, now)
+        val normalized = encodeEmptyGuideKeys(decoded)
+        if (raw != normalized) {
+            context.dataStore.edit { mutablePreferences ->
+                if (normalized.isBlank()) {
+                    mutablePreferences.remove(key)
+                } else {
+                    mutablePreferences[key] = normalized
+                }
+            }
+        }
+        return decoded
+    }
+
+    suspend fun addEmptyGuideKeys(providerId: Long, lookupKeys: Set<String>) {
+        if (providerId <= 0L || lookupKeys.isEmpty()) return
+        val key = PreferencesKeys.emptyGuideKeys(providerId)
+        val now = System.currentTimeMillis()
+        context.dataStore.edit { preferences ->
+            val merged = decodeEmptyGuideKeys(preferences[key], now).toMutableMap()
+            lookupKeys
+                .map(String::trim)
+                .filter(String::isNotBlank)
+                .forEach { lookupKey -> merged[lookupKey] = now }
+            val encoded = encodeEmptyGuideKeys(merged)
+            if (encoded.isBlank()) {
+                preferences.remove(key)
+            } else {
+                preferences[key] = encoded
+            }
+        }
+    }
+
+    suspend fun removeEmptyGuideKeys(providerId: Long, lookupKeys: Set<String>) {
+        if (providerId <= 0L) return
+        val key = PreferencesKeys.emptyGuideKeys(providerId)
+        val now = System.currentTimeMillis()
+        context.dataStore.edit { preferences ->
+            val remaining = decodeEmptyGuideKeys(preferences[key], now)
+                .filterKeys { it !in lookupKeys }
+            val encoded = encodeEmptyGuideKeys(remaining)
+            if (encoded.isBlank()) {
+                preferences.remove(key)
+            } else {
+                preferences[key] = encoded
+            }
         }
     }
 

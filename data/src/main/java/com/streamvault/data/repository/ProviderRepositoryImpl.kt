@@ -1840,7 +1840,8 @@ class ProviderRepositoryImpl @Inject constructor(
             streamId = streamId,
             epgChannelId = epgChannelId,
             limit = limit,
-            guide = guide
+            guide = guide,
+            shortEpgOnly = providerEntity.type == ProviderType.STALKER_PORTAL
         )
         if (result is Result.Success && result.data.isNotEmpty()) {
             cacheProgramsForChannel(providerId, result.data)
@@ -1885,7 +1886,8 @@ class ProviderRepositoryImpl @Inject constructor(
                             streamId = request.streamId,
                             epgChannelId = request.epgChannelId,
                             limit = limit,
-                            guide = guide
+                            guide = guide,
+                            shortEpgOnly = providerEntity.type == ProviderType.STALKER_PORTAL
                         )
                     }
                 }
@@ -2090,7 +2092,8 @@ class ProviderRepositoryImpl @Inject constructor(
         streamId: Long,
         epgChannelId: String?,
         limit: Int,
-        guide: GuideSource
+        guide: GuideSource,
+        shortEpgOnly: Boolean = false
     ): Result<List<Program>> {
         if (providerId <= 0L || streamId <= 0L) {
             return Result.error("Live stream context is unavailable.")
@@ -2108,6 +2111,13 @@ class ProviderRepositoryImpl @Inject constructor(
             return Result.success(
                 normalizeXtreamPrograms(providerId, epgChannelId ?: streamId.toString(), shortPrograms)
             )
+        }
+        if (shortEpgOnly) {
+            return when (shortResult) {
+                is Result.Success -> Result.success(emptyList())
+                is Result.Error -> Result.error(shortResult.message, shortResult.exception)
+                is Result.Loading -> Result.error("Unexpected loading state")
+            }
         }
         return when (val fullResult = guide.getEpg(request)) {
             is Result.Success -> Result.success(

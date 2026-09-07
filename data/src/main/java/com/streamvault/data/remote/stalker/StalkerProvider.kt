@@ -738,6 +738,12 @@ internal companion object {
         }
     }
 
+    override suspend fun getEpg(request: GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+            ?: return Result.error("EPG lookup needs numeric portal channel id")
+        return getEpg(numericKey)
+    }
+
     suspend fun getBulkEpg(periodHours: Int = 6): Result<List<Program>> {
         return runWithAuthorizedSession { session, _ ->
             when (val epgResult = api.getBulkEpg(session, currentDeviceProfile(), periodHours)) {
@@ -786,6 +792,27 @@ internal companion object {
                 is Result.Error -> Result.error(epgResult.message, epgResult.exception)
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
+        }
+    }
+
+    override suspend fun getShortEpg(request: GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+        val numericResult = numericKey?.let { getShortEpg(it, request.limit) }
+        if (numericResult is Result.Success && numericResult.data.isNotEmpty()) {
+            return numericResult
+        }
+
+        val xmlKey = request.epgChannelId
+            ?.trim()
+            ?.takeIf(String::isNotBlank)
+            ?.takeUnless { it == numericKey }
+        val xmlResult = xmlKey?.let { getShortEpg(it, request.limit) }
+        return when {
+            xmlResult is Result.Success -> xmlResult
+            numericResult is Result.Success -> numericResult
+            numericResult is Result.Error -> numericResult
+            xmlResult is Result.Error -> xmlResult
+            else -> Result.error("Short EPG lookup returned no programs")
         }
     }
 

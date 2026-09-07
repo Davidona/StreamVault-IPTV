@@ -231,6 +231,7 @@ internal class ProviderEpgSyncExecutor(
         val bulkCoveredChannelKeys = linkedSetOf<String>()
         var importedProgramCount = 0
         var providerRateLimited = false
+        var bulkEpgReturnedEmpty = false
 
         suspend fun flushPrograms() {
             if (insertBuffer.isEmpty()) return
@@ -272,6 +273,9 @@ internal class ProviderEpgSyncExecutor(
             }.let { result ->
                 if (result is Result.Error) {
                     throw result.exception ?: IllegalStateException(result.message)
+                }
+                if (result is Result.Success && result.data == 0) {
+                    bulkEpgReturnedEmpty = true
                 }
             }
         }.onFailure { error ->
@@ -326,6 +330,14 @@ internal class ProviderEpgSyncExecutor(
                 }
                 if (streamResult is Result.Error) {
                     throw streamResult.exception ?: IllegalStateException(streamResult.message)
+                }
+                if (bulkEpgReturnedEmpty && perChannelRecordCount == 0) {
+                    ignorePerChannelGuide = true
+                    Log.w(
+                        TAG,
+                        "Stalker portal returned empty bulk and per-channel EPG; " +
+                            "skipping remaining per-channel guide calls."
+                    )
                 }
             }.onFailure { error ->
                 if (error.hasStalkerRateLimit()) {

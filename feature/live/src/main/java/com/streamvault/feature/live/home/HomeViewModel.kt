@@ -11,6 +11,8 @@ import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.feature.live.presentation.model.GuideCacheKey
+import com.streamvault.feature.live.presentation.model.GuideCachePolicy
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.data.preferences.PreferencesRepository
@@ -127,6 +129,8 @@ class HomeViewModel @Inject constructor(
     private var previewPlayerEngine: PlayerEngine? = null
     private var previewSessionVersion: Long = 0L
     private var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
+    private val sessionEmptyGuideKeys = mutableSetOf<GuideCacheKey>()
+    private val persistedEmptyGuideKeys = mutableMapOf<Long, Map<String, Long>>()
 
     init {
         loadAllProviders()
@@ -1288,7 +1292,7 @@ class HomeViewModel @Inject constructor(
         channels: List<Channel>,
         existingPrograms: Map<String, Program>
     ): Map<String, Program> {
-        val providerType = _uiState.value.provider?.type
+        val providerType = providerRepository.getProvider(providerId)?.type
         if (
             providerType != com.streamvault.domain.model.ProviderType.XTREAM_CODES &&
             providerType != com.streamvault.domain.model.ProviderType.STALKER_PORTAL
@@ -1296,18 +1300,26 @@ class HomeViewModel @Inject constructor(
             return emptyMap()
         }
 
-        val missingChannels = channels.filter { channel ->
-            val lookupKey = channel.guideLookupKey()
-            lookupKey != null &&
-                channel.streamId > 0L &&
-                !existingPrograms.containsKey(lookupKey)
-        }
-        if (missingChannels.isEmpty()) {
+        ensurePersistedEmptyGuideKeys(providerId)
+        val sentinelKeys = channels
+            .filter(GuideCachePolicy::isSentinelChannel)
+            .mapNotNull { channel -> GuideCachePolicy.cacheKey(providerId, channel)?.lookupKey }
+            .toSet()
+        markEmptyGuideKeys(providerId, sentinelKeys)
+
+        val fallbackChannels = GuideCachePolicy.requestableChannels(
+            providerId = providerId,
+            channels = channels,
+            sessionEmptyKeys = sessionEmptyGuideKeys,
+            persistedEmptyAt = persistedEmptyGuideKeys[providerId].orEmpty(),
+            existingProgramsByChannel = existingPrograms.mapValues { (_, program) -> listOf(program) },
+            now = System.currentTimeMillis()
+        ).take(10)
+        if (fallbackChannels.isEmpty()) {
             return emptyMap()
         }
 
         val now = System.currentTimeMillis()
-        val fallbackChannels = missingChannels.take(10)
         val programsByRequest = providerRepository.getProgramsForLiveStreams(
             providerId = providerId,
             requests = fallbackChannels.map { channel ->
@@ -1320,17 +1332,52 @@ class HomeViewModel @Inject constructor(
         )
 
         return fallbackChannels.mapNotNull { channel ->
-            val programs = (programsByRequest[
+            val result = programsByRequest[
                 LiveStreamProgramRequest(
                     streamId = channel.streamId,
                     epgChannelId = channel.epgChannelId
                 )
-            ] as? Result.Success)?.data.orEmpty()
+            ]
+            val programs = (result as? Result.Success)?.data.orEmpty()
+            val cacheKey = GuideCachePolicy.cacheKey(providerId, channel) ?: return@mapNotNull null
+            if (result is Result.Success) {
+                if (programs.isEmpty()) {
+                    markEmptyGuideKeys(providerId, setOf(cacheKey.lookupKey))
+                } else {
+                    clearEmptyGuideKeys(providerId, setOf(cacheKey.lookupKey))
+                }
+            }
             val currentProgram = programs.firstOrNull { it.startTime <= now && it.endTime > now }
                 ?: programs.firstOrNull()
-            val lookupKey = channel.guideLookupKey() ?: return@mapNotNull null
-            currentProgram?.let { lookupKey to it }
+            currentProgram?.let { cacheKey.lookupKey to it }
         }.toMap()
+    }
+
+    private suspend fun ensurePersistedEmptyGuideKeys(providerId: Long) {
+        if (providerId !in persistedEmptyGuideKeys) {
+            persistedEmptyGuideKeys[providerId] = preferencesRepository.getEmptyGuideKeys(providerId)
+        }
+    }
+
+    private suspend fun markEmptyGuideKeys(providerId: Long, lookupKeys: Set<String>) {
+        if (lookupKeys.isEmpty()) return
+        val now = System.currentTimeMillis()
+        lookupKeys.forEach { lookupKey ->
+            sessionEmptyGuideKeys += GuideCacheKey(providerId, lookupKey)
+        }
+        persistedEmptyGuideKeys[providerId] = persistedEmptyGuideKeys[providerId].orEmpty() +
+            lookupKeys.associateWith { now }
+        preferencesRepository.addEmptyGuideKeys(providerId, lookupKeys)
+    }
+
+    private suspend fun clearEmptyGuideKeys(providerId: Long, lookupKeys: Set<String>) {
+        if (lookupKeys.isEmpty()) return
+        lookupKeys.forEach { lookupKey ->
+            sessionEmptyGuideKeys.remove(GuideCacheKey(providerId, lookupKey))
+        }
+        persistedEmptyGuideKeys[providerId] = persistedEmptyGuideKeys[providerId].orEmpty()
+            .filterKeys { it !in lookupKeys }
+        preferencesRepository.removeEmptyGuideKeys(providerId, lookupKeys)
     }
 
     fun updateVisibleChannelWindow(channelIds: List<Long>, focusedChannelId: Long? = null) {
