@@ -71,7 +71,6 @@ import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.feature.playback.api.PlaybackPictureInPictureState
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
-import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.feature.playback.player.overlay.ChannelInfoOverlay
@@ -609,7 +608,7 @@ fun PlayerScreen(
             }
     ) {
         // ExoPlayer Video Surface
-        PlayerRenderView(
+        PlayerVideoSurface(
             playerEngine = playerEngine,
             resizeMode = aspectRatio.toPlayerSurfaceResizeMode(),
             surfaceType = renderSurfaceType,
