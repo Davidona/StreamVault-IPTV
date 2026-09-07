@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - Improved device orientation behavior by allowing portrait rotation on phones and tablets while keeping Android TV and Fire TV interfaces locked to landscape.
 - Improved grouped VOD deduplication performance by moving movie and series presentation work off the main thread, adding bounded normalization caches, and avoiding unnecessary ICU normalization for ASCII titles.
 - Fixed grouped VOD browse pagination and infinite scroll by using cursor windows, deduplicating before offset/limit application, and handling zero-timestamp catalog entries consistently.
+- Fixed provider configuration decoding after typed-provider migrations that omitted the embedded configuration type, preserving access to existing provider settings and credentials.
 
 ## [1.0.17]
 
