@@ -36,3 +36,24 @@ Raw screenshots and unsanitized logcat were kept outside the repository under
 the local temporary directory and are not committed. URLs, credentials, query
 strings, and provider-specific identifiers were removed from the committed log
 excerpt.
+
+## Structural follow-up
+
+The first PlayerScreen decomposition slice is recorded in commit `28e0cbee`:
+`PlayerVideoSurface` now owns the existing platform-backed render-view call,
+while preserving its original first-child position, arguments, modifier, and
+`PlayerRenderView` lifecycle.
+
+Scoped verification on the same `Television_1080p` emulator passed:
+
+- `:feature:playback:compileDebugKotlin`
+- `:feature:playback:testDebugUnitTest`
+- `:app:assembleDebug`
+- `:feature:playback:connectedDebugAndroidTest` — 7/7 tests
+
+Manual smoke also confirmed launch into live playback, visible video, the
+Local DVR controls surface, and media-session `PLAYING(3)` with `error=null`.
+The direct rewind interaction was attempted, but no unambiguous behind-live
+state transition was observed, so the plan's manual seeking checkbox remains
+open. The three pre-existing `PlayerSmokeTest` focus/track failures were not
+changed by this structural slice.
