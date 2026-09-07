@@ -1145,6 +1145,31 @@ validation recorded in [`validation/phase7_player_capability/README.md`](../vali
 External PR packaging and the broader baseline follow-up items remain listed in
 the plan checklist.
 
+### Phase 7 success-target audit (2026-09-07)
+
+The initial targets in Section 13 were reviewed against the committed baseline,
+the paired Phase 5 System measurements, and the Phase 7 playback acceptance
+evidence. A target is marked **open** when the available result is diagnostic or
+has no comparable before/after measurement; this is not a failure result.
+
+| Metric | Current evidence | Status |
+|---|---|---|
+| Incremental build after feature-only UI edit | System source edit improved 64.56% against its paired warm baseline (`validation/phase5_system/performance-after.md`). | Met for the measured feature extraction; no new Phase 7-only pair was collected. |
+| Incremental unit-test compile for extracted feature | System unit-test compile improved 57.88% against its paired warm baseline. | Met for the measured feature extraction; no new Phase 7-only pair was collected. |
+| Clean debug build | Paired current/rollback clean invocation was faster; cache reuse is documented. | Guardrail met; uncached machine-build improvement is not claimed. |
+| Warm no-change build | Steady-state median was 2.12% slower, within the 10% guardrail. | Met. |
+| Slow/janky frames in selected hot flows | Macrobenchmark journeys pass, but the available run is diagnostic and has no matched post-Phase-7 comparison. | Open measurement gate. |
+| Player controls open latency | The controls journey passes, but no comparable latency measurement is recorded. | Open measurement gate. |
+| Startup time | Release cold-start/profile journeys pass, but no paired before/after startup comparison is recorded for this phase. | Open measurement gate. |
+| Memory during Live TV/player | Baseline PSS exists; no paired post-Phase-7 memory sample is committed. | Open measurement gate. |
+| Player stability | Two channels completed 61 two-second captures each with changing frames, `PLAYING(3)`, `error=null`, HLS first-frame success, and no fatal/stuck/fallback evidence. | Met for the validated Phase 7 channels; broader provider coverage remains separate. |
+| `:app` presentation source | Feature extraction and boundary reports show the intended direction, but a final majority count is not recorded here. | Open accounting item. |
+
+Conclusion: the Phase 7 implementation and playback acceptance gates are
+supported by evidence. The remaining success-target work is measurement and
+accounting follow-up, not a newly identified playback or dependency-boundary
+defect.
+
 ## 12. Validation strategy
 
 ### 12.1 Build validation
@@ -1336,7 +1361,7 @@ The modernization is complete when:
 - [x] Add or define the Macrobenchmark module and constrained-device benchmark flows.
 - [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition after the manual smoke test.
 - [ ] Package the completed second no-behavior-change `ProviderSetupScreen` decomposition as a review PR.
-- [ ] Revisit the initial success targets after baseline data is available.
+- [x] Revisit the initial success targets after baseline data is available; see the Phase 7 success-target audit above.
 
 ## 19. PR #162 assessment
 
