@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">StreamVault</string>
-    <string name="nav_home">Casa</string>
+    <string name="nav_home">Home</string>
     <string name="nav_live_tv">TV in diretta</string>
     <string name="nav_movies">Film</string>
     <string name="nav_series">Serie</string>
@@ -60,7 +60,7 @@
     <string name="add_group_remove_btn">Rimuovi</string>
     <string name="add_group_add_btn">Aggiungi</string>
     <string name="add_group_create_new_btn">Crea nuovo gruppo</string>
-    <string name="card_live_badge">VIVI</string>
+    <string name="card_live_badge">Live</string>
     <string name="card_locked">Bloccato</string>
     <string name="playlist_no_provider">Nessun fornitore</string>
     <string name="live_source_label">SORGENTE</string>
@@ -241,4 +241,33 @@
     <string name="settings_catalog_count_pending">In attesa</string>
     <string name="settings_live_timeshift_backend_value">Automatico</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="nav_plugins">Plugins</string>
+    <string name="hidden_categories_dialog_title">Categorie nascoste</string>
+    <string name="hidden_categories_dialog_subtitle">Scegli quelle da ripristinare.</string>
+    <string name="hidden_categories_dialog_unhide_all">Mostra tutte</string>
+    <string name="hidden_categories_dialog_close">Chiudi</string>
+    <string name="dashboard_customize_home">Personalizza Home</string>
+    <string name="dashboard_customize_home_subtitle">Scegli quali sezioni mostrare qui, aggiungi altre righe e riordinali in qualsiasi momento.</string>
+    <string name="dashboard_customize_home_action">Personalizza</string>
+    <string name="channel_action_hide">Nascondi questo canale</string>
+    <string name="hidden_channels_dialog_title">Canali nascosti</string>
+    <string name="hidden_channels_dialog_subtitle">Scegli quelli da ripristinare.</string>
+    <string name="hidden_channels_dialog_unhide_all">Mostra tutti</string>
+    <string name="hidden_channels_dialog_close">Chiudi</string>
+    <string name="settings_crash_report_share_failed">Nessuna app può ricevere il report di crash.</string>
+    <string name="settings_crash_report_missing">Nessun report di crash disponibile.</string>
+    <string name="player_no_external_player">Nessun player esterno installato</string>
+    <string name="player_unsafe_stream_url">Questo stream non può essere aperto in un player esterno</string>
+    <string name="player_external_launch_failed">Impossibile avviare il player esterno</string>
+    <string name="download_failed">Download non riuscito: %1$s</string>
+    <string name="download_completed">Download completato</string>
+    <string name="download_cancelled">Download annullato</string>
+    <string name="download_notification_channel">Download</string>
+    <string name="download_notification_channel_description">Mostra l\'avanzamento e il completamento dei download</string>
+    <string name="download_in_progress">Download di %s in corso</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Download</string>
+    <string name="downloads_empty">Nessun download presente</string>
+    <string name="downloads_delete_confirm">Eliminare questo download?</string>
+    <string name="download_play_local">Riproduci</string>
 </resources>

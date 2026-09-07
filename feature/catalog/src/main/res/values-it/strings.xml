@@ -30,7 +30,7 @@
   <string name="badge_saved">SALVATO</string>
   <string name="badge_scheduled">SCHED</string>
   <string name="badge_series">SERIE</string>
-  <string name="card_live_badge">VIVI</string>
+  <string name="card_live_badge">Live</string>
   <string name="card_locked_channel">Canale bloccato</string>
   <string name="cast_button_label" translatable="false">Cast</string>
   <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
@@ -52,19 +52,19 @@
   <string name="category_pin" translatable="false">Pin</string>
   <string name="category_see_all">Vedi tutto →</string>
   <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="channel_action_hide">Nascondi questo canale</string>
   <string name="channel_options_remove_from_recent">Rimuovi dai recenti</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Continua a guardare</string>
   <string name="dashboard_channels_format">%1$d canali</string>
   <string name="dashboard_continue_watching">Continua a guardare</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Continua a guardare film</string>
+  <string name="dashboard_continue_watching_series">Continua a guardare serie</string>
   <string name="dashboard_empty_body">Aggiungi prima una playlist o una sorgente Xtream. Una volta attivo un provider, Home mostrerà i canali preferiti, la visione in corso e le nuove righe della libreria.</string>
   <string name="dashboard_empty_title">Configura un provider per sbloccare la schermata iniziale</string>
   <string name="dashboard_favorite_channels">Canali preferiti</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Film preferiti</string>
+  <string name="dashboard_favorite_series">Serie preferite</string>
   <string name="dashboard_fresh_movie_pick">Nuova scelta di film</string>
   <string name="dashboard_jump_back_live">Torna alla TV in diretta</string>
   <string name="dashboard_library_ready">La tua libreria IPTV è pronta</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Canali recenti</string>
   <string name="dashboard_recent_movies">Film aggiunti di recente</string>
   <string name="dashboard_recent_series">Serie aggiornata di recente</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Film consigliati</string>
   <string name="dashboard_resume_episode">Riprendi episodio</string>
   <string name="dashboard_resume_episode_format">Riprendi S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Riprendi</string>
@@ -104,7 +104,7 @@
   <string name="dashboard_stat_series">%1$d serie</string>
   <string name="dashboard_subtitle">%1$s è attivo. Torna alla diretta, riprendi la visione o sfoglia le nuove aggiunte.</string>
   <string name="dashboard_title">La tua libreria, pronta</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
+  <string name="dashboard_top_rated_movies">Film più votati</string>
   <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
   <string name="dashboard_update_available">Una nuova versione dell\'app è già memorizzata nella cache ed è pronta per la revisione da Impostazioni.</string>
   <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
@@ -117,17 +117,17 @@
   <string name="dashboard_warning_review">Apri Dettagli fornitore</string>
   <string name="dashboard_warning_title">Il fornitore ha bisogno di attenzione</string>
   <string name="dashboard_watch_live">Guarda dal vivo</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Scarica</string>
+  <string name="download_error_no_url">Impossibile risolvere l\'URL dello stream per il download</string>
+  <string name="download_failed">Download non riuscito: %1$s</string>
+  <string name="download_started">Download avviato</string>
   <string name="favorites_add">Aggiungi ai preferiti</string>
   <string name="favorites_all_favorites">Tutti i preferiti</string>
   <string name="favorites_cancel">Indietro: annulla</string>
   <string name="favorites_confirm">Centro: salva l\'ordine</string>
   <string name="favorites_content_type_episode">Episodio</string>
   <string name="favorites_content_type_episode_format">Episodio S%1$d E%2$d</string>
-  <string name="favorites_content_type_live">Vivi</string>
+  <string name="favorites_content_type_live">Live</string>
   <string name="favorites_content_type_series">Serie</string>
   <string name="favorites_continue_short">Riprendi</string>
   <string name="favorites_continue_subtitle">Raccogli film e serie non finiti dall\'hub salvato.</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Riprendi da %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Sconosciuto</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versioni</string>
   <string name="movie_loading_details">Caricamento dettagli...</string>
   <string name="movie_not_found">Film non trovato</string>
   <string name="movie_plot_fallback">Trama non disponibile</string>
@@ -227,7 +227,7 @@
   <string name="multiview_add_to_split">Aggiungi a schermo diviso</string>
   <string name="multiview_queued">Nello schermo diviso</string>
   <string name="nav_epg">Guida</string>
-  <string name="nav_home">Casa</string>
+  <string name="nav_home">Home</string>
   <string name="nav_live_tv">TV in diretta</string>
   <string name="nav_movies">Film</string>
   <string name="nav_series">Serie</string>
@@ -237,7 +237,7 @@
   <string name="pin_dialog_title">Inserisci il PIN</string>
   <string name="player_resume">Riprendi</string>
   <string name="saved_group_delete_empty">Elimina gruppo vuoto</string>
-  <string name="saved_group_demote_home">Rimuovi da casa</string>
+  <string name="saved_group_demote_home">Rimuovi da Home</string>
   <string name="saved_group_manage_count">%1$d elementi</string>
   <string name="saved_group_manage_promoted">Elementi fissati su Home • %1$d.</string>
   <string name="saved_group_manage_subtitle">Apri un gruppo o tienilo premuto per unire, eliminare, riordinare e azioni con priorità Home.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Ritorno in biblioteca</string>
   <string name="series_detail_play_episode">Riproduci · Stagione %1$d Ep %2$d</string>
   <string name="series_detail_resume">Riprendi · Stagione %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versioni</string>
   <string name="series_episodes">Episodi (%1$d)</string>
   <string name="series_incorrect_pin">PIN errato</string>
   <string name="series_library_lens_subtitle">Mostra preferiti, in corso, più votate e serie nuove in tutta la libreria.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Parziale</string>
   <string name="settings_status_unknown">Sconosciuto</string>
   <string name="settings_update_install_started">Apertura del programma di installazione del pacchetto.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL stream</string>
+  <string name="stream_url_copied">URL dello stream copiato</string>
+  <string name="stream_url_copy">Copia URL</string>
+  <string name="stream_url_copy_failed">Impossibile risolvere l\'URL dello stream</string>
   <string name="vod_category_picker_empty">Nessuna categoria corrispondente trovata.</string>
   <string name="vod_category_picker_search_placeholder">Cerca categorie…</string>
   <string name="vod_category_picker_subtitle">Cerca per nome della categoria, quindi apri lo scaffale corrispondente.</string>

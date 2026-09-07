@@ -9,6 +9,7 @@ All notable product changes are recorded in this document.
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
+- Updated Italian translations across the app and feature modules, including previously missing strings and corrected resource ownership.
 - Improved Stalker EPG synchronization by increasing channel batch sizes from 500 to 5,000, reducing request overhead for large channel lineups while retaining bounded processing.
 - Fixed native EPG resolution for large channel lineups by chunking program lookups to stay below SQLite bind-variable limits on older Android devices.
 - Fixed EPG collisions for channels sharing an EPG identifier by keying resolved guide data by the provider stream ID when available, while preserving legacy EPG-ID fallback queries.
