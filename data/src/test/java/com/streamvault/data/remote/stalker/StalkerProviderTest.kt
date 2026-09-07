@@ -47,6 +47,36 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun getLiveStreams_resolves_bare_filename_logo_against_portal_install_root() = runTest {
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = listOf(
+                    StalkerItemRecord(
+                        id = "536",
+                        name = "News One",
+                        cmd = "ffmpeg http://localhost/ch/536_",
+                        streamUrl = "http://localhost/ch/536_",
+                        logoUrl = "536.png"
+                    )
+                )
+            ),
+            portalUrl = "http://portal.example/stalker_portal/server/load.php",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getLiveStreams()
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.single().logoUrl)
+            .isEqualTo("http://portal.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
     fun shortEpgRequest_triesXmlKeyWhenNumericPortalKeyIsEmpty() = runTest {
         val api = FakeStalkerApiService(
             profile = StalkerProviderProfile(accountName = "Room"),

@@ -5,10 +5,13 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.FavoriteDao
+import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.entity.CategoryCount
 import com.streamvault.data.local.entity.ChannelBrowseEntity
 import com.streamvault.data.local.entity.CategoryEntity
+import com.streamvault.data.local.entity.ProviderConfigEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
@@ -17,6 +20,9 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.StalkerConfig
+import com.streamvault.domain.model.StalkerDeviceIdentity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -43,6 +49,8 @@ class ChannelRepositoryImplTest {
     private val preferencesRepository: PreferencesRepository = mock()
     private val parentalControlManager: ParentalControlManager = mock()
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver = mock()
+    private val providerSnapshotDao: ProviderSnapshotDao = mock()
+    private val providerConfigurationCodec: ProviderConfigurationCodec = mock()
 
     @Before
     fun setUpDefaults() {
@@ -58,6 +66,7 @@ class ChannelRepositoryImplTest {
         whenever(preferencesRepository.liveVariantObservations).thenReturn(flowOf(emptyMap()))
         whenever(preferencesRepository.hideDecorativeLiveRows).thenReturn(flowOf(true))
         whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
+        whenever(providerSnapshotDao.getConfigSync(any())).thenReturn(null)
     }
 
     @Test
@@ -418,6 +427,106 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `getChannels resolves stored bare stalker logos using current portal config`() = runTest {
+        whenever(channelDao.getByProvider(7L)).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 536L,
+                        streamId = 536L,
+                        name = "News One",
+                        logoUrl = "536.png",
+                        streamUrl = "https://stream/536",
+                        number = 1,
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+        whenever(providerSnapshotDao.getConfigSync(7L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 7L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-7",
+                encryptedConfigJson = "{}",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "{}"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://portal.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+
+        val result = createRepository().getChannels(7L).first()
+
+        assertThat(result.single().logoUrl)
+            .isEqualTo("http://portal.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
+    fun `getChannel reads updated stalker portal config after an edit`() = runTest {
+        whenever(channelDao.getBrowseById(536L)).thenReturn(
+            ChannelBrowseEntity(
+                id = 536L,
+                streamId = 536L,
+                name = "News One",
+                logoUrl = "536.png",
+                streamUrl = "https://stream/536",
+                number = 1,
+                providerId = 7L
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(7L))
+            .thenReturn(
+                ProviderConfigEntity(
+                    providerId = 7L,
+                    type = ProviderType.STALKER_PORTAL,
+                    schemaVersion = 1,
+                    configurationGeneration = 1L,
+                    identityKey = "stalker-7",
+                    encryptedConfigJson = "old",
+                    updatedAt = 1L
+                ),
+                ProviderConfigEntity(
+                    providerId = 7L,
+                    type = ProviderType.STALKER_PORTAL,
+                    schemaVersion = 1,
+                    configurationGeneration = 2L,
+                    identityKey = "stalker-7",
+                    encryptedConfigJson = "new",
+                    updatedAt = 2L
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "old"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://old.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "new"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://new.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+
+        val repository = createRepository()
+
+        assertThat(repository.getChannel(536L)?.logoUrl)
+            .isEqualTo("http://old.example/stalker_portal/misc/logos/120/536.png")
+        assertThat(repository.getChannel(536L)?.logoUrl)
+            .isEqualTo("http://new.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
     fun `searchChannels returns empty list when sqlite throws for malformed fts query`() = runTest {
         whenever(channelDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
@@ -481,7 +590,9 @@ class ChannelRepositoryImplTest {
         categoryFlowCache = categoryFlowCache,
         preferencesRepository = preferencesRepository,
         parentalControlManager = parentalControlManager,
-        xtreamStreamUrlResolver = xtreamStreamUrlResolver
+        xtreamStreamUrlResolver = xtreamStreamUrlResolver,
+        providerSnapshotDao = providerSnapshotDao,
+        providerConfigurationCodec = providerConfigurationCodec
     )
 
     private fun categoryEntity(
