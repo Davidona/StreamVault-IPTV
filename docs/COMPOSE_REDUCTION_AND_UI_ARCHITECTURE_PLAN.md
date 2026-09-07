@@ -1140,7 +1140,10 @@ Automated validation recorded for this checkpoint on 2026-09-06:
 
 Live TV device acceptance passed on 2026-09-06 using the `Television_1080p` AOSP TV emulator. Two channels were each captured for 61 screenshots with a two-second sleep interval between captures; both had 61 unique frame hashes and a healthy `PLAYING` media session with `error=null`. Fresh startup logs recorded HLS prepare and first-frame success for both channels. Sanitized evidence is recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md) and [`validation/phase7_player_capability/live-validation.log`](../validation/phase7_player_capability/live-validation.log).
 
-The remaining manual player smoke test and broader baseline follow-up items are not dependency-boundary blockers and remain listed in the plan checklist.
+The manual player smoke gate is now closed by the live-control focus and rewind
+validation recorded in [`validation/phase7_player_capability/README.md`](../validation/phase7_player_capability/README.md).
+External PR packaging and the broader baseline follow-up items remain listed in
+the plan checklist.
 
 ## 12. Validation strategy
 
@@ -1328,7 +1331,7 @@ The modernization is complete when:
 - [x] Add event-time freshness guards for player input and Back decisions, including numeric-channel buffer regressions.
 - [x] Complete the second no-behavior-change `ProviderSetup` decomposition slice; package it as a review PR after the remaining manual gates.
 - [x] Complete the Phase 1 `AppNavigation` policy, adapter, external-request, and graph-registration split.
-- [ ] Run a manual app smoke test for player launch, controls, remote/back handling, seeking, and overlay actions.
+- [x] Run a manual app smoke test for player launch, controls, remote/back handling, seeking, and overlay actions; see `validation/phase7_player_capability/README.md`.
 - [x] Run full multi-channel Live TV validation before marking the player phase complete; see `validation/phase7_player_capability/README.md`.
 - [x] Add or define the Macrobenchmark module and constrained-device benchmark flows.
 - [ ] Create the first no-behavior-change PR for `PlayerScreen` decomposition after the manual smoke test.
