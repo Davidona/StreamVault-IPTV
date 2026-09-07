@@ -2953,7 +2953,7 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
-    fun authenticate_tokenlessHandshake_abortsAsRateLimitedWithoutFurtherHandshakes() = runTest {
+    fun authenticate_explicitTokenlessThrottle_abortsAsRateLimitedWithoutFurtherHandshakes() = runTest {
         val requestedActions = mutableListOf<String>()
         val service = OkHttpStalkerApiService(
             okHttpClient = OkHttpClient.Builder()
@@ -2965,7 +2965,10 @@ class OkHttpStalkerApiServiceTest {
                         .protocol(Protocol.HTTP_1_1)
                         .code(200)
                         .message("OK")
-                        .body("""{"js":{}}""".toResponseBody("application/json".toMediaType()))
+                        .body(
+                            """{"js":{"msg":"Too many requests","retry_after":30}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
                         .build()
                 }
                 .build(),
@@ -2975,8 +2978,48 @@ class OkHttpStalkerApiServiceTest {
         val result = service.authenticate(stalkerProfile())
 
         assertThat(result).isInstanceOf(Result.Error::class.java)
-        assertThat((result as Result.Error).exception).isInstanceOf(StalkerApiError.RateLimited::class.java)
+        val error = (result as Result.Error).exception
+        assertThat(error).isInstanceOf(StalkerApiError.RateLimited::class.java)
+        assertThat((error as StalkerApiError.RateLimited).retryAfterMillis).isEqualTo(30_000L)
         assertThat(requestedActions).containsExactly("handshake")
+    }
+
+    @Test
+    fun authenticate_genericTokenlessHandshake_continuesEndpointAndRecipeDiscovery() = runTest {
+        val requestedActions = mutableListOf<String>()
+        var handshakeCount = 0
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    val action = request.url.queryParameter("action").orEmpty()
+                    requestedActions += action
+                    val body = when (action) {
+                        "handshake" -> if (++handshakeCount == 1) {
+                            """{"js":{}}"""
+                        } else {
+                            """{"js":{"token":"token-123","random":"abc"}}"""
+                        }
+                        "get_profile" -> """{"js":{"status":1,"name":"Living Room"}}"""
+                        else -> """{"js":{}}"""
+                    }
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(body.toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.authenticate(stalkerProfile())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(handshakeCount).isAtLeast(2)
+        assertThat(requestedActions).contains("get_profile")
     }
 
     @Test

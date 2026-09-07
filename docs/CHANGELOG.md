@@ -20,7 +20,8 @@ All notable product changes are recorded in this document.
 - Fixed grouped VOD browse pagination and infinite scroll by using cursor windows, deduplicating before offset/limit application, and handling zero-timestamp catalog entries consistently.
 - Fixed provider configuration decoding after typed-provider migrations that omitted the embedded configuration type, preserving access to existing provider settings and credentials.
 - Added measured frame-rate and stream-bitrate diagnostics for IPTV playback, including MPEG-TS streams that omit these values from their metadata.
-- Improved Stalker authentication resilience by stopping repeated handshakes after soft throttles, reusing short-lived encrypted sessions across provider instances and process restarts, and restoring session cookies for resumed API requests.
+- Improved Stalker authentication resilience by stopping repeated handshakes after explicit soft-throttle signals, reusing short-lived encrypted sessions across provider instances and process restarts, and restoring session cookies for resumed API requests.
+- Fixed Stalker compatibility discovery treating every tokenless HTTP 200 response as a rate limit; generic endpoint or recipe responses now continue through fallback discovery.
 - Fixed Stalker VOD category layout drift by retargeting stale stored category types before synchronization instead of forcing an unnecessary catalog re-download.
 
 ## [1.0.17]

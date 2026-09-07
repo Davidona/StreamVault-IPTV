@@ -212,20 +212,22 @@ class OkHttpStalkerApiService @Inject constructor(
                     val token = handshakePayload.findString("token")
                         ?.takeIf { it.isNotBlank() }
                         ?: run {
-                            // A 200 without a token is a soft throttle. Stop discovery rather
-                            // than firing more handshakes into the portal limiter.
-                            val throttled = StalkerApiError.RateLimited(
-                                message = "Portal handshake did not return a token.",
-                                httpStatus = 200
-                            )
+                            // A tokenless 200 is ambiguous: it may be a soft throttle, but it
+                            // may also be an incompatible endpoint or a portal response that
+                            // needs another discovery recipe. Explicit throttle markers are
+                            // handled by ensureNoPortalError(); keep the generic case eligible
+                            // for endpoint/recipe fallback.
+                            val missingToken = IOException("Portal handshake did not return a token.")
+                            failedHandshakeAttempts += handshakeAttemptKey
                             StalkerTelemetry.authenticationAttempt(
                                 profile.providerId,
                                 recipe.compatibilityProfileId,
                                 endpointFamily,
                                 "HANDSHAKE",
-                                authenticationFailureOutcome(throttled)
+                                authenticationFailureOutcome(missingToken)
                             )
-                            return Result.error(throttled.message.orEmpty(), throttled)
+                            lastError = preferredAuthenticationFailure(lastError, missingToken)
+                            continue
                         }
                     val handshakeRandom = handshakePayload.findString("random").orEmpty()
                     resolvedLoadUrl(loadUrl, attemptProfile)?.let { redirectedLoadUrl ->
@@ -2101,6 +2103,7 @@ class OkHttpStalkerApiService @Inject constructor(
         if (findBoolean("not_valid_token") == true) {
             throw invalidTokenError()
         }
+        explicitRateLimitError()?.let { throw it }
         // Some Ministra/Stalker families return workflow failures as a scalar `js`
         // payload instead of the usual `{ "js": { "error": ... } }` envelope.
         // Treat that scalar as a portal outcome so create_link cannot degrade
@@ -2119,6 +2122,50 @@ class OkHttpStalkerApiService @Inject constructor(
         val message = rootObjectOrNull()?.findString("msg")
             ?: findString("msg")
         message?.let { authorizationMessage(it)?.let { error -> throw error } }
+    }
+
+    /**
+     * A tokenless HTTP 200 is not, by itself, evidence of throttling. Only classify a
+     * response as a soft rate limit when the portal provides an explicit signal.
+     */
+    private fun JsonElement.explicitRateLimitError(): StalkerApiError.RateLimited? {
+        val payload = payloadObjectOrNull() ?: return null
+        val message = listOf("error", "msg", "message", "reason", "detail")
+            .mapNotNull { key -> payload.findString(key) }
+            .firstOrNull()
+        val retryAfterMillis = payload.retryAfterMillisOrNull()
+        val hasRetryAfter = listOf(
+            "retry_after",
+            "retry-after",
+            "retryAfter",
+            "retry_after_ms",
+            "retryAfterMillis"
+        ).any { key -> payload.containsKey(key) }
+        val hasRateLimitFlag = listOf("rate_limit", "rate_limited", "ratelimited", "throttled", "throttle")
+            .any { key ->
+                payload.findBoolean(key) == true ||
+                    payload.findString(key)?.lowercase(Locale.ROOT) in setOf(
+                        "rate_limit",
+                        "rate_limited",
+                        "ratelimited",
+                        "throttled",
+                        "throttle",
+                        "true",
+                        "1",
+                        "yes"
+                    )
+            }
+        val hasRateLimitCode = listOf("status", "code", "http_status", "httpStatus")
+            .any { key -> payload.findString(key)?.toIntOrNull() == 429 }
+        val hasRateLimitText = message?.isExplicitRateLimitMessage() == true
+        if (!hasRetryAfter && !hasRateLimitFlag && !hasRateLimitCode && !hasRateLimitText) {
+            return null
+        }
+        return StalkerApiError.RateLimited(
+            message = message ?: "Portal handshake was rate limited.",
+            httpStatus = 200,
+            retryAfterMillis = retryAfterMillis
+        )
     }
 
     /**
@@ -2380,6 +2427,8 @@ class OkHttpStalkerApiService @Inject constructor(
         if (raw.isBlank() || isPlaceholderErrorValue(raw)) return null
         val normalized = raw.lowercase(Locale.ROOT)
         return when {
+            raw.isExplicitRateLimitMessage() ->
+                StalkerApiError.RateLimited(message = raw, httpStatus = 200)
             normalized == "nothing_to_play" || normalized.contains("nothing to play") ->
                 StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
             listOf("not valid mac", "invalid mac").any(normalized::contains) ->
@@ -3603,6 +3652,38 @@ class OkHttpStalkerApiService @Inject constructor(
     private fun JsonObject.findInt(key: String): Int? {
         val element = this[key] as? JsonPrimitive ?: return null
         return element.contentOrNull?.trim()?.toIntOrNull()
+    }
+
+    private fun JsonObject.retryAfterMillisOrNull(): Long? {
+        val milliseconds = listOf("retry_after_ms", "retryAfterMillis")
+            .firstOrNull { key -> containsKey(key) }
+            ?.let { key -> findString(key) }
+            ?.toLongOrNull()
+            ?.coerceAtLeast(0L)
+        if (milliseconds != null) return milliseconds
+        return listOf("retry_after", "retry-after", "retryAfter")
+            .firstOrNull { key -> containsKey(key) }
+            ?.let { key -> findString(key) }
+            ?.toLongOrNull()
+            ?.coerceAtLeast(0L)
+            ?.times(1000L)
+    }
+
+    private fun String.isExplicitRateLimitMessage(): Boolean {
+        val normalized = lowercase(Locale.ROOT)
+            .replace('_', ' ')
+            .replace('-', ' ')
+        return normalized == "429" || listOf(
+            "rate limit",
+            "rate limited",
+            "ratelimited",
+            "too many requests",
+            "request throttled",
+            "throttled",
+            "throttle",
+            "http 429",
+            "status 429"
+        ).any(normalized::contains)
     }
 
     private fun GsonJsonObject.findString(key: String): String? {
