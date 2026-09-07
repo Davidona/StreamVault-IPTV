@@ -10,6 +10,7 @@ All notable product changes are recorded in this document.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
 - Improved Stalker EPG synchronization by increasing channel batch sizes from 500 to 5,000, reducing request overhead for large channel lineups while retaining bounded processing.
+- Fixed native EPG resolution for large channel lineups by chunking program lookups to stay below SQLite bind-variable limits on older Android devices.
 - Reduced storage usage by limiting the shared HTTP cache to 16 MiB and pruning past EPG entries after 12 hours when a provider does not require a longer catch-up window.
 - Added VOD category pinning for Movies and Series, with pin-first browsing, Android TV pin controls, and pinned category content shelves on the Home dashboard.
 - Improved device orientation behavior by allowing portrait rotation on phones and tablets while keeping Android TV and Fire TV interfaces locked to landscape.
