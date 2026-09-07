@@ -143,3 +143,7 @@ internal fun isStalkerAuthorizationFailure(message: String, error: Throwable?): 
         "http 403"
     ).any(normalized::contains)
 }
+
+/** True when the portal is hard- or soft-throttling authentication attempts. */
+internal fun Throwable.isPortalThrottle(): Boolean =
+    generateSequence(this) { it.cause }.any { it is StalkerApiError.RateLimited }

@@ -145,6 +145,7 @@ internal class StalkerCatalogSyncExecutor(
             }
         }
         readinessTracker.authenticated(provider.id)
+        reconcileStoredCategoryTypes(provider.id, effectiveCatalogLayout)
 
         var metadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
         val now = System.currentTimeMillis()
@@ -342,6 +343,33 @@ internal class StalkerCatalogSyncExecutor(
                 preservedActiveCatalog -> SyncActivation.PRESERVED_ACTIVE_CATALOG
                 else -> SyncActivation.NO_CATALOG_CHANGE
             }
+        )
+    }
+
+    /** Relabels legacy VOD category rows when persisted layout and stored type disagree. */
+    private suspend fun reconcileStoredCategoryTypes(
+        providerId: Long,
+        effectiveCatalogLayout: CatalogLayout
+    ) {
+        if (effectiveCatalogLayout != CatalogLayout.UNIFIED_VOD &&
+            effectiveCatalogLayout != CatalogLayout.SPLIT
+        ) {
+            return
+        }
+        val (expectedType, legacyType) = if (effectiveCatalogLayout == CatalogLayout.UNIFIED_VOD) {
+            ContentType.VOD.name to ContentType.MOVIE.name
+        } else {
+            ContentType.MOVIE.name to ContentType.VOD.name
+        }
+        val expected = categoryDao.getByProviderAndTypeSync(providerId, expectedType)
+        if (expected.isNotEmpty()) return
+        val legacy = categoryDao.getByProviderAndTypeSync(providerId, legacyType)
+        if (legacy.isEmpty()) return
+        val relabeled = categoryDao.retargetType(providerId, legacyType, expectedType)
+        Log.i(
+            STALKER_EXECUTOR_TAG,
+            "Retargeted $relabeled $legacyType categories to $expectedType for provider $providerId " +
+                "to match $effectiveCatalogLayout without re-downloading items."
         )
     }
 

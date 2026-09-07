@@ -96,6 +96,7 @@ class OkHttpStalkerApiService @Inject constructor(
 
     private data class SessionScope(
         val cookieJar: InMemoryStalkerCookieJar = InMemoryStalkerCookieJar(),
+        @Volatile var restoredCookieHeader: String = "",
         @Volatile var macQueryRequired: Boolean = false,
         @Volatile var lastAccessAt: Long = System.currentTimeMillis()
     )
@@ -176,6 +177,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     val attemptProfile = profile.withRecipe(recipe, effectiveAuthMode)
                     val sessionScope = sessionScopeFor(attemptProfile)
                     sessionScope.cookieJar.clear()
+                    sessionScope.restoredCookieHeader = ""
                     val cookieJar = sessionScope.cookieJar
                     // Compatibility discovery is per authentication scope. A portal may
                     // change its request contract between profiles/endpoints, so do not
@@ -210,8 +212,20 @@ class OkHttpStalkerApiService @Inject constructor(
                     val token = handshakePayload.findString("token")
                         ?.takeIf { it.isNotBlank() }
                         ?: run {
-                            lastError = IOException("Portal handshake did not return a token.")
-                            continue
+                            // A 200 without a token is a soft throttle. Stop discovery rather
+                            // than firing more handshakes into the portal limiter.
+                            val throttled = StalkerApiError.RateLimited(
+                                message = "Portal handshake did not return a token.",
+                                httpStatus = 200
+                            )
+                            StalkerTelemetry.authenticationAttempt(
+                                profile.providerId,
+                                recipe.compatibilityProfileId,
+                                endpointFamily,
+                                "HANDSHAKE",
+                                authenticationFailureOutcome(throttled)
+                            )
+                            return Result.error(throttled.message.orEmpty(), throttled)
                         }
                     val handshakeRandom = handshakePayload.findString("random").orEmpty()
                     resolvedLoadUrl(loadUrl, attemptProfile)?.let { redirectedLoadUrl ->
@@ -1270,6 +1284,16 @@ class OkHttpStalkerApiService @Inject constructor(
             ?.cookieHeaderFor(session.loadUrl)
             .orEmpty()
             .ifBlank { session.serverCookieHeader }
+
+    override fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) {
+        val scopeKey = session.sessionScopeKey.takeIf { it.isNotBlank() } ?: sessionScopeKey(profile)
+        val scope = sessionScopes.computeIfAbsent(scopeKey) {
+            SessionScope(lastAccessAt = System.currentTimeMillis())
+        }
+        scope.lastAccessAt = System.currentTimeMillis()
+        scope.restoredCookieHeader = session.serverCookieHeader
+        scopeAliases[sessionScopeAliasKey(profile)] = scopeKey
+    }
 
     override fun invalidateSessionScopes(providerId: Long) {
         val prefix = "provider:$providerId|"
@@ -2721,13 +2745,19 @@ class OkHttpStalkerApiService @Inject constructor(
         profile.macAddress.takeIf { it.isNotBlank() }?.let { cookies["mac"] = encode(it) }
         profile.locale.takeIf { it.isNotBlank() }?.let { cookies["stb_lang"] = encode(it) }
         profile.timezone.takeIf { it.isNotBlank() }?.let { cookies["timezone"] = encode(it) }
-        cookieJarFor(profile).cookieHeaderFor(url).split(';')
-            .mapNotNull { part ->
-                val key = part.substringBefore('=', missingDelimiterValue = "").trim()
-                val value = part.substringAfter('=', missingDelimiterValue = "").trim()
-                key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
-        }.forEach { (key, value) ->
-            cookies.putIfAbsent(key, value)
+        val sessionScope = sessionScopeFor(profile)
+        listOf(
+            sessionScope.cookieJar.cookieHeaderFor(url),
+            sessionScope.restoredCookieHeader
+        ).forEach { header ->
+            header.split(';')
+                .mapNotNull { part ->
+                    val key = part.substringBefore('=', missingDelimiterValue = "").trim()
+                    val value = part.substringAfter('=', missingDelimiterValue = "").trim()
+                    key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
+                }.forEach { (key, value) ->
+                    cookies.putIfAbsent(key, value)
+                }
         }
         return cookies.entries.joinToString("; ") { (key, value) -> "$key=$value" }
     }
@@ -2872,11 +2902,8 @@ class OkHttpStalkerApiService @Inject constructor(
 
     private fun sessionScopeFor(profile: StalkerDeviceProfile): SessionScope {
         val now = System.currentTimeMillis()
-        val key = if (profile.authEpoch > 0L) {
-            sessionScopeKey(profile)
-        } else {
-            scopeAliases[sessionScopeAliasKey(profile)] ?: sessionScopeKey(profile)
-        }
+        val key = scopeAliases[sessionScopeAliasKey(profile)]
+            ?: sessionScopeKey(profile)
         val scope = sessionScopes.computeIfAbsent(key) { SessionScope(lastAccessAt = now) }
         scope.lastAccessAt = now
         if (sessionScopes.size > MAX_SESSION_SCOPES) {

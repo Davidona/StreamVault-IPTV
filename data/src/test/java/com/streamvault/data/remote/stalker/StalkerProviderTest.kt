@@ -6,6 +6,7 @@ import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.dao.StalkerRemoteIdentityDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.local.entity.StalkerRemoteIdentityEntity
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ProviderStatus
@@ -19,6 +20,7 @@ import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import java.util.Base64
 
 class StalkerProviderTest {
 
@@ -333,7 +335,7 @@ class StalkerProviderTest {
     @Test
     fun authenticate_recovers_when_saved_endpoint_and_recipe_are_cooling_down() = runTest {
         val dao = FakePortalStateDao()
-        val stateStore = StalkerPortalStateStore(dao)
+        val stateStore = StalkerPortalStateStore(dao, TestCredentialCrypto())
         dao.upsert(
             StalkerPortalStateEntity(
                 providerId = 7L,
@@ -413,6 +415,116 @@ class StalkerProviderTest {
         assertThat(firstProvider.authenticate()).isInstanceOf(Result.Success::class.java)
         assertThat(secondProvider.authenticate()).isInstanceOf(Result.Success::class.java)
 
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_reusesSessionAcrossInstancesWithDifferentLearnedHints() = runTest {
+        val activationApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val syncApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val activation = StalkerProvider(
+            providerId = 21,
+            api = activationApi,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(activation.authenticate()).isInstanceOf(Result.Success::class.java)
+
+        val sync = StalkerProvider(
+            providerId = 21,
+            api = syncApi,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            magPresetHint = com.streamvault.domain.model.StalkerMagPreset.MAG254_STRICT,
+            bootstrapRecipeHint = StalkerBootstrapRecipe.STRICT_MAG,
+            endpointPreferenceHint = com.streamvault.domain.model.StalkerEndpointPreference.SERVER_LOAD,
+            cookieModeHint = com.streamvault.domain.model.StalkerCookieMode.BOTH,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(sync.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(activationApi.authenticateCalls).isEqualTo(1)
+        assertThat(syncApi.authenticateCalls).isEqualTo(0)
+        assertThat(syncApi.restoreSessionCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_resumesPersistedSessionAfterProcessRestartWithoutHandshake() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val api = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val first = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(first.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+
+        StalkerProvider.clearSharedAuthCacheForTests()
+        val restarted = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(restarted.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+        assertThat(api.restoreSessionCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_skipsEndpointRepairRetryWhenThrottled() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        store.recordAuthentication(
+            providerId = 23,
+            session = StalkerSession(
+                loadUrl = "https://portal.example.com/server/load.php",
+                portalReferer = "https://portal.example.com/c/",
+                token = "stale-token"
+            ),
+            profile = StalkerProviderProfile(accountName = "Room"),
+            configurationGeneration = 0L
+        )
+        store.clearResumableAuth(23)
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            authenticationError = StalkerApiError.RateLimited()
+        )
+        val provider = StalkerProvider(
+            providerId = 23,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        val result = provider.authenticate()
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
         assertThat(api.authenticateCalls).isEqualTo(1)
     }
 
@@ -1124,11 +1236,14 @@ class StalkerProviderTest {
         private val seriesCategoriesResult: Result<List<StalkerCategoryRecord>>? = null,
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
-        private var authenticationFailuresBeforeSuccess: Int = 0
+        private var authenticationFailuresBeforeSuccess: Int = 0,
+        private val authenticationError: Throwable? = null
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
         var authenticateCalls: Int = 0
+            private set
+        var restoreSessionCalls: Int = 0
             private set
         var lastAuthenticateProfile: StalkerDeviceProfile? = null
             private set
@@ -1139,6 +1254,9 @@ class StalkerProviderTest {
             if (authenticationFailuresBeforeSuccess > 0) {
                 authenticationFailuresBeforeSuccess -= 1
                 return Result.error("authentication failed")
+            }
+            authenticationError?.let { error ->
+                return Result.error(error.message.orEmpty(), error)
             }
             return Result.success(
                 StalkerSession(
@@ -1264,6 +1382,10 @@ class StalkerProviderTest {
         }
 
         override fun currentCookieHeader(session: StalkerSession): String = currentCookieHeader
+
+        override fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) {
+            restoreSessionCalls += 1
+        }
     }
 
     private class FakePortalStateDao : StalkerPortalStateDao {
@@ -1276,6 +1398,14 @@ class StalkerProviderTest {
         }
 
         override suspend fun invalidate(providerId: Long): Int = if (rows.remove(providerId) != null) 1 else 0
+    }
+
+    private class TestCredentialCrypto : CredentialCrypto {
+        override fun encryptIfNeeded(value: String): String =
+            "enc:test:" + Base64.getEncoder().encodeToString(value.toByteArray(Charsets.UTF_8))
+
+        override fun decryptIfNeeded(value: String): String =
+            String(Base64.getDecoder().decode(value.removePrefix("enc:test:")), Charsets.UTF_8)
     }
 
     @Test

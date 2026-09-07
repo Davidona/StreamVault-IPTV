@@ -300,6 +300,9 @@ interface StalkerApiService {
     /** Removes all in-memory transport/session state owned by one provider. */
     fun invalidateSessionScopes(providerId: Long) = Unit
 
+    /** Restores persisted session transport state before a resumed request. */
+    fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) = Unit
+
     suspend fun getLiveCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile

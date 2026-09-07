@@ -3,10 +3,12 @@ package com.streamvault.data.remote.stalker
 import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.StalkerCookieMode
 import com.streamvault.domain.model.StalkerEndpointPreference
 import com.streamvault.domain.model.StalkerPlaybackBackendHint
+import com.google.gson.Gson
 import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,13 +17,18 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 
 @Singleton
 class StalkerPortalStateStore @Inject constructor(
     private val dao: StalkerPortalStateDao,
+    private val credentialCrypto: CredentialCrypto,
     private val providerSnapshotDao: ProviderSnapshotDao? = null
 ) {
     private val json = Json { ignoreUnknownKeys = true }
+    private val gson = Gson()
 
     suspend fun getValidated(providerId: Long, now: Long = System.currentTimeMillis()): StalkerPortalStateEntity? =
         dao.get(providerId)?.takeIf { state ->
@@ -29,6 +36,62 @@ class StalkerPortalStateStore @Inject constructor(
         }
 
     suspend fun get(providerId: Long): StalkerPortalStateEntity? = dao.get(providerId)
+
+    /**
+     * Durable session resurrected after a process restart. The session envelope is encrypted
+     * with the app's Keystore-backed credential crypto and is only reused for the same
+     * configuration generation inside the local session age cap.
+     */
+    data class ResumedStalkerAuth(
+        val session: StalkerSession,
+        val profile: StalkerProviderProfile
+    )
+
+    suspend fun resumableAuth(
+        providerId: Long,
+        configurationGeneration: Long,
+        now: Long = System.currentTimeMillis(),
+        maxAgeMillis: Long = STALKER_SESSION_MAX_AGE_MILLIS
+    ): ResumedStalkerAuth? {
+        if (providerId <= 0L) return null
+        val state = dao.get(providerId) ?: return null
+        if (state.configurationGeneration != configurationGeneration) return null
+        val learning = runCatching {
+            json.parseToJsonElement(state.learningJson.ifBlank { "{}" }).jsonObject
+        }.getOrNull() ?: return null
+        if (learning["configurationGeneration"]?.jsonPrimitive?.longOrNull != configurationGeneration) {
+            return null
+        }
+        val session = runCatching {
+            val encrypted = learning["resumableSession"]?.jsonPrimitive?.content ?: return@runCatching null
+            gson.fromJson(
+                credentialCrypto.decryptIfNeeded(encrypted),
+                StalkerSession::class.java
+            )
+        }.getOrNull() ?: return null
+        val profile = runCatching {
+            val encoded = learning["resumableProfile"]?.jsonPrimitive?.content ?: return@runCatching null
+            gson.fromJson(encoded, StalkerProviderProfile::class.java)
+        }.getOrNull() ?: return null
+        if (session.token.isBlank()) return null
+        if (profile.profileRevision != StalkerCompatibilityRegistry.REVISION) return null
+        if (now - session.authenticatedAtMillis > maxAgeMillis) return null
+        if (session.isExpired(now)) return null
+        if (profile.expirationDate?.let { it <= now } == true) return null
+        return ResumedStalkerAuth(session, profile)
+    }
+
+    /** Drops a persisted session after the portal rejects its token without touching hints. */
+    suspend fun clearResumableAuth(providerId: Long) {
+        if (providerId <= 0L) return
+        update(providerId) { state ->
+            val learning = mutableLearning(state.learningJson)
+            if (learning.remove("resumableSession") == null && learning.remove("resumableProfile") == null) {
+                return@update state
+            }
+            state.copy(learningJson = JsonObject(learning).toString())
+        }
+    }
 
     suspend fun recordAuthentication(
         providerId: Long,
@@ -358,6 +421,10 @@ class StalkerPortalStateStore @Inject constructor(
         learning["protocolFamily"] = observationJson(profile.protocolFamily.name, generation, observedAt, "AUTHENTICATION")
         learning["bootstrapRecipe"] = observationJson(profile.bootstrapRecipe.name, generation, observedAt, "AUTHENTICATION")
         learning["workingEndpoint"] = observationJson(session.loadUrl, generation, observedAt, "AUTHENTICATION")
+        learning["resumableSession"] = JsonPrimitive(
+            credentialCrypto.encryptIfNeeded(gson.toJson(session))
+        )
+        learning["resumableProfile"] = JsonPrimitive(gson.toJson(profile))
         return JsonObject(learning).toString()
     }
 
