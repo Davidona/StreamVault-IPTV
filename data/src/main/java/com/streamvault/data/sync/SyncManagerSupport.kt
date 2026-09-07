@@ -29,6 +29,7 @@ internal data class SyncContinuation(
 )
 
 internal enum class SyncContinuationOperation {
+    FULL_CATALOG,
     INDEX_CATALOG,
     REFRESH_GUIDE
 }

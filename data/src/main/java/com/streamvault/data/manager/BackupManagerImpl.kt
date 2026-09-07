@@ -227,6 +227,7 @@ class BackupManagerImpl @Inject constructor(
                 put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
                 put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
                 put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+                put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
                 put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
                 put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
                 put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
@@ -3160,6 +3161,7 @@ class BackupManagerImpl @Inject constructor(
             put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
             put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
             put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+            put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
             put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
             put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
             put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
@@ -3662,6 +3664,8 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setVodViewMode(it) }
         prefs["vodInfiniteScroll"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setVodInfiniteScroll(it) }
+        prefs["vodPortalSearch"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setVodPortalSearch(it) }
         prefs["vodCategoryLoadMode"]?.let { savedMode ->
             preferencesRepository.setVodCategoryLoadMode(
                 com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(savedMode)

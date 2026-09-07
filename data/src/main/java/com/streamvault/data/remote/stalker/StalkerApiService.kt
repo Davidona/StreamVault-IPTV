@@ -338,6 +338,14 @@ interface StalkerApiService {
         page: Int
     ): Result<StalkerPagedItems>
 
+    suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPage(session, profile, categoryId, page)
+
     suspend fun getSeriesCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile

@@ -52,6 +52,7 @@ private const val STALKER_BULK_LIVE_UNSUPPORTED_TTL_MILLIS = 6 * 60 * 60 * 1000L
 private const val LIVE_CATEGORY_SEQUENTIAL_MODE_WARNING =
     "Live category sync downgraded to sequential mode after provider stress signals."
 private const val FALLBACK_STAGE_BATCH_SIZE = 500
+private const val STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP = 200
 
 /** Owns Stalker authentication, full catalog orchestration, and Live repair execution. */
 internal class StalkerCatalogSyncExecutor(
@@ -87,7 +88,8 @@ internal class StalkerCatalogSyncExecutor(
         force: Boolean,
         onProgress: ((String) -> Unit)?,
         afterCatalogApply: suspend () -> Unit = {},
-        deferProviderStateUntilCatalogCommit: Boolean = false
+        deferProviderStateUntilCatalogCommit: Boolean = false,
+        bootstrap: Boolean = false
     ): SyncOutcome {
         val warnings = mutableListOf<String>()
         val continuationWork = mutableListOf<SyncContinuation>()
@@ -165,11 +167,12 @@ internal class StalkerCatalogSyncExecutor(
                 hiddenLiveCategoryIds = hiddenLiveCategoryIds,
                 requiredHiddenLiveCategoryIds = requiredHiddenLiveCategoryIds,
                 onProgress = onProgress,
+                maxChannels = STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP.takeIf { bootstrap },
                 afterCatalogApply = catalogCommitCallback
             )
             metadata = metadata.copy(
                 lastLiveSync = now,
-                lastLiveSuccess = now,
+                lastLiveSuccess = if (bootstrap) metadata.lastLiveSuccess else now,
                 liveCount = liveCatalogResult.acceptedCount
             )
             liveCount = liveCatalogResult.acceptedCount
@@ -230,7 +233,9 @@ internal class StalkerCatalogSyncExecutor(
                 if (storedCategoryType == ContentType.VOD) ContentType.MOVIE.name else ContentType.VOD.name
             )
             movieCategoryCount = categories.size
-            if (effectiveCatalogLayout != CatalogLayout.UNIFIED_VOD && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+            if (!bootstrap && effectiveCatalogLayout != CatalogLayout.UNIFIED_VOD &&
+                provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
+            ) {
                 sectionExecutor.queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
             }
             metadata = metadata.copy(
@@ -281,7 +286,7 @@ internal class StalkerCatalogSyncExecutor(
             )
             catalogActivated = true
             seriesCategoryCount = categories.size
-            if (provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
                 sectionExecutor.queueIndexSection(provider.id, ContentType.SERIES, categories.size, now)
             }
             metadata = metadata.copy(
@@ -299,7 +304,7 @@ internal class StalkerCatalogSyncExecutor(
         }
         readinessTracker.categoriesReady(provider.id)
 
-        if (queuedMovieIndex) {
+        if (!bootstrap && queuedMovieIndex) {
             continuationWork += SyncContinuation(
                 operation = SyncContinuationOperation.INDEX_CATALOG,
                 section = ContentType.MOVIE,
@@ -307,7 +312,7 @@ internal class StalkerCatalogSyncExecutor(
                 force = force
             )
         }
-        if (queuedSeriesIndex) {
+        if (!bootstrap && queuedSeriesIndex) {
             continuationWork += SyncContinuation(
                 operation = SyncContinuationOperation.INDEX_CATALOG,
                 section = ContentType.SERIES,
@@ -315,7 +320,13 @@ internal class StalkerCatalogSyncExecutor(
                 force = force
             )
         }
-        when (provider.epgSyncMode) {
+        if (bootstrap) {
+            continuationWork += SyncContinuation(
+                operation = SyncContinuationOperation.FULL_CATALOG,
+                reason = "bootstrap catalog is committed; durable full provider sync is queued",
+                force = true
+            )
+        } else when (provider.epgSyncMode) {
             ProviderEpgSyncMode.UPFRONT -> warnings += syncProviderEpg(
                 provider,
                 metadata,
@@ -417,7 +428,8 @@ internal class StalkerCatalogSyncExecutor(
         hiddenLiveCategoryIds: Set<Long>,
         requiredHiddenLiveCategoryIds: Set<Long>,
         onProgress: ((String) -> Unit)?,
-        afterCatalogApply: suspend () -> Unit = {}
+        afterCatalogApply: suspend () -> Unit = {},
+        maxChannels: Int? = null
     ): StagedStalkerLiveCatalogResult {
         val warnings = mutableListOf<String>()
         var categoriesErrorMessage: String? = null
@@ -509,11 +521,11 @@ internal class StalkerCatalogSyncExecutor(
             )
             val streamResult = if (shouldTryBulk) {
                 withBulkLiveStallTimeout { markBulkProgress ->
-                    api.streamLiveStreams { channel ->
+                    api.streamLiveStreams(maxChannels = maxChannels) { channel ->
                         markBulkProgress()
                         if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds && channel.categoryId !in requiredHiddenLiveCategoryIds) return@streamLiveStreams
                         if (channel.categoryId != null) bulkRowsWithResolvedCategories++
-                        batch += channel
+                        if (maxChannels == null || acceptedCount + batch.size < maxChannels) batch += channel
                         if (batch.size >= FALLBACK_STAGE_BATCH_SIZE) {
                             flushBatch()
                             progress(provider.id, onProgress, "Loading live channels... $acceptedCount imported")
@@ -570,7 +582,9 @@ internal class StalkerCatalogSyncExecutor(
                 onProgress
             )
             warnings += fallbackResult.warnings
-            fallbackResult.channels.forEach { channel ->
+            fallbackResult.channels
+                .take(maxChannels ?: Int.MAX_VALUE)
+                .forEach { channel ->
                 if (channel.categoryId != null && channel.categoryId in hiddenLiveCategoryIds && channel.categoryId !in requiredHiddenLiveCategoryIds) return@forEach
                 batch += channel
                 if (batch.size >= FALLBACK_STAGE_BATCH_SIZE) flushBatch()

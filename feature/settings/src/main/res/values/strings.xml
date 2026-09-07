@@ -203,6 +203,9 @@
     <string name="settings_vod_infinite_scroll">Infinite scroll</string>
     <string name="settings_vod_infinite_scroll_off">Show a Load more button for the next page.</string>
     <string name="settings_vod_infinite_scroll_on">Load the next page as you scroll near the end.</string>
+    <string name="settings_vod_portal_search">Portal-backed VOD search</string>
+    <string name="settings_vod_portal_search_off">Use the locally indexed VOD catalog for search.</string>
+    <string name="settings_vod_portal_search_on">Ask Stalker portals to search VOD before the full catalog is indexed.</string>
     <string name="settings_retry_epg">Retry EPG</string>
     <string name="settings_retry_movies">Retry Movies</string>
     <string name="settings_retry_series">Retry Series</string>

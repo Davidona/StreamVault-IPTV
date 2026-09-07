@@ -160,6 +160,7 @@ data class SettingsUiState(
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val vodCategoryLoadMode: VodCategoryLoadMode = VodCategoryLoadMode.PAGED,
     val vodInfiniteScroll: Boolean = true,
+    val vodPortalSearch: Boolean = true,
     val vodDuplicateHandlingMode: VodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,
     val vodVariantPreferenceMode: VodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,
     val guideDefaultCategoryId: Long = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,

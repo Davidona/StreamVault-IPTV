@@ -409,6 +409,38 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun searchVodPage_forwardsQuery_andKeepsMixedResults() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie",
+                    streamUrl = "https://cdn.example.com/movie.mp4",
+                    isSeries = false
+                ),
+                StalkerItemRecord(id = "200", name = "Series", isSeries = true)
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 15,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:62",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.searchVodPage("  mix  ", 1)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.lastVodSearchQuery).isEqualTo("mix")
+        assertThat((result as Result.Success).data.items.map { it.rawItemId })
+            .containsExactly("100", "200").inOrder()
+    }
+
+    @Test
     fun authenticate_maps_expired_date_to_expired() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
@@ -1392,6 +1424,7 @@ class StalkerProviderTest {
             private set
         val shortEpgCalls: MutableList<String> = mutableListOf()
         val epgCalls: MutableList<String> = mutableListOf()
+        var lastVodSearchQuery: String? = null
 
         override suspend fun authenticate(profile: StalkerDeviceProfile): Result<Pair<StalkerSession, StalkerProviderProfile>> {
             authenticateCalls += 1
@@ -1449,6 +1482,17 @@ class StalkerProviderTest {
             categoryId: String?,
             page: Int
         ) = Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+
+        override suspend fun getVodStreamsPage(
+            session: StalkerSession,
+            profile: StalkerDeviceProfile,
+            categoryId: String?,
+            page: Int,
+            searchQuery: String?
+        ) = run {
+            lastVodSearchQuery = searchQuery
+            Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        }
 
         override suspend fun getSeriesCategories(
             session: StalkerSession,

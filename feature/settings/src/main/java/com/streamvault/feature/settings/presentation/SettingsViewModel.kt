@@ -624,6 +624,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setVodPortalSearch(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setVodPortalSearch(enabled)
+        }
+    }
+
     fun setVodCompleteOnOpen(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setVodCategoryLoadMode(

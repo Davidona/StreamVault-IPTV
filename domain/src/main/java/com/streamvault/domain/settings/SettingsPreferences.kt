@@ -365,6 +365,10 @@ interface SettingsPreferences {
 
     suspend fun setVodInfiniteScroll(enabled: Boolean)
 
+    val vodPortalSearch: Flow<Boolean>
+
+    suspend fun setVodPortalSearch(enabled: Boolean)
+
     val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode>
 
     suspend fun setVodCategoryLoadMode(mode: com.streamvault.domain.model.VodCategoryLoadMode)

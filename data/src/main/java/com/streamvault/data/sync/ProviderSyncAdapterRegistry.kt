@@ -10,6 +10,7 @@ internal data class FullProviderSyncRequest(
     val force: Boolean,
     val onProgress: ((String) -> Unit)?,
     val trackInitialLiveOnboarding: Boolean,
+    val bootstrap: Boolean = false,
     val deferProviderStateUntilCatalogCommit: Boolean,
     val afterCatalogApply: suspend () -> Unit
 )

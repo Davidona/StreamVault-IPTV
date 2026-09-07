@@ -12,9 +12,22 @@ import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.local.entity.VodCatalogEntryEntity
 import com.streamvault.data.local.entity.VodCategoryHydrationEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderCapabilityResolver
+import com.streamvault.data.provider.TypedProviderClientFactory
+import com.streamvault.data.remote.stalker.StalkerPagedResult
+import com.streamvault.data.remote.stalker.StalkerProvider
+import com.streamvault.data.remote.stalker.StalkerVodCatalogItem
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.Provider
+import com.streamvault.domain.model.ProviderSnapshot
+import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.Series
+import com.streamvault.domain.model.StalkerConfig
+import com.streamvault.domain.model.StalkerDeviceIdentity
+import com.streamvault.domain.model.VodSearchResult
 import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -23,6 +36,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -36,6 +51,8 @@ class VodRepositoryImplTest {
     private val categoryDao = mock<CategoryDao>()
     private val preferences = mock<PreferencesRepository>()
     private val syncManager = mock<SyncManager>()
+    private val capabilityResolver = mock<ProviderCapabilityResolver>()
+    private val typedProviderFactory = mock<TypedProviderClientFactory>()
 
     private fun repository() = VodRepositoryImpl(
         movieDao,
@@ -44,8 +61,86 @@ class VodRepositoryImplTest {
         entryDao,
         categoryDao,
         preferences,
-        syncManager
+        syncManager,
+        capabilityResolver,
+        typedProviderFactory
     )
+
+    private fun stalkerSnapshot(providerId: Long): ProviderSnapshot = ProviderSnapshot(
+        provider = Provider(
+            id = providerId,
+            name = "Portal",
+            type = ProviderType.STALKER_PORTAL
+        ),
+        configuration = StalkerConfig(
+            portalUrl = "https://portal.example.com/stalker_portal/server/load.php",
+            device = StalkerDeviceIdentity(macAddress = "00:11:22:33:44:55")
+        ),
+        configurationGeneration = 1L
+    )
+
+    @Test
+    fun searchVod_returnsMixedPortalResultsWithStablePersistedIds() = runTest {
+        val snapshot = stalkerSnapshot(1L)
+        val stalkerProvider = mock<StalkerProvider>()
+        whenever(capabilityResolver.snapshot(1L)).thenReturn(snapshot)
+        whenever(typedProviderFactory.stalker(snapshot))
+            .thenReturn(com.streamvault.domain.provider.CapabilityResolution.Available(stalkerProvider))
+        whenever(preferences.parentalControlLevel).thenReturn(flowOf(2))
+        whenever(preferences.getHiddenCategoryIds(1L, ContentType.VOD)).thenReturn(flowOf(emptySet()))
+        val movie = Movie(id = 0L, name = "Movie", providerId = 1L, streamId = 1001L)
+        val series = Series(
+            id = 0L,
+            name = "Series",
+            providerId = 1L,
+            seriesId = 2001L,
+            providerSeriesId = "2001"
+        )
+        whenever(stalkerProvider.searchVodPage("mix", 1)).thenReturn(
+            Result.success(
+                StalkerPagedResult(
+                    items = listOf(
+                        StalkerVodCatalogItem("1001", VodCatalogItem.MovieItem(movie)),
+                        StalkerVodCatalogItem("2001", VodCatalogItem.SeriesItem(series))
+                    ),
+                    page = 1,
+                    totalPages = 2,
+                    pageSize = 14,
+                    advertisedTotalItems = 2
+                )
+            )
+        )
+        whenever(movieDao.getByStreamIds(1L, listOf(1001L))).thenReturn(
+            listOf(MovieEntity(id = 7L, streamId = 1001L, name = "Movie", providerId = 1L))
+        )
+        whenever(seriesDao.getBySeriesIds(1L, listOf(2001L))).thenReturn(
+            listOf(SeriesEntity(id = 8L, seriesId = 2001L, providerId = 1L, name = "Series"))
+        )
+
+        val result = repository().searchVod(1L, "mix", 1)
+
+        assertThat(result.getOrNull()?.items).hasSize(2)
+        assertThat((result.getOrNull()?.items?.get(0) as VodCatalogItem.MovieItem).movie.id)
+            .isEqualTo(7L)
+        assertThat((result.getOrNull()?.items?.get(1) as VodCatalogItem.SeriesItem).series.id)
+            .isEqualTo(8L)
+        verify(movieDao).upsertCategoryPage(eq(1L), any<List<MovieEntity>>())
+        verify(seriesDao).upsertCategoryPage(eq(1L), any<List<SeriesEntity>>())
+    }
+
+    @Test
+    fun searchVod_providerConfigurationFailure_returnsError() = runTest {
+        val snapshot = stalkerSnapshot(1L)
+        whenever(capabilityResolver.snapshot(1L)).thenReturn(snapshot)
+        whenever(typedProviderFactory.stalker(snapshot)).thenThrow(
+            IllegalStateException("invalid provider configuration")
+        )
+
+        val result = repository().searchVod(1L, "movie", 1)
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).message).contains("invalid provider configuration")
+    }
 
     @Test
     fun categoryItems_followPersistedProviderOrderAcrossTypes() = runTest {

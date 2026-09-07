@@ -83,6 +83,8 @@ data class StalkerVodCatalogItem(
     val item: VodCatalogItem
 )
 
+private object LiveStreamLimitReached : Exception("live stream cap reached")
+
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -420,30 +422,53 @@ internal companion object {
         return session to profile
     }
 
-    suspend fun streamLiveStreams(onChannel: suspend (Channel) -> Unit): Result<Int> {
+    suspend fun streamLiveStreams(
+        maxChannels: Int? = null,
+        onChannel: suspend (Channel) -> Unit
+    ): Result<Int> {
         return runWithAuthorizedSession { session, _ ->
             val pendingItems = ArrayList<StalkerItemRecord>(LIVE_IDENTITY_BATCH_SIZE)
+            val limit = maxChannels?.takeIf { it > 0 }
+            var acceptedCount = 0
 
             suspend fun flushPendingItems() {
                 if (pendingItems.isEmpty()) return
                 bindRemoteIds(ContentType.LIVE, pendingItems.map(StalkerItemRecord::id))
                 pendingItems.forEach { item ->
-                    toChannel(item)?.let { channel -> onChannel(channel) }
+                    toChannel(item)?.let { channel ->
+                        onChannel(channel)
+                    }
                 }
                 pendingItems.clear()
             }
 
-            when (val result = api.streamLiveStreams(session, currentDeviceProfile()) { item ->
-                pendingItems += item
-                if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
-                    flushPendingItems()
+            val result = try {
+                api.streamLiveStreams(session, currentDeviceProfile()) { item ->
+                    if (limit != null && acceptedCount >= limit) {
+                        throw LiveStreamLimitReached
+                    }
+                    pendingItems += item
+                    acceptedCount++
+                    if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
+                        flushPendingItems()
+                    }
                 }
-            }) {
+            } catch (capReached: LiveStreamLimitReached) {
+                flushPendingItems()
+                return@runWithAuthorizedSession Result.success(acceptedCount)
+            }
+
+            when (result) {
                 is Result.Success -> {
                     flushPendingItems()
                     Result.success(result.data)
                 }
-                is Result.Error -> Result.error(result.message, result.exception)
+                is Result.Error -> {
+                    if (result.exception is LiveStreamLimitReached) {
+                        flushPendingItems()
+                        Result.success(acceptedCount)
+                    } else Result.error(result.message, result.exception)
+                }
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
         }
@@ -484,6 +509,32 @@ internal companion object {
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
+
+    suspend fun searchVodPage(
+        query: String,
+        page: Int
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
+        val normalizedQuery = query.trim()
+        if (normalizedQuery.isBlank()) {
+            return Result.success(
+                StalkerPagedResult(
+                    items = emptyList(),
+                    page = page,
+                    totalPages = 0,
+                    pageSize = 0,
+                    advertisedTotalItems = 0,
+                    advertisedTotalPages = 0
+                )
+            )
+        }
+        return getClassifiedVodPage(
+            categoryType = ContentType.VOD,
+            categoryId = null,
+            page = page,
+            seriesCategoryId = null,
+            searchQuery = normalizedQuery
+        )
+    }
 
     suspend fun getSplitVodPage(
         categoryId: Long,
@@ -530,12 +581,13 @@ internal companion object {
 
     private suspend fun getClassifiedVodPage(
         categoryType: ContentType,
-        categoryId: Long,
+        categoryId: Long?,
         page: Int,
-        seriesCategoryId: Long = categoryId
+        seriesCategoryId: Long? = categoryId,
+        searchQuery: String? = null
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
         val rawResult = mapPagedItems(categoryType, categoryId) { session, profile, rawCategoryId ->
-            api.getVodStreamsPage(session, profile, rawCategoryId, page)
+            api.getVodStreamsPage(session, profile, rawCategoryId, page, searchQuery)
         }
         return when (rawResult) {
             is Result.Success -> {

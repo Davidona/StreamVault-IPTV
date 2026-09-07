@@ -52,6 +52,7 @@ import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodCatalogItem
+import com.streamvault.domain.model.ProviderType
 
 @Composable
 fun VodScreen(
@@ -61,7 +62,9 @@ fun VodScreen(
     viewModel: VodViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    BackHandler(enabled = state.selectedCategory != null) { viewModel.selectCategory(null) }
+    BackHandler(enabled = state.selectedCategory != null || state.portalSearchActive) {
+        viewModel.selectCategory(null)
+    }
 
     scaffold(
         com.streamvault.core.navigation.AppDestination.Vod,
@@ -82,6 +85,29 @@ fun VodScreen(
                     subtitle = stringResource(R.string.vod_unavailable_subtitle)
                 )
             }
+            state.portalSearchActive -> SelectedVodCategory(
+                title = state.selectedCategory?.name ?: stringResource(R.string.search_title),
+                items = state.portalSearchItems,
+                onMovieClick = onMovieClick,
+                onSeriesClick = onSeriesClick,
+                canLoadMore = state.canLoadMorePortalSearch,
+                isInitialLoading = state.isLoadingPortalSearch,
+                isAppending = state.isAppendingPortalSearch,
+                infiniteScroll = state.vodInfiniteScroll,
+                loadedCount = state.portalSearchItems.size,
+                totalCount = state.portalSearchTotalCount,
+                rawPageSize = state.portalSearchPageSize,
+                searchQuery = state.searchQuery,
+                selectedFilterType = state.selectedLibraryFilterType,
+                selectedSortBy = state.selectedLibrarySortBy,
+                onSearchQueryChange = viewModel::setSearchQuery,
+                onFilterTypeChange = viewModel::setSelectedLibraryFilterType,
+                onSortByChange = viewModel::setSelectedLibrarySortBy,
+                onBack = { viewModel.selectCategory(null) },
+                onLoadMore = viewModel::loadMoreSelectedCategory,
+                showBrowseOptionsEnabled = false,
+                error = state.portalSearchError
+            )
             state.selectedCategory != null -> SelectedVodCategory(
                 title = state.selectedCategory!!.name,
                 items = state.selectedItems,
@@ -101,7 +127,8 @@ fun VodScreen(
                 onFilterTypeChange = viewModel::setSelectedLibraryFilterType,
                 onSortByChange = viewModel::setSelectedLibrarySortBy,
                 onBack = { viewModel.selectCategory(null) },
-                onLoadMore = viewModel::loadMoreSelectedCategory
+                onLoadMore = viewModel::loadMoreSelectedCategory,
+                error = null
             )
             state.rows.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 AppMessageState(
@@ -109,11 +136,14 @@ fun VodScreen(
                     subtitle = stringResource(R.string.movies_no_found_subtitle)
                 )
             }
-            state.viewMode == VodViewMode.CLASSIC -> VodClassicCategories(
+                state.viewMode == VodViewMode.CLASSIC -> VodClassicCategories(
                 state.rows,
                 viewModel::selectCategory,
                 viewModel::loadMoreCategories,
-                state.canLoadMoreCategories
+                state.canLoadMoreCategories,
+                state.provider?.type == ProviderType.STALKER_PORTAL && state.vodPortalSearch,
+                state.searchQuery,
+                viewModel::setSearchQuery
             )
             else -> VodModernShelves(
                 state.rows,
@@ -121,7 +151,10 @@ fun VodScreen(
                 onMovieClick,
                 onSeriesClick,
                 viewModel::loadMoreCategories,
-                state.canLoadMoreCategories
+                state.canLoadMoreCategories,
+                state.provider?.type == ProviderType.STALKER_PORTAL && state.vodPortalSearch,
+                state.searchQuery,
+                viewModel::setSearchQuery
             )
         }
     }
@@ -134,7 +167,10 @@ private fun VodModernShelves(
     onMovieClick: (Movie) -> Unit,
     onSeriesClick: (Series) -> Unit,
     onLoadMore: () -> Unit,
-    canLoadMore: Boolean
+    canLoadMore: Boolean,
+    portalSearchEnabled: Boolean,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
 ) {
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -144,6 +180,17 @@ private fun VodModernShelves(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
+        if (portalSearchEnabled) {
+            item(key = "vod_portal_search") {
+                SearchInput(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    placeholder = stringResource(R.string.movies_search_placeholder),
+                    onSearch = {},
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+        }
         item(key = "vod_actions") {
             VodActionChipRow(
                 actions = listOf(
@@ -198,12 +245,26 @@ private fun VodClassicCategories(
     rows: List<VodCategoryRow>,
     onCategoryClick: (com.streamvault.domain.model.Category) -> Unit,
     onLoadMore: () -> Unit,
-    canLoadMore: Boolean
+    canLoadMore: Boolean,
+    portalSearchEnabled: Boolean,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
 ) {
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
     InfiniteScrollEffect(listState, true, canLoadMore, false, onLoadMore = onLoadMore)
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+        if (portalSearchEnabled) {
+            item(key = "vod_portal_search") {
+                SearchInput(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    placeholder = stringResource(R.string.movies_search_placeholder),
+                    onSearch = {},
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                )
+            }
+        }
         item(key = "vod_classic_actions") {
             VodActionChipRow(
                 actions = listOf(
@@ -261,7 +322,9 @@ private fun SelectedVodCategory(
     onFilterTypeChange: (LibraryFilterType) -> Unit,
     onSortByChange: (LibrarySortBy) -> Unit,
     onBack: () -> Unit,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    showBrowseOptionsEnabled: Boolean = true,
+    error: String? = null
 ) {
     var showSearchBar by rememberSaveable(title) { mutableStateOf(searchQuery.isNotBlank()) }
     var showBrowseOptions by rememberSaveable(title) { mutableStateOf(false) }
@@ -307,10 +370,11 @@ private fun SelectedVodCategory(
                     stringResource(R.string.library_action_filters_sort),
                     detail = vodActiveFilterSortDetail(selectedFilterType, selectedSortBy),
                     onClick = { showBrowseOptions = true }
-                )
-            ),
+                ).takeIf { showBrowseOptionsEnabled }
+            ).filterNotNull(),
             selectedKey = "browse_options".takeIf {
-                selectedFilterType != LibraryFilterType.ALL || selectedSortBy != LibrarySortBy.LIBRARY
+                showBrowseOptionsEnabled &&
+                    (selectedFilterType != LibraryFilterType.ALL || selectedSortBy != LibrarySortBy.LIBRARY)
             }
         )
         if (showSearchBar) {
@@ -339,6 +403,14 @@ private fun SelectedVodCategory(
                     }
                 }
             } else {
+                if (error != null) {
+                    item(key = "vod_search_error", span = { GridItemSpan(maxLineSpan) }) {
+                        AppMessageState(
+                            title = stringResource(R.string.search_title),
+                            subtitle = error
+                        )
+                    }
+                }
                 items(items, key = VodCatalogItem::stableId) { item ->
                     VodItemCard(item, onMovieClick, onSeriesClick)
                 }

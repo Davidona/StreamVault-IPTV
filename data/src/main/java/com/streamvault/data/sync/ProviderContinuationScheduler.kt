@@ -9,6 +9,9 @@ internal class ProviderContinuationScheduler(
 ) : SyncContinuationScheduler {
     override suspend fun schedule(snapshot: ProviderSnapshot, work: List<SyncContinuation>) {
         val providerId = snapshot.provider.id
+        if (work.any { it.operation == SyncContinuationOperation.FULL_CATALOG }) {
+            workScheduler.scheduleProviderResume(providerId, snapshot.configurationGeneration)
+        }
         if (work.any { it.operation == SyncContinuationOperation.REFRESH_GUIDE }) {
             workScheduler.scheduleBackgroundEpg(providerId)
         }

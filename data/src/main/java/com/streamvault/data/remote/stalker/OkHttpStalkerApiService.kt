@@ -751,6 +751,20 @@ class OkHttpStalkerApiService @Inject constructor(
         profile: StalkerDeviceProfile,
         categoryId: String?,
         page: Int
+    ): Result<StalkerPagedItems> = getVodStreamsPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        page = page,
+        searchQuery = null
+    )
+
+    override suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
@@ -761,6 +775,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
             }
         )
     }

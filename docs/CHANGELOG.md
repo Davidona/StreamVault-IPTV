@@ -27,6 +27,8 @@ All notable product changes are recorded in this document.
 - Reduced repeated empty Stalker guide requests by sharing provider-scoped, expiring empty-key cache state between the Guide and Home now-playing fallbacks.
 - Fixed Stalker guide synchronization continuing through dead per-channel EPG endpoints after both bulk and first per-channel responses are confirmed empty.
 - Fixed Stalker channel logos returned as bare or portal-relative paths by resolving them against the portal logo directory, including channels imported before the fix.
+- Added portal-backed Stalker VOD search with mixed movie/series results, persisted result IDs, paging, parental/hidden-category filtering, and a Browsing setting to disable it.
+- Improved new Stalker provider onboarding by importing a capped live preview and category shells first, then scheduling a generation-aware background sync for the complete catalog and guide.
 
 ## [1.0.17]
 

@@ -248,6 +248,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(vodCategoryLoadMode = vodCategoryLoadMode)
     }.combine(preferencesRepository.vodInfiniteScroll) { snapshot, vodInfiniteScroll ->
         snapshot.copy(vodInfiniteScroll = vodInfiniteScroll)
+    }.combine(preferencesRepository.vodPortalSearch) { snapshot, vodPortalSearch ->
+        snapshot.copy(vodPortalSearch = vodPortalSearch)
     }.combine(preferencesRepository.vodDuplicateHandlingMode) { snapshot, vodDuplicateHandlingMode ->
         snapshot.copy(vodDuplicateHandlingMode = vodDuplicateHandlingMode)
     }.combine(preferencesRepository.vodVariantPreferenceMode) { snapshot, vodVariantPreferenceMode ->

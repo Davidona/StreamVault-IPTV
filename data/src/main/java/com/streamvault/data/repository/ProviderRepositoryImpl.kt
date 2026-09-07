@@ -1407,7 +1407,8 @@ class ProviderRepositoryImpl @Inject constructor(
                 providerId = target.providerData.id,
                 force = false,
                 onProgress = onProgress,
-                trackInitialLiveOnboarding = trackInitialLiveOnboarding
+                trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+                bootstrap = true
             )
         } else {
             syncManager.syncWithProviderOverride(

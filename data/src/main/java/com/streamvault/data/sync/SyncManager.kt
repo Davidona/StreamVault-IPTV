@@ -1092,13 +1092,32 @@ class SyncManager @Inject constructor(
         epgSyncModeOverride: ProviderEpgSyncMode?,
         onProgress: ((String) -> Unit)?,
         trackInitialLiveOnboarding: Boolean
+    ): com.streamvault.domain.model.Result<Unit> = sync(
+        providerId = providerId,
+        force = force,
+        movieFastSyncOverride = movieFastSyncOverride,
+        epgSyncModeOverride = epgSyncModeOverride,
+        onProgress = onProgress,
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        bootstrap = false
+    )
+
+    override suspend fun sync(
+        providerId: Long,
+        force: Boolean,
+        movieFastSyncOverride: Boolean?,
+        epgSyncModeOverride: ProviderEpgSyncMode?,
+        onProgress: ((String) -> Unit)?,
+        trackInitialLiveOnboarding: Boolean,
+        bootstrap: Boolean
     ): com.streamvault.domain.model.Result<Unit> = syncWithProviderOverride(
         providerId = providerId,
         force = force,
         movieFastSyncOverride = movieFastSyncOverride,
         epgSyncModeOverride = epgSyncModeOverride,
         onProgress = onProgress,
-        trackInitialLiveOnboarding = trackInitialLiveOnboarding
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        bootstrap = bootstrap
     )
 
     /**
@@ -1114,6 +1133,28 @@ class SyncManager @Inject constructor(
         trackInitialLiveOnboarding: Boolean,
         providerOverride: Provider?,
         afterCatalogApply: (suspend () -> Unit)?
+    ): com.streamvault.domain.model.Result<Unit> = syncWithProviderOverride(
+        providerId = providerId,
+        force = force,
+        movieFastSyncOverride = movieFastSyncOverride,
+        epgSyncModeOverride = epgSyncModeOverride,
+        onProgress = onProgress,
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        providerOverride = providerOverride,
+        afterCatalogApply = afterCatalogApply,
+        bootstrap = false
+    )
+
+    override suspend fun syncWithProviderOverride(
+        providerId: Long,
+        force: Boolean,
+        movieFastSyncOverride: Boolean?,
+        epgSyncModeOverride: ProviderEpgSyncMode?,
+        onProgress: ((String) -> Unit)?,
+        trackInitialLiveOnboarding: Boolean,
+        providerOverride: Provider?,
+        afterCatalogApply: (suspend () -> Unit)?,
+        bootstrap: Boolean
     ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
         var progressSession: SyncProgressSession? = null
         try {
@@ -1149,6 +1190,7 @@ class SyncManager @Inject constructor(
                             force = force,
                             onProgress = onProgress,
                             trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+                            bootstrap = bootstrap,
                             deferProviderStateUntilCatalogCommit = providerOverride != null,
                             afterCatalogApply = catalogCommitGate::apply
                         )

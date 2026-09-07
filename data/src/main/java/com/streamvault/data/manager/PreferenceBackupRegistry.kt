@@ -18,7 +18,7 @@ internal object PreferenceBackupRegistry {
         "show_recent_channels_category", "live_tv_category_filters", "live_tv_quick_filter_visibility",
         "hide_decorative_live_rows", "live_channel_numbering_mode", "live_channel_grouping_mode",
         "grouped_channel_label_mode", "live_variant_preference_mode", "live_variant_selections",
-        "vod_view_mode", "vod_infinite_scroll", "vod_category_load_mode", "vod_duplicate_handling_mode",
+        "vod_view_mode", "vod_infinite_scroll", "vod_portal_search", "vod_category_load_mode", "vod_duplicate_handling_mode",
         "vod_variant_preference_mode", "vod_variant_selections", "guide_density", "guide_channel_mode",
         "guide_default_category_id", "guide_favorites_only", "guide_anchor_time",
         "epg_time_shift_by_provider", "promoted_live_group_ids", "multiview_preset_1",
@@ -68,7 +68,7 @@ internal object PreferenceBackupRegistry {
     private val globalStoragePrefixes = setOf("remote_shortcut_")
     private val runtimeStoragePrefixes = setOf(
         "xtream_text_import_applied_generation_", "last_live_category_id_",
-        "last_split_catalog_type_", "aspect_ratio_"
+        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_"
     )
 
     private val providerKeys = setOf(
@@ -91,7 +91,7 @@ internal object PreferenceBackupRegistry {
         "remoteShortcutPreferences", "liveTvCategoryFilters", "liveTvQuickFilterVisibility", "liveTvChannelMode",
         "showLiveSourceSwitcher", "showFavoritesCategory", "showAllChannelsCategory", "showRecentChannelsCategory",
         "hideDecorativeLiveRows", "liveChannelNumberingMode", "liveChannelGroupingMode", "groupedChannelLabelMode",
-        "liveVariantPreferenceMode", "vodViewMode", "vodInfiniteScroll", "vodCategoryLoadMode",
+        "liveVariantPreferenceMode", "vodViewMode", "vodInfiniteScroll", "vodPortalSearch", "vodCategoryLoadMode",
         "vodDuplicateHandlingMode", "vodVariantPreferenceMode", "playerMediaSessionEnabled",
         "playerFastRetryOnTransientFailures", "playerAudioDecoderMode", "playerVideoDecoderMode",
         "playerPlaybackBufferMode", "playerAudioOutputPreference", "playerCompatibilityMemoryEnabled",

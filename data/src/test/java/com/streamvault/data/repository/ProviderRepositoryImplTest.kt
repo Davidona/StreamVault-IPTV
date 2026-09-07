@@ -459,7 +459,7 @@ class ProviderRepositoryImplTest {
         whenever(providerSnapshotDao.findProviderIdByIdentityKey(any())).thenReturn(existingProvider.id)
         whenever(providerDao.getById(existingProvider.id)).thenReturn(existingProvider.toEntity())
         whenever(providerCapabilityResolver.snapshot(existingProvider.id)).thenReturn(existingProvider.toProviderSnapshot())
-        whenever(syncManager.sync(5L, false, null)).thenReturn(Result.success(Unit))
+        whenever(syncManager.sync(5L, false, null, null, null, false, true)).thenReturn(Result.success(Unit))
         whenever(syncManager.currentSyncState(5L)).thenReturn(SyncState.Success(123L))
 
         val result = repository.validateM3u(
@@ -492,7 +492,7 @@ class ProviderRepositoryImplTest {
                 status = ProviderStatus.PARTIAL
             )
         )
-        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(false)))
+        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(false), eq(true)))
             .thenReturn(Result.error("timeout"))
 
         val result = repository.validateM3u(
@@ -529,7 +529,7 @@ class ProviderRepositoryImplTest {
                 status = ProviderStatus.PARTIAL
             )
         )
-        whenever(syncManager.sync(9L, false, null)).thenReturn(Result.success(Unit))
+        whenever(syncManager.sync(9L, false, null, null, null, false, true)).thenReturn(Result.success(Unit))
         whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
 
         val result = repository.validateM3u(
@@ -782,7 +782,7 @@ class ProviderRepositoryImplTest {
     fun `loginXtream does not fail onboarding when provider has no live but committed vod`() = runTest {
         whenever(credentialCrypto.encryptIfNeeded("pass")).thenReturn("pass")
         whenever(providerDao.insert(any())).thenReturn(9L)
-        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(true)))
+        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(true), eq(true)))
             .thenReturn(Result.success(Unit))
         whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
         whenever(channelDao.getCount(9L)).thenReturn(flowOf(0))
@@ -828,7 +828,7 @@ class ProviderRepositoryImplTest {
     fun `loginXtream does not fail onboarding when provider has no live but committed vod categories`() = runTest {
         whenever(credentialCrypto.encryptIfNeeded("pass")).thenReturn("pass")
         whenever(providerDao.insert(any())).thenReturn(9L)
-        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(true)))
+        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(true), eq(true)))
             .thenReturn(Result.success(Unit))
         whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
         whenever(channelDao.getCount(9L)).thenReturn(flowOf(0))
