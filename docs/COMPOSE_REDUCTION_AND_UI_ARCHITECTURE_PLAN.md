@@ -1163,12 +1163,11 @@ has no comparable before/after measurement; this is not a failure result.
 | Startup time | Release cold-start/profile journeys pass, but no paired before/after startup comparison is recorded for this phase. | Open measurement gate. |
 | Memory during Live TV/player | Baseline PSS exists; no paired post-Phase-7 memory sample is committed. | Open measurement gate. |
 | Player stability | Two channels completed 61 two-second captures each with changing frames, `PLAYING(3)`, `error=null`, HLS first-frame success, and no fatal/stuck/fallback evidence. | Met for the validated Phase 7 channels; broader provider coverage remains separate. |
-| `:app` presentation source | Feature extraction and boundary reports show the intended direction, but a final majority count is not recorded here. | Open accounting item. |
+| `:app` presentation source | A 2026-09-07 snapshot counted 345 Kotlin files / 79,288 lines under `feature/*/src/main/java` versus 20 files / 3,433 lines under `app/src/main/java/com/streamvault/app/ui`. | Met for this source scope; app shell/navigation/platform UI outside `app/ui` remains app-owned. |
 
 Conclusion: the Phase 7 implementation and playback acceptance gates are
-supported by evidence. The remaining success-target work is measurement and
-accounting follow-up, not a newly identified playback or dependency-boundary
-defect.
+supported by evidence. The remaining success-target work is measurement
+follow-up, not a newly identified playback or dependency-boundary defect.
 
 ## 12. Validation strategy
 
