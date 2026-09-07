@@ -37,6 +37,36 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `preview leaves vertical navigation to focused controls while controls are visible`() {
+        val state = liveState(showControls = true)
+
+        assertThat(playerPreviewInputDecision(state, PlayerInputKey.DpadUp).action)
+            .isEqualTo(PlayerInputAction.Pass)
+        assertThat(playerPreviewInputDecision(state, PlayerInputKey.DpadDown).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
+    fun `focused controls keep vertical navigation while live controls are visible`() {
+        val state = liveState(showControls = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadUp).action)
+            .isEqualTo(PlayerInputAction.Pass)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadDown).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
+    fun `focused controls keep horizontal navigation while live controls are visible`() {
+        val state = liveState(showControls = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadLeft).action)
+            .isEqualTo(PlayerInputAction.Pass)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadRight).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
     fun `audio video offset Back dismisses preview and directional keys pass through`() {
         val state = liveState(showAudioVideoOffsetDialog = true)
 

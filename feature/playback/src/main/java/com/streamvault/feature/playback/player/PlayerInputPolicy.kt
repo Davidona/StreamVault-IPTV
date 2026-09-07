@@ -112,6 +112,7 @@ internal fun playerPreviewInputDecision(
         state.showProgramHistory ||
         state.showSplitDialog ||
         state.showEpisodePicker ||
+        state.showControls ||
         (state.showChannelInfoOverlay && state.channelInfoSubPanelOpen)
     ) {
         return PlayerInputDecision(PlayerInputAction.Pass)
@@ -262,7 +263,7 @@ private fun directionalInputDecision(
             state.showDiagnostics
     }
 
-    if (state.showControls && (state.contentType != "LIVE" || state.isCatchUpPlayback)) {
+    if (state.showControls) {
         return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
     }
 
@@ -327,15 +328,15 @@ private fun verticalInputDecision(
     if (state.showChannelInfoOverlay && state.channelInfoSubPanelOpen) {
         return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
     }
+    if (state.showControls) {
+        return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
+    }
     val blocksVerticalNavigation = state.showChannelListOverlay ||
         state.showCategoryListOverlay ||
         state.showEpgOverlay ||
         state.showDiagnostics ||
         (isUp && state.showChannelInfoOverlay)
     if (blocksVerticalNavigation) {
-        return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
-    }
-    if (state.showControls && (state.contentType != "LIVE" || state.isCatchUpPlayback)) {
         return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
     }
     val action = if (state.contentType == "LIVE" && !state.isCatchUpPlayback) {
