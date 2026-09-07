@@ -84,7 +84,9 @@ import com.streamvault.player.playback.shouldRecoverPositionAdvancingReadyStalls
 import com.streamvault.player.playback.shouldRecoverReadyStalls
 import com.streamvault.player.playback.shouldReconnectLiveStall
 import com.streamvault.player.playback.shouldForceSoftwareForAmbiguousDecoderFallback
+import com.streamvault.player.stats.FrameRateDetector
 import com.streamvault.player.stats.PlayerStatsCollector
+import com.streamvault.player.stats.PlayerTransferByteCounter
 import com.streamvault.player.timeshift.DefaultLiveTimeshiftManager
 import com.streamvault.player.timeshift.LiveTimeshiftBackend
 import com.streamvault.player.timeshift.LiveTimeshiftState
@@ -307,17 +309,22 @@ class Media3PlayerEngine @Inject constructor(
     }
     override val isMuted: StateFlow<Boolean> = audioFocusController.isMuted
 
+    private val transferByteCounter = PlayerTransferByteCounter()
+    private val frameRateDetector = FrameRateDetector()
     private val statsCollector = PlayerStatsCollector(
         scopeProvider = { scope },
         currentPosition = _currentPosition,
         duration = _duration,
         videoFormat = _videoFormat,
         playerStats = _playerStats,
-        playbackState = _playbackState
+        playbackState = _playbackState,
+        networkBytesProvider = { transferByteCounter.totalNetworkBytes },
+        frameRateDetector = frameRateDetector
     ).also {
         it.bind { exoPlayer }
     }
-    private val dataSourceFactoryProvider = PlayerDataSourceFactoryProvider(context, okHttpClient)
+    private val dataSourceFactoryProvider =
+        PlayerDataSourceFactoryProvider(context, okHttpClient, transferByteCounter)
     private val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceFactoryProvider)
     private val preloadCoordinator = PreloadCoordinator()
     private val compatibilityProfile: PlaybackCompatibilityProfile = DefaultPlaybackCompatibilityProfile
@@ -1206,9 +1213,10 @@ class Media3PlayerEngine @Inject constructor(
             .apply {
                 videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                 playbackParameters = PlaybackParameters(_playbackSpeed.value)
-                setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
-                    videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))
-                }
+                 setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
+                     videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))
+                     frameRateDetector.onFrame(presentationTimeUs)
+                 }
                 addAnalyticsListener(createAnalyticsListener())
                 addListener(createPlayerListener())
             }

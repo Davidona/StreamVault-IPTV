@@ -32,6 +32,12 @@ import com.streamvault.domain.model.VideoFormat
 import com.streamvault.player.TrackType
 
 /** Keeps live-only flow reads and overlays outside the player screen coordinator. */
+private fun buildChannelInfoResolutionLabel(videoFormat: VideoFormat): String? {
+    if (videoFormat.isEmpty || videoFormat.resolutionLabel.isBlank()) return null
+    val frameRateLabel = videoFormat.frameRateLabel ?: return videoFormat.resolutionLabel
+    return "${videoFormat.resolutionLabel} · ${frameRateLabel}fps"
+}
+
 @Composable
 internal fun PlayerNumericInputOverlayHost(
     viewModel: PlayerViewModel,
@@ -228,7 +234,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             onStopCasting = viewModel::stopCasting,
             timeshiftUiState = timeshiftUiState,
             onTransientPanelVisibilityChanged = onTransientPanelVisibilityChanged,
-            resolutionLabel = videoFormat.resolutionLabel.takeIf { it.isNotBlank() && !videoFormat.isEmpty }
+            resolutionLabel = buildChannelInfoResolutionLabel(videoFormat)
         )
     }
 }

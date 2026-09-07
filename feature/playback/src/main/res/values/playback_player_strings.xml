@@ -96,6 +96,9 @@
     <string name="player_diagnostics_surface">Surface</string>
     <string name="player_diagnostics_title">Playback Diagnostics</string>
     <string name="player_diagnostics_troubleshooting">Troubleshooting</string>
+    <string name="player_diagnostics_frame_rate">Frame Rate</string>
+    <string name="player_diagnostics_stream_bitrate">Stream Bitrate</string>
+    <string name="player_diagnostics_bandwidth_estimate">Network Bandwidth</string>
     <string name="player_diagnostics_video_bitrate">Video Bitrate</string>
     <string name="player_diagnostics_video_codec">Video Codec</string>
     <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Video Decoder Mode</string>

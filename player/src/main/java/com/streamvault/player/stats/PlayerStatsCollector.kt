@@ -1,5 +1,6 @@
 package com.streamvault.player.stats
 
+import android.os.SystemClock
 import androidx.media3.common.Format
 import androidx.media3.common.C
 import androidx.media3.exoplayer.ExoPlayer
@@ -40,7 +41,12 @@ class PlayerStatsCollector(
     private val duration: MutableStateFlow<Long>,
     private val videoFormat: MutableStateFlow<VideoFormat>,
     private val playerStats: MutableStateFlow<PlayerStats>,
-    private val playbackState: MutableStateFlow<PlaybackState>
+    private val playbackState: MutableStateFlow<PlaybackState>,
+    /** Cumulative network bytes received for playback; see [PlayerTransferByteCounter]. */
+    private val networkBytesProvider: () -> Long = { 0L },
+    /** Locked nominal frame rate detected from rendered-frame timestamps; see [FrameRateDetector]. */
+    private val frameRateDetector: FrameRateDetector = FrameRateDetector(),
+    private val clockMs: () -> Long = SystemClock::elapsedRealtime
 ) {
     // All fields are Main-thread-only. No @Volatile or AtomicInteger required.
     private var pollingJob: Job? = null
@@ -50,6 +56,7 @@ class PlayerStatsCollector(
     private var lastFrameRate = 0f
     private var lastBandwidthEstimate = 0L
     private var droppedFrames = 0
+    private val bitrateMeter = BitrateMeter()
 
     fun bind(playerProvider: () -> ExoPlayer?) {
         this.playerProvider = playerProvider
@@ -61,6 +68,8 @@ class PlayerStatsCollector(
         lastFrameRate = 0f
         lastBandwidthEstimate = 0L
         droppedFrames = 0
+        bitrateMeter.reset()
+        frameRateDetector.reset()
         currentPosition.value = 0L
         duration.value = 0L
         videoFormat.value = VideoFormat(0, 0)
@@ -141,11 +150,13 @@ class PlayerStatsCollector(
                         val video = lastVideoFormat
                         val audio = lastAudioFormat
                         val dropped = droppedFrames
+                        val measuredBitrate = bitrateMeter.addSample(clockMs(), networkBytesProvider())
+                        val measuredFrameRate = frameRateDetector.lockedFrameRate
 
                         videoFormat.value = VideoFormat(
                             width  = video?.width?.takeIf  { it > 0 } ?: 0,
                             height = video?.height?.takeIf { it > 0 } ?: 0,
-                            frameRate = lastFrameRate,
+                            frameRate = if (lastFrameRate > 0f) lastFrameRate else measuredFrameRate,
                             bitrate   = video?.bitrate?.takeIf { it > 0 } ?: 0,
                             codecV = video?.sampleMimeType ?: video?.codecs,
                             codecA = audio?.sampleMimeType ?: audio?.codecs,
@@ -162,6 +173,9 @@ class PlayerStatsCollector(
                                                 ?: playerStats.value.audioCodec,
                             videoBitrate      = video?.bitrate?.takeIf { it > 0 }
                                                 ?: playerStats.value.videoBitrate,
+                            frameRate         = lastFrameRate,
+                            measuredFrameRate = measuredFrameRate,
+                            measuredBitrate   = measuredBitrate,
                             droppedFrames     = dropped,
                             width             = video?.width?.takeIf  { it > 0 }
                                                 ?: playerStats.value.width,

@@ -265,9 +265,11 @@ private fun buildResolutionBadgeLabel(
 ): String? {
     if (videoFormat.isEmpty) return null
     val selectedTrack = videoTracks.firstOrNull(PlayerTrack::isSelected)
-    return if (selectedTrack == null || selectedTrack.id == PLAYER_TRACK_AUTO_ID) {
+    val label = if (selectedTrack == null || selectedTrack.id == PLAYER_TRACK_AUTO_ID) {
         autoResolutionLabel
     } else {
         selectedTrack.name
     }
+    val frameRateLabel = videoFormat.frameRateLabel ?: return label
+    return "$label · ${frameRateLabel}fps"
 }
