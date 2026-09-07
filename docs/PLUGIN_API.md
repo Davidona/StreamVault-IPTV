@@ -108,19 +108,20 @@ For Activity configuration, set `CONFIGURATION_MODE` to `activity`, set
 
 ### `playbackUrlSchemes` / `playbackUrlHosts`
 
-Required for `playback.prepare` and `cast.rewriteUrl` to ever be invoked.
-StreamVault only calls a plugin for these capabilities if the plugin's manifest
-declares the URL's scheme and host — an absent or empty list means the plugin
-owns **no** URLs, it is not treated as a wildcard match. Use `"*"` in either
-list to explicitly opt into matching every scheme or every host.
+Required for `playback.prepare` and `cast.rewriteUrl` to ever be invoked for
+normal host-bearing URLs. StreamVault only calls a plugin for these capabilities
+if the plugin's manifest declares the URL's scheme and host — an absent or empty
+list means the plugin owns **no host-bearing** URLs, it is not treated as a
+wildcard match. Hostless custom URIs can be owned by scheme alone. Use `"*"` in
+either list to explicitly opt into matching every scheme or every host.
 
 This is a separate, earlier filter than the `handled` field described below:
 StreamVault first narrows to plugins whose declared scheme/host own the URL,
 then sends `MSG_PREPARE_PLAYBACK` only to that narrowed set. A plugin that
 advertises `playback.prepare` but never declares `playbackUrlSchemes` /
-`playbackUrlHosts` will never receive `MSG_PREPARE_PLAYBACK` at all, even for
-URLs it generated itself (for example, its own `provider.m3u` playlist
-pointing back at a local `http://127.0.0.1:<port>/...` proxy).
+`playbackUrlHosts` will never receive `MSG_PREPARE_PLAYBACK` for host-bearing
+URLs, even when it generated the URL itself (for example, its own `provider.m3u`
+playlist pointing back at a local `http://127.0.0.1:<port>/...` proxy).
 
 These fields are only read from `manifest_json` (live `MSG_GET_MANIFEST`
 response or the static `MANIFEST_JSON` fallback metadata) — there is no
