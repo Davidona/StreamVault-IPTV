@@ -2,6 +2,7 @@
 
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
+import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -45,6 +46,24 @@ fun incrementVodSelectedCategoryLoadLimit(
  */
 fun shouldShowVodPreview(selectedCategory: String?, isReorderMode: Boolean): Boolean =
     selectedCategory == null && !isReorderMode
+
+/** Keeps a provider-wide Stalker bucket when it is the only available category. */
+fun <T> keepNonProviderWideCategoriesOrAll(
+    categories: List<T>,
+    isProviderWide: (T) -> Boolean
+): List<T> {
+    val nonProviderWide = categories.filterNot(isProviderWide)
+    return if (nonProviderWide.isNotEmpty()) nonProviderWide else categories
+}
+
+fun isPortalVodSearchQuery(
+    providerType: ProviderType?,
+    enabled: Boolean,
+    query: String
+): Boolean = enabled && providerType == ProviderType.STALKER_PORTAL && query.trim().length >= 2
+
+fun portalVodSearchBelongsToProvider(snapshotProviderId: Long?, activeProviderId: Long?): Boolean =
+    snapshotProviderId != null && snapshotProviderId == activeProviderId
 
 enum class VodReorderMoveDirection {
     EARLIER,

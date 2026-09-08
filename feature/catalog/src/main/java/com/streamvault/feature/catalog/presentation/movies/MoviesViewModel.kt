@@ -33,6 +33,7 @@ import com.streamvault.feature.catalog.presentation.vod.buildVodPreviewCatalog
 import com.streamvault.feature.catalog.presentation.vod.buildVodSearchCatalog
 import com.streamvault.feature.catalog.presentation.vod.loadVodReorderItems
 import com.streamvault.feature.catalog.presentation.vod.matchesVodGroupMembership
+import com.streamvault.feature.catalog.presentation.vod.keepNonProviderWideCategoriesOrAll
 import com.streamvault.feature.catalog.presentation.vod.moveVodItemDown
 import com.streamvault.feature.catalog.presentation.vod.moveVodItemUp
 import com.streamvault.feature.catalog.presentation.vod.selectVodCategory
@@ -173,7 +174,10 @@ class MoviesViewModel @Inject constructor(
                             sortMode = sortMode
                         ).let { categories ->
                             if (provider.type == ProviderType.STALKER_PORTAL) {
-                                categories.filterNot(::isLikelyProviderWideStalkerCategory)
+                                keepNonProviderWideCategoriesOrAll(
+                                    categories,
+                                    ::isLikelyProviderWideStalkerCategory
+                                )
                             } else {
                                 categories
                             }

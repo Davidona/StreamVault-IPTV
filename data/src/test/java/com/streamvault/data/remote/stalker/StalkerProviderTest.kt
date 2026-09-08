@@ -154,6 +154,36 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun shortEpgRequest_preservesNumericErrorWhenXmlFallbackIsEmpty() = runTest {
+        val numericFailure = Result.error<List<StalkerProgramRecord>>(
+            message = "temporary portal failure",
+            exception = IllegalStateException("temporary portal failure")
+        )
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgResultsByChannel = mapOf(
+                "42" to numericFailure,
+                "xml.channel" to Result.success(emptyList())
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).message).isEqualTo("temporary portal failure")
+        assertThat(api.shortEpgCalls).containsExactly("42", "xml.channel").inOrder()
+    }
+
+    @Test
     fun fullEpgRequest_usesNumericPortalKey() = runTest {
         val api = FakeStalkerApiService(
             profile = StalkerProviderProfile(accountName = "Room"),
@@ -1410,6 +1440,7 @@ class StalkerProviderTest {
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
         private val shortEpgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        private val shortEpgResultsByChannel: Map<String, Result<List<StalkerProgramRecord>>> = emptyMap(),
         private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
         private var authenticationFailuresBeforeSuccess: Int = 0,
         private val authenticationError: Throwable? = null
@@ -1530,7 +1561,8 @@ class StalkerProviderTest {
             limit: Int
         ): Result<List<StalkerProgramRecord>> {
             shortEpgCalls += channelId
-            return Result.success(shortEpgByChannel[channelId].orEmpty())
+            return shortEpgResultsByChannel[channelId]
+                ?: Result.success(shortEpgByChannel[channelId].orEmpty())
         }
 
         override suspend fun getEpg(

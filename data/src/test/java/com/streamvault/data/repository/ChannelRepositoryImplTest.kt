@@ -470,6 +470,79 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `getChannelsByIds resolves mixed provider stalker logos against each provider`() = runTest {
+        whenever(preferencesRepository.liveChannelGroupingMode)
+            .thenReturn(flowOf(LiveChannelGroupingMode.RAW_VARIANTS))
+        whenever(channelDao.getByIds(listOf(101L, 202L))).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 101L,
+                        streamId = 101L,
+                        name = "Provider One Channel",
+                        logoUrl = "101.png",
+                        streamUrl = "https://stream/101",
+                        number = 1,
+                        providerId = 1L
+                    ),
+                    ChannelBrowseEntity(
+                        id = 202L,
+                        streamId = 202L,
+                        name = "Provider Two Channel",
+                        logoUrl = "202.png",
+                        streamUrl = "https://stream/202",
+                        number = 1,
+                        providerId = 2L
+                    )
+                )
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(1L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 1L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-1",
+                encryptedConfigJson = "one",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(2L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 2L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-2",
+                encryptedConfigJson = "two",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "one"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://one.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:01")
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "two"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://two.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:02")
+                )
+            )
+
+        val result = createRepository().getChannelsByIds(listOf(101L, 202L)).first()
+
+        assertThat(result.map { it.logoUrl }).containsExactly(
+            "http://one.example/stalker_portal/misc/logos/120/101.png",
+            "http://two.example/stalker_portal/misc/logos/120/202.png"
+        ).inOrder()
+    }
+
+    @Test
     fun `getChannel reads updated stalker portal config after an edit`() = runTest {
         whenever(channelDao.getBrowseById(536L)).thenReturn(
             ChannelBrowseEntity(

@@ -170,7 +170,7 @@ class ChannelRepositoryImpl @Inject constructor(
             filtered,
             settings,
             unlockedCats,
-            stalkerPortalRoot(providerId)
+            stalkerPortalUrlForProvider = { stalkerPortalRoot(providerId) }
         )
         applyNumbering(presented, settings.numberingMode, offset)
     }
@@ -269,7 +269,11 @@ class ChannelRepositoryImpl @Inject constructor(
         }
         val groupedEntities = channelDao.getByLogicalGroupId(entity.providerId, entity.logicalGroupId)
             .ifEmpty { listOf(entity) }
-        return buildGroupedChannels(groupedEntities, settings, stalkerPortalUrl).firstOrNull()
+        return buildGroupedChannels(
+            groupedEntities,
+            settings,
+            stalkerPortalUrlForProvider = { stalkerPortalUrl }
+        ).firstOrNull()
     }
 
     override suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean): Result<StreamInfo> = try {
@@ -328,12 +332,17 @@ class ChannelRepositoryImpl @Inject constructor(
             ) { requested, entityPool, level, settings, hideDecorativeRows ->
                 val filteredRequested = applyVisibilityFilter(requested, level, emptySet(), hideDecorativeRows)
                 val filteredPool = applyVisibilityFilter(entityPool, level, emptySet(), hideDecorativeRows)
+                val stalkerPortalUrls = (requested + filteredPool)
+                    .asSequence()
+                    .map(ChannelBrowseEntity::providerId)
+                    .distinct()
+                    .associateWith(::stalkerPortalRoot)
                 buildChannelsForRequestedIds(
                     requestedIds = ids,
                     requestedEntities = filteredRequested,
                     entityPool = filteredPool.ifEmpty { filteredRequested },
                     settings = settings,
-                    stalkerPortalUrl = stalkerPortalRoot(requested.first().providerId)
+                    stalkerPortalUrlForProvider = { providerId -> stalkerPortalUrls[providerId] }
                 )
             }.flowOn(Dispatchers.Default)
         }
@@ -381,7 +390,7 @@ class ChannelRepositoryImpl @Inject constructor(
                 filtered,
                 settings,
                 unlockedCats,
-                stalkerPortalRoot(providerId)
+                stalkerPortalUrlForProvider = { stalkerPortalRoot(providerId) }
             ),
             settings.numberingMode
         )
@@ -463,17 +472,22 @@ class ChannelRepositoryImpl @Inject constructor(
         requestedEntities: List<ChannelBrowseEntity>,
         entityPool: List<ChannelBrowseEntity>,
         settings: ChannelPresentationSettings,
-        stalkerPortalUrl: String?
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         if (requestedEntities.isEmpty()) return emptyList()
         if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             val rawById = requestedEntities.associateBy { it.id }
             return requestedIds.mapNotNull { rawId ->
-                rawById[rawId]?.toPresentedRawChannel(settings.observedQualities[rawId], stalkerPortalUrl)
+                rawById[rawId]?.let { entity ->
+                    entity.toPresentedRawChannel(
+                        settings.observedQualities[rawId],
+                        stalkerPortalUrlForProvider(entity.providerId)
+                    )
+                }
             }
         }
 
-        val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrl)
+        val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
         val groupedByRawId = buildRawVariantLookup(groupedChannels)
         val seenLogicalGroups = linkedSetOf<String>()
         return requestedIds.mapNotNull { rawId ->
@@ -487,14 +501,17 @@ class ChannelRepositoryImpl @Inject constructor(
         entities: List<ChannelBrowseEntity>,
         settings: ChannelPresentationSettings,
         unlockedCats: Set<Long>,
-        stalkerPortalUrl: String?
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         val base = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             entities.map { entity ->
-                entity.toPresentedRawChannel(settings.observedQualities[entity.id], stalkerPortalUrl)
+                entity.toPresentedRawChannel(
+                    settings.observedQualities[entity.id],
+                    stalkerPortalUrlForProvider(entity.providerId)
+                )
             }
         } else {
-            buildGroupedChannels(entities, settings, stalkerPortalUrl)
+            buildGroupedChannels(entities, settings, stalkerPortalUrlForProvider)
         }
         return base.map { channel ->
             if (channel.categoryId != null && unlockedCats.contains(channel.categoryId)) {
@@ -508,7 +525,7 @@ class ChannelRepositoryImpl @Inject constructor(
     private fun buildGroupedChannels(
         entities: List<ChannelBrowseEntity>,
         settings: ChannelPresentationSettings,
-        stalkerPortalUrl: String?
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         val grouped = linkedMapOf<String, MutableList<ChannelBrowseEntity>>()
         entities.forEach { entity ->
@@ -553,7 +570,7 @@ class ChannelRepositoryImpl @Inject constructor(
                 id = selectedVariant.rawChannelId,
                 name = displayName,
                 canonicalName = canonicalName,
-                logoUrl = representative.resolveLogoUrl(stalkerPortalUrl),
+                logoUrl = representative.resolveLogoUrl(stalkerPortalUrlForProvider(representative.providerId)),
                 groupTitle = representative.groupTitle,
                 categoryId = representative.categoryId,
                 categoryName = representative.categoryName,

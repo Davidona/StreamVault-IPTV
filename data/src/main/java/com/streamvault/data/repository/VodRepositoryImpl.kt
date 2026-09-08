@@ -56,13 +56,42 @@ class VodRepositoryImpl @Inject constructor(
         categoryDao.getByProviderAndType(providerId, ContentType.VOD.name),
         preferencesRepository.parentalControlLevel,
         preferencesRepository.getHiddenCategoryIds(providerId, ContentType.VOD)
-    ) { entities, parentalLevel, hiddenIds ->
-        entities.asSequence()
-            .filterNot { it.categoryId in hiddenIds }
-            .filter { parentalLevel < 3 || (!it.isAdult && !it.isUserProtected) }
-            .map { it.toDomain() }
-            .toList()
+    ) { entities, parentalLevel, vodHiddenIds ->
+        entities to (parentalLevel to vodHiddenIds)
+    }.flatMapLatest { (entities, filters) ->
+        val parentalLevel = filters.first
+        val vodHiddenIds = filters.second
+        val unified = filterUnifiedCategories(entities, parentalLevel, vodHiddenIds)
+        if (unified.isNotEmpty()) {
+            flowOf(unified)
+        } else {
+            // A UNIFIED_VOD portal may still have SPLIT-era MOVIE rows until the next sync
+            // reconciles their type. Category ids are layout-independent, so keep the VOD
+            // surface usable while that durable repair catches up.
+            flow {
+                val movieHiddenIds = preferencesRepository
+                    .getHiddenCategoryIds(providerId, ContentType.MOVIE)
+                    .first()
+                emit(
+                    filterUnifiedCategories(
+                        categoryDao.getByProviderAndTypeSync(providerId, ContentType.MOVIE.name),
+                        parentalLevel,
+                        vodHiddenIds + movieHiddenIds
+                    )
+                )
+            }
+        }
     }
+
+    private fun filterUnifiedCategories(
+        entities: List<com.streamvault.data.local.entity.CategoryEntity>,
+        parentalLevel: Int,
+        hiddenIds: Set<Long>
+    ): List<Category> = entities.asSequence()
+        .filterNot { it.categoryId in hiddenIds }
+        .filter { parentalLevel < 3 || (!it.isAdult && !it.isUserProtected) }
+        .map { it.toDomain() }
+        .toList()
 
     override fun getCategoryPreview(
         providerId: Long,

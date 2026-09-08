@@ -257,12 +257,14 @@ class MovieRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    filteredCategories.filterNot { category ->
+                    val nonWildcard = filteredCategories.filterNot { category ->
                         stalkerProvider.isWildcardCategory(ContentType.MOVIE, category.categoryId)
                     }
+                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
+                val allowWildcardHydration = previewCategories.size == filteredCategories.size
                 if (previewCategories.isEmpty()) {
                     send(emptyMap())
                     return@channelFlow
@@ -274,7 +276,7 @@ class MovieRepositoryImpl @Inject constructor(
                         fetchIfMissing = true,
                         refreshStaleInBackground = false,
                         requiredCount = limitPerCategory,
-                        allowStalkerWildcard = false
+                        allowStalkerWildcard = allowWildcardHydration
                     )
                 }
                 // SQL LIMIT applied per-category — avoids loading the full catalog into memory

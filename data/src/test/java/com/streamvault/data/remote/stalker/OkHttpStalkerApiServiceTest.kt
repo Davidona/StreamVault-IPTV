@@ -3054,6 +3054,36 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun restoreSession_keepsRestoredCookiesWhenResponseRefreshesOnlyOneCookie() = runTest {
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .addHeader("Set-Cookie", "sid=refreshed; Path=/; HttpOnly")
+                        .body("""{"js":[]}""".toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        val session = stalkerSession().copy(
+            sessionScopeKey = "restored-scope",
+            serverCookieHeader = "sid=restored-cookie; affinity=keep-me"
+        )
+        val profile = stalkerProfile()
+
+        service.restoreSession(session, profile)
+        service.getVodCategories(session, profile)
+
+        assertThat(service.currentCookieHeader(session)).contains("sid=refreshed")
+        assertThat(service.currentCookieHeader(session)).contains("affinity=keep-me")
+    }
+
+    @Test
     fun authenticate_classifies_status2_envelope_as_device_not_registered() = runTest {
         val service = OkHttpStalkerApiService(
             okHttpClient = OkHttpClient.Builder()

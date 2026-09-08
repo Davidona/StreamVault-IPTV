@@ -80,6 +80,33 @@ class VodRepositoryImplTest {
     )
 
     @Test
+    fun getCategories_fallsBackToStoredMovieCategoriesWhenVodRowsAreMissing() = runTest {
+        whenever(categoryDao.getByProviderAndType(1L, ContentType.VOD.name))
+            .thenReturn(flowOf(emptyList()))
+        whenever(categoryDao.getByProviderAndTypeSync(1L, ContentType.MOVIE.name))
+            .thenReturn(
+                listOf(
+                    CategoryEntity(
+                        providerId = 1L,
+                        categoryId = 42L,
+                        name = "Action",
+                        type = ContentType.MOVIE
+                    )
+                )
+            )
+        whenever(preferences.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(preferences.getHiddenCategoryIds(1L, ContentType.VOD))
+            .thenReturn(flowOf(emptySet()))
+        whenever(preferences.getHiddenCategoryIds(1L, ContentType.MOVIE))
+            .thenReturn(flowOf(emptySet()))
+
+        val categories = repository().getCategories(1L).first()
+
+        assertThat(categories.map { it.id }).containsExactly(42L)
+        assertThat(categories.single().name).isEqualTo("Action")
+    }
+
+    @Test
     fun searchVod_returnsMixedPortalResultsWithStablePersistedIds() = runTest {
         val snapshot = stalkerSnapshot(1L)
         val stalkerProvider = mock<StalkerProvider>()

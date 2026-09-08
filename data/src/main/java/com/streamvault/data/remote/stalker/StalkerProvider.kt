@@ -860,9 +860,8 @@ internal companion object {
             ?.takeUnless { it == numericKey }
         val xmlResult = xmlKey?.let { getShortEpg(it, request.limit) }
         return when {
-            xmlResult is Result.Success -> xmlResult
-            numericResult is Result.Success -> numericResult
-            numericResult is Result.Error -> numericResult
+            xmlResult is Result.Success && xmlResult.data.isNotEmpty() -> xmlResult
+            numericResult != null -> numericResult
             xmlResult is Result.Error -> xmlResult
             else -> Result.error("Short EPG lookup returned no programs")
         }

@@ -1294,13 +1294,15 @@ class OkHttpStalkerApiService @Inject constructor(
         return session.loadUrl
     }
 
-    override fun currentCookieHeader(session: StalkerSession): String =
-        sessionScopes[session.sessionScopeKey]
-            ?.also { scope -> scope.lastAccessAt = System.currentTimeMillis() }
-            ?.cookieJar
-            ?.cookieHeaderFor(session.loadUrl)
-            .orEmpty()
-            .ifBlank { session.serverCookieHeader }
+    override fun currentCookieHeader(session: StalkerSession): String {
+        val scope = sessionScopes[session.sessionScopeKey]
+            ?.also { it.lastAccessAt = System.currentTimeMillis() }
+        return mergeCookieHeaders(
+            scope?.cookieJar?.cookieHeaderFor(session.loadUrl).orEmpty(),
+            scope?.restoredCookieHeader.orEmpty(),
+            session.serverCookieHeader
+        )
+    }
 
     override fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) {
         val scopeKey = session.sessionScopeKey.takeIf { it.isNotBlank() } ?: sessionScopeKey(profile)
@@ -2824,6 +2826,20 @@ class OkHttpStalkerApiService @Inject constructor(
                 }.forEach { (key, value) ->
                     cookies.putIfAbsent(key, value)
                 }
+        }
+        return cookies.entries.joinToString("; ") { (key, value) -> "$key=$value" }
+    }
+
+    private fun mergeCookieHeaders(vararg headers: String): String {
+        val cookies = linkedMapOf<String, String>()
+        headers.forEach { header ->
+            header.split(';')
+                .mapNotNull { part ->
+                    val key = part.substringBefore('=', missingDelimiterValue = "").trim()
+                    val value = part.substringAfter('=', missingDelimiterValue = "").trim()
+                    key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
+                }
+                .forEach { (key, value) -> cookies.putIfAbsent(key, value) }
         }
         return cookies.entries.joinToString("; ") { (key, value) -> "$key=$value" }
     }

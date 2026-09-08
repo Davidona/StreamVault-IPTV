@@ -34,6 +34,7 @@ import com.streamvault.data.remote.stalker.StalkerPagedItems
 import com.streamvault.data.remote.stalker.StalkerProviderProfile
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
+import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.stalker.StalkerSeasonRecord
 import com.streamvault.data.remote.stalker.StalkerSeriesDetails
 import com.streamvault.data.remote.stalker.StalkerSession
@@ -465,6 +466,45 @@ class SeriesRepositoryImplTest {
 
         verify(stalkerApiService).getSeriesPage(any(), any(), anyOrNull(), eq(1))
         verify(stalkerApiService, never()).getSeriesPage(any(), any(), anyOrNull(), eq(2))
+    }
+
+    @Test
+    fun `stalker preview keeps wildcard-only series category`() = runTest {
+        val wildcardId = stalkerStableHashId(7L, ContentType.SERIES, "*")
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+            flowOf(
+                listOf(
+                    CategoryEntity(
+                        providerId = 7L,
+                        categoryId = wildcardId,
+                        name = "*",
+                        type = ContentType.SERIES
+                    )
+                )
+            )
+        )
+        whenever(seriesDao.getCountByCategory(7L, wildcardId)).thenReturn(flowOf(18))
+        whenever(seriesCategoryHydrationDao.get(7L, wildcardId)).thenReturn(null)
+        whenever(seriesDao.getByCategoryPreview(7L, wildcardId, 18)).thenReturn(
+            flowOf(
+                listOf(
+                    SeriesEntity(
+                        id = 1L,
+                        seriesId = 1L,
+                        providerSeriesId = "1",
+                        name = "Series",
+                        categoryId = wildcardId,
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+        stubProvider(stalkerProvider())
+
+        val result = createRepository().getCategoryPreviewRows(7L, listOf(wildcardId), 18).first()
+
+        assertThat(result[wildcardId]).hasSize(1)
     }
 
     @Test

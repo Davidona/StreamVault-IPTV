@@ -234,12 +234,14 @@ class SeriesRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    filteredCategories.filterNot { category ->
+                    val nonWildcard = filteredCategories.filterNot { category ->
                         stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
                     }
+                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
+                val allowWildcardHydration = previewCategories.size == filteredCategories.size
                 if (previewCategories.isEmpty()) {
                     send(emptyMap())
                     return@channelFlow
@@ -253,7 +255,7 @@ class SeriesRepositoryImpl @Inject constructor(
                             categoryId = category.categoryId,
                             provider = provider,
                             requiredCount = limitPerCategory,
-                            allowStalkerWildcard = false
+                            allowStalkerWildcard = allowWildcardHydration
                         )
                     }
                 }

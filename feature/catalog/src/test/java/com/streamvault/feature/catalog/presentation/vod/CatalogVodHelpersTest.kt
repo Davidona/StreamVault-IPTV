@@ -7,6 +7,7 @@ import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -65,6 +66,32 @@ class CatalogVodHelpersTest {
 
         assertThat(limit.value).isEqualTo(VodBrowseDefaults.SELECTED_CATEGORY_PAGE_SIZE)
         assertThat(state.value).isEqualTo(State("Drama", LibraryFilterType.FAVORITES, LibrarySortBy.RATING, true))
+    }
+
+    @Test
+    fun providerWideCategory_isKeptWhenItIsTheOnlyCategory() {
+        val wildcard = "*"
+
+        assertThat(
+            keepNonProviderWideCategoriesOrAll(listOf(wildcard)) { it == wildcard }
+        ).containsExactly(wildcard)
+        assertThat(
+            keepNonProviderWideCategoriesOrAll(listOf(wildcard, "Action")) { it == wildcard }
+        ).containsExactly("Action")
+    }
+
+    @Test
+    fun portalSearch_requiresTwoCharactersButDoesNotTreatShortQueryAsPortalSearch() {
+        assertThat(isPortalVodSearchQuery(ProviderType.STALKER_PORTAL, true, "a")).isFalse()
+        assertThat(isPortalVodSearchQuery(ProviderType.STALKER_PORTAL, true, "ab")).isTrue()
+        assertThat(isPortalVodSearchQuery(ProviderType.XTREAM_CODES, true, "ab")).isFalse()
+    }
+
+    @Test
+    fun portalSearchSnapshot_isRejectedAfterProviderChanges() {
+        assertThat(portalVodSearchBelongsToProvider(7L, 7L)).isTrue()
+        assertThat(portalVodSearchBelongsToProvider(7L, 8L)).isFalse()
+        assertThat(portalVodSearchBelongsToProvider(null, 7L)).isFalse()
     }
 
     @Test
