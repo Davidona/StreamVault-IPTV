@@ -152,7 +152,6 @@ class VodViewModel @Inject constructor(
         }
         viewModelScope.launch {
             portalSearchEnabled
-                .distinctUntilChanged()
                 .collect { enabled ->
                     if (enabled && isPortalSearchQuery(searchQuery.value)) {
                         startPortalSearch(searchQuery.value)
