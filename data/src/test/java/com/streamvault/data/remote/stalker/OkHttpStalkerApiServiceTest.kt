@@ -1926,6 +1926,44 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodFiles_requests_movie_files_by_movie_id() = runTest {
+        var requestedMovieId: String? = null
+        var requestedAction: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedMovieId = chain.request().url.queryParameter("movie_id")
+                    requestedAction = chain.request().url.queryParameter("action")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"3199303","name":"Punjabi / Ultra high quality (4K)","cmd":"http://cdn.example.com/8be12/index.m3u8"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodFiles(
+            stalkerSession(),
+            stalkerProfile(),
+            movieId = "568068"
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedAction).isEqualTo("get_ordered_list")
+        assertThat(requestedMovieId).isEqualTo("568068")
+        val files = (result as Result.Success).data
+        assertThat(files).hasSize(1)
+        assertThat(files.first().id).isEqualTo("3199303")
+    }
+
+    @Test
     fun getVodStreamsPage_treats_199_as_incomplete_and_200_as_complete_when_total_is_200() = runTest {
         val service = OkHttpStalkerApiService(
             okHttpClient = fakeClient(

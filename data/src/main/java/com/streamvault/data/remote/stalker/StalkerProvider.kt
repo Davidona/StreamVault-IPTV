@@ -127,7 +127,7 @@ class StalkerProvider(
     GuideSource,
     PlaybackResolver,
     CatchUpSource {
-internal companion object {
+    internal companion object {
         private const val TAG = "StalkerProvider"
         private const val DEFAULT_PLAYER_USER_AGENT = "Lavf53.32.100"
         private const val LIVE_IDENTITY_BATCH_SIZE = 500
@@ -137,6 +137,9 @@ internal companion object {
         private const val AUTH_FAILURE_COOLDOWN_MILLIS = 2_000L
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
+        private val BARE_VOD_MOVIE_CMD_REGEX = Regex("^/media/(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val BARE_VOD_FILE_CMD_REGEX = Regex("^/media/file_(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val NUMERIC_ID_REGEX = Regex("^\\d+$")
         private val sharedAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
@@ -813,6 +816,62 @@ internal companion object {
         )
     }
 
+    /**
+     * Video-club listings only carry the bare `/media/<videoId>.mpg` command, which the
+     * portal answers with `nothing_to_play`. MAG launchers first open the movie
+     * (`get_ordered_list&movie_id=<id>`) and play one of its file rows via
+     * `/media/file_<fileId>.mpg`. Mirror that: prepend file-derived candidates ahead of
+     * the bare command, which stays as the final fallback.
+     */
+    private suspend fun expandMovieCandidatesWithFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        kind: StalkerStreamKind,
+        descriptor: StalkerPlaybackDescriptor
+    ): List<StalkerCommandVariant> {
+        if (kind != StalkerStreamKind.MOVIE) return descriptor.candidates
+        if (descriptor.candidates.any { detectStalkerPlaybackMode(it.cmd) == StalkerPlaybackMode.DIRECT_URL }) {
+            return descriptor.candidates
+        }
+        val bareMovieId = descriptor.candidates
+            .mapNotNull(::extractBareVodMovieId)
+            .firstOrNull() ?: return descriptor.candidates
+        val files = when (val result = api.getVodFiles(session, profile, bareMovieId)) {
+            is Result.Success -> result.data
+            is Result.Error -> {
+                Log.d(TAG, "Stalker VOD file lookup failed movie=$bareMovieId reason=${result.message}")
+                return descriptor.candidates
+            }
+            is Result.Loading -> return descriptor.candidates
+        }
+        val fileVariants = files.mapIndexedNotNull { index, record ->
+            vodFileCmdForRecord(record)?.let { cmd ->
+                StalkerCommandVariant(
+                    cmd = cmd,
+                    playbackMode = detectStalkerPlaybackMode(cmd, descriptor.capabilities),
+                    sourceKey = "vod_file",
+                    priority = index
+                )
+            }
+        }
+        if (fileVariants.isEmpty()) return descriptor.candidates
+        Log.d(TAG, "Expanded Stalker VOD movie=$bareMovieId files=${fileVariants.size}")
+        return fileVariants + descriptor.candidates
+    }
+
+    private fun extractBareVodMovieId(variant: StalkerCommandVariant): String? {
+        val cmd = variant.cmd.substringAfter(' ', missingDelimiterValue = variant.cmd).trim()
+        return BARE_VOD_MOVIE_CMD_REGEX.matchEntire(cmd)?.groupValues?.getOrNull(1)
+    }
+
+    private fun vodFileCmdForRecord(record: StalkerItemRecord): String? {
+        // The file rows also expose an untokenized http(s) cmd which the storage
+        // rejects without a portal-issued token, so always resolve through create_link.
+        record.cmd?.trim()?.takeIf { BARE_VOD_FILE_CMD_REGEX.matches(it) }?.let { return it }
+        val numericId = record.id.trim().takeIf { it.matches(NUMERIC_ID_REGEX) } ?: return null
+        return "/media/file_${numericId}.mpg"
+    }
+
     private suspend fun resolvePlaybackInfoInternal(
         kind: StalkerStreamKind,
         descriptor: StalkerPlaybackDescriptor,
@@ -820,13 +879,14 @@ internal companion object {
         archiveStartSeconds: Long?,
         archiveEndSeconds: Long?,
         allowRebootstrap: Boolean
-    ): Result<StalkerPlaybackInfo> {
-        return when (val authResult = ensureAuthenticated()) {
+    ): Result<StalkerPlaybackInfo> {        return when (val authResult = ensureAuthenticated()) {
             is Result.Success -> {
                 val (session, accountProfile) = authResult.data
                 val profile = currentDeviceProfile()
                 var lastError: Result.Error? = null
-                val orderedCandidates = orderStalkerCommandVariants(descriptor.candidates)
+                val orderedCandidates = orderStalkerCommandVariants(
+                    expandMovieCandidatesWithFiles(session, profile, kind, descriptor)
+                )
                     .sortedBy { variant ->
                         if (preferredPlaybackMode != null && variant.playbackMode == preferredPlaybackMode) 0 else 1
                     }

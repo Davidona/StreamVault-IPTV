@@ -333,6 +333,22 @@ interface StalkerApiService {
         page: Int
     ): Result<StalkerPagedItems>
 
+    /**
+     * Resolves the playable file entries for a video-club movie.
+     *
+     * Category listings only carry the bare `/media/<videoId>.mpg` command, which the
+     * portal cannot resolve directly (`nothing_to_play`). Opening the movie (the same
+     * lookup MAG launchers perform) via `get_ordered_list&movie_id=<id>` returns the
+     * file rows whose `/media/file_<fileId>.mpg` commands do resolve.
+     */
+    suspend fun getVodFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        movieId: String
+    ): Result<List<StalkerItemRecord>> {
+        return Result.error("VOD file lookup is not supported by this transport.")
+    }
+
     suspend fun getSeriesCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile
