@@ -80,6 +80,19 @@ public fun LazyListScope.settingsBrowsingSection(
             value = stringResource(uiState.liveTvChannelMode.labelResId()),
             onClick = { onShowLiveTvModeDialogChange(true) }
         )
+        SwitchSettingsRow(
+            label = stringResource(R.string.settings_live_tv_auto_hide_categories),
+            value = stringResource(
+                if (uiState.liveTvAutoHideCategories) {
+                    R.string.settings_live_tv_auto_hide_categories_on
+                } else {
+                    R.string.settings_live_tv_auto_hide_categories_off
+                }
+            ),
+            checked = uiState.liveTvAutoHideCategories,
+            onCheckedChange = viewModel::setLiveTvAutoHideCategories,
+            indent = 24.dp
+        )
         ClickableSettingsRow(
             label = stringResource(R.string.settings_top_navigation),
             value = topNavigationSummaryLabel,

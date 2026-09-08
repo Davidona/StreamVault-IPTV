@@ -93,6 +93,7 @@ data class SettingsPreferenceSnapshot(
     val useXtreamTextClassification: Boolean,
     val xtreamBase64TextCompatibility: Boolean,
     val liveTvChannelMode: LiveTvChannelMode,
+    val liveTvAutoHideCategories: Boolean,
     val showLiveSourceSwitcher: Boolean,
     val showFavoritesCategory: Boolean,
     val showAllChannelsCategory: Boolean,

@@ -303,6 +303,10 @@ interface SettingsPreferences {
 
     suspend fun setLiveTvChannelMode(mode: String)
 
+    val liveTvAutoHideCategories: Flow<Boolean>
+
+    suspend fun setLiveTvAutoHideCategories(enabled: Boolean)
+
     val showLiveSourceSwitcher: Flow<Boolean>
 
     suspend fun setShowLiveSourceSwitcher(enabled: Boolean)

@@ -193,6 +193,7 @@ class PreferencesRepository @Inject constructor(
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
         val LIVE_TV_CHANNEL_MODE = stringPreferencesKey("live_tv_channel_mode")
+        val LIVE_TV_AUTO_HIDE_CATEGORIES = booleanPreferencesKey("live_tv_auto_hide_categories")
         val SHOW_LIVE_SOURCE_SWITCHER = booleanPreferencesKey("show_live_source_switcher")
         val SHOW_FAVORITES_CATEGORY = booleanPreferencesKey("show_favorites_category")
         val SHOW_ALL_CHANNELS_CATEGORY = booleanPreferencesKey("show_all_channels_category")
@@ -1596,6 +1597,16 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setLiveTvChannelMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LIVE_TV_CHANNEL_MODE] = mode
+        }
+    }
+
+    override val liveTvAutoHideCategories: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LIVE_TV_AUTO_HIDE_CATEGORIES] ?: false
+    }
+
+    override suspend fun setLiveTvAutoHideCategories(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LIVE_TV_AUTO_HIDE_CATEGORIES] = enabled
         }
     }
 

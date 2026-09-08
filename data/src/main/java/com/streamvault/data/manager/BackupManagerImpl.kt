@@ -216,6 +216,7 @@ class BackupManagerImpl @Inject constructor(
                 put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
                 put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
                 put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+                put("liveTvAutoHideCategories", preferencesRepository.liveTvAutoHideCategories.first().toString())
                 put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
                 put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
                 put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
@@ -3150,6 +3151,7 @@ class BackupManagerImpl @Inject constructor(
             put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
             put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
             put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+            put("liveTvAutoHideCategories", preferencesRepository.liveTvAutoHideCategories.first().toString())
             put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
             put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
             put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
@@ -3632,6 +3634,8 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setLiveTvQuickFilterVisibility(it) }
         prefs["liveTvChannelMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setLiveTvChannelMode(it) }
+        prefs["liveTvAutoHideCategories"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setLiveTvAutoHideCategories(it) }
         prefs["showLiveSourceSwitcher"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setShowLiveSourceSwitcher(it) }
         prefs["showFavoritesCategory"]?.toBooleanStrictOrNull()

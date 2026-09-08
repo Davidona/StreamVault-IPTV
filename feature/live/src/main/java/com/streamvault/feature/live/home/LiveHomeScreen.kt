@@ -31,7 +31,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TextButton
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
@@ -53,6 +59,7 @@ import com.streamvault.feature.live.presentation.components.LiveReorderTopBar
 import com.streamvault.feature.live.presentation.home.liveHomeLayoutMetrics
 import com.streamvault.feature.live.presentation.home.isLiveHomeCategoryLocked
 import com.streamvault.feature.live.presentation.home.isLiveHomeChannelLocked
+import com.streamvault.feature.live.presentation.home.shouldCollapseLiveCategorySidebar
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
@@ -139,6 +146,9 @@ fun LiveHomeScreen(
     var showAddQuickFilterDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenCategoriesDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenChannelsDialog by rememberSaveable { mutableStateOf(false) }
+    var isCategorySidebarHidden by rememberSaveable { mutableStateOf(false) }
+    var sidebarRevealNonce by remember { mutableStateOf(0) }
+    var pendingCategoryContentJumpCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
 
     // Parental Control State
     var showPinDialog by rememberSaveable { mutableStateOf(false) }
@@ -147,6 +157,13 @@ fun LiveHomeScreen(
     var pendingUnlockChannel by remember { mutableStateOf<Channel?>(null) }
     var pendingLockToggleCategory by remember { mutableStateOf<Category?>(null) }
     val scope = rememberCoroutineScope()
+
+    fun revealCategorySidebar() {
+        isCategorySidebarHidden = false
+        pendingCategoryContentJumpCategoryId = null
+        sidebarRevealNonce++
+    }
+
     LaunchedEffect(initialCategoryId) {
         viewModel.setPreferredInitialCategory(initialCategoryId)
     }
@@ -192,6 +209,16 @@ fun LiveHomeScreen(
             uiState.showDialog -> viewModel.onDismissDialog()
             showSplitManagerDialog -> showSplitManagerDialog = false
             isReorderMode -> viewModel.exitChannelReorderMode()
+        }
+    }
+
+    BackHandler(enabled = isCategorySidebarHidden && !hasOverlay) {
+        revealCategorySidebar()
+    }
+
+    LaunchedEffect(uiState.liveTvAutoHideCategories) {
+        if (!uiState.liveTvAutoHideCategories && isCategorySidebarHidden) {
+            revealCategorySidebar()
         }
     }
 
@@ -328,6 +355,7 @@ fun LiveHomeScreen(
                 val channelSearchFocusRequester = remember { FocusRequester() }
                 val categoryFocusRequesters = remember { mutableMapOf<Long, FocusRequester>() }
                 val channelFocusRequesters = remember { mutableMapOf<Long, FocusRequester>() }
+                val categoryListState = rememberLazyListState()
                 val visibleCategories = remember(uiState.categories, uiState.categorySearchQuery) {
                     uiState.categories
                         .asSequence()
@@ -370,7 +398,6 @@ fun LiveHomeScreen(
                 var preferredRestoreTarget by rememberSaveable { mutableStateOf(FocusRestoreTarget.CHANNEL.name) }
                 var pendingRestoreTarget by remember { mutableStateOf<FocusRestoreTarget?>(null) }
                 var focusRestoreNonce by rememberSaveable { mutableStateOf(0) }
-                var pendingCategoryContentJumpCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
                 var focusedRemoteShortcutTarget by remember { mutableStateOf<FocusedRemoteShortcutTarget?>(null) }
 
                 fun requestChannelFocus(channelId: Long?): Boolean {
@@ -408,6 +435,18 @@ fun LiveHomeScreen(
                     return focusedImmediately
                 }
 
+                fun collapseCategorySidebarForSelection(isLocked: Boolean = false): Boolean {
+                    val shouldCollapse = shouldCollapseLiveCategorySidebar(
+                        autoHideCategories = uiState.liveTvAutoHideCategories,
+                        isLocked = isLocked,
+                        isReorderMode = isReorderMode
+                    )
+                    if (shouldCollapse) {
+                        isCategorySidebarHidden = true
+                    }
+                    return shouldCollapse
+                }
+
                 val displayedCategory = uiState.selectedCategory?.takeIf { !isCategoryLocked(it) }
                 val hasBlockedCategorySearch =
                     uiState.categorySearchQuery.isNotBlank() &&
@@ -441,6 +480,37 @@ fun LiveHomeScreen(
                         requestChannelFocusFromCategory()
                     }
                     pendingCategoryContentJumpCategoryId = null
+                }
+
+                LaunchedEffect(sidebarRevealNonce, visibleCategories) {
+                    if (sidebarRevealNonce == 0 || isCategorySidebarHidden) return@LaunchedEffect
+
+                    val targetCategoryId = lastFocusedCategoryId
+                        ?.takeIf { categoryId -> visibleCategories.any { it.id == categoryId } }
+                        ?: (unlockedVisibleCategories.firstOrNull() ?: visibleCategories.firstOrNull())?.id
+                    val targetIndex = targetCategoryId?.let { categoryId ->
+                        visibleCategories.indexOfFirst { it.id == categoryId }
+                    } ?: -1
+                    if (targetIndex >= 0) {
+                        kotlinx.coroutines.delay(80)
+                        categoryListState.animateScrollToItem(targetIndex)
+                    }
+
+                    var restored = requestCategoryFocus(targetCategoryId)
+                    if (!restored) {
+                        kotlinx.coroutines.delay(100)
+                        restored = requestCategoryFocus(targetCategoryId)
+                    }
+                    if (!restored) {
+                        val fallbackCategoryId = (unlockedVisibleCategories.firstOrNull() ?: visibleCategories.firstOrNull())?.id
+                        if (fallbackCategoryId != targetCategoryId) {
+                            val fallbackIndex = visibleCategories.indexOfFirst { it.id == fallbackCategoryId }
+                            if (fallbackIndex >= 0) {
+                                categoryListState.animateScrollToItem(fallbackIndex)
+                            }
+                            requestCategoryFocus(fallbackCategoryId)
+                        }
+                    }
                 }
 
                 LaunchedEffect(uiState.categories, uiState.selectedCategory?.id, uiState.parentalControlLevel, isReorderMode) {
@@ -511,6 +581,8 @@ fun LiveHomeScreen(
                     }.getOrDefault(FocusRestoreTarget.CHANNEL)
 
                     pendingRestoreTarget = when {
+                        isCategorySidebarHidden && canRestoreChannel -> FocusRestoreTarget.CHANNEL
+                        isCategorySidebarHidden -> null
                         restoreTarget == FocusRestoreTarget.CATEGORY && canRestoreCategory -> FocusRestoreTarget.CATEGORY
                         canRestoreChannel -> FocusRestoreTarget.CHANNEL
                         canRestoreCategory -> FocusRestoreTarget.CATEGORY
@@ -563,6 +635,8 @@ fun LiveHomeScreen(
                             visibleCategories.any { it.id == lastFocusedCategoryId }
 
                         pendingRestoreTarget = when {
+                            isCategorySidebarHidden && canRestoreChannel -> FocusRestoreTarget.CHANNEL
+                            isCategorySidebarHidden -> null
                             restoreTarget == FocusRestoreTarget.CATEGORY && canRestoreCategory -> FocusRestoreTarget.CATEGORY
                             canRestoreChannel -> FocusRestoreTarget.CHANNEL
                             canRestoreCategory -> FocusRestoreTarget.CATEGORY
@@ -631,14 +705,19 @@ fun LiveHomeScreen(
                     val categorySearchFocusRequester = remember { FocusRequester() }
                     val focusManager = LocalFocusManager.current
                     
-                    Column(
-                        modifier = Modifier
-                            .width(sidebarWidth)
-                            .fillMaxHeight()
-                            .background(SurfaceElevated.copy(alpha = 0.88f), RoundedCornerShape(20.dp))
-                            .padding(top = 10.dp)
-                            .focusGroup()
+                    AnimatedVisibility(
+                        visible = !isCategorySidebarHidden,
+                        enter = fadeIn(tween(150)) + expandHorizontally(),
+                        exit = fadeOut(tween(100)) + shrinkHorizontally()
                     ) {
+                        Column(
+                            modifier = Modifier
+                                .width(sidebarWidth)
+                                .fillMaxHeight()
+                                .background(SurfaceElevated.copy(alpha = 0.88f), RoundedCornerShape(20.dp))
+                                .padding(top = 10.dp)
+                                .focusGroup()
+                        ) {
                         LiveCategorySidebarHeader(
                             title = stringResource(R.string.home_categories_title),
                             currentSource = uiState.activeLiveSource,
@@ -687,6 +766,7 @@ fun LiveHomeScreen(
                         LiveCategoryListHost(
                             categories = visibleCategories,
                             categoryFocusRequesters = categoryFocusRequesters,
+                            state = categoryListState,
                             itemContent = { category, categoryFocusRequester ->
                             val isLocked = isCategoryLocked(category)
 
@@ -702,7 +782,9 @@ fun LiveHomeScreen(
                                         pendingUnlockCategory = category
                                         showPinDialog = true
                                     } else {
+                                        val collapsed = collapseCategorySidebarForSelection()
                                         viewModel.selectCategory(category)
+                                        pendingCategoryContentJumpCategoryId = category.id.takeIf { collapsed }
                                     }
                                 },
                                 onLongClick = {
@@ -718,14 +800,17 @@ fun LiveHomeScreen(
                                         pendingCategoryContentJumpCategoryId = null
                                         false
                                     } else if (uiState.selectedCategory?.id != category.id) {
-                                        pendingCategoryContentJumpCategoryId = category.id
+                                        val collapsed = collapseCategorySidebarForSelection()
+                                        pendingCategoryContentJumpCategoryId = category.id.takeIf { collapsed }
                                         viewModel.selectCategory(category)
                                         true
                                     } else if (uiState.isLoading) {
-                                        pendingCategoryContentJumpCategoryId = category.id
+                                        val collapsed = collapseCategorySidebarForSelection()
+                                        pendingCategoryContentJumpCategoryId = category.id.takeIf { collapsed }
                                         true
                                     } else if (uiState.filteredChannels.isNotEmpty()) {
                                         pendingCategoryContentJumpCategoryId = null
+                                        collapseCategorySidebarForSelection()
                                         requestChannelFocusFromCategory()
                                     } else {
                                         pendingCategoryContentJumpCategoryId = null
@@ -747,6 +832,7 @@ fun LiveHomeScreen(
                             )
                             }
                         )
+                        }
                     }
 
                 // Content - Channel Grid / Pro Preview
@@ -793,7 +879,10 @@ fun LiveHomeScreen(
                             searchPlaceholder = stringResource(R.string.home_search_channels),
                             channelSearchFocusRequester = channelSearchFocusRequester,
                             channelSearchWidth = channelSearchWidth,
-                            isReorderMode = isReorderMode
+                            isReorderMode = isReorderMode,
+                            showCategoriesButton = isCategorySidebarHidden,
+                            onShowCategories = ::revealCategorySidebar,
+                            showCategoriesContentDescription = stringResource(R.string.home_show_categories)
                         )
 
                         Crossfade(

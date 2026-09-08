@@ -507,6 +507,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setLiveTvAutoHideCategories(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setLiveTvAutoHideCategories(enabled)
+        }
+    }
+
     fun setShowLiveSourceSwitcher(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setShowLiveSourceSwitcher(enabled)

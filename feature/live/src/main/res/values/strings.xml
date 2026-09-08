@@ -94,6 +94,7 @@
     <string name="home_add_first_provider_subtitle">Set up a provider to load live channels, movies, series, and guide data.</string>
     <string name="home_all_channels">All Channels</string>
     <string name="home_categories_title">Categories</string>
+    <string name="home_show_categories">Show categories</string>
     <string name="home_loading_categories">Loading categories...</string>
     <string name="home_loading_channels">Loading channels...</string>
     <string name="home_no_channels_found">No channels found in this category</string>

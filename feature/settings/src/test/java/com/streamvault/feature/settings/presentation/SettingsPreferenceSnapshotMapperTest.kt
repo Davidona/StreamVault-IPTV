@@ -40,6 +40,7 @@ class SettingsPreferenceSnapshotMapperTest {
         )
 
         assertThat(mappedState.appUpdate.isUpdateAvailable).isTrue()
+        assertThat(mappedState.liveTvAutoHideCategories).isFalse()
     }
 
     private fun cachedReleaseSnapshot() = SettingsPreferenceSnapshot(
@@ -93,6 +94,7 @@ class SettingsPreferenceSnapshotMapperTest {
         useXtreamTextClassification = true,
         xtreamBase64TextCompatibility = false,
         liveTvChannelMode = LiveTvChannelMode.PRO,
+        liveTvAutoHideCategories = false,
         showLiveSourceSwitcher = false,
         showFavoritesCategory = true,
         showAllChannelsCategory = true,

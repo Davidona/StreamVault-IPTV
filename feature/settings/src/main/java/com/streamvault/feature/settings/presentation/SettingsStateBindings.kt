@@ -91,6 +91,7 @@ fun observeSettingsPreferenceSnapshot(
             useXtreamTextClassification = true,
             xtreamBase64TextCompatibility = false,
             liveTvChannelMode = LiveTvChannelMode.PRO,
+            liveTvAutoHideCategories = false,
             showLiveSourceSwitcher = false,
             showFavoritesCategory = true,
             showAllChannelsCategory = true,
@@ -216,6 +217,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(xtreamBase64TextCompatibility = compatibilityEnabled)
     }.combine(preferencesRepository.liveTvChannelMode) { snapshot, liveTvChannelMode ->
         snapshot.copy(liveTvChannelMode = LiveTvChannelMode.fromStorage(liveTvChannelMode))
+    }.combine(preferencesRepository.liveTvAutoHideCategories) { snapshot, liveTvAutoHideCategories ->
+        snapshot.copy(liveTvAutoHideCategories = liveTvAutoHideCategories)
     }.combine(preferencesRepository.showLiveSourceSwitcher) { snapshot, showLiveSourceSwitcher ->
         snapshot.copy(showLiveSourceSwitcher = showLiveSourceSwitcher)
     }.combine(preferencesRepository.showFavoritesCategory) { snapshot, showFavoritesCategory ->

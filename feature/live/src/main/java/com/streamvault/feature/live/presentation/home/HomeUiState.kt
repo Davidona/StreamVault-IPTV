@@ -54,6 +54,7 @@ data class HomeUiState(
     val isChannelReorderMode: Boolean = false,
     val reorderCategory: Category? = null,
     val liveTvChannelMode: LiveTvChannelMode = LiveTvChannelMode.PRO,
+    val liveTvAutoHideCategories: Boolean = false,
     val errorMessage: String? = null,
     val multiviewChannelCount: Int = 0,
     val multiviewSlotCapacity: Int = 4

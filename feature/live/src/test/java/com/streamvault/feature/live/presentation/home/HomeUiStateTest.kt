@@ -12,6 +12,7 @@ class HomeUiStateTest {
         assertThat(state.isLoading).isTrue()
         assertThat(state.isCategoriesLoading).isTrue()
         assertThat(state.liveTvChannelMode).isEqualTo(LiveTvChannelMode.PRO)
+        assertThat(state.liveTvAutoHideCategories).isFalse()
         assertThat(state.multiviewChannelCount).isEqualTo(0)
         assertThat(state.multiviewSlotCapacity).isEqualTo(4)
     }

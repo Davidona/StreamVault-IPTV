@@ -60,6 +60,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         useXtreamTextClassification = snapshot.useXtreamTextClassification,
         xtreamBase64TextCompatibility = snapshot.xtreamBase64TextCompatibility,
         liveTvChannelMode = snapshot.liveTvChannelMode,
+        liveTvAutoHideCategories = snapshot.liveTvAutoHideCategories,
         showLiveSourceSwitcher = snapshot.showLiveSourceSwitcher,
         showFavoritesCategory = snapshot.showFavoritesCategory,
         showAllChannelsCategory = snapshot.showAllChannelsCategory,

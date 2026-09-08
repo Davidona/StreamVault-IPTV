@@ -367,6 +367,14 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            preferencesRepository.liveTvAutoHideCategories
+                .distinctUntilChanged()
+                .collectLatest { enabled ->
+                    _uiState.update { it.copy(liveTvAutoHideCategories = enabled) }
+                }
+        }
+
+        viewModelScope.launch {
             preferencesRepository.liveTvCategoryFilters.collectLatest { filters ->
                 _uiState.update { state ->
                     val activeFilter = state.activeCategoryFilter

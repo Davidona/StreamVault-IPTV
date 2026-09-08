@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -15,9 +16,11 @@ fun LiveCategoryListHost(
     categories: List<Category>,
     categoryFocusRequesters: MutableMap<Long, FocusRequester>,
     itemContent: @Composable (category: Category, focusRequester: FocusRequester) -> Unit,
+    state: LazyListState,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
+        state = state,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {

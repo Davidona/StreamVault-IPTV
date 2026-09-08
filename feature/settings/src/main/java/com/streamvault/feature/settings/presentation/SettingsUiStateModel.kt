@@ -145,6 +145,7 @@ data class SettingsUiState(
     val useXtreamTextClassification: Boolean = true,
     val xtreamBase64TextCompatibility: Boolean = false,
     val liveTvChannelMode: LiveTvChannelMode = LiveTvChannelMode.PRO,
+    val liveTvAutoHideCategories: Boolean = false,
     val showLiveSourceSwitcher: Boolean = false,
     val showFavoritesCategory: Boolean = true,
     val showAllChannelsCategory: Boolean = true,
