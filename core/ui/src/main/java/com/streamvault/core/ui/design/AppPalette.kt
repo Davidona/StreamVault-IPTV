@@ -26,14 +26,17 @@ data class AppPalette(
     val divider: Color,
     val outline: Color,
     val heroTop: Color,
-    val heroBottom: Color
+    val heroBottom: Color,
+    val isLight: Boolean
 ) {
     companion object {
         const val CLASSIC_BLUE_ID = "classic_blue"
         const val M3_PURPLE_ID = "m3_purple"
+        const val LIGHT_ID = "light"
 
         fun forTheme(themeId: String?): AppPalette = when (themeId?.trim()?.lowercase()) {
             M3_PURPLE_ID -> m3Purple()
+            LIGHT_ID -> light()
             else -> classicBlue()
         }
 
@@ -60,7 +63,8 @@ data class AppPalette(
             divider = Color(0x1AF4F8FF),
             outline = Color(0x264C6D95),
             heroTop = Color(0xCC07111B),
-            heroBottom = Color(0xF207111B)
+            heroBottom = Color(0xF207111B),
+            isLight = false
         )
 
         fun m3Purple(): AppPalette = AppPalette(
@@ -86,7 +90,35 @@ data class AppPalette(
             divider = Color(0x1AF4F8FF),
             outline = Color(0x26FFFFFF),
             heroTop = Color(0xCC0A0A0D),
-            heroBottom = Color(0xF20A0A0D)
+            heroBottom = Color(0xF20A0A0D),
+            isLight = false
+        )
+
+        fun light(): AppPalette = AppPalette(
+            canvas = Color(0xFFF4F7FB),
+            canvasElevated = Color.White,
+            surface = Color.White,
+            surfaceElevated = Color(0xFFEAF0F8),
+            surfaceEmphasis = Color(0xFFDDE7F3),
+            surfaceAccent = Color(0xFFD2E2F5),
+            brand = Color(0xFF185FB4),
+            brandMuted = Color(0x33185FB4),
+            brandStrong = Color(0xFF0D47A1),
+            onPrimary = Color.White,
+            focus = Color(0xFF123B6D),
+            textPrimary = Color(0xFF132033),
+            textSecondary = Color(0xFF41516A),
+            textTertiary = Color(0xFF667892),
+            textDisabled = Color(0xFF9AA7B8),
+            live = Color(0xFFB3261E),
+            success = Color(0xFF176B47),
+            warning = Color(0xFF8A5200),
+            info = Color(0xFF006A8E),
+            divider = Color(0x1F132033),
+            outline = Color(0x335B6B82),
+            heroTop = Color(0xCCF4F7FB),
+            heroBottom = Color(0xF2F4F7FB),
+            isLight = true
         )
     }
 }

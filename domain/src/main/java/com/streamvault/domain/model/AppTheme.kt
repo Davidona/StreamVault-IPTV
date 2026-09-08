@@ -2,7 +2,8 @@ package com.streamvault.domain.model
 
 enum class AppTheme(val storageValue: String) {
     CLASSIC_BLUE("classic_blue"),
-    M3_PURPLE("m3_purple");
+    M3_PURPLE("m3_purple"),
+    LIGHT("light");
 
     companion object {
         val DEFAULT: AppTheme = CLASSIC_BLUE

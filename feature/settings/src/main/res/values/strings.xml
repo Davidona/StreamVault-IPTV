@@ -43,6 +43,7 @@
     <string name="settings_select_theme">Select theme</string>
     <string name="settings_theme_classic_blue">Classic blue</string>
     <string name="settings_theme_m3_purple">M3 purple</string>
+    <string name="settings_theme_light">Light</string>
     <string name="settings_live_channel_numbering_mode">Live TV Channel Numbering</string>
     <string name="settings_live_channel_numbering_mode_subtitle">Choose whether live channels use their position in the current group or keep the original numbers from the provider.</string>
     <string name="settings_live_channel_numbering_group">Per Group</string>

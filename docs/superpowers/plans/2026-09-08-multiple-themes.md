@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans (inline execution is approved for this branch). Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add two selectable palette themes, persist the choice, apply it at both app entry points, expose it in Settings, and round-trip it through portable backups.
+**Goal:** Add three selectable palette themes, persist the choice, apply it at both app entry points, expose it in Settings, and round-trip it through portable backups.
 
 **Architecture:** The domain defines stable theme IDs and fallback parsing. DataStore and the existing SettingsPreferences/snapshot flow carry the enum; core UI resolves the ID into a state-backed palette facade and Material TV color scheme without taking a dependency on domain. MainActivity and TvInputSetupActivity pass the persisted storage ID into StreamVaultTheme.
 
@@ -14,6 +14,7 @@
 
 - `classic_blue` is the default and preserves the existing palette.
 - `m3_purple` is palette-only; typography, shapes, spacing, layout, and behavior remain shared.
+- `light` uses a light Material color scheme; typography, shapes, spacing, layout, and behavior remain shared.
 - Invalid or missing theme values fall back to `classic_blue`.
 - Core UI must remain independent of `:domain`, `:data`, `:app`, and feature modules.
 - Portable backups must include the theme and restore it tolerantly.
@@ -28,7 +29,7 @@
 - Test: `domain/src/test/java/com/streamvault/domain/model/AppThemeTest.kt`
 
 **Interfaces:**
-- Produces `AppTheme.CLASSIC_BLUE`, `AppTheme.M3_PURPLE`, `AppTheme.DEFAULT`, `AppTheme.storageValue`, and `AppTheme.fromStorage(value: String?): AppTheme`.
+- Produces `AppTheme.CLASSIC_BLUE`, `AppTheme.M3_PURPLE`, `AppTheme.LIGHT`, `AppTheme.DEFAULT`, `AppTheme.storageValue`, and `AppTheme.fromStorage(value: String?): AppTheme`.
 
 - [ ] **Step 1: Write the failing tests** for stable IDs, case-insensitive parsing, and fallback for null/unknown/blank input.
 - [ ] **Step 2: Run `:domain:test` for `AppThemeTest` and confirm the failure is caused by the missing model.**
@@ -47,10 +48,10 @@
 **Interfaces:**
 - Produces `AppPalette.forTheme(themeId: String): AppPalette` and `StreamVaultTheme(themeId: String = "classic_blue", content: @Composable () -> Unit)`.
 
-- [ ] **Step 1: Write failing palette tests** proving classic blue retains the current brand/surface colors, M3 purple changes the primary/surface colors, and an unknown ID resolves to classic blue.
+- [ ] **Step 1: Write failing palette tests** proving classic blue retains the current brand/surface colors, M3 purple changes the primary/surface colors, light uses light surfaces/dark text, and an unknown ID resolves to classic blue.
 - [ ] **Step 2: Run `:core:ui:testDebugUnitTest` for the palette test and confirm the expected missing-symbol failure.**
-- [ ] **Step 3: Implement the two complete palettes and state-backed `AppColors` getters.**
-- [ ] **Step 4: Change top-level color aliases to computed getters and build the Material TV color scheme from the selected palette.**
+- [ ] **Step 3: Implement the three complete palettes and state-backed `AppColors` getters.**
+- [ ] **Step 4: Change top-level color aliases to computed getters and build the appropriate dark or light Material TV color scheme from the selected palette.**
 - [ ] **Step 5: Re-run the focused core UI test and `:core:ui:check` to verify both behavior and the existing module boundary.**
 
 ### Task 3: Persist theme through the settings contract and DataStore

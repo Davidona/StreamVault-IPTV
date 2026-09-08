@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a user-selectable palette theme to StreamVault. The existing blue/navy palette remains the default, and the M3 purple-on-black palette becomes a second selectable theme.
+Add user-selectable palette themes to StreamVault. The existing blue/navy palette remains the default, the M3 purple-on-black palette is selectable, and a true light palette is available for brighter viewing environments.
 
 ## Scope
 
@@ -22,12 +22,13 @@ Theme IDs are stable storage values, not enum ordinals:
 | --- | --- | --- |
 | `classic_blue` | Classic blue | Current StreamVault blue/navy palette |
 | `m3_purple` | M3 purple | Purple primary with neutral black surfaces |
+| `light` | Light | Light surfaces with readable dark text and blue accents |
 
 ## Architecture
 
 The domain layer owns the stable `AppTheme` ID enum and its tolerant storage parser. The data layer exposes it through `SettingsPreferences`, stores it in DataStore, and includes it in the existing portable backup registry and backup codec. The settings feature observes and writes the enum through its existing preference snapshot/view-model flow.
 
-The core UI layer owns the color palettes because it is intentionally independent of the domain and app modules. `StreamVaultTheme(themeId: String)` resolves the requested palette, updates the existing `AppColors` facade through Compose state, and constructs the Material TV color scheme from that palette. Existing color call sites remain source-compatible, while top-level aliases become computed getters so they follow palette changes. The app entry points collect the domain preference and pass its stable storage value to core UI.
+The core UI layer owns the color palettes because it is intentionally independent of the domain and app modules. `StreamVaultTheme(themeId: String)` resolves the requested palette, updates the existing `AppColors` facade through Compose state, and constructs either a dark or light Material TV color scheme from that palette. Existing color call sites remain source-compatible, while top-level aliases become computed getters so they follow palette changes. The app entry points collect the domain preference and pass its stable storage value to core UI.
 
 ## Safety and compatibility
 

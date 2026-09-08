@@ -27,6 +27,17 @@ class AppPaletteTest {
     }
 
     @Test
+    fun `light theme uses a light surface palette and readable dark text`() {
+        val palette = AppPalette.forTheme("light")
+
+        assertThat(palette.canvas).isEqualTo(Color(0xFFF4F7FB))
+        assertThat(palette.surface).isEqualTo(Color.White)
+        assertThat(palette.brand).isEqualTo(Color(0xFF185FB4))
+        assertThat(palette.textPrimary).isEqualTo(Color(0xFF132033))
+        assertThat(palette.isLight).isTrue()
+    }
+
+    @Test
     fun `unknown theme IDs resolve to classic blue`() {
         assertThat(AppPalette.forTheme("unknown")).isEqualTo(AppPalette.forTheme("classic_blue"))
         assertThat(AppPalette.forTheme(null)).isEqualTo(AppPalette.forTheme("classic_blue"))

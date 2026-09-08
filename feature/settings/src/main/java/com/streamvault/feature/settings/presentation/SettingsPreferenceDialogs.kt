@@ -400,4 +400,5 @@ private fun AppLandingDestination.labelResId(): Int = when (this) {
 private fun AppTheme.labelResId(): Int = when (this) {
     AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
     AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
+    AppTheme.LIGHT -> R.string.settings_theme_light
 }
