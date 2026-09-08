@@ -7,6 +7,7 @@ All notable product changes are recorded in this document.
 ### Changed
 
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
+- Added an opt-in Live TV setting to auto-hide the category sidebar after selection, with Back-button and focus-aware restoration.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
 - Updated Italian translations across the app and feature modules, including previously missing strings and corrected resource ownership.
