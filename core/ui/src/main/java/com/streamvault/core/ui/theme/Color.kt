@@ -1,38 +1,37 @@
 package com.streamvault.core.ui.theme
 
-import androidx.compose.ui.graphics.Color
 import com.streamvault.core.ui.design.AppColors
 
-val Primary = AppColors.Brand
-val PrimaryLight = AppColors.BrandStrong
-val PrimaryGlow = AppColors.BrandMuted
+val Primary get() = AppColors.Brand
+val PrimaryLight get() = AppColors.BrandStrong
+val PrimaryGlow get() = AppColors.BrandMuted
 
-val BackgroundDeep = AppColors.Canvas
-val Background = AppColors.CanvasElevated
-val Surface = AppColors.Surface
-val SurfaceElevated = AppColors.SurfaceElevated
-val SurfaceHighlight = AppColors.SurfaceEmphasis
+val BackgroundDeep get() = AppColors.Canvas
+val Background get() = AppColors.CanvasElevated
+val Surface get() = AppColors.Surface
+val SurfaceElevated get() = AppColors.SurfaceElevated
+val SurfaceHighlight get() = AppColors.SurfaceEmphasis
 
-val TextPrimary = AppColors.TextPrimary
-val TextSecondary = AppColors.TextSecondary
-val TextTertiary = AppColors.TextTertiary
-val TextDisabled = AppColors.TextDisabled
+val TextPrimary get() = AppColors.TextPrimary
+val TextSecondary get() = AppColors.TextSecondary
+val TextTertiary get() = AppColors.TextTertiary
+val TextDisabled get() = AppColors.TextDisabled
 
-val OnBackground = TextPrimary
-val OnSurface = TextPrimary
-val OnSurfaceDim = TextTertiary
+val OnBackground get() = TextPrimary
+val OnSurface get() = TextPrimary
+val OnSurfaceDim get() = TextTertiary
 
-val AccentRed = AppColors.Live
-val AccentGreen = AppColors.Success
-val AccentAmber = AppColors.Warning
-val AccentCyan = AppColors.Info
+val AccentRed get() = AppColors.Live
+val AccentGreen get() = AppColors.Success
+val AccentAmber get() = AppColors.Warning
+val AccentCyan get() = AppColors.Info
 
-val OnPrimary = Color(0xFFFFFFFF)
-val Secondary = AppColors.Success
-val ErrorColor = AccentRed
+val OnPrimary get() = AppColors.OnPrimary
+val Secondary get() = AppColors.Success
+val ErrorColor get() = AccentRed
 
-val GradientOverlayTop = AppColors.HeroTop
-val GradientOverlayBottom = AppColors.HeroBottom
+val GradientOverlayTop get() = AppColors.HeroTop
+val GradientOverlayBottom get() = AppColors.HeroBottom
 
-val FocusBorder = AppColors.Focus
-val ProgressBarBackground = AppColors.SurfaceAccent
+val FocusBorder get() = AppColors.Focus
+val ProgressBarBackground get() = AppColors.SurfaceAccent

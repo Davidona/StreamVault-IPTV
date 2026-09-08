@@ -13,6 +13,7 @@ class SettingsScreenDialogState(
     private val showLevelDialogState: MutableState<Boolean>,
     private val showLanguageDialogState: MutableState<Boolean>,
     private val showTimeFormatDialogState: MutableState<Boolean>,
+    private val showThemeDialogState: MutableState<Boolean>,
     private val showLiveTvModeDialogState: MutableState<Boolean>,
     private val showLiveTvQuickFilterVisibilityDialogState: MutableState<Boolean>,
     private val showLiveChannelNumberingDialogState: MutableState<Boolean>,
@@ -78,6 +79,7 @@ class SettingsScreenDialogState(
     var showLevelDialog by showLevelDialogState
     var showLanguageDialog by showLanguageDialogState
     var showTimeFormatDialog by showTimeFormatDialogState
+    var showThemeDialog by showThemeDialogState
     var showLiveTvModeDialog by showLiveTvModeDialogState
     var showLiveTvQuickFilterVisibilityDialog by showLiveTvQuickFilterVisibilityDialogState
     var showLiveChannelNumberingDialog by showLiveChannelNumberingDialogState
@@ -211,6 +213,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
     val showLevelDialogState = rememberSaveable { mutableStateOf(false) }
     val showLanguageDialogState = rememberSaveable { mutableStateOf(false) }
     val showTimeFormatDialogState = rememberSaveable { mutableStateOf(false) }
+    val showThemeDialogState = rememberSaveable { mutableStateOf(false) }
     val showLiveTvModeDialogState = rememberSaveable { mutableStateOf(false) }
     val showLiveTvQuickFilterVisibilityDialogState = rememberSaveable { mutableStateOf(false) }
     val showLiveChannelNumberingDialogState = rememberSaveable { mutableStateOf(false) }
@@ -285,6 +288,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
         showLevelDialogState = showLevelDialogState,
         showLanguageDialogState = showLanguageDialogState,
         showTimeFormatDialogState = showTimeFormatDialogState,
+        showThemeDialogState = showThemeDialogState,
         showLiveTvModeDialogState = showLiveTvModeDialogState,
         showLiveTvQuickFilterVisibilityDialogState = showLiveTvQuickFilterVisibilityDialogState,
         showLiveChannelNumberingDialogState = showLiveChannelNumberingDialogState,

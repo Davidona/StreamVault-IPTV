@@ -18,6 +18,7 @@ import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.CategorySortMode
@@ -77,6 +78,7 @@ data class SettingsUiState(
     val appTopLevelDestinations: List<AppTopLevelDestination> = AppTopLevelDestination.defaultOrder,
     val appHomeDashboardShelves: List<AppHomeDashboardShelf> = AppHomeDashboardShelf.defaultOrder,
     val appTimeFormat: AppTimeFormat = AppTimeFormat.SYSTEM,
+    val appTheme: AppTheme = AppTheme.DEFAULT,
     val preferredAudioLanguage: String = "auto",
     val playerMediaSessionEnabled: Boolean = true,
     val playerFastRetryOnTransientFailures: Boolean = false,

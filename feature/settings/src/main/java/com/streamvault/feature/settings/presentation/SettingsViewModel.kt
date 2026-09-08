@@ -668,6 +668,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setAppTheme(theme: com.streamvault.domain.model.AppTheme) {
+        viewModelScope.launch {
+            preferencesRepository.setAppTheme(theme)
+        }
+    }
+
     fun setPreventStandbyDuringPlayback(prevent: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPreventStandbyDuringPlayback(prevent)

@@ -10,6 +10,7 @@ import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.DecoderMode
@@ -50,6 +51,7 @@ fun observeSettingsPreferenceSnapshot(
             appTopLevelDestinations = AppTopLevelDestination.defaultOrder,
             appHomeDashboardShelves = AppHomeDashboardShelf.defaultOrder,
             appTimeFormat = AppTimeFormat.SYSTEM,
+            appTheme = AppTheme.DEFAULT,
             preferredAudioLanguage = "auto",
             playerMediaSessionEnabled = true,
             playerFastRetryOnTransientFailures = false,
@@ -217,6 +219,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(xtreamBase64TextCompatibility = compatibilityEnabled)
     }.combine(preferencesRepository.liveTvChannelMode) { snapshot, liveTvChannelMode ->
         snapshot.copy(liveTvChannelMode = LiveTvChannelMode.fromStorage(liveTvChannelMode))
+    }.combine(preferencesRepository.appTheme) { snapshot, appTheme ->
+        snapshot.copy(appTheme = appTheme)
     }.combine(preferencesRepository.liveTvAutoHideCategories) { snapshot, liveTvAutoHideCategories ->
         snapshot.copy(liveTvAutoHideCategories = liveTvAutoHideCategories)
     }.combine(preferencesRepository.showLiveSourceSwitcher) { snapshot, showLiveSourceSwitcher ->

@@ -26,6 +26,7 @@ import com.streamvault.app.ui.time.toUiTimeFormat
 import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.model.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 import javax.inject.Inject
@@ -192,6 +193,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
         setContent {
             val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
             val appTimeFormat by preferencesRepository.appTimeFormat.collectAsState(initial = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
+            val appTheme by preferencesRepository.appTheme.collectAsState(initial = AppTheme.DEFAULT)
             val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
@@ -236,7 +238,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
                 LocalLiveTimeFormat provides appTimeFormat,
                 LocalUiTimeFormat provides appTimeFormat.toUiTimeFormat()
             ) {
-                StreamVaultTheme {
+                StreamVaultTheme(themeId = appTheme.storageValue) {
                     when (val state = databaseStartupState) {
                         DatabaseStartupState.Opening -> DatabaseStartupScreen(state = state)
                         is DatabaseStartupState.Failed -> DatabaseStartupScreen(

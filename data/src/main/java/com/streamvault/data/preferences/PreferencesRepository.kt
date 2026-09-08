@@ -32,6 +32,7 @@ import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.LiveStreamFormatMode
@@ -147,6 +148,8 @@ internal fun parseTimeshiftBackendPreference(saved: String?): TimeshiftBackendPr
     saved?.let { value -> TimeshiftBackendPreference.entries.firstOrNull { it.name == value } }
         ?: TimeshiftBackendPreference.AUTOMATIC
 
+internal fun parseAppThemePreference(saved: String?): AppTheme = AppTheme.fromStorage(saved)
+
 @Singleton
 class PreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -192,6 +195,7 @@ class PreferencesRepository @Inject constructor(
         val APP_TOP_LEVEL_DESTINATIONS = stringPreferencesKey("app_top_level_destinations")
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
+        val APP_THEME = stringPreferencesKey("app_theme")
         val LIVE_TV_CHANNEL_MODE = stringPreferencesKey("live_tv_channel_mode")
         val LIVE_TV_AUTO_HIDE_CATEGORIES = booleanPreferencesKey("live_tv_auto_hide_categories")
         val SHOW_LIVE_SOURCE_SWITCHER = booleanPreferencesKey("show_live_source_switcher")
@@ -1587,6 +1591,16 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setAppTimeFormat(format: AppTimeFormat) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_TIME_FORMAT] = format.storageValue
+        }
+    }
+
+    override val appTheme: Flow<AppTheme> = context.dataStore.data.map { preferences ->
+        parseAppThemePreference(preferences[PreferencesKeys.APP_THEME]?.trim())
+    }
+
+    override suspend fun setAppTheme(theme: AppTheme) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.APP_THEME] = theme.storageValue
         }
     }
 

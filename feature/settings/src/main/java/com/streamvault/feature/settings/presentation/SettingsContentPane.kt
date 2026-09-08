@@ -125,10 +125,10 @@ public fun SettingsContentPane(
         guideDefaultCategoryLabel = screenLabels.guideDefaultCategoryLabel,
         timeFormatLabel = screenLabels.timeFormatLabel,
         appLanguageLabel = screenLabels.appLanguageLabel,
-                onShowLiveTvModeDialogChange = { dialogState.showLiveTvModeDialog = it },
-                onShowLiveTvFiltersDialogChange = { dialogState.showLiveTvFiltersDialog = it },
-                onShowLiveTvQuickFilterVisibilityDialogChange = { dialogState.showLiveTvQuickFilterVisibilityDialog = it },
-                onShowLiveChannelNumberingDialogChange = { dialogState.showLiveChannelNumberingDialog = it },
+        onShowLiveTvModeDialogChange = { dialogState.showLiveTvModeDialog = it },
+        onShowLiveTvFiltersDialogChange = { dialogState.showLiveTvFiltersDialog = it },
+        onShowLiveTvQuickFilterVisibilityDialogChange = { dialogState.showLiveTvQuickFilterVisibilityDialog = it },
+        onShowLiveChannelNumberingDialogChange = { dialogState.showLiveChannelNumberingDialog = it },
         onShowLiveChannelGroupingDialogChange = { dialogState.showLiveChannelGroupingDialog = it },
         onShowGroupedChannelLabelDialogChange = { dialogState.showGroupedChannelLabelDialog = it },
         onShowLiveVariantPreferenceDialogChange = { dialogState.showLiveVariantPreferenceDialog = it },
@@ -137,15 +137,16 @@ public fun SettingsContentPane(
         onShowLandingScreenDialogChange = { dialogState.showLandingScreenDialog = it },
         onShowGuideDefaultCategoryDialogChange = { dialogState.showGuideDefaultCategoryDialog = it },
         onShowTimeFormatDialogChange = { dialogState.showTimeFormatDialog = it },
-                onShowVodViewModeDialogChange = { dialogState.showVodViewModeDialog = it },
-                onShowVodDuplicateHandlingDialogChange = { dialogState.showVodDuplicateHandlingDialog = it },
-                onShowVodVariantPreferenceDialogChange = { dialogState.showVodVariantPreferenceDialog = it },
-                onCategorySortDialogTypeChange = { dialogState.categorySortDialogType = it },
-                onShowLanguageDialogChange = { dialogState.showLanguageDialog = it },
-                onRemoteShortcutDialogTargetChange = {
-                    dialogState.selectedRemoteShortcutTargetKey = it?.storageKey()
-                }
-            )
+        onShowVodViewModeDialogChange = { dialogState.showVodViewModeDialog = it },
+        onShowThemeDialogChange = { dialogState.showThemeDialog = it },
+        onShowVodDuplicateHandlingDialogChange = { dialogState.showVodDuplicateHandlingDialog = it },
+        onShowVodVariantPreferenceDialogChange = { dialogState.showVodVariantPreferenceDialog = it },
+        onCategorySortDialogTypeChange = { dialogState.categorySortDialogType = it },
+        onShowLanguageDialogChange = { dialogState.showLanguageDialog = it },
+        onRemoteShortcutDialogTargetChange = {
+            dialogState.selectedRemoteShortcutTargetKey = it?.storageKey()
+        }
+    )
         } else if (dialogState.selectedCategory == 3) {
             settingsPrivacySection(
                 uiState = uiState,

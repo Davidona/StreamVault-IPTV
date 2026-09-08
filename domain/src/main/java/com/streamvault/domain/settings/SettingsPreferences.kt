@@ -9,6 +9,7 @@ import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
@@ -298,6 +299,10 @@ interface SettingsPreferences {
     val appTimeFormat: Flow<AppTimeFormat>
 
     suspend fun setAppTimeFormat(format: AppTimeFormat)
+
+    val appTheme: Flow<AppTheme>
+
+    suspend fun setAppTheme(theme: AppTheme)
 
     val liveTvChannelMode: Flow<String?>
 

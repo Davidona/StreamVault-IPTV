@@ -40,6 +40,7 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -68,6 +69,7 @@ public fun LazyListScope.settingsBrowsingSection(
     onShowGuideDefaultCategoryDialogChange: (Boolean) -> Unit,
     onShowTimeFormatDialogChange: (Boolean) -> Unit,
     onShowVodViewModeDialogChange: (Boolean) -> Unit,
+    onShowThemeDialogChange: (Boolean) -> Unit,
     onShowVodDuplicateHandlingDialogChange: (Boolean) -> Unit,
     onShowVodVariantPreferenceDialogChange: (Boolean) -> Unit,
     onCategorySortDialogTypeChange: (String?) -> Unit,
@@ -266,6 +268,11 @@ public fun LazyListScope.settingsBrowsingSection(
             label = stringResource(R.string.settings_vod_view_mode),
             value = stringResource(uiState.vodViewMode.labelResId()),
             onClick = { onShowVodViewModeDialogChange(true) }
+        )
+        ClickableSettingsRow(
+            label = stringResource(R.string.settings_theme),
+            value = stringResource(uiState.appTheme.labelResId()),
+            onClick = { onShowThemeDialogChange(true) }
         )
         SwitchSettingsRow(
             label = stringResource(R.string.settings_vod_complete_on_open),
@@ -582,4 +589,9 @@ private fun RemoteColorButton.accentColor(): Color = when (this) {
     RemoteColorButton.GREEN -> AccentGreen
     RemoteColorButton.YELLOW -> AccentAmber
     RemoteColorButton.BLUE -> AccentCyan
+}
+
+private fun AppTheme.labelResId(): Int = when (this) {
+    AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
+    AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
 }

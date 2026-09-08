@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.CategorySortMode
@@ -31,6 +32,8 @@ public fun SettingsPreferenceDialogs(
     onShowPlaybackSpeedDialogChange: (Boolean) -> Unit,
     showTimeFormatDialog: Boolean,
     onShowTimeFormatDialogChange: (Boolean) -> Unit,
+    showThemeDialog: Boolean,
+    onShowThemeDialogChange: (Boolean) -> Unit,
     showAudioVideoOffsetDialog: Boolean,
     onShowAudioVideoOffsetDialogChange: (Boolean) -> Unit,
     showAudioDecoderModeDialog: Boolean,
@@ -125,6 +128,25 @@ public fun SettingsPreferenceDialogs(
         showLiveTranslationEndpointDialog = showLiveTranslationEndpointDialog,
         onShowLiveTranslationEndpointDialogChange = onShowLiveTranslationEndpointDialogChange
     )
+
+    if (showThemeDialog) {
+        PremiumSelectionDialog(
+            title = stringResource(R.string.settings_select_theme),
+            onDismiss = { onShowThemeDialogChange(false) }
+        ) {
+            AppTheme.entries.forEachIndexed { index, theme ->
+                LevelOption(
+                    level = index,
+                    text = context.getString(theme.labelResId()),
+                    currentLevel = if (uiState.appTheme == theme) index else -1,
+                    onSelect = {
+                        viewModel.setAppTheme(theme)
+                        onShowThemeDialogChange(false)
+                    }
+                )
+            }
+        }
+    }
 
     if (showTopNavigationDialog) {
         TopNavigationDialog(
@@ -373,4 +395,9 @@ private fun AppLandingDestination.labelResId(): Int = when (this) {
     AppLandingDestination.DOWNLOADS -> R.string.nav_downloads
     AppLandingDestination.PLUGINS -> R.string.nav_plugins
     AppLandingDestination.SETTINGS -> R.string.nav_settings
+}
+
+private fun AppTheme.labelResId(): Int = when (this) {
+    AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
+    AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
 }

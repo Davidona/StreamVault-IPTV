@@ -15,6 +15,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         appTopLevelDestinations = snapshot.appTopLevelDestinations,
         appHomeDashboardShelves = snapshot.appHomeDashboardShelves,
         appTimeFormat = snapshot.appTimeFormat,
+        appTheme = snapshot.appTheme,
         preferredAudioLanguage = snapshot.preferredAudioLanguage,
         playerMediaSessionEnabled = snapshot.playerMediaSessionEnabled,
         playerFastRetryOnTransientFailures = snapshot.playerFastRetryOnTransientFailures,

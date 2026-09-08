@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -41,6 +42,7 @@ class SettingsPreferenceSnapshotMapperTest {
 
         assertThat(mappedState.appUpdate.isUpdateAvailable).isTrue()
         assertThat(mappedState.liveTvAutoHideCategories).isFalse()
+        assertThat(mappedState.appTheme).isEqualTo(AppTheme.M3_PURPLE)
     }
 
     private fun cachedReleaseSnapshot() = SettingsPreferenceSnapshot(
@@ -53,6 +55,7 @@ class SettingsPreferenceSnapshotMapperTest {
         appTopLevelDestinations = AppTopLevelDestination.defaultOrder,
         appHomeDashboardShelves = AppHomeDashboardShelf.defaultOrder,
         appTimeFormat = AppTimeFormat.SYSTEM,
+        appTheme = AppTheme.M3_PURPLE,
         preferredAudioLanguage = "auto",
         playerMediaSessionEnabled = true,
         playerFastRetryOnTransientFailures = false,

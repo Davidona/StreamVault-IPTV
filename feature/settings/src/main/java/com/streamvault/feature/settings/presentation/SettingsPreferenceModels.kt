@@ -6,6 +6,7 @@ import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.AppTimeFormat
+import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
@@ -52,6 +53,7 @@ data class SettingsPreferenceSnapshot(
     val appTopLevelDestinations: List<AppTopLevelDestination>,
     val appHomeDashboardShelves: List<AppHomeDashboardShelf>,
     val appTimeFormat: AppTimeFormat,
+    val appTheme: AppTheme,
     val preferredAudioLanguage: String,
     val playerMediaSessionEnabled: Boolean,
     val playerFastRetryOnTransientFailures: Boolean,

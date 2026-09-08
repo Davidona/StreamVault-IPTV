@@ -190,6 +190,8 @@ public fun SettingsScreenDialogs(
         onShowPlaybackSpeedDialogChange = { dialogState.showPlaybackSpeedDialog = it },
         showTimeFormatDialog = dialogState.showTimeFormatDialog,
         onShowTimeFormatDialogChange = { dialogState.showTimeFormatDialog = it },
+        showThemeDialog = dialogState.showThemeDialog,
+        onShowThemeDialogChange = { dialogState.showThemeDialog = it },
         showAudioVideoOffsetDialog = dialogState.showAudioVideoOffsetDialog,
         onShowAudioVideoOffsetDialogChange = { dialogState.showAudioVideoOffsetDialog = it },
         showAudioDecoderModeDialog = dialogState.showAudioDecoderModeDialog,

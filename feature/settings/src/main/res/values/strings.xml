@@ -39,6 +39,10 @@
     <string name="settings_vod_view_mode_modern_desc">Shelf-based browsing with featured rows and category previews.</string>
     <string name="settings_vod_view_mode_classic">Classic</string>
     <string name="settings_vod_view_mode_classic_desc">Category list on the left with a stacked poster grid on the right.</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_select_theme">Select theme</string>
+    <string name="settings_theme_classic_blue">Classic blue</string>
+    <string name="settings_theme_m3_purple">M3 purple</string>
     <string name="settings_live_channel_numbering_mode">Live TV Channel Numbering</string>
     <string name="settings_live_channel_numbering_mode_subtitle">Choose whether live channels use their position in the current group or keep the original numbers from the provider.</string>
     <string name="settings_live_channel_numbering_group">Per Group</string>
