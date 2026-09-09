@@ -57,6 +57,7 @@ data class VodUiState(
     val isLoadingMoreSelectedCategory: Boolean = false,
     val vodInfiniteScroll: Boolean = true,
     val vodPortalSearch: Boolean = true,
+    val vodTypeBadgeAsIcon: Boolean = false,
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
@@ -232,6 +233,7 @@ class VodViewModel @Inject constructor(
         selected,
         portalSearch,
         preferencesRepository.vodViewMode,
+        preferencesRepository.vodTypeBadgeAsIcon,
         preferencesRepository.vodInfiniteScroll,
         portalSearchEnabled,
         searchQuery,
@@ -250,11 +252,12 @@ class VodViewModel @Inject constructor(
             PortalVodSearchSnapshot()
         }
         val viewMode = values[4] as String?
-        val infiniteScroll = values[5] as Boolean
-        val portalSearchEnabled = values[6] as Boolean
-        val query = values[7] as String
-        val filterType = values[8] as LibraryFilterType
-        val sortBy = values[9] as LibrarySortBy
+        val vodTypeBadgeAsIcon = values[5] as Boolean
+        val infiniteScroll = values[6] as Boolean
+        val portalSearchEnabled = values[7] as Boolean
+        val query = values[8] as String
+        val filterType = values[9] as LibraryFilterType
+        val sortBy = values[10] as LibrarySortBy
         val portalSearchActive = isPortalVodSearchQuery(provider?.type, portalSearchEnabled, query)
         val requiresCompleteCatalog = query.isNotBlank() ||
             filterType != LibraryFilterType.ALL || sortBy != LibrarySortBy.LIBRARY
@@ -275,6 +278,7 @@ class VodViewModel @Inject constructor(
             isLoadingMoreSelectedCategory = selectedContent.hydration?.isAppending == true,
             vodInfiniteScroll = infiniteScroll,
             vodPortalSearch = portalSearchEnabled,
+            vodTypeBadgeAsIcon = vodTypeBadgeAsIcon,
             searchQuery = query,
             selectedLibraryFilterType = filterType,
             selectedLibrarySortBy = sortBy,

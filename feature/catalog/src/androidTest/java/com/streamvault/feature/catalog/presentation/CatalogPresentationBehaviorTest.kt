@@ -106,4 +106,41 @@ class CatalogPresentationBehaviorTest {
         val seriesBounds = seriesNode.fetchSemanticsNode().boundsInRoot
         assertThat(movieBounds.left).isGreaterThan(seriesBounds.left)
     }
+
+    @Test
+    fun movieCard_keepsTextTypeBadgeByDefault() {
+        composeRule.setContent {
+            StreamVaultTheme {
+                MaterialTheme {
+                    MovieCard(
+                        movie = Movie(id = 1L, name = "The Night Shift"),
+                        onClick = {},
+                        showTypeBadge = true
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("MOVIE").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("MOVIE").assertDoesNotExist()
+    }
+
+    @Test
+    fun movieCard_usesIconTypeBadgeWhenEnabled() {
+        composeRule.setContent {
+            StreamVaultTheme {
+                MaterialTheme {
+                    MovieCard(
+                        movie = Movie(id = 1L, name = "The Night Shift"),
+                        onClick = {},
+                        showTypeBadge = true,
+                        useTypeBadgeIcon = true
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("MOVIE").assertIsDisplayed()
+        composeRule.onNodeWithText("MOVIE").assertDoesNotExist()
+    }
 }

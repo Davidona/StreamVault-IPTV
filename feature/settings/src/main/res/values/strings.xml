@@ -39,6 +39,9 @@
     <string name="settings_vod_view_mode_modern_desc">Shelf-based browsing with featured rows and category previews.</string>
     <string name="settings_vod_view_mode_classic">Classic</string>
     <string name="settings_vod_view_mode_classic_desc">Category list on the left with a stacked poster grid on the right.</string>
+    <string name="settings_vod_type_badge_icons">Use icons for VOD type badges</string>
+    <string name="settings_vod_type_badge_icons_off">Show MOVIE and SERIES text badges on mixed VOD cards.</string>
+    <string name="settings_vod_type_badge_icons_on">Show film and TV icons on mixed VOD cards.</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_select_theme">Select theme</string>
     <string name="settings_theme_classic_blue">Classic blue</string>

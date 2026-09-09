@@ -107,6 +107,7 @@ fun observeSettingsPreferenceSnapshot(
             groupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
             liveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
             vodViewMode = VodViewMode.MODERN,
+            vodTypeBadgeAsIcon = false,
             vodCategoryLoadMode = VodCategoryLoadMode.PAGED,
             vodInfiniteScroll = true,
             vodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,
@@ -251,6 +252,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(liveVariantPreferenceMode = liveVariantPreferenceMode)
     }.combine(preferencesRepository.vodViewMode) { snapshot, vodViewMode ->
         snapshot.copy(vodViewMode = VodViewMode.fromStorage(vodViewMode))
+    }.combine(preferencesRepository.vodTypeBadgeAsIcon) { snapshot, vodTypeBadgeAsIcon ->
+        snapshot.copy(vodTypeBadgeAsIcon = vodTypeBadgeAsIcon)
     }.combine(preferencesRepository.vodCategoryLoadMode) { snapshot, vodCategoryLoadMode ->
         snapshot.copy(vodCategoryLoadMode = vodCategoryLoadMode)
     }.combine(preferencesRepository.vodInfiniteScroll) { snapshot, vodInfiniteScroll ->

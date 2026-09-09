@@ -228,6 +228,7 @@ class BackupManagerImpl @Inject constructor(
                 put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
                 put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
                 put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+                put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
                 put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
                 put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
                 put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
@@ -3164,6 +3165,7 @@ class BackupManagerImpl @Inject constructor(
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
             put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
             put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+            put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
             put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
             put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
             put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
@@ -3673,6 +3675,8 @@ class BackupManagerImpl @Inject constructor(
         }
         prefs["vodViewMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setVodViewMode(it) }
+        prefs["vodTypeBadgeAsIcon"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setVodTypeBadgeAsIcon(it) }
         prefs["vodInfiniteScroll"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setVodInfiniteScroll(it) }
         prefs["vodPortalSearch"]?.toBooleanStrictOrNull()

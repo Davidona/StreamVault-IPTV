@@ -109,6 +109,7 @@ data class SettingsPreferenceSnapshot(
     val groupedChannelLabelMode: GroupedChannelLabelMode,
     val liveVariantPreferenceMode: LiveVariantPreferenceMode,
     val vodViewMode: VodViewMode,
+    val vodTypeBadgeAsIcon: Boolean,
     val vodCategoryLoadMode: VodCategoryLoadMode,
     val vodInfiniteScroll: Boolean,
     val vodPortalSearch: Boolean = true,

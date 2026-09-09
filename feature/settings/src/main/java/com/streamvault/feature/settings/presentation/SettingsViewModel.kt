@@ -624,6 +624,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setVodTypeBadgeAsIcon(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setVodTypeBadgeAsIcon(enabled)
+        }
+    }
+
     fun setVodInfiniteScroll(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setVodInfiniteScroll(enabled)

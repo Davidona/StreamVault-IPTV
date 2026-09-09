@@ -212,6 +212,7 @@ class PreferencesRepository @Inject constructor(
         val LIVE_VARIANT_SELECTIONS = stringPreferencesKey("live_variant_selections")
         val LIVE_VARIANT_OBSERVATIONS = stringPreferencesKey("live_variant_observations")
         val VOD_VIEW_MODE = stringPreferencesKey("vod_view_mode")
+        val VOD_TYPE_BADGE_AS_ICON = booleanPreferencesKey("vod_type_badge_as_icon")
         val VOD_INFINITE_SCROLL = booleanPreferencesKey("vod_infinite_scroll")
         val VOD_PORTAL_SEARCH = booleanPreferencesKey("vod_portal_search")
         val VOD_CATEGORY_LOAD_MODE = stringPreferencesKey("vod_category_load_mode")
@@ -1888,6 +1889,16 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setVodViewMode(mode: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_VIEW_MODE] = mode
+        }
+    }
+
+    override val vodTypeBadgeAsIcon: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.VOD_TYPE_BADGE_AS_ICON] ?: false
+    }
+
+    override suspend fun setVodTypeBadgeAsIcon(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.VOD_TYPE_BADGE_AS_ICON] = enabled
         }
     }
 

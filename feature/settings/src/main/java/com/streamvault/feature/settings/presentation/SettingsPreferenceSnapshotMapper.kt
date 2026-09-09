@@ -75,6 +75,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         groupedChannelLabelMode = snapshot.groupedChannelLabelMode,
         liveVariantPreferenceMode = snapshot.liveVariantPreferenceMode,
         vodViewMode = snapshot.vodViewMode,
+        vodTypeBadgeAsIcon = snapshot.vodTypeBadgeAsIcon,
         vodCategoryLoadMode = snapshot.vodCategoryLoadMode,
         vodInfiniteScroll = snapshot.vodInfiniteScroll,
         vodPortalSearch = snapshot.vodPortalSearch,

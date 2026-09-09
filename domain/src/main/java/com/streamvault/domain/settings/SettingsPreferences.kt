@@ -370,6 +370,10 @@ interface SettingsPreferences {
 
     suspend fun setVodViewMode(mode: String)
 
+    val vodTypeBadgeAsIcon: Flow<Boolean>
+
+    suspend fun setVodTypeBadgeAsIcon(enabled: Boolean)
+
     val vodInfiniteScroll: Flow<Boolean>
 
     suspend fun setVodInfiniteScroll(enabled: Boolean)

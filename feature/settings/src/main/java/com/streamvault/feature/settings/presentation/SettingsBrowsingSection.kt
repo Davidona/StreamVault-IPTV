@@ -269,6 +269,16 @@ public fun LazyListScope.settingsBrowsingSection(
             value = stringResource(uiState.vodViewMode.labelResId()),
             onClick = { onShowVodViewModeDialogChange(true) }
         )
+        SwitchSettingsRow(
+            label = stringResource(R.string.settings_vod_type_badge_icons),
+            value = stringResource(
+                if (uiState.vodTypeBadgeAsIcon) R.string.settings_vod_type_badge_icons_on
+                else R.string.settings_vod_type_badge_icons_off
+            ),
+            checked = uiState.vodTypeBadgeAsIcon,
+            onCheckedChange = { viewModel.setVodTypeBadgeAsIcon(it) },
+            indent = 24.dp
+        )
         ClickableSettingsRow(
             label = stringResource(R.string.settings_theme),
             value = stringResource(uiState.appTheme.labelResId()),

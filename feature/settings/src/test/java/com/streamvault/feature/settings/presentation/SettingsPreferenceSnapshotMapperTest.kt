@@ -43,6 +43,7 @@ class SettingsPreferenceSnapshotMapperTest {
         assertThat(mappedState.appUpdate.isUpdateAvailable).isTrue()
         assertThat(mappedState.liveTvAutoHideCategories).isFalse()
         assertThat(mappedState.appTheme).isEqualTo(AppTheme.M3_PURPLE)
+        assertThat(mappedState.vodTypeBadgeAsIcon).isTrue()
     }
 
     private fun cachedReleaseSnapshot() = SettingsPreferenceSnapshot(
@@ -111,6 +112,7 @@ class SettingsPreferenceSnapshotMapperTest {
         groupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
         liveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
         vodViewMode = VodViewMode.MODERN,
+        vodTypeBadgeAsIcon = true,
         vodCategoryLoadMode = VodCategoryLoadMode.PAGED,
         vodInfiniteScroll = true,
         vodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,

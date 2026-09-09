@@ -94,6 +94,7 @@ fun VodScreen(
                 isInitialLoading = state.isLoadingPortalSearch,
                 isAppending = state.isAppendingPortalSearch,
                 infiniteScroll = state.vodInfiniteScroll,
+                useTypeBadgeIcon = state.vodTypeBadgeAsIcon,
                 loadedCount = state.portalSearchItems.size,
                 totalCount = state.portalSearchTotalCount,
                 rawPageSize = state.portalSearchPageSize,
@@ -117,6 +118,7 @@ fun VodScreen(
                 isInitialLoading = state.isLoadingSelectedCategory,
                 isAppending = state.isLoadingMoreSelectedCategory,
                 infiniteScroll = state.vodInfiniteScroll,
+                useTypeBadgeIcon = state.vodTypeBadgeAsIcon,
                 loadedCount = state.selectedLoadedCount,
                 totalCount = state.selectedTotalCount,
                 rawPageSize = state.selectedRawPageSize,
@@ -152,6 +154,7 @@ fun VodScreen(
                 onSeriesClick,
                 viewModel::loadMoreCategories,
                 state.canLoadMoreCategories,
+                state.vodTypeBadgeAsIcon,
                 state.provider?.type == ProviderType.STALKER_PORTAL && state.vodPortalSearch,
                 state.searchQuery,
                 viewModel::setSearchQuery
@@ -168,6 +171,7 @@ private fun VodModernShelves(
     onSeriesClick: (Series) -> Unit,
     onLoadMore: () -> Unit,
     canLoadMore: Boolean,
+    useTypeBadgeIcon: Boolean,
     portalSearchEnabled: Boolean,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit
@@ -217,7 +221,7 @@ private fun VodModernShelves(
                     }
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(row.items, key = VodCatalogItem::stableId) { item ->
-                            VodItemCard(item, onMovieClick, onSeriesClick)
+                            VodItemCard(item, onMovieClick, onSeriesClick, useTypeBadgeIcon)
                         }
                     }
                 }
@@ -312,6 +316,7 @@ private fun SelectedVodCategory(
     isInitialLoading: Boolean,
     isAppending: Boolean,
     infiniteScroll: Boolean,
+    useTypeBadgeIcon: Boolean,
     loadedCount: Int,
     totalCount: Int,
     rawPageSize: Int,
@@ -412,7 +417,7 @@ private fun SelectedVodCategory(
                     }
                 }
                 items(items, key = VodCatalogItem::stableId) { item ->
-                    VodItemCard(item, onMovieClick, onSeriesClick)
+                    VodItemCard(item, onMovieClick, onSeriesClick, useTypeBadgeIcon)
                 }
             }
             if (canLoadMore && !infiniteScroll && !isInitialLoading && !isAppending) {
@@ -455,20 +460,23 @@ private fun unifiedVodSortChips(): List<SelectionChip> = LibrarySortBy.entries.m
 private fun VodItemCard(
     item: VodCatalogItem,
     onMovieClick: (Movie) -> Unit,
-    onSeriesClick: (Series) -> Unit
+    onSeriesClick: (Series) -> Unit,
+    useTypeBadgeIcon: Boolean
 ) {
     when (item) {
         is VodCatalogItem.MovieItem -> MovieCard(
             movie = item.movie,
             onClick = { onMovieClick(item.movie) },
             isLocked = item.movie.isUserProtected,
-            showTypeBadge = true
+            showTypeBadge = true,
+            useTypeBadgeIcon = useTypeBadgeIcon
         )
         is VodCatalogItem.SeriesItem -> SeriesCard(
             series = item.series,
             onClick = { onSeriesClick(item.series) },
             isLocked = item.series.isUserProtected,
-            showTypeBadge = true
+            showTypeBadge = true,
+            useTypeBadgeIcon = useTypeBadgeIcon
         )
     }
 }

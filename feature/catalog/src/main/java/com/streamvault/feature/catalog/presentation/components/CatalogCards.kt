@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Movie as MovieIcon
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tv as TvIcon
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -35,6 +37,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -327,6 +330,42 @@ fun ChannelCard(
 }
 
 @Composable
+private fun BoxScope.VodTypeBadge(
+    label: String,
+    icon: ImageVector,
+    useIcon: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (useIcon) {
+        Box(
+            modifier = modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 8.dp, bottom = 8.dp)
+                .background(Color.Black.copy(alpha = 0.72f), RoundedCornerShape(4.dp))
+                .padding(4.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = Color.White,
+                modifier = Modifier.size(13.dp)
+            )
+        }
+    } else {
+        StatusPill(
+            label = label,
+            containerColor = Color.Black.copy(alpha = 0.72f),
+            cornerRadius = 4.dp,
+            horizontalPadding = 6.dp,
+            verticalPadding = 2.dp,
+            modifier = modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 8.dp, bottom = 8.dp)
+        )
+    }
+}
+
+@Composable
 fun MovieCard(
     movie: Movie,
     onClick: () -> Unit,
@@ -334,6 +373,7 @@ fun MovieCard(
     onLongClick: (() -> Unit)? = null,
     isLocked: Boolean = false,
     showTypeBadge: Boolean = false,
+    useTypeBadgeIcon: Boolean = false,
     watchProgress: Float = 0f,
     isReorderMode: Boolean = false,
     isDragging: Boolean = false,
@@ -398,15 +438,10 @@ fun MovieCard(
 
         if (!isLocked) {
             if (showTypeBadge) {
-                StatusPill(
+                VodTypeBadge(
                     label = stringResource(R.string.badge_movie),
-                    containerColor = Color.Black.copy(alpha = 0.72f),
-                    cornerRadius = 4.dp,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 8.dp, bottom = 8.dp)
+                    icon = Icons.Filled.MovieIcon,
+                    useIcon = useTypeBadgeIcon
                 )
             }
 
@@ -454,6 +489,7 @@ fun SeriesCard(
     onLongClick: (() -> Unit)? = null,
     isLocked: Boolean = false,
     showTypeBadge: Boolean = false,
+    useTypeBadgeIcon: Boolean = false,
     watchProgress: Float = 0f,
     subtitle: String? = null,
     isReorderMode: Boolean = false,
@@ -522,15 +558,10 @@ fun SeriesCard(
 
         if (!isLocked) {
             if (showTypeBadge) {
-                StatusPill(
+                VodTypeBadge(
                     label = stringResource(R.string.badge_series),
-                    containerColor = Color.Black.copy(alpha = 0.72f),
-                    cornerRadius = 4.dp,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 8.dp, bottom = 8.dp)
+                    icon = Icons.Filled.TvIcon,
+                    useIcon = useTypeBadgeIcon
                 )
             }
 
