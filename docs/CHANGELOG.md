@@ -24,6 +24,7 @@ All notable product changes are recorded in this document.
 - Added measured frame-rate and stream-bitrate diagnostics for IPTV playback, including MPEG-TS streams that omit these values from their metadata.
 - Improved Stalker authentication resilience by stopping repeated handshakes after explicit soft-throttle signals, reusing short-lived encrypted sessions across provider instances and process restarts, and restoring session cookies for resumed API requests.
 - Fixed Stalker compatibility discovery treating every tokenless HTTP 200 response as a rate limit; generic endpoint or recipe responses now continue through fallback discovery.
+- Fixed Stalker VOD playback on portals that reject bare movie commands by resolving movie file rows and trying validated `/media/file_<fileId>.mpg` fallback commands while preserving existing playback behavior.
 - Fixed Stalker VOD category layout drift by retargeting stale stored category types before synchronization instead of forcing an unnecessary catalog re-download.
 - Improved Stalker on-demand guide loading by preferring numeric short-EPG lookups, pacing prefetch requests, and publishing guide results in bounded chunks.
 - Reduced repeated empty Stalker guide requests by sharing provider-scoped, expiring empty-key cache state between the Guide and Home now-playing fallbacks.
