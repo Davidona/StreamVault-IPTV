@@ -1356,6 +1356,204 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun resolvePlaybackInfo_preserves_existing_movie_resolution_without_file_lookup() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.vodFileLookupCalls).isEmpty()
+        assertThat(api.createLinkCmds).containsExactly("/media/568068.mpg")
+    }
+
+    @Test
+    fun resolvePlaybackInfo_uses_file_lookup_after_bare_movie_reports_nothing_to_play() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199303.mpg" to Result.success("http://cdn.example.com/movie.m3u8")
+            ),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.vodFileLookupCalls).containsExactly("568068")
+        assertThat(api.createLinkCmds)
+            .containsExactly("/media/568068.mpg", "/media/file_3199303.mpg")
+            .inOrder()
+        assertThat((result as Result.Success).data.url)
+            .isEqualTo("http://cdn.example.com/movie.m3u8")
+    }
+
+    @Test
+    fun resolvePlaybackInfo_continues_through_failed_file_rows() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199303.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199304.mpg" to Result.success("http://cdn.example.com/movie.m3u8")
+            ),
+            vodFiles = listOf(
+                StalkerItemRecord(id = "3199303", name = "Broken 4K"),
+                StalkerItemRecord(id = "3199303", name = "Duplicate Broken 4K"),
+                StalkerItemRecord(id = "3199304", name = "Working 4K")
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.createLinkCmds)
+            .containsExactly(
+                "/media/568068.mpg",
+                "/media/file_3199303.mpg",
+                "/media/file_3199304.mpg"
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun resolvePlaybackInfo_keeps_legacy_variants_before_file_fallback() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/legacy-568068.mpg" to Result.success("http://cdn.example.com/legacy.m3u8"),
+                "/media/file_3199303.mpg" to Result.success("http://cdn.example.com/file.m3u8")
+            ),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(
+                    primaryCmd = "/media/568068.mpg",
+                    alternateCommands = listOf("legacy" to "/media/legacy-568068.mpg")
+                )
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.createLinkCmds)
+            .containsExactly("/media/568068.mpg", "/media/legacy-568068.mpg")
+            .inOrder()
+    }
+
+    @Test
+    fun resolvePlaybackInfo_retries_authentication_when_file_lookup_is_unauthorized() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodFilesResult = Result.error(
+                "Portal token is invalid",
+                StalkerApiError.Authorization("Portal token is invalid", portalReason = "not_valid_token")
+            ),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = StalkerPlaybackDescriptor(
+                primaryMode = StalkerPlaybackMode.MULTI_CMD,
+                candidates = listOf(
+                    StalkerCommandVariant(
+                        cmd = "/media/568068.mpg",
+                        playbackMode = StalkerPlaybackMode.LOCALHOST_CMD
+                    )
+                )
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(2)
+        assertThat(api.vodFileLookupCalls).containsExactly("568068", "568068")
+    }
+
+    @Test
     fun authenticate_persists_effective_learned_mag_identity() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
@@ -1443,7 +1641,10 @@ class StalkerProviderTest {
         private val shortEpgResultsByChannel: Map<String, Result<List<StalkerProgramRecord>>> = emptyMap(),
         private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
         private var authenticationFailuresBeforeSuccess: Int = 0,
-        private val authenticationError: Throwable? = null
+        private val authenticationError: Throwable? = null,
+        private val vodFiles: List<StalkerItemRecord> = emptyList(),
+        private val vodFilesResult: Result<List<StalkerItemRecord>>? = null,
+        private val createLinkResultsByCmd: Map<String, Result<String>> = emptyMap()
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
@@ -1455,6 +1656,8 @@ class StalkerProviderTest {
             private set
         val shortEpgCalls: MutableList<String> = mutableListOf()
         val epgCalls: MutableList<String> = mutableListOf()
+        val vodFileLookupCalls: MutableList<String> = mutableListOf()
+        val createLinkCmds: MutableList<String> = mutableListOf()
         var lastVodSearchQuery: String? = null
 
         override suspend fun authenticate(profile: StalkerDeviceProfile): Result<Pair<StalkerSession, StalkerProviderProfile>> {
@@ -1523,6 +1726,15 @@ class StalkerProviderTest {
         ) = run {
             lastVodSearchQuery = searchQuery
             Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        }
+
+        override suspend fun getVodFiles(
+            session: StalkerSession,
+            profile: StalkerDeviceProfile,
+            movieId: String
+        ): Result<List<StalkerItemRecord>> {
+            vodFileLookupCalls += movieId
+            return vodFilesResult ?: Result.success(vodFiles)
         }
 
         override suspend fun getSeriesCategories(
@@ -1605,7 +1817,8 @@ class StalkerProviderTest {
             archiveEndSeconds: Long?
         ): Result<String> {
             createLinkCalls += 1
-            return Result.success(createLinkUrl)
+            createLinkCmds += cmd
+            return createLinkResultsByCmd[cmd] ?: Result.success(createLinkUrl)
         }
 
         override fun currentCookieHeader(session: StalkerSession): String = currentCookieHeader

@@ -780,6 +780,27 @@ class OkHttpStalkerApiService @Inject constructor(
         )
     }
 
+    override suspend fun getVodFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        movieId: String
+    ): Result<List<StalkerItemRecord>> = runApiCall("Failed to load movie files") {
+        fetchPagedItemPage(
+            session = session,
+            profile = profile,
+            page = 1,
+            baseQuery = mapOf(
+                "type" to "vod",
+                "action" to "get_ordered_list",
+                "movie_id" to movieId,
+                "season_id" to "0",
+                "episode_id" to "0",
+                "row" to "0",
+                "JsHttpRequest" to "1-xml"
+            )
+        ).items
+    }
+
     override suspend fun getSeriesCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile

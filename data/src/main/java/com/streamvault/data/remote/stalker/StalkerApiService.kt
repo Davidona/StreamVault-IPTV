@@ -346,6 +346,15 @@ interface StalkerApiService {
         searchQuery: String?
     ): Result<StalkerPagedItems> = getVodStreamsPage(session, profile, categoryId, page)
 
+    /** Returns the playable file rows exposed when opening a video-club movie. */
+    suspend fun getVodFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        movieId: String
+    ): Result<List<StalkerItemRecord>> {
+        return Result.error("VOD file lookup is not supported by this transport.")
+    }
+
     suspend fun getSeriesCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile

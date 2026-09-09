@@ -141,6 +141,10 @@ internal companion object {
         private const val AUTH_FAILURE_COOLDOWN_MILLIS = 2_000L
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
+        private const val VOD_FILE_SOURCE_KEY = "vod_file"
+        private val BARE_VOD_MOVIE_CMD_REGEX = Regex("^/media/(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val BARE_VOD_FILE_CMD_REGEX = Regex("^/media/file_(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val NUMERIC_ID_REGEX = Regex("^\\d+$")
         private val sharedAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
@@ -902,6 +906,62 @@ internal companion object {
         )
     }
 
+    /**
+     * Looks up the file rows for a bare video-club movie command after the portal rejects
+     * the existing command with `nothing_to_play`.
+     *
+     * This is deliberately lazy so portals where the existing command already works keep
+     * the original request count and playback ordering.
+     */
+    private suspend fun loadMovieFileFallbackCandidates(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        descriptor: StalkerPlaybackDescriptor
+    ): Result<List<StalkerCommandVariant>> {
+        if (descriptor.candidates.any {
+                detectStalkerPlaybackMode(it.cmd, descriptor.capabilities) == StalkerPlaybackMode.DIRECT_URL
+            }
+        ) {
+            return Result.success(emptyList())
+        }
+        val movieId = descriptor.candidates
+            .mapNotNull(::extractBareVodMovieId)
+            .firstOrNull()
+            ?: return Result.success(emptyList())
+        return when (val result = api.getVodFiles(session, profile, movieId)) {
+            is Result.Success -> Result.success(
+                result.data
+                    .mapIndexedNotNull { index, record ->
+                        vodFileCmdForRecord(record)?.let { cmd ->
+                            StalkerCommandVariant(
+                                cmd = cmd,
+                                playbackMode = detectStalkerPlaybackMode(cmd, descriptor.capabilities),
+                                sourceKey = VOD_FILE_SOURCE_KEY,
+                                priority = index
+                            )
+                        }
+                    }
+                    .distinctBy { it.cmd.trim() }
+            )
+            is Result.Error -> {
+                Log.d(TAG, "Stalker VOD file lookup failed movie=$movieId reason=${result.message}")
+                Result.error(result.message, result.exception)
+            }
+            is Result.Loading -> Result.error("Unexpected loading state")
+        }
+    }
+
+    private fun extractBareVodMovieId(variant: StalkerCommandVariant): String? {
+        val cmd = variant.cmd.substringAfter(' ', missingDelimiterValue = variant.cmd).trim()
+        return BARE_VOD_MOVIE_CMD_REGEX.matchEntire(cmd)?.groupValues?.getOrNull(1)
+    }
+
+    private fun vodFileCmdForRecord(record: StalkerItemRecord): String? {
+        record.cmd?.trim()?.takeIf { BARE_VOD_FILE_CMD_REGEX.matches(it) }?.let { return it }
+        val numericId = record.id.trim().takeIf { it.matches(NUMERIC_ID_REGEX) } ?: return null
+        return "/media/file_${numericId}.mpg"
+    }
+
     private suspend fun resolvePlaybackInfoInternal(
         kind: StalkerStreamKind,
         descriptor: StalkerPlaybackDescriptor,
@@ -919,7 +979,12 @@ internal companion object {
                     .sortedBy { variant ->
                         if (preferredPlaybackMode != null && variant.playbackMode == preferredPlaybackMode) 0 else 1
                     }
-                orderedCandidates.forEach { variant ->
+                    .toMutableList()
+                var candidateIndex = 0
+                var vodFileFallbackAttempted = false
+                var vodFileFallbackCandidatesAdded = false
+                while (candidateIndex < orderedCandidates.size) {
+                    val variant = orderedCandidates[candidateIndex++]
                     val adapter = resolveStalkerPlaybackAdapter(
                         descriptor = descriptor,
                         variant = variant,
@@ -969,7 +1034,7 @@ internal companion object {
 
                     if (!adapter.requiresCreateLink(variant)) {
                         lastError = Result.error("This portal requires a different playback path than the default command.")
-                        return@forEach
+                        continue
                     }
 
                     consultResolvedStreamUrlCache(kind, variant.cmd)?.let { cachedResolvedUrl ->
@@ -1032,9 +1097,45 @@ is Result.Success -> {
                         }
                         is Result.Error -> {
                             lastError = linkResult
-                            if (generateSequence(linkResult.exception) { it.cause }
-                                    .any { it is StalkerApiError.ContentUnavailable }
-                            ) {
+                            val contentUnavailable = generateSequence(linkResult.exception) { it.cause }
+                                .any { it is StalkerApiError.ContentUnavailable }
+                            if (contentUnavailable) {
+                                if (
+                                    kind == StalkerStreamKind.MOVIE &&
+                                    variant.sourceKey != VOD_FILE_SOURCE_KEY &&
+                                    !vodFileFallbackAttempted
+                                ) {
+                                    vodFileFallbackAttempted = true
+                                    val fallbackResult = loadMovieFileFallbackCandidates(
+                                        session = session,
+                                        profile = profile,
+                                        descriptor = descriptor
+                                    )
+                                    when (fallbackResult) {
+                                        is Result.Success -> {
+                                            if (fallbackResult.data.isNotEmpty()) {
+                                                // Keep all pre-existing command variants ahead of the
+                                                // recovery rows so the fallback cannot change their order.
+                                                orderedCandidates.addAll(fallbackResult.data)
+                                                vodFileFallbackCandidatesAdded = true
+                                                continue
+                                            }
+                                        }
+                                        is Result.Error -> {
+                                            lastError = fallbackResult
+                                            if (isAuthorizationFailure(fallbackResult.message, fallbackResult.exception)) {
+                                                // Let the existing rebootstrap path handle an auth failure
+                                                // from the secondary lookup instead of hiding it as a
+                                                // content-unavailable response.
+                                                break
+                                            }
+                                        }
+                                        is Result.Loading -> Unit
+                                    }
+                                }
+                                if (variant.sourceKey == VOD_FILE_SOURCE_KEY || vodFileFallbackCandidatesAdded) {
+                                    continue
+                                }
                                 val message = linkResult.message.takeIf(String::isNotBlank)
                                     ?: "The provider reported that this item is currently unavailable."
                                 return Result.error(
