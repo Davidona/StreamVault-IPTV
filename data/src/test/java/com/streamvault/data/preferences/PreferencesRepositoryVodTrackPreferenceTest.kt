@@ -34,23 +34,35 @@ class PreferencesRepositoryVodTrackPreferenceTest {
     }
 
     @Test
-    fun `VOD track preferences persist globally and by series`() = runBlocking {
-        val repository = PreferencesRepository(
-            context = context,
-            channelPreferenceDao = mock<ChannelPreferenceDao>(),
-            searchHistoryDao = mock<SearchHistoryDao>(),
-            corruptionRecovery = mock<PreferencesCorruptionRecovery>()
-        )
-        val preferences = VodTrackPreferences(
-            audio = VodTrackPreference(language = "es", label = "Spanish"),
-            subtitle = VodTrackPreference(language = "fr", label = "French")
-        )
-        val scope = VodTrackPreferenceScope.Series(providerId = 7L, contentId = 9L)
+    fun `global VOD track preferences persist`() = runBlocking {
+        val repository = repository()
+        val preferences = preferences()
 
         repository.setGlobalVodTrackPreferences(preferences)
-        repository.setVodTrackPreferences(scope, preferences)
 
         assertThat(repository.globalVodTrackPreferences.first()).isEqualTo(preferences)
+    }
+
+    @Test
+    fun `scoped VOD track preferences persist by series`() = runBlocking {
+        val repository = repository()
+        val preferences = preferences()
+        val scope = VodTrackPreferenceScope.Series(providerId = 7L, contentId = 9L)
+
+        repository.setVodTrackPreferences(scope, preferences)
+
         assertThat(repository.getVodTrackPreferences(scope).first()).isEqualTo(preferences)
     }
+
+    private fun repository(): PreferencesRepository = PreferencesRepository(
+        context = context,
+        channelPreferenceDao = mock<ChannelPreferenceDao>(),
+        searchHistoryDao = mock<SearchHistoryDao>(),
+        corruptionRecovery = mock<PreferencesCorruptionRecovery>()
+    )
+
+    private fun preferences(): VodTrackPreferences = VodTrackPreferences(
+        audio = VodTrackPreference(language = "es", label = "Spanish"),
+        subtitle = VodTrackPreference(language = "fr", label = "French")
+    )
 }
