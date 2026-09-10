@@ -9,6 +9,7 @@ All notable product changes are recorded in this document.
 - Added selectable Classic blue, M3 purple, and Light app themes, with persistent settings and backup/restore support.
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
 - Improved playback quick-action readability by using shared theme-aware content colors across focused and unfocused controls, keeping contrast consistent across all playback buttons.
+- Added persistent VOD audio and subtitle track choices across movie re-entry, series seasons and episodes, and subsequent VOD playback when the selected track is available.
 - Added an opt-in Live TV setting to auto-hide the category sidebar after selection, with Back-button and focus-aware restoration.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
