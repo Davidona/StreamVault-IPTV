@@ -25,6 +25,7 @@ import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VideoFormat
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
@@ -44,6 +45,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import android.content.Context
 import javax.inject.Inject
 
@@ -357,6 +359,8 @@ class PlayerViewModel @Inject constructor(
     internal var currentSeasonNumber: Int? = null
     internal var currentEpisodeNumber: Int? = null
     internal var currentStableEpisodeId: Long? = null
+    internal var activeVodTrackPreferences: VodTrackPreferences? = null
+    internal val vodTrackPreferenceSaveMutex = Mutex()
     internal var isVirtualCategory: Boolean = false
     internal var currentCombinedProfileMembers: List<CombinedM3uProfileMember> = emptyList()
     internal var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
@@ -1029,6 +1033,13 @@ class PlayerViewModel @Inject constructor(
     ): Boolean {
         if (!isActivePlaybackSession(requestVersion)) return false
 
+        activeVodTrackPreferences = playerPreparationCoordinator.resolveVodTrackPreferences(
+            contentType = currentContentType,
+            providerId = currentProviderId,
+            contentId = currentContentId,
+            seriesId = currentSeriesId
+        )
+
         val preparationResult = playerPreparationCoordinator.prepare(
             request = PlayerPreparationCoordinator.Request(
                 streamInfo = streamInfo,
@@ -1037,7 +1048,8 @@ class PlayerViewModel @Inject constructor(
                 currentStreamUrl = currentStreamUrl,
                 probePassedPlaybackKeys = probePassedPlaybackKeys.toSet(),
                 probeBeforePlayback = probeBeforePlayback,
-                audioVideoOffsetMs = _audioVideoOffsetUiState.value.effectiveOffsetMs
+                audioVideoOffsetMs = _audioVideoOffsetUiState.value.effectiveOffsetMs,
+                vodTrackPreferences = activeVodTrackPreferences
             ),
             isCurrent = { isActivePlaybackSession(requestVersion) }
         ) ?: return false

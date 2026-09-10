@@ -44,6 +44,8 @@ import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.settings.VodTrackPreferenceScope
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -69,6 +71,11 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicLong
 
 private const val PREFERENCES_DATASTORE_NAME = "user_preferences"
+
+private fun VodTrackPreferenceScope.storageKey(): String = when (this) {
+    is VodTrackPreferenceScope.Movie -> "$providerId|movie|$contentId"
+    is VodTrackPreferenceScope.Series -> "$providerId|series|$contentId"
+}
 
 @Singleton
 class PreferencesCorruptionRecovery @Inject constructor(
@@ -254,6 +261,8 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_AUDIO_VIDEO_SYNC_ENABLED = booleanPreferencesKey("player_av_sync_enabled")
         val PLAYER_AUDIO_VIDEO_OFFSET_MS = intPreferencesKey("player_av_offset_ms")
         val PREFERRED_AUDIO_LANGUAGE = stringPreferencesKey("preferred_audio_language")
+        val PLAYER_VOD_TRACK_GLOBAL_PREFERENCES = stringPreferencesKey("player_vod_track_global_preferences")
+        val PLAYER_VOD_TRACK_PREFERENCES = stringPreferencesKey("player_vod_track_preferences")
         val PLAYER_SUBTITLE_TEXT_SCALE = stringPreferencesKey("player_subtitle_text_scale")
         val PLAYER_SUBTITLE_TEXT_COLOR = intPreferencesKey("player_subtitle_text_color")
         val PLAYER_SUBTITLE_BACKGROUND_COLOR = intPreferencesKey("player_subtitle_background_color")
@@ -542,6 +551,17 @@ class PreferencesRepository @Inject constructor(
             ?.takeIf { it.isNotBlank() }
             ?: "auto"
     }
+
+    override val globalVodTrackPreferences: Flow<VodTrackPreferences?> = context.dataStore.data.map { preferences ->
+        decodeVodTrackPreferences(preferences[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES])
+    }
+
+    override fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?> =
+        context.dataStore.data.map { preferences ->
+            decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])[
+                scope.storageKey()
+            ]
+        }
 
     override val playerSubtitleTextScale: Flow<Float> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE]
@@ -1188,6 +1208,31 @@ class PreferencesRepository @Inject constructor(
             } else {
                 preferences[PreferencesKeys.PREFERRED_AUDIO_LANGUAGE] = normalized
             }
+        }
+    }
+
+    override suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences) {
+        context.dataStore.edit { values ->
+            val encoded = encodeVodTrackPreferences(preferences)
+            if (encoded.isBlank()) {
+                values.remove(PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES)
+            } else {
+                values[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES] = encoded
+            }
+        }
+    }
+
+    override suspend fun setVodTrackPreferences(
+        scope: VodTrackPreferenceScope,
+        preferences: VodTrackPreferences
+    ) {
+        if (scope.providerId <= 0L || scope.contentId <= 0L) return
+        context.dataStore.edit { values ->
+            val updated = decodeVodTrackPreferenceEntries(
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES]
+            ).toMutableMap()
+            updated[scope.storageKey()] = preferences
+            values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES] = encodeVodTrackPreferenceEntries(updated)
         }
     }
 

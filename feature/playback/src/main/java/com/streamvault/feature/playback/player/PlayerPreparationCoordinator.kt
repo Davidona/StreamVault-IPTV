@@ -5,6 +5,7 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result as DomainResult
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.playback.applyPlaybackTransportPolicy
 import com.streamvault.player.playback.applyUnsafeTlsBypass
@@ -33,7 +34,8 @@ class PlayerPreparationCoordinator @Inject constructor(
         val currentStreamUrl: String?,
         val probePassedPlaybackKeys: Set<String>,
         val probeBeforePlayback: Boolean,
-        val audioVideoOffsetMs: Int
+        val audioVideoOffsetMs: Int,
+        val vodTrackPreferences: VodTrackPreferences? = null
     )
 
     internal sealed interface Result {
@@ -90,7 +92,8 @@ class PlayerPreparationCoordinator @Inject constructor(
         applyPlaybackPreferences(
             engine = playerEngineCoordinator.currentEngine,
             contentType = request.contentType,
-            audioVideoOffsetMs = request.audioVideoOffsetMs
+            audioVideoOffsetMs = request.audioVideoOffsetMs,
+            vodTrackPreferences = request.vodTrackPreferences
         )
         if (!isCurrent()) return null
 
@@ -105,7 +108,8 @@ class PlayerPreparationCoordinator @Inject constructor(
     internal suspend fun applyPlaybackPreferences(
         engine: PlayerEngine,
         contentType: ContentType,
-        audioVideoOffsetMs: Int
+        audioVideoOffsetMs: Int,
+        vodTrackPreferences: VodTrackPreferences? = null
     ) {
         engine.setMuted(playerPreferencesCoordinator.playerMuted.first())
         engine.setPlaybackSpeed(
@@ -121,6 +125,7 @@ class PlayerPreparationCoordinator @Inject constructor(
                 appLanguage = playerPreferencesCoordinator.appLanguage.first()
             )
         )
+        engine.setVodTrackPreferences(vodTrackPreferences)
         engine.setNetworkQualityPreferences(
             wifiMaxHeight = playerPreferencesCoordinator.playerWifiMaxVideoHeight.first(),
             ethernetMaxHeight = playerPreferencesCoordinator.playerEthernetMaxVideoHeight.first()
@@ -130,6 +135,22 @@ class PlayerPreparationCoordinator @Inject constructor(
         engine.setVodHttpProtocolMode(playerPreferencesCoordinator.playerVodHttpProtocolMode.first())
         engine.setFastRetryOnTransientFailures(playerPreferencesCoordinator.playerFastRetryOnTransientFailures.first())
         engine.setAudioVideoOffsetMs(audioVideoOffsetMs)
+    }
+
+    internal suspend fun resolveVodTrackPreferences(
+        contentType: ContentType,
+        providerId: Long,
+        contentId: Long,
+        seriesId: Long?
+    ): VodTrackPreferences? {
+        val scope = buildVodTrackPreferenceScope(
+            contentType = contentType,
+            providerId = providerId,
+            contentId = contentId,
+            seriesId = seriesId
+        ) ?: return null
+        return playerPreferencesCoordinator.getVodTrackPreferences(scope).first()
+            ?: playerPreferencesCoordinator.globalVodTrackPreferences.first()
     }
 
     private suspend fun shouldProbePlaybackUrl(request: Request, url: String): Boolean {

@@ -94,6 +94,7 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     currentSeasonNumber = seasonNumber
     currentEpisodeNumber = episodeNumber
     currentStableEpisodeId = episodeId?.takeIf { it > 0L }
+    activeVodTrackPreferences = null
     val streamClassLabel = if (hasArchiveRequest) "Catch-up" else "Primary"
     applyDefaultPlaybackTimersIfNeeded()
 

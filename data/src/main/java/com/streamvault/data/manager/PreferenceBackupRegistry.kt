@@ -29,7 +29,8 @@ internal object PreferenceBackupRegistry {
         "player_playback_buffer_mode", "player_live_stream_format_mode", "player_vod_http_protocol_mode",
         "player_audio_output_preference", "player_compatibility_memory_enabled", "player_surface_mode",
         "player_playback_speed", "player_external_playback_mode", "player_av_sync_enabled",
-        "player_av_offset_ms", "preferred_audio_language", "player_subtitle_text_scale",
+        "player_av_offset_ms", "preferred_audio_language", "player_vod_track_global_preferences",
+        "player_vod_track_preferences", "player_subtitle_text_scale",
         "player_subtitle_text_color", "player_subtitle_background_color", "player_live_translation_enabled",
         "player_live_translation_endpoint", "player_controls_timeout_seconds",
         "player_live_overlay_timeout_seconds", "player_notice_timeout_seconds",
@@ -124,7 +125,8 @@ internal object PreferenceBackupRegistry {
             key in setOf(
                 "last_active_provider_id", "active_live_source_type", "active_live_source_id",
                 "default_category_id", "guide_default_category_id", "epg_time_shift_by_provider",
-                "promoted_live_group_ids", "live_variant_selections", "vod_variant_selections"
+                "promoted_live_group_ids", "live_variant_selections", "vod_variant_selections",
+                "player_vod_track_preferences"
             )
         ) PreferenceBackupClassification.PORTABLE_PROVIDER_CONTENT
         else PreferenceBackupClassification.PORTABLE_GLOBAL

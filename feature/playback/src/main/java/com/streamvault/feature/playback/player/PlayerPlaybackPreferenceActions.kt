@@ -5,6 +5,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VideoFormat
+import com.streamvault.domain.settings.VodTrackPreference
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
@@ -15,6 +17,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import kotlin.collections.LinkedHashSet
 
 private const val THUMBNAIL_PRELOAD_BUCKET_MS = 10_000L
@@ -65,11 +68,55 @@ internal fun shouldStartThumbnailPreload(
     preloadKey != inFlightPreloadKey
 
 fun PlayerViewModel.selectAudioTrack(trackId: String) {
+    val selectedTrack = playerEngine.availableAudioTracks.value.firstOrNull { it.id == trackId }
     playerEngine.selectAudioTrack(trackId)
+    selectedTrack?.let { track ->
+        persistVodTrackPreferences(
+            updated = (activeVodTrackPreferences ?: VodTrackPreferences()).copy(
+                audio = track.toVodTrackPreference()
+            )
+        )
+    }
 }
 
 fun PlayerViewModel.selectSubtitleTrack(trackId: String?) {
     playerEngine.selectSubtitleTrack(trackId)
+    val selectedTrack = trackId?.let { id ->
+        playerEngine.availableSubtitleTracks.value.firstOrNull { it.id == id }
+    }
+    if (trackId != null && selectedTrack == null) return
+
+    val current = activeVodTrackPreferences ?: VodTrackPreferences()
+    persistVodTrackPreferences(
+        updated = current.copy(
+            subtitle = selectedTrack?.toVodTrackPreference()
+                ?: VodTrackPreference(disabled = true)
+        )
+    )
+}
+
+private fun com.streamvault.player.PlayerTrack.toVodTrackPreference() = VodTrackPreference(
+    trackId = id,
+    language = language,
+    label = name
+)
+
+private fun PlayerViewModel.persistVodTrackPreferences(
+    updated: VodTrackPreferences
+) {
+    val scope = buildVodTrackPreferenceScope(
+        contentType = currentContentType,
+        providerId = currentProviderId,
+        contentId = currentContentId,
+        seriesId = currentSeriesId
+    ) ?: return
+    activeVodTrackPreferences = updated
+    viewModelScope.launch {
+        vodTrackPreferenceSaveMutex.withLock {
+            playerPreferencesCoordinator.setVodTrackPreferences(scope, updated)
+            playerPreferencesCoordinator.setGlobalVodTrackPreferences(updated)
+        }
+    }
 }
 
 fun PlayerViewModel.selectVideoQuality(trackId: String) {

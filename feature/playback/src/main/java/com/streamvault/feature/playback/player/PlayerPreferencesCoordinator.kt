@@ -4,6 +4,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.VodTrackPreferenceScope
+import com.streamvault.domain.settings.VodTrackPreferences
 import javax.inject.Inject
 
 /**
@@ -53,6 +55,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerWifiMaxVideoHeight get() = preferencesRepository.playerWifiMaxVideoHeight
     internal val preventStandbyDuringPlayback get() = preferencesRepository.preventStandbyDuringPlayback
     internal val preferredAudioLanguage get() = preferencesRepository.preferredAudioLanguage
+    internal val globalVodTrackPreferences get() = preferencesRepository.globalVodTrackPreferences
     internal val remoteShortcutPreferences get() = preferencesRepository.remoteShortcutPreferences
     internal val vodVariantObservations get() = preferencesRepository.vodVariantObservations
     internal val zapAutoRevert get() = preferencesRepository.zapAutoRevert
@@ -65,6 +68,9 @@ class PlayerPreferencesCoordinator @Inject constructor(
 
     internal fun getLastLiveCategoryId(providerId: Long) =
         preferencesRepository.getLastLiveCategoryId(providerId)
+
+    internal fun getVodTrackPreferences(scope: VodTrackPreferenceScope) =
+        preferencesRepository.getVodTrackPreferences(scope)
 
     internal fun observeAudioVideoOffsetForChannel(channelId: Long) =
         preferencesRepository.observeAudioVideoOffsetForChannel(channelId)
@@ -105,6 +111,17 @@ class PlayerPreferencesCoordinator @Inject constructor(
 
     internal suspend fun setPlayerPlaybackSpeed(speed: Float) {
         preferencesRepository.setPlayerPlaybackSpeed(speed)
+    }
+
+    internal suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences) {
+        preferencesRepository.setGlobalVodTrackPreferences(preferences)
+    }
+
+    internal suspend fun setVodTrackPreferences(
+        scope: VodTrackPreferenceScope,
+        preferences: VodTrackPreferences,
+    ) {
+        preferencesRepository.setVodTrackPreferences(scope, preferences)
     }
 
     internal suspend fun setPreferredLiveVariant(

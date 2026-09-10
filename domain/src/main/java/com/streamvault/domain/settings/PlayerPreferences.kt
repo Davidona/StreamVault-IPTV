@@ -12,6 +12,8 @@ interface PlayerPreferences : SettingsPreferences {
 
     val vodVariantObservations: Flow<Map<Long, VodVariantObservation>>
 
+    val globalVodTrackPreferences: Flow<VodTrackPreferences?>
+
     val lastActiveProviderId: Flow<Long?>
 
     val multiViewPerformanceMode: Flow<String?>
@@ -34,6 +36,15 @@ interface PlayerPreferences : SettingsPreferences {
     suspend fun recordVodVariantObservation(
         rawItemId: Long,
         observation: VodVariantObservation
+    )
+
+    fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?>
+
+    suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences)
+
+    suspend fun setVodTrackPreferences(
+        scope: VodTrackPreferenceScope,
+        preferences: VodTrackPreferences
     )
 
     suspend fun setPlayerMuted(muted: Boolean)

@@ -37,6 +37,7 @@ import com.streamvault.domain.model.PlaybackCompatibilityKey
 import com.streamvault.domain.model.PlaybackCompatibilityRecord
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
 import com.streamvault.player.audio.PlayerAudioFocusController
@@ -198,6 +199,7 @@ class Media3PlayerEngine @Inject constructor(
     private var compatibilityDecisionSource: String = "DEFAULT"
     @Volatile
     private var pendingLearnedAudioFallback: PendingLearnedAudioFallback? = null
+    private var vodTrackPreferencesConfiguredForNextPrepare = false
     private var videoStallCount = 0
     private var videoStallRecoveryAttempt = 0
     private var videoStallSafeRecoveryPerformed = false
@@ -424,6 +426,10 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
+        if (!vodTrackPreferencesConfiguredForNextPrepare) {
+            trackController.setVodTrackPreferences(exoPlayer, null)
+        }
+        vodTrackPreferencesConfiguredForNextPrepare = false
         prepareInternal(streamInfo = streamInfo, preserveRetryState = false, seekPositionMs = null, autoPlay = true)
     }
 
@@ -734,6 +740,11 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun setPreferredAudioLanguage(languageTag: String?) {
         trackController.setPreferredAudioLanguage(exoPlayer, languageTag)
+    }
+
+    override fun setVodTrackPreferences(preferences: VodTrackPreferences?) {
+        vodTrackPreferencesConfiguredForNextPrepare = true
+        trackController.setVodTrackPreferences(exoPlayer, preferences)
     }
 
     override fun setSubtitleStyle(style: PlayerSubtitleStyle) {
@@ -1555,6 +1566,7 @@ class Media3PlayerEngine @Inject constructor(
 
             override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                 trackController.onTracksChanged(tracks)
+                exoPlayer?.let(trackController::applyVodTrackPreferences)
                 // Detect the silent failure: the stream contains audio groups but no track
                 // is decodable on this device (e.g. EAC3/AC3 without passthrough or a
                 // software decoder). ExoPlayer simply skips the audio renderer without

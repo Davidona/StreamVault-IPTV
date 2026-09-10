@@ -10,6 +10,7 @@ import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.DrmScheme
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VideoFormat
+import com.streamvault.domain.settings.VodTrackPreferences
 import androidx.media3.common.PlaybackException
 import androidx.media3.datasource.HttpDataSource
 import com.streamvault.player.playback.PlaybackErrorCategory
@@ -93,6 +94,7 @@ interface PlayerEngine {
     fun pauseTimeshift()
     fun resumeTimeshift()
     fun setPreferredAudioLanguage(languageTag: String?)
+    fun setVodTrackPreferences(preferences: VodTrackPreferences?)
     fun setSubtitleStyle(style: PlayerSubtitleStyle)
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?)
     fun selectAudioTrack(trackId: String)
