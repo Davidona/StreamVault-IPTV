@@ -29,6 +29,7 @@ import com.streamvault.data.remote.stalker.StalkerPlaybackDescriptor
 import com.streamvault.data.remote.stalker.StalkerPlaybackMode
 import com.streamvault.data.remote.stalker.StalkerProgramRecord
 import com.streamvault.data.remote.stalker.StalkerProviderProfile
+import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerPortalCapabilities
 import com.streamvault.data.remote.stalker.StalkerSeasonRecord
 import com.streamvault.data.remote.stalker.StalkerSeriesDetails
@@ -48,6 +49,7 @@ import com.streamvault.domain.provider.StalkerPlaybackObservation
 import com.streamvault.domain.repository.ProviderSnapshotRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -59,6 +61,12 @@ class XtreamStreamUrlResolverTest {
     }
 
     private val stalkerApiService = FakeStalkerApiService()
+
+    @Before
+    fun clearStalkerCaches() {
+        StalkerProvider.clearSharedAuthCacheForTests()
+        StalkerProvider.clearResolvedStreamUrlCacheForTests()
+    }
 
     private fun preferencesRepository(
         liveStreamFormatMode: LiveStreamFormatMode = LiveStreamFormatMode.AUTO

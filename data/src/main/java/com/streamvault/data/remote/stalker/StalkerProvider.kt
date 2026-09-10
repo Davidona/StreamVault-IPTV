@@ -591,7 +591,11 @@ internal companion object {
         searchQuery: String? = null
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
         val rawResult = mapPagedItems(categoryType, categoryId) { session, profile, rawCategoryId ->
-            api.getVodStreamsPage(session, profile, rawCategoryId, page, searchQuery)
+            if (searchQuery == null) {
+                api.getVodStreamsPage(session, profile, rawCategoryId, page)
+            } else {
+                api.getVodStreamsPage(session, profile, rawCategoryId, page, searchQuery)
+            }
         }
         return when (rawResult) {
             is Result.Success -> {
@@ -632,6 +636,7 @@ internal companion object {
             }
             is Result.Error -> Result.error(rawResult.message, rawResult.exception)
             is Result.Loading -> Result.error("Unexpected loading state")
+            else -> Result.error("Portal returned no item response")
         }
     }
 
@@ -709,8 +714,8 @@ internal companion object {
             ContentType.SERIES_EPISODE -> ContentType.SERIES
             else -> type
         }
-        return resolveRawCategoryId(normalizedType, categoryId)?.trim() == "*" ||
-            categoryId == syntheticCategoryId(normalizedType, "*")
+        return categoryId == syntheticCategoryId(normalizedType, "*") ||
+            resolveRawCategoryId(normalizedType, categoryId)?.trim() == "*"
     }
 
     override suspend fun getSeriesInfo(seriesId: Long): Result<Series> =

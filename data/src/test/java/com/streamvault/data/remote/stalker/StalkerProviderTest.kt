@@ -155,7 +155,7 @@ class StalkerProviderTest {
 
     @Test
     fun shortEpgRequest_preservesNumericErrorWhenXmlFallbackIsEmpty() = runTest {
-        val numericFailure = Result.error<List<StalkerProgramRecord>>(
+        val numericFailure = Result.error(
             message = "temporary portal failure",
             exception = IllegalStateException("temporary portal failure")
         )

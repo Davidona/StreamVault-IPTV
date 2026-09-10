@@ -62,6 +62,7 @@ import com.streamvault.data.remote.stalker.StalkerItemRecord
 import com.streamvault.data.remote.stalker.StalkerPagedItems
 import com.streamvault.data.remote.stalker.StalkerProgramRecord
 import com.streamvault.data.remote.stalker.StalkerProviderProfile
+import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
 import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.stalker.StalkerSession
@@ -303,6 +304,8 @@ class SyncManagerTest {
 
     @Before
     fun setup() {
+        StalkerProvider.clearSharedAuthCacheForTests()
+        StalkerProvider.clearResolvedStreamUrlCacheForTests()
         xtreamBackend.reset()
         syncMetadataRepo.reset()
         reset(

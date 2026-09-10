@@ -15,7 +15,7 @@ class LiveEpgKeysTest {
         )
 
         assertThat(liveEpgChannelKey(channel, index = 3))
-            .isEqualTo("channel:42:7:xmltv.news:News:3")
+            .isEqualTo("channel:42:7:7:News:3")
     }
 
     @Test

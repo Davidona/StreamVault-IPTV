@@ -156,7 +156,7 @@ class EpgViewModelTest {
     }
 
     @Test
-    fun `guide loads programs with one batched repository call`() = runTest {
+    fun `guide loads programs with one batched repository call and omits empty channels`() = runTest {
         val provider = Provider(
             id = 1L,
             name = "Provider",
@@ -202,9 +202,9 @@ class EpgViewModelTest {
         val viewModel = createViewModel()
 
         advanceUntilIdle()
-        waitForUiState { viewModel.uiState.value.programsByChannel.keys.containsAll(listOf("one", "two")) }
+        waitForUiState { viewModel.uiState.value.programsByChannel.keys == setOf("one") }
 
-        assertThat(viewModel.uiState.value.programsByChannel.keys).containsExactly("one", "two")
+        assertThat(viewModel.uiState.value.programsByChannel.keys).containsExactly("one")
         verify(epgRepository, atLeastOnce()).getResolvedProgramsForChannels(eq(provider.id), eq(listOf(1L, 2L)), any(), any())
         verify(epgRepository, atLeastOnce()).getProgramsForChannelsSnapshot(eq(provider.id), eq(listOf("one", "two")), any(), any())
         verify(epgRepository, never()).getProgramsForChannel(any(), any(), any(), any())

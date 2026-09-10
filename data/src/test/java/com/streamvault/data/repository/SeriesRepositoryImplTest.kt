@@ -13,6 +13,7 @@ import com.streamvault.data.local.dao.XtreamContentIndexDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.entity.EpisodeBrowseEntity
 import com.streamvault.data.local.entity.EpisodeEntity
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.local.entity.SeriesBrowseEntity
 import com.streamvault.data.local.entity.SeriesCategoryHydrationEntity
@@ -76,6 +77,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -103,6 +105,12 @@ class SeriesRepositoryImplTest {
     private val preferencesRepository: PreferencesRepository = mock()
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver = mock()
     private val seriesCategoryHydrationDao: SeriesCategoryHydrationDao = mock()
+
+    @Before
+    fun clearStalkerCaches() {
+        StalkerProvider.clearSharedAuthCacheForTests()
+        StalkerProvider.clearResolvedStreamUrlCacheForTests()
+    }
     private val jellyfinProvider: JellyfinProvider = mock()
     private val xtreamContentIndexDao: XtreamContentIndexDao = mock()
     private val xtreamIndexJobDao: XtreamIndexJobDao = mock()
@@ -489,7 +497,7 @@ class SeriesRepositoryImplTest {
         whenever(seriesDao.getByCategoryPreview(7L, wildcardId, 18)).thenReturn(
             flowOf(
                 listOf(
-                    SeriesEntity(
+                    SeriesBrowseEntity(
                         id = 1L,
                         seriesId = 1L,
                         providerSeriesId = "1",

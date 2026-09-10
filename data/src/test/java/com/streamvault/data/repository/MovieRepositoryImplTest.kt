@@ -12,6 +12,7 @@ import com.streamvault.data.local.dao.XtreamContentIndexDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.entity.FavoriteEntity
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.MovieBrowseEntity
 import com.streamvault.data.local.entity.MovieCategoryHydrationEntity
 import com.streamvault.data.local.entity.MovieEntity
@@ -599,7 +600,7 @@ class MovieRepositoryImplTest {
         whenever(movieDao.getByCategoryPreview(7L, wildcardId, 18)).thenReturn(
             flowOf(
                 listOf(
-                    MovieEntity(
+                    MovieBrowseEntity(
                         id = 1L,
                         streamId = 1L,
                         name = "Movie",
