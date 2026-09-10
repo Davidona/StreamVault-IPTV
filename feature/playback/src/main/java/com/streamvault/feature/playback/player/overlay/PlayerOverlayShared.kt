@@ -17,10 +17,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +41,12 @@ import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import java.util.Locale
 import com.streamvault.core.ui.design.AppColors.Brand as Primary
+
+internal fun quickActionContentColor(isFocused: Boolean, isIcon: Boolean): Color = when {
+    isFocused -> AppColors.OnPrimary
+    isIcon -> AppColors.BrandStrong
+    else -> AppColors.TextPrimary
+}
 
 @Composable
 internal fun PlayerOverlayPanel(
@@ -131,6 +142,8 @@ internal fun QuickActionButton(
     onInteraction: () -> Unit = {},
     onClick: () -> Unit
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+
     TvClickableSurface(
         onClick = {
             onInteraction()
@@ -139,6 +152,7 @@ internal fun QuickActionButton(
         modifier = modifier
             .widthIn(min = 84.dp, max = 138.dp)
             .onFocusChanged {
+                isFocused = it.isFocused
                 if (it.isFocused) onInteraction()
             },
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
@@ -160,7 +174,7 @@ internal fun QuickActionButton(
                 Text(
                     text = targetIcon.uppercase(Locale.getDefault()),
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    color = AppColors.BrandStrong,
+                    color = quickActionContentColor(isFocused = isFocused, isIcon = true),
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -169,7 +183,7 @@ internal fun QuickActionButton(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                color = AppColors.TextPrimary,
+                color = quickActionContentColor(isFocused = isFocused, isIcon = false),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
