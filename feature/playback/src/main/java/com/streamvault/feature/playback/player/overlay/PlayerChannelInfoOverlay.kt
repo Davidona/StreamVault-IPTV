@@ -171,58 +171,49 @@ fun ChannelInfoOverlay(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (showBackButton) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                PlayerBackButton(
-                    onClick = onBackToMenu,
-                    modifier = Modifier.padding(start = 18.dp)
-                )
-            }
-        }
-
         PlayerOverlayPanel(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp, vertical = 16.dp)
         ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (currentChannel != null) {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .border(1.dp, AppColors.Focus.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
-                        ) {
-                            ChannelLogoBadge(
-                                channelName = currentChannel.name,
-                                logoUrl = currentChannel.logoUrl,
-                                backgroundColor = AppColors.SurfaceEmphasis.copy(alpha = 0.46f),
-                                contentPadding = PaddingValues(6.dp),
-                                textStyle = MaterialTheme.typography.labelLarge,
-                                textColor = AppColors.TextSecondary,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (showBackButton) {
+                            PlayerBackButton(onClick = onBackToMenu)
+                        }
+                        if (currentChannel != null) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .border(1.dp, AppColors.Focus.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
+                            ) {
+                                ChannelLogoBadge(
+                                    channelName = currentChannel.name,
+                                    logoUrl = currentChannel.logoUrl,
+                                    backgroundColor = AppColors.SurfaceEmphasis.copy(alpha = 0.46f),
+                                    contentPadding = PaddingValues(6.dp),
+                                    textStyle = MaterialTheme.typography.labelLarge,
+                                    textColor = AppColors.TextSecondary,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically

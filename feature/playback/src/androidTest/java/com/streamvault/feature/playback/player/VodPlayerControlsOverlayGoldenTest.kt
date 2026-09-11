@@ -4,11 +4,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
@@ -78,6 +81,8 @@ class VodPlayerControlsOverlayGoldenTest {
         composeRule.onNodeWithTag("player_back_button")
             .assertIsDisplayed()
             .assertHasClickAction()
+            .assertWidthIsEqualTo(44.dp)
+            .assertHeightIsEqualTo(44.dp)
             .performSemanticsAction(SemanticsActions.OnClick)
         composeRule.onNodeWithContentDescription("Chapters").assertExists()
         composeRule.onNodeWithContentDescription("Next chapter").assertExists()

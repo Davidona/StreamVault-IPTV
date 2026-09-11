@@ -7,11 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
+import com.streamvault.domain.model.Channel
 import com.streamvault.player.PlayerError
 import com.streamvault.player.TrackType
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +82,53 @@ class PlayerOverlayGoldenTest {
         }
 
         composeRule.onNodeWithTag("golden").assertPlayerOverlayGolden("player_controls_overlay_vod")
+    }
+
+    @Test
+    fun channelInfoOverlay_placesBackButtonInPanelHeader() {
+        var backButtonClicks = 0
+        composeRule.setContent {
+            StreamVaultTheme {
+                ChannelInfoOverlay(
+                    currentChannel = Channel(id = 4L, name = "Nickelodeon", number = 4),
+                    displayChannelNumber = 4,
+                    currentProgram = null,
+                    nextProgram = null,
+                    focusRequester = remember { FocusRequester() },
+                    lastVisitedCategoryName = null,
+                    onDismiss = {},
+                    onOverlayInteracted = {},
+                    onOpenFullEpg = {},
+                    onOpenLastGroup = {},
+                    currentRecordingStatus = null,
+                    onStartRecording = {},
+                    onStopRecording = {},
+                    onScheduleRecording = {},
+                    onScheduleDailyRecording = {},
+                    onScheduleWeeklyRecording = {},
+                    onRestartProgram = {},
+                    onOpenArchive = {},
+                    onToggleAspectRatio = {},
+                    onToggleDiagnostics = {},
+                    onTogglePlayPause = {},
+                    onSeekBackward = {},
+                    onSeekForward = {},
+                    onSeekToLiveEdge = {},
+                    isPlaying = true,
+                    currentAspectRatio = "Original",
+                    isDiagnosticsEnabled = false,
+                    showBackButton = true,
+                    onBackToMenu = { backButtonClicks++ }
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Back to menu")
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .assertTopPositionInRootIsEqualTo(30.dp)
+            .performSemanticsAction(SemanticsActions.OnClick)
+        assertThat(backButtonClicks).isEqualTo(1)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.streamvault.feature.playback.player.overlay
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -13,10 +14,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
+import androidx.tv.material3.LocalContentColor
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.feature.playback.R
 
@@ -56,7 +60,7 @@ internal fun PlayerBackButton(
     TvClickableSurface(
         onClick = onClick,
         modifier = modifier
-            .size(48.dp)
+            .size(44.dp)
             .testTag("player_back_button")
             .semantics {
                 contentDescription = backButtonDescription
@@ -65,16 +69,30 @@ internal fun PlayerBackButton(
                     true
                 })
             },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Black.copy(alpha = 0.42f),
-            focusedContainerColor = Primary.copy(alpha = 0.9f)
-        )
+            containerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.86f),
+            contentColor = Color.White,
+            focusedContainerColor = AppColors.Brand,
+            focusedContentColor = AppColors.OnPrimary
+        ),
+        border = ClickableSurfaceDefaults.border(
+            border = Border(
+                border = BorderStroke(1.dp, AppColors.Outline.copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(14.dp)
+            ),
+            focusedBorder = Border(
+                border = BorderStroke(2.dp, AppColors.Focus),
+                shape = RoundedCornerShape(14.dp)
+            )
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = Glow.None)
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = null,
-            tint = Color.White,
+            tint = LocalContentColor.current,
             modifier = Modifier.size(24.dp)
         )
     }
