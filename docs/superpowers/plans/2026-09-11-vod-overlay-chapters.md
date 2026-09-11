@@ -34,11 +34,11 @@
 - Produces `internal fun mapChapterMetadata(metadata: Metadata?, windowOffsetMs: Long, durationMs: Long): List<PlayerChapter>`.
 - Media3 chapter input is `androidx.media3.extractor.metadata.Chapter`; feature code will consume only `PlayerChapter`.
 
-- [ ] **Step 1: Write failing mapper tests.**
+- [x] **Step 1: Write failing mapper tests.**
 
   Cover unordered entries, period-to-window offset subtraction, hidden entries, unset/negative starts, missing titles (`Chapter N`), missing ends derived from the next entry or duration, duplicate entries, and duration clamping. Build test entries with `Chapter.Builder` and `Label`/`Cue` values available in Media3 1.11.
 
-- [ ] **Step 2: Run the mapper tests and verify the expected missing-symbol failure.**
+- [x] **Step 2: Run the mapper tests and verify the expected missing-symbol failure.**
 
   Run:
 
@@ -48,15 +48,15 @@
 
   Expected: compilation fails because `PlayerChapter` and `mapChapterMetadata` do not exist.
 
-- [ ] **Step 3: Implement the immutable model and mapper.**
+- [x] **Step 3: Implement the immutable model and mapper.**
 
   Flatten `Metadata` entries, filter hidden/unset data, subtract `windowOffsetMs`, sort by start, deduplicate by normalized start/title, derive missing ends, clamp to `durationMs` when positive, and assign one-based indexes after filtering. Return an empty list for null metadata or malformed input.
 
-- [ ] **Step 4: Run the mapper tests and verify they pass.**
+- [x] **Step 4: Run the mapper tests and verify they pass.**
 
   Re-run the focused command. Expected: all mapper tests pass with no playback-side effects.
 
-- [ ] **Step 5: Refactor only while green and commit the isolated task.**
+- [x] **Step 5: Refactor only while green and commit the isolated task.**
 
   ```powershell
   git add player/src/main/java/com/streamvault/player/PlayerChapter.kt player/src/main/java/com/streamvault/player/ChapterMetadataMapper.kt player/src/test/java/com/streamvault/player/ChapterMetadataMapperTest.kt
@@ -75,11 +75,11 @@
 - Adds `val chapters: StateFlow<List<PlayerChapter>>` to `PlayerEngine`.
 - `Media3PlayerEngine` owns a `MutableStateFlow<List<PlayerChapter>>`, clears it at prepare/stop/release, and updates it from `Tracks` metadata and current timeline.
 
-- [ ] **Step 1: Add a failing contract test for initial and reset state.**
+- [x] **Step 1: Add a failing contract test for initial and reset state.**
 
   Assert a fake engine exposes an empty chapter list before preparation and after `stop`/`release`. Add a test fixture that supplies a `Tracks` object containing a `Format` with `Metadata` chapter entries and expects normalized chapters.
 
-- [ ] **Step 2: Run the focused player tests to verify the missing contract failure.**
+- [x] **Step 2: Run the focused player tests to verify the missing contract failure.**
 
   Run:
 
@@ -89,11 +89,11 @@
 
   Expected: compile failures for the missing `PlayerEngine.chapters` contract and production publication.
 
-- [ ] **Step 3: Add the state contract and lifecycle publication.**
+- [x] **Step 3: Add the state contract and lifecycle publication.**
 
   Add the `StateFlow` to the interface and all fakes. In `Media3PlayerEngine`, invoke the mapper from `onTracksChanged` using the selected media-period metadata and `Timeline.Window.positionInFirstPeriodUs`. Refresh after timeline changes, clear stale state before a new media item, and never throw when metadata is absent.
 
-- [ ] **Step 4: Run player chapter tests and the existing player suite.**
+- [x] **Step 4: Run player chapter tests and the existing player suite.**
 
   ```powershell
   .\gradlew.bat :player:testDebugUnitTest --tests '*Chapter*' --no-daemon
@@ -102,7 +102,7 @@
 
   Expected: chapter tests and all existing player tests pass.
 
-- [ ] **Step 5: Commit only the engine contract/publication changes.**
+- [x] **Step 5: Commit only the engine contract/publication changes.**
 
   ```powershell
   git add player/src/main/java/com/streamvault/player/PlayerEngine.kt player/src/main/java/com/streamvault/player/Media3PlayerEngine.kt player/src/test
@@ -124,25 +124,25 @@
 - Produces `fun nextChapterTarget(chapters: List<PlayerChapter>, positionMs: Long): Long?`.
 - Produces `data class VodOverlayState(... chapters: List<PlayerChapter>, currentChapter: PlayerChapter?, canShowChapterAction: Boolean, canSeekPreviousChapter: Boolean, canSeekNextChapter: Boolean, ...)`.
 
-- [ ] **Step 1: Write failing policy tests.**
+- [x] **Step 1: Write failing policy tests.**
 
   Assert current chapter at boundaries, previous-chapter restart when more than three seconds into the current chapter, previous-chapter navigation when within three seconds, first/last chapter disabling, gaps, and empty chapters. Add overlay-action tests for movie versus series episode, missing tracks, cast-connected state, and hidden chapter action.
 
-- [ ] **Step 2: Run focused feature tests and verify they fail for missing policies.**
+- [x] **Step 2: Run focused feature tests and verify they fail for missing policies.**
 
   ```powershell
   .\gradlew.bat :feature:playback:testDebugUnitTest --tests '*VodChapterNavigationTest' --tests '*VodOverlayStateTest' --no-daemon
   ```
 
-- [ ] **Step 3: Implement the smallest pure policies.**
+- [x] **Step 3: Implement the smallest pure policies.**
 
   Keep chapter math independent of Compose and player implementations. Use window-relative `startTimeMs`, preserve the three-second threshold, and make action visibility depend on content type, chapter availability, track counts, and Cast state.
 
-- [ ] **Step 4: Run focused tests and the existing playback unit suite.**
+- [x] **Step 4: Run focused tests and the existing playback unit suite.**
 
   Expected: all new policy tests pass and no existing playback tests regress.
 
-- [ ] **Step 5: Commit the pure policies.**
+- [x] **Step 5: Commit the pure policies.**
 
   ```powershell
   git add feature/playback/src/main/java/com/streamvault/feature/playback/player/VodChapterNavigation.kt feature/playback/src/main/java/com/streamvault/feature/playback/player/VodOverlayState.kt feature/playback/src/test
@@ -166,11 +166,11 @@
 - `VodChapterSheet` consumes `List<PlayerChapter>` and a selected index and emits seek/dismiss events.
 - `VodPlaybackSettingsSheet` consumes action availability/state and emits existing action callbacks.
 
-- [ ] **Step 1: Add failing Compose/golden fixtures for the approved visual states.**
+- [x] **Step 1: Add failing Compose/golden fixtures for the approved visual states.**
 
   Create deterministic preview state and assertions for no-chapter controls, chapter controls, seeking preview, chapter sheet, settings sheet, and focus on the primary action. Replace the old VOD golden expectation only in the new test fixture; retain live goldens.
 
-- [ ] **Step 2: Run the new golden tests and verify missing-composable failures.**
+- [x] **Step 2: Run the new golden tests and verify missing-composable failures.**
 
   Run:
 
@@ -180,19 +180,19 @@
 
   Expected: compilation fails because the new overlay composables do not exist.
 
-- [ ] **Step 3: Implement the visual hierarchy.**
+- [x] **Step 3: Implement the visual hierarchy.**
 
   Use a bottom `Brush.verticalGradient` over the video, title/current chapter metadata, elapsed/remaining time, full-width chapter-aware timeline, centered transport, and compact contextual actions. Use semantic theme colors, localized strings, minimum 48 dp targets, explicit focus properties, and no floating VOD card.
 
-- [ ] **Step 4: Implement the chapter sheet and settings sheet.**
+- [x] **Step 4: Implement the chapter sheet and settings sheet.**
 
   Use the existing exclusive modal pattern, dim the video, focus the current chapter/settings row, restore focus to the originating action on dismissal, and delegate detail actions to existing track/speed/timer dialogs.
 
-- [ ] **Step 5: Run and review the new golden states at TV and compact widths.**
+- [x] **Step 5: Run and review the new golden states at TV and compact widths.**
 
   Expected: the approved visual direction is visible, no controls clip, focus rings are high contrast, and the chapter list is readable from TV distance.
 
-- [ ] **Step 6: Commit the standalone UI slice.**
+- [x] **Step 6: Commit the standalone UI slice.**
 
   ```powershell
   git add feature/playback/src/main/java/com/streamvault/feature/playback/player/Vod*.kt feature/playback/src/androidTest
@@ -215,28 +215,28 @@
 - Add `PlayerModal.ChapterSelection` and `PlayerModal.PlaybackSettings` only if the existing modal state needs explicit ownership beyond the sheet composables.
 - Add `PlayerViewModel.seekToPreviousChapter()` and `seekToNextChapter()` wrappers that call the pure targets and existing `seekTo`.
 
-- [ ] **Step 1: Write failing wiring tests.**
+- [x] **Step 1: Write failing wiring tests.**
 
   Assert chapter modal/back transitions, focus restoration state, previous/next chapter callbacks, and VOD-only gating. Assert live content continues to select the existing live overlay path.
 
-- [ ] **Step 2: Run focused feature tests and verify the missing state/callback failures.**
+- [x] **Step 2: Run focused feature tests and verify the missing state/callback failures.**
 
-- [ ] **Step 3: Wire chapter state and all existing VOD callbacks.**
+- [x] **Step 3: Wire chapter state and all existing VOD callbacks.**
 
   Keep `contentType == LIVE` on the existing live branch. For VOD/movie/series episode, replace `PlayerVodInfo` with `VodPlayerControlsOverlay`, pass the existing track, timer, Cast, PiP, aspect ratio, external-player, and episode callbacks, and hide chapter actions while Cast is connected.
 
-- [ ] **Step 4: Implement back/focus/auto-hide integration.**
+- [x] **Step 4: Implement back/focus/auto-hide integration.**
 
   Ensure opening a sheet suspends auto-hide, Back closes detail then sheet then controls, and changing media clears chapters without leaving stale focus or current-chapter text.
 
-- [ ] **Step 5: Run feature playback tests and screenshot tests.**
+- [x] **Step 5: Run feature playback tests and screenshot tests.**
 
   ```powershell
   .\gradlew.bat :feature:playback:testDebugUnitTest --no-daemon
   .\gradlew.bat :feature:playback:connectedDebugAndroidTest --tests '*VodPlayerControlsOverlayGoldenTest' --no-daemon
   ```
 
-- [ ] **Step 6: Commit the wiring slice.**
+- [x] **Step 6: Commit the wiring slice.**
 
   ```powershell
   git add feature/playback/src/main/java/com/streamvault/feature/playback/player feature/playback/src/test feature/playback/src/androidTest
@@ -264,7 +264,7 @@
 
   Review controls, seeking, chapters, settings, compact, RTL, and live goldens. The old card must no longer be rendered.
 
-- [ ] **Step 4: Update `docs/upgrade.txt`.**
+- [x] **Step 4: Update `docs/upgrade.txt`.**
 
   Mark the VOD chapter navigation item `DONE`, describe the new UI entry points, and leave sliding-window preloading and telemetry-driven follow-ups pending.
 
@@ -310,4 +310,3 @@
 - [ ] **Step 5: Report the worktree state without merging it.**
 
   Confirm the implementation remains in `chore/media3-1.11-upgrade`, the original `develop` checkout is untouched, and provide the user the test commands/results and any device-validation gap.
-
