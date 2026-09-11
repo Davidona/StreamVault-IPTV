@@ -4,6 +4,10 @@ All notable product changes are recorded in this document.
 
 ## [1.0.18]
 
+### Added
+
+- Added an optional Live TV clock overlay with configurable corner placement, size, digital/clean/serif fonts, and System, 12-hour, or 24-hour time formatting.
+
 ### Changed
 
 - Added selectable Classic blue, M3 purple, and Light app themes, with persistent settings and backup/restore support.
