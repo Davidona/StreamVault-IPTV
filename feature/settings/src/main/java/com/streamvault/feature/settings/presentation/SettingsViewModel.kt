@@ -927,6 +927,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setPlayerLiveClockEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerLiveClockEnabled(enabled)
+        }
+    }
+
+    fun setPlayerLiveClockPosition(position: com.streamvault.domain.model.LiveClockPosition) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerLiveClockPosition(position)
+        }
+    }
+
+    fun setPlayerLiveClockSize(size: com.streamvault.domain.model.LiveClockSize) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerLiveClockSize(size)
+        }
+    }
+
+    fun setPlayerLiveClockFont(font: com.streamvault.domain.model.LiveClockFont) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerLiveClockFont(font)
+        }
+    }
+
     fun setPlayerNoticeTimeoutSeconds(seconds: Int) {
         viewModelScope.launch {
             preferencesRepository.setPlayerNoticeTimeoutSeconds(seconds)

@@ -30,6 +30,9 @@ import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.LiveStreamFormatMode
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 
 public fun LazyListScope.settingsPlaybackSection(
     uiState: SettingsUiState,
@@ -114,6 +117,136 @@ public fun LazyListScope.settingsPlaybackSection(
                 }
             }
         }
+        var showLiveClockPositionDialog by rememberSaveable { mutableStateOf(false) }
+        var showLiveClockSizeDialog by rememberSaveable { mutableStateOf(false) }
+        var showLiveClockFontDialog by rememberSaveable { mutableStateOf(false) }
+
+        if (showLiveClockPositionDialog) {
+            val positionLabels = mapOf(
+                LiveClockPosition.TOP_START to stringResource(R.string.settings_live_clock_position_top_left),
+                LiveClockPosition.TOP_END to stringResource(R.string.settings_live_clock_position_top_right),
+                LiveClockPosition.BOTTOM_START to stringResource(R.string.settings_live_clock_position_bottom_left),
+                LiveClockPosition.BOTTOM_END to stringResource(R.string.settings_live_clock_position_bottom_right)
+            )
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_select_live_clock_position),
+                onDismiss = { showLiveClockPositionDialog = false }
+            ) {
+                LiveClockPosition.entries.forEachIndexed { index, position ->
+                    LevelOption(
+                        level = index,
+                        text = positionLabels.getValue(position),
+                        currentLevel = if (uiState.playerLiveClockPosition == position) index else -1,
+                        onSelect = {
+                            viewModel.setPlayerLiveClockPosition(position)
+                            showLiveClockPositionDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showLiveClockSizeDialog) {
+            val sizeLabels = mapOf(
+                LiveClockSize.SMALL to stringResource(R.string.settings_live_clock_size_small),
+                LiveClockSize.MEDIUM to stringResource(R.string.settings_live_clock_size_medium),
+                LiveClockSize.LARGE to stringResource(R.string.settings_live_clock_size_large)
+            )
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_select_live_clock_size),
+                onDismiss = { showLiveClockSizeDialog = false }
+            ) {
+                LiveClockSize.entries.forEachIndexed { index, size ->
+                    LevelOption(
+                        level = index,
+                        text = sizeLabels.getValue(size),
+                        currentLevel = if (uiState.playerLiveClockSize == size) index else -1,
+                        onSelect = {
+                            viewModel.setPlayerLiveClockSize(size)
+                            showLiveClockSizeDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showLiveClockFontDialog) {
+            val fontLabels = mapOf(
+                LiveClockFont.CLEAN to stringResource(R.string.settings_live_clock_font_clean),
+                LiveClockFont.DIGITAL_MONO to stringResource(R.string.settings_live_clock_font_digital_mono),
+                LiveClockFont.CLASSIC_SERIF to stringResource(R.string.settings_live_clock_font_classic_serif)
+            )
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_select_live_clock_font),
+                onDismiss = { showLiveClockFontDialog = false }
+            ) {
+                LiveClockFont.entries.forEachIndexed { index, font ->
+                    LevelOption(
+                        level = index,
+                        text = fontLabels.getValue(font),
+                        currentLevel = if (uiState.playerLiveClockFont == font) index else -1,
+                        onSelect = {
+                            viewModel.setPlayerLiveClockFont(font)
+                            showLiveClockFontDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        TvClickableSurface(
+            onClick = { viewModel.setPlayerLiveClockEnabled(!uiState.playerLiveClockEnabled) },
+            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+            colors = ClickableSurfaceDefaults.colors(
+                containerColor = Color.Transparent,
+                focusedContainerColor = Primary.copy(alpha = 0.15f)
+            ),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = stringResource(R.string.settings_live_clock), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
+                    Text(text = stringResource(R.string.settings_live_clock_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
+                }
+                Switch(checked = uiState.playerLiveClockEnabled, onCheckedChange = { viewModel.setPlayerLiveClockEnabled(it) })
+            }
+        }
+        if (uiState.playerLiveClockEnabled) {
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_live_clock_position),
+                value = when (uiState.playerLiveClockPosition) {
+                    LiveClockPosition.TOP_START -> stringResource(R.string.settings_live_clock_position_top_left)
+                    LiveClockPosition.TOP_END -> stringResource(R.string.settings_live_clock_position_top_right)
+                    LiveClockPosition.BOTTOM_START -> stringResource(R.string.settings_live_clock_position_bottom_left)
+                    LiveClockPosition.BOTTOM_END -> stringResource(R.string.settings_live_clock_position_bottom_right)
+                },
+                onClick = { showLiveClockPositionDialog = true }
+            )
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_live_clock_size),
+                value = when (uiState.playerLiveClockSize) {
+                    LiveClockSize.SMALL -> stringResource(R.string.settings_live_clock_size_small)
+                    LiveClockSize.MEDIUM -> stringResource(R.string.settings_live_clock_size_medium)
+                    LiveClockSize.LARGE -> stringResource(R.string.settings_live_clock_size_large)
+                },
+                onClick = { showLiveClockSizeDialog = true }
+            )
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_live_clock_font),
+                value = when (uiState.playerLiveClockFont) {
+                    LiveClockFont.CLEAN -> stringResource(R.string.settings_live_clock_font_clean)
+                    LiveClockFont.DIGITAL_MONO -> stringResource(R.string.settings_live_clock_font_digital_mono)
+                    LiveClockFont.CLASSIC_SERIF -> stringResource(R.string.settings_live_clock_font_classic_serif)
+                },
+                onClick = { showLiveClockFontDialog = true }
+            )
+        }
+        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
         TvClickableSurface(
             onClick = { viewModel.setPreventStandbyDuringPlayback(!uiState.preventStandbyDuringPlayback) },
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),

@@ -4,8 +4,12 @@ import android.graphics.Bitmap
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalPlaybackMode
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.DecoderMode
@@ -41,7 +45,12 @@ data class SeekPreviewState(
 )
 
 data class PlayerPreferencesUiState(
-    val externalPlaybackMode: ExternalPlaybackMode = ExternalPlaybackMode.INTERNAL_PLAYER
+    val externalPlaybackMode: ExternalPlaybackMode = ExternalPlaybackMode.INTERNAL_PLAYER,
+    val timeFormat: AppTimeFormat = AppTimeFormat.SYSTEM,
+    val liveClockEnabled: Boolean = false,
+    val liveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
+    val liveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
+    val liveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO
 )
 
 data class PlayerDiagnosticsUiState(

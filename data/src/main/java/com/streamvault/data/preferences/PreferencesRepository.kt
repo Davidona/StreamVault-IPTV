@@ -35,6 +35,9 @@ import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveChannelObservedQuality
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
 import com.streamvault.domain.model.AppTopLevelDestination
@@ -270,6 +273,10 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_LIVE_TRANSLATION_ENDPOINT = stringPreferencesKey("player_live_translation_endpoint")
         val PLAYER_CONTROLS_TIMEOUT_SECONDS = intPreferencesKey("player_controls_timeout_seconds")
         val PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS = intPreferencesKey("player_live_overlay_timeout_seconds")
+        val PLAYER_LIVE_CLOCK_ENABLED = booleanPreferencesKey("player_live_clock_enabled")
+        val PLAYER_LIVE_CLOCK_POSITION = stringPreferencesKey("player_live_clock_position")
+        val PLAYER_LIVE_CLOCK_SIZE = stringPreferencesKey("player_live_clock_size")
+        val PLAYER_LIVE_CLOCK_FONT = stringPreferencesKey("player_live_clock_font")
         val PLAYER_NOTICE_TIMEOUT_SECONDS = intPreferencesKey("player_notice_timeout_seconds")
         val PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS = intPreferencesKey("player_diagnostics_timeout_seconds")
         val PLAYER_WIFI_MAX_VIDEO_HEIGHT = intPreferencesKey("player_wifi_max_video_height")
@@ -595,6 +602,22 @@ class PreferencesRepository @Inject constructor(
 
     override val playerLiveOverlayTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
         (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 4).coerceIn(2, 60)
+    }
+
+    override val playerLiveClockEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_ENABLED] ?: false
+    }
+
+    override val playerLiveClockPosition: Flow<LiveClockPosition> = context.dataStore.data.map { preferences ->
+        LiveClockPosition.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_POSITION])
+    }
+
+    override val playerLiveClockSize: Flow<LiveClockSize> = context.dataStore.data.map { preferences ->
+        LiveClockSize.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_SIZE])
+    }
+
+    override val playerLiveClockFont: Flow<LiveClockFont> = context.dataStore.data.map { preferences ->
+        LiveClockFont.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_FONT])
     }
 
     override val playerNoticeTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
@@ -1280,6 +1303,30 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerLiveOverlayTimeoutSeconds(seconds: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
+        }
+    }
+
+    override suspend fun setPlayerLiveClockEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun setPlayerLiveClockPosition(position: LiveClockPosition) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_POSITION] = position.storageValue
+        }
+    }
+
+    override suspend fun setPlayerLiveClockSize(size: LiveClockSize) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_SIZE] = size.storageValue
+        }
+    }
+
+    override suspend fun setPlayerLiveClockFont(font: LiveClockFont) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_FONT] = font.storageValue
         }
     }
 

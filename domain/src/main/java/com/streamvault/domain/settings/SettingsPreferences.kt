@@ -13,6 +13,9 @@ import com.streamvault.domain.model.AppTheme
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
@@ -77,6 +80,14 @@ interface SettingsPreferences {
     val playerControlsTimeoutSeconds: Flow<Int>
 
     val playerLiveOverlayTimeoutSeconds: Flow<Int>
+
+    val playerLiveClockEnabled: Flow<Boolean>
+
+    val playerLiveClockPosition: Flow<LiveClockPosition>
+
+    val playerLiveClockSize: Flow<LiveClockSize>
+
+    val playerLiveClockFont: Flow<LiveClockFont>
 
     val playerNoticeTimeoutSeconds: Flow<Int>
 
@@ -241,6 +252,14 @@ interface SettingsPreferences {
     suspend fun setPlayerControlsTimeoutSeconds(seconds: Int)
 
     suspend fun setPlayerLiveOverlayTimeoutSeconds(seconds: Int)
+
+    suspend fun setPlayerLiveClockEnabled(enabled: Boolean)
+
+    suspend fun setPlayerLiveClockPosition(position: LiveClockPosition)
+
+    suspend fun setPlayerLiveClockSize(size: LiveClockSize)
+
+    suspend fun setPlayerLiveClockFont(font: LiveClockFont)
 
     suspend fun setPlayerNoticeTimeoutSeconds(seconds: Int)
 

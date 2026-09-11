@@ -86,6 +86,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerNumericInputOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerResolutionBadge
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerWarningOverlay
 import com.streamvault.feature.playback.player.overlay.NextEpisodeCountdownOverlay
+import com.streamvault.feature.playback.player.LiveClockOverlay
 import com.streamvault.core.navigation.AppDestination
 
 
@@ -167,6 +168,7 @@ fun PlayerScreen(
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
+    val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
 
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
@@ -699,6 +701,22 @@ fun PlayerScreen(
                 hasLastChannel = viewModel.hasLastChannel(),
                 onAction = handlePlayerNoticeAction,
                 onBack = onBack
+            )
+        }
+
+        if (shouldShowLiveClock(
+                contentType = contentType,
+                isCatchUpPlayback = isCatchUpPlayback,
+                isInPictureInPictureMode = isInPictureInPictureMode,
+                enabled = playerPreferences.liveClockEnabled
+            )
+        ) {
+            LiveClockOverlay(
+                timeFormat = playerPreferences.timeFormat,
+                position = playerPreferences.liveClockPosition,
+                size = playerPreferences.liveClockSize,
+                font = playerPreferences.liveClockFont,
+                modifier = Modifier.padding(24.dp)
             )
         }
 

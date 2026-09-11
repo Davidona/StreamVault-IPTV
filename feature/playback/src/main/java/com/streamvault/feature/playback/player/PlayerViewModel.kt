@@ -689,10 +689,26 @@ class PlayerViewModel @Inject constructor(
             activePlayerEngineFlow.flatMapLatest { it.timeshiftState }.collect(::applyTimeshiftState)
         }
         viewModelScope.launch {
-            playerPreferencesCoordinator.playerExternalPlaybackMode.collect { mode ->
-                _playerPreferencesUiState.value = PlayerPreferencesUiState(
-                    externalPlaybackMode = mode
+            combine(
+                combine(
+                    playerPreferencesCoordinator.playerExternalPlaybackMode,
+                    playerPreferencesCoordinator.appTimeFormat
+                ) { externalPlaybackMode, timeFormat -> externalPlaybackMode to timeFormat },
+                playerPreferencesCoordinator.playerLiveClockEnabled,
+                playerPreferencesCoordinator.playerLiveClockPosition,
+                playerPreferencesCoordinator.playerLiveClockSize,
+                playerPreferencesCoordinator.playerLiveClockFont
+            ) { (externalPlaybackMode, timeFormat), liveClockEnabled, liveClockPosition, liveClockSize, liveClockFont ->
+                PlayerPreferencesUiState(
+                    externalPlaybackMode = externalPlaybackMode,
+                    timeFormat = timeFormat,
+                    liveClockEnabled = liveClockEnabled,
+                    liveClockPosition = liveClockPosition,
+                    liveClockSize = liveClockSize,
+                    liveClockFont = liveClockFont
                 )
+            }.collect { state ->
+                _playerPreferencesUiState.value = state
             }
         }
         viewModelScope.launch {

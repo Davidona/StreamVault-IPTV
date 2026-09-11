@@ -30,6 +30,9 @@ import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
@@ -97,6 +100,10 @@ data class SettingsUiState(
     val multiViewRespectProviderConnectionLimit: Boolean = true,
     val playerControlsTimeoutSeconds: Int = 5,
     val playerLiveOverlayTimeoutSeconds: Int = 4,
+    val playerLiveClockEnabled: Boolean = false,
+    val playerLiveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
+    val playerLiveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
+    val playerLiveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO,
     val playerNoticeTimeoutSeconds: Int = 6,
     val playerDiagnosticsTimeoutSeconds: Int = 15,
     val subtitleTextScale: Float = 1f,

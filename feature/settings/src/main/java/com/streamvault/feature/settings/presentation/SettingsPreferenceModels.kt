@@ -19,6 +19,9 @@ import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.LiveClockFont
+import com.streamvault.domain.model.LiveClockPosition
+import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
@@ -72,6 +75,10 @@ data class SettingsPreferenceSnapshot(
     val multiViewRespectProviderConnectionLimit: Boolean,
     val playerControlsTimeoutSeconds: Int,
     val playerLiveOverlayTimeoutSeconds: Int,
+    val playerLiveClockEnabled: Boolean = false,
+    val playerLiveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
+    val playerLiveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
+    val playerLiveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO,
     val playerNoticeTimeoutSeconds: Int,
     val playerDiagnosticsTimeoutSeconds: Int,
     val subtitleTextScale: Float,

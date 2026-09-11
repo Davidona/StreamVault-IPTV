@@ -20,6 +20,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     private val preferencesRepository: PlayerPreferences,
 ) {
     internal val appLanguage get() = preferencesRepository.appLanguage
+    internal val appTimeFormat get() = preferencesRepository.appTimeFormat
     internal val autoPlayNextEpisode get() = preferencesRepository.autoPlayNextEpisode
     internal val defaultIdleStandbyTimerMinutes get() = preferencesRepository.defaultIdleStandbyTimerMinutes
     internal val defaultStopPlaybackTimerMinutes get() = preferencesRepository.defaultStopPlaybackTimerMinutes
@@ -36,6 +37,10 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerExternalPlaybackMode get() = preferencesRepository.playerExternalPlaybackMode
     internal val playerFastRetryOnTransientFailures get() = preferencesRepository.playerFastRetryOnTransientFailures
     internal val playerLiveOverlayTimeoutSeconds get() = preferencesRepository.playerLiveOverlayTimeoutSeconds
+    internal val playerLiveClockEnabled get() = preferencesRepository.playerLiveClockEnabled
+    internal val playerLiveClockPosition get() = preferencesRepository.playerLiveClockPosition
+    internal val playerLiveClockSize get() = preferencesRepository.playerLiveClockSize
+    internal val playerLiveClockFont get() = preferencesRepository.playerLiveClockFont
     internal val playerLiveTranslationEnabled get() = preferencesRepository.playerLiveTranslationEnabled
     internal val playerLiveTranslationEndpoint get() = preferencesRepository.playerLiveTranslationEndpoint
     internal val playerMediaSessionEnabled get() = preferencesRepository.playerMediaSessionEnabled

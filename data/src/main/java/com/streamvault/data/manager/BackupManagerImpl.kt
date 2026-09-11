@@ -260,6 +260,10 @@ class BackupManagerImpl @Inject constructor(
                 put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
                 put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
                 put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+                put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
+                put("playerLiveClockPosition", preferencesRepository.playerLiveClockPosition.first().storageValue)
+                put("playerLiveClockSize", preferencesRepository.playerLiveClockSize.first().storageValue)
+                put("playerLiveClockFont", preferencesRepository.playerLiveClockFont.first().storageValue)
                 put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
                 put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
                 put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
@@ -3197,6 +3201,10 @@ class BackupManagerImpl @Inject constructor(
             put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
             put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
             put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+            put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
+            put("playerLiveClockPosition", preferencesRepository.playerLiveClockPosition.first().storageValue)
+            put("playerLiveClockSize", preferencesRepository.playerLiveClockSize.first().storageValue)
+            put("playerLiveClockFont", preferencesRepository.playerLiveClockFont.first().storageValue)
             put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
             put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
             put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
@@ -3787,6 +3795,23 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setPlayerControlsTimeoutSeconds(it) }
         prefs["playerLiveOverlayTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerLiveOverlayTimeoutSeconds(it) }
+        prefs["playerLiveClockEnabled"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerLiveClockEnabled(it) }
+        prefs["playerLiveClockPosition"]?.let { savedPosition ->
+            preferencesRepository.setPlayerLiveClockPosition(
+                com.streamvault.domain.model.LiveClockPosition.fromStorage(savedPosition)
+            )
+        }
+        prefs["playerLiveClockSize"]?.let { savedSize ->
+            preferencesRepository.setPlayerLiveClockSize(
+                com.streamvault.domain.model.LiveClockSize.fromStorage(savedSize)
+            )
+        }
+        prefs["playerLiveClockFont"]?.let { savedFont ->
+            preferencesRepository.setPlayerLiveClockFont(
+                com.streamvault.domain.model.LiveClockFont.fromStorage(savedFont)
+            )
+        }
         prefs["playerNoticeTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerNoticeTimeoutSeconds(it) }
         prefs["playerDiagnosticsTimeoutSeconds"]?.toIntOrNull()

@@ -70,6 +70,10 @@ fun observeSettingsPreferenceSnapshot(
             multiViewRespectProviderConnectionLimit = true,
             playerControlsTimeoutSeconds = 5,
             playerLiveOverlayTimeoutSeconds = 4,
+            playerLiveClockEnabled = false,
+            playerLiveClockPosition = com.streamvault.domain.model.LiveClockPosition.TOP_END,
+            playerLiveClockSize = com.streamvault.domain.model.LiveClockSize.MEDIUM,
+            playerLiveClockFont = com.streamvault.domain.model.LiveClockFont.DIGITAL_MONO,
             playerNoticeTimeoutSeconds = 6,
             playerDiagnosticsTimeoutSeconds = 15,
             subtitleTextScale = 1f,
@@ -174,6 +178,14 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(playerControlsTimeoutSeconds = timeoutSeconds)
     }.combine(preferencesRepository.playerLiveOverlayTimeoutSeconds) { snapshot, timeoutSeconds ->
         snapshot.copy(playerLiveOverlayTimeoutSeconds = timeoutSeconds)
+    }.combine(preferencesRepository.playerLiveClockEnabled) { snapshot, enabled ->
+        snapshot.copy(playerLiveClockEnabled = enabled)
+    }.combine(preferencesRepository.playerLiveClockPosition) { snapshot, position ->
+        snapshot.copy(playerLiveClockPosition = position)
+    }.combine(preferencesRepository.playerLiveClockSize) { snapshot, size ->
+        snapshot.copy(playerLiveClockSize = size)
+    }.combine(preferencesRepository.playerLiveClockFont) { snapshot, font ->
+        snapshot.copy(playerLiveClockFont = font)
     }.combine(preferencesRepository.playerNoticeTimeoutSeconds) { snapshot, timeoutSeconds ->
         snapshot.copy(playerNoticeTimeoutSeconds = timeoutSeconds)
     }.combine(preferencesRepository.playerDiagnosticsTimeoutSeconds) { snapshot, timeoutSeconds ->
