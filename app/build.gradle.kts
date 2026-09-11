@@ -479,7 +479,7 @@ dependencies {
     implementation(libs.media3.exoplayer.rtsp)
     implementation(libs.media3.datasource.okhttp)
     implementation(libs.media3.ui)
-    implementation(files("../player/libs/media3-decoder-ffmpeg-1.9.2.aar"))
+    implementation(files("../player/libs/media3-decoder-ffmpeg-1.11.0.aar"))
 
     // Room
     implementation(libs.room.runtime)

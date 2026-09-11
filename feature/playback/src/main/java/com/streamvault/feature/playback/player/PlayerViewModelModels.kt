@@ -10,6 +10,7 @@ import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
 import com.streamvault.domain.model.LiveClockSize
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.DecoderMode
@@ -50,7 +51,8 @@ data class PlayerPreferencesUiState(
     val liveClockEnabled: Boolean = false,
     val liveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
     val liveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
-    val liveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO
+    val liveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO,
+    val backButtonVisibility: PlayerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT
 )
 
 data class PlayerDiagnosticsUiState(

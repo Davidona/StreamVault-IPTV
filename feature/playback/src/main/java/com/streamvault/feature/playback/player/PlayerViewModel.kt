@@ -707,7 +707,11 @@ class PlayerViewModel @Inject constructor(
                     liveClockSize = liveClockSize,
                     liveClockFont = liveClockFont
                 )
-            }.collect { state ->
+            }
+                .combine(playerPreferencesCoordinator.playerBackButtonVisibility) { state, backButtonVisibility ->
+                    state.copy(backButtonVisibility = backButtonVisibility)
+                }
+                .collect { state ->
                 _playerPreferencesUiState.value = state
             }
         }

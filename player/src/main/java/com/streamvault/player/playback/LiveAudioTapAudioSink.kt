@@ -25,11 +25,12 @@ internal class LiveAudioTapAudioSink(
     private var channelCount: Int = Format.NO_VALUE
     private var encoding: Int = C.ENCODING_INVALID
 
-    override fun configure(inputFormat: Format, specifiedBufferSize: Int, outputChannels: IntArray?) {
+    override fun configure(audioSinkConfig: AudioSink.AudioSinkConfig) {
+        val inputFormat = audioSinkConfig.format
         sampleRate = inputFormat.sampleRate
         channelCount = inputFormat.channelCount
         encoding = inputFormat.pcmEncoding
-        delegate.configure(inputFormat, specifiedBufferSize, outputChannels)
+        delegate.configure(audioSinkConfig)
     }
 
     override fun handleBuffer(

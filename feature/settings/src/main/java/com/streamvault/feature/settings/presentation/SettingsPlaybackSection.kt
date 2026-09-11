@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +34,7 @@ import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
 import com.streamvault.domain.model.LiveClockSize
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 
 public fun LazyListScope.settingsPlaybackSection(
     uiState: SettingsUiState,
@@ -90,8 +92,11 @@ public fun LazyListScope.settingsPlaybackSection(
     onShowEthernetQualityDialogChange: (Boolean) -> Unit
 ) {
     item {
+        val context = LocalContext.current
         val liveStreamFormatMode by viewModel.playerLiveStreamFormatMode.collectAsStateWithLifecycle()
         var showLiveStreamFormatDialog by rememberSaveable { mutableStateOf(false) }
+        var showPlayerBackButtonVisibilityDialog by rememberSaveable { mutableStateOf(false) }
+        val backButtonVisibilityOptions = remember { PlayerBackButtonVisibility.entries }
         val liveStreamFormatOptions = remember {
             listOf(
                 LiveStreamFormatMode.AUTO,
@@ -269,6 +274,30 @@ public fun LazyListScope.settingsPlaybackSection(
                 Switch(checked = uiState.preventStandbyDuringPlayback, onCheckedChange = { viewModel.setPreventStandbyDuringPlayback(it) })
             }
         }
+        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
+        if (showPlayerBackButtonVisibilityDialog) {
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_player_back_button_dialog_title),
+                onDismiss = { showPlayerBackButtonVisibilityDialog = false }
+            ) {
+                backButtonVisibilityOptions.forEachIndexed { index, visibility ->
+                    LevelOption(
+                        level = index,
+                        text = formatPlayerBackButtonVisibilityLabel(visibility, context),
+                        currentLevel = if (uiState.playerBackButtonVisibility == visibility) index else -1,
+                        onSelect = {
+                            viewModel.setPlayerBackButtonVisibility(visibility)
+                            showPlayerBackButtonVisibilityDialog = false
+                        }
+                    )
+                }
+            }
+        }
+        ClickableSettingsRow(
+            label = stringResource(R.string.settings_player_back_button),
+            value = formatPlayerBackButtonVisibilityLabel(uiState.playerBackButtonVisibility, context),
+            onClick = { showPlayerBackButtonVisibilityDialog = true }
+        )
         HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
         TvClickableSurface(
             onClick = { viewModel.setAutoPlayNextEpisode(!uiState.autoPlayNextEpisode) },

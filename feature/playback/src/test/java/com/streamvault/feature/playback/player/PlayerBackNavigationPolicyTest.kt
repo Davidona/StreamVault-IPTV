@@ -53,6 +53,26 @@ class PlayerBackNavigationPolicyTest {
     }
 
     @Test
+    fun `chapter sheet closes before controls`() {
+        val state = PlayerBackNavigationState(
+            showChapterSelection = true,
+            showControls = true
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_CHAPTER_SELECTION)
+    }
+
+    @Test
+    fun `playback settings close before controls`() {
+        val state = PlayerBackNavigationState(
+            showPlaybackSettings = true,
+            showControls = true
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_PLAYBACK_SETTINGS)
+    }
+
+    @Test
     fun `empty player state navigates back`() {
         assertThat(playerBackAction(PlayerBackNavigationState()))
             .isEqualTo(PlayerBackAction.NAVIGATE_BACK)

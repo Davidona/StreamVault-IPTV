@@ -17,6 +17,7 @@ import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -44,6 +45,8 @@ class SettingsPreferenceSnapshotMapperTest {
         assertThat(mappedState.liveTvAutoHideCategories).isFalse()
         assertThat(mappedState.appTheme).isEqualTo(AppTheme.M3_PURPLE)
         assertThat(mappedState.vodTypeBadgeAsIcon).isTrue()
+        assertThat(mappedState.playerBackButtonVisibility)
+            .isEqualTo(PlayerBackButtonVisibility.ALWAYS)
     }
 
     private fun cachedReleaseSnapshot() = SettingsPreferenceSnapshot(
@@ -59,6 +62,7 @@ class SettingsPreferenceSnapshotMapperTest {
         appTheme = AppTheme.M3_PURPLE,
         preferredAudioLanguage = "auto",
         playerMediaSessionEnabled = true,
+        playerBackButtonVisibility = PlayerBackButtonVisibility.ALWAYS,
         playerFastRetryOnTransientFailures = false,
         playerAudioDecoderMode = DecoderMode.AUTO,
         playerVideoDecoderMode = DecoderMode.AUTO,

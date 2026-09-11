@@ -15,6 +15,7 @@ import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.ExternalPlaybackMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.VodCategoryLoadMode
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
@@ -54,6 +55,7 @@ fun observeSettingsPreferenceSnapshot(
             appTheme = AppTheme.DEFAULT,
             preferredAudioLanguage = "auto",
             playerMediaSessionEnabled = true,
+            playerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT,
             playerFastRetryOnTransientFailures = false,
             playerAudioDecoderMode = DecoderMode.AUTO,
             playerVideoDecoderMode = DecoderMode.AUTO,
@@ -146,6 +148,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(preferredAudioLanguage = preferredAudioLanguage ?: "auto")
     }.combine(preferencesRepository.playerMediaSessionEnabled) { snapshot, mediaSessionEnabled ->
         snapshot.copy(playerMediaSessionEnabled = mediaSessionEnabled)
+    }.combine(preferencesRepository.playerBackButtonVisibility) { snapshot, visibility ->
+        snapshot.copy(playerBackButtonVisibility = visibility)
     }.combine(preferencesRepository.playerFastRetryOnTransientFailures) { snapshot, enabled ->
         snapshot.copy(playerFastRetryOnTransientFailures = enabled)
     }.combine(preferencesRepository.playerAudioDecoderMode) { snapshot, decoderMode ->

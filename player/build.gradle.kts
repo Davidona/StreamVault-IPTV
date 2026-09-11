@@ -35,8 +35,8 @@ abstract class VerifyLocalFfmpegArtifactTask : DefaultTask() {
             manifestFile.inputStream().use(::load)
         }
 
-        check(manifest.getProperty("media3Version") == "1.9.2") {
-            "FFmpeg artifact must use Media3 version 1.9.2"
+        check(manifest.getProperty("media3Version") == "1.11.0") {
+            "FFmpeg artifact must use Media3 version 1.11.0"
         }
 
         val aarEntries = ZipFile(aarFile).use { zipFile ->
@@ -174,8 +174,8 @@ val verifyLocalFfmpegArtifact = tasks.register<VerifyLocalFfmpegArtifactTask>("v
     group = "verification"
     description = "Verifies the bundled Media3 FFmpeg artifact, metadata, and supported ABIs."
 
-    ffmpegAarFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.aar"))
-    ffmpegManifestFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.9.2.properties"))
+    ffmpegAarFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.11.0.aar"))
+    ffmpegManifestFile.set(layout.projectDirectory.file("libs/media3-decoder-ffmpeg-1.11.0.properties"))
 }
 
 tasks.named("preBuild").configure {

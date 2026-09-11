@@ -177,6 +177,11 @@
     <string name="settings_live_translation_enabled_subtitle">Translate spoken live-channel audio into English subtitles using your local Whisper service.</string>
     <string name="settings_media_session">System Media Session</string>
     <string name="settings_media_session_subtitle">Expose playback to Android system media controls. Disable this if playback crashes on a specific device when opening the player.</string>
+    <string name="settings_player_back_button">Player back button</string>
+    <string name="settings_player_back_button_dialog_title">Player back button visibility</string>
+    <string name="settings_player_back_button_always">Always visible</string>
+    <string name="settings_player_back_button_with_controls">Show with controls</string>
+    <string name="settings_player_back_button_hidden">Hidden</string>
     <string name="settings_multiview_center_two_slot_layout">Center 1-2 Channel Multiview</string>
     <string name="settings_multiview_center_two_slot_layout_subtitle">When one or two multiview slots are active, center them on screen instead of using the default 2x2 grid.</string>
     <string name="settings_multiview_respect_provider_connection_limit">Respect provider connection limit</string>

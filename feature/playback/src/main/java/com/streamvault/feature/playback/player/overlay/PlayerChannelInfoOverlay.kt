@@ -115,7 +115,9 @@ fun ChannelInfoOverlay(
     onStopCasting: () -> Unit = {},
     timeshiftUiState: PlayerTimeshiftUiState = PlayerTimeshiftUiState(),
     onTransientPanelVisibilityChanged: (Boolean) -> Unit = {},
-    resolutionLabel: String? = null
+    resolutionLabel: String? = null,
+    showBackButton: Boolean = false,
+    onBackToMenu: () -> Unit = {}
 ) {
     val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
@@ -168,11 +170,24 @@ fun ChannelInfoOverlay(
         }
     }
 
-    PlayerOverlayPanel(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp, vertical = 16.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (showBackButton) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                PlayerBackButton(
+                    onClick = onBackToMenu,
+                    modifier = Modifier.padding(start = 18.dp)
+                )
+            }
+        }
+
+        PlayerOverlayPanel(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 40.dp, vertical = 16.dp)
+        ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -695,6 +710,7 @@ fun ChannelInfoOverlay(
                 null -> Unit
             }
         }
+    }
     }
 }
 

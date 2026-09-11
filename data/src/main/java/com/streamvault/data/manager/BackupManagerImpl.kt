@@ -118,6 +118,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.ProviderAccountRuntime
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.repository.ProviderSnapshotRepository
 import com.streamvault.domain.model.StalkerBootstrapRecipe
@@ -235,6 +236,7 @@ class BackupManagerImpl @Inject constructor(
                 put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
                 put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
                 put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+                put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
                 put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
                 put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
                 put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -3176,6 +3178,7 @@ class BackupManagerImpl @Inject constructor(
             put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
             put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
             put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+            put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
             put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
             put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
             put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -3706,6 +3709,17 @@ class BackupManagerImpl @Inject constructor(
         }
         prefs["playerMediaSessionEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerMediaSessionEnabled(it) }
+        prefs["playerBackButtonVisibility"]
+            ?.takeIf { savedVisibility ->
+                PlayerBackButtonVisibility.entries.any { visibility ->
+                    visibility.storageValue.equals(savedVisibility.trim(), ignoreCase = true)
+                }
+            }
+            ?.let { savedVisibility ->
+                preferencesRepository.setPlayerBackButtonVisibility(
+                    PlayerBackButtonVisibility.fromStorage(savedVisibility)
+                )
+            }
         prefs["playerFastRetryOnTransientFailures"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerFastRetryOnTransientFailures(it) }
         val legacyDecoderMode = prefs["playerDecoderMode"]

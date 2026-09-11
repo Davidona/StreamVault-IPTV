@@ -39,6 +39,7 @@ private val TS_SUBTITLE_FORMATS: List<Format> = listOf(
 
 internal fun liveMpegTsExtractorsFactory(): DefaultExtractorsFactory =
     DefaultExtractorsFactory()
+        .setDisableArtworkMetadata(true)
         // Xtream live ".ts" URLs are raw transport streams, not HLS segments. The HLS
         // mode path is more permissive about segment continuity, but it also enables
         // HLS-specific extractor behavior that does not match direct long-lived TS input.
@@ -96,19 +97,16 @@ class PlayerMediaSourceFactory(
                 .setLoadErrorHandlingPolicy(retryPolicy)
                 .createMediaSource(mediaItem)
 
-            resolvedStreamType == ResolvedStreamType.PROGRESSIVE -> ProgressiveMediaSource.Factory(dataSourceFactory)
+            resolvedStreamType == ResolvedStreamType.PROGRESSIVE -> ProgressiveMediaSource.Factory(
+                dataSourceFactory,
+                playbackExtractorsFactory()
+            )
                 .setLoadErrorHandlingPolicy(retryPolicy)
                 .createMediaSource(mediaItem)
 
             else -> DefaultMediaSourceFactory(
                 dataSourceFactory,
-                DefaultExtractorsFactory()
-                    .setTsExtractorFlags(
-                        DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS
-                            or DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
-                            or DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM
-                    )
-                    .setTsSubtitleFormats(TS_SUBTITLE_FORMATS)
+                playbackExtractorsFactory()
             )
                 .setLoadErrorHandlingPolicy(retryPolicy)
                 .createMediaSource(mediaItem)
@@ -161,3 +159,13 @@ class PlayerMediaSourceFactory(
         private const val TAG = "PlayerMediaSourceFactory"
     }
 }
+
+private fun playbackExtractorsFactory(): DefaultExtractorsFactory =
+    DefaultExtractorsFactory()
+        .setDisableArtworkMetadata(true)
+        .setTsExtractorFlags(
+            DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS
+                or DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
+                or DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM
+        )
+        .setTsSubtitleFormats(TS_SUBTITLE_FORMATS)

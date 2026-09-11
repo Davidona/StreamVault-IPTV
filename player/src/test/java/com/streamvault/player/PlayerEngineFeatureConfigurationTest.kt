@@ -35,6 +35,7 @@ class PlayerEngineFeatureConfigurationTest {
 
         assertThat(engine.bypassAudioFocus).isTrue()
         assertThat(engine.constrainResolutionForMultiView).isTrue()
+        assertThat(featureEngine.chapters.value).isEmpty()
     }
 
     private object NoOpPlaybackCompatibilityRepository : PlaybackCompatibilityRepository {

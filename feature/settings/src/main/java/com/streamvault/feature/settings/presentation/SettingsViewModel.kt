@@ -43,6 +43,7 @@ import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
@@ -785,6 +786,12 @@ class SettingsViewModel @Inject constructor(
     fun setPlayerMediaSessionEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPlayerMediaSessionEnabled(enabled)
+        }
+    }
+
+    fun setPlayerBackButtonVisibility(visibility: PlayerBackButtonVisibility) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerBackButtonVisibility(visibility)
         }
     }
 

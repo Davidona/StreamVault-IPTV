@@ -50,10 +50,10 @@ class PlayerTrackController(
             .clearOverridesOfType(C.TRACK_TYPE_TEXT)
             .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
             .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
             .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
             .setPreferredAudioLanguage(preferredAudioLanguageTag)
-            .setViewportSizeToPhysicalDisplaySize(context, true)
+            .applyPreferredTextTrackPolicy(resolvePreferredTextTrackPolicy(vodTrackPreferences))
+            .setViewportSizeToPhysicalDisplaySize(true)
             .apply {
                 resolvedMaxVideoHeightForCurrentNetwork(constrainResolutionForMultiView)?.let { maxHeight ->
                     setMaxVideoSize(Int.MAX_VALUE, maxHeight)
@@ -69,7 +69,9 @@ class PlayerTrackController(
 
     fun applyVodTrackPreferences(player: ExoPlayer) {
         val preferences = vodTrackPreferences ?: return
-        val builder = player.trackSelectionParameters.buildUpon()
+        val builder = player.trackSelectionParameters
+            .buildUpon()
+            .applyPreferredTextTrackPolicy(resolvePreferredTextTrackPolicy(preferences))
 
         preferences.audio?.let { preference ->
             val selected = resolvePreferredPlayerTrack(preference, _availableAudioTracks.value)

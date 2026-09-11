@@ -27,7 +27,9 @@ class PlayerDataSourceFactoryProvider(
     private val context: Context,
     private val baseClient: OkHttpClient,
     /** Receives byte counts for foreground (non-preload) playback; used for measured bitrate stats. */
-    private val transferListener: TransferListener? = null
+    private val transferListener: TransferListener? = null,
+    /** Receives the same foreground transfers for Media3's adaptive bandwidth estimate. */
+    private val additionalTransferListener: TransferListener? = null
 ) {
     private companion object {
         private const val TAG = "PlayerDataSource"
@@ -111,8 +113,8 @@ class PlayerDataSourceFactoryProvider(
             }
         }
         val defaultFactory = DefaultDataSource.Factory(context, upstreamFactory)
-        if (!preload && transferListener != null) {
-            defaultFactory.setTransferListener(transferListener)
+        if (!preload) {
+            playbackTransferListener()?.let(defaultFactory::setTransferListener)
         }
         val factory = if (shouldWrapDataSourceReadStats(resolvedStreamType)) {
             PlayerDataSourceReadStatsFactory(
@@ -124,6 +126,12 @@ class PlayerDataSourceFactoryProvider(
             defaultFactory
         }
         return profile to factory
+    }
+
+    private fun playbackTransferListener(): TransferListener? = when {
+        transferListener == null -> additionalTransferListener
+        additionalTransferListener == null -> transferListener
+        else -> CompositeTransferListener(transferListener, additionalTransferListener)
     }
 
     internal fun clientCacheSizeForTests(): Int = clientsByKey.size()
@@ -163,6 +171,43 @@ class PlayerDataSourceFactoryProvider(
         val host = proxyHost.trim().takeIf { it.isNotBlank() } ?: return null
         val port = proxyPort ?: return null
         return Proxy(Proxy.Type.HTTP, InetSocketAddress(host, port))
+    }
+}
+
+private class CompositeTransferListener(
+    private vararg val listeners: TransferListener
+) : TransferListener {
+    override fun onTransferInitializing(
+        source: DataSource,
+        dataSpec: androidx.media3.datasource.DataSpec,
+        isNetwork: Boolean
+    ) {
+        listeners.forEach { it.onTransferInitializing(source, dataSpec, isNetwork) }
+    }
+
+    override fun onTransferStart(
+        source: DataSource,
+        dataSpec: androidx.media3.datasource.DataSpec,
+        isNetwork: Boolean
+    ) {
+        listeners.forEach { it.onTransferStart(source, dataSpec, isNetwork) }
+    }
+
+    override fun onBytesTransferred(
+        source: DataSource,
+        dataSpec: androidx.media3.datasource.DataSpec,
+        isNetwork: Boolean,
+        bytesTransferred: Int
+    ) {
+        listeners.forEach { it.onBytesTransferred(source, dataSpec, isNetwork, bytesTransferred) }
+    }
+
+    override fun onTransferEnd(
+        source: DataSource,
+        dataSpec: androidx.media3.datasource.DataSpec,
+        isNetwork: Boolean
+    ) {
+        listeners.forEach { it.onTransferEnd(source, dataSpec, isNetwork) }
     }
 }
 

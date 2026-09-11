@@ -82,6 +82,9 @@ import com.streamvault.feature.playback.player.overlay.PlayerErrorOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerNoticeBanner
 import com.streamvault.feature.playback.player.overlay.PlayerResumePrompt
 import com.streamvault.feature.playback.player.overlay.PlayerAspectRatioToast
+import com.streamvault.feature.playback.player.overlay.PlayerBackButton
+import com.streamvault.feature.playback.player.overlay.PlayerBackButtonPlacement
+import com.streamvault.feature.playback.player.overlay.playerBackButtonPlacement
 import com.streamvault.feature.playback.player.overlay.PlayerNumericInputOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerResolutionBadge
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerWarningOverlay
@@ -156,6 +159,7 @@ fun PlayerScreen(
     val currentChannel by viewModel.currentChannel.collectAsStateWithLifecycle()
     val autoPlayCountdown by viewModel.autoPlayCountdown.collectAsStateWithLifecycle()
     val resumePrompt by viewModel.resumePrompt.collectAsStateWithLifecycle()
+    val playerPreferencesUiState by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     
     val isCatchUpPlayback by viewModel.isCatchUpPlayback.collectAsStateWithLifecycle()
     val showChannelListOverlay by viewModel.showChannelListOverlay.collectAsStateWithLifecycle()
@@ -225,8 +229,24 @@ fun PlayerScreen(
 
     // Consolidated focus management for all overlays
     val liveOverlayVisible = contentType == "LIVE" && (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay)
+    val channelInfoOverlayVisible = contentType == "LIVE" && showChannelInfoOverlay
     val nextEpisodeCountdownVisible = !isInPictureInPictureMode && autoPlayCountdown != null
     val anyOverlayVisible = liveOverlayVisible || nextEpisodeCountdownVisible || modalState.hasVisibleModal || showDiagnostics
+    val backButtonHasBlockingOverlay =
+        (liveOverlayVisible && !channelInfoOverlayVisible) ||
+            nextEpisodeCountdownVisible ||
+            modalState.hasVisibleModal ||
+            showDiagnostics ||
+            resumePrompt.show ||
+            playbackResolutionUiState != PlaybackResolutionUiState.Idle ||
+            playbackState == PlaybackState.ERROR
+    val backButtonPlacement = playerBackButtonPlacement(
+        mode = playerPreferencesUiState.backButtonVisibility,
+        controlsVisible = showControls,
+        hasBlockingOverlay = backButtonHasBlockingOverlay,
+        isInPictureInPictureMode = isInPictureInPictureMode,
+        channelInfoOverlayVisible = channelInfoOverlayVisible
+    )
 
     LaunchedEffect(contentType, showCategoryListOverlay, showChannelListOverlay, showEpgOverlay, showChannelInfoOverlay) {
         if (contentType == "LIVE" && (showCategoryListOverlay || showChannelListOverlay || showEpgOverlay || showChannelInfoOverlay)) {
@@ -345,6 +365,23 @@ fun PlayerScreen(
         }
     }
 
+    LaunchedEffect(modalState.active, showControls, contentType) {
+        if (modalState.active == null && showControls) {
+            delay(100)
+            if (contentType == "LIVE") {
+                quickActionsFocusRequester.requestFocusSafely(
+                    tag = "PlayerScreen",
+                    target = "Player quick actions after modal"
+                )
+            } else {
+                playButtonFocusRequester.requestFocusSafely(
+                    tag = "PlayerScreen",
+                    target = "Player transport after modal"
+                )
+            }
+        }
+    }
+
     LaunchedEffect(showControls, modalState) {
         if (!showControls) {
             viewModel.cancelControlsAutoHide()
@@ -375,6 +412,8 @@ fun PlayerScreen(
                     showProgramHistory = modalState.showProgramHistory,
                     showSplitDialog = modalState.showSplitDialog,
                     showEpisodePicker = modalState.showEpisodePicker,
+                    showChapterSelection = modalState.showChapterSelection,
+                    showPlaybackSettings = modalState.showPlaybackSettings,
                     showSpeedSelection = modalState.showSpeedSelection,
                     showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
                     showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
@@ -395,6 +434,8 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_PROGRAM_HISTORY -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_SPLIT_DIALOG -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_EPISODE_PICKER -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_CHAPTER_SELECTION -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_PLAYBACK_SETTINGS -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_SPEED_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG -> {
                     modalState = modalState.dismiss()
@@ -617,6 +658,15 @@ fun PlayerScreen(
             modifier = Modifier.fillMaxSize()
         )
 
+        if (backButtonPlacement == PlayerBackButtonPlacement.STANDALONE) {
+            PlayerBackButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(18.dp)
+            )
+        }
+
         // Buffering indicator
         if (playbackState == PlaybackState.BUFFERING) {
             Box(
@@ -744,10 +794,17 @@ fun PlayerScreen(
             onOpenIdleStandbyTimer = { modalState = modalState.open(PlayerModal.IdleStandbyTimer) },
             onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
+            onOpenChapters = { modalState = modalState.open(PlayerModal.ChapterSelection) },
+            onOpenPlaybackSettings = { modalState = modalState.open(PlayerModal.PlaybackSettings) },
+            showChapterSheet = modalState.showChapterSelection,
+            showPlaybackSettingsSheet = modalState.showPlaybackSettings,
+            onDismissVodSheet = { modalState = modalState.dismiss() },
             onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
             onRunRecordingAction = notificationPermissionGate::runRecordingAction,
-            onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() }
+            onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
+            showBackButton = backButtonPlacement == PlayerBackButtonPlacement.CONTROLS_TOP_BAR,
+            onBackToMenu = onBack
         )
 
         PlayerNumericInputOverlayHost(
@@ -845,6 +902,8 @@ fun PlayerScreen(
                 showCategoryListOverlay = showCategoryListOverlay,
                 showEpgOverlay = showEpgOverlay,
                 showChannelInfoOverlay = showChannelInfoOverlay,
+                showBackButton = backButtonPlacement == PlayerBackButtonPlacement.CHANNEL_INFO_OVERLAY,
+                onBackToMenu = onBack,
                 currentChannel = currentChannel,
                 internalChannelId = internalChannelId,
                 displayChannelNumber = displayChannelNumber,
