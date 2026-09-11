@@ -35,6 +35,7 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageState
@@ -81,6 +82,7 @@ data class SettingsUiState(
     val appTheme: AppTheme = AppTheme.DEFAULT,
     val preferredAudioLanguage: String = "auto",
     val playerMediaSessionEnabled: Boolean = true,
+    val playerBackButtonVisibility: PlayerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT,
     val playerFastRetryOnTransientFailures: Boolean = false,
     val playerAudioDecoderMode: DecoderMode = DecoderMode.AUTO,
     val playerVideoDecoderMode: DecoderMode = DecoderMode.AUTO,

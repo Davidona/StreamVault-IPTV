@@ -689,11 +689,16 @@ class PlayerViewModel @Inject constructor(
             activePlayerEngineFlow.flatMapLatest { it.timeshiftState }.collect(::applyTimeshiftState)
         }
         viewModelScope.launch {
-            playerPreferencesCoordinator.playerExternalPlaybackMode.collect { mode ->
-                _playerPreferencesUiState.value = PlayerPreferencesUiState(
-                    externalPlaybackMode = mode
-                )
-            }
+            playerPreferencesCoordinator.playerExternalPlaybackMode
+                .combine(playerPreferencesCoordinator.playerBackButtonVisibility) { externalMode, backButtonVisibility ->
+                    externalMode to backButtonVisibility
+                }
+                .collect { (externalMode, backButtonVisibility) ->
+                    _playerPreferencesUiState.value = PlayerPreferencesUiState(
+                        externalPlaybackMode = externalMode,
+                        backButtonVisibility = backButtonVisibility
+                    )
+                }
         }
         viewModelScope.launch {
             playerPreferencesCoordinator.playerAudioDecoderMode

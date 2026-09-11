@@ -161,6 +161,8 @@ fun PlayerControlsOverlay(
     onSeekPreviewPositionChanged: (Long?) -> Unit = {},
     clockLabelOverride: String? = null,
     onUserInteraction: () -> Unit = {},
+    showBackButton: Boolean = false,
+    onBackToMenu: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
@@ -191,6 +193,8 @@ fun PlayerControlsOverlay(
                 contentType = contentType,
                 clockLabelOverride = clockLabelOverride,
                 onClose = onClose,
+                showBackButton = showBackButton,
+                onBackToMenu = onBackToMenu,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 
@@ -420,6 +424,8 @@ private fun PlayerTopBar(
     contentType: String,
     clockLabelOverride: String?,
     onClose: () -> Unit,
+    showBackButton: Boolean,
+    onBackToMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -457,31 +463,39 @@ private fun PlayerTopBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                PlayerMetaPill(
-                    text = when (contentType) {
-                        "LIVE" -> stringResource(R.string.nav_live_tv)
-                        "MOVIE" -> stringResource(R.string.player_type_movie)
-                        else -> stringResource(R.string.player_type_series)
-                    }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-                if (contentType != "LIVE") {
-                    Text(
-                        text = if (contentType == "MOVIE") {
-                            stringResource(R.string.player_type_movie)
-                        } else {
-                            stringResource(R.string.player_type_series)
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.6f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (showBackButton) {
+                    PlayerBackButton(onClick = onBackToMenu)
+                }
+                Column {
+                    PlayerMetaPill(
+                        text = when (contentType) {
+                            "LIVE" -> stringResource(R.string.nav_live_tv)
+                            "MOVIE" -> stringResource(R.string.player_type_movie)
+                            else -> stringResource(R.string.player_type_series)
+                        }
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (contentType != "LIVE") {
+                        Text(
+                            text = if (contentType == "MOVIE") {
+                                stringResource(R.string.player_type_movie)
+                            } else {
+                                stringResource(R.string.player_type_series)
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
 

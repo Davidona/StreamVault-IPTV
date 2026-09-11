@@ -46,6 +46,7 @@
     <string name="player_forward_10_seconds">Forward 10 seconds</string>
     <string name="player_vod_timeline">VOD timeline</string>
     <string name="player_close_controls">Close controls</string>
+    <string name="player_back_to_menu">Back to menu</string>
     <string name="player_playback_settings">Playback settings</string>
     <string name="player_close_playback_settings">Close playback settings</string>
     <string name="player_vod_controls">VOD playback controls</string>

@@ -5,6 +5,7 @@ import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.feature.settings.R
 
 public data class SubtitleScaleOption(
@@ -58,6 +59,15 @@ public fun formatSurfaceModeLabel(mode: PlayerSurfaceMode, context: Context): St
     PlayerSurfaceMode.AUTO -> context.getString(R.string.settings_surface_auto)
     PlayerSurfaceMode.SURFACE_VIEW -> context.getString(R.string.settings_surface_surface_view)
     PlayerSurfaceMode.TEXTURE_VIEW -> context.getString(R.string.settings_surface_texture_view)
+}
+
+public fun formatPlayerBackButtonVisibilityLabel(
+    visibility: PlayerBackButtonVisibility,
+    context: Context
+): String = when (visibility) {
+    PlayerBackButtonVisibility.ALWAYS -> context.getString(R.string.settings_player_back_button_always)
+    PlayerBackButtonVisibility.WITH_CONTROLS -> context.getString(R.string.settings_player_back_button_with_controls)
+    PlayerBackButtonVisibility.HIDDEN -> context.getString(R.string.settings_player_back_button_hidden)
 }
 
 public fun formatSubtitleSizeLabel(scale: Float, context: Context): String =

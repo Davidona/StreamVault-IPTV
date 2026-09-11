@@ -79,7 +79,9 @@ internal fun PlayerControlsOverlayHost(
     onOpenSplitScreen: () -> Unit,
     onEnterPictureInPicture: () -> Unit,
     onRunRecordingAction: (() -> Unit) -> Unit,
-    onOpenCastRouteChooser: () -> Unit
+    onOpenCastRouteChooser: () -> Unit,
+    showBackButton: Boolean = false,
+    onBackToMenu: () -> Unit = {}
 ) {
     val currentPosition by playerEngine.currentPosition.collectAsStateWithLifecycle()
     val duration by playerEngine.duration.collectAsStateWithLifecycle()
@@ -131,6 +133,8 @@ internal fun PlayerControlsOverlayHost(
             durationMs = duration,
             seekPreview = seekPreview,
             playButtonFocusRequester = playButtonFocusRequester,
+            showBackButton = showBackButton,
+            onBackToMenu = onBackToMenu,
             onClose = viewModel::toggleControls,
             onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
             onSeekBackward = viewModel::seekBackward,
@@ -255,7 +259,9 @@ internal fun PlayerControlsOverlayHost(
             onUserInteraction = {
                 viewModel.notifyUserActivity()
                 viewModel.refreshControlsAutoHide()
-            }
+            },
+            showBackButton = showBackButton,
+            onBackToMenu = onBackToMenu
         )
     }
 }

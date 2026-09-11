@@ -44,6 +44,7 @@ import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.RemoteColorButton
@@ -244,6 +245,7 @@ class PreferencesRepository @Inject constructor(
         val IS_INCOGNITO_MODE = booleanPreferencesKey("is_incognito_mode")
         val PLAYER_MUTED = booleanPreferencesKey("player_muted")
         val PLAYER_MEDIA_SESSION_ENABLED = booleanPreferencesKey("player_media_session_enabled")
+        val PLAYER_BACK_BUTTON_VISIBILITY = stringPreferencesKey("player_back_button_visibility")
         val PLAYER_FAST_RETRY_ON_TRANSIENT_FAILURES =
             booleanPreferencesKey("player_fast_retry_on_transient_failures")
         val PLAYER_DECODER_MODE = stringPreferencesKey("player_decoder_mode")
@@ -468,6 +470,10 @@ class PreferencesRepository @Inject constructor(
 
     override val playerMediaSessionEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_MEDIA_SESSION_ENABLED] ?: true
+    }
+
+    override val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility> = context.dataStore.data.map { preferences ->
+        PlayerBackButtonVisibility.fromStorage(preferences[PreferencesKeys.PLAYER_BACK_BUTTON_VISIBILITY])
     }
 
     override val playerFastRetryOnTransientFailures: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -1115,6 +1121,12 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerMediaSessionEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_MEDIA_SESSION_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun setPlayerBackButtonVisibility(visibility: PlayerBackButtonVisibility) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_BACK_BUTTON_VISIBILITY] = visibility.storageValue
         }
     }
 

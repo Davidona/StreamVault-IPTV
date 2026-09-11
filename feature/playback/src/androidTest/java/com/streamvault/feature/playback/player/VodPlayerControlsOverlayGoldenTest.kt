@@ -3,8 +3,14 @@ package com.streamvault.feature.playback.player
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.player.PlayerChapter
 import org.junit.Rule
@@ -19,6 +25,7 @@ class VodPlayerControlsOverlayGoldenTest {
 
     @Test
     fun chapterAwareOverlay_exposesVideoFirstActions() {
+        var backButtonClicks = 0
         composeRule.setContent {
             StreamVaultTheme {
                 val focusRequester = remember { FocusRequester() }
@@ -45,6 +52,8 @@ class VodPlayerControlsOverlayGoldenTest {
                     durationMs = 150_000L,
                     seekPreview = SeekPreviewState(),
                     playButtonFocusRequester = focusRequester,
+                    showBackButton = true,
+                    onBackToMenu = { backButtonClicks++ },
                     onClose = {},
                     onTogglePlayPause = {},
                     onSeekBackward = {},
@@ -65,8 +74,14 @@ class VodPlayerControlsOverlayGoldenTest {
         }
 
         composeRule.onNodeWithContentDescription("VOD playback controls").assertExists()
+        composeRule.onNodeWithContentDescription("Back to menu").assertIsDisplayed()
+        composeRule.onNodeWithTag("player_back_button")
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .performSemanticsAction(SemanticsActions.OnClick)
         composeRule.onNodeWithContentDescription("Chapters").assertExists()
         composeRule.onNodeWithContentDescription("Next chapter").assertExists()
+        assertThat(backButtonClicks).isEqualTo(1)
     }
 
     @Test

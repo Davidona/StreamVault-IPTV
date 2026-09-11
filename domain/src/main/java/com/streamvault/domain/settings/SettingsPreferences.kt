@@ -19,6 +19,7 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.model.PlayerSurfaceMode
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -35,6 +36,8 @@ interface SettingsPreferences {
     val xtreamBase64TextCompatibility: Flow<Boolean>
 
     val playerMediaSessionEnabled: Flow<Boolean>
+
+    val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility>
 
     val playerFastRetryOnTransientFailures: Flow<Boolean>
 
@@ -199,6 +202,8 @@ interface SettingsPreferences {
     )
 
     suspend fun setPlayerMediaSessionEnabled(enabled: Boolean)
+
+    suspend fun setPlayerBackButtonVisibility(visibility: PlayerBackButtonVisibility)
 
     suspend fun setPlayerFastRetryOnTransientFailures(enabled: Boolean)
 

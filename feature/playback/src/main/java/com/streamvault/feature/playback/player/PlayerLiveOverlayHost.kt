@@ -63,6 +63,8 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     showCategoryListOverlay: Boolean,
     showEpgOverlay: Boolean,
     showChannelInfoOverlay: Boolean,
+    showBackButton: Boolean = false,
+    onBackToMenu: () -> Unit = {},
     currentChannel: Channel?,
     internalChannelId: Long,
     displayChannelNumber: Int,
@@ -234,7 +236,9 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             onStopCasting = viewModel::stopCasting,
             timeshiftUiState = timeshiftUiState,
             onTransientPanelVisibilityChanged = onTransientPanelVisibilityChanged,
-            resolutionLabel = buildChannelInfoResolutionLabel(videoFormat)
+            resolutionLabel = buildChannelInfoResolutionLabel(videoFormat),
+            showBackButton = showBackButton,
+            onBackToMenu = onBackToMenu
         )
     }
 }

@@ -2,6 +2,7 @@ package com.streamvault.feature.playback.player
 
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LiveChannelObservedQuality
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.VodTrackPreferenceScope
@@ -29,6 +30,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerAudioDecoderMode get() = preferencesRepository.playerAudioDecoderMode
     internal val playerAudioOutputPreference get() = preferencesRepository.playerAudioOutputPreference
     internal val playerAudioVideoOffsetMs get() = preferencesRepository.playerAudioVideoOffsetMs
+    internal val playerBackButtonVisibility get() = preferencesRepository.playerBackButtonVisibility
     internal val playerCompatibilityMemoryEnabled get() = preferencesRepository.playerCompatibilityMemoryEnabled
     internal val playerControlsTimeoutSeconds get() = preferencesRepository.playerControlsTimeoutSeconds
     internal val playerDiagnosticsTimeoutSeconds get() = preferencesRepository.playerDiagnosticsTimeoutSeconds

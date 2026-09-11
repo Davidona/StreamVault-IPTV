@@ -41,6 +41,7 @@ import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.playback.R
+import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 
 @Composable
 internal fun VodPlayerControlsOverlay(
@@ -52,6 +53,8 @@ internal fun VodPlayerControlsOverlay(
     durationMs: Long,
     seekPreview: SeekPreviewState,
     playButtonFocusRequester: FocusRequester,
+    showBackButton: Boolean = false,
+    onBackToMenu: () -> Unit = {},
     onClose: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onSeekBackward: () -> Unit,
@@ -94,8 +97,17 @@ internal fun VodPlayerControlsOverlay(
                                 Color.Black.copy(alpha = 0.92f)
                             )
                         )
-                    )
+                )
             )
+
+            if (showBackButton) {
+                PlayerBackButton(
+                    onClick = onBackToMenu,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(24.dp)
+                )
+            }
 
             Column(
                 modifier = Modifier
