@@ -18,8 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -67,6 +71,7 @@ internal fun VodPlaybackSettingsSheet(
     modifier: Modifier = Modifier
 ) {
     val closeLabel = stringResource(R.string.player_close_playback_settings)
+    val firstActionFocusRequester = remember { FocusRequester() }
     val actions = buildList {
         if (state.showSubtitleAction) add(VodSettingsAction("subtitles", stringResource(R.string.player_subs), onClick = onOpenSubtitleTracks))
         if (state.showAudioAction) add(VodSettingsAction("audio", stringResource(R.string.player_audio), onClick = onOpenAudioTracks))
@@ -92,6 +97,9 @@ internal fun VodPlaybackSettingsSheet(
         if (state.showAudioVideoSyncAction) {
             add(VodSettingsAction("av_sync", stringResource(R.string.player_av_sync_short), onClick = onOpenAudioVideoSync))
         }
+    }
+    LaunchedEffect(actions.firstOrNull()?.id) {
+        if (actions.isNotEmpty()) firstActionFocusRequester.requestFocus()
     }
 
     Box(
@@ -143,6 +151,13 @@ internal fun VodPlaybackSettingsSheet(
                             enabled = action.enabled,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .then(
+                                    if (action.id == actions.firstOrNull()?.id) {
+                                        Modifier.focusRequester(firstActionFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                                 .semantics { contentDescription = action.label }
                         ) {
                             Text(

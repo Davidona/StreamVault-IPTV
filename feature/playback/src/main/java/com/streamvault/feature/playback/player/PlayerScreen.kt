@@ -343,6 +343,23 @@ fun PlayerScreen(
         }
     }
 
+    LaunchedEffect(modalState.active, showControls, contentType) {
+        if (modalState.active == null && showControls) {
+            delay(100)
+            if (contentType == "LIVE") {
+                quickActionsFocusRequester.requestFocusSafely(
+                    tag = "PlayerScreen",
+                    target = "Player quick actions after modal"
+                )
+            } else {
+                playButtonFocusRequester.requestFocusSafely(
+                    tag = "PlayerScreen",
+                    target = "Player transport after modal"
+                )
+            }
+        }
+    }
+
     LaunchedEffect(showControls, modalState) {
         if (!showControls) {
             viewModel.cancelControlsAutoHide()

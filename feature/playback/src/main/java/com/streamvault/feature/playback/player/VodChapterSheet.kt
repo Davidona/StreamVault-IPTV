@@ -18,8 +18,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -46,6 +50,11 @@ internal fun VodChapterSheet(
     modifier: Modifier = Modifier
 ) {
     val closeLabel = stringResource(R.string.player_close_chapters)
+    val initialChapterIndex = selectedChapterIndex ?: chapters.firstOrNull()?.index
+    val initialFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(initialChapterIndex) {
+        if (initialChapterIndex != null) initialFocusRequester.requestFocus()
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -101,6 +110,13 @@ internal fun VodChapterSheet(
                             onClick = { onSelectChapter(chapter) },
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .then(
+                                    if (chapter.index == initialChapterIndex) {
+                                        Modifier.focusRequester(initialFocusRequester)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                                 .semantics { contentDescription = chapterDescription }
                         ) {
                             Row(
