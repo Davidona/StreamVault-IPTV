@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -33,6 +34,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.feature.playback.R
 
 internal data class VodSettingsAction(
     val id: String,
@@ -64,30 +66,31 @@ internal fun VodPlaybackSettingsSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val closeLabel = stringResource(R.string.player_close_playback_settings)
     val actions = buildList {
-        if (state.showSubtitleAction) add(VodSettingsAction("subtitles", "Subtitles", onClick = onOpenSubtitleTracks))
-        if (state.showAudioAction) add(VodSettingsAction("audio", "Audio", onClick = onOpenAudioTracks))
-        if (state.showVideoQualityAction) add(VodSettingsAction("quality", "Video quality", onClick = onOpenVideoTracks))
-        add(VodSettingsAction("speed", "Playback speed", onClick = onOpenPlaybackSpeed))
-        add(VodSettingsAction("stop_timer", "Stop playback timer", onClick = onOpenStopPlaybackTimer))
-        add(VodSettingsAction("idle_timer", "Idle standby timer", onClick = onOpenIdleStandbyTimer))
-        add(VodSettingsAction("aspect", "Aspect ratio", onClick = onToggleAspectRatio))
-        add(VodSettingsAction("mute", if (isMuted) "Unmute" else "Mute", onClick = onToggleMute))
-        add(VodSettingsAction("pip", "Picture in picture", onClick = onEnterPictureInPicture))
-        if (state.showEpisodesAction) add(VodSettingsAction("episodes", "Episodes", onClick = onOpenEpisodes))
+        if (state.showSubtitleAction) add(VodSettingsAction("subtitles", stringResource(R.string.player_subs), onClick = onOpenSubtitleTracks))
+        if (state.showAudioAction) add(VodSettingsAction("audio", stringResource(R.string.player_audio), onClick = onOpenAudioTracks))
+        if (state.showVideoQualityAction) add(VodSettingsAction("quality", stringResource(R.string.player_video_quality), onClick = onOpenVideoTracks))
+        add(VodSettingsAction("speed", stringResource(R.string.player_playback_speed_title), onClick = onOpenPlaybackSpeed))
+        add(VodSettingsAction("stop_timer", stringResource(R.string.player_stop_playback_after), onClick = onOpenStopPlaybackTimer))
+        add(VodSettingsAction("idle_timer", stringResource(R.string.player_idle_standby_after), onClick = onOpenIdleStandbyTimer))
+        add(VodSettingsAction("aspect", stringResource(R.string.player_aspect_ratio), onClick = onToggleAspectRatio))
+        add(VodSettingsAction("mute", stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute), onClick = onToggleMute))
+        add(VodSettingsAction("pip", stringResource(R.string.player_picture_in_picture), onClick = onEnterPictureInPicture))
+        if (state.showEpisodesAction) add(VodSettingsAction("episodes", stringResource(R.string.player_episodes), onClick = onOpenEpisodes))
         if (state.showExternalPlayerAction) {
-            add(VodSettingsAction("external", "Open in external player", onClick = onOpenExternalPlayer))
+            add(VodSettingsAction("external", stringResource(R.string.player_open_in_external_player), onClick = onOpenExternalPlayer))
         }
-        add(VodSettingsAction("split_screen", "Split screen", onClick = onOpenSplitScreen))
+        add(VodSettingsAction("split_screen", stringResource(R.string.multiview_nav), onClick = onOpenSplitScreen))
         add(
             VodSettingsAction(
                 id = "cast",
-                label = if (isCastConnected) "Stop casting" else "Cast",
+                label = stringResource(if (isCastConnected) R.string.player_stop_casting else R.string.player_cast),
                 onClick = if (isCastConnected) onStopCasting else onCast
             )
         )
         if (state.showAudioVideoSyncAction) {
-            add(VodSettingsAction("av_sync", "A/V sync", onClick = onOpenAudioVideoSync))
+            add(VodSettingsAction("av_sync", stringResource(R.string.player_av_sync_short), onClick = onOpenAudioVideoSync))
         }
     }
 
@@ -117,7 +120,7 @@ internal fun VodPlaybackSettingsSheet(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Playback settings",
+                        text = stringResource(R.string.player_playback_settings),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.headlineSmall,
                         color = Color.White,
@@ -125,7 +128,7 @@ internal fun VodPlaybackSettingsSheet(
                     )
                     TvIconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.semantics { contentDescription = "Close playback settings" }
+                        modifier = Modifier.semantics { contentDescription = closeLabel }
                     ) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }

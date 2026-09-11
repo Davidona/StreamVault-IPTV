@@ -18,10 +18,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.feature.playback.R
 
 @Composable
 internal fun VodTransportControls(
@@ -43,13 +45,13 @@ internal fun VodTransportControls(
     ) {
         VodTransportButton(
             icon = Icons.Default.SkipPrevious,
-            label = "Previous chapter",
+            label = stringResource(R.string.player_previous_chapter),
             enabled = canSeekPreviousChapter,
             onClick = onSeekPreviousChapter
         )
         VodTransportButton(
             icon = Icons.Default.Replay,
-            label = "Rewind 10 seconds",
+            label = stringResource(R.string.player_rewind_10_seconds),
             onClick = onSeekBackward
         )
         TvIconButton(
@@ -67,12 +69,12 @@ internal fun VodTransportControls(
         }
         VodTransportButton(
             icon = Icons.Default.FastForward,
-            label = "Forward 10 seconds",
+            label = stringResource(R.string.player_forward_10_seconds),
             onClick = onSeekForward
         )
         VodTransportButton(
             icon = Icons.Default.SkipNext,
-            label = "Next chapter",
+            label = stringResource(R.string.player_next_chapter),
             enabled = canSeekNextChapter,
             onClick = onSeekNextChapter
         )

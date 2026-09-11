@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
 @Composable
@@ -31,6 +33,7 @@ internal fun VodTimeline(
     onSeekPreviewPositionChanged: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val timelineDescription = stringResource(R.string.player_vod_timeline)
     val safeDurationMs = durationMs.coerceAtLeast(1L)
     var scrubFraction by remember { mutableFloatStateOf(0f) }
     var isScrubbing by remember { mutableStateOf(false) }
@@ -41,7 +44,7 @@ internal fun VodTimeline(
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp)
-            .semantics { contentDescription = "VOD timeline" }
+            .semantics { contentDescription = timelineDescription }
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             val trackY = size.height / 2f

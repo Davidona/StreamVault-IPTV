@@ -34,11 +34,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.feature.playback.R
 
 @Composable
 internal fun VodPlayerControlsOverlay(
@@ -67,6 +69,9 @@ internal fun VodPlayerControlsOverlay(
     onUserInteraction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val vodControlsLabel = stringResource(R.string.player_vod_controls)
+    val settingsLabel = stringResource(R.string.player_playback_settings)
+    val closeLabel = stringResource(R.string.player_close_controls)
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -76,7 +81,7 @@ internal fun VodPlayerControlsOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "VOD playback controls" }
+                .semantics { contentDescription = vodControlsLabel }
         ) {
             Box(
                 modifier = Modifier
@@ -111,7 +116,7 @@ internal fun VodPlayerControlsOverlay(
                         )
                         overlayState.currentChapter?.let { chapter ->
                             Text(
-                                text = "Chapter ${chapter.index} · ${chapter.title}",
+                                text = stringResource(R.string.player_chapter_title, chapter.index, chapter.title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.72f),
                                 maxLines = 1,
@@ -168,14 +173,14 @@ internal fun VodPlayerControlsOverlay(
                     if (overlayState.showChapterAction) {
                         VodActionButton(
                             icon = Icons.Default.MenuBook,
-                            label = "Chapters",
+                            label = stringResource(R.string.player_chapters),
                             onClick = onOpenChapters
                         )
                     }
                     if (overlayState.showEpisodesAction) {
                         VodActionButton(
                             icon = Icons.Default.Tv,
-                            label = "Episodes",
+                            label = stringResource(R.string.player_episodes),
                             onClick = onOpenEpisodes
                         )
                     }
@@ -183,28 +188,28 @@ internal fun VodPlayerControlsOverlay(
                     if (overlayState.showSubtitleAction) {
                         VodActionButton(
                             icon = Icons.Default.ClosedCaption,
-                            label = "Subtitles",
+                            label = stringResource(R.string.player_subs),
                             onClick = onOpenSubtitleTracks
                         )
                     }
                     if (overlayState.showAudioAction) {
                         VodActionButton(
                             icon = Icons.Default.Audiotrack,
-                            label = "Audio",
+                            label = stringResource(R.string.player_audio),
                             onClick = onOpenAudioTracks
                         )
                     }
                     if (overlayState.showSettingsAction) {
                         TvIconButton(
                             onClick = onOpenSettings,
-                            modifier = Modifier.semantics { contentDescription = "Settings" }
+                            modifier = Modifier.semantics { contentDescription = settingsLabel }
                         ) {
                             Icon(imageVector = Icons.Default.Settings, contentDescription = null)
                         }
                     }
                     TvIconButton(
                         onClick = onClose,
-                        modifier = Modifier.semantics { contentDescription = "Close controls" }
+                        modifier = Modifier.semantics { contentDescription = closeLabel }
                     ) {
                         Text(text = "×", style = MaterialTheme.typography.headlineSmall, color = Color.White)
                     }

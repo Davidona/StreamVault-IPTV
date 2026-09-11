@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
@@ -33,6 +34,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
 @Composable
@@ -43,6 +45,7 @@ internal fun VodChapterSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val closeLabel = stringResource(R.string.player_close_chapters)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -64,20 +67,20 @@ internal fun VodChapterSheet(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Chapters",
+                            text = stringResource(R.string.player_chapters),
                             style = MaterialTheme.typography.headlineSmall,
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "${chapters.size} chapters",
+                            text = stringResource(R.string.player_chapter_count, chapters.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.64f)
                         )
                     }
                     TvIconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.semantics { contentDescription = "Close chapters" }
+                        modifier = Modifier.semantics { contentDescription = closeLabel }
                     ) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
@@ -89,17 +92,16 @@ internal fun VodChapterSheet(
                 ) {
                     items(chapters, key = PlayerChapter::index) { chapter ->
                         val selected = chapter.index == selectedChapterIndex
+                        val chapterDescription = if (selected) {
+                            stringResource(R.string.player_chapter_selected, chapter.index)
+                        } else {
+                            stringResource(R.string.player_chapter_label, chapter.index)
+                        }
                         TvClickableSurface(
                             onClick = { onSelectChapter(chapter) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .semantics {
-                                    contentDescription = if (selected) {
-                                        "Chapter ${chapter.index}, selected"
-                                    } else {
-                                        "Chapter ${chapter.index}"
-                                    }
-                                }
+                                .semantics { contentDescription = chapterDescription }
                         ) {
                             Row(
                                 modifier = Modifier
