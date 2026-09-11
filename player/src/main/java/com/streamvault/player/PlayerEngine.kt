@@ -44,6 +44,7 @@ interface PlayerEngine {
     val isPlaying: StateFlow<Boolean>
     val currentPosition: StateFlow<Long>
     val duration: StateFlow<Long>
+    val chapters: StateFlow<List<PlayerChapter>>
     val videoFormat: StateFlow<VideoFormat>
     val error: Flow<PlayerError?>
     val retryStatus: StateFlow<PlayerRetryStatus?>
