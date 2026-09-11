@@ -1,11 +1,16 @@
 package com.streamvault.player.playback
 
+import androidx.media3.common.Format
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DecoderReuseEvaluation
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.DecoderMode
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @UnstableApi
+@RunWith(RobolectricTestRunner::class)
 class PlaybackCodecSelectorTest {
 
     @Test
@@ -115,6 +120,23 @@ class PlaybackCodecSelectorTest {
         assertThat(plan.renderPath).isEqualTo(
             "decoder-reuse-workaround+video-managed-codec-selector+platform-first-extension-audio-fallback"
         )
+    }
+
+    @Test
+    fun `decoder reuse workaround forces codec recreation for format changes`() {
+        val oldFormat = Format.Builder().setSampleMimeType("video/avc").setWidth(1280).build()
+        val newFormat = Format.Builder().setSampleMimeType("video/avc").setWidth(1920).build()
+
+        val evaluation = buildDecoderReuseWorkaroundEvaluation(
+            decoderName = "OMX.vendor.avc.decoder",
+            oldFormat = oldFormat,
+            newFormat = newFormat
+        )
+
+        assertThat(evaluation.decoderName).isEqualTo("OMX.vendor.avc.decoder")
+        assertThat(evaluation.result).isEqualTo(DecoderReuseEvaluation.REUSE_RESULT_NO)
+        assertThat(evaluation.discardReasons)
+            .isEqualTo(DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED)
     }
 
     @Test
