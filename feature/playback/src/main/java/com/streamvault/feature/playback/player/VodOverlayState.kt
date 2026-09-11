@@ -14,6 +14,7 @@ internal data class VodOverlayState(
     val showSubtitleAction: Boolean,
     val showAudioAction: Boolean,
     val showVideoQualityAction: Boolean,
+    val showAudioVideoSyncAction: Boolean,
     val showExternalPlayerAction: Boolean,
     val showSettingsAction: Boolean
 )
@@ -27,6 +28,7 @@ internal fun buildVodOverlayState(
     subtitleTrackCount: Int,
     audioTrackCount: Int,
     videoQualityCount: Int,
+    audioVideoSyncEnabled: Boolean = false,
     showExternalPlayerAction: Boolean,
     isCastConnected: Boolean
 ): VodOverlayState {
@@ -49,6 +51,7 @@ internal fun buildVodOverlayState(
         showSubtitleAction = isVod && subtitleTrackCount > 0,
         showAudioAction = isVod && audioTrackCount > 0,
         showVideoQualityAction = isVod && videoQualityCount > 0,
+        showAudioVideoSyncAction = isVod && audioVideoSyncEnabled && !isCastConnected,
         showExternalPlayerAction = isVod && showExternalPlayerAction,
         showSettingsAction = isVod
     )

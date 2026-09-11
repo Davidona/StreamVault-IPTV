@@ -65,4 +65,15 @@ class PlayerModalStateTest {
         assertThat(state.active).isNull()
         assertThat(state.hasVisibleModal).isFalse()
     }
+
+    @Test
+    fun `chapter and playback settings sheets are exclusive`() {
+        val chapterState = PlayerModalState().open(PlayerModal.ChapterSelection)
+        val settingsState = chapterState.open(PlayerModal.PlaybackSettings)
+
+        assertThat(chapterState.showChapterSelection).isTrue()
+        assertThat(chapterState.showPlaybackSettings).isFalse()
+        assertThat(settingsState.showChapterSelection).isFalse()
+        assertThat(settingsState.showPlaybackSettings).isTrue()
+    }
 }

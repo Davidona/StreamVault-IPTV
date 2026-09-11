@@ -13,6 +13,8 @@ internal enum class PlayerBackAction {
     CLOSE_PROGRAM_HISTORY,
     CLOSE_SPLIT_DIALOG,
     CLOSE_EPISODE_PICKER,
+    CLOSE_CHAPTER_SELECTION,
+    CLOSE_PLAYBACK_SETTINGS,
     CLOSE_SPEED_SELECTION,
     CLOSE_AUDIO_VIDEO_OFFSET_DIALOG,
     CLOSE_STOP_PLAYBACK_TIMER,
@@ -33,6 +35,8 @@ internal data class PlayerBackNavigationState(
     val showProgramHistory: Boolean = false,
     val showSplitDialog: Boolean = false,
     val showEpisodePicker: Boolean = false,
+    val showChapterSelection: Boolean = false,
+    val showPlaybackSettings: Boolean = false,
     val showSpeedSelection: Boolean = false,
     val showAudioVideoOffsetDialog: Boolean = false,
     val showStopPlaybackTimerDialog: Boolean = false,
@@ -54,6 +58,8 @@ internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackActio
     state.showProgramHistory -> PlayerBackAction.CLOSE_PROGRAM_HISTORY
     state.showSplitDialog -> PlayerBackAction.CLOSE_SPLIT_DIALOG
     state.showEpisodePicker -> PlayerBackAction.CLOSE_EPISODE_PICKER
+    state.showChapterSelection -> PlayerBackAction.CLOSE_CHAPTER_SELECTION
+    state.showPlaybackSettings -> PlayerBackAction.CLOSE_PLAYBACK_SETTINGS
     state.showSpeedSelection -> PlayerBackAction.CLOSE_SPEED_SELECTION
     state.showAudioVideoOffsetDialog -> PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG
     state.showStopPlaybackTimerDialog -> PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER

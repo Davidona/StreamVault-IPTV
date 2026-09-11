@@ -12,6 +12,8 @@ internal sealed interface PlayerModal {
     data object ProgramHistory : PlayerModal
     data object Split : PlayerModal
     data object EpisodePicker : PlayerModal
+    data object ChapterSelection : PlayerModal
+    data object PlaybackSettings : PlayerModal
 }
 /**
  * UI-owned modal state for the player screen.
@@ -48,6 +50,12 @@ internal data class PlayerModalState(
 
     val showEpisodePicker: Boolean
         get() = active is PlayerModal.EpisodePicker
+
+    val showChapterSelection: Boolean
+        get() = active is PlayerModal.ChapterSelection
+
+    val showPlaybackSettings: Boolean
+        get() = active is PlayerModal.PlaybackSettings
 
     val hasVisibleModal: Boolean
         get() = active != null

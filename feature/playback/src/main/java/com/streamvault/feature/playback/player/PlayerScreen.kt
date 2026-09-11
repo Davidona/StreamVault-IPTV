@@ -373,6 +373,8 @@ fun PlayerScreen(
                     showProgramHistory = modalState.showProgramHistory,
                     showSplitDialog = modalState.showSplitDialog,
                     showEpisodePicker = modalState.showEpisodePicker,
+                    showChapterSelection = modalState.showChapterSelection,
+                    showPlaybackSettings = modalState.showPlaybackSettings,
                     showSpeedSelection = modalState.showSpeedSelection,
                     showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
                     showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
@@ -393,6 +395,8 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_PROGRAM_HISTORY -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_SPLIT_DIALOG -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_EPISODE_PICKER -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_CHAPTER_SELECTION -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_PLAYBACK_SETTINGS -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_SPEED_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG -> {
                     modalState = modalState.dismiss()
@@ -726,6 +730,11 @@ fun PlayerScreen(
             onOpenIdleStandbyTimer = { modalState = modalState.open(PlayerModal.IdleStandbyTimer) },
             onOpenAudioVideoSync = { modalState = modalState.open(PlayerModal.AudioVideoOffset) },
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
+            onOpenChapters = { modalState = modalState.open(PlayerModal.ChapterSelection) },
+            onOpenPlaybackSettings = { modalState = modalState.open(PlayerModal.PlaybackSettings) },
+            showChapterSheet = modalState.showChapterSelection,
+            showPlaybackSettingsSheet = modalState.showPlaybackSettings,
+            onDismissVodSheet = { modalState = modalState.dismiss() },
             onOpenSplitScreen = { modalState = modalState.open(PlayerModal.Split) },
             onEnterPictureInPicture = enterPictureInPicture,
             onRunRecordingAction = notificationPermissionGate::runRecordingAction,

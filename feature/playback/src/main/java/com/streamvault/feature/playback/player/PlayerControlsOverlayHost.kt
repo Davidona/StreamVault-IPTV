@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,6 +71,11 @@ internal fun PlayerControlsOverlayHost(
     onOpenIdleStandbyTimer: () -> Unit,
     onOpenAudioVideoSync: () -> Unit,
     onOpenEpisodes: () -> Unit,
+    onOpenChapters: () -> Unit = {},
+    onOpenPlaybackSettings: () -> Unit = {},
+    showChapterSheet: Boolean = false,
+    showPlaybackSettingsSheet: Boolean = false,
+    onDismissVodSheet: () -> Unit = {},
     onOpenSplitScreen: () -> Unit,
     onEnterPictureInPicture: () -> Unit,
     onRunRecordingAction: (() -> Unit) -> Unit,
@@ -77,6 +83,7 @@ internal fun PlayerControlsOverlayHost(
 ) {
     val currentPosition by playerEngine.currentPosition.collectAsStateWithLifecycle()
     val duration by playerEngine.duration.collectAsStateWithLifecycle()
+    val chapters by playerEngine.chapters.collectAsStateWithLifecycle()
     val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
     val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
     val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
@@ -99,70 +106,158 @@ internal fun PlayerControlsOverlayHost(
     val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
         currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
 
-    PlayerControlsOverlay(
-        visible = visible,
-        title = playbackTitle.ifBlank { title },
+    val isCastConnected = castConnectionState == CastConnectionState.CONNECTED
+    val vodOverlayState = buildVodOverlayState(
         contentType = contentType,
         isCatchUpPlayback = isCatchUpPlayback,
-        isPlaying = isPlaying,
-        currentProgram = currentProgram,
-        currentChannel = currentChannel,
-        currentChannelName = currentChannelName,
-        displayChannelNumber = displayChannelNumber,
-        currentPosition = currentPosition,
-        duration = duration,
-        aspectRatioLabel = aspectRatioLabel,
+        chapters = chapters,
+        currentPositionMs = currentPosition,
+        showEpisodesAction = canOpenEpisodePicker,
         subtitleTrackCount = availableSubtitleTracks.size,
-        liveTranslationAvailable = liveTranslationAvailable,
         audioTrackCount = availableAudioTracks.size,
         videoQualityCount = availableVideoQualities.size,
-        currentRecordingStatus = currentChannelRecording?.status,
-        isMuted = isMuted,
-        playbackSpeed = playbackSpeed,
-        mediaTitle = mediaTitle,
-        sleepTimerUiState = sleepTimerUiState,
-        timeshiftUiState = timeshiftUiState,
-        playButtonFocusRequester = playButtonFocusRequester,
-        quickActionsFocusRequester = quickActionsFocusRequester,
-        modifier = modifier,
-        onClose = viewModel::toggleControls,
-        onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
-        onSeekBackward = viewModel::seekBackward,
-        onSeekForward = viewModel::seekForward,
-        onRestartProgram = viewModel::restartCurrentProgram,
-        onOpenArchive = onOpenArchive,
-        onStartRecording = { onRunRecordingAction(viewModel::startManualRecording) },
-        onStopRecording = viewModel::stopCurrentRecording,
-        onScheduleRecording = { onRunRecordingAction(viewModel::scheduleRecording) },
-        onScheduleDailyRecording = { onRunRecordingAction(viewModel::scheduleDailyRecording) },
-        onScheduleWeeklyRecording = { onRunRecordingAction(viewModel::scheduleWeeklyRecording) },
-        onToggleAspectRatio = viewModel::toggleAspectRatio,
-        onOpenSubtitleTracks = onOpenSubtitleTracks,
-        onOpenAudioTracks = onOpenAudioTracks,
-        onOpenVideoTracks = onOpenVideoTracks,
-        onOpenPlaybackSpeed = onOpenPlaybackSpeed,
-        onOpenStopPlaybackTimer = onOpenStopPlaybackTimer,
-        onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
-        onOpenAudioVideoSync = onOpenAudioVideoSync,
         audioVideoSyncEnabled = audioVideoSyncEnabled,
-        showEpisodesAction = canOpenEpisodePicker,
-        onOpenEpisodes = onOpenEpisodes,
-        onOpenSplitScreen = onOpenSplitScreen,
-        onEnterPictureInPicture = onEnterPictureInPicture,
-        onToggleMute = viewModel::toggleMute,
-        isCastConnected = castConnectionState == CastConnectionState.CONNECTED,
-        onCast = { viewModel.castCurrentMedia(onOpenCastRouteChooser) },
-        onStopCasting = viewModel::stopCasting,
-        onSeekToLiveEdge = viewModel::seekToLiveEdge,
-        onSeekToPosition = viewModel::seekTo,
-        onSetScrubbingMode = viewModel::setScrubbingMode,
-        seekPreview = seekPreview,
-        onSeekPreviewPositionChanged = viewModel::updateSeekPreview,
-        onUserInteraction = {
-            viewModel.notifyUserActivity()
-            viewModel.refreshControlsAutoHide()
-        }
+        showExternalPlayerAction = false,
+        isCastConnected = isCastConnected
     )
+
+    if (vodOverlayState.isVod) {
+        VodPlayerControlsOverlay(
+            visible = visible,
+            title = playbackTitle.ifBlank { title },
+            overlayState = vodOverlayState,
+            isPlaying = isPlaying,
+            currentPositionMs = currentPosition,
+            durationMs = duration,
+            seekPreview = seekPreview,
+            playButtonFocusRequester = playButtonFocusRequester,
+            onClose = viewModel::toggleControls,
+            onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
+            onSeekBackward = viewModel::seekBackward,
+            onSeekForward = viewModel::seekForward,
+            onSeekPreviousChapter = {
+                vodOverlayState.previousChapterTargetMs?.let(viewModel::seekTo)
+            },
+            onSeekNextChapter = {
+                vodOverlayState.nextChapterTargetMs?.let(viewModel::seekTo)
+            },
+            onOpenChapters = onOpenChapters,
+            onOpenEpisodes = onOpenEpisodes,
+            onOpenSubtitleTracks = onOpenSubtitleTracks,
+            onOpenAudioTracks = onOpenAudioTracks,
+            onOpenSettings = onOpenPlaybackSettings,
+            onSeekToPosition = viewModel::seekTo,
+            onSetScrubbingMode = viewModel::setScrubbingMode,
+            onSeekPreviewPositionChanged = viewModel::updateSeekPreview,
+            onUserInteraction = {
+                viewModel.notifyUserActivity()
+                viewModel.refreshControlsAutoHide()
+            },
+            modifier = modifier
+        )
+
+        if (showChapterSheet) {
+            VodChapterSheet(
+                chapters = vodOverlayState.chapters,
+                selectedChapterIndex = vodOverlayState.currentChapter?.index,
+                onSelectChapter = { chapter ->
+                    viewModel.seekTo(chapter.startTimeMs)
+                    onDismissVodSheet()
+                },
+                onDismiss = onDismissVodSheet,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        if (showPlaybackSettingsSheet) {
+            VodPlaybackSettingsSheet(
+                state = vodOverlayState,
+                onOpenSubtitleTracks = onOpenSubtitleTracks,
+                onOpenAudioTracks = onOpenAudioTracks,
+                onOpenVideoTracks = onOpenVideoTracks,
+                onOpenPlaybackSpeed = onOpenPlaybackSpeed,
+                onOpenStopPlaybackTimer = onOpenStopPlaybackTimer,
+                onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
+                onOpenAudioVideoSync = onOpenAudioVideoSync,
+                onToggleAspectRatio = viewModel::toggleAspectRatio,
+                onToggleMute = viewModel::toggleMute,
+                onEnterPictureInPicture = onEnterPictureInPicture,
+                onOpenExternalPlayer = {},
+                onOpenEpisodes = onOpenEpisodes,
+                onOpenSplitScreen = onOpenSplitScreen,
+                onCast = { viewModel.castCurrentMedia(onOpenCastRouteChooser) },
+                onStopCasting = viewModel::stopCasting,
+                isMuted = isMuted,
+                isCastConnected = isCastConnected,
+                onDismiss = onDismissVodSheet,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    } else {
+        PlayerControlsOverlay(
+            visible = visible,
+            title = playbackTitle.ifBlank { title },
+            contentType = contentType,
+            isCatchUpPlayback = isCatchUpPlayback,
+            isPlaying = isPlaying,
+            currentProgram = currentProgram,
+            currentChannel = currentChannel,
+            currentChannelName = currentChannelName,
+            displayChannelNumber = displayChannelNumber,
+            currentPosition = currentPosition,
+            duration = duration,
+            aspectRatioLabel = aspectRatioLabel,
+            subtitleTrackCount = availableSubtitleTracks.size,
+            liveTranslationAvailable = liveTranslationAvailable,
+            audioTrackCount = availableAudioTracks.size,
+            videoQualityCount = availableVideoQualities.size,
+            currentRecordingStatus = currentChannelRecording?.status,
+            isMuted = isMuted,
+            playbackSpeed = playbackSpeed,
+            mediaTitle = mediaTitle,
+            sleepTimerUiState = sleepTimerUiState,
+            timeshiftUiState = timeshiftUiState,
+            playButtonFocusRequester = playButtonFocusRequester,
+            quickActionsFocusRequester = quickActionsFocusRequester,
+            modifier = modifier,
+            onClose = viewModel::toggleControls,
+            onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
+            onSeekBackward = viewModel::seekBackward,
+            onSeekForward = viewModel::seekForward,
+            onRestartProgram = viewModel::restartCurrentProgram,
+            onOpenArchive = onOpenArchive,
+            onStartRecording = { onRunRecordingAction(viewModel::startManualRecording) },
+            onStopRecording = viewModel::stopCurrentRecording,
+            onScheduleRecording = { onRunRecordingAction(viewModel::scheduleRecording) },
+            onScheduleDailyRecording = { onRunRecordingAction(viewModel::scheduleDailyRecording) },
+            onScheduleWeeklyRecording = { onRunRecordingAction(viewModel::scheduleWeeklyRecording) },
+            onToggleAspectRatio = viewModel::toggleAspectRatio,
+            onOpenSubtitleTracks = onOpenSubtitleTracks,
+            onOpenAudioTracks = onOpenAudioTracks,
+            onOpenVideoTracks = onOpenVideoTracks,
+            onOpenPlaybackSpeed = onOpenPlaybackSpeed,
+            onOpenStopPlaybackTimer = onOpenStopPlaybackTimer,
+            onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
+            onOpenAudioVideoSync = onOpenAudioVideoSync,
+            audioVideoSyncEnabled = audioVideoSyncEnabled,
+            showEpisodesAction = canOpenEpisodePicker,
+            onOpenEpisodes = onOpenEpisodes,
+            onOpenSplitScreen = onOpenSplitScreen,
+            onEnterPictureInPicture = onEnterPictureInPicture,
+            onToggleMute = viewModel::toggleMute,
+            isCastConnected = isCastConnected,
+            onCast = { viewModel.castCurrentMedia(onOpenCastRouteChooser) },
+            onStopCasting = viewModel::stopCasting,
+            onSeekToLiveEdge = viewModel::seekToLiveEdge,
+            onSeekToPosition = viewModel::seekTo,
+            onSetScrubbingMode = viewModel::setScrubbingMode,
+            seekPreview = seekPreview,
+            onSeekPreviewPositionChanged = viewModel::updateSeekPreview,
+            onUserInteraction = {
+                viewModel.notifyUserActivity()
+                viewModel.refreshControlsAutoHide()
+            }
+        )
+    }
 }
 
 @Composable
