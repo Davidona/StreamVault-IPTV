@@ -10,10 +10,19 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Updated the AndroidX Media3 playback stack from 1.9.2 to 1.11.0:
+  - Added VOD chapter navigation with timeline markers, chapter selection, and previous/next chapter actions.
+  - Added adaptive startup bitrate selection using network-class defaults and recent bandwidth measurements.
+  - Improved external subtitle loading and preferred subtitle-language selection, while keeping optional subtitle I/O failures non-fatal to playback.
+  - Updated the bundled FFmpeg decoder artifact to the matching Media3 release.
+  - Inherited playback reliability fixes for decoder recovery and prewarming, codec reuse and flushing, audio-output retries, low-memory load control, and HLS, DASH, and MPEG-TS seeking and timeline handling.
+  - Inherited subtitle timing and parser fixes for TTML and VobSub content.
+  - Inherited compatibility improvements for HLS Content Steering, DASH/HLS metadata, AV1 and Dolby Vision, VVC, Matroska, and MP4 formats when supported by the device.
+  - Reduced unnecessary artwork metadata extraction during playback to lower memory use on TV devices.
 - Added selectable Classic blue, M3 purple, and Light app themes, with persistent settings and backup/restore support.
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
 - Improved playback quick-action readability by using shared theme-aware content colors across focused and unfocused controls, keeping contrast consistent across all playback buttons.
-- Added persistent VOD audio and subtitle track choices across movie re-entry, series seasons and episodes, and subsequent VOD playback when the selected track is available.
+- Added persistent VOD audio and subtitle track choices: selections are saved per movie, shared across all episodes in the same series, and used as a global fallback for other VOD titles when a matching track is available; language and label matching survives provider track-ID changes, and explicit subtitle-off choices are preserved.
 - Added an opt-in Live TV setting to auto-hide the category sidebar after selection, with Back-button and focus-aware restoration.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
