@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -170,7 +171,7 @@ fun ChannelInfoOverlay(
         }
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    ChannelInfoOverlayFrame(showBackButton, onBackToMenu, onOverlayInteracted) {
         PlayerOverlayPanel(
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,9 +190,6 @@ fun ChannelInfoOverlay(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (showBackButton) {
-                            PlayerBackButton(onClick = onBackToMenu)
-                        }
                         if (currentChannel != null) {
                             Box(
                                 modifier = Modifier
@@ -702,6 +700,28 @@ fun ChannelInfoOverlay(
             }
         }
     }
+    }
+}
+
+@Composable
+private fun ChannelInfoOverlayFrame(
+    showBackButton: Boolean,
+    onBackToMenu: () -> Unit,
+    onOverlayInteracted: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (showBackButton) {
+            PlayerBackButton(
+                onClick = onBackToMenu,
+                modifier = Modifier.align(Alignment.TopStart).padding(24.dp)
+                    .onFocusChanged { if (it.isFocused) onOverlayInteracted() }
+            )
+        }
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+            content = content
+        )
     }
 }
 

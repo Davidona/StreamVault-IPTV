@@ -1,6 +1,10 @@
 package com.streamvault.feature.playback.player
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun VodTimeline(
     chapters: List<PlayerChapter>,
@@ -43,7 +48,7 @@ internal fun VodTimeline(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .height(32.dp)
             .semantics { contentDescription = timelineDescription }
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
@@ -74,6 +79,21 @@ internal fun VodTimeline(
                 isScrubbing = false
             },
             modifier = Modifier.matchParentSize(),
+            thumb = {
+                Box(Modifier.size(12.dp).background(Color.White, CircleShape))
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    modifier = Modifier.height(4.dp),
+                    thumbTrackGapSize = 0.dp,
+                    drawStopIndicator = null,
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = Color.White,
+                        inactiveTrackColor = Color.White.copy(alpha = 0.28f)
+                    )
+                )
+            },
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
                 activeTrackColor = Color.White,

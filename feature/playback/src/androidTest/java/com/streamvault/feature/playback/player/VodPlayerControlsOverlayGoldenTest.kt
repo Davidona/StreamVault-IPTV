@@ -1,6 +1,8 @@
 package com.streamvault.feature.playback.player
 
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.assertHasClickAction
@@ -90,12 +92,13 @@ class VodPlayerControlsOverlayGoldenTest {
     }
 
     @Test
-    fun noChapters_hidesChapterAction() {
+    fun narrowOverlay_keepsSettingsAndCloseVisible_withoutChapters() {
         composeRule.setContent {
             StreamVaultTheme {
                 val focusRequester = remember { FocusRequester() }
                 VodPlayerControlsOverlay(
                     visible = true,
+                    modifier = Modifier.width(360.dp),
                     title = "A movie",
                     overlayState = buildVodOverlayState(
                         contentType = "MOVIE",
@@ -103,8 +106,8 @@ class VodPlayerControlsOverlayGoldenTest {
                         chapters = emptyList(),
                         currentPositionMs = 0L,
                         showEpisodesAction = false,
-                        subtitleTrackCount = 0,
-                        audioTrackCount = 0,
+                        subtitleTrackCount = 1,
+                        audioTrackCount = 1,
                         videoQualityCount = 0,
                         showExternalPlayerAction = false,
                         isCastConnected = false
@@ -135,5 +138,7 @@ class VodPlayerControlsOverlayGoldenTest {
 
         composeRule.onNodeWithContentDescription("VOD playback controls").assertExists()
         composeRule.onNodeWithContentDescription("Chapters").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Playback settings").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Close controls").assertIsDisplayed()
     }
 }

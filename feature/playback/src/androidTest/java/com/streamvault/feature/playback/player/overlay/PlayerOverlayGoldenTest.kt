@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performSemanticsAction
@@ -85,7 +86,7 @@ class PlayerOverlayGoldenTest {
     }
 
     @Test
-    fun channelInfoOverlay_placesBackButtonInPanelHeader() {
+    fun channelInfoOverlay_placesBackButtonAtTopLeft() {
         var backButtonClicks = 0
         composeRule.setContent {
             StreamVaultTheme {
@@ -126,7 +127,8 @@ class PlayerOverlayGoldenTest {
         composeRule.onNodeWithContentDescription("Back to menu")
             .assertIsDisplayed()
             .assertHasClickAction()
-            .assertTopPositionInRootIsEqualTo(30.dp)
+            .assertTopPositionInRootIsEqualTo(24.dp)
+            .assertLeftPositionInRootIsEqualTo(24.dp)
             .performSemanticsAction(SemanticsActions.OnClick)
         assertThat(backButtonClicks).isEqualTo(1)
     }

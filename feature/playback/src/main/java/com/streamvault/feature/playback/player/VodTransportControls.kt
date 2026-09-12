@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.runtime.Composable
@@ -20,9 +20,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.playback.R
 
 @Composable
@@ -40,7 +37,7 @@ internal fun VodTransportControls(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         VodTransportButton(
@@ -50,11 +47,11 @@ internal fun VodTransportControls(
             onClick = onSeekPreviousChapter
         )
         VodTransportButton(
-            icon = Icons.Default.Replay,
+            icon = Icons.Default.Replay10,
             label = stringResource(R.string.player_rewind_10_seconds),
             onClick = onSeekBackward
         )
-        TvIconButton(
+        VodControlButton(
             onClick = onTogglePlayPause,
             modifier = Modifier
                 .focusRequester(playButtonFocusRequester)
@@ -64,11 +61,11 @@ internal fun VodTransportControls(
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = androidx.tv.material3.LocalContentColor.current
             )
         }
         VodTransportButton(
-            icon = Icons.Default.FastForward,
+            icon = Icons.Default.Forward10,
             label = stringResource(R.string.player_forward_10_seconds),
             onClick = onSeekForward
         )
@@ -88,7 +85,7 @@ private fun VodTransportButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    TvIconButton(
+    VodControlButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier.semantics { contentDescription = label }

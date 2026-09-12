@@ -11,12 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -37,7 +42,6 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.playback.R
 
 internal data class VodSettingsAction(
@@ -105,20 +109,20 @@ internal fun VodPlaybackSettingsSheet(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.72f))
+            .background(Color.Black.copy(alpha = 0.32f))
     ) {
         Surface(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight()
-                .widthIn(min = 360.dp, max = 520.dp),
-            colors = SurfaceDefaults.colors(containerColor = Color(0xFF111216))
+                .width(360.dp),
+            colors = SurfaceDefaults.colors(containerColor = Color(0xFF10151D))
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 28.dp, vertical = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -130,11 +134,11 @@ internal fun VodPlaybackSettingsSheet(
                     Text(
                         text = stringResource(R.string.player_playback_settings),
                         modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleLarge,
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold
                     )
-                    TvIconButton(
+                    VodControlButton(
                         onClick = onDismiss,
                         modifier = Modifier.semantics { contentDescription = closeLabel }
                     ) {
@@ -143,12 +147,21 @@ internal fun VodPlaybackSettingsSheet(
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    contentPadding = PaddingValues(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(actions, key = VodSettingsAction::id) { action ->
                         TvClickableSurface(
                             onClick = action.onClick,
                             enabled = action.enabled,
+                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
+                            colors = ClickableSurfaceDefaults.colors(
+                                containerColor = Color.White.copy(alpha = 0.035f),
+                                contentColor = Color(0xFFDCE3ED),
+                                focusedContainerColor = Color(0xFFDFEBFA),
+                                focusedContentColor = Color(0xFF10151D)
+                            ),
+                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .then(
@@ -160,20 +173,55 @@ internal fun VodPlaybackSettingsSheet(
                                 )
                                 .semantics { contentDescription = action.label }
                         ) {
-                            Text(
-                                text = action.label,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 18.dp, vertical = 15.dp),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = vodSettingsIcon(action.id, isMuted),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = LocalContentColor.current.copy(alpha = 0.8f)
+                                )
+                                Text(
+                                    text = action.label,
+                                    modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = LocalContentColor.current,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = LocalContentColor.current.copy(alpha = 0.45f)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+private fun vodSettingsIcon(id: String, isMuted: Boolean): ImageVector = when (id) {
+    "subtitles" -> Icons.Default.ClosedCaption
+    "audio" -> Icons.Default.Audiotrack
+    "quality" -> Icons.Default.HighQuality
+    "speed" -> Icons.Default.Speed
+    "stop_timer" -> Icons.Default.Timer
+    "idle_timer" -> Icons.Default.Bedtime
+    "aspect" -> Icons.Default.AspectRatio
+    "mute" -> if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp
+    "pip" -> Icons.Default.PictureInPictureAlt
+    "episodes" -> Icons.Default.VideoLibrary
+    "external" -> Icons.Default.OpenInNew
+    "split_screen" -> Icons.Default.ViewWeek
+    "cast" -> Icons.Default.Cast
+    "av_sync" -> Icons.Default.Sync
+    else -> Icons.Default.Settings
 }

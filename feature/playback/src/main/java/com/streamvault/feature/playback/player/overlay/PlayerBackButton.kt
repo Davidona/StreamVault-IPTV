@@ -1,12 +1,15 @@
 package com.streamvault.feature.playback.player.overlay
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -69,31 +72,30 @@ internal fun PlayerBackButton(
                     true
                 })
             },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+        shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.86f),
+            containerColor = Color.Black.copy(alpha = 0.36f),
             contentColor = Color.White,
-            focusedContainerColor = AppColors.Brand,
-            focusedContentColor = AppColors.OnPrimary
+            focusedContainerColor = Color.White,
+            focusedContentColor = Color(0xFF10151D)
         ),
         border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(1.dp, AppColors.Outline.copy(alpha = 0.8f)),
-                shape = RoundedCornerShape(14.dp)
-            ),
+            border = Border.None,
             focusedBorder = Border(
                 border = BorderStroke(2.dp, AppColors.Focus),
-                shape = RoundedCornerShape(14.dp)
+                shape = CircleShape
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         glow = ClickableSurfaceDefaults.glow(focusedGlow = Glow.None)
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-            tint = LocalContentColor.current,
-            modifier = Modifier.size(24.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = LocalContentColor.current,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

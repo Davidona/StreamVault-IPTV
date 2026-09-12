@@ -8,15 +8,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Settings
@@ -26,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
@@ -38,11 +38,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun VodPlayerControlsOverlay(
     visible: Boolean,
@@ -113,14 +112,14 @@ internal fun VodPlayerControlsOverlay(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(horizontal = 42.dp, vertical = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .padding(horizontal = 32.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MaterialTheme.typography.titleLarge,
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -160,9 +159,10 @@ internal fun VodPlayerControlsOverlay(
                     onSeekPreviewPositionChanged = onSeekPreviewPositionChanged
                 )
 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     VodTransportControls(
                         isPlaying = isPlaying,
@@ -175,13 +175,7 @@ internal fun VodPlayerControlsOverlay(
                         onSeekForward = onSeekForward,
                         onSeekNextChapter = onSeekNextChapter
                     )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    Spacer(modifier = Modifier.weight(1f))
                     if (overlayState.showChapterAction) {
                         VodActionButton(
                             icon = Icons.Default.MenuBook,
@@ -196,7 +190,6 @@ internal fun VodPlayerControlsOverlay(
                             onClick = onOpenEpisodes
                         )
                     }
-                    Spacer(modifier = Modifier.weight(1f))
                     if (overlayState.showSubtitleAction) {
                         VodActionButton(
                             icon = Icons.Default.ClosedCaption,
@@ -212,18 +205,18 @@ internal fun VodPlayerControlsOverlay(
                         )
                     }
                     if (overlayState.showSettingsAction) {
-                        TvIconButton(
+                        VodControlButton(
                             onClick = onOpenSettings,
                             modifier = Modifier.semantics { contentDescription = settingsLabel }
                         ) {
                             Icon(imageVector = Icons.Default.Settings, contentDescription = null)
                         }
                     }
-                    TvIconButton(
+                    VodControlButton(
                         onClick = onClose,
                         modifier = Modifier.semantics { contentDescription = closeLabel }
                     ) {
-                        Text(text = "×", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 }
             }
@@ -233,7 +226,7 @@ internal fun VodPlayerControlsOverlay(
                     text = formatVodDuration(seekPreview.positionMs),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 190.dp)
+                        .padding(bottom = 162.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.Black.copy(alpha = 0.72f))
                         .padding(horizontal = 14.dp, vertical = 8.dp),
@@ -251,12 +244,10 @@ private fun VodActionButton(
     label: String,
     onClick: () -> Unit
 ) {
-    TvButton(
+    VodControlButton(
         onClick = onClick,
         modifier = Modifier.semantics { contentDescription = label }
     ) {
         Icon(imageVector = icon, contentDescription = null)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = label)
     }
 }
