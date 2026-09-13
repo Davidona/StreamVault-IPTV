@@ -1,6 +1,7 @@
 package com.streamvault.feature.playback.player
 
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.StreamInfo
 import javax.inject.Inject
 
@@ -15,6 +16,15 @@ class PlayerPlaybackContextCoordinator @Inject constructor() {
     internal var currentTitle: String = ""
     internal var currentArtworkUrl: String? = null
     internal var pendingCatchUpUrls: List<String> = emptyList()
+    internal var selectedCatchUpProgram: Program? = null
+
+    internal fun storeSelectedCatchUpProgram(program: Program) {
+        selectedCatchUpProgram = program
+    }
+
+    internal fun clearSelectedCatchUpProgram() {
+        selectedCatchUpProgram = null
+    }
 
     internal fun clearResolvedStream() {
         currentResolvedPlaybackUrl = ""

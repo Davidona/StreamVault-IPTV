@@ -132,6 +132,8 @@ fun PlayerViewModel.onAppForegrounded() {
 
 fun PlayerViewModel.onPlayerScreenDisposed(): Job? {
     val progressFlush = queueForcedProgressFlush()
+    clearPreloadWindow()
+    playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
     stopLiveTranslationSession()
     clearPlaybackTimers()
@@ -152,6 +154,8 @@ internal fun PlayerViewModel.clearPlaybackTimers() {
 
 fun PlayerViewModel.handOffPlaybackToMultiView(): Job? {
     val progressFlush = queueForcedProgressFlush()
+    clearPreloadWindow()
+    playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
     stopLiveTranslationSession()
     playerPreviewCoordinator.clear(playerEngine)

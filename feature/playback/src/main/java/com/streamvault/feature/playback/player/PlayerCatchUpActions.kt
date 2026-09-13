@@ -143,6 +143,7 @@ fun PlayerViewModel.playCatchUp(program: Program) {
         }
         if (!isActivePlaybackSession(requestVersion)) return@launch
         if (catchUpUrls.isNotEmpty()) {
+            playerPlaybackContextCoordinator.storeSelectedCatchUpProgram(program)
             startCatchUpPlayback(
                 urls = catchUpUrls,
                 title = "${channel.name}: ${program.title}",

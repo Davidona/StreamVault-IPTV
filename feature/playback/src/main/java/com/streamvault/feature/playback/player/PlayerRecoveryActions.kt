@@ -31,7 +31,7 @@ internal fun PlayerViewModel.cooldownLivePreloadForCurrentProvider(reason: Strin
     val providerId = currentProviderId.takeIf { it > 0L } ?: return
     if (playerRecoveryCoordinator.markLivePreloadCoolingDown(providerId)) {
         appendRecoveryAction("Disabled live preload for provider: $reason")
-        playerEngine.preload(null)
+        clearPreloadWindow()
     }
 }
 
@@ -67,7 +67,7 @@ internal suspend fun PlayerViewModel.tryRefreshXtreamPlaybackAfterAuthError(
     delay(PROVIDER_AUTH_RETRY_GRACE_MS)
     if (!isActivePlaybackSession(requestVersion, playbackUrl)) return true
     clearResolvedStream()
-    playerEngine.preload(null)
+    clearPreloadWindow()
     if (!preparePlayer(refreshedStreamInfo, requestVersion, probeBeforePlayback = false)) return true
     playerEngine.play()
     return true

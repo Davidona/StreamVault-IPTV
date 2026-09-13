@@ -129,6 +129,15 @@ interface PlayerEngine {
      */
     fun preload(streamInfo: StreamInfo?)
 
+    /**
+     * Preload a bounded VOD or catch-up navigation window. Implementations that
+     * do not support sliding-window preloading may safely ignore this request.
+     */
+    fun preloadWindow(window: PlayerPreloadWindow) {}
+
+    /** Clears both sliding-window and legacy single-item preload state. */
+    fun clearPreloadWindow() = preload(null)
+
     fun createRenderView(
         context: Context,
         resizeMode: PlayerSurfaceResizeMode,

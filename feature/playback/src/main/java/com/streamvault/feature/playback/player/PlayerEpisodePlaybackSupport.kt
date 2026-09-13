@@ -21,10 +21,7 @@ internal fun resolveEpisode(
 }
 
 internal fun findNextEpisode(series: Series, episode: Episode): Episode? {
-    val orderedEpisodes = series.seasons
-        .sanitizedForPlayer()
-        .sortedBy { it.seasonNumber }
-        .flatMap { season -> season.episodes.sortedBy { it.episodeNumber } }
+    val orderedEpisodes = orderedEpisodesForPlayer(series)
     val currentIndex = orderedEpisodes.indexOfFirst {
         it.id == episode.id ||
             it.playbackEpisodeIdentity() == episode.playbackEpisodeIdentity() ||
@@ -32,6 +29,21 @@ internal fun findNextEpisode(series: Series, episode: Episode): Episode? {
     }
     return orderedEpisodes.getOrNull(currentIndex + 1)
 }
+
+internal fun findPreviousEpisode(series: Series, episode: Episode): Episode? {
+    val orderedEpisodes = orderedEpisodesForPlayer(series)
+    val currentIndex = orderedEpisodes.indexOfFirst {
+        it.id == episode.id ||
+            it.playbackEpisodeIdentity() == episode.playbackEpisodeIdentity() ||
+            (it.seasonNumber == episode.seasonNumber && it.episodeNumber == episode.episodeNumber)
+    }
+    return orderedEpisodes.getOrNull(currentIndex - 1)
+}
+
+internal fun orderedEpisodesForPlayer(series: Series): List<Episode> = series.seasons
+    .sanitizedForPlayer()
+    .sortedBy { it.seasonNumber }
+    .flatMap { season -> season.episodes.sortedBy { it.episodeNumber } }
 
 internal fun Episode.playbackEpisodeIdentity(): Long =
     episodeId.takeIf { it > 0L } ?: id

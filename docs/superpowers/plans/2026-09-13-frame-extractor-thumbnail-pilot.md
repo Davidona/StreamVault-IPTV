@@ -31,7 +31,7 @@
 
 ## Implementation Steps
 
-- [ ] **Step 1: Add the player-side thumbnail extraction contract and VOD request context.**
+- [x] **Step 1: Add the player-side thumbnail extraction contract and VOD request context.**
 
   **Files:**
 
@@ -56,7 +56,7 @@
 
   **Tests:** Verify that the request carries stream metadata and explicit live/VOD state without introducing a Media3 dependency into feature code.
 
-- [ ] **Step 2: Refactor `PlayerMediaSourceFactory` so the same media-source rules can be supplied to `FrameExtractor`.**
+- [x] **Step 2: Refactor `PlayerMediaSourceFactory` so the same media-source rules can be supplied to `FrameExtractor`.**
 
   **Files:**
 
@@ -75,7 +75,7 @@
 
   **Tests:** Confirm existing media-source tests still pass and add assertions that the reusable factory receives the expected resolved type, preload mode, and media item URI/media ID. Keep the MPEG-TS playback policy tests intact.
 
-- [ ] **Step 3: Add the Media3 `FrameExtractor` implementation and dependency.**
+- [x] **Step 3: Add the Media3 `FrameExtractor` implementation and dependency.**
 
   **Files:**
 
@@ -108,7 +108,7 @@
   - Test extraction failure, timeout, and coroutine cancellation return `null` and release/cancel the extractor operation. Use a small injectable test seam for the future/session boundary if direct `FrameExtractor` construction cannot be exercised in a JVM test.
   - Do not make JVM tests depend on a real provider URL or a decoder installed on the developer machine.
 
-- [ ] **Step 4: Turn `PlayerThumbnailCoordinator` into the Media3-first/legacy-fallback selector.**
+- [x] **Step 4: Turn `PlayerThumbnailCoordinator` into the Media3-first/legacy-fallback selector.**
 
   **Files:**
 
@@ -142,7 +142,7 @@
 
   **Tests:** Verify Media3 success prevents a legacy call, Media3 unsupported/failure invokes legacy when supported, neither backend returns `null`, and cache clearing reaches both implementations. Verify the current URL and stream metadata are forwarded correctly.
 
-- [ ] **Step 5: Connect the coordinator to seek preview and thumbnail preloading without changing UI behavior.**
+- [x] **Step 5: Connect the coordinator to seek preview and thumbnail preloading without changing UI behavior.**
 
   **Files:**
 
@@ -159,7 +159,7 @@
 
   **Tests:** Retain the existing preload-position and preload-key tests. Add coverage that VOD calls use the resolved stream metadata, live calls do not start extraction, and a late Media3 result cannot overwrite a newer seek-preview request.
 
-- [ ] **Step 6: Verify module boundaries, build output, and fallback behavior.**
+- [x] **Step 6: Verify module boundaries, build output, and fallback behavior.**
 
   **Commands:**
 

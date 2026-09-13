@@ -74,6 +74,15 @@ internal fun PlayerViewModel.applyPrepareSessionState(
                 combinedSourceFilterProviderId != previousCombinedSourceFilterProviderId
             )
 
+    val requestedContentType = try {
+        ContentType.valueOf(contentType)
+    } catch (_: Exception) {
+        ContentType.LIVE
+    }
+    if (requestedContentType == ContentType.LIVE && !hasArchiveRequest) {
+        clearPreloadWindow()
+    }
+
     clearSeekPreview()
     currentResolvedPlaybackUrl = ""
     currentResolvedStreamInfo = null
@@ -82,11 +91,7 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     currentTitle = title
     playbackTitleFlow.value = title
     currentArtworkUrl = artworkUrl
-    currentContentType = try {
-        ContentType.valueOf(contentType)
-    } catch (_: Exception) {
-        ContentType.LIVE
-    }
+    currentContentType = requestedContentType
     currentProviderId = providerId
     currentCombinedProfileId = combinedProfileId?.takeIf { it > 0L }
     currentCombinedSourceFilterProviderId = combinedSourceFilterProviderId?.takeIf { it > 0L }
@@ -113,6 +118,7 @@ internal fun PlayerViewModel.applyPrepareSessionState(
 
     if (!hasArchiveRequest) {
         pendingCatchUpUrls = emptyList()
+        playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     }
     if (currentContentType != ContentType.SERIES_EPISODE || providerId <= 0 || currentSeriesId == null) {
         clearSeriesEpisodeContext()

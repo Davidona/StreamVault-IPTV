@@ -366,7 +366,13 @@ fun PlayerViewModel.updateSeekPreview(positionMs: Long?) {
 
     val previewPositionMs = positionMs.coerceAtLeast(0L)
     val previewUrl = currentResolvedPlaybackUrl.ifBlank { currentStreamUrl }
-    val canExtractFrame = previewUrl.isNotBlank() && playerThumbnailCoordinator.supportsFrameExtraction(previewUrl)
+    val previewStreamInfo = currentResolvedStreamInfo
+    val isLive = currentContentType == ContentType.LIVE
+    val canExtractFrame = previewUrl.isNotBlank() && playerThumbnailCoordinator.supportsFrameExtraction(
+        streamUrl = previewUrl,
+        streamInfo = previewStreamInfo,
+        isLive = isLive
+    )
 
     _seekPreview.update { current ->
         current.copy(
@@ -387,7 +393,12 @@ fun PlayerViewModel.updateSeekPreview(positionMs: Long?) {
     val requestVersion = ++seekPreviewRequestVersion
     seekPreviewJob = viewModelScope.launch {
         delay(120)
-        val bitmap = playerThumbnailCoordinator.loadFrame(previewUrl, previewPositionMs)
+        val bitmap = playerThumbnailCoordinator.loadFrame(
+            streamUrl = previewUrl,
+            streamInfo = previewStreamInfo,
+            isLive = isLive,
+            positionMs = previewPositionMs
+        )
         if (requestVersion != seekPreviewRequestVersion) return@launch
 
         _seekPreview.update { current ->
@@ -407,7 +418,9 @@ fun PlayerViewModel.updateSeekPreview(positionMs: Long?) {
 
 internal fun PlayerViewModel.startThumbnailPreload() {
     val url = currentResolvedPlaybackUrl.ifBlank { currentStreamUrl }
-    if (url.isBlank() || !playerThumbnailCoordinator.supportsFrameExtraction(url)) return
+    val streamInfo = currentResolvedStreamInfo
+    val isLive = currentContentType == ContentType.LIVE
+    if (url.isBlank() || !playerThumbnailCoordinator.supportsFrameExtraction(url, streamInfo, isLive)) return
     if (!shouldStartThumbnailPreload(url, lastCompletedThumbnailPreloadKey, inFlightThumbnailPreloadKey)) return
     val durationMs = playerEngine.duration.value
     if (durationMs <= 0L) return
@@ -423,7 +436,12 @@ internal fun PlayerViewModel.startThumbnailPreload() {
         try {
             preloadPositions.forEach { positionMs ->
                 ensureActive()
-                playerThumbnailCoordinator.loadFrame(url, positionMs)
+                playerThumbnailCoordinator.loadFrame(
+                    streamUrl = url,
+                    streamInfo = streamInfo,
+                    isLive = isLive,
+                    positionMs = positionMs
+                )
             }
             lastCompletedThumbnailPreloadKey = url
         } finally {

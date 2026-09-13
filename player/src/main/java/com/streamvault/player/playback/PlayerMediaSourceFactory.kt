@@ -62,55 +62,14 @@ class PlayerMediaSourceFactory(
         vodHttpProtocolMode: VodHttpProtocolMode = VodHttpProtocolMode.COMPATIBILITY_HTTP1,
         preload: Boolean = false
     ): Pair<PlayerTimeoutProfile, MediaSource> {
-        val (timeoutProfile, dataSourceFactory) = dataSourceFactoryProvider.createFactory(
+        val (timeoutProfile, mediaSourceFactory) = createMediaSourceFactory(
             streamInfo = streamInfo,
             resolvedStreamType = resolvedStreamType,
+            retryPolicy = retryPolicy,
             vodHttpProtocolMode = vodHttpProtocolMode,
             preload = preload
         )
-        val mediaItem = buildMediaItem(streamInfo)
-        val mediaSource = when {
-            streamInfo.streamType == StreamType.RTSP || resolvedStreamType == ResolvedStreamType.RTSP ->
-                RtspMediaSource.Factory().createMediaSource(mediaItem)
-            resolvedStreamType == ResolvedStreamType.HLS -> HlsMediaSource.Factory(dataSourceFactory)
-                .setAllowChunklessPreparation(true)
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-
-            resolvedStreamType == ResolvedStreamType.DASH -> DashMediaSource.Factory(dataSourceFactory)
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-
-            resolvedStreamType == ResolvedStreamType.SMOOTH_STREAMING -> SsMediaSource.Factory(dataSourceFactory)
-                .apply {
-                    if (streamInfo.drmInfo?.scheme == DrmScheme.CLEARKEY) {
-                        setManifestParser(ClearKeySmoothStreamingManifestParser())
-                    }
-                }
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-
-            resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE -> ProgressiveMediaSource.Factory(
-                dataSourceFactory,
-                liveMpegTsExtractorsFactory()
-            )
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-
-            resolvedStreamType == ResolvedStreamType.PROGRESSIVE -> ProgressiveMediaSource.Factory(
-                dataSourceFactory,
-                playbackExtractorsFactory()
-            )
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-
-            else -> DefaultMediaSourceFactory(
-                dataSourceFactory,
-                playbackExtractorsFactory()
-            )
-                .setLoadErrorHandlingPolicy(retryPolicy)
-                .createMediaSource(mediaItem)
-        }
+        val mediaSource = mediaSourceFactory.createMediaSource(mediaItemFor(streamInfo))
 
         Log.i(
             TAG,
@@ -119,7 +78,59 @@ class PlayerMediaSourceFactory(
         return timeoutProfile to mediaSource
     }
 
-    private fun buildMediaItem(streamInfo: StreamInfo): MediaItem {
+    fun createMediaSourceFactory(
+        streamInfo: StreamInfo,
+        resolvedStreamType: ResolvedStreamType,
+        retryPolicy: PlayerRetryPolicy,
+        vodHttpProtocolMode: VodHttpProtocolMode = VodHttpProtocolMode.COMPATIBILITY_HTTP1,
+        preload: Boolean = false
+    ): Pair<PlayerTimeoutProfile, MediaSource.Factory> {
+        val (timeoutProfile, dataSourceFactory) = dataSourceFactoryProvider.createFactory(
+            streamInfo = streamInfo,
+            resolvedStreamType = resolvedStreamType,
+            vodHttpProtocolMode = vodHttpProtocolMode,
+            preload = preload
+        )
+        val mediaSourceFactory = when {
+            streamInfo.streamType == StreamType.RTSP || resolvedStreamType == ResolvedStreamType.RTSP ->
+                RtspMediaSource.Factory()
+            resolvedStreamType == ResolvedStreamType.HLS -> HlsMediaSource.Factory(dataSourceFactory)
+                .setAllowChunklessPreparation(true)
+                .setLoadErrorHandlingPolicy(retryPolicy)
+
+            resolvedStreamType == ResolvedStreamType.DASH -> DashMediaSource.Factory(dataSourceFactory)
+                .setLoadErrorHandlingPolicy(retryPolicy)
+
+            resolvedStreamType == ResolvedStreamType.SMOOTH_STREAMING -> SsMediaSource.Factory(dataSourceFactory)
+                .apply {
+                    if (streamInfo.drmInfo?.scheme == DrmScheme.CLEARKEY) {
+                        setManifestParser(ClearKeySmoothStreamingManifestParser())
+                    }
+                }
+                .setLoadErrorHandlingPolicy(retryPolicy)
+
+            resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE -> ProgressiveMediaSource.Factory(
+                dataSourceFactory,
+                liveMpegTsExtractorsFactory()
+            )
+                .setLoadErrorHandlingPolicy(retryPolicy)
+
+            resolvedStreamType == ResolvedStreamType.PROGRESSIVE -> ProgressiveMediaSource.Factory(
+                dataSourceFactory,
+                playbackExtractorsFactory()
+            )
+                .setLoadErrorHandlingPolicy(retryPolicy)
+
+            else -> DefaultMediaSourceFactory(
+                dataSourceFactory,
+                playbackExtractorsFactory()
+            )
+                .setLoadErrorHandlingPolicy(retryPolicy)
+        }
+        return timeoutProfile to mediaSourceFactory
+    }
+
+    internal fun mediaItemFor(streamInfo: StreamInfo): MediaItem {
         return MediaItem.Builder()
             .setUri(Uri.parse(streamInfo.url))
             .setMediaId(mediaIdFor(streamInfo))

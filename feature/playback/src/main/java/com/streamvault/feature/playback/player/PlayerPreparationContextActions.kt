@@ -2,6 +2,7 @@ package com.streamvault.feature.playback.player
 
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -37,6 +38,17 @@ internal fun PlayerViewModel.finalizePreparedPlaybackContext(
     }
 
     if (currentContentType == ContentType.LIVE && hasArchiveRequest) {
+        val selectedArchiveProgram = Program(
+            channelId = currentProgram.value?.channelId
+                ?: currentChannelFlow.value?.epgChannelId
+                ?: currentContentId.toString(),
+            title = archiveTitle?.takeIf { it.isNotBlank() } ?: currentTitle,
+            startTime = archiveStartMs ?: 0L,
+            endTime = archiveEndMs ?: 0L,
+            hasArchive = true,
+            providerId = currentProviderId
+        )
+        playerPlaybackContextCoordinator.storeSelectedCatchUpProgram(selectedArchiveProgram)
         playerEngine.stopLiveTimeshift()
         playbackSessionScope(requestVersion)?.launch {
             contentSwitchFlush?.join()
@@ -131,6 +143,9 @@ internal fun PlayerViewModel.finalizePreparedPlaybackContext(
                     )
                 }
                 updateChannelDiagnostics(channel)
+                if (isCatchUpPlayback() && currentResolvedStreamInfo != null) {
+                    refreshPreloadWindow(requestVersion)
+                }
             }
         }
     }

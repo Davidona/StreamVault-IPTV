@@ -105,6 +105,28 @@ class PlayerPreparationCoordinator @Inject constructor(
         )
     }
 
+    /**
+     * Applies provider/plugin stream preparation without touching the foreground player.
+     * Preload candidates use this path so request metadata is retained while probes,
+     * preference changes, and foreground preparation remain side-effect free.
+     */
+    internal suspend fun prepareStreamForPreload(streamInfo: StreamInfo): StreamInfo? {
+        val expiry = streamInfo.expirationTime
+        if (expiry != null && expiry > 0L && expiry < System.currentTimeMillis()) {
+            return null
+        }
+        val prepared = when (val result = streamPreparer.prepare(streamInfo)) {
+            is DomainResult.Error -> return null
+            DomainResult.Loading -> streamInfo
+            is DomainResult.Success -> result.data
+        }
+        val preparedExpiry = prepared.expirationTime
+        if (preparedExpiry != null && preparedExpiry > 0L && preparedExpiry < System.currentTimeMillis()) {
+            return null
+        }
+        return prepared
+    }
+
     internal suspend fun applyPlaybackPreferences(
         engine: PlayerEngine,
         contentType: ContentType,

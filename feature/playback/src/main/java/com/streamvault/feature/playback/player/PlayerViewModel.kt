@@ -31,6 +31,8 @@ import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.PlayerError
+import com.streamvault.player.PlayerPreloadContentType
+import com.streamvault.player.PlayerPreloadItem
 import com.streamvault.player.PlayerSubtitleStyle
 import com.streamvault.player.timeshift.LiveTimeshiftBackend
 import com.streamvault.player.timeshift.LiveTimeshiftState
@@ -70,6 +72,7 @@ class PlayerViewModel @Inject constructor(
     internal val playerCastCoordinator: PlayerCastCoordinator,
     internal val playerTranslationCoordinator: PlayerTranslationCoordinator,
     internal val playerContentResolver: PlayerContentResolver,
+    internal val playerPreloadWindowCoordinator: PlayerPreloadWindowCoordinator,
     internal val playerPlaybackContextCoordinator: PlayerPlaybackContextCoordinator,
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
@@ -372,6 +375,9 @@ class PlayerViewModel @Inject constructor(
     internal var controlsHideJob: Job? = null
     internal var seekPreviewJob: Job? = null
     internal var thumbnailPreloadJob: Job? = null
+    private var preloadWindowJob: Job? = null
+    private var preloadWindowInFlightFingerprint: String? = null
+    private var acceptedPreloadWindowFingerprint: String? = null
     internal var inFlightThumbnailPreloadKey: String? = null
     internal var lastCompletedThumbnailPreloadKey: String? = null
     private var lowBandwidthMonitorJob: Job? = null
@@ -508,7 +514,7 @@ class PlayerViewModel @Inject constructor(
                 if (state == PlaybackState.READY && readySideEffectsRequestVersion == prepareRequestVersion) {
                     zapBufferWatchdogJob?.cancel()
                     dismissRecoveredNoticeIfPresent()
-                    if (currentContentType == ContentType.LIVE) {
+                    if (currentContentType == ContentType.LIVE && !isCatchUpPlayback()) {
                         livePlaybackReadyForCurrentSession = true
                         recordActiveLivePlayback()
                         currentChannelFlow.value?.sanitizedForPlayer()?.let { channel ->
@@ -520,8 +526,11 @@ class PlayerViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        recordMovieVariantSuccessObservation()
-                        startThumbnailPreload()
+                        if (currentContentType != ContentType.LIVE) {
+                            recordMovieVariantSuccessObservation()
+                            startThumbnailPreload()
+                        }
+                        refreshPreloadWindow(prepareRequestVersion)
                     }
                 }
             }
@@ -904,6 +913,9 @@ class PlayerViewModel @Inject constructor(
         playerRecoveryCoordinator.beginSession(sessionId)
         playerRecoveryExecutionCoordinator.cancel()
         thumbnailPreloadJob?.cancel()
+        preloadWindowJob?.cancel()
+        preloadWindowJob = null
+        preloadWindowInFlightFingerprint = null
         tokenRenewalJob?.cancel()
         zapBufferWatchdogJob?.cancel()
         stopLiveTranslationSession()
@@ -913,6 +925,137 @@ class PlayerViewModel @Inject constructor(
         readySideEffectsRequestVersion = null
         playerEngine.setScrubbingMode(false)
         return sessionId
+    }
+
+    internal fun clearPreloadWindow() {
+        preloadWindowJob?.cancel()
+        preloadWindowJob = null
+        preloadWindowInFlightFingerprint = null
+        acceptedPreloadWindowFingerprint = null
+        playerEngine.clearPreloadWindow()
+    }
+
+    private data class PreloadWindowSnapshot(
+        val providerId: Long,
+        val current: PlayerPreloadItem,
+        val neighborKeys: List<String>,
+        val series: Series? = null,
+        val episode: Episode? = null,
+        val selectedProgram: Program? = null,
+        val channel: com.streamvault.domain.model.Channel? = null,
+        val timelinePrograms: List<Program> = emptyList()
+    )
+
+    private fun buildPreloadWindowSnapshot(): PreloadWindowSnapshot? {
+        val streamInfo = currentResolvedStreamInfo ?: return null
+        val providerId = currentProviderId.takeIf { it > 0L } ?: return null
+
+        if (currentContentType == ContentType.SERIES_EPISODE) {
+            val series = currentSeries.value ?: return null
+            val episode = currentEpisode.value ?: return null
+            val neighbors = buildEpisodePreloadNeighbors(series, episode) ?: return null
+            val currentKey = episodePreloadKey(providerId, episode)
+            return PreloadWindowSnapshot(
+                providerId = providerId,
+                current = PlayerPreloadItem(
+                    key = currentKey,
+                    streamInfo = streamInfo,
+                    contentType = PlayerPreloadContentType.VOD
+                ),
+                neighborKeys = neighbors.map { episodePreloadKey(providerId, it) },
+                series = series,
+                episode = episode
+            )
+        }
+
+        if (!isCatchUpPlayback()) return null
+        val selectedProgram = playerPlaybackContextCoordinator.selectedCatchUpProgram ?: return null
+        val channel = currentChannelFlow.value ?: return null
+        val timelinePrograms = buildCatchUpPreloadTimeline(
+            programHistory = programHistory.value,
+            currentProgram = currentProgram.value,
+            upcomingPrograms = upcomingPrograms.value,
+            selectedProgram = selectedProgram
+        )
+        val neighbors = buildCatchUpPreloadNeighbors(
+            selectedProgram = selectedProgram,
+            channel = channel,
+            timelinePrograms = timelinePrograms,
+            now = System.currentTimeMillis()
+        ) ?: return null
+        return PreloadWindowSnapshot(
+            providerId = providerId,
+            current = PlayerPreloadItem(
+                key = catchUpPreloadKey(providerId, channel, selectedProgram),
+                streamInfo = streamInfo,
+                contentType = PlayerPreloadContentType.CATCH_UP
+            ),
+            neighborKeys = neighbors.map { catchUpPreloadKey(providerId, channel, it) },
+            selectedProgram = selectedProgram,
+            channel = channel,
+            timelinePrograms = timelinePrograms
+        )
+    }
+
+    internal fun refreshPreloadWindow(requestVersion: Long) {
+        if (!isActivePlaybackSession(requestVersion)) return
+        val snapshot = buildPreloadWindowSnapshot() ?: return
+        val fingerprint = buildPreloadWindowRefreshFingerprint(
+            contentType = snapshot.current.contentType,
+            providerId = snapshot.providerId,
+            currentKey = snapshot.current.key,
+            neighborKeys = snapshot.neighborKeys,
+            currentStreamInfo = snapshot.current.streamInfo
+        )
+        if (
+            fingerprint == acceptedPreloadWindowFingerprint ||
+            fingerprint == preloadWindowInFlightFingerprint
+        ) {
+            return
+        }
+
+        preloadWindowJob?.cancel()
+        preloadWindowInFlightFingerprint = fingerprint
+        preloadWindowJob = playbackSessionScope(requestVersion)?.launch {
+            val window = when {
+                snapshot.series != null && snapshot.episode != null ->
+                    playerPreloadWindowCoordinator.buildEpisodeWindow(
+                        current = snapshot.current,
+                        series = snapshot.series,
+                        currentEpisode = snapshot.episode,
+                        providerId = snapshot.providerId,
+                        isCurrent = { isActivePlaybackSession(requestVersion) }
+                    )
+
+                snapshot.selectedProgram != null && snapshot.channel != null ->
+                    playerPreloadWindowCoordinator.buildCatchUpWindow(
+                        current = snapshot.current,
+                        selectedProgram = snapshot.selectedProgram,
+                        channel = snapshot.channel,
+                        timelinePrograms = snapshot.timelinePrograms,
+                        providerId = snapshot.providerId,
+                        isCurrent = { isActivePlaybackSession(requestVersion) }
+                    )
+
+                else -> null
+            }
+            if (window == null || !isActivePlaybackSession(requestVersion)) {
+                if (preloadWindowInFlightFingerprint == fingerprint) {
+                    preloadWindowInFlightFingerprint = null
+                }
+                return@launch
+            }
+            playerEngine.preloadWindow(window)
+            android.util.Log.i(
+                "PlayerVM",
+                "preload-window submitted kind=${snapshot.current.contentType} " +
+                    "currentKey=${snapshot.current.key} sourceCount=${window.items.size}"
+            )
+            if (preloadWindowInFlightFingerprint == fingerprint) {
+                acceptedPreloadWindowFingerprint = fingerprint
+                preloadWindowInFlightFingerprint = null
+            }
+        }
     }
 
     /**
@@ -972,6 +1115,9 @@ class PlayerViewModel @Inject constructor(
                         if (currentContentId != resolvedId) {
                             currentContentId = resolvedId
                         }
+                    }
+                    if (currentResolvedStreamInfo != null) {
+                        refreshPreloadWindow(requestVersion)
                     }
                 }
                 resolution.resolvedEpisode

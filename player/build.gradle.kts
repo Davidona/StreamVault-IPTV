@@ -197,6 +197,7 @@ dependencies {
     implementation(libs.media3.exoplayer.smoothstreaming)
     implementation(libs.media3.exoplayer.rtsp)  // PE-H03: RTSP stream support
     implementation(libs.media3.datasource.okhttp)
+    implementation(libs.media3.inspector.frame)
     implementation(libs.media3.session)
     implementation(libs.media3.ui)
 

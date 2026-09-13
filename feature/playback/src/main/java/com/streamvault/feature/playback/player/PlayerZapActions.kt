@@ -279,7 +279,7 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
     releaseOutgoingLiveZapPlayback(
         stopPlayback = playerEngine::stop,
         stopLiveTimeshift = playerEngine::stopLiveTimeshift,
-        clearPreload = { playerEngine.preload(null) }
+        clearPreload = ::clearPreloadWindow
     )
     clearResolvedStream()
     val channel = channelList[index]
@@ -289,6 +289,7 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
     playbackTitleFlow.value = currentTitle
     currentStreamUrl = channel.streamUrl
     pendingCatchUpUrls = emptyList()
+    playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     updateStreamClass("Primary")
     currentChannelFlow.value = channel
     refreshCurrentChannelRecording()
@@ -341,7 +342,7 @@ internal fun PlayerViewModel.preloadAdjacentChannel(currentIndex: Int) {
     val nextIndex = (currentIndex + 1) % channelList.size
     val nextChannel = channelList[nextIndex]
     if (nextChannel.streamUrl.isBlank()) {
-        playerEngine.preload(null)
+        clearPreloadWindow()
         return
     }
     playbackSessionScope()?.launch {
@@ -353,7 +354,7 @@ internal fun PlayerViewModel.preloadAdjacentChannel(currentIndex: Int) {
                 preloadCoolingDown = playerRecoveryCoordinator.isLivePreloadCoolingDown(nextChannel.providerId)
             )
         ) {
-            playerEngine.preload(null)
+            clearPreloadWindow()
             return@launch
         }
         val streamInfo = resolvePlaybackStreamInfo(
