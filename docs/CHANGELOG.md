@@ -8,6 +8,8 @@ All notable product changes are recorded in this document.
 
 - Added an optional Live TV clock overlay with configurable corner placement, size, digital/clean/serif fonts, and System, 12-hour, or 24-hour time formatting.
 - Added VOD chapter navigation with timeline markers, chapter selection, and previous/next chapter actions.
+- Added chapter skip actions for Intro, Opening, Recap, and Outro segments, with contextual labels and seek-to-end behavior.
+- Added chapter-aware series autoplay that presents the existing next-episode countdown when end credits begin, while preserving the end-of-video fallback for media without usable credit chapters.
 - Added adaptive startup bitrate selection using network-class defaults and recent bandwidth measurements.
 - Added selectable Classic blue, M3 purple, and Light app themes, with persistent settings and backup/restore support.
 - Added persistent VOD audio and subtitle track choices: selections are saved per movie, shared across all episodes in the same series, and used as a global fallback for other VOD titles when a matching track is available; language and label matching survives provider track-ID changes, and explicit subtitle-off choices are preserved.
@@ -18,6 +20,8 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed an episode-completion `StackOverflowError` caused by playback history marking recursively invoking itself instead of the watched callback.
+- Fixed opening credits and post-credit scenes being treated as end credits, and tightened generic Credits detection to avoid triggering next-episode autoplay too early.
 - Fixed VOD “More Like This” movie posters opening movie information instead of starting playback directly.
 - Fixed native EPG resolution for large channel lineups by chunking program lookups to stay below SQLite bind-variable limits on older Android devices.
 - Fixed EPG collisions for channels sharing an EPG identifier by keying resolved guide data by the provider stream ID when available, while preserving legacy EPG-ID fallback queries.

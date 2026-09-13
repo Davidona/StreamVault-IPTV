@@ -122,6 +122,9 @@ class PlayerViewModel @Inject constructor(
     internal val _autoPlayCountdown = MutableStateFlow<AutoPlayCountdownUiState?>(null)
     val autoPlayCountdown: StateFlow<AutoPlayCountdownUiState?> = _autoPlayCountdown.asStateFlow()
 
+    internal val _skipChapter = MutableStateFlow<SkipChapterUiState?>(null)
+    val skipChapter: StateFlow<SkipChapterUiState?> = _skipChapter.asStateFlow()
+
     internal val playbackTitleFlow = MutableStateFlow("")
     val playbackTitle: StateFlow<String> = playbackTitleFlow.asStateFlow()
     
@@ -389,6 +392,8 @@ class PlayerViewModel @Inject constructor(
     internal var aspectRatioJob: Job? = null
     internal var zapBufferWatchdogJob: Job? = null
     internal var autoPlayCountdownJob: Job? = null
+    internal var lastTriggeredCreditsChapterStartMs: Long? = null
+    internal var creditsAutoPlayTriggeredForSession: Boolean = false
     internal var zapAutoRevertEnabled: Boolean = true
     internal var autoPlayNextEpisodeEnabled: Boolean = true
     internal var isAppInForeground: Boolean = true
@@ -533,6 +538,43 @@ class PlayerViewModel @Inject constructor(
                         refreshPreloadWindow(prepareRequestVersion)
                     }
                 }
+            }
+        }
+        viewModelScope.launch {
+            combine(
+                activePlayerEngineFlow.flatMapLatest { engine ->
+                    combine(engine.currentPosition, engine.duration, engine.chapters) { positionMs, durationMs, chapters ->
+                        Triple(positionMs, durationMs, chapters)
+                    }
+                },
+                nextEpisode,
+                playerPreferencesCoordinator.autoPlayNextEpisode
+            ) { positionAndChapters, nextEpisode, autoPlayEnabled ->
+                PlayerChapterObservation(
+                    positionMs = positionAndChapters.first,
+                    durationMs = positionAndChapters.second,
+                    chapters = positionAndChapters.third,
+                    nextEpisode = nextEpisode,
+                    autoPlayEnabled = autoPlayEnabled
+                )
+            }.collect { observation ->
+                _skipChapter.value = if (
+                    readySideEffectsRequestVersion == prepareRequestVersion &&
+                    currentContentType.isSkippableChapterContent()
+                ) {
+                    findSkippableChapterAction(
+                        chapters = observation.chapters,
+                        positionMs = observation.positionMs
+                    )?.let { action ->
+                        SkipChapterUiState(
+                            type = action.type,
+                            targetPositionMs = action.targetPositionMs
+                        )
+                    }
+                } else {
+                    null
+                }
+                handleCreditsChapterObservation(observation)
             }
         }
         viewModelScope.launch {
@@ -910,6 +952,9 @@ class PlayerViewModel @Inject constructor(
 
     internal fun beginPlaybackSession(): Long {
         val sessionId = playbackSessionCoordinator.begin().id
+        lastTriggeredCreditsChapterStartMs = null
+        creditsAutoPlayTriggeredForSession = false
+        _skipChapter.value = null
         playerRecoveryCoordinator.beginSession(sessionId)
         playerRecoveryExecutionCoordinator.cancel()
         thumbnailPreloadJob?.cancel()

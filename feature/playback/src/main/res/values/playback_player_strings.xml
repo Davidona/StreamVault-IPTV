@@ -187,6 +187,10 @@
     <string name="player_schedule_weekly_recording">Schedule Weekly</string>
     <string name="player_seek_back_10">-10s</string>
     <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Skip Intro</string>
+    <string name="player_skip_opening">Skip Opening</string>
+    <string name="player_skip_recap">Skip Recap</string>
+    <string name="player_skip_outro">Skip Outro</string>
     <string name="player_selected">Selected</string>
     <string name="player_stats">Stats</string>
     <string name="player_stop_casting">Stop Casting</string>

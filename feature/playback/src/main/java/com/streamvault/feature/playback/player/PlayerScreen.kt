@@ -89,6 +89,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerNumericInputOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerResolutionBadge
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerWarningOverlay
 import com.streamvault.feature.playback.player.overlay.NextEpisodeCountdownOverlay
+import com.streamvault.feature.playback.player.overlay.SkipChapterOverlay
 import com.streamvault.feature.playback.player.LiveClockOverlay
 import com.streamvault.core.navigation.AppDestination
 
@@ -158,6 +159,7 @@ fun PlayerScreen(
     val playbackResolutionUiState by viewModel.playbackResolutionUiState.collectAsStateWithLifecycle()
     val currentChannel by viewModel.currentChannel.collectAsStateWithLifecycle()
     val autoPlayCountdown by viewModel.autoPlayCountdown.collectAsStateWithLifecycle()
+    val skipChapter by viewModel.skipChapter.collectAsStateWithLifecycle()
     val resumePrompt by viewModel.resumePrompt.collectAsStateWithLifecycle()
     val playerPreferencesUiState by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     
@@ -840,6 +842,20 @@ fun PlayerScreen(
                 .align(Alignment.TopCenter)
                 .padding(top = 88.dp)
         )
+
+        val skipChapterState = skipChapter
+        if (!isInPictureInPictureMode && !resumePrompt.show && playbackState != PlaybackState.ERROR && skipChapterState != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 32.dp, bottom = 32.dp)
+            ) {
+                SkipChapterOverlay(
+                    chapterType = skipChapterState.type,
+                    onSkip = { viewModel.seekTo(skipChapterState.targetPositionMs) }
+                )
+            }
+        }
 
         // Auto-Play Next Episode countdown overlay
         val countdownState = autoPlayCountdown

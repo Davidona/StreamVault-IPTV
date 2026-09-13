@@ -35,12 +35,43 @@ internal fun PlayerViewModel.handlePlaybackEnded() {
             val duration = playerEngine.duration.value
             if (position > AUTO_PLAY_MIN_WATCHED_MS || duration > 0L) {
                 val next = nextEpisode.value ?: return@launch
-                if (autoPlayNextEpisodeEnabled) {
+                if (autoPlayNextEpisodeEnabled && !creditsAutoPlayTriggeredForSession) {
                     startAutoPlayCountdown(next)
                 }
             }
         }
     }
+}
+
+internal fun PlayerViewModel.handleCreditsChapterObservation(
+    observation: PlayerChapterObservation
+) {
+    if (readySideEffectsRequestVersion != prepareRequestVersion) {
+        return
+    }
+    val currentChapter = findCreditsChapter(
+        chapters = observation.chapters,
+        positionMs = observation.positionMs,
+        durationMs = observation.durationMs
+    )
+    if (!shouldStartCreditsAutoPlay(
+            currentChapter = currentChapter,
+            lastTriggeredChapterStartMs = lastTriggeredCreditsChapterStartMs,
+            hasNextEpisode = observation.nextEpisode != null,
+            autoPlayEnabled = observation.autoPlayEnabled,
+            contentType = currentContentType
+        )
+    ) {
+        return
+    }
+
+    val nextEpisode = observation.nextEpisode ?: return
+    lastTriggeredCreditsChapterStartMs = currentChapter?.startTimeMs
+    creditsAutoPlayTriggeredForSession = true
+    playbackSessionScope()?.launch {
+        persistPlaybackCompletion()
+    }
+    startAutoPlayCountdown(nextEpisode)
 }
 
 internal fun PlayerViewModel.startAutoPlayCountdown(episode: Episode) {

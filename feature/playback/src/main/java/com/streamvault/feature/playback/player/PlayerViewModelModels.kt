@@ -128,6 +128,11 @@ data class AutoPlayCountdownUiState(
     val secondsRemaining: Int
 )
 
+data class SkipChapterUiState(
+    val type: SkippableChapterType,
+    val targetPositionMs: Long
+)
+
 data class PlayerPrepareIdentity(
     val streamUrl: String,
     val epgChannelId: String?,
