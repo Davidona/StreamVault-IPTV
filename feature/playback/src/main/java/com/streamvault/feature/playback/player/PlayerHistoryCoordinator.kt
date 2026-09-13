@@ -38,7 +38,7 @@ class PlayerHistoryCoordinator @Inject constructor(
         repository.recordPlayback(history)
 
     internal suspend fun markAsWatched(history: PlaybackHistory): Result<Unit> =
-        markAsWatched(history)
+        markAsWatched.invoke(history)
 
     internal suspend fun updateResumePosition(history: PlaybackHistory): Result<Unit> =
         repository.updateResumePosition(history)
