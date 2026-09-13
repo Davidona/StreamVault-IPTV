@@ -160,6 +160,14 @@ fun NavGraphBuilder.registerCatalogGraph(
                     )
                 )
             },
+            onOpenRelatedMovie = { relatedMovie ->
+                openRelatedMovieDetail(
+                    relatedMovie = relatedMovie,
+                    currentMovieId = movieId,
+                    currentReturnDestination = returnDestination,
+                    onOpenMovieDetail = onOpenMovieDetail,
+                )
+            },
             onBack = { actions.returnTo(returnDestination) },
             platformHost = platformHost,
         )
@@ -192,6 +200,21 @@ fun NavGraphBuilder.registerCatalogGraph(
             platformHost = platformHost,
         )
     }
+}
+
+internal fun openRelatedMovieDetail(
+    relatedMovie: Movie,
+    currentMovieId: Long,
+    currentReturnDestination: AppDestination?,
+    onOpenMovieDetail: (Movie, AppDestination) -> Unit,
+) {
+    onOpenMovieDetail(
+        relatedMovie,
+        AppDestination.MovieDetail(
+            movieId = currentMovieId,
+            returnDestination = currentReturnDestination,
+        )
+    )
 }
 
 private fun decodeCatalogReturnDestination(route: String): AppDestination? {

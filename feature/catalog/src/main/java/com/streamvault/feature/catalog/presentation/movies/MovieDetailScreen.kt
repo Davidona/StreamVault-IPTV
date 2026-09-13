@@ -78,6 +78,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieDetailScreen(
     onPlay: (Movie) -> Unit,
+    onOpenRelatedMovie: (Movie) -> Unit,
     onBack: () -> Unit,
     platformHost: CatalogPlatformHost? = null,
     viewModel: MovieDetailViewModel = hiltViewModel()
@@ -146,7 +147,7 @@ fun MovieDetailScreen(
                 onCast = viewModel::castMovie,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onSelectVariant = viewModel::selectMovieVariant,
-                onRelatedClick = onPlay,
+                onRelatedClick = onOpenRelatedMovie,
                 onBack = onBack,
                 viewModel = viewModel
             )
