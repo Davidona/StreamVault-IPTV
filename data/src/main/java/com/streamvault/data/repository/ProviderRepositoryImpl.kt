@@ -24,15 +24,14 @@ import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.provider.ProviderConfigRevisionCodec
 import com.streamvault.data.provider.ProviderCapabilityResolver
+import com.streamvault.data.provider.DefaultProviderPublicProjection
+import com.streamvault.data.provider.ProviderObservationStreams
 import com.streamvault.data.provider.StalkerClientOptions
 import com.streamvault.data.provider.TypedProviderClientFactory
 import com.streamvault.data.provider.toAccountRuntime
-import com.streamvault.data.provider.toDomainRuntime
-import com.streamvault.data.provider.toPublicDomain
 import com.streamvault.data.provider.redactedCredentials
 import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.data.provider.toLegacyProvider
-import com.streamvault.data.provider.toGenerationValidLearning
 import com.streamvault.data.provider.guidePolicy
 import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.remote.jellyfin.JellyfinProvider
@@ -81,7 +80,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -146,6 +144,14 @@ class ProviderRepositoryImpl @Inject constructor(
 
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    private val observationStreams by lazy {
+        ProviderObservationStreams(
+            providerDao = providerDao,
+            providerSnapshotDao = providerSnapshotDao,
+            projection = DefaultProviderPublicProjection(providerConfigurationCodec, gson)
+        )
+    }
+
     private data class PendingProviderEdit(
         val revision: Long,
         val candidate: Provider,
@@ -158,55 +164,9 @@ class ProviderRepositoryImpl @Inject constructor(
         val pendingEdit: PendingProviderEdit? = null
     )
 
-    override fun getProviders(): Flow<List<Provider>> = combine(
-        providerDao.getAll(),
-        providerSnapshotDao.observeConfigs(),
-        providerSnapshotDao.observeRuntimes(),
-        providerSnapshotDao.observeStalkerPortalStates()
-    ) { identities, configs, runtimes, portalStates ->
-        val configsByProvider = configs.associateBy { it.providerId }
-        val runtimesByProvider = runtimes.associateBy { it.providerId }
-        val portalStatesByProvider = portalStates.associateBy { it.providerId }
-        identities.map { identity ->
-            val stored = configsByProvider[identity.id]
-            if (stored == null) {
-                identity.toPublicDomain()
-            } else {
-                val stableIdentity = StableProvider(
-                    id = identity.id,
-                    name = identity.name,
-                    type = identity.type,
-                    isActive = identity.isActive,
-                    status = identity.status,
-                    lastSyncedAt = identity.lastSyncedAt,
-                    createdAt = identity.createdAt
-                )
-                val runtime = runtimesByProvider[identity.id]?.toDomainRuntime(gson)
-                    ?: ProviderAccountRuntime()
-                val learning = if (identity.type == ProviderType.STALKER_PORTAL) {
-                    portalStatesByProvider[identity.id]?.toGenerationValidLearning(
-                        gson,
-                        stored.configurationGeneration
-                    )
-                } else {
-                    null
-                }
-                ProviderSnapshot(
-                    provider = stableIdentity,
-                    configuration = providerConfigurationCodec.decode(
-                        stored.type,
-                        stored.encryptedConfigJson
-                    ),
-                    configurationGeneration = stored.configurationGeneration,
-                    accountRuntime = runtime,
-                    stalkerLearning = learning
-                ).toLegacyProvider().redactedCredentials()
-            }
-        }
-    }
+    override fun getProviders(): Flow<List<Provider>> = observationStreams.providers
 
-    override fun getActiveProvider(): Flow<Provider?> =
-        getProviders().map { providers -> providers.firstOrNull { it.isActive } }
+    override fun getActiveProvider(): Flow<Provider?> = observationStreams.activeProvider
 
     override suspend fun getProvider(id: Long): Provider? =
         loadLegacyProvider(id)?.redactedCredentials()
