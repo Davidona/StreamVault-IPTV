@@ -9,6 +9,28 @@ import org.junit.Test
 class AppShellNavigationTest {
 
     @Test
+    fun `destination construction is independent of Activity and repository state`() {
+        val result = buildDestinationItems(
+            configured = AppTopLevelDestination.defaultOrder,
+            layout = CatalogLayout.SPLIT
+        )
+
+        assertThat(result.map { it.route })
+            .containsExactly(
+                Routes.HOME,
+                Routes.LIVE_TV,
+                Routes.MOVIES,
+                Routes.SERIES,
+                Routes.DOWNLOADS,
+                Routes.EPG,
+                Routes.SEARCH,
+                Routes.PLUGINS,
+                Routes.SETTINGS
+            )
+            .inOrder()
+    }
+
+    @Test
     fun splitCatalogPreservesConfiguredMovieAndSeriesDestinations() {
         val result = buildDestinationItems(
             configured = listOf(AppTopLevelDestination.MOVIES, AppTopLevelDestination.SERIES),

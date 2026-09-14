@@ -1,6 +1,7 @@
 package com.streamvault.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +13,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.streamvault.app.playback.rememberPlaybackPlatformHost
+import com.streamvault.app.ui.components.shell.LocalAppDestinationItems
+import com.streamvault.app.ui.components.shell.rememberAppDestinationItems
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.settings.api.SettingsPlatformHost
 
@@ -43,19 +47,27 @@ fun AppNavigation(
         onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation
     )
 
-    AppNavHost(
-        navController = navController,
-        actions = navigator,
-        catalogDetailActions = navigator,
-        payloads = navigator,
-        playbackPlatformHost = playbackPlatformHost,
-        settingsPlatformHost = settingsPlatformHost,
-        catalogPlatformHost = catalogPlatformHost,
-        startupReady = state.startupTarget != null,
-        onStartupNavigationRequested = coordinator::requestStartupNavigation,
-        onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation,
-        onCloseApp = onCloseApp
+    val navigationDestinations = rememberAppDestinationItems(
+        configuredDestinations = state.topLevelDestinations,
+        catalogLayout = state.catalogLayout ?: CatalogLayout.SPLIT
     )
+
+    CompositionLocalProvider(LocalAppDestinationItems provides navigationDestinations) {
+        AppNavHost(
+            navController = navController,
+            actions = navigator,
+            catalogDetailActions = navigator,
+            payloads = navigator,
+            playbackPlatformHost = playbackPlatformHost,
+            settingsPlatformHost = settingsPlatformHost,
+            catalogPlatformHost = catalogPlatformHost,
+            navigationDestinations = navigationDestinations,
+            startupReady = state.startupTarget != null,
+            onStartupNavigationRequested = coordinator::requestStartupNavigation,
+            onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation,
+            onCloseApp = onCloseApp
+        )
+    }
 }
 
 @Composable

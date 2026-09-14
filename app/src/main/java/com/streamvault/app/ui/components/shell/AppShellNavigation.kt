@@ -1,7 +1,5 @@
 package com.streamvault.app.ui.components.shell
 
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,16 +15,14 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.streamvault.app.MainActivity
 import com.streamvault.app.R
 import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
@@ -39,6 +35,8 @@ enum class AppNavigationChrome {
     Rail,
     TopBar
 }
+
+internal val LocalAppDestinationItems = staticCompositionLocalOf<List<UiDestination>?> { null }
 
 @Composable
 fun AppScreenScaffold(
@@ -56,9 +54,15 @@ fun AppScreenScaffold(
     contentPadding: PaddingValues = PaddingValues(),
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val navigationDestinations = LocalAppDestinationItems.current
+        ?: rememberAppDestinationItems(
+            configuredDestinations = AppTopLevelDestination.defaultOrder,
+            catalogLayout = CatalogLayout.SPLIT
+        )
+
     CoreAppScreenScaffold(
         currentDestinationId = currentRoute,
-        destinations = rememberAppDestinationItems(),
+        destinations = navigationDestinations,
         onDestinationSelected = onNavigate,
         title = title,
         subtitle = subtitle,
@@ -105,19 +109,10 @@ internal fun buildDestinationItems(
 }
 
 @Composable
-internal fun rememberAppDestinationItems(): List<UiDestination> {
-    val context = LocalContext.current
-    val mainActivity = remember(context) { context.findMainActivity() }
-    val configuredDestinations = mainActivity?.preferencesRepository?.appTopLevelDestinations
-        ?.collectAsStateWithLifecycle(initialValue = AppTopLevelDestination.defaultOrder)
-        ?.value
-        ?: AppTopLevelDestination.defaultOrder
-    val catalogLayout = mainActivity?.providerRepository?.getActiveProvider()
-        ?.collectAsStateWithLifecycle(initialValue = null)
-        ?.value
-        ?.catalogLayout
-        ?: CatalogLayout.SPLIT
-
+internal fun rememberAppDestinationItems(
+    configuredDestinations: List<AppTopLevelDestination>,
+    catalogLayout: CatalogLayout
+): List<UiDestination> {
     val destinationItems = remember(configuredDestinations, catalogLayout) {
         buildDestinationItems(configuredDestinations, catalogLayout)
     }
@@ -140,15 +135,6 @@ private fun AppTopLevelDestination.toDestinationItem(): AppDestinationItem = whe
     AppTopLevelDestination.SEARCH -> AppDestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search)
     AppTopLevelDestination.PLUGINS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_plugins, PluginBlocksIcon)
     AppTopLevelDestination.SETTINGS -> AppDestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)
-}
-
-private fun Context.findMainActivity(): MainActivity? {
-    var current: Context? = this
-    while (current is ContextWrapper) {
-        if (current is MainActivity) return current
-        current = current.baseContext
-    }
-    return null
 }
 
 private val PluginBlocksIcon: ImageVector

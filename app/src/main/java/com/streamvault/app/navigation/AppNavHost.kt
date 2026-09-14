@@ -11,7 +11,7 @@ import com.streamvault.feature.settings.presentation.BackupImportPreviewDialog
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
-import com.streamvault.app.ui.components.shell.rememberAppDestinationItems
+import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.feature.settings.navigation.registerSettingsGraph
 import com.streamvault.feature.settings.parental.ParentalControlGroupScreen
 import com.streamvault.feature.settings.api.SettingsPlatformHost
@@ -43,13 +43,12 @@ internal fun AppNavHost(
     catalogPlatformHost: CatalogPlatformHost?,
     playbackPlatformHost: PlaybackPlatformHost?,
     settingsPlatformHost: SettingsPlatformHost,
+    navigationDestinations: List<UiDestination>,
     startupReady: Boolean,
     onStartupNavigationRequested: (popUpTo: AppDestination) -> Unit,
     onTopLevelDestinationRequested: (AppDestination) -> Unit,
     onCloseApp: () -> Unit
 ) {
-    val navigationDestinations = rememberAppDestinationItems()
-
     NavHost(
         navController = navController,
         startDestination = SystemRoutePatterns.WELCOME
