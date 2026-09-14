@@ -27,6 +27,9 @@ import com.streamvault.data.provider.ProviderCapabilityResolver
 import com.streamvault.data.provider.StalkerClientOptions
 import com.streamvault.data.provider.TypedProviderClientFactory
 import com.streamvault.data.provider.toAccountRuntime
+import com.streamvault.data.provider.toDomainRuntime
+import com.streamvault.data.provider.toPublicDomain
+import com.streamvault.data.provider.redactedCredentials
 import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.data.provider.toLegacyProvider
 import com.streamvault.data.provider.toGenerationValidLearning
@@ -178,7 +181,7 @@ class ProviderRepositoryImpl @Inject constructor(
                     lastSyncedAt = identity.lastSyncedAt,
                     createdAt = identity.createdAt
                 )
-                val runtime = runtimesByProvider[identity.id]?.toDomainRuntime()
+                val runtime = runtimesByProvider[identity.id]?.toDomainRuntime(gson)
                     ?: ProviderAccountRuntime()
                 val learning = if (identity.type == ProviderType.STALKER_PORTAL) {
                     portalStatesByProvider[identity.id]?.toGenerationValidLearning(
@@ -1498,18 +1501,6 @@ class ProviderRepositoryImpl @Inject constructor(
     private suspend fun loadLegacyProvider(providerId: Long): Provider? =
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
 
-    private fun ProviderAccountRuntimeEntity.toDomainRuntime() = ProviderAccountRuntime(
-        maxConnections = maxConnections,
-        expirationDate = expirationDate,
-        apiVersion = apiVersion,
-        allowedOutputFormats = runCatching {
-            gson.fromJson(allowedOutputFormatsJson, Array<String>::class.java).toList()
-        }.getOrDefault(emptyList()),
-        catalogLayout = catalogLayout,
-        catalogLayoutDetectionVersion = catalogLayoutDetectionVersion,
-        observedAt = observedAt
-    )
-
     private suspend fun restoreStalkerEditIfStillPending(
         existingProvider: Provider?,
         pendingEdit: PendingProviderEdit?,
@@ -2055,13 +2046,6 @@ class ProviderRepositoryImpl @Inject constructor(
             is CapabilityResolution.Unsupported -> throw IllegalArgumentException(resolution.reason)
         }
     }
-
-    private fun ProviderEntity.toPublicDomain(): Provider {
-        return toDomain().copy(password = "")
-    }
-
-    /** Public provider projections must never expose decrypted account credentials. */
-    private fun Provider.redactedCredentials(): Provider = copy(password = "")
 
     /**
      * Settings edit a redacted public projection. Do not turn those non-secret edits into a
