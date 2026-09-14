@@ -484,7 +484,10 @@ class SeriesRepositoryImpl @Inject constructor(
         }
 
         if (provider.type == ProviderType.XTREAM_CODES && seriesEntity.hasFreshXtreamDetails()) {
-            return Result.success(attachSeriesPresentation(buildSeriesWithPersistedEpisodes(seriesEntity), knownPresentation))
+            val localSeries = buildSeriesWithPersistedEpisodes(seriesEntity)
+            if (localSeries.seasons.any { season -> season.episodes.isNotEmpty() }) {
+                return Result.success(attachSeriesPresentation(localSeries, knownPresentation))
+            }
         }
         if (provider.type == ProviderType.STALKER_PORTAL && seriesEntity.hasFreshStalkerDetails()) {
             val localSeries = buildSeriesWithPersistedEpisodes(seriesEntity)
@@ -544,7 +547,8 @@ class SeriesRepositoryImpl @Inject constructor(
             is Result.Success -> {
                 val remoteSeries = remoteResult.data
                 val hasRemoteEpisodes = remoteSeries.seasons.any { season -> season.episodes.isNotEmpty() }
-                val hasPersistedEpisodes = episodeDao.getBySeriesSync(seriesEntity.id).isNotEmpty()
+                val persistedEpisodesBefore = episodeDao.getBySeriesSync(seriesEntity.id)
+                val hasPersistedEpisodes = persistedEpisodesBefore.isNotEmpty()
 
                 val updatedSeries = seriesEntity.copy(
                     name = remoteSeries.name.ifBlank { seriesEntity.name },
@@ -612,7 +616,10 @@ class SeriesRepositoryImpl @Inject constructor(
                         }
                     }
 
-                if (episodesToPersist.isNotEmpty()) {
+                val adoptRemoteEpisodes = episodesToPersist.isNotEmpty() &&
+                    (persistedEpisodesBefore.isEmpty() || episodesToPersist.size >= persistedEpisodesBefore.size)
+
+                if (adoptRemoteEpisodes) {
                     episodeDao.replaceAll(seriesEntity.id, providerId, episodesToPersist)
                 }
 
@@ -623,7 +630,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }
 
                 val remoteSeasonMetadataByNumber = remoteSeries.seasons.associateBy { it.seasonNumber }
-                val mergedSeasons = if (remoteSeries.seasons.any { it.episodes.isNotEmpty() }) {
+                val mergedSeasons = if (adoptRemoteEpisodes) {
                     remoteSeries.seasons
                         .sortedBy { it.seasonNumber }
                         .map { remoteSeason ->

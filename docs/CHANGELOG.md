@@ -17,6 +17,8 @@ All notable product changes are recorded in this document.
 - Added VOD category pinning for Movies and Series, with pin-first browsing, Android TV pin controls, and pinned category content shelves on the Home dashboard.
 - Added measured frame-rate and stream-bitrate diagnostics for IPTV playback, including MPEG-TS streams that omit these values from their metadata.
 - Added portal-backed Stalker VOD search with mixed movie/series results, persisted result IDs, paging, parental/hidden-category filtering, and a Browsing setting to disable it.
+- Added a Media3 `FrameExtractor` pilot for supported VOD seek thumbnails, while retaining `MediaMetadataRetriever` as a fallback for unsupported or failed sources.
+- Added bounded VOD and episode sliding-window preloading for current and adjacent series or catch-up items, with lifecycle cleanup, stale-session protection, and direct-playback fallback; ordinary live playback remains on its existing path.
 
 ### Fixed
 
@@ -32,6 +34,7 @@ All notable product changes are recorded in this document.
 - Fixed Stalker VOD category layout drift by retargeting stale stored category types before synchronization instead of forcing an unnecessary catalog re-download.
 - Fixed Stalker guide synchronization continuing through dead per-channel EPG endpoints after both bulk and first per-channel responses are confirmed empty.
 - Fixed Stalker channel logos returned as bare or portal-relative paths by resolving them against the portal logo directory, including channels imported before the fix.
+- Fixed Xtream series showing an empty episode list after re-entering: a hydrated series whose local episodes went missing is now re-fetched, and re-hydration no longer replaces a larger cached episode set with a smaller, partially re-scraped provider response.
 
 ### Changed
 
@@ -43,6 +46,7 @@ All notable product changes are recorded in this document.
   - Inherited compatibility improvements for HLS Content Steering, DASH/HLS metadata, AV1 and Dolby Vision, VVC, Matroska, and MP4 formats when supported by the device.
   - Reduced unnecessary artwork metadata extraction during playback to lower memory use on TV devices.
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
+- Redesigned the VOD playback controls UI, including the control layout, actions, and navigation behavior.
 - Improved playback quick-action readability by using shared theme-aware content colors across focused and unfocused controls, keeping contrast consistent across all playback buttons.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.
 - Improved reliability when configuring providers, importing settings, and preserving playback preferences.
