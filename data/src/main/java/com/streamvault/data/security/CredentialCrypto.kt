@@ -34,13 +34,14 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
     private val IV_SIZE_BYTES = 12
     private val AUTH_TAG_BITS = 128
     private val PREFIX = "enc:v1:"
+    private val secretKeyProvider = CachingSecretKeyProvider(::loadOrCreateSecretKey)
 
     override fun encryptIfNeeded(value: String): String {
         if (value.isBlank() || value.startsWith(PREFIX)) return value
 
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeyProvider.get())
             val iv = cipher.iv
             val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
             val packed = iv + encrypted
@@ -68,7 +69,7 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(
                 Cipher.DECRYPT_MODE,
-                getOrCreateSecretKey(),
+                secretKeyProvider.get(),
                 GCMParameterSpec(AUTH_TAG_BITS, iv)
             )
             String(cipher.doFinal(ciphertext), Charsets.UTF_8)
@@ -78,7 +79,7 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
         }
     }
 
-    private fun getOrCreateSecretKey(): SecretKey {
+    private fun loadOrCreateSecretKey(): SecretKey {
         val keyStore = KeyStore.getInstance(KEYSTORE_TYPE).apply { load(null) }
         val existing = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
         if (existing != null) return existing
