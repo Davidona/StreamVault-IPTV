@@ -59,6 +59,7 @@ internal class ProviderObservationStreams(
         rows: List<ProviderConfigEntity>
     ): Map<Long, RedactedProviderConfigurationProjection> = synchronized(cacheLock) {
         val currentProviderIds = rows.asSequence().map(ProviderConfigEntity::providerId).toSet()
+        projectionCache.keys.retainAll(currentProviderIds)
         val resolved = rows.associate { row ->
             val cached = projectionCache[row.providerId]
             val value = if (cached != null && cached.source == row) {
@@ -70,7 +71,6 @@ internal class ProviderObservationStreams(
             }
             row.providerId to value
         }
-        projectionCache.keys.retainAll(currentProviderIds)
         resolved
     }
 }

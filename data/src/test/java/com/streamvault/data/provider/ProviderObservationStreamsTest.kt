@@ -10,6 +10,11 @@ import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.LegacyProvider
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.StalkerConfig
+import com.streamvault.domain.model.StalkerDeviceIdentity
+import com.streamvault.domain.model.StalkerObservation
+import com.streamvault.domain.model.StalkerObservationSource
+import com.streamvault.domain.model.StalkerPortalLearning
 import com.streamvault.domain.model.XtreamConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
@@ -20,6 +25,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -32,6 +39,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -63,26 +71,49 @@ class ProviderObservationStreamsTest {
 
     @Test
     fun `concurrent collectors decode one row only`() = runTest {
-        val fixture = stateFixture()
+        val identities = MutableStateFlow(listOf(providerEntity()))
+        val configs = MutableSharedFlow<List<ProviderConfigEntity>>()
+        val runtimes = MutableStateFlow(emptyList<ProviderAccountRuntimeEntity>())
+        val portalStates = MutableStateFlow(emptyList<StalkerPortalStateEntity>())
+        val configSubscriptions = CountDownLatch(2)
+        val configDeliveries = CountDownLatch(2)
         val decodeStarted = CountDownLatch(1)
         val releaseDecode = CountDownLatch(1)
-        fixture.projection.decodeGate = DecodeGate(decodeStarted, releaseDecode)
-        val streams = fixture.streams(Dispatchers.Default)
+        val projection = CountingProjection().apply {
+            decodeGate = DecodeGate(decodeStarted, releaseDecode)
+        }
+        val streams = ProviderObservationStreams(
+            providerDao = providerDao(identities),
+            providerSnapshotDao = snapshotDao(
+                configs = configs
+                    .onSubscription { configSubscriptions.countDown() }
+                    .onEach { configDeliveries.countDown() },
+                runtimes = runtimes,
+                portalStates = portalStates
+            ),
+            projection = projection,
+            workDispatcher = Dispatchers.Default
+        )
 
         val first = async(Dispatchers.Default) { streams.providers.first() }
-        assertThat(decodeStarted.await(2, TimeUnit.SECONDS)).isTrue()
-
         val second = async(Dispatchers.Default) { streams.providers.first() }
-        Thread.sleep(100)
+        assertThat(configSubscriptions.await(2, TimeUnit.SECONDS)).isTrue()
+
+        val emitter = launch(Dispatchers.Default) {
+            configs.emit(listOf(configEntity()))
+        }
+        assertThat(configDeliveries.await(2, TimeUnit.SECONDS)).isTrue()
+        assertThat(decodeStarted.await(2, TimeUnit.SECONDS)).isTrue()
 
         assertThat(first.isCompleted).isFalse()
         assertThat(second.isCompleted).isFalse()
-        assertThat(fixture.projection.decodeCalls.get()).isEqualTo(1)
+        assertThat(projection.decodeCalls.get()).isEqualTo(1)
 
         releaseDecode.countDown()
+        emitter.join()
         assertThat(first.await()).hasSize(1)
         assertThat(second.await()).hasSize(1)
-        assertThat(fixture.projection.decodeCalls.get()).isEqualTo(1)
+        assertThat(projection.decodeCalls.get()).isEqualTo(1)
     }
 
     @Test
@@ -110,6 +141,91 @@ class ProviderObservationStreamsTest {
         assertThat(results.last().single().maxConnections).isEqualTo(4)
         assertThat(results.last().single().catalogLayout).isEqualTo(CatalogLayout.UNIFIED_VOD)
         assertThat(fixture.projection.decodeCalls.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Stalker learning-only changes assemble without another decode`() = runTest {
+        val generation = 4L
+        val identities = MutableStateFlow(
+            listOf(providerEntity(id = 9L, isActive = true, type = ProviderType.STALKER_PORTAL))
+        )
+        val configs = MutableStateFlow(listOf(stalkerConfigEntity(generation)))
+        val runtimes = MutableStateFlow(emptyList<ProviderAccountRuntimeEntity>())
+        val portalStates = MutableStateFlow(emptyList<StalkerPortalStateEntity>())
+        val projection = CountingProjection()
+        val streams = ProviderObservationStreams(
+            providerDao = providerDao(identities),
+            providerSnapshotDao = snapshotDao(configs, runtimes, portalStates),
+            projection = projection,
+            workDispatcher = StandardTestDispatcher(testScheduler)
+        )
+        val results = mutableListOf<List<LegacyProvider>>()
+        val collector = launch { streams.providers.take(2).toList(results) }
+        advanceUntilIdle()
+
+        portalStates.value = listOf(
+            StalkerPortalStateEntity(
+                providerId = 9L,
+                configurationGeneration = generation,
+                learningJson = com.google.gson.Gson().toJson(
+                    StalkerPortalLearning(
+                        configurationGeneration = generation,
+                        profileId = StalkerObservation(
+                            value = "learned-profile",
+                            configurationGeneration = generation,
+                            source = StalkerObservationSource.DISCOVERY,
+                            observedAt = 10L
+                        )
+                    )
+                )
+            )
+        )
+        advanceUntilIdle()
+        collector.join()
+
+        assertThat(results).hasSize(2)
+        assertThat(results.last().single().stalkerLearnedProfileId).isEqualTo("learned-profile")
+        assertThat(projection.decodeCalls.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun `generation-only configuration change triggers one new decode`() = runTest {
+        val fixture = stateFixture()
+        val streams = fixture.streams(StandardTestDispatcher(testScheduler))
+
+        streams.providers.first()
+        fixture.configs.value = listOf(
+            fixture.config.copy(configurationGeneration = fixture.config.configurationGeneration + 1)
+        )
+        streams.providers.first()
+
+        assertThat(fixture.projection.decodeCalls.get()).isEqualTo(2)
+    }
+
+    @Test
+    fun `provider order and active selection follow identity rows`() = runTest {
+        val identities = MutableStateFlow(
+            listOf(
+                providerEntity(id = 10L, isActive = false),
+                providerEntity(id = 9L, isActive = true)
+            )
+        )
+        val configs = MutableStateFlow(listOf(configEntity(9L), configEntity(10L)))
+        val streams = ProviderObservationStreams(
+            providerDao = providerDao(identities),
+            providerSnapshotDao = snapshotDao(
+                configs,
+                MutableStateFlow(emptyList()),
+                MutableStateFlow(emptyList())
+            ),
+            projection = CountingProjection(),
+            workDispatcher = StandardTestDispatcher(testScheduler)
+        )
+
+        assertThat(streams.providers.first().map(LegacyProvider::id))
+            .containsExactly(10L, 9L)
+            .inOrder()
+        assertThat(streams.activeProvider.first()?.id).isEqualTo(9L)
     }
 
     @Test
@@ -144,6 +260,43 @@ class ProviderObservationStreamsTest {
         streams.providers.first()
         advanceUntilIdle()
         assertThat(fixture.projection.decodeCalls.get()).isEqualTo(3)
+    }
+
+    @Test
+    fun `removed rows are evicted even when another row fails to decode`() = runTest {
+        val firstConfig = configEntity(providerId = 9L)
+        val secondConfig = configEntity(providerId = 10L)
+        val identities = MutableStateFlow(
+            listOf(
+                providerEntity(id = 9L, isActive = true),
+                providerEntity(id = 10L, isActive = false)
+            )
+        )
+        val configs = MutableStateFlow(listOf(firstConfig, secondConfig))
+        val runtimes = MutableStateFlow(emptyList<ProviderAccountRuntimeEntity>())
+        val portalStates = MutableStateFlow(emptyList<StalkerPortalStateEntity>())
+        val projection = CountingProjection()
+        val streams = ProviderObservationStreams(
+            providerDao = providerDao(identities),
+            providerSnapshotDao = snapshotDao(configs, runtimes, portalStates),
+            projection = projection,
+            workDispatcher = StandardTestDispatcher(testScheduler)
+        )
+
+        assertThat(streams.providers.first()).hasSize(2)
+        assertThat(projection.decodeCallsFor(9L)).isEqualTo(1)
+
+        val changedSecondConfig = secondConfig.copy(updatedAt = 2L)
+        projection.failingProviderId = 10L
+        configs.value = listOf(changedSecondConfig)
+        val failure = runCatching { streams.providers.first() }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java)
+
+        projection.failingProviderId = null
+        configs.value = listOf(firstConfig, changedSecondConfig)
+        assertThat(streams.providers.first()).hasSize(2)
+
+        assertThat(projection.decodeCallsFor(9L)).isEqualTo(2)
     }
 
     @Test
@@ -192,6 +345,41 @@ class ProviderObservationStreamsTest {
         assertThat(streams.providers.first()).hasSize(1)
         advanceUntilIdle()
         assertThat(fixture.projection.decodeCalls.get()).isEqualTo(2)
+    }
+
+    @Test
+    fun `failed decode reaches every concurrent collector without partial output`() = runTest {
+        val identities = MutableStateFlow(listOf(providerEntity()))
+        val configs = MutableSharedFlow<List<ProviderConfigEntity>>()
+        val configSubscriptions = CountDownLatch(2)
+        val configDeliveries = CountDownLatch(2)
+        val projection = CountingProjection().apply {
+            failure = IllegalStateException("decode failed")
+        }
+        val streams = ProviderObservationStreams(
+            providerDao = providerDao(identities),
+            providerSnapshotDao = snapshotDao(
+                configs = configs
+                    .onSubscription { configSubscriptions.countDown() }
+                    .onEach { configDeliveries.countDown() },
+                runtimes = MutableStateFlow(emptyList()),
+                portalStates = MutableStateFlow(emptyList())
+            ),
+            projection = projection,
+            workDispatcher = Dispatchers.Default
+        )
+
+        val first = async(Dispatchers.Default) { runCatching { streams.providers.first() } }
+        val second = async(Dispatchers.Default) { runCatching { streams.providers.first() } }
+        assertThat(configSubscriptions.await(2, TimeUnit.SECONDS)).isTrue()
+
+        val emitter = launch(Dispatchers.Default) { configs.emit(listOf(configEntity())) }
+        assertThat(configDeliveries.await(2, TimeUnit.SECONDS)).isTrue()
+        emitter.join()
+
+        assertThat(first.await().exceptionOrNull()).isInstanceOf(IllegalStateException::class.java)
+        assertThat(second.await().exceptionOrNull()).isInstanceOf(IllegalStateException::class.java)
+        assertThat(projection.decodeCalls.get()).isEqualTo(2)
     }
 
     @Test
@@ -257,12 +445,20 @@ class ProviderObservationStreamsTest {
             gson = com.google.gson.Gson()
         )
         val decodeCalls = AtomicInteger()
+        private val decodeCallsByProvider = ConcurrentHashMap<Long, AtomicInteger>()
         var failure: RuntimeException? = null
+        var failingProviderId: Long? = null
         var decodeGate: DecodeGate? = null
 
         override fun decode(entity: ProviderConfigEntity): RedactedProviderConfigurationProjection {
             val call = decodeCalls.incrementAndGet()
+            decodeCallsByProvider
+                .computeIfAbsent(entity.providerId) { AtomicInteger() }
+                .incrementAndGet()
             failure?.let { throw it }
+            if (failingProviderId == entity.providerId) {
+                throw IllegalStateException("decode failed for ${entity.providerId}")
+            }
             decodeGate?.takeIf { call == 1 }?.let { gate ->
                 gate.started.countDown()
                 check(gate.release.await(2, TimeUnit.SECONDS)) {
@@ -271,6 +467,9 @@ class ProviderObservationStreamsTest {
             }
             return delegate.decode(entity)
         }
+
+        fun decodeCallsFor(providerId: Long): Int =
+            decodeCallsByProvider[providerId]?.get() ?: 0
 
         override fun assemble(
             identity: ProviderEntity,
@@ -294,15 +493,19 @@ class ProviderObservationStreamsTest {
         whenever(it.observeStalkerPortalStates()).thenReturn(portalStates)
     }
 
-    private fun providerEntity() = ProviderEntity(
-        id = 9L,
+    private fun providerEntity(
+        id: Long = 9L,
+        isActive: Boolean = true,
+        type: ProviderType = ProviderType.XTREAM_CODES
+    ) = ProviderEntity(
+        id = id,
         name = "Living room",
-        type = ProviderType.XTREAM_CODES,
-        isActive = true
+        type = type,
+        isActive = isActive
     )
 
-    private fun configEntity() = ProviderConfigEntity(
-        providerId = 9L,
+    private fun configEntity(providerId: Long = 9L) = ProviderConfigEntity(
+        providerId = providerId,
         type = ProviderType.XTREAM_CODES,
         schemaVersion = 1,
         configurationGeneration = 7L,
@@ -312,6 +515,21 @@ class ProviderObservationStreamsTest {
                 serverUrl = "https://example.test",
                 username = "user",
                 password = "secret"
+            )
+        ),
+        updatedAt = 1L
+    )
+
+    private fun stalkerConfigEntity(generation: Long) = ProviderConfigEntity(
+        providerId = 9L,
+        type = ProviderType.STALKER_PORTAL,
+        schemaVersion = 1,
+        configurationGeneration = generation,
+        identityKey = "stalker-identity",
+        encryptedConfigJson = com.google.gson.Gson().toJson(
+            StalkerConfig(
+                portalUrl = "https://portal.example.test",
+                device = StalkerDeviceIdentity("00:11:22:33:44:55")
             )
         ),
         updatedAt = 1L

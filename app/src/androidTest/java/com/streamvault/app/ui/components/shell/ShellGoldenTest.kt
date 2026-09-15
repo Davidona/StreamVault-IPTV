@@ -2,17 +2,21 @@ package com.streamvault.app.ui.components.shell
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.navigation.Routes
 import com.streamvault.app.ui.test.assertAgainstGolden
 import com.streamvault.core.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.Channel
 import org.junit.Rule
 import org.junit.Test
@@ -23,6 +27,34 @@ class ShellGoldenTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Test
+    fun appScreenScaffold_usesProvidedNavigationDestinations() {
+        composeRule.setContent {
+            CompositionLocalProvider(
+                LocalAppDestinationItems provides listOf(
+                    UiDestination(
+                        id = "injected",
+                        label = "Injected destination",
+                        icon = Icons.Default.Home
+                    )
+                )
+            ) {
+                StreamVaultTheme {
+                    AppScreenScaffold(
+                        currentRoute = "injected",
+                        onNavigate = {},
+                        title = "Injected shell"
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Injected destination").assertExists()
+        composeRule.onNodeWithContentDescription("Live TV").assertDoesNotExist()
+    }
 
     @Test
     fun browseHeroPanel_matchesGolden() {
