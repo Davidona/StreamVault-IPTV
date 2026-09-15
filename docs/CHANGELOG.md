@@ -22,6 +22,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed provider observation cache eviction when another provider configuration fails to decode, preventing removed providers from retaining stale configuration data if they are added again later.
 - Fixed an episode-completion `StackOverflowError` caused by playback history marking recursively invoking itself instead of the watched callback.
 - Fixed opening credits and post-credit scenes being treated as end credits, and tightened generic Credits detection to avoid triggering next-episode autoplay too early.
 - Fixed VOD “More Like This” movie posters opening movie information instead of starting playback directly.
@@ -38,6 +39,7 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Improved long-running app responsiveness by sharing memoized provider observation streams, reusing redacted configuration projections across collectors, moving snapshot reads and decoding off the main thread, and removing per-screen repository subscriptions from the app shell.
 - Updated the AndroidX Media3 playback stack from 1.9.2 to 1.11.0:
   - Improved external subtitle loading and preferred subtitle-language selection, while keeping optional subtitle I/O failures non-fatal to playback.
   - Updated the bundled FFmpeg decoder artifact to the matching Media3 release.
