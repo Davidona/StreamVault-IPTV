@@ -273,7 +273,7 @@ public fun RecordingActionsCard(
                 ),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
-                        border = BorderStroke(2.dp, Color.White),
+                        border = BorderStroke(2.dp, com.streamvault.core.ui.theme.FocusBorder),
                         shape = RoundedCornerShape(10.dp)
                     )
                 ),

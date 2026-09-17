@@ -297,10 +297,10 @@ public fun SettingsScreenDialogs(
     if (uiState.pendingRestoreProviders.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = viewModel::restoreSyncLater,
-            title = { Text("Restore waiting for sync") },
+            title = { Text(stringResource(R.string.settings_restore_sync_title)) },
             text = {
                 Column {
-                    Text("Choose providers to sync now. Nothing is selected by default; pending restore data is kept if you choose Later.")
+                    Text(stringResource(R.string.settings_restore_sync_description))
                     uiState.pendingRestoreProviders.forEachIndexed { index, provider ->
                         Row {
                             Checkbox(
@@ -310,17 +310,21 @@ public fun SettingsScreenDialogs(
                             Text(provider.serverUrl + provider.username.takeIf { it.isNotBlank() }?.let { " ($it)" }.orEmpty())
                         }
                     }
-                    TextButton(onClick = viewModel::selectAllRestoreSyncProviders) { Text("Select all") }
+                    TextButton(onClick = viewModel::selectAllRestoreSyncProviders) {
+                        Text(stringResource(R.string.settings_select_all))
+                    }
                 }
             },
             confirmButton = {
                 TextButton(
                     enabled = uiState.selectedRestoreProviderIndices.isNotEmpty(),
                     onClick = viewModel::syncSelectedRestoreProviders
-                ) { Text("Sync selected") }
+                ) { Text(stringResource(R.string.settings_restore_sync_selected)) }
             },
             dismissButton = {
-                TextButton(onClick = viewModel::restoreSyncLater) { Text("Later") }
+                TextButton(onClick = viewModel::restoreSyncLater) {
+                    Text(stringResource(R.string.settings_restore_later))
+                }
             }
         )
     }

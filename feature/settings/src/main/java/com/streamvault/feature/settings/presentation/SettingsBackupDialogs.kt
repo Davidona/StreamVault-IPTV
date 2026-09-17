@@ -252,9 +252,9 @@ private fun BackupDialogManagementRow(
             enabled = enabled,
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.08f),
-                focusedContainerColor = Color.White.copy(alpha = 0.18f),
-                disabledContainerColor = Color.White.copy(alpha = 0.04f),
+                containerColor = SurfaceElevated,
+                focusedContainerColor = com.streamvault.core.ui.theme.SurfaceHighlight,
+                disabledContainerColor = SurfaceElevated.copy(alpha = 0.55f),
             ),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         ) {

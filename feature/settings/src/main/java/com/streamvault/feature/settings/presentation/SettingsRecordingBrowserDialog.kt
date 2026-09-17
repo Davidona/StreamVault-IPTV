@@ -267,12 +267,12 @@ private fun RecordingPickerRow(
             border = Border(
                 border = BorderStroke(
                     1.dp,
-                    if (selected) accent.copy(alpha = 0.55f) else Color.White.copy(alpha = 0.08f)
+                    if (selected) accent.copy(alpha = 0.55f) else com.streamvault.core.ui.design.AppColors.Divider
                 ),
                 shape = RoundedCornerShape(12.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                 shape = RoundedCornerShape(12.dp)
             )
         ),

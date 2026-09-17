@@ -69,7 +69,7 @@ public fun RecordingDetailActions(
     ) {
         if (item.status == RecordingStatus.COMPLETED && (!item.outputUri.isNullOrBlank() || !item.outputPath.isNullOrBlank())) {
             CompactRecordingActionChip(
-                label = "Play",
+                label = stringResource(R.string.settings_recording_play),
                 accent = Primary,
                 onClick = onPlay
             )

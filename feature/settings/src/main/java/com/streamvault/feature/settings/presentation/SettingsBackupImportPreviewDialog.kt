@@ -202,7 +202,7 @@ private fun BackupToggleRow(
                 .onFocusChanged { isFocused = it.isFocused }
                 .then(
                     if (isFocused) {
-                        Modifier.border(BorderStroke(2.dp, Color.White), CircleShape)
+                        Modifier.border(BorderStroke(2.dp, com.streamvault.core.ui.theme.FocusBorder), CircleShape)
                     } else {
                         Modifier
                     }

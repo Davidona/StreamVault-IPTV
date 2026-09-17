@@ -39,6 +39,9 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Redesigned Settings around focused pages: Playback now separates audio, subtitles, network, controls, timers, and compatibility; Browsing is replaced by Live TV, Movies & Series, and App & Remote.
+- Added consistent settings cards, readable value rows, a single activation target for switches, proper category icons, and adaptive TV/compact navigation. Back restores the overview position and selected page.
+- Organized recording, backup, and support actions into dedicated pages, and moved Xtream text compatibility from Privacy to Providers without changing stored preferences or playback behavior.
 - Improved long-running app responsiveness by sharing memoized provider observation streams, reusing redacted configuration projections across collectors, moving snapshot reads and decoding off the main thread, and removing per-screen repository subscriptions from the app shell.
 - Updated the AndroidX Media3 playback stack from 1.9.2 to 1.11.0:
   - Improved external subtitle loading and preferred subtitle-language selection, while keeping optional subtitle I/O failures non-fatal to playback.
@@ -48,6 +51,7 @@ All notable product changes are recorded in this document.
   - Inherited compatibility improvements for HLS Content Steering, DASH/HLS metadata, AV1 and Dolby Vision, VVC, Matroska, and MP4 formats when supported by the device.
   - Reduced unnecessary artwork metadata extraction during playback to lower memory use on TV devices.
 - Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
+- Polished TV Guide settings inputs with visible theme-aware field boundaries, readable placeholder and entered text, and predictable keyboard dismissal from touch, mouse, and TV controls.
 - Redesigned the VOD playback controls UI, including the control layout, actions, and navigation behavior.
 - Improved playback quick-action readability by using shared theme-aware content colors across focused and unfocused controls, keeping contrast consistent across all playback buttons.
 - Improved Live TV control reliability, including timeshift seeking and rewind interactions.

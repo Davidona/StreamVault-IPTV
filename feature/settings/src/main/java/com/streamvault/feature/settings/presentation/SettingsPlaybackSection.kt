@@ -2,34 +2,22 @@ package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Switch
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
-import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
@@ -38,6 +26,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 
 public fun LazyListScope.settingsPlaybackSection(
     uiState: SettingsUiState,
+    page: SettingsPage? = null,
     viewModel: SettingsViewModel,
     timeshiftDepthLabel: String,
     timeshiftBackendLabel: String,
@@ -89,7 +78,9 @@ public fun LazyListScope.settingsPlaybackSection(
     onShowSubtitleBackgroundDialogChange: (Boolean) -> Unit,
     onShowLiveTranslationEndpointDialogChange: (Boolean) -> Unit,
     onShowWifiQualityDialogChange: (Boolean) -> Unit,
-    onShowEthernetQualityDialogChange: (Boolean) -> Unit
+    onShowEthernetQualityDialogChange: (Boolean) -> Unit,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     item {
         val context = LocalContext.current
@@ -106,7 +97,7 @@ public fun LazyListScope.settingsPlaybackSection(
         }
         if (showLiveStreamFormatDialog) {
             PremiumSelectionDialog(
-                title = "Live stream format",
+                title = stringResource(R.string.settings_live_stream_format_title),
                 onDismiss = { showLiveStreamFormatDialog = false }
             ) {
                 liveStreamFormatOptions.forEachIndexed { index, mode ->
@@ -199,82 +190,6 @@ public fun LazyListScope.settingsPlaybackSection(
             }
         }
 
-        TvClickableSurface(
-            onClick = { viewModel.setPlayerLiveClockEnabled(!uiState.playerLiveClockEnabled) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_live_clock), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_live_clock_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.playerLiveClockEnabled, onCheckedChange = { viewModel.setPlayerLiveClockEnabled(it) })
-            }
-        }
-        if (uiState.playerLiveClockEnabled) {
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_live_clock_position),
-                value = when (uiState.playerLiveClockPosition) {
-                    LiveClockPosition.TOP_START -> stringResource(R.string.settings_live_clock_position_top_left)
-                    LiveClockPosition.TOP_END -> stringResource(R.string.settings_live_clock_position_top_right)
-                    LiveClockPosition.BOTTOM_START -> stringResource(R.string.settings_live_clock_position_bottom_left)
-                    LiveClockPosition.BOTTOM_END -> stringResource(R.string.settings_live_clock_position_bottom_right)
-                },
-                onClick = { showLiveClockPositionDialog = true }
-            )
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_live_clock_size),
-                value = when (uiState.playerLiveClockSize) {
-                    LiveClockSize.SMALL -> stringResource(R.string.settings_live_clock_size_small)
-                    LiveClockSize.MEDIUM -> stringResource(R.string.settings_live_clock_size_medium)
-                    LiveClockSize.LARGE -> stringResource(R.string.settings_live_clock_size_large)
-                },
-                onClick = { showLiveClockSizeDialog = true }
-            )
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_live_clock_font),
-                value = when (uiState.playerLiveClockFont) {
-                    LiveClockFont.CLEAN -> stringResource(R.string.settings_live_clock_font_clean)
-                    LiveClockFont.DIGITAL_MONO -> stringResource(R.string.settings_live_clock_font_digital_mono)
-                    LiveClockFont.CLASSIC_SERIF -> stringResource(R.string.settings_live_clock_font_classic_serif)
-                },
-                onClick = { showLiveClockFontDialog = true }
-            )
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setPreventStandbyDuringPlayback(!uiState.preventStandbyDuringPlayback) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_prevent_standby), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_prevent_standby_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.preventStandbyDuringPlayback, onCheckedChange = { viewModel.setPreventStandbyDuringPlayback(it) })
-            }
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
         if (showPlayerBackButtonVisibilityDialog) {
             PremiumSelectionDialog(
                 title = stringResource(R.string.settings_player_back_button_dialog_title),
@@ -293,397 +208,321 @@ public fun LazyListScope.settingsPlaybackSection(
                 }
             }
         }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_player_back_button),
-            value = formatPlayerBackButtonVisibilityLabel(uiState.playerBackButtonVisibility, context),
-            onClick = { showPlayerBackButtonVisibilityDialog = true }
-        )
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setAutoPlayNextEpisode(!uiState.autoPlayNextEpisode) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_auto_play_next_episode), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_auto_play_next_episode_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (page == null || page == SettingsPage.CLOCK) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_live_clock),
+                    value = stringResource(R.string.settings_live_clock_subtitle),
+                    checked = uiState.playerLiveClockEnabled,
+                    onCheckedChange = viewModel::setPlayerLiveClockEnabled
+                ,
+                    modifier = if (targetItemId == "live.clock_enabled") targetFocusModifier else Modifier,)
+                if (uiState.playerLiveClockEnabled) {
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_live_clock_position),
+                        value = when (uiState.playerLiveClockPosition) {
+                            LiveClockPosition.TOP_START -> stringResource(R.string.settings_live_clock_position_top_left)
+                            LiveClockPosition.TOP_END -> stringResource(R.string.settings_live_clock_position_top_right)
+                            LiveClockPosition.BOTTOM_START -> stringResource(R.string.settings_live_clock_position_bottom_left)
+                            LiveClockPosition.BOTTOM_END -> stringResource(R.string.settings_live_clock_position_bottom_right)
+                        },
+                        onClick = { showLiveClockPositionDialog = true }
+                    ,
+                        modifier = if (targetItemId == "live.clock_position") targetFocusModifier else Modifier,)
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_live_clock_size),
+                        value = when (uiState.playerLiveClockSize) {
+                            LiveClockSize.SMALL -> stringResource(R.string.settings_live_clock_size_small)
+                            LiveClockSize.MEDIUM -> stringResource(R.string.settings_live_clock_size_medium)
+                            LiveClockSize.LARGE -> stringResource(R.string.settings_live_clock_size_large)
+                        },
+                        onClick = { showLiveClockSizeDialog = true }
+                    ,
+                        modifier = if (targetItemId == "live.clock_size") targetFocusModifier else Modifier,)
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_live_clock_font),
+                        value = when (uiState.playerLiveClockFont) {
+                            LiveClockFont.CLEAN -> stringResource(R.string.settings_live_clock_font_clean)
+                            LiveClockFont.DIGITAL_MONO -> stringResource(R.string.settings_live_clock_font_digital_mono)
+                            LiveClockFont.CLASSIC_SERIF -> stringResource(R.string.settings_live_clock_font_classic_serif)
+                        },
+                        onClick = { showLiveClockFontDialog = true }
+                    ,
+                        modifier = if (targetItemId == "live.clock_font") targetFocusModifier else Modifier,)
                 }
-                Switch(checked = uiState.autoPlayNextEpisode, onCheckedChange = { viewModel.setAutoPlayNextEpisode(it) })
             }
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setPlayerMediaSessionEnabled(!uiState.playerMediaSessionEnabled) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_media_session), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_media_session_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.playerMediaSessionEnabled, onCheckedChange = { viewModel.setPlayerMediaSessionEnabled(it) })
+            if (page == null || page == SettingsPage.TIMERS) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_prevent_standby),
+                    value = stringResource(R.string.settings_prevent_standby_subtitle),
+                    checked = uiState.preventStandbyDuringPlayback,
+                    onCheckedChange = viewModel::setPreventStandbyDuringPlayback
+                ,
+                    modifier = if (targetItemId == "playback.prevent_standby") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_default_stop_timer),
+                    value = defaultStopTimerLabel,
+                    onClick = { onShowDefaultStopTimerDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.stop_timer") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_default_idle_standby_timer),
+                    value = defaultIdleTimerLabel,
+                    onClick = { onShowDefaultIdleTimerDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.idle_timer") targetFocusModifier else Modifier,)
             }
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = {
-                viewModel.setPlayerFastRetryOnTransientFailures(!uiState.playerFastRetryOnTransientFailures)
-            },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_fast_retry_on_transient_failures), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_fast_retry_on_transient_failures_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(
+            if (page == null || page == SettingsPage.CONTROLS) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_player_back_button),
+                    value = formatPlayerBackButtonVisibilityLabel(uiState.playerBackButtonVisibility, context),
+                    onClick = { showPlayerBackButtonVisibilityDialog = true }
+                ,
+                    modifier = if (targetItemId == "playback.back_button") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_player_controls_timeout),
+                    value = controlsTimeoutLabel,
+                    onClick = { onShowControlsTimeoutDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.controls_timeout") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_overlay_timeout),
+                    value = liveOverlayTimeoutLabel,
+                    onClick = { onShowLiveOverlayTimeoutDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.live_overlay_timeout") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_player_notice_timeout),
+                    value = noticeTimeoutLabel,
+                    onClick = { onShowNoticeTimeoutDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.notice_timeout") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_player_diagnostics_timeout),
+                    value = diagnosticsTimeoutLabel,
+                    onClick = { onShowDiagnosticsTimeoutDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.diagnostics_timeout") targetFocusModifier else Modifier,)
+            }
+            if (page == null || page == SettingsPage.VOD_PLAYBACK) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_auto_play_next_episode),
+                    value = stringResource(R.string.settings_auto_play_next_episode_subtitle),
+                    checked = uiState.autoPlayNextEpisode,
+                    onCheckedChange = viewModel::setAutoPlayNextEpisode
+                ,
+                    modifier = if (targetItemId == "vod.auto_next_episode") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_vod_http_protocol_mode),
+                    value = vodHttpProtocolLabel,
+                    onClick = { onShowVodHttpProtocolDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "vod.http_protocol") targetFocusModifier else Modifier,)
+            }
+            if (page == null || page == SettingsPage.GENERAL) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_media_session),
+                    value = stringResource(R.string.settings_media_session_subtitle),
+                    checked = uiState.playerMediaSessionEnabled,
+                    onCheckedChange = viewModel::setPlayerMediaSessionEnabled,
+                    modifier = if (targetItemId == "playback.media_session") targetFocusModifier else Modifier,
+                )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_external_playback),
+                    value = externalPlaybackModeLabel,
+                    onClick = { onShowExternalPlaybackModeDialogChange(true) },
+                    modifier = if (targetItemId == "playback.external") targetFocusModifier else Modifier,
+                )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_default_playback_speed),
+                    value = playbackSpeedLabel,
+                    onClick = { onShowPlaybackSpeedDialogChange(true) },
+                    modifier = if (targetItemId == "playback.speed") targetFocusModifier else Modifier,
+                )
+            }
+            if (page == null || page == SettingsPage.NETWORK) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_fast_retry_on_transient_failures),
+                    value = stringResource(R.string.settings_fast_retry_on_transient_failures_subtitle),
                     checked = uiState.playerFastRetryOnTransientFailures,
-                    onCheckedChange = { viewModel.setPlayerFastRetryOnTransientFailures(it) }
+                    onCheckedChange = viewModel::setPlayerFastRetryOnTransientFailures
+                ,
+                    modifier = if (targetItemId == "playback.fast_retry") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_buffer_size),
+                    value = playbackBufferModeLabel,
+                    onClick = { onShowPlaybackBufferModeDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.buffer") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_wifi_quality_cap),
+                    value = wifiQualityLabel,
+                    onClick = { onShowWifiQualityDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.wifi_cap") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_ethernet_quality_cap),
+                    value = ethernetQualityLabel,
+                    onClick = { onShowEthernetQualityDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.ethernet_cap") targetFocusModifier else Modifier,)
+            }
+            if (page == null || page == SettingsPage.SUBTITLES) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_live_translation_enabled),
+                    value = stringResource(R.string.settings_live_translation_enabled_subtitle),
+                    checked = uiState.playerLiveTranslationEnabled,
+                    onCheckedChange = viewModel::setPlayerLiveTranslationEnabled
+                ,
+                    modifier = if (targetItemId == "playback.live_translation") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_translation_endpoint),
+                    value = liveTranslationEndpointLabel,
+                    onClick = { onShowLiveTranslationEndpointDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.translation_endpoint") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_subtitle_size),
+                    value = subtitleSizeLabel,
+                    onClick = { onShowSubtitleSizeDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.subtitle_size") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_subtitle_text_color),
+                    value = subtitleTextColorLabel,
+                    onClick = { onShowSubtitleTextColorDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.subtitle_text_color") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_subtitle_background),
+                    value = subtitleBackgroundLabel,
+                    onClick = { onShowSubtitleBackgroundDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.subtitle_background") targetFocusModifier else Modifier,)
+            }
+            if (page == null || page == SettingsPage.TIMESHIFT) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_live_timeshift),
+                    value = stringResource(R.string.settings_live_timeshift_subtitle),
+                    checked = uiState.playerTimeshiftEnabled,
+                    onCheckedChange = viewModel::setPlayerTimeshiftEnabled
+                ,
+                    modifier = if (targetItemId == "live.timeshift_enabled") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_timeshift_depth),
+                    value = timeshiftDepthLabel,
+                    onClick = { onShowTimeshiftDepthDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "live.timeshift_depth") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_timeshift_backend),
+                    value = timeshiftBackendLabel,
+                    onClick = { onShowTimeshiftBackendDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "live.timeshift_backend") targetFocusModifier else Modifier,)
+                Text(
+                    text = stringResource(R.string.settings_live_timeshift_backend_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnBackground.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_stream_format_title),
+                    value = formatLiveStreamFormatModeLabel(liveStreamFormatMode),
+                    onClick = { showLiveStreamFormatDialog = true }
+                ,
+                    modifier = if (targetItemId == "playback.live_format") targetFocusModifier else Modifier,)
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_zap_auto_revert),
+                    value = stringResource(R.string.settings_zap_auto_revert_subtitle),
+                    checked = uiState.zapAutoRevert,
+                    onCheckedChange = viewModel::setZapAutoRevert
+                ,
+                    modifier = if (targetItemId == "live.zap_auto_revert") targetFocusModifier else Modifier,)
             }
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setPlayerLiveTranslationEnabled(!uiState.playerLiveTranslationEnabled) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_live_translation_enabled), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_live_translation_enabled_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.playerLiveTranslationEnabled, onCheckedChange = { viewModel.setPlayerLiveTranslationEnabled(it) })
-            }
-        }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_live_translation_endpoint),
-            value = liveTranslationEndpointLabel,
-            onClick = { onShowLiveTranslationEndpointDialogChange(true) }
-        )
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setPlayerTimeshiftEnabled(!uiState.playerTimeshiftEnabled) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_live_timeshift), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_live_timeshift_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.playerTimeshiftEnabled, onCheckedChange = { viewModel.setPlayerTimeshiftEnabled(it) })
-            }
-        }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_live_timeshift_depth),
-            value = timeshiftDepthLabel,
-            onClick = { onShowTimeshiftDepthDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_live_timeshift_backend),
-            value = timeshiftBackendLabel,
-            onClick = { onShowTimeshiftBackendDialogChange(true) }
-        )
-        Text(
-            text = stringResource(R.string.settings_live_timeshift_backend_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = OnBackground.copy(alpha = 0.6f),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-        ClickableSettingsRow(
-            label = "Live stream format",
-            value = formatLiveStreamFormatModeLabel(liveStreamFormatMode),
-            onClick = { showLiveStreamFormatDialog = true }
-        )
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setZapAutoRevert(!uiState.zapAutoRevert) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_zap_auto_revert), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_zap_auto_revert_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.zapAutoRevert, onCheckedChange = { viewModel.setZapAutoRevert(it) })
-            }
-        }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_audio_decoder_mode),
-            value = audioDecoderModeLabel,
-            onClick = { onShowAudioDecoderModeDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_video_decoder_mode),
-            value = videoDecoderModeLabel,
-            onClick = { onShowVideoDecoderModeDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_live_buffer_size),
-            value = playbackBufferModeLabel,
-            onClick = { onShowPlaybackBufferModeDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_audio_output_mode),
-            value = audioOutputPreferenceLabel,
-            onClick = { onShowAudioOutputPreferenceDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_external_playback),
-            value = externalPlaybackModeLabel,
-            onClick = { onShowExternalPlaybackModeDialogChange(true) }
-        )
-        TvClickableSurface(
-            onClick = {
-                viewModel.setPlayerCompatibilityMemoryEnabled(!uiState.playerCompatibilityMemoryEnabled)
-            },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_ffmpeg_compatibility_memory), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_ffmpeg_compatibility_memory_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(
+            if (page == null || page == SettingsPage.COMPATIBILITY) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_audio_decoder_mode),
+                    value = audioDecoderModeLabel,
+                    onClick = { onShowAudioDecoderModeDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.audio_decoder") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_video_decoder_mode),
+                    value = videoDecoderModeLabel,
+                    onClick = { onShowVideoDecoderModeDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.video_decoder") targetFocusModifier else Modifier,)
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_ffmpeg_compatibility_memory),
+                    value = stringResource(R.string.settings_ffmpeg_compatibility_memory_subtitle),
                     checked = uiState.playerCompatibilityMemoryEnabled,
-                    onCheckedChange = { viewModel.setPlayerCompatibilityMemoryEnabled(it) }
-                )
+                    onCheckedChange = viewModel::setPlayerCompatibilityMemoryEnabled
+                ,
+                    modifier = if (targetItemId == "playback.compatibility_memory") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_ffmpeg_compatibility_clear),
+                    value = stringResource(R.string.settings_ffmpeg_compatibility_clear_value),
+                    onClick = viewModel::clearLearnedPlaybackCompatibility
+                ,
+                    modifier = if (targetItemId == "playback.clear_compatibility") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_surface_mode),
+                    value = surfaceModeLabel,
+                    onClick = { onShowSurfaceModeDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.surface") targetFocusModifier else Modifier,)
             }
-        }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_ffmpeg_compatibility_clear),
-            value = stringResource(R.string.settings_ffmpeg_compatibility_clear_value),
-            onClick = viewModel::clearLearnedPlaybackCompatibility
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_surface_mode),
-            value = surfaceModeLabel,
-            onClick = { onShowSurfaceModeDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_vod_http_protocol_mode),
-            value = vodHttpProtocolLabel,
-            onClick = { onShowVodHttpProtocolDialogChange(true) }
-        )
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_default_playback_speed),
-            value = playbackSpeedLabel,
-            onClick = { onShowPlaybackSpeedDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_default_stop_timer),
-            value = defaultStopTimerLabel,
-            onClick = { onShowDefaultStopTimerDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_default_idle_standby_timer),
-            value = defaultIdleTimerLabel,
-            onClick = { onShowDefaultIdleTimerDialogChange(true) }
-        )
-        TvClickableSurface(
-            onClick = { viewModel.setPlayerAudioVideoSyncEnabled(!uiState.playerAudioVideoSyncEnabled) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_audio_video_sync_enabled), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_audio_video_sync_enabled_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
+            if (page == null || page == SettingsPage.AUDIO) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_audio_output_mode),
+                    value = audioOutputPreferenceLabel,
+                    onClick = { onShowAudioOutputPreferenceDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.audio_output") targetFocusModifier else Modifier,)
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_audio_video_sync_enabled),
+                    value = stringResource(R.string.settings_audio_video_sync_enabled_subtitle),
+                    checked = uiState.playerAudioVideoSyncEnabled,
+                    onCheckedChange = viewModel::setPlayerAudioVideoSyncEnabled
+                ,
+                    modifier = if (targetItemId == "playback.av_sync") targetFocusModifier else Modifier,)
+                if (uiState.playerAudioVideoSyncEnabled) {
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_audio_video_sync_default),
+                        value = audioVideoOffsetLabel,
+                        onClick = { onShowAudioVideoOffsetDialogChange(true) }
+                    ,
+                        modifier = if (targetItemId == "playback.av_offset") targetFocusModifier else Modifier,)
                 }
-                Switch(checked = uiState.playerAudioVideoSyncEnabled, onCheckedChange = { viewModel.setPlayerAudioVideoSyncEnabled(it) })
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_preferred_audio_language),
+                    value = preferredAudioLanguageLabel,
+                    onClick = { onShowAudioLanguageDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.audio_language") targetFocusModifier else Modifier,)
             }
-        }
-        if (uiState.playerAudioVideoSyncEnabled) {
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_audio_video_sync_default),
-                value = audioVideoOffsetLabel,
-                onClick = { onShowAudioVideoOffsetDialogChange(true) }
-            )
-        }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = {
-                viewModel.setMultiViewRespectProviderConnectionLimit(!uiState.multiViewRespectProviderConnectionLimit)
-            },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_multiview_respect_provider_connection_limit), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_multiview_respect_provider_connection_limit_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(
+            if (page == null || page == SettingsPage.MULTIVIEW) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_multiview_respect_provider_connection_limit),
+                    value = stringResource(R.string.settings_multiview_respect_provider_connection_limit_subtitle),
                     checked = uiState.multiViewRespectProviderConnectionLimit,
-                    onCheckedChange = { viewModel.setMultiViewRespectProviderConnectionLimit(it) }
-                )
+                    onCheckedChange = viewModel::setMultiViewRespectProviderConnectionLimit
+                ,
+                    modifier = if (targetItemId == "live.multiview_connection_limit") targetFocusModifier else Modifier,)
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_multiview_center_two_slot_layout),
+                    value = stringResource(R.string.settings_multiview_center_two_slot_layout_subtitle),
+                    checked = uiState.centerTwoSlotMultiviewLayout,
+                    onCheckedChange = viewModel::setCenterTwoSlotMultiviewLayout
+                ,
+                    modifier = if (targetItemId == "live.multiview_center_two") targetFocusModifier else Modifier,)
             }
         }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = { viewModel.setCenterTwoSlotMultiviewLayout(!uiState.centerTwoSlotMultiviewLayout) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_multiview_center_two_slot_layout), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_multiview_center_two_slot_layout_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.centerTwoSlotMultiviewLayout, onCheckedChange = { viewModel.setCenterTwoSlotMultiviewLayout(it) })
-            }
-        }
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_player_controls_timeout),
-            value = controlsTimeoutLabel,
-            onClick = { onShowControlsTimeoutDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_live_overlay_timeout),
-            value = liveOverlayTimeoutLabel,
-            onClick = { onShowLiveOverlayTimeoutDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_player_notice_timeout),
-            value = noticeTimeoutLabel,
-            onClick = { onShowNoticeTimeoutDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_player_diagnostics_timeout),
-            value = diagnosticsTimeoutLabel,
-            onClick = { onShowDiagnosticsTimeoutDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_preferred_audio_language),
-            value = preferredAudioLanguageLabel,
-            onClick = { onShowAudioLanguageDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_subtitle_size),
-            value = subtitleSizeLabel,
-            onClick = { onShowSubtitleSizeDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_subtitle_text_color),
-            value = subtitleTextColorLabel,
-            onClick = { onShowSubtitleTextColorDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_subtitle_background),
-            value = subtitleBackgroundLabel,
-            onClick = { onShowSubtitleBackgroundDialogChange(true) }
-        )
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_wifi_quality_cap),
-            value = wifiQualityLabel,
-            onClick = { onShowWifiQualityDialogChange(true) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_ethernet_quality_cap),
-            value = ethernetQualityLabel,
-            onClick = { onShowEthernetQualityDialogChange(true) }
-        )
     }
 
-    item {
+    if (page == null || page == SettingsPage.NETWORK) item {
         InternetSpeedTestCard(
             valueLabel = lastSpeedTestLabel,
             summary = lastSpeedTestSummary,
@@ -692,7 +531,8 @@ public fun LazyListScope.settingsPlaybackSection(
             canApplyRecommendation = uiState.lastSpeedTest != null,
             onRunTest = viewModel::runInternetSpeedTest,
             onApplyWifi = viewModel::applySpeedTestRecommendationToWifi,
-            onApplyEthernet = viewModel::applySpeedTestRecommendationToEthernet
+            onApplyEthernet = viewModel::applySpeedTestRecommendationToEthernet,
+            modifier = if (targetItemId == "playback.speed_test") targetFocusModifier else Modifier,
         )
     }
 }

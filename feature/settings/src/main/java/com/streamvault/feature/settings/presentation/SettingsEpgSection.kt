@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -36,27 +37,34 @@ import androidx.compose.foundation.lazy.items
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.feature.settings.R
 
 fun LazyListScope.epgSourcesSection(
     uiState: SettingsUiState,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    firstFocusModifier: Modifier = Modifier,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     val epgSources = uiState.epgSources
     val providers = uiState.providers
 
     item {
         Text(
-            text = "EPG Sources",
+            text = stringResource(R.string.settings_epg_sources_title),
             style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFF66BB6A),
+            color = Primary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Add external XMLTV EPG sources and assign them to providers. External sources are matched to channels by ID or name and override provider-native EPG data.",
+            text = stringResource(R.string.settings_epg_sources_description),
             style = MaterialTheme.typography.bodySmall,
             color = OnSurfaceDim,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -64,13 +72,18 @@ fun LazyListScope.epgSourcesSection(
     }
 
     item {
-        AddEpgSourceCard(viewModel = viewModel)
+        AddEpgSourceCard(
+            viewModel = viewModel,
+            firstFocusModifier = if (targetItemId == "guide.source.add") {
+                targetFocusModifier
+            } else firstFocusModifier,
+        )
     }
 
     if (epgSources.isEmpty()) {
         item {
             Text(
-                text = "No external EPG sources configured. Add a source above to get started.",
+                text = stringResource(R.string.settings_epg_sources_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = OnSurfaceDim,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -91,6 +104,15 @@ fun LazyListScope.epgSourcesSection(
                     viewModel.setPendingDeleteEpgSource(if (pending) source.id else null)
                 },
                 onDelete = { viewModel.deleteEpgSource(source.id) }
+                ,
+                modifier = if (
+                    targetItemId in setOf(
+                        "guide.source.enabled",
+                        "guide.source.refresh",
+                        "guide.source.timezone",
+                        "guide.source.delete",
+                    ) && source.id == epgSources.first().id
+                ) targetFocusModifier else Modifier,
             )
         }
     }
@@ -98,13 +120,13 @@ fun LazyListScope.epgSourcesSection(
     if (providers.isNotEmpty() && epgSources.isNotEmpty()) {
         item {
             Text(
-                text = "Provider Assignments",
+                text = stringResource(R.string.settings_epg_assignments_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF66BB6A),
+                color = Primary,
                 modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
             )
             Text(
-                text = "Assign EPG sources to providers. Channels will be matched automatically by ID or name.",
+                text = stringResource(R.string.settings_epg_assignments_description),
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurfaceDim,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -128,7 +150,10 @@ fun LazyListScope.epgSourcesSection(
                 onMoveUp = { epgSourceId -> viewModel.moveEpgSourceAssignmentUp(provider.id, epgSourceId) },
                 onMoveDown = { epgSourceId -> viewModel.moveEpgSourceAssignmentDown(provider.id, epgSourceId) },
                 onRemove = { epgSourceId -> viewModel.unassignEpgSourceFromProvider(provider.id, epgSourceId) },
-                onAssign = { epgSourceId -> viewModel.assignEpgSourceToProvider(provider.id, epgSourceId) }
+                onAssign = { epgSourceId -> viewModel.assignEpgSourceToProvider(provider.id, epgSourceId) },
+                modifier = if (
+                    targetItemId == "guide.assignment" && provider.id == providers.first().id
+                ) targetFocusModifier else Modifier,
             )
             if (supportsGuideAndLogoPolicy(provider.type)) {
                 ProviderGuideAndLogoPolicyCard(
@@ -136,7 +161,11 @@ fun LazyListScope.epgSourcesSection(
                     guideSourcePolicy = provider.guideSourcePolicy,
                     channelLogoSourcePolicy = provider.channelLogoSourcePolicy,
                     onGuideSourceSelected = { policy -> viewModel.setGuideSourcePolicy(provider.id, policy) },
-                    onLogoSourceSelected = { policy -> viewModel.setChannelLogoSourcePolicy(provider.id, policy) }
+                    onLogoSourceSelected = { policy -> viewModel.setChannelLogoSourcePolicy(provider.id, policy) },
+                    modifier = if (
+                        targetItemId in setOf("guide.policy", "guide.logo_policy") &&
+                            provider.id == providers.first().id
+                    ) targetFocusModifier else Modifier,
                 )
             }
         }
@@ -145,13 +174,13 @@ fun LazyListScope.epgSourcesSection(
     if (providers.isNotEmpty()) {
         item {
             Text(
-                text = "EPG Time Shift",
+                text = stringResource(R.string.settings_epg_time_shift_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF66BB6A),
+                color = Primary,
                 modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
             )
             Text(
-                text = "Adjust EPG times if they're consistently off from broadcast time (e.g., wrong timezone in the provider's data). Negative values shift programs earlier; positive shift them later.",
+                text = stringResource(R.string.settings_epg_time_shift_description),
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurfaceDim,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -163,7 +192,10 @@ fun LazyListScope.epgSourcesSection(
                 providerName = provider.name,
                 shiftMinutes = shiftMinutes,
                 onAdjust = { delta -> viewModel.adjustEpgTimeShift(provider.id, delta) },
-                onReset = { viewModel.resetEpgTimeShift(provider.id) }
+                onReset = { viewModel.resetEpgTimeShift(provider.id) },
+                modifier = if (
+                    targetItemId == "guide.time_shift" && provider.id == providers.first().id
+                ) targetFocusModifier else Modifier,
             )
         }
     }
@@ -175,25 +207,26 @@ private fun ProviderGuideAndLogoPolicyCard(
     guideSourcePolicy: GuideSourcePolicy,
     channelLogoSourcePolicy: ChannelLogoSourcePolicy,
     onGuideSourceSelected: (GuideSourcePolicy) -> Unit,
-    onLogoSourceSelected: (ChannelLogoSourcePolicy) -> Unit
+    onLogoSourceSelected: (ChannelLogoSourcePolicy) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF152333))
+            .background(SurfaceElevated)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "$providerName Guide Controls",
+            text = stringResource(R.string.settings_epg_provider_controls, providerName),
             style = MaterialTheme.typography.titleSmall,
-            color = Color.White,
+            color = OnSurface,
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Choose whether guide data comes from external XMLTV, supplier data, or stays disabled, then decide which logo source wins.",
+            text = stringResource(R.string.settings_epg_provider_controls_description),
             style = MaterialTheme.typography.bodySmall,
             color = OnSurfaceDim
         )
@@ -229,11 +262,11 @@ private fun PolicyChip(
         modifier = Modifier,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Primary.copy(alpha = 0.22f) else Color(0xFF0F1B29),
-            focusedContainerColor = if (selected) Primary.copy(alpha = 0.32f) else Color(0xFF1A2A3B)
+            containerColor = if (selected) Primary.copy(alpha = 0.22f) else SurfaceElevated,
+            focusedContainerColor = if (selected) Primary.copy(alpha = 0.32f) else SurfaceHighlight
         ),
         border = ClickableSurfaceDefaults.border(
-            border = Border(BorderStroke(1.dp, if (selected) Primary else Color(0xFF2D4358))),
+            border = Border(BorderStroke(1.dp, if (selected) Primary else OnSurface.copy(alpha = 0.16f))),
             focusedBorder = Border(BorderStroke(2.dp, Primary))
         ),
         glow = ClickableSurfaceDefaults.glow(),
@@ -243,24 +276,26 @@ private fun PolicyChip(
             text = text,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White
+            color = OnSurface
         )
     }
 }
 
-private fun guideSourceLabel(policy: GuideSourcePolicy): String = when (policy) {
-    GuideSourcePolicy.AUTO -> "Auto"
-    GuideSourcePolicy.EXTERNAL_ONLY -> "Use external EPG only"
-    GuideSourcePolicy.PROVIDER_ONLY -> "Use supplier EPG only"
-    GuideSourcePolicy.DISABLED -> "Disable guide data"
-}
+@Composable
+private fun guideSourceLabel(policy: GuideSourcePolicy): String = stringResource(when (policy) {
+    GuideSourcePolicy.AUTO -> R.string.settings_epg_policy_auto
+    GuideSourcePolicy.EXTERNAL_ONLY -> R.string.settings_epg_policy_external_only
+    GuideSourcePolicy.PROVIDER_ONLY -> R.string.settings_epg_policy_provider_only
+    GuideSourcePolicy.DISABLED -> R.string.settings_epg_policy_disabled
+})
 
-private fun logoSourceLabel(policy: ChannelLogoSourcePolicy): String = when (policy) {
-    ChannelLogoSourcePolicy.SUPPLIER_PREFERRED -> "Supplier logos first"
-    ChannelLogoSourcePolicy.EPG_PREFERRED -> "Prefer EPG logos"
-    ChannelLogoSourcePolicy.SUPPLIER_ONLY -> "Supplier logos only"
-    ChannelLogoSourcePolicy.EPG_ONLY -> "EPG logos only"
-}
+@Composable
+private fun logoSourceLabel(policy: ChannelLogoSourcePolicy): String = stringResource(when (policy) {
+    ChannelLogoSourcePolicy.SUPPLIER_PREFERRED -> R.string.settings_epg_logo_supplier_preferred
+    ChannelLogoSourcePolicy.EPG_PREFERRED -> R.string.settings_epg_logo_epg_preferred
+    ChannelLogoSourcePolicy.SUPPLIER_ONLY -> R.string.settings_epg_logo_supplier_only
+    ChannelLogoSourcePolicy.EPG_ONLY -> R.string.settings_epg_logo_epg_only
+})
 
 private fun supportsGuideAndLogoPolicy(providerType: ProviderType): Boolean = when (providerType) {
     ProviderType.XTREAM_CODES,
@@ -274,14 +309,16 @@ private fun EpgTimeShiftCard(
     providerName: String,
     shiftMinutes: Int,
     onAdjust: (Int) -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    val settingsColors = SettingsDesignTokens.colors(com.streamvault.core.ui.design.AppColors.current)
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1A1A1A))
+            .background(SurfaceElevated)
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -293,6 +330,7 @@ private fun EpgTimeShiftCard(
                 Text(
                     text = providerName,
                     style = MaterialTheme.typography.titleSmall,
+                    color = settingsColors.primaryText,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
@@ -311,7 +349,7 @@ private fun EpgTimeShiftCard(
                 ShiftAdjustButton("−30m", onClick = { onAdjust(-30) })
                 ShiftAdjustButton("−15m", onClick = { onAdjust(-15) })
                 ShiftAdjustButton("−5m", onClick = { onAdjust(-5) })
-                ShiftAdjustButton("Reset", onClick = onReset, enabled = shiftMinutes != 0)
+                ShiftAdjustButton(stringResource(R.string.settings_epg_reset_shift), onClick = onReset, enabled = shiftMinutes != 0)
                 ShiftAdjustButton("+5m", onClick = { onAdjust(5) })
                 ShiftAdjustButton("+15m", onClick = { onAdjust(15) })
                 ShiftAdjustButton("+30m", onClick = { onAdjust(30) })
@@ -327,32 +365,40 @@ private fun ShiftAdjustButton(
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
+    val settingsColors = SettingsDesignTokens.colors(com.streamvault.core.ui.design.AppColors.current)
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color(0xFF262626),
-            focusedContainerColor = Primary,
-            disabledContainerColor = Color(0xFF1A1A1A)
+            containerColor = settingsColors.searchSurface,
+            contentColor = settingsColors.primaryText,
+            focusedContainerColor = settingsColors.focusedSurface,
+            focusedContentColor = settingsColors.primaryText,
+            disabledContainerColor = settingsColors.groupSurface,
+            disabledContentColor = settingsColors.disabledText,
         ),
         border = ClickableSurfaceDefaults.border(
+            border = Border(
+                border = androidx.compose.foundation.BorderStroke(1.dp, settingsColors.divider)
+            ),
             focusedBorder = Border(
-                border = androidx.compose.foundation.BorderStroke(2.dp, Primary)
-            )
+                border = androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, settingsColors.focusOutline)
+            ),
         )
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelMedium,
-            color = if (enabled) Color.White else OnSurfaceDim
+            color = if (enabled) settingsColors.primaryText else settingsColors.disabledText
         )
     }
 }
 
+@Composable
 private fun formatShiftLabel(minutes: Int): String {
-    if (minutes == 0) return "No shift"
+    if (minutes == 0) return stringResource(R.string.settings_epg_no_shift)
     val sign = if (minutes < 0) "−" else "+"
     val abs = kotlin.math.abs(minutes)
     val hours = abs / 60

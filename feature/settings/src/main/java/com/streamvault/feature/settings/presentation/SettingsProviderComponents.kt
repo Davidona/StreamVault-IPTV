@@ -37,7 +37,9 @@ public fun ProviderSettingsCard(
     onEdit: () -> Unit,
     onParentalControl: () -> Unit,
     onToggleM3uVodClassification: (Boolean) -> Unit,
-    onRefreshM3uClassification: () -> Unit
+    onRefreshM3uClassification: () -> Unit,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     val liveOnboardingIncomplete = provider.type == ProviderType.XTREAM_CODES &&
         provider.status == ProviderStatus.PARTIAL &&
@@ -182,7 +184,10 @@ public fun ProviderSettingsCard(
                 m3uVodClassificationEnabled = provider.m3uVodClassificationEnabled,
                 isSyncing = isSyncing,
                 onToggleM3uVodClassification = onToggleM3uVodClassification,
-                onRefreshM3uClassification = onRefreshM3uClassification
+                onRefreshM3uClassification = onRefreshM3uClassification,
+                classificationModifier = if (targetItemId == "sources.m3u_vod_classification") {
+                    targetFocusModifier
+                } else Modifier,
             )
         }
 
@@ -203,7 +208,9 @@ public fun ProviderSettingsCard(
             onRefresh = onRefresh,
             onEdit = onEdit,
             onDelete = onDelete,
-            onParentalControl = onParentalControl
+            onParentalControl = onParentalControl,
+            targetItemId = targetItemId,
+            targetFocusModifier = targetFocusModifier,
         )
 
     }

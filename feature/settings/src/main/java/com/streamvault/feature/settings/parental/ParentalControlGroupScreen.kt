@@ -1,5 +1,6 @@
 package com.streamvault.feature.settings.parental
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
@@ -50,13 +54,15 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
-import com.streamvault.core.ui.components.shell.NavigationChrome
 import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.ContentType
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
 import kotlinx.coroutines.launch
+import com.streamvault.feature.settings.presentation.SettingsDesignTokens
+import com.streamvault.feature.settings.presentation.SettingsLocalHeader
+import com.streamvault.feature.settings.presentation.SettingsFocusCoordinator
+import com.streamvault.core.ui.design.AppColors
 
 private enum class CategoryControlsMode {
     PROTECTION,
@@ -83,7 +89,10 @@ fun ParentalControlGroupScreen(
     } else {
         420.dp
     }
-    val backButtonFocusRequester = remember { FocusRequester() }
+    val firstContentFocusRequester = remember { FocusRequester() }
+    val headerBackFocusRequester = remember { FocusRequester() }
+    val focusCoordinator = remember { SettingsFocusCoordinator() }
+    var firstContentPlaced by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -105,8 +114,17 @@ fun ParentalControlGroupScreen(
         item.category.type == selectedType && !item.isHidden
     }
 
-    LaunchedEffect(Unit) {
-        backButtonFocusRequester.requestFocus()
+    BackHandler(onBack = onBack)
+
+    LaunchedEffect(uiState.isLoading, firstContentPlaced) {
+        if (!uiState.isLoading && firstContentPlaced) {
+            val targetId = "parental.mode.protection"
+            val intent = focusCoordinator.next(targetId)
+            withFrameNanos { }
+            if (focusCoordinator.canApply(intent, targetId)) {
+                firstContentFocusRequester.requestFocus()
+            }
+        }
     }
 
     LaunchedEffect(uiState.userMessage) {
@@ -116,30 +134,31 @@ fun ParentalControlGroupScreen(
         }
     }
 
-    CoreAppScreenScaffold(
-        currentDestinationId = currentRoute,
-        destinations = navigationDestinations,
-        onDestinationSelected = onNavigate,
-        title = stringResource(R.string.settings_provider_category_controls_title),
-        subtitle = stringResource(R.string.settings_provider_category_controls_subtitle),
-        navigationChrome = NavigationChrome.TopBar,
-        compactHeader = true,
-        showScreenHeader = false,
-        header = {
+    Box(
+        modifier = Modifier.fillMaxSize().background(AppColors.Canvas),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = if (screenWidth < 700.dp) SettingsDesignTokens.compactInset else SettingsDesignTokens.tvHorizontalInset,
+                    vertical = SettingsDesignTokens.tvVerticalInset,
+                ),
+            verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space12),
+        ) {
+            SettingsLocalHeader(
+                title = stringResource(R.string.settings_provider_category_controls_title),
+                description = stringResource(R.string.settings_provider_category_controls_subtitle),
+                parentTitle = stringResource(R.string.settings_privacy),
+                onBack = onBack,
+                backModifier = Modifier
+                    .focusRequester(headerBackFocusRequester)
+                    .focusProperties { down = firstContentFocusRequester },
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.End,
             ) {
-                TvIconButton(
-                    onClick = onBack,
-                    modifier = Modifier.focusRequester(backButtonFocusRequester)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.parental_group_back)
-                    )
-                }
                 SearchInput(
                     value = uiState.searchQuery,
                     onValueChange = viewModel::onSearchQueryChange,
@@ -148,22 +167,24 @@ fun ParentalControlGroupScreen(
                     modifier = Modifier.width(searchWidth)
                 )
             }
-        }
-    ) {
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = SettingsDesignTokens.space24),
+                    verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
+                ) {
                 item {
                     ModeSelectorRow(
                         selectedMode = currentMode,
-                        onModeSelected = { currentMode = it }
+                        onModeSelected = { currentMode = it },
+                        firstFocusModifier = Modifier
+                            .focusRequester(firstContentFocusRequester)
+                            .focusProperties { up = headerBackFocusRequester }
+                            .onGloballyPositioned { firstContentPlaced = true },
                     )
                 }
 
@@ -220,14 +241,15 @@ fun ParentalControlGroupScreen(
                         }
                     }
                 }
+                }
             }
         }
-    }
 
-    SnackbarHost(
-        hostState = snackbarHostState,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = SettingsDesignTokens.space16),
+        )
+    }
 
     if (showPinDialog && pinAction != null) {
         PinDialog(
@@ -299,13 +321,15 @@ private fun contentTypeTabLabel(type: ContentType): String = when (type) {
 @Composable
 private fun ModeSelectorRow(
     selectedMode: CategoryControlsMode,
-    onModeSelected: (CategoryControlsMode) -> Unit
+    onModeSelected: (CategoryControlsMode) -> Unit,
+    firstFocusModifier: Modifier = Modifier,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         CategoryModeChip(
             label = stringResource(R.string.settings_category_mode_protection),
             selected = selectedMode == CategoryControlsMode.PROTECTION,
-            onClick = { onModeSelected(CategoryControlsMode.PROTECTION) }
+            onClick = { onModeSelected(CategoryControlsMode.PROTECTION) },
+            modifier = firstFocusModifier,
         )
         CategoryModeChip(
             label = stringResource(R.string.settings_category_mode_visibility),
@@ -319,14 +343,17 @@ private fun ModeSelectorRow(
 private fun CategoryModeChip(
     label: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     TvClickableSurface(
         onClick = onClick,
+        modifier = modifier,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Color(0xFF3E7BFA).copy(alpha = 0.18f) else MaterialTheme.colorScheme.surfaceVariant,
-            focusedContainerColor = Color(0xFF3E7BFA).copy(alpha = 0.28f)
+            containerColor = if (selected) colors.accent.copy(alpha = 0.18f) else colors.groupSurface,
+            focusedContainerColor = colors.focusedSurface,
         ),
         border = ClickableSurfaceDefaults.border(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -334,8 +361,8 @@ private fun CategoryModeChip(
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            color = if (selected) Color(0xFF7EB1FF) else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
+            color = if (selected) colors.accent else colors.primaryText,
+            modifier = Modifier.padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8)
         )
     }
 }
@@ -349,22 +376,23 @@ private fun ProtectionSummaryCard(
     onSave: () -> Unit,
     onReset: () -> Unit
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))
-            .padding(18.dp),
+            .background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
+            .padding(SettingsDesignTokens.space16),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
             text = selectedTypeLabel,
             style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFF7EB1FF)
+            color = colors.accent
         )
         Text(
             text = stringResource(R.string.settings_category_protection_summary_title),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = colors.primaryText
         )
         Text(
             text = if (hasParentalPin) {
@@ -373,7 +401,7 @@ private fun ProtectionSummaryCard(
                 stringResource(R.string.settings_category_protection_summary_body_no_pin)
             },
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = colors.secondaryText
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -407,27 +435,28 @@ private fun VisibilitySummaryCard(
     onHideAll: () -> Unit,
     onUnhideAll: () -> Unit
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))
-            .padding(18.dp),
+            .background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
+            .padding(SettingsDesignTokens.space16),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = selectedTypeLabel,
             style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFF7EB1FF)
+            color = colors.accent
         )
         Text(
             text = stringResource(R.string.settings_category_visibility_summary_title),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = colors.primaryText
         )
         Text(
             text = stringResource(R.string.settings_category_visibility_summary_body, hiddenCount),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = colors.secondaryText
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -456,20 +485,21 @@ private fun SettingsActionButton(
     emphasized: Boolean,
     onClick: () -> Unit
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = when {
-                !enabled -> MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
-                emphasized -> Color(0xFF3E7BFA).copy(alpha = 0.18f)
-                else -> MaterialTheme.colorScheme.surface
+                !enabled -> colors.groupSurface.copy(alpha = 0.55f)
+                emphasized -> colors.accent.copy(alpha = 0.18f)
+                else -> colors.groupSurface
             },
             focusedContainerColor = if (enabled) {
-                if (emphasized) Color(0xFF3E7BFA).copy(alpha = 0.28f) else MaterialTheme.colorScheme.surface
+                colors.focusedSurface
             } else {
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
+                colors.groupSurface.copy(alpha = 0.55f)
             }
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -478,11 +508,11 @@ private fun SettingsActionButton(
             text = label,
             style = MaterialTheme.typography.labelLarge,
             color = when {
-                !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
-                emphasized -> Color(0xFF7EB1FF)
-                else -> MaterialTheme.colorScheme.onSurface
+                !enabled -> colors.disabledText
+                emphasized -> colors.accent
+                else -> colors.primaryText
             },
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8)
         )
     }
 }
@@ -492,8 +522,9 @@ private fun CategoryProtectionCard(
     item: CategoryControlItem,
     onToggle: () -> Unit
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     var isFocused by remember { mutableStateOf(false) }
-    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else Color.Transparent
+    val borderColor = if (isFocused) colors.focusOutline else Color.Transparent
 
     TvClickableSurface(
         onClick = onToggle,
@@ -501,18 +532,18 @@ private fun CategoryProtectionCard(
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
-            .border(2.dp, borderColor, RoundedCornerShape(18.dp)),
+            .border(SettingsDesignTokens.focusStroke, borderColor, RoundedCornerShape(SettingsDesignTokens.groupRadius)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surface
+            containerColor = colors.groupSurface,
+            focusedContainerColor = colors.focusedSurface
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 16.dp),
+                .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -531,7 +562,7 @@ private fun CategoryProtectionCard(
                         Text(
                             text = stringResource(R.string.parental_group_auto_protected),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
+                            color = colors.error,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -540,7 +571,7 @@ private fun CategoryProtectionCard(
                 Text(
                     text = item.category.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = colors.primaryText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -554,9 +585,9 @@ private fun CategoryProtectionCard(
                 },
                 style = MaterialTheme.typography.labelLarge,
                 color = when {
-                    item.category.isAdult -> MaterialTheme.colorScheme.error
-                    item.isProtected -> Color(0xFF7EB1FF)
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    item.category.isAdult -> colors.error
+                    item.isProtected -> colors.accent
+                    else -> colors.secondaryText
                 }
             )
         }
@@ -568,26 +599,27 @@ private fun CategoryVisibilityCard(
     item: CategoryControlItem,
     onToggleHidden: () -> Unit
 ) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     var isFocused by remember { mutableStateOf(false) }
-    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else Color.Transparent
+    val borderColor = if (isFocused) colors.focusOutline else Color.Transparent
 
     TvClickableSurface(
         onClick = onToggleHidden,
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
-            .border(2.dp, borderColor, RoundedCornerShape(18.dp)),
+            .border(SettingsDesignTokens.focusStroke, borderColor, RoundedCornerShape(SettingsDesignTokens.groupRadius)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surface
+            containerColor = colors.groupSurface,
+            focusedContainerColor = colors.focusedSurface
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 16.dp),
+                .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -606,14 +638,14 @@ private fun CategoryVisibilityCard(
                         Text(
                             text = stringResource(R.string.settings_category_status_hidden),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF7EB1FF)
+                            color = colors.accent
                         )
                     }
                 }
                 Text(
                     text = item.category.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = colors.primaryText,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -626,7 +658,7 @@ private fun CategoryVisibilityCard(
                     stringResource(R.string.settings_hide_category)
                 },
                 style = MaterialTheme.typography.labelLarge,
-                color = if (item.isHidden) Color(0xFF7EB1FF) else MaterialTheme.colorScheme.onSurface
+                color = if (item.isHidden) colors.accent else colors.primaryText
             )
         }
     }
@@ -634,16 +666,17 @@ private fun CategoryVisibilityCard(
 
 @Composable
 private fun EmptyCategoryMessage() {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(18.dp))
-            .padding(18.dp)
+            .background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
+            .padding(SettingsDesignTokens.space16)
     ) {
         Text(
             text = stringResource(R.string.settings_category_controls_empty),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = colors.secondaryText
         )
     }
 }

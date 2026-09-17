@@ -1,16 +1,16 @@
 package com.streamvault.feature.settings.presentation
 
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.ui.semantics.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,13 +18,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,63 +36,49 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.AppColors
 
+/** One focus and activation target shared by touch, keyboard, and remote controls. */
 @Composable
-public fun SettingsSectionHeader(
-    title: String,
-    subtitle: String
+internal fun SettingsActionSurface(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = Primary
-        )
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-            color = OnSurfaceDim
-        )
-    }
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    TvClickableSurface(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.fillMaxWidth(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = colors.groupSurface,
+            focusedContainerColor = colors.focusedSurface,
+            disabledContainerColor = colors.groupSurface.copy(alpha = 0.58f)
+        ),
+        border = ClickableSurfaceDefaults.border(
+            focusedBorder = androidx.tv.material3.Border(
+                androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
+                shape = RoundedCornerShape(SettingsDesignTokens.groupRadius)
+            )
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+        content = content
+    )
 }
 
 @Composable
-public fun SettingsRow(label: String, value: String) {
-    val focusRequester = remember { FocusRequester() }
-    TvClickableSurface(
-        onClick = {},
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Primary.copy(alpha = 0.15f)
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .mouseClickable(
-                focusRequester = focusRequester,
-                onClick = {}
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-            Text(text = value, style = MaterialTheme.typography.bodyMedium, color = OnBackground)
-        }
+public fun SettingsRow(label: String, value: String, modifier: Modifier = Modifier) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    Column(modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.simpleRowMinHeight)
+        .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = colors.secondaryText)
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.primaryText)
     }
 }
 
@@ -105,42 +88,26 @@ public fun ClickableSettingsRow(
     value: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    indent: Dp = 0.dp
+    indent: Dp = 0.dp,
+    modifier: Modifier = Modifier,
 ) {
-    val focusRequester = remember { FocusRequester() }
-    TvClickableSurface(
-        onClick = { if (enabled) onClick() },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = if (enabled) Primary.copy(alpha = 0.15f) else Color.Transparent
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .mouseClickable(
-                focusRequester = focusRequester,
-                onClick = { if (enabled) onClick() }
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 8.dp + indent, end = 8.dp, top = 12.dp, bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (enabled) OnSurface else OnSurfaceDim
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (enabled) Primary else OnSurfaceDim
-            )
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    SettingsActionSurface(onClick = onClick, enabled = enabled, modifier = modifier) {
+        Row(Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
+            .padding(start = SettingsDesignTokens.space16 + indent, end = SettingsDesignTokens.space16,
+                top = SettingsDesignTokens.space8, bottom = SettingsDesignTokens.space8),
+            horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space16), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(label, style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = if (enabled) colors.primaryText else colors.disabledText)
+                if (value.isNotBlank()) Text(value, style = MaterialTheme.typography.bodySmall,
+                    color = if (enabled) colors.secondaryText else colors.disabledText)
+            }
+            androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                tint = if (enabled) colors.secondaryText else colors.disabledText,
+                modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -152,45 +119,36 @@ public fun SwitchSettingsRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
-    indent: Dp = 0.dp
+    indent: Dp = 0.dp,
+    modifier: Modifier = Modifier,
 ) {
-    val focusRequester = remember { FocusRequester() }
-    TvClickableSurface(
-        onClick = { if (enabled) onCheckedChange(!checked) },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = if (enabled) Primary.copy(alpha = 0.15f) else Color.Transparent
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .mouseClickable(
-                focusRequester = focusRequester,
-                onClick = { if (enabled) onCheckedChange(!checked) }
-            )
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    SettingsActionSurface(
+        onClick = { onCheckedChange(!checked) },
+        enabled = enabled,
+        modifier = modifier.semantics {
+            role = androidx.compose.ui.semantics.Role.Switch
+            toggleableState = androidx.compose.ui.state.ToggleableState(checked)
+        }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 8.dp + indent, end = 8.dp, top = 12.dp, bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (enabled) OnSurface else OnSurfaceDim
-                )
-                Text(text = value, style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
+        Row(Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
+            .padding(start = SettingsDesignTokens.space16 + indent, end = SettingsDesignTokens.space16,
+                top = SettingsDesignTokens.space8, bottom = SettingsDesignTokens.space8),
+            horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space16), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
+                    color = if (enabled) colors.primaryText else colors.disabledText)
+                if (value.isNotBlank()) Text(value, style = MaterialTheme.typography.bodySmall,
+                    color = if (enabled) colors.secondaryText else colors.disabledText)
             }
-            Switch(
-                checked = checked,
-                onCheckedChange = { if (enabled) onCheckedChange(it) },
-                enabled = enabled
-            )
+            Switch(checked = checked, onCheckedChange = null, enabled = enabled,
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedTrackColor = colors.accent,
+                    checkedThumbColor = colors.canvas,
+                    uncheckedTrackColor = colors.groupSurface,
+                    uncheckedThumbColor = colors.secondaryText,
+                    uncheckedBorderColor = colors.secondaryText
+                ))
         }
     }
 }
@@ -243,7 +201,7 @@ public fun LiveTvQuickFiltersDialog(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(12.dp))
+                                .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(12.dp))
                                 .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
                             Row(

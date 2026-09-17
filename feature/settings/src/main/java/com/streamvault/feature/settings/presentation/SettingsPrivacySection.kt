@@ -4,28 +4,11 @@ import com.streamvault.feature.settings.presentation.*
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Switch
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
-import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
 
 public fun LazyListScope.settingsPrivacySection(
     uiState: SettingsUiState,
@@ -36,7 +19,11 @@ public fun LazyListScope.settingsPrivacySection(
     onPendingActionChange: (ParentalAction?) -> Unit,
     onShowPinDialogChange: (Boolean) -> Unit,
     onShowLevelDialogChange: (Boolean) -> Unit,
-    onShowClearHistoryDialogChange: (Boolean) -> Unit
+    onShowClearHistoryDialogChange: (Boolean) -> Unit,
+    onManageCategories: (() -> Unit)? = null,
+    firstFocusModifier: Modifier = Modifier,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     item {
         ParentalControlCard(
@@ -62,101 +49,44 @@ public fun LazyListScope.settingsPrivacySection(
                     }
                 )
                 onShowPinDialogChange(true)
-            }
+            },
+            firstActionModifier = if (targetItemId == "privacy.protection_level") {
+                targetFocusModifier
+            } else {
+                firstFocusModifier
+            },
+            secondActionModifier = if (targetItemId == "privacy.pin") targetFocusModifier else Modifier,
         )
     }
     item {
-        HorizontalDivider(color = Color.White.copy(alpha = 0.07f), modifier = Modifier.padding(vertical = 4.dp))
-        TvClickableSurface(
-            onClick = onToggleIncognitoMode,
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_incognito_mode), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_incognito_mode_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.isIncognitoMode, onCheckedChange = null)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (onManageCategories != null) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_provider_category_controls_action),
+                    value = stringResource(R.string.settings_provider_category_controls_subtitle),
+                    onClick = onManageCategories,
+                    modifier = if (targetItemId in setOf(
+                            "sources.parental_categories",
+                            "privacy.category_protection",
+                            "privacy.category_visibility",
+                        )) {
+                        targetFocusModifier
+                    } else Modifier,
+                )
             }
-        }
-        Spacer(Modifier.height(2.dp))
-        TvClickableSurface(
-            onClick = onToggleXtreamTextClassification,
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_xtream_text_classification), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_xtream_text_classification_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.useXtreamTextClassification, onCheckedChange = null)
-            }
-        }
-        Spacer(Modifier.height(2.dp))
-        TvClickableSurface(
-            onClick = onToggleXtreamBase64TextCompatibility,
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_xtream_base64_compatibility), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_xtream_base64_compatibility_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Switch(checked = uiState.xtreamBase64TextCompatibility, onCheckedChange = null)
-            }
-        }
-        Spacer(Modifier.height(2.dp))
-        TvClickableSurface(
-            onClick = { onShowClearHistoryDialogChange(true) },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.Transparent,
-                focusedContainerColor = Primary.copy(alpha = 0.15f)
-            ),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = stringResource(R.string.settings_clear_history), style = MaterialTheme.typography.bodyMedium, color = OnSurface)
-                    Text(text = stringResource(R.string.settings_clear_history_subtitle), style = MaterialTheme.typography.bodySmall, color = OnBackground.copy(alpha = 0.6f))
-                }
-                Text(text = stringResource(R.string.settings_clear_history_confirm), style = MaterialTheme.typography.labelLarge, color = Primary)
-            }
+            SwitchSettingsRow(
+                label = stringResource(R.string.settings_incognito_mode),
+                value = stringResource(R.string.settings_incognito_mode_subtitle),
+                checked = uiState.isIncognitoMode,
+                onCheckedChange = { onToggleIncognitoMode() },
+                modifier = if (targetItemId == "privacy.incognito") targetFocusModifier else Modifier,
+            )
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_clear_history),
+                value = stringResource(R.string.settings_clear_history_subtitle),
+                onClick = { onShowClearHistoryDialogChange(true) },
+                modifier = if (targetItemId == "privacy.clear_history") targetFocusModifier else Modifier,
+            )
         }
     }
 }

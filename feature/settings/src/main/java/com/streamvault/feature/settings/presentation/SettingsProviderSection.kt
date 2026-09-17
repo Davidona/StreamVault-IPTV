@@ -38,7 +38,9 @@ public fun LazyListScope.providerSection(
     onEditProvider: (Provider) -> Unit,
     onNavigateToParentalControl: (Long) -> Unit,
     viewModel: SettingsViewModel,
-    providerState: SettingsProviderSectionState
+    providerState: SettingsProviderSectionState,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     if (uiState.providers.isEmpty()) {
         item {
@@ -79,7 +81,10 @@ public fun LazyListScope.providerSection(
                         provider = provider,
                         isSelected = provider.id == selectedProvider.id,
                         isActive = provider.id == uiState.activeProviderId,
-                        onClick = { selectedProviderId = provider.id }
+                        onClick = { selectedProviderId = provider.id },
+                        modifier = if (
+                            targetItemId == "sources.active_provider" && provider.id == selectedProvider.id
+                        ) targetFocusModifier else Modifier,
                     )
                 }
             }
@@ -116,7 +121,9 @@ public fun LazyListScope.providerSection(
                 },
                 onRefreshM3uClassification = {
                     viewModel.refreshProviderClassification(selectedProvider.id)
-                }
+                },
+                targetItemId = targetItemId,
+                targetFocusModifier = targetFocusModifier,
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -150,7 +157,9 @@ public fun LazyListScope.providerSection(
                 },
                 onMoveProvider = { profileId, providerId, moveUp ->
                     viewModel.moveCombinedProvider(profileId, providerId, moveUp)
-                }
+                },
+                targetItemId = targetItemId,
+                targetFocusModifier = targetFocusModifier,
             )
         }
     }
@@ -164,7 +173,9 @@ public fun LazyListScope.providerSection(
                 focusedContainerColor = Primary.copy(alpha = 0.3f)
             ),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().then(
+                if (targetItemId == "sources.add") targetFocusModifier else Modifier
+            )
         ) {
             Row(
                 modifier = Modifier

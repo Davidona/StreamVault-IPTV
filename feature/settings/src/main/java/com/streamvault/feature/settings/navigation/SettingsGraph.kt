@@ -24,7 +24,12 @@ fun NavGraphBuilder.registerSettingsGraph(
     actions: NavigationActions,
     platformHost: SettingsPlatformHost,
     navigationDestinations: List<UiDestination>,
-    settingsContent: @Composable (backupUri: String?, SettingsPlatformHost, List<UiDestination>) -> Unit,
+    settingsContent: @Composable (
+        backupUri: String?,
+        SettingsPlatformHost,
+        List<UiDestination>,
+        onBack: () -> Unit,
+    ) -> Unit,
     parentalControlContent: @Composable (
         onBack: () -> Unit,
         navigationDestinations: List<UiDestination>,
@@ -37,7 +42,7 @@ fun NavGraphBuilder.registerSettingsGraph(
         )
     ) { backStackEntry ->
         val backupUri = backStackEntry.arguments?.getString("backupUri")?.takeIf { it.isNotBlank() }
-        settingsContent(backupUri, platformHost, navigationDestinations)
+        settingsContent(backupUri, platformHost, navigationDestinations, actions::back)
     }
 
     composable(

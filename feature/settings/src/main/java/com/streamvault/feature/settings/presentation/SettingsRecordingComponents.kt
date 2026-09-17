@@ -22,7 +22,7 @@ public fun RecordingMetaPill(label: String, value: String) {
     Column(
         modifier = Modifier
             .widthIn(min = 92.dp, max = 160.dp)
-            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(10.dp))
+            .background(SurfaceElevated, RoundedCornerShape(10.dp))
             .padding(horizontal = 7.dp, vertical = 5.dp)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = OnSurfaceDim)
@@ -62,11 +62,11 @@ public fun RecordingActionButton(
         ),
         border = ButtonDefaults.border(
             border = Border(
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
+                border = BorderStroke(1.dp, com.streamvault.core.ui.design.AppColors.Divider),
                 shape = RoundedCornerShape(10.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
                 shape = RoundedCornerShape(10.dp)
             )
         ),

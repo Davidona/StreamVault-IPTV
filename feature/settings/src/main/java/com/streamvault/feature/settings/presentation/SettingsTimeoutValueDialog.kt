@@ -80,7 +80,7 @@ fun TimeoutValueDialog(
                         stringResource(R.string.settings_timeout_validation)
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isValid) OnSurfaceDim else Color(0xFFFF8A80)
+                    color = if (isValid) OnSurfaceDim else com.streamvault.core.ui.theme.ErrorColor
                 )
             }
         },
@@ -146,8 +146,8 @@ private fun NumericSettingsTextField(
         },
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.12f)
+            containerColor = com.streamvault.core.ui.theme.SurfaceElevated,
+            focusedContainerColor = com.streamvault.core.ui.theme.SurfaceHighlight
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         modifier = Modifier
@@ -170,7 +170,7 @@ private fun NumericSettingsTextField(
                         onValueChange(digitsOnly)
                     }
                 },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = OnSurface),
                 singleLine = true,
                 cursorBrush = SolidColor(Primary),
                 keyboardOptions = KeyboardOptions(

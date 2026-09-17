@@ -36,7 +36,9 @@ public fun ParentalControlCard(
     hasParentalPin: Boolean,
     hasActiveProvider: Boolean,
     onChangeLevel: () -> Unit,
-    onChangePin: () -> Unit
+    onChangePin: () -> Unit,
+    firstActionModifier: Modifier = Modifier,
+    secondActionModifier: Modifier = Modifier,
 ) {
     Column(
         modifier = Modifier
@@ -67,6 +69,7 @@ public fun ParentalControlCard(
 
             TvClickableSurface(
                 onClick = onChangeLevel,
+                modifier = firstActionModifier,
                 shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp)),
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = Secondary.copy(alpha = 0.2f),
@@ -83,7 +86,7 @@ public fun ParentalControlCard(
             }
         }
 
-        HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+        HorizontalDivider(color = com.streamvault.core.ui.design.AppColors.Divider)
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -94,6 +97,7 @@ public fun ParentalControlCard(
 
             TvClickableSurface(
                 onClick = onChangePin,
+                modifier = secondActionModifier,
                 shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp)),
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = Primary.copy(alpha = 0.2f),

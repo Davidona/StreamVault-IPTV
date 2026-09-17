@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
@@ -35,19 +36,17 @@ public fun LazyListScope.settingsBackupSection(
     onShareBackup: () -> Unit,
     onRestoreBackup: () -> Unit,
     onCreateBackupUsb: (() -> Unit)? = null,
-    onRestoreBackupUsb: (() -> Unit)? = null
+    onRestoreBackupUsb: (() -> Unit)? = null,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     item {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
             modifier = Modifier.fillMaxWidth()
         ) {
-            SettingsSectionHeader(
-                title = stringResource(R.string.settings_backup_restore),
-                subtitle = stringResource(R.string.settings_backup_subtitle)
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 BackupActionCard(
@@ -56,7 +55,9 @@ public fun LazyListScope.settingsBackupSection(
                     subtitle = stringResource(R.string.settings_backup_subtitle),
                     accent = Primary,
                     onClick = onCreateBackup,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth().then(
+                        if (targetItemId == "backup.create") targetFocusModifier else Modifier
+                    )
                 )
                 BackupActionCard(
                     icon = "\u21aa",
@@ -64,7 +65,9 @@ public fun LazyListScope.settingsBackupSection(
                     subtitle = stringResource(R.string.settings_backup_share_subtitle),
                     accent = Primary,
                     onClick = onShareBackup,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth().then(
+                        if (targetItemId == "backup.share") targetFocusModifier else Modifier
+                    )
                 )
             }
             BackupActionCard(
@@ -73,7 +76,9 @@ public fun LazyListScope.settingsBackupSection(
                 subtitle = stringResource(R.string.settings_restore_subtitle),
                 accent = Secondary,
                 onClick = onRestoreBackup,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().then(
+                    if (targetItemId == "backup.restore") targetFocusModifier else Modifier
+                )
             )
             uiState.backupRestoreJobs
                 .filter { job -> job.status != "COMPLETE" || job.providers.any { provider -> provider.items.any { it.status != "APPLIED" && it.status != "DISMISSED" } } }
@@ -83,38 +88,43 @@ public fun LazyListScope.settingsBackupSection(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Restore ${job.jobId.take(8)} · ${job.status}",
+                            text = stringResource(R.string.settings_restore_job_status, job.jobId.take(8), job.status),
                             style = MaterialTheme.typography.titleMedium,
                             color = OnSurface
                         )
                         job.providers.forEach { provider ->
                             val waiting = provider.pendingCount + provider.unresolvedCount + provider.failedCount
                             Text(
-                                text = "${provider.providerIdentityKey.substringBefore('|')} — " +
-                                    "${provider.appliedCount} applied, $waiting waiting (${provider.failedCount} failed)",
+                                text = stringResource(
+                                    R.string.settings_restore_provider_status,
+                                    provider.providerIdentityKey.substringBefore('|'),
+                                    provider.appliedCount,
+                                    waiting,
+                                    provider.failedCount,
+                                ),
                                 color = OnSurfaceDim
                             )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 provider.localProviderId?.let { providerId ->
                                     BackupActionCard(
                                         icon = "\u21aa",
-                                        title = "Retry",
-                                        subtitle = "Try available catalog data",
+                                        title = stringResource(R.string.settings_restore_retry),
+                                        subtitle = stringResource(R.string.settings_restore_retry_description),
                                         accent = Primary,
                                         onClick = { viewModel.retryRestoreProvider(providerId) },
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 }
                                     BackupActionCard(
                                         icon = "×",
-                                    title = "Dismiss provider",
-                                    subtitle = "Discard unresolved instructions",
+                                    title = stringResource(R.string.settings_restore_dismiss_provider),
+                                    subtitle = stringResource(R.string.settings_restore_dismiss_provider_description),
                                     accent = Secondary,
                                     onClick = { viewModel.dismissRestoreProvider(job.jobId, provider.providerIdentityKey) },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                             provider.items
@@ -122,7 +132,9 @@ public fun LazyListScope.settingsBackupSection(
                                 .forEach { item ->
                                     BackupActionCard(
                                         icon = "!",
-                                        title = "${item.section}${item.contentType?.let { " · $it" }.orEmpty()}",
+                                        title = item.contentType?.let {
+                                            stringResource(R.string.settings_restore_item_title, item.section, it)
+                                        } ?: item.section,
                                         subtitle = item.lastError ?: item.status,
                                         accent = Secondary,
                                         onClick = { viewModel.dismissRestoreItem(item.id) },
@@ -132,8 +144,8 @@ public fun LazyListScope.settingsBackupSection(
                         }
                         BackupActionCard(
                             icon = "×",
-                            title = "Dismiss entire restore",
-                            subtitle = "Discard all remaining instructions",
+                            title = stringResource(R.string.settings_restore_dismiss_job),
+                            subtitle = stringResource(R.string.settings_restore_dismiss_job_description),
                             accent = Secondary,
                             onClick = { viewModel.dismissRestoreJob(job.jobId) },
                             modifier = Modifier.fillMaxWidth()
@@ -146,11 +158,13 @@ public fun LazyListScope.settingsBackupSection(
                 subtitle = stringResource(R.string.settings_manage_local_backups_subtitle),
                 accent = OnSurface,
                 onClick = onManageLocalBackups,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().then(
+                    if (targetItemId == "backup.manage_local") targetFocusModifier else Modifier
+                )
             )
             if (onCreateBackupUsb != null && onRestoreBackupUsb != null) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     BackupActionCard(
@@ -159,7 +173,9 @@ public fun LazyListScope.settingsBackupSection(
                         subtitle = stringResource(R.string.settings_backup_usb_subtitle),
                         accent = Primary,
                         onClick = onCreateBackupUsb,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth().then(
+                            if (targetItemId == "backup.usb_create") targetFocusModifier else Modifier
+                        )
                     )
                     BackupActionCard(
                         icon = "\u2193",
@@ -167,7 +183,9 @@ public fun LazyListScope.settingsBackupSection(
                         subtitle = stringResource(R.string.settings_restore_usb_subtitle),
                         accent = Secondary,
                         onClick = onRestoreBackupUsb,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth().then(
+                            if (targetItemId == "backup.usb_restore") targetFocusModifier else Modifier
+                        )
                     )
                 }
             }
@@ -182,16 +200,14 @@ public fun LazyListScope.settingsDriveBackupSection(
     onPush: () -> Unit,
     onPull: () -> Unit,
     onManageBackups: () -> Unit,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     item(key = "settings_drive_section") {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
             modifier = Modifier.fillMaxWidth()
         ) {
-            SettingsSectionHeader(
-                title = stringResource(R.string.settings_drive_section_title),
-                subtitle = stringResource(R.string.settings_drive_section_subtitle)
-            )
             when (val auth = uiState.driveAuthState) {
                 is DriveAuthState.SignedOut, is DriveAuthState.Pending -> {
                     BackupActionCard(
@@ -200,7 +216,9 @@ public fun LazyListScope.settingsDriveBackupSection(
                         subtitle = stringResource(R.string.settings_drive_signin_description),
                         accent = Primary,
                         onClick = onSignIn,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().then(
+                            if (targetItemId == "backup.drive_auth") targetFocusModifier else Modifier
+                        )
                     )
                 }
                 is DriveAuthState.SignedIn -> {
@@ -211,7 +229,8 @@ public fun LazyListScope.settingsDriveBackupSection(
                         accountLabel = accountLabel,
                         lastPushAtMs = uiState.driveSyncStatus.lastPushAtMs,
                         lastPullAtMs = uiState.driveSyncStatus.lastPullAtMs,
-                        onSignOut = onSignOut
+                        onSignOut = onSignOut,
+                        actionModifier = if (targetItemId == "backup.drive_auth") targetFocusModifier else Modifier,
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -223,7 +242,9 @@ public fun LazyListScope.settingsDriveBackupSection(
                             subtitle = stringResource(R.string.settings_drive_push_subtitle),
                             accent = Primary,
                             onClick = onPush,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).then(
+                                if (targetItemId == "backup.drive_push") targetFocusModifier else Modifier
+                            )
                         )
                         BackupActionCard(
                             icon = "\u2193",
@@ -231,7 +252,9 @@ public fun LazyListScope.settingsDriveBackupSection(
                             subtitle = stringResource(R.string.settings_drive_pull_subtitle),
                             accent = Secondary,
                             onClick = onPull,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).then(
+                                if (targetItemId == "backup.drive_pull") targetFocusModifier else Modifier
+                            )
                         )
                     }
                     BackupActionCard(
@@ -240,7 +263,9 @@ public fun LazyListScope.settingsDriveBackupSection(
                         subtitle = stringResource(R.string.settings_manage_drive_backups_subtitle),
                         accent = OnSurface,
                         onClick = onManageBackups,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().then(
+                            if (targetItemId == "backup.drive_manage") targetFocusModifier else Modifier
+                        )
                     )
                 }
             }
@@ -269,7 +294,8 @@ private fun DriveAccountRow(
     accountLabel: String,
     lastPushAtMs: Long?,
     lastPullAtMs: Long?,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    actionModifier: Modifier = Modifier,
 ) {
     val syncSummary = formatLastSync(lastPushAtMs, lastPullAtMs)
     Row(
@@ -291,10 +317,11 @@ private fun DriveAccountRow(
         }
         TvClickableSurface(
             onClick = onSignOut,
+            modifier = actionModifier,
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.06f),
-                focusedContainerColor = Color.White.copy(alpha = 0.18f)
+                containerColor = com.streamvault.core.ui.theme.SurfaceElevated,
+                focusedContainerColor = com.streamvault.core.ui.theme.SurfaceHighlight
             ),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
@@ -332,22 +359,14 @@ private fun BackupActionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TvClickableSurface(
-        onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = accent.copy(alpha = 0.12f),
-            focusedContainerColor = accent.copy(alpha = 0.28f)
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = modifier
-    ) {
+    SettingsActionSurface(onClick = onClick, modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
+                .heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
+                .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space12)
         ) {
             Text(
                 text = icon,
@@ -377,6 +396,7 @@ private fun BackupActionCard(
 
 public fun LazyListScope.settingsAboutSection(
     uiState: SettingsUiState,
+    page: SettingsPage? = null,
     context: Context,
     appVersionLabel: String,
     buildVerificationLabel: String,
@@ -389,144 +409,161 @@ public fun LazyListScope.settingsAboutSection(
     onRefreshDownloadState: () -> Unit,
     onViewCrashReport: () -> Unit,
     onShareCrashReport: () -> Unit,
-    onDeleteCrashReport: () -> Unit
+    onDeleteCrashReport: () -> Unit,
+    onCloseApp: () -> Unit = {},
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
-    item {
-        val downloadStatus = uiState.appUpdate.downloadStatus
-        LaunchedEffect(downloadStatus) {
-            if (downloadStatus == com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus.DOWNLOADING) {
-                while (true) {
-                    kotlinx.coroutines.delay(2000L)
-                    onRefreshDownloadState()
-                }
-            }
-        }
-        SettingsSectionHeader(
-            title = stringResource(R.string.settings_updates_title),
-            subtitle = stringResource(R.string.settings_updates_subtitle)
-        )
-        SettingsRow(label = stringResource(R.string.settings_app_version), value = appVersionLabel)
-        SwitchSettingsRow(
-            label = stringResource(R.string.settings_update_auto_check),
-            value = stringResource(
-                if (uiState.autoCheckAppUpdates) R.string.settings_enabled else R.string.settings_disabled
-            ),
-            checked = uiState.autoCheckAppUpdates,
-            onCheckedChange = onSetAutoCheckAppUpdates
-        )
-        if (uiState.autoCheckAppUpdates) {
-            SwitchSettingsRow(
-                label = stringResource(R.string.settings_update_auto_download),
-                value = stringResource(
-                    if (uiState.autoDownloadAppUpdates) R.string.settings_enabled else R.string.settings_disabled
-                ),
-                checked = uiState.autoDownloadAppUpdates,
-                onCheckedChange = onSetAutoDownloadAppUpdates
-            )
-        }
-        SettingsRow(
-            label = stringResource(R.string.settings_update_latest_release),
-            value = formatLatestReleaseLabel(uiState.appUpdate, context)
-        )
-        SettingsRow(
-            label = stringResource(R.string.settings_update_status),
-            value = formatUpdateStatusLabel(uiState.appUpdate, context)
-        )
-        SettingsRow(
-            label = stringResource(R.string.settings_update_last_checked),
-            value = formatUpdateCheckTimeLabel(uiState.appUpdate.lastCheckedAt, context)
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_update_check_now),
-            value = stringResource(
-                if (uiState.isCheckingForUpdates) R.string.settings_update_checking else R.string.settings_update_check_action
-            ),
-            onClick = {
-                if (!uiState.isCheckingForUpdates) {
-                    onCheckForUpdates()
-                }
-            }
-        )
-        if (shouldShowUpdateDownloadAction(uiState.appUpdate)) {
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_update_download),
-                value = formatUpdateDownloadLabel(uiState.appUpdate, context),
-                onClick = {
-                    when (uiState.appUpdate.latestActionState()) {
-                        com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_LATEST,
-                        com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_PERMISSION_REQUIRED -> onInstallDownloadedUpdate()
-                        com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOAD_LATEST -> onDownloadLatestUpdate()
-                        com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOADING,
-                        com.streamvault.feature.settings.api.SettingsUpdateActionState.NONE -> Unit
+    if (page == null || page == SettingsPage.UPDATES) item {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            val downloadStatus = uiState.appUpdate.downloadStatus
+            LaunchedEffect(downloadStatus) {
+                if (downloadStatus == com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus.DOWNLOADING) {
+                    while (true) {
+                        kotlinx.coroutines.delay(2000L)
+                        onRefreshDownloadState()
                     }
                 }
-            )
-        }
-        if (!uiState.appUpdate.releaseUrl.isNullOrBlank()) {
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_update_view_release),
-                value = uiState.appUpdate.latestVersionName ?: stringResource(R.string.settings_update_release_notes),
-                onClick = { onOpenUri(uiState.appUpdate.releaseUrl.orEmpty()) }
-            )
-        }
-        if (!uiState.appUpdate.errorMessage.isNullOrBlank()) {
+            }
+            SettingsRow(label = stringResource(R.string.settings_app_version), value = appVersionLabel)
+            SwitchSettingsRow(
+                label = stringResource(R.string.settings_update_auto_check),
+                value = stringResource(
+                    if (uiState.autoCheckAppUpdates) R.string.settings_enabled else R.string.settings_disabled
+                ),
+                checked = uiState.autoCheckAppUpdates,
+                onCheckedChange = onSetAutoCheckAppUpdates
+            ,
+                modifier = if (targetItemId == "about.auto_update_check") targetFocusModifier else Modifier,)
+            if (uiState.autoCheckAppUpdates) {
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_update_auto_download),
+                    value = stringResource(
+                        if (uiState.autoDownloadAppUpdates) R.string.settings_enabled else R.string.settings_disabled
+                    ),
+                    checked = uiState.autoDownloadAppUpdates,
+                    onCheckedChange = onSetAutoDownloadAppUpdates
+                ,
+                    modifier = if (targetItemId == "about.auto_update_download") targetFocusModifier else Modifier,)
+            }
             SettingsRow(
-                label = stringResource(R.string.settings_update_error),
-                value = uiState.appUpdate.errorMessage.orEmpty()
+                label = stringResource(R.string.settings_update_latest_release),
+                value = formatLatestReleaseLabel(uiState.appUpdate, context)
             )
+            SettingsRow(
+                label = stringResource(R.string.settings_update_status),
+                value = formatUpdateStatusLabel(uiState.appUpdate, context)
+            )
+            SettingsRow(
+                label = stringResource(R.string.settings_update_last_checked),
+                value = formatUpdateCheckTimeLabel(uiState.appUpdate.lastCheckedAt, context)
+            )
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_update_check_now),
+                value = stringResource(
+                    if (uiState.isCheckingForUpdates) R.string.settings_update_checking else R.string.settings_update_check_action
+                ),
+                onClick = {
+                    if (!uiState.isCheckingForUpdates) {
+                        onCheckForUpdates()
+                    }
+                }
+            ,
+                modifier = if (targetItemId == "about.check_update") targetFocusModifier else Modifier,)
+            if (shouldShowUpdateDownloadAction(uiState.appUpdate)) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_update_download),
+                    value = formatUpdateDownloadLabel(uiState.appUpdate, context),
+                    onClick = {
+                        when (uiState.appUpdate.latestActionState()) {
+                            com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_LATEST,
+                            com.streamvault.feature.settings.api.SettingsUpdateActionState.INSTALL_PERMISSION_REQUIRED -> onInstallDownloadedUpdate()
+                            com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOAD_LATEST -> onDownloadLatestUpdate()
+                            com.streamvault.feature.settings.api.SettingsUpdateActionState.DOWNLOADING,
+                            com.streamvault.feature.settings.api.SettingsUpdateActionState.NONE -> Unit
+                        }
+                    }
+                ,
+                    modifier = if (targetItemId == "about.download_install") targetFocusModifier else Modifier,)
+            }
+            if (!uiState.appUpdate.releaseUrl.isNullOrBlank()) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_update_view_release),
+                    value = uiState.appUpdate.latestVersionName ?: stringResource(R.string.settings_update_release_notes),
+                    onClick = { onOpenUri(uiState.appUpdate.releaseUrl.orEmpty()) }
+                ,
+                    modifier = if (targetItemId == "about.release") targetFocusModifier else Modifier,)
+            }
+            if (!uiState.appUpdate.errorMessage.isNullOrBlank()) {
+                SettingsRow(
+                    label = stringResource(R.string.settings_update_error),
+                    value = uiState.appUpdate.errorMessage.orEmpty()
+                )
+            }
         }
     }
 
-    item {
-        SettingsSectionHeader(
-            title = stringResource(R.string.settings_crash_reports_title),
-            subtitle = stringResource(R.string.settings_crash_reports_subtitle)
-        )
-        if (uiState.crashReport.hasReport) {
-            SettingsRow(
-                label = stringResource(R.string.settings_crash_report_latest),
-                value = uiState.crashReport.timestamp
-            )
-            SettingsRow(
-                label = stringResource(R.string.settings_crash_report_exception),
-                value = uiState.crashReport.exception.substringAfterLast('.')
-            )
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_crash_report_view),
-                value = stringResource(R.string.settings_crash_report_available),
-                onClick = onViewCrashReport
-            )
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_crash_report_share),
-                value = uiState.crashReport.fileName,
-                onClick = onShareCrashReport
-            )
-            ClickableSettingsRow(
-                label = stringResource(R.string.settings_crash_report_delete),
-                value = stringResource(R.string.settings_crash_report_delete_value),
-                onClick = onDeleteCrashReport
-            )
-        } else {
-            SettingsRow(
-                label = stringResource(R.string.settings_crash_report_latest),
-                value = stringResource(R.string.settings_crash_report_none)
-            )
+    if (page == null || page == SettingsPage.REPORTS) item {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (uiState.crashReport.hasReport) {
+                SettingsRow(
+                    label = stringResource(R.string.settings_crash_report_latest),
+                    value = uiState.crashReport.timestamp
+                )
+                SettingsRow(
+                    label = stringResource(R.string.settings_crash_report_exception),
+                    value = uiState.crashReport.exception.substringAfterLast('.')
+                )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_crash_report_view),
+                    value = stringResource(R.string.settings_crash_report_available),
+                    onClick = onViewCrashReport
+                ,
+                    modifier = if (targetItemId == "support.crash_view") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_crash_report_share),
+                    value = uiState.crashReport.fileName,
+                    onClick = onShareCrashReport
+                ,
+                    modifier = if (targetItemId == "support.crash_share") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_crash_report_delete),
+                    value = stringResource(R.string.settings_crash_report_delete_value),
+                    onClick = onDeleteCrashReport
+                ,
+                    modifier = if (targetItemId == "support.crash_delete") targetFocusModifier else Modifier,)
+            } else {
+                SettingsRow(
+                    label = stringResource(R.string.settings_crash_report_latest),
+                    value = stringResource(R.string.settings_crash_report_none)
+                )
+            }
         }
     }
 
-    item {
-        SettingsRow(label = stringResource(R.string.settings_build), value = stringResource(R.string.settings_build_desc))
-        SettingsRow(label = stringResource(R.string.settings_build_verification), value = buildVerificationLabel)
-        SettingsRow(label = stringResource(R.string.settings_developed_by), value = stringResource(R.string.settings_developer_name))
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_github),
-            value = stringResource(R.string.settings_github_url),
-            onClick = { onOpenUri(context.getString(R.string.settings_github_url)) }
-        )
-        ClickableSettingsRow(
-            label = stringResource(R.string.settings_donate),
-            value = stringResource(R.string.settings_donate_url),
-            onClick = { onOpenUri(context.getString(R.string.settings_donate_url)) }
-        )
+    if (page == null || page == SettingsPage.APP_INFO) item {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            SettingsRow(label = stringResource(R.string.settings_build), value = stringResource(R.string.settings_build_desc))
+            SettingsRow(label = stringResource(R.string.settings_build_verification), value = buildVerificationLabel)
+            SettingsRow(label = stringResource(R.string.settings_developed_by), value = stringResource(R.string.settings_developer_name))
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_github),
+                value = stringResource(R.string.settings_github_url),
+                onClick = { onOpenUri(context.getString(R.string.settings_github_url)) }
+            ,
+                modifier = if (targetItemId == "about.github") targetFocusModifier else Modifier,)
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_donate),
+                value = stringResource(R.string.settings_donate_url),
+                onClick = { onOpenUri(context.getString(R.string.settings_donate_url)) }
+            ,
+                modifier = if (targetItemId == "about.donate") targetFocusModifier else Modifier,)
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_close_app),
+                value = "",
+                onClick = onCloseApp
+            ,
+                modifier = if (targetItemId == "about.close_app") targetFocusModifier else Modifier,)
+        }
     }
 }

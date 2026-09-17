@@ -153,7 +153,7 @@ private fun DashboardShelfCustomizationRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 10.dp)
-            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(16.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         Row(
@@ -211,18 +211,18 @@ private fun DashboardShelfActionChip(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (emphasized) Primary.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.05f),
-            focusedContainerColor = if (emphasized) Primary.copy(alpha = 0.24f) else Color.White.copy(alpha = 0.1f),
+            containerColor = if (emphasized) Primary.copy(alpha = 0.16f) else com.streamvault.core.ui.theme.SurfaceElevated,
+            focusedContainerColor = if (emphasized) Primary.copy(alpha = 0.24f) else com.streamvault.core.ui.theme.SurfaceHighlight,
             contentColor = OnSurface,
             focusedContentColor = OnSurface
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+                border = BorderStroke(1.dp, com.streamvault.core.ui.design.AppColors.Divider),
                 shape = RoundedCornerShape(12.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                 shape = RoundedCornerShape(12.dp)
             )
         )

@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,8 +31,13 @@ import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.EpgSource
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.XmltvTimezonePolicy
 
 @Composable
@@ -43,7 +49,8 @@ internal fun EpgSourceCard(
     onRefresh: () -> Unit,
     onUpdateTimezone: (String?, () -> Unit, () -> Unit) -> Unit,
     onSetPendingDelete: (Boolean) -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var editingTimezone by remember(source.id) { mutableStateOf(false) }
     var timezoneInput by remember(source.id, source.timezonePolicy, source.timezoneId) {
@@ -57,21 +64,24 @@ internal fun EpgSourceCard(
     }
     var savingTimezone by remember(source.id) { mutableStateOf(false) }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(SurfaceElevated)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(source.name, style = MaterialTheme.typography.titleSmall, color = Color.White)
+                    Text(source.name, style = MaterialTheme.typography.titleSmall, color = OnSurface)
                     Text(displayableEpgUrl(source.url), style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim, maxLines = 1)
                     Text(
                         text = when (source.timezonePolicy) {
-                            XmltvTimezonePolicy.REQUIRE_OFFSET -> "Timezone: XMLTV offset required"
-                            XmltvTimezonePolicy.UTC -> "Timezone: UTC"
-                            XmltvTimezonePolicy.EXPLICIT_ZONE -> "Timezone: ${source.timezoneId}"
+                            XmltvTimezonePolicy.REQUIRE_OFFSET -> stringResource(R.string.settings_epg_timezone_xmltv)
+                            XmltvTimezonePolicy.UTC -> stringResource(R.string.settings_epg_timezone_value, "UTC")
+                            XmltvTimezonePolicy.EXPLICIT_ZONE -> stringResource(
+                                R.string.settings_epg_timezone_value,
+                                source.timezoneId.orEmpty(),
+                            )
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = OnSurfaceDim
@@ -80,7 +90,7 @@ internal fun EpgSourceCard(
                         EpgSourceTextField(
                             value = timezoneInput,
                             onValueChange = { timezoneInput = it },
-                            placeholder = "IANA timezone, UTC, or blank to require XMLTV offsets"
+                                    placeholder = stringResource(R.string.settings_epg_timezone_hint)
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TvClickableSurface(
@@ -104,7 +114,10 @@ internal fun EpgSourceCard(
                                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                             ) {
                                 Text(
-                                    if (savingTimezone) "Saving..." else "Save timezone",
+                                    stringResource(
+                                        if (savingTimezone) R.string.settings_epg_timezone_saving
+                                        else R.string.settings_epg_timezone_save
+                                    ),
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Primary
@@ -115,13 +128,13 @@ internal fun EpgSourceCard(
                                 enabled = !savingTimezone,
                                 shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
                                 colors = ClickableSurfaceDefaults.colors(
-                                    containerColor = Color.White.copy(alpha = 0.08f),
-                                    focusedContainerColor = Color.White.copy(alpha = 0.15f)
+                                    containerColor = SurfaceElevated,
+                                    focusedContainerColor = SurfaceHighlight
                                 ),
                                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                             ) {
                                 Text(
-                                    "Cancel",
+                                    stringResource(R.string.settings_cancel),
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = OnSurfaceDim
@@ -130,11 +143,19 @@ internal fun EpgSourceCard(
                         }
                     }
                     if (source.lastError != null) {
-                        Text("Error: ${source.lastError}", style = MaterialTheme.typography.bodySmall, color = Color(0xFFEF5350))
+                        Text(
+                            stringResource(R.string.settings_epg_source_error, source.lastError.orEmpty()),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ErrorColor,
+                        )
                     }
                     if (source.lastSuccessAt > 0L) {
                         val ago = (System.currentTimeMillis() - source.lastSuccessAt) / 60000
-                        Text("Last synced: ${ago}m ago", style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
+                        Text(
+                            stringResource(R.string.settings_epg_last_synced_minutes, ago),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnSurfaceDim,
+                        )
                     }
                 }
                 val sourceActionShape = RoundedCornerShape(8.dp)
@@ -143,14 +164,14 @@ internal fun EpgSourceCard(
                         onClick = { editingTimezone = !editingTimezone },
                         shape = ClickableSurfaceDefaults.shape(sourceActionShape),
                         colors = ClickableSurfaceDefaults.colors(
-                            containerColor = Color.White.copy(alpha = 0.08f),
-                            focusedContainerColor = Color.White.copy(alpha = 0.15f)
+                            containerColor = SurfaceElevated,
+                            focusedContainerColor = SurfaceHighlight
                         ),
                         border = epgActionBorder(sourceActionShape),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                     ) {
                         Text(
-                            "Timezone",
+                            stringResource(R.string.settings_epg_timezone_action),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = OnSurfaceDim
@@ -160,17 +181,19 @@ internal fun EpgSourceCard(
                         onClick = { onToggleEnabled(!source.enabled) },
                         shape = ClickableSurfaceDefaults.shape(sourceActionShape),
                         colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (source.enabled) Color(0xFF66BB6A).copy(alpha = 0.2f) else Color.White.copy(alpha = 0.08f),
-                            focusedContainerColor = if (source.enabled) Color(0xFF66BB6A).copy(alpha = 0.4f) else Color.White.copy(alpha = 0.15f)
+                            containerColor = if (source.enabled) Primary.copy(alpha = 0.2f) else SurfaceElevated,
+                            focusedContainerColor = if (source.enabled) Primary.copy(alpha = 0.4f) else SurfaceHighlight
                         ),
                         border = epgActionBorder(sourceActionShape),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                     ) {
                         Text(
-                            if (source.enabled) "ON" else "OFF",
+                            stringResource(
+                                if (source.enabled) R.string.settings_enabled else R.string.settings_disabled
+                            ),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (source.enabled) Color(0xFF66BB6A) else OnSurfaceDim
+                            color = if (source.enabled) Primary else OnSurfaceDim
                         )
                     }
                     TvClickableSurface(
@@ -185,7 +208,9 @@ internal fun EpgSourceCard(
                         enabled = !isRefreshing
                     ) {
                         Text(
-                            if (isRefreshing) "..." else "Refresh",
+                            stringResource(
+                                if (isRefreshing) R.string.settings_epg_refreshing else R.string.settings_epg_refresh
+                            ),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = Primary
@@ -196,38 +221,38 @@ internal fun EpgSourceCard(
                             onClick = { onSetPendingDelete(false) },
                             shape = ClickableSurfaceDefaults.shape(sourceActionShape),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color.White.copy(alpha = 0.08f),
-                                focusedContainerColor = Color.White.copy(alpha = 0.15f)
+                                containerColor = SurfaceElevated,
+                                focusedContainerColor = SurfaceHighlight
                             ),
                             border = epgActionBorder(sourceActionShape),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                         ) {
-                            Text("Cancel", modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = OnSurfaceDim)
+                            Text(stringResource(R.string.settings_cancel), modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = OnSurfaceDim)
                         }
                         TvClickableSurface(
                             onClick = onDelete,
                             shape = ClickableSurfaceDefaults.shape(sourceActionShape),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color(0xFFEF5350).copy(alpha = 0.25f),
-                                focusedContainerColor = Color(0xFFEF5350).copy(alpha = 0.45f)
+                                containerColor = ErrorColor.copy(alpha = 0.25f),
+                                focusedContainerColor = ErrorColor.copy(alpha = 0.45f)
                             ),
                             border = epgActionBorder(sourceActionShape),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                         ) {
-                            Text("Confirm Delete", modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = Color(0xFFEF5350))
+                            Text(stringResource(R.string.settings_epg_confirm_delete), modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = ErrorColor)
                         }
                     } else {
                         TvClickableSurface(
                             onClick = { onSetPendingDelete(true) },
                             shape = ClickableSurfaceDefaults.shape(sourceActionShape),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color(0xFFEF5350).copy(alpha = 0.12f),
-                                focusedContainerColor = Color(0xFFEF5350).copy(alpha = 0.25f)
+                                containerColor = ErrorColor.copy(alpha = 0.12f),
+                                focusedContainerColor = ErrorColor.copy(alpha = 0.25f)
                             ),
                             border = epgActionBorder(sourceActionShape),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                         ) {
-                            Text("Delete", modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = Color(0xFFEF5350))
+                            Text(stringResource(R.string.settings_delete), modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = ErrorColor)
                         }
                     }
                 }
@@ -237,7 +262,10 @@ internal fun EpgSourceCard(
 }
 
 @Composable
-internal fun AddEpgSourceCard(viewModel: SettingsViewModel) {
+internal fun AddEpgSourceCard(
+    viewModel: SettingsViewModel,
+    firstFocusModifier: Modifier = Modifier,
+) {
     var newName by remember { mutableStateOf("") }
     var newUrl by remember { mutableStateOf("") }
     var newTimezoneId by remember { mutableStateOf("") }
@@ -262,17 +290,22 @@ internal fun AddEpgSourceCard(viewModel: SettingsViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(SurfaceElevated)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Add EPG Source", style = MaterialTheme.typography.titleSmall, color = Color.White)
-            EpgSourceTextField(value = newName, onValueChange = { newName = it }, placeholder = "Source name")
+            Text(stringResource(R.string.settings_epg_add_source), style = MaterialTheme.typography.titleSmall, color = OnSurface)
+            EpgSourceTextField(
+                value = newName,
+                onValueChange = { newName = it },
+                placeholder = stringResource(R.string.settings_epg_source_name_hint),
+                modifier = firstFocusModifier,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.weight(1f)) {
                     EpgSourceTextField(
                         value = newUrl,
                         onValueChange = { newUrl = it },
-                        placeholder = "XMLTV URL (HTTP/HTTPS) or browse file"
+                    placeholder = stringResource(R.string.settings_epg_source_url_hint)
                     )
                 }
                 val addActionShape = RoundedCornerShape(8.dp)
@@ -286,13 +319,13 @@ internal fun AddEpgSourceCard(viewModel: SettingsViewModel) {
                     border = epgActionBorder(addActionShape),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                 ) {
-                    Text("Browse", modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp), style = MaterialTheme.typography.labelMedium, color = Primary)
+                    Text(stringResource(R.string.settings_epg_browse), modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp), style = MaterialTheme.typography.labelMedium, color = Primary)
                 }
             }
             EpgSourceTextField(
                 value = newTimezoneId,
                 onValueChange = { newTimezoneId = it },
-                placeholder = "Timezone for offset-less dates (e.g. Europe/Amsterdam); blank requires XMLTV offsets"
+                placeholder = stringResource(R.string.settings_epg_source_timezone_hint)
             )
             val addSourceShape = RoundedCornerShape(8.dp)
             TvClickableSurface(
@@ -316,13 +349,13 @@ internal fun AddEpgSourceCard(viewModel: SettingsViewModel) {
                 enabled = newName.isNotBlank() && newUrl.isNotBlank() && !isSubmitting,
                 shape = ClickableSurfaceDefaults.shape(addSourceShape),
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = Color(0xFF66BB6A).copy(alpha = 0.2f),
-                    focusedContainerColor = Color(0xFF66BB6A).copy(alpha = 0.4f)
+                    containerColor = Primary.copy(alpha = 0.2f),
+                    focusedContainerColor = Primary.copy(alpha = 0.4f)
                 ),
                 border = epgActionBorder(addSourceShape),
                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
             ) {
-                Text("Add Source", modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), color = Color(0xFF66BB6A), fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.settings_epg_add_source_action), modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), color = Primary, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -332,20 +365,25 @@ internal fun AddEpgSourceCard(viewModel: SettingsViewModel) {
 internal fun epgActionBorder(shape: RoundedCornerShape, enabled: Boolean = true) =
     ClickableSurfaceDefaults.border(
         border = Border(
-            border = BorderStroke(1.dp, Color.White.copy(alpha = if (enabled) 0.08f else 0.04f)),
+            border = BorderStroke(1.dp, OnSurface.copy(alpha = if (enabled) 0.08f else 0.04f)),
             shape = shape
         ),
         focusedBorder = Border(
-            border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+            border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
             shape = shape
         )
     )
 
+@Composable
 private fun displayableEpgUrl(url: String): String = when {
     url.startsWith("content://") -> {
         val lastSegment = try { android.net.Uri.parse(url).lastPathSegment } catch (_: Exception) { null }
         val decoded = lastSegment?.let { android.net.Uri.decode(it) }?.substringAfterLast("/")?.substringAfterLast("\\")
-        if (!decoded.isNullOrBlank() && decoded.length < 60) "local: $decoded" else "local file"
+        if (!decoded.isNullOrBlank() && decoded.length < 60) {
+            stringResource(R.string.settings_epg_local_source, decoded)
+        } else {
+            stringResource(R.string.settings_epg_local_file)
+        }
     }
     else -> url
 }

@@ -128,7 +128,7 @@ private fun TopNavigationDialogRow(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(16.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         Row(
@@ -191,18 +191,18 @@ private fun NavigationVisibilityToggle(
         enabled = !required,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (enabled) Primary.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.05f),
-            focusedContainerColor = if (enabled) Primary.copy(alpha = 0.24f) else Color.White.copy(alpha = 0.1f),
+            containerColor = if (enabled) Primary.copy(alpha = 0.16f) else com.streamvault.core.ui.theme.SurfaceElevated,
+            focusedContainerColor = if (enabled) Primary.copy(alpha = 0.24f) else com.streamvault.core.ui.theme.SurfaceHighlight,
             contentColor = OnSurface,
             focusedContentColor = OnSurface
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+                border = BorderStroke(1.dp, com.streamvault.core.ui.design.AppColors.Divider),
                 shape = RoundedCornerShape(12.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                 shape = RoundedCornerShape(12.dp)
             )
         )
@@ -227,7 +227,7 @@ private fun NavigationVisibilityToggle(
                         stringResource(R.string.settings_top_navigation_hidden)
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (enabled) Color.Black else OnSurface
+                    color = if (enabled) com.streamvault.core.ui.theme.OnPrimary else OnSurface
                 )
             }
         }

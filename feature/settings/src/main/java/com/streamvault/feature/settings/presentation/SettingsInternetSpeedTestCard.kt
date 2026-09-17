@@ -41,7 +41,8 @@ public fun InternetSpeedTestCard(
     canApplyRecommendation: Boolean,
     onRunTest: () -> Unit,
     onApplyWifi: () -> Unit,
-    onApplyEthernet: () -> Unit
+    onApplyEthernet: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
     TvClickableSurface(
@@ -53,7 +54,7 @@ public fun InternetSpeedTestCard(
             focusedContainerColor = Primary.copy(alpha = 0.18f)
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
             .focusRequester(focusRequester)

@@ -129,7 +129,7 @@ internal fun AppNavHost(
             actions = actions,
             platformHost = settingsPlatformHost,
             navigationDestinations = navigationDestinations,
-            settingsContent = { backupUri, platformHost, destinations ->
+            settingsContent = { backupUri, platformHost, destinations, onBack ->
                 SettingsScreen(
                     onNavigate = { route ->
                         AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
@@ -137,6 +137,7 @@ internal fun AppNavHost(
                     currentRoute = AppRoutePatterns.SETTINGS,
                     platformHost = platformHost,
                     navigationDestinations = destinations,
+                    onBack = onBack,
                     onAddProvider = dropUnlessResumed {
                         actions.navigate(AppDestination.ProviderSetup())
                     },

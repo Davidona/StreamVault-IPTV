@@ -5,10 +5,15 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.activity.compose.BackHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -19,21 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
-import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
-import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
-import com.streamvault.core.ui.components.shell.NavigationChrome
 import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.core.ui.device.isTelevisionDevice
 import java.io.File
 import com.streamvault.core.ui.theme.*
-import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.feature.settings.R
 import com.streamvault.feature.settings.api.SettingsBackupFileCandidate
 import com.streamvault.feature.settings.api.SettingsPlatformHost
 import com.streamvault.domain.model.LegacyProvider as Provider
 import androidx.compose.ui.res.stringResource
 import com.streamvault.domain.model.Result
-import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -54,6 +54,7 @@ public fun SettingsScreen(
     currentRoute: String,
     platformHost: SettingsPlatformHost,
     navigationDestinations: List<UiDestination> = emptyList(),
+    onBack: () -> Unit = {},
     onAddProvider: () -> Unit = {},
     onEditProvider: (Provider) -> Unit = {},
     onNavigateToParentalControl: (Long) -> Unit = {},
@@ -63,6 +64,7 @@ public fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settingsNavFocusRequester = remember { FocusRequester() }
+    val settingsSearchFocusRequester = remember { FocusRequester() }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -88,6 +90,51 @@ public fun SettingsScreen(
     )
     val dialogState = rememberSettingsScreenDialogState()
     val providerState = rememberSettingsProviderSectionState(dialogState)
+    var compactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
+    var searchVisible by rememberSaveable { mutableStateOf(false) }
+    var settingsSearchQuery by rememberSaveable { mutableStateOf("") }
+    var searchRequestId by rememberSaveable { mutableLongStateOf(0L) }
+    var categorySelectionId by rememberSaveable { mutableLongStateOf(0L) }
+    var currentSettingsPage by remember { mutableStateOf<SettingsPage?>(null) }
+    var searchOriginCategoryId by rememberSaveable { mutableIntStateOf(SettingsCategory.SOURCES.legacyId) }
+    var searchOriginPageName by rememberSaveable { mutableStateOf<String?>(null) }
+    var searchOriginCompactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
+    var restoredPage by remember { mutableStateOf<SettingsPage?>(null) }
+    var restorePageRequestId by rememberSaveable { mutableLongStateOf(0L) }
+    var requestedDestination by remember { mutableStateOf<SettingsSearchTarget?>(null) }
+    var searchReturnResultId by rememberSaveable { mutableStateOf<String?>(null) }
+    val searchResultsListState = rememberLazyListState()
+    var returnFocusToSearch by remember { mutableStateOf(false) }
+    var searchButtonPlaced by remember { mutableStateOf(false) }
+    val searchButtonModifier = Modifier
+        .focusRequester(settingsSearchFocusRequester)
+        .onGloballyPositioned { searchButtonPlaced = true }
+
+    fun openSettingsSearch() {
+        searchOriginCategoryId = dialogState.selectedCategory
+        searchOriginPageName = currentSettingsPage?.name
+        searchOriginCompactPane = compactPane
+        searchButtonPlaced = false
+        returnFocusToSearch = false
+        searchReturnResultId = null
+        searchVisible = true
+    }
+
+    fun dismissSettingsSearch() {
+        searchVisible = false
+        returnFocusToSearch = true
+        searchReturnResultId = null
+        requestedDestination = null
+        dialogState.selectedCategory = searchOriginCategoryId
+        compactPane = searchOriginCompactPane
+        restoredPage = searchOriginPageName?.let(SettingsPage::valueOf)
+        restorePageRequestId += 1L
+    }
+
+    fun returnToSearchResults() {
+        requestedDestination = null
+        searchVisible = true
+    }
     var handledInitialBackupImportUri by remember { mutableStateOf<String?>(null) }
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
@@ -350,51 +397,131 @@ public fun SettingsScreen(
         if (handledInitialBackupImportUri == uri) return@LaunchedEffect
         handledInitialBackupImportUri = uri
         dialogState.selectedCategory = 5
+        compactPane = SettingsCompactPane.CONTENT
         viewModel.inspectBackup(uri)
     }
 
-    LaunchedEffect(currentRoute, dialogState.selectedCategory) {
-        delay(80)
-            settingsNavFocusRequester.requestFocusSafely(tag = "SettingsScreen", target = "Selected settings section")
+    BackHandler {
+        if (compactPane == SettingsCompactPane.CONTENT) {
+            compactPane = SettingsCompactPane.CATEGORIES
+        } else onBack()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        CoreAppScreenScaffold(
-            currentDestinationId = currentRoute,
-            destinations = navigationDestinations,
-            onDestinationSelected = { if (!uiState.isSyncing) onNavigate(it) },
-            title = stringResource(R.string.settings_title),
-            subtitle = stringResource(R.string.settings_providers_subtitle),
-            navigationChrome = NavigationChrome.TopBar,
-            compactHeader = true,
-            showScreenHeader = false,
-            topBarActions = {
-                AppTopBarCloseAction(
-                    onClick = onCloseApp,
-                    contentDescription = stringResource(R.string.settings_close_app)
-                )
-            }
-        ) {
-            Row(modifier = Modifier.fillMaxSize()) {
+    LaunchedEffect(searchVisible, returnFocusToSearch, searchButtonPlaced) {
+        if (!searchVisible && returnFocusToSearch && searchButtonPlaced) {
+            settingsSearchFocusRequester.requestFocus()
+            returnFocusToSearch = false
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(com.streamvault.core.ui.design.AppColors.Canvas)) {
+        if (searchVisible) {
+            SettingsSearchSurface(
+                query = settingsSearchQuery,
+                onQueryChange = { settingsSearchQuery = it },
+                onDismiss = ::dismissSettingsSearch,
+                listState = searchResultsListState,
+                returnResultId = searchReturnResultId,
+                unavailableIds = buildSet {
+                    if (usbStorageDir == null) {
+                        add("recording.usb_storage")
+                        add("backup.usb_create")
+                        add("backup.usb_restore")
+                    }
+                    if (uiState.activeProviderId == null) {
+                        add("sources.parental_categories")
+                        add("privacy.category_protection")
+                        add("privacy.category_visibility")
+                    }
+                    if (uiState.combinedProfiles.isEmpty()) {
+                        add("sources.combined.active")
+                        add("sources.combined.members")
+                        add("sources.combined.delete")
+                    }
+                    if (uiState.providers.isEmpty()) {
+                        add("sources.active_provider")
+                        add("sources.edit")
+                        add("sources.sync")
+                        add("sources.delete")
+                        add("guide.assignment")
+                        add("guide.policy")
+                        add("guide.logo_policy")
+                        add("guide.time_shift")
+                    }
+                    if (uiState.epgSources.isEmpty()) {
+                        add("guide.assignment")
+                        add("guide.source.enabled")
+                        add("guide.source.refresh")
+                        add("guide.source.timezone")
+                        add("guide.source.delete")
+                    }
+                },
+                disabledExplanations = buildMap {
+                    if (!uiState.playerAudioVideoSyncEnabled) {
+                        put("playback.av_offset", context.getString(R.string.settings_search_requires_av_sync))
+                    }
+                    if (!uiState.playerLiveTranslationEnabled) {
+                        put("playback.translation_endpoint", context.getString(R.string.settings_search_requires_translation))
+                    }
+                    if (!uiState.playerLiveClockEnabled) {
+                        val explanation = context.getString(R.string.settings_search_requires_live_clock)
+                        put("live.clock_position", explanation)
+                        put("live.clock_size", explanation)
+                        put("live.clock_font", explanation)
+                    }
+                    if (uiState.liveChannelGroupingMode != com.streamvault.domain.model.LiveChannelGroupingMode.GROUPED) {
+                        val explanation = context.getString(R.string.settings_search_requires_grouping)
+                        put("live.group_label", explanation)
+                        put("live.variant_preference", explanation)
+                    }
+                    if (uiState.vodDuplicateHandlingMode == com.streamvault.domain.model.VodDuplicateHandlingMode.SHOW_ALL) {
+                        put("vod.variant_preference", context.getString(R.string.settings_search_requires_duplicate_grouping))
+                    }
+                    if (!uiState.autoCheckAppUpdates) {
+                        put("about.auto_update_download", context.getString(R.string.settings_search_requires_update_checks))
+                    }
+                },
+                onResultSelected = { result ->
+                    dialogState.selectedCategory = result.category.legacyId
+                    compactPane = SettingsCompactPane.CONTENT
+                    searchRequestId += 1L
+                    requestedDestination = SettingsSearchTarget(
+                        category = result.category,
+                        page = result.page,
+                        itemId = result.id,
+                        requestId = searchRequestId,
+                    )
+                    searchReturnResultId = result.id
+                    returnFocusToSearch = false
+                    searchVisible = false
+                },
+            )
+        } else {
+            SettingsAdaptiveLayout(
+                compactNavigationVisible = compactPane == SettingsCompactPane.CATEGORIES,
+                navigation = { compact ->
                 SettingsNavigationRail(
                     selectedCategory = dialogState.selectedCategory,
                     focusRequester = settingsNavFocusRequester,
-                    onCategorySelected = { dialogState.selectedCategory = it }
+                    onCategorySelected = {
+                        dialogState.selectedCategory = it
+                        categorySelectionId += 1L
+                        if (compact) {
+                            compactPane = SettingsCompactPane.CONTENT
+                        }
+                    },
+                    onBack = onBack,
+                    onSearch = ::openSettingsSearch,
+                    searchModifier = searchButtonModifier,
+                    compact = compact
                 )
-
-                // Thin vertical separator
-                Box(
-                    Modifier
-                        .width(1.dp)
-                        .fillMaxHeight()
-                        .background(Color.White.copy(alpha = 0.07f))
-                )
-
+            }) { compact ->
                 SettingsContentPane(
                     uiState = uiState,
                     viewModel = viewModel,
                     context = context,
                     appVersionLabel = "${platformHost.buildInfo.versionName} (${platformHost.buildInfo.versionCode})",
+                    onCloseApp = onCloseApp,
                     screenLabels = screenLabels,
                     dialogState = dialogState,
                     providerState = providerState,
@@ -485,7 +612,21 @@ public fun SettingsScreen(
                     onDrivePush = viewModel::pushToDrive,
                     onDrivePull = viewModel::pullFromDrive,
                     onOpenUri = uriHandler::openUri,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxSize(),
+                    compact = compact,
+                    onCategoryBack = if (compact) {
+                        {
+                            compactPane = SettingsCompactPane.CATEGORIES
+                        }
+                    } else null,
+                    onSearch = if (compact) (::openSettingsSearch) else null,
+                    searchModifier = searchButtonModifier,
+                    requestedDestination = requestedDestination,
+                    onSearchResultBack = ::returnToSearchResults,
+                    restoredPage = restoredPage,
+                    restorePageRequestId = restorePageRequestId,
+                    onPageChanged = { currentSettingsPage = it },
+                    categorySelectionId = categorySelectionId,
                 )
             }
         }

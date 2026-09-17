@@ -2,6 +2,7 @@ package com.streamvault.core.ui.design
 
 import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.core.ui.theme.standardMaterialColorScheme
 import org.junit.Test
 
 class AppPaletteTest {
@@ -41,5 +42,19 @@ class AppPaletteTest {
     fun `unknown theme IDs resolve to classic blue`() {
         assertThat(AppPalette.forTheme("unknown")).isEqualTo(AppPalette.forTheme("classic_blue"))
         assertThat(AppPalette.forTheme(null)).isEqualTo(AppPalette.forTheme("classic_blue"))
+    }
+
+    @Test
+    fun `standard material controls receive the same semantic palette`() {
+        listOf("classic_blue", "m3_purple", "light").forEach { themeId ->
+            val palette = AppPalette.forTheme(themeId)
+            val scheme = standardMaterialColorScheme(palette)
+
+            assertThat(scheme.primary).isEqualTo(palette.brand)
+            assertThat(scheme.surface).isEqualTo(palette.surface)
+            assertThat(scheme.onSurface).isEqualTo(palette.textPrimary)
+            assertThat(scheme.surfaceVariant).isEqualTo(palette.surfaceElevated)
+            assertThat(scheme.onSurfaceVariant).isEqualTo(palette.textSecondary)
+        }
     }
 }

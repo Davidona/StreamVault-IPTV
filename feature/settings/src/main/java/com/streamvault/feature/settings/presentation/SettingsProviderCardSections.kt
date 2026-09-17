@@ -38,7 +38,8 @@ public fun ProviderM3uOptionsPanel(
     m3uVodClassificationEnabled: Boolean,
     isSyncing: Boolean,
     onToggleM3uVodClassification: (Boolean) -> Unit,
-    onRefreshM3uClassification: () -> Unit
+    onRefreshM3uClassification: () -> Unit,
+    classificationModifier: Modifier = Modifier,
 ) {
     Column(
         modifier = Modifier
@@ -70,7 +71,8 @@ public fun ProviderM3uOptionsPanel(
             }
             Switch(
                 checked = m3uVodClassificationEnabled,
-                onCheckedChange = onToggleM3uVodClassification
+                onCheckedChange = onToggleM3uVodClassification,
+                modifier = classificationModifier,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -170,7 +172,9 @@ public fun ProviderActionButtons(
     onRefresh: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onParentalControl: () -> Unit
+    onParentalControl: () -> Unit,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         if (!isActive) {
@@ -182,27 +186,31 @@ public fun ProviderActionButtons(
                 },
                 accent = Primary,
                 filled = true,
-                contentColor = Color.White,
-                onClick = if (liveOnboardingIncomplete) onRefresh else onConnect
+                contentColor = com.streamvault.core.ui.theme.OnPrimary,
+                onClick = if (liveOnboardingIncomplete) onRefresh else onConnect,
+                modifier = if (targetItemId == "sources.sync") targetFocusModifier else Modifier,
             )
         } else {
             ProviderActionButton(
                 label = if (isSyncing) stringResource(R.string.settings_syncing_btn) else stringResource(R.string.settings_sync_btn),
                 accent = Primary,
-                onClick = onRefresh
+                onClick = onRefresh,
+                modifier = if (targetItemId == "sources.sync") targetFocusModifier else Modifier,
             )
         }
 
         ProviderActionButton(
             label = stringResource(R.string.settings_edit),
             accent = Secondary,
-            onClick = onEdit
+            onClick = onEdit,
+            modifier = if (targetItemId == "sources.edit") targetFocusModifier else Modifier,
         )
 
         ProviderActionButton(
             label = stringResource(R.string.settings_delete),
             accent = ErrorColor,
-            onClick = onDelete
+            onClick = onDelete,
+            modifier = if (targetItemId == "sources.delete") targetFocusModifier else Modifier,
         )
 
         if (isActive) {
@@ -221,10 +229,12 @@ private fun ProviderActionButton(
     accent: Color,
     onClick: () -> Unit,
     filled: Boolean = false,
-    contentColor: Color = accent
+    contentColor: Color = accent,
+    modifier: Modifier = Modifier,
 ) {
     TvClickableSurface(
         onClick = onClick,
+        modifier = modifier,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp)),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (filled) accent else accent.copy(alpha = 0.2f),
@@ -234,7 +244,7 @@ private fun ProviderActionButton(
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                 shape = RoundedCornerShape(6.dp)
             )
         ),

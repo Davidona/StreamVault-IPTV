@@ -30,7 +30,7 @@ public fun RecordingMetricCard(
 ) {
     Column(
         modifier = modifier
-            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
+            .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -71,7 +71,7 @@ public fun recordingStatusLabel(status: RecordingStatus): String = when (status)
 public fun recordingStatusAccent(status: RecordingStatus): Color = when (status) {
     RecordingStatus.RECORDING -> Primary
     RecordingStatus.SCHEDULED -> Secondary
-    RecordingStatus.COMPLETED -> Color(0xFF7BA7FF)
+    RecordingStatus.COMPLETED -> com.streamvault.core.ui.theme.AccentCyan
     RecordingStatus.FAILED -> ErrorColor
     RecordingStatus.CANCELLED -> OnSurfaceDim
 }

@@ -1,5 +1,6 @@
 package com.streamvault.feature.settings.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,12 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,17 +34,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.FocusSpec
@@ -52,61 +56,6 @@ import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
 import kotlinx.coroutines.launch
 import java.util.Locale
-
-@Composable
-fun SettingsOverviewCard(
-    activeProviderName: String,
-    providerCount: Int,
-    protectionSummary: String,
-    languageLabel: String
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_overview_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = OnBackground
-            )
-            Text(
-                text = stringResource(R.string.settings_overview_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = OnSurfaceDim
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SettingsOverviewStat(
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.settings_overview_provider_label),
-                    value = activeProviderName
-                )
-                SettingsOverviewStat(
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.settings_overview_count_label),
-                    value = providerCount.toString()
-                )
-                SettingsOverviewStat(
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.settings_overview_protection_label),
-                    value = protectionSummary
-                )
-                SettingsOverviewStat(
-                    modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.settings_overview_language_label),
-                    value = languageLabel
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun SettingsOverviewStat(
@@ -139,11 +88,13 @@ fun CompactSettingsActionChip(
     label: String,
     accent: Color,
     enabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
+        modifier = modifier,
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = accent.copy(alpha = if (enabled) 0.14f else 0.08f),
@@ -155,11 +106,11 @@ fun CompactSettingsActionChip(
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(1.dp, Color.White.copy(alpha = if (enabled) 0.08f else 0.04f)),
+                border = BorderStroke(1.dp, com.streamvault.core.ui.design.AppColors.Divider),
                 shape = RoundedCornerShape(8.dp)
             ),
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                 shape = RoundedCornerShape(8.dp)
             )
         ),
@@ -178,10 +129,14 @@ fun CompactSettingsActionChip(
 fun EpgSourceTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    modifier: Modifier = Modifier,
 ) {
+    val settingsColors = SettingsDesignTokens.colors(com.streamvault.core.ui.design.AppColors.current)
     val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
-    val focusRequester = remember { FocusRequester() }
+    val containerFocusRequester = remember { FocusRequester() }
+    val inputFocusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
@@ -192,8 +147,6 @@ fun EpgSourceTextField(
     var fieldValue by remember {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
     }
-    val isFocused = hasContainerFocus || hasInputFocus
-
     val density = LocalDensity.current
     val imeBottom = WindowInsets.ime.getBottom(density)
     LaunchedEffect(imeBottom) {
@@ -208,6 +161,16 @@ fun EpgSourceTextField(
                 kotlinx.coroutines.delay(delayMillis)
             }
             runCatching { bringIntoViewRequester.bringIntoView() }
+        }
+    }
+
+    fun dismissInput() {
+        pendingInputActivation = false
+        acceptsInput = false
+        keyboardController?.hide()
+        focusManager.clearFocus(force = true)
+        if (isTelevisionDevice) {
+            containerFocusRequester.requestFocus()
         }
     }
 
@@ -236,16 +199,27 @@ fun EpgSourceTextField(
         if (!isTelevisionDevice || !acceptsInput || !pendingInputActivation) {
             return@LaunchedEffect
         }
-        focusRequester.requestFocus()
+        inputFocusRequester.requestFocus()
         keyboardController?.show()
         requestBringIntoView(120)
         pendingInputActivation = false
     }
 
+    BackHandler(
+        enabled = shouldConsumeEpgSourceFieldBack(
+            isTelevisionDevice = isTelevisionDevice,
+            hasInputFocus = hasInputFocus,
+            pendingInputActivation = pendingInputActivation,
+            acceptsInput = acceptsInput,
+        ),
+        onBack = ::dismissInput,
+    )
+
     TvClickableSurface(
         onClick = {
             if (!isTelevisionDevice) {
-                focusRequester.requestFocus()
+                acceptsInput = true
+                inputFocusRequester.requestFocus()
                 keyboardController?.show()
                 requestBringIntoView()
                 requestBringIntoView(180)
@@ -257,18 +231,30 @@ fun EpgSourceTextField(
         },
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.12f)
+            containerColor = settingsColors.searchSurface,
+            focusedContainerColor = settingsColors.searchFocusedSurface,
+        ),
+        border = ClickableSurfaceDefaults.border(
+            border = Border(
+                BorderStroke(1.dp, settingsColors.divider),
+                shape = RoundedCornerShape(8.dp),
+            ),
+            focusedBorder = Border(
+                BorderStroke(SettingsDesignTokens.focusStroke, settingsColors.focusOutline),
+                shape = RoundedCornerShape(8.dp),
+            ),
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .focusRequester(containerFocusRequester)
             .bringIntoViewRequester(bringIntoViewRequester)
             .onFocusChanged { hasContainerFocus = it.isFocused }
     ) {
         Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-            if (value.isEmpty() && !isFocused) {
-                Text(placeholder, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceDim)
+            if (value.isEmpty()) {
+                Text(placeholder, style = MaterialTheme.typography.bodyMedium, color = settingsColors.searchPlaceholder)
             }
             BasicTextField(
                 value = fieldValue,
@@ -278,12 +264,12 @@ fun EpgSourceTextField(
                         onValueChange(updatedValue.text)
                     }
                 },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = settingsColors.searchText),
                 singleLine = true,
-                cursorBrush = SolidColor(Primary),
+                cursorBrush = SolidColor(settingsColors.cursor),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester)
+                    .focusRequester(inputFocusRequester)
                     .focusProperties {
                         canFocus = !isTelevisionDevice || acceptsInput
                         if (isTelevisionDevice && acceptsInput) {
@@ -292,7 +278,16 @@ fun EpgSourceTextField(
                         }
                     }
                     .onPreviewKeyEvent { event ->
-                        if (!isTelevisionDevice || !acceptsInput || event.nativeKeyEvent.action != android.view.KeyEvent.ACTION_DOWN) {
+                        if (event.nativeKeyEvent.action != android.view.KeyEvent.ACTION_DOWN) {
+                            return@onPreviewKeyEvent false
+                        }
+                        if (event.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BACK &&
+                            (hasInputFocus || (isTelevisionDevice && acceptsInput))
+                        ) {
+                            dismissInput()
+                            return@onPreviewKeyEvent true
+                        }
+                        if (!isTelevisionDevice || !acceptsInput) {
                             return@onPreviewKeyEvent false
                         }
                         val cursor = fieldValue.selection.end
@@ -321,8 +316,17 @@ fun EpgSourceTextField(
                             keyboardController?.hide()
                         }
                     },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { dismissInput() }),
                 readOnly = isTelevisionDevice && !acceptsInput
             )
         }
     }
 }
+
+internal fun shouldConsumeEpgSourceFieldBack(
+    isTelevisionDevice: Boolean,
+    hasInputFocus: Boolean,
+    pendingInputActivation: Boolean,
+    acceptsInput: Boolean,
+): Boolean = hasInputFocus || pendingInputActivation || (isTelevisionDevice && acceptsInput)

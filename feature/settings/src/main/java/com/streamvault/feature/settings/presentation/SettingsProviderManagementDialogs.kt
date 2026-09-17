@@ -137,8 +137,8 @@ public fun SettingsProviderManagementDialogs(
         }
         val providerName = providerToDelete?.name ?: "this provider"
         PremiumDialog(
-            title = "Delete Provider",
-            subtitle = "Delete \"$providerName\"? This will permanently remove all its channels, programs, and sync data.",
+            title = stringResource(R.string.settings_provider_delete_title),
+            subtitle = stringResource(R.string.settings_provider_delete_description, providerName),
             onDismissRequest = { if (!uiState.isDeletingProvider) providerState.pendingDeleteProviderId = null },
             widthFraction = 0.48f,
             heightFraction = null,
@@ -174,7 +174,7 @@ public fun SettingsProviderManagementDialogs(
                     enabled = !uiState.isDeletingProvider
                 )
                 PremiumDialogFooterButton(
-                    label = "Delete",
+                    label = stringResource(R.string.settings_delete),
                     onClick = {
                         viewModel.deleteProvider(pendingDeleteProviderId,
                             onSuccess = { providerState.pendingDeleteProviderId = null }

@@ -20,10 +20,12 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -44,6 +46,7 @@ import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupPreview
+import com.streamvault.feature.settings.R
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.delay
@@ -144,6 +147,86 @@ class SettingsConnectedBehaviorTest {
             .onNodeWithContentDescription("Search categories...")
             .assertExists()
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun settingsSearch_onTvBackLeavesEditingBeforeDismissingSearch() {
+        var visible by mutableStateOf(true)
+        var dismissCount = 0
+
+        composeRule.setContent {
+            StreamVaultTheme {
+                if (visible) {
+                    SettingsSearchSurface(
+                        query = "",
+                        onQueryChange = {},
+                        onDismiss = {
+                            dismissCount++
+                            visible = false
+                        },
+                        onResultSelected = {},
+                    )
+                }
+            }
+        }
+
+        composeRule
+            .onNodeWithContentDescription("Search all settings")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        composeRule.onNodeWithText("Search settings").assertIsDisplayed()
+        composeRule.runOnIdle { assertThat(dismissCount).isEqualTo(0) }
+
+        composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        composeRule.waitUntil(3_000) {
+            composeRule.onAllNodesWithText("Search settings").fetchSemanticsNodes().isEmpty()
+        }
+        composeRule.runOnIdle { assertThat(dismissCount).isEqualTo(1) }
+    }
+
+    @Test
+    fun settingsSearch_returnRestoresTheExactResultFocus() {
+        val label = composeRule.activity.getString(R.string.settings_external_playback)
+
+        composeRule.setContent {
+            StreamVaultTheme {
+                SettingsSearchSurface(
+                    query = label,
+                    onQueryChange = {},
+                    onDismiss = {},
+                    onResultSelected = {},
+                    returnResultId = "playback.external",
+                )
+            }
+        }
+
+        composeRule.waitUntil(3_000) {
+            runCatching { composeRule.onNode(isFocused()).assertTextContains(label) }.isSuccess
+        }
+        composeRule.onNode(isFocused()).assertIsDisplayed().assertTextContains(label)
+    }
+
+    @Test
+    fun nestedHeader_visibleBackIsSelectableAndInvokesItsParentReturn() {
+        var backCount = 0
+
+        composeRule.setContent {
+            StreamVaultTheme {
+                SettingsLocalHeader(
+                    title = "General playback",
+                    description = "Player behavior",
+                    parentTitle = "Playback",
+                    onBack = { backCount++ },
+                )
+            }
+        }
+
+        composeRule
+            .onNodeWithContentDescription("Back to Playback")
+            .assertIsDisplayed()
+            .performSemanticsAction(SemanticsActions.OnClick)
+        composeRule.runOnIdle { assertThat(backCount).isEqualTo(1) }
     }
 
     @Test

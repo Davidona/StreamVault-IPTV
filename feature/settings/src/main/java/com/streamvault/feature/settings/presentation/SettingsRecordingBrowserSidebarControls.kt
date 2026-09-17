@@ -59,7 +59,7 @@ public fun RecordingBrowserSidebarControls(
                 color = Primary
             )
             Text(
-                text = "$filteredCount of $totalCount items",
+                text = stringResource(R.string.settings_recording_items_count, filteredCount, totalCount),
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurfaceDim
             )
@@ -70,7 +70,7 @@ public fun RecordingBrowserSidebarControls(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             CompactRecordingActionChip(
-                label = "All",
+                label = stringResource(R.string.settings_recording_filter_all),
                 accent = if (statusFilter == null) Primary else OnSurfaceDim,
                 onClick = { onStatusFilterChange(null) }
             )
@@ -136,7 +136,7 @@ private fun RecordingBrowserSearchField(
         ) {
             if (searchQuery.isEmpty()) {
                 Text(
-                    text = "Search recordings...",
+                    text = stringResource(R.string.settings_recording_search_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = OnSurfaceDim
                 )

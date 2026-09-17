@@ -42,12 +42,13 @@ public fun ProviderSelectorTab(
     provider: Provider,
     isSelected: Boolean,
     isActive: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
     TvClickableSurface(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .focusRequester(focusRequester)
             .mouseClickable(
                 focusRequester = focusRequester,
@@ -62,7 +63,7 @@ public fun ProviderSelectorTab(
             border = Border(
                 border = BorderStroke(
                     width = 1.dp,
-                    color = if (isSelected) Primary.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.08f)
+                    color = if (isSelected) Primary.copy(alpha = 0.45f) else com.streamvault.core.ui.design.AppColors.Divider
                 )
             ),
             focusedBorder = Border(
@@ -126,7 +127,7 @@ public fun ProviderCompactStat(
 ) {
     Surface(
         shape = RoundedCornerShape(10.dp),
-        colors = SurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.06f))
+        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),

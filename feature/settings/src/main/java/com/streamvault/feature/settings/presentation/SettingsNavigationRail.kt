@@ -1,185 +1,151 @@
 package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
+import androidx.tv.material3.*
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.core.ui.theme.*
 import com.streamvault.feature.settings.R
+import com.streamvault.core.ui.design.AppColors
 
-private data class SettingsNavEntry(
-    val id: String,
-    val label: String,
-    val icon: String,
-    val accent: Color
-)
+internal val SettingsCategory.icon: ImageVector get() = when (this) {
+    SettingsCategory.SOURCES -> Icons.Rounded.Dns
+    SettingsCategory.PLAYBACK -> Icons.Rounded.PlayCircle
+    SettingsCategory.LIVE_TV -> Icons.Rounded.LiveTv
+    SettingsCategory.MOVIES -> Icons.Rounded.Movie
+    SettingsCategory.APP -> Icons.Rounded.Tune
+    SettingsCategory.PRIVACY -> Icons.Rounded.Lock
+    SettingsCategory.RECORDING -> Icons.Rounded.FiberManualRecord
+    SettingsCategory.BACKUP -> Icons.Rounded.CloudUpload
+    SettingsCategory.GUIDE -> Icons.Rounded.CalendarMonth
+    SettingsCategory.ABOUT -> Icons.Rounded.Info
+}
 
 @Composable
 public fun SettingsNavigationRail(
     selectedCategory: Int,
     focusRequester: FocusRequester,
-    onCategorySelected: (Int) -> Unit
+    onCategorySelected: (Int) -> Unit,
+    onBack: () -> Unit = {},
+    onSearch: () -> Unit = {},
+    searchModifier: Modifier = Modifier,
+    compact: Boolean = LocalConfiguration.current.screenWidthDp < 600
 ) {
-    val entries = listOf(
-        SettingsNavEntry(
-            id = "providers",
-            label = stringResource(R.string.settings_providers),
-            icon = "P",
-            accent = Primary
-        ),
-        SettingsNavEntry(
-            id = "playback",
-            label = stringResource(R.string.settings_playback),
-            icon = ">",
-            accent = Color(0xFF9E8FFF)
-        ),
-        SettingsNavEntry(
-            id = "browsing",
-            label = stringResource(R.string.settings_browsing),
-            icon = "#",
-            accent = Color(0xFF26A69A)
-        ),
-        SettingsNavEntry(
-            id = "privacy",
-            label = stringResource(R.string.settings_privacy),
-            icon = "L",
-            accent = Color(0xFFFFB74D)
-        ),
-        SettingsNavEntry(
-            id = "recording",
-            label = stringResource(R.string.settings_recording_title),
-            icon = "R",
-            accent = Color(0xFFEF5350)
-        ),
-        SettingsNavEntry(
-            id = "backup_restore",
-            label = stringResource(R.string.settings_backup_restore),
-            icon = "B",
-            accent = Color(0xFF42A5F5)
-        ),
-        SettingsNavEntry(
-            id = "epg_sources",
-            label = "EPG Sources",
-            icon = "E",
-            accent = Color(0xFF66BB6A)
-        ),
-        SettingsNavEntry(
-            id = "about",
-            label = stringResource(R.string.settings_about),
-            icon = "i",
-            accent = Color(0xFF78909C)
-        )
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .width(236.dp)
-            .fillMaxHeight()
-            .background(Color.Black.copy(alpha = 0.25f)),
-        contentPadding = PaddingValues(top = 76.dp, bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        itemsIndexed(
-            items = entries,
-            key = { _, entry -> entry.id },
-            contentType = { _, _ -> "settings_navigation_entry" }
-        ) { index, entry ->
-            SettingsNavItem(
-                label = entry.label,
-                badgeChar = entry.icon,
-                accentColor = entry.accent,
-                isSelected = selectedCategory == index,
-                modifier = if (selectedCategory == index) Modifier.focusRequester(focusRequester) else Modifier,
-                onClick = { onCategorySelected(index) }
-            )
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    var selectedEntryPlaced by remember(compact, selectedCategory) { mutableStateOf(false) }
+    LaunchedEffect(compact, selectedCategory, selectedEntryPlaced) {
+        if (compact && selectedEntryPlaced) focusRequester.requestFocus()
+    }
+    val entry: @Composable (SettingsCategory) -> Unit = { category ->
+        val isSelected = selectedCategory == category.legacyId
+        TvClickableSurface(
+            onClick = { onCategorySelected(category.legacyId) },
+            modifier = Modifier.fillMaxWidth()
+                .then(if (isSelected) Modifier.focusRequester(focusRequester) else Modifier)
+                .then(if (isSelected) Modifier.onGloballyPositioned { selectedEntryPlaced = true } else Modifier)
+                .semantics { selected = isSelected },
+            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
+            colors = ClickableSurfaceDefaults.colors(
+                containerColor = if (isSelected) colors.focusedSurface else Color.Transparent,
+                focusedContainerColor = colors.focusedSurface
+            ),
+            border = ClickableSurfaceDefaults.border(focusedBorder = Border(
+                    androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
+                    shape = RoundedCornerShape(SettingsDesignTokens.groupRadius))),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+        ) {
+            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(category.icon, null, tint = if (isSelected) colors.accent else colors.secondaryText,
+                    modifier = Modifier.size(20.dp))
+                Text(stringResource(category.title), style = MaterialTheme.typography.labelLarge,
+                    color = if (isSelected) colors.accent else colors.primaryText,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal)
+            }
         }
     }
-}
-
-@Composable
-public fun SettingsNavItem(
-    label: String,
-    badgeChar: String,
-    accentColor: Color,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    val focusRequester = remember { FocusRequester() }
-    TvClickableSurface(
-        onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(0.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (isSelected) Primary.copy(alpha = 0.11f) else Color.Transparent,
-            focusedContainerColor = Primary.copy(alpha = 0.22f)
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        modifier = modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .mouseClickable(focusRequester = focusRequester, onClick = onClick)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+    if (compact) {
+        Column(
+            modifier = Modifier.fillMaxSize().background(colors.canvas).padding(
+                start = SettingsDesignTokens.compactInset,
+                top = SettingsDesignTokens.space12,
+                end = SettingsDesignTokens.compactInset,
+            )
         ) {
-            Box(
-                Modifier
-                    .width(3.dp)
-                    .height(22.dp)
-                    .background(
-                        color = if (isSelected) Primary else Color.Transparent,
-                        shape = RoundedCornerShape(2.dp)
-                    )
+            SettingsLocalHeader(
+                title = stringResource(R.string.settings_title),
+                description = "",
+                parentTitle = stringResource(R.string.settings_back_to_app),
+                onBack = onBack,
+                onSearch = onSearch,
+                searchModifier = searchModifier,
             )
-            Box(
-                Modifier
-                    .size(28.dp)
-                    .background(accentColor.copy(alpha = 0.18f), RoundedCornerShape(7.dp)),
-                contentAlignment = Alignment.Center
+            LazyColumn(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(top = SettingsDesignTokens.space12, bottom = SettingsDesignTokens.space24),
+                verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space4),
             ) {
-                Text(
-                    text = badgeChar,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = accentColor,
-                    fontWeight = FontWeight.Bold
-                )
+                items(SettingsCategory.entries, key = { it.legacyId }) { entry(it) }
             }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isSelected) Primary else OnBackground,
-                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.width(SettingsDesignTokens.railWidth).fillMaxHeight().background(colors.canvas),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = SettingsDesignTokens.space16),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
+                ) {
+                    TvIconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.parental_group_back),
+                            tint = colors.primaryText,
+                        )
+                    }
+                    Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineSmall,
+                        color = colors.primaryText, fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.semantics { heading() })
+                    Spacer(Modifier.weight(1f))
+                    TvIconButton(onClick = onSearch, modifier = searchModifier) {
+                        Icon(
+                            Icons.Rounded.Search,
+                            contentDescription = stringResource(R.string.settings_search_action),
+                            tint = colors.primaryText,
+                        )
+                    }
+                }
+            }
+            items(SettingsCategory.entries, key = { it.legacyId }) { entry(it) }
         }
     }
 }

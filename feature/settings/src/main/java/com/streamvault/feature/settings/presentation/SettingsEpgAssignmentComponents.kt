@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -21,8 +22,14 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.EpgSource
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.ProviderEpgSourceAssignment
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -35,26 +42,27 @@ internal fun ProviderEpgAssignmentsCard(
     onMoveUp: (Long) -> Unit,
     onMoveDown: (Long) -> Unit,
     onRemove: (Long) -> Unit,
-    onAssign: (Long) -> Unit
+    onAssign: (Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     androidx.compose.foundation.layout.Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(12.dp))
+            .background(SurfaceElevated, RoundedCornerShape(12.dp))
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(providerName, style = MaterialTheme.typography.titleSmall, color = Color.White)
+            Text(providerName, style = MaterialTheme.typography.titleSmall, color = OnSurface)
             if (resolutionSummary != null) {
                 val matchedChannels = (resolutionSummary.totalChannels - resolutionSummary.unresolvedChannels).coerceAtLeast(0)
                 val summaryParts = buildList {
-                    add("Matched $matchedChannels/${resolutionSummary.totalChannels} channels")
-                    if (resolutionSummary.exactIdMatches > 0) add("${resolutionSummary.exactIdMatches} exact")
-                    if (resolutionSummary.normalizedNameMatches > 0) add("${resolutionSummary.normalizedNameMatches} name")
-                    if (resolutionSummary.providerNativeMatches > 0) add("${resolutionSummary.providerNativeMatches} provider")
-                    if (resolutionSummary.manualMatches > 0) add("${resolutionSummary.manualMatches} manual")
-                    if (resolutionSummary.unresolvedChannels > 0) add("${resolutionSummary.unresolvedChannels} without EPG")
-                    if (resolutionSummary.lowConfidenceChannels > 0) add("${resolutionSummary.lowConfidenceChannels} weak")
-                    if (resolutionSummary.rematchCandidateChannels > 0) add("${resolutionSummary.rematchCandidateChannels} need review")
+                    add(stringResource(R.string.settings_epg_matches_summary, matchedChannels, resolutionSummary.totalChannels))
+                    if (resolutionSummary.exactIdMatches > 0) add(stringResource(R.string.settings_epg_matches_exact, resolutionSummary.exactIdMatches))
+                    if (resolutionSummary.normalizedNameMatches > 0) add(stringResource(R.string.settings_epg_matches_name, resolutionSummary.normalizedNameMatches))
+                    if (resolutionSummary.providerNativeMatches > 0) add(stringResource(R.string.settings_epg_matches_provider, resolutionSummary.providerNativeMatches))
+                    if (resolutionSummary.manualMatches > 0) add(stringResource(R.string.settings_epg_matches_manual, resolutionSummary.manualMatches))
+                    if (resolutionSummary.unresolvedChannels > 0) add(stringResource(R.string.settings_epg_matches_unresolved, resolutionSummary.unresolvedChannels))
+                    if (resolutionSummary.lowConfidenceChannels > 0) add(stringResource(R.string.settings_epg_matches_weak, resolutionSummary.lowConfidenceChannels))
+                    if (resolutionSummary.rematchCandidateChannels > 0) add(stringResource(R.string.settings_epg_matches_review, resolutionSummary.rematchCandidateChannels))
                 }
                 Text(
                     text = summaryParts.joinToString(" • "),
@@ -64,7 +72,7 @@ internal fun ProviderEpgAssignmentsCard(
             }
 
             if (assignments.isEmpty()) {
-                Text("No EPG sources assigned", style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
+                Text(stringResource(R.string.settings_epg_no_sources_assigned), style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
             } else {
                 assignments.sortedBy { it.priority }.forEachIndexed { assignmentIndex, assignment ->
                     ProviderEpgAssignmentRow(
@@ -89,8 +97,8 @@ internal fun ProviderEpgAssignmentsCard(
                             onClick = { onAssign(source.id) },
                             shape = ClickableSurfaceDefaults.shape(assignActionShape),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color(0xFF66BB6A).copy(alpha = 0.12f),
-                                focusedContainerColor = Color(0xFF66BB6A).copy(alpha = 0.25f)
+                                containerColor = Primary.copy(alpha = 0.12f),
+                                focusedContainerColor = Primary.copy(alpha = 0.25f)
                             ),
                             border = epgActionBorder(assignActionShape),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -99,7 +107,7 @@ internal fun ProviderEpgAssignmentsCard(
                                 "+ ${source.name}",
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF66BB6A)
+                                color = Primary
                             )
                         }
                     }
@@ -120,21 +128,21 @@ private fun ProviderEpgAssignmentRow(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(
-            "${assignment.epgSourceName} (priority: ${assignment.priority})",
+            stringResource(R.string.settings_epg_assignment_priority, assignment.epgSourceName, assignment.priority),
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = OnSurface,
             modifier = Modifier.weight(1f)
         )
         val priorityActionShape = RoundedCornerShape(6.dp)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             ProviderEpgAssignmentButton(
-                label = "Up",
+                label = stringResource(R.string.settings_epg_move_up),
                 enabled = canMoveUp,
                 shape = priorityActionShape,
                 onClick = onMoveUp
             )
             ProviderEpgAssignmentButton(
-                label = "Down",
+                label = stringResource(R.string.settings_epg_move_down),
                 enabled = canMoveDown,
                 shape = priorityActionShape,
                 onClick = onMoveDown
@@ -145,13 +153,13 @@ private fun ProviderEpgAssignmentRow(
             onClick = onRemove,
             shape = ClickableSurfaceDefaults.shape(priorityActionShape),
             colors = ClickableSurfaceDefaults.colors(
-                containerColor = Color(0xFFEF5350).copy(alpha = 0.12f),
-                focusedContainerColor = Color(0xFFEF5350).copy(alpha = 0.25f)
+                containerColor = ErrorColor.copy(alpha = 0.12f),
+                focusedContainerColor = ErrorColor.copy(alpha = 0.25f)
             ),
             border = epgActionBorder(priorityActionShape),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
-            Text("Remove", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = Color(0xFFEF5350))
+            Text(stringResource(R.string.settings_epg_remove_assignment), modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = ErrorColor)
         }
     }
 }
@@ -168,13 +176,13 @@ private fun ProviderEpgAssignmentButton(
         enabled = enabled,
         shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.16f),
-            disabledContainerColor = Color.White.copy(alpha = 0.04f)
+            containerColor = SurfaceElevated,
+            focusedContainerColor = SurfaceHighlight,
+            disabledContainerColor = SurfaceElevated.copy(alpha = 0.55f)
         ),
         border = epgActionBorder(shape, enabled = enabled),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
-        Text(label, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = Color.White)
+        Text(label, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = OnSurface)
     }
 }

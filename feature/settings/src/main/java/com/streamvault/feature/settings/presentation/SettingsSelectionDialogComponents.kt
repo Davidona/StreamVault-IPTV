@@ -72,7 +72,7 @@ fun PremiumSelectionDialog(
                         style = MaterialTheme.typography.titleMedium,
                         color = Primary
                     )
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                    HorizontalDivider(color = com.streamvault.core.ui.design.AppColors.Divider)
                     Column(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier

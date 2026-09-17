@@ -1,5 +1,6 @@
 package com.streamvault.core.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,7 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -56,6 +57,7 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -147,6 +149,13 @@ fun SearchInput(
         pendingInputActivation = false
     }
 
+    BackHandler(enabled = shouldConsumeSearchInputBack(isTelevisionDevice, acceptsInput)) {
+        pendingInputActivation = false
+        acceptsInput = false
+        keyboardController?.hide()
+        focusRequester.requestFocus()
+    }
+
     val borderColor = if (isFocused) FocusBorder else OnSurfaceDim.copy(alpha = 0.5f)
     val backgroundColor = if (isFocused) SurfaceHighlight else SurfaceElevated
     val borderWidth = if (isFocused) 2.dp else 1.dp
@@ -154,11 +163,11 @@ fun SearchInput(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .heightIn(min = 56.dp)
             .focusRequester(focusRequester)
             .bringIntoViewRequester(bringIntoViewRequester)
-            .background(backgroundColor, RoundedCornerShape(8.dp))
-            .border(borderWidth, borderColor, RoundedCornerShape(8.dp))
+            .background(backgroundColor, RoundedCornerShape(12.dp))
+            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
             .semantics(mergeDescendants = true) {
                 contentDescription = placeholder
                 stateDescription = value.ifBlank { placeholder }
@@ -185,7 +194,7 @@ fun SearchInput(
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodySmall,
-                        color = OnSurfaceDim
+                        color = TextSecondary
                     )
                 }
 
@@ -276,3 +285,8 @@ fun SearchInput(
         }
     }
 }
+
+internal fun shouldConsumeSearchInputBack(
+    isTelevisionDevice: Boolean,
+    acceptsInput: Boolean,
+): Boolean = isTelevisionDevice && acceptsInput

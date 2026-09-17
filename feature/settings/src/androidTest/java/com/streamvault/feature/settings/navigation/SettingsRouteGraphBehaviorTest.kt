@@ -58,7 +58,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
-                    settingsContent = { uri, _, _ ->
+                    settingsContent = { uri, _, _, _ ->
                         receivedBackupUri = uri
                         androidx.tv.material3.Text("Settings route")
                     },
@@ -91,7 +91,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
-                    settingsContent = { _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
                     parentalControlContent = { _, _ -> androidx.tv.material3.Text("Parental route") }
                 )
             }
@@ -130,7 +130,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = destinations,
-                    settingsContent = { _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
                     parentalControlContent = { _, receivedDestinations ->
                         receivedDestinationIds = receivedDestinations.map(UiDestination::id)
                         androidx.tv.material3.Text("Parental route")
@@ -148,6 +148,49 @@ class SettingsRouteGraphBehaviorTest {
         }
     }
 
+    @Test
+    fun parentalBack_returnsToSettingsInsteadOfHome() {
+        lateinit var navController: TestNavHostController
+        lateinit var parentalBack: () -> Unit
+
+        composeRule.setContent {
+            navController = rememberTestNavController()
+            val actions = remember(navController) { TestNavigationActions(navController) }
+            NavHost(navController = navController, startDestination = "home") {
+                composable("home") { androidx.tv.material3.Text("Home route") }
+                registerSettingsGraph(
+                    actions = actions,
+                    platformHost = EmptySettingsPlatformHost,
+                    navigationDestinations = emptyList(),
+                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    parentalControlContent = { onBack, _ ->
+                        parentalBack = onBack
+                        androidx.tv.material3.Text("Parental route")
+                    },
+                )
+            }
+            LaunchedEffect(Unit) {
+                navController.navigate("settings")
+                navController.navigate("parental_control_groups/42")
+            }
+        }
+
+        composeRule.waitUntil(3_000) {
+            navController.currentBackStackEntry?.destination?.route ==
+                SettingsRoutePatterns.PARENTAL_CONTROL_GROUPS
+        }
+        composeRule.onNodeWithText("Parental route").assertIsDisplayed()
+        composeRule.runOnIdle { parentalBack() }
+        composeRule.waitUntil(3_000) {
+            navController.currentBackStackEntry?.destination?.route ==
+                SettingsRoutePatterns.SETTINGS_DESTINATION
+        }
+        composeRule.onNodeWithText("Settings route").assertIsDisplayed()
+        composeRule.runOnIdle {
+            assertThat(navController.previousBackStackEntry?.destination?.route).isEqualTo("home")
+        }
+    }
+
     @Composable
     private fun rememberTestNavController(): TestNavHostController {
         val context = LocalContext.current
@@ -157,6 +200,23 @@ class SettingsRouteGraphBehaviorTest {
             }
         }
     }
+}
+
+private class TestNavigationActions(
+    private val navController: TestNavHostController,
+) : NavigationActions {
+    override fun navigate(destination: AppDestination, options: NavigationOptions) {
+        val route = when (destination) {
+            is AppDestination.Settings -> "settings"
+            is AppDestination.ParentalControlGroups -> "parental_control_groups/${destination.providerId}"
+            else -> error("Unsupported test destination: $destination")
+        }
+        navController.navigate(route)
+    }
+
+    override fun openPlayer(request: PlayerNavigationRequest) = Unit
+    override fun back(): Boolean = navController.popBackStack()
+    override fun returnTo(destination: AppDestination?): Boolean = false
 }
 
 private object NoOpNavigationActions : NavigationActions {

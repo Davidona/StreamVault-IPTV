@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -64,7 +65,9 @@ public fun CombinedM3uProfilesCard(
     onAddProvider: (Long) -> Unit,
     onRemoveProvider: (Long, Long) -> Unit,
     onToggleProviderEnabled: (Long, Long, Boolean) -> Unit,
-    onMoveProvider: (Long, Long, Boolean) -> Unit
+    onMoveProvider: (Long, Long, Boolean) -> Unit,
+    targetItemId: String? = null,
+    targetFocusModifier: Modifier = Modifier,
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -83,33 +86,42 @@ public fun CombinedM3uProfilesCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Combined M3U", style = MaterialTheme.typography.titleMedium, color = OnSurface)
+                Text(stringResource(R.string.settings_combined_section_title), style = MaterialTheme.typography.titleMedium, color = OnSurface)
                     Text(
-                        "Merge selected M3U playlists into one Live TV and EPG source.",
+                    stringResource(R.string.settings_combined_section_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = OnSurfaceDim
                     )
                 }
                 CompactSettingsActionChip(
-                    label = "Create Combined",
+                label = stringResource(R.string.settings_combined_create),
                     accent = Primary,
                     onClick = onCreateProfile
                 )
             }
 
             if (profiles.isEmpty()) {
-                Text("No combined M3U sources yet.", style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
+            Text(stringResource(R.string.settings_combined_none), style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim)
             } else {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(profiles, key = { it.id }) { profile ->
                         val isActive = (activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId == profile.id
                         ProviderChip(
                             title = profile.name,
-                            subtitle = buildString {
-                                append("${profile.members.count { it.enabled }}/${profile.members.size} playlist(s)")
-                                if (isActive) append(" • Active")
-                                if (profile.members.none { it.enabled }) append(" • Empty")
-                            },
+                            subtitle = buildList {
+                                add(
+                                    pluralStringResource(
+                                        R.plurals.settings_combined_playlist_count,
+                                        profile.members.size,
+                                        profile.members.count { it.enabled },
+                                        profile.members.size,
+                                    )
+                                )
+                                if (isActive) add(stringResource(R.string.settings_active))
+                                if (profile.members.none { it.enabled }) {
+                                    add(stringResource(R.string.settings_combined_empty_status))
+                                }
+                            }.joinToString(" \u00B7 "),
                             isSelected = selectedProfileId == profile.id,
                             isActive = isActive,
                             onClick = { onSelectProfile(profile.id) }
@@ -124,43 +136,50 @@ public fun CombinedM3uProfilesCard(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         CompactSettingsActionChip(
-                            label = "Use For Live TV",
+                            label = stringResource(R.string.settings_combined_use_live),
                             accent = Primary,
                             enabled = selectedProfile.members.any { it.enabled },
-                            onClick = { onActivateProfile(selectedProfile.id) }
+                            onClick = { onActivateProfile(selectedProfile.id) },
+                            modifier = if (targetItemId == "sources.combined.active") targetFocusModifier else Modifier,
                         )
                         CompactSettingsActionChip(
-                            label = "Rename",
+                            label = stringResource(R.string.settings_combined_rename),
                             accent = OnBackground,
                             onClick = { onRenameProfile(selectedProfile.id) }
                         )
                         CompactSettingsActionChip(
-                            label = "Add Playlist",
+                            label = stringResource(R.string.settings_combined_add_playlist),
                             accent = OnBackground,
-                            onClick = { onAddProvider(selectedProfile.id) }
+                            onClick = { onAddProvider(selectedProfile.id) },
+                            modifier = if (targetItemId == "sources.combined.members") targetFocusModifier else Modifier,
                         )
                         CompactSettingsActionChip(
-                            label = "Delete",
+                            label = stringResource(R.string.settings_combined_delete),
                             accent = ErrorColor,
-                            onClick = { onDeleteProfile(selectedProfile.id) }
+                            onClick = { onDeleteProfile(selectedProfile.id) },
+                            modifier = if (targetItemId == "sources.combined.delete") targetFocusModifier else Modifier,
                         )
                     }
 
                     Text(
-                        text = "${selectedProfile.members.count { it.enabled }} of ${selectedProfile.members.size} playlists enabled",
+                        text = stringResource(
+                            R.string.settings_combined_enabled_count,
+                            selectedProfile.members.count { it.enabled },
+                            selectedProfile.members.size,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = OnSurfaceDim
                     )
 
                     if (selectedProfile.members.isEmpty()) {
                         Text(
-                            text = "This combined source has no playlists yet. Add at least one M3U playlist before using it.",
+                            text = stringResource(R.string.settings_combined_empty),
                             style = MaterialTheme.typography.bodySmall,
                             color = OnSurfaceDim
                         )
                     } else if (selectedProfile.members.none { it.enabled }) {
                         Text(
-                            text = "All playlists in this combined source are disabled. Enable at least one to use it in Live TV.",
+                            text = stringResource(R.string.settings_combined_all_disabled),
                             style = MaterialTheme.typography.bodySmall,
                             color = OnSurfaceDim
                         )
@@ -170,7 +189,8 @@ public fun CombinedM3uProfilesCard(
                         .sortedBy { it.priority }
                         .forEachIndexed { index, member ->
                             val providerName = member.providerName.ifBlank {
-                                availableProviders.firstOrNull { it.id == member.providerId }?.name ?: "Playlist ${member.providerId}"
+                            availableProviders.firstOrNull { it.id == member.providerId }?.name
+                                ?: stringResource(R.string.settings_combined_playlist_fallback, member.providerId)
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -180,20 +200,23 @@ public fun CombinedM3uProfilesCard(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(providerName, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
                                     Text(
-                                        if (member.enabled) "Enabled in merged source" else "Disabled in merged source",
+                                stringResource(
+                                    if (member.enabled) R.string.settings_combined_member_enabled
+                                    else R.string.settings_combined_member_disabled
+                                ),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = OnSurfaceDim
                                     )
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     CompactSettingsActionChip(
-                                        label = "Up",
+                                        label = stringResource(R.string.settings_combined_move_up),
                                         accent = OnBackground,
                                         enabled = index > 0,
                                         onClick = { onMoveProvider(selectedProfile.id, member.providerId, true) }
                                     )
                                     CompactSettingsActionChip(
-                                        label = "Down",
+                                        label = stringResource(R.string.settings_combined_move_down),
                                         accent = OnBackground,
                                         enabled = index < selectedProfile.members.lastIndex,
                                         onClick = { onMoveProvider(selectedProfile.id, member.providerId, false) }
@@ -203,7 +226,7 @@ public fun CombinedM3uProfilesCard(
                                         onCheckedChange = { onToggleProviderEnabled(selectedProfile.id, member.providerId, it) }
                                     )
                                     CompactSettingsActionChip(
-                                        label = "Remove",
+                                        label = stringResource(R.string.settings_combined_remove),
                                         accent = ErrorColor,
                                         onClick = { onRemoveProvider(selectedProfile.id, member.providerId) }
                                     )
@@ -226,15 +249,15 @@ public fun RenameCombinedM3uDialog(
     var name by rememberSaveable(profile.id) { mutableStateOf(profile.name) }
 
     PremiumDialog(
-        title = "Rename Combined M3U",
-        subtitle = "Update the name shown in Live TV and provider settings.",
+        title = stringResource(R.string.settings_combined_rename_title),
+        subtitle = stringResource(R.string.settings_combined_rename_description),
         onDismissRequest = onDismiss,
         widthFraction = 0.48f,
         content = {
             EpgSourceTextField(
                 value = name,
                 onValueChange = { updated -> name = updated },
-                placeholder = "Combined source name"
+                placeholder = stringResource(R.string.settings_combined_name_hint)
             )
         },
         footer = {
@@ -244,7 +267,7 @@ public fun RenameCombinedM3uDialog(
                 enabled = !isSubmitting
             )
             PremiumDialogFooterButton(
-                label = "Save",
+                label = stringResource(R.string.settings_combined_save),
                 onClick = { onRename(name.trim()) },
                 enabled = name.isNotBlank() && !isSubmitting,
                 emphasized = true
@@ -279,20 +302,20 @@ public fun CreateCombinedM3uDialog(
     }
 
     PremiumDialog(
-        title = "Create Combined M3U",
-        subtitle = "Pick the M3U playlists you want to browse together in Live TV and guide.",
+        title = stringResource(R.string.settings_combined_create_title),
+        subtitle = stringResource(R.string.settings_combined_create_description),
         onDismissRequest = onDismiss,
         widthFraction = 0.52f,
         content = {
             EpgSourceTextField(
                 value = name,
                 onValueChange = { updated -> name = updated },
-                placeholder = effectiveName.ifBlank { "Combined source name" }
+            placeholder = effectiveName.ifBlank { stringResource(R.string.settings_combined_name_hint) }
             )
 
             if (m3uProviders.isEmpty()) {
                 Text(
-                    text = "No M3U playlists are available yet. Add at least one playlist first.",
+                    text = stringResource(R.string.settings_combined_no_playlists),
                     style = MaterialTheme.typography.bodySmall,
                     color = OnSurfaceDim
                 )
@@ -317,7 +340,7 @@ public fun CreateCombinedM3uDialog(
                             modifier = Modifier.fillMaxWidth(),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = if (isSelected) Primary.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.04f),
+                                containerColor = if (isSelected) Primary.copy(alpha = 0.16f) else com.streamvault.core.ui.theme.SurfaceElevated,
                                 focusedContainerColor = Primary.copy(alpha = 0.24f)
                             ),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -339,7 +362,10 @@ public fun CreateCombinedM3uDialog(
                                         color = OnSurface
                                     )
                                     Text(
-                                        text = if (isSelected) "Included in this combined source" else "Press to include this playlist",
+                                    text = stringResource(
+                                        if (isSelected) R.string.settings_combined_member_included
+                                        else R.string.settings_combined_member_include_action
+                                    ),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = OnSurfaceDim
                                     )
@@ -361,7 +387,7 @@ public fun CreateCombinedM3uDialog(
                 enabled = !isSubmitting
             )
             PremiumDialogFooterButton(
-                label = "Create",
+                label = stringResource(R.string.settings_combined_create),
                 onClick = { onCreate(effectiveName, selectedProviderIds.toList()) },
                 enabled = selectedProviderIds.isNotEmpty() && effectiveName.isNotBlank() && !isSubmitting,
                 emphasized = true
@@ -383,14 +409,14 @@ public fun AddCombinedProviderDialog(
     }
     var selectedProviderId by rememberSaveable(profile.id) { mutableStateOf(candidateProviders.firstOrNull()?.id) }
     PremiumDialog(
-        title = "Add Playlist To ${profile.name}",
-        subtitle = "Select another M3U playlist to include in this combined source.",
+        title = stringResource(R.string.settings_combined_add_title, profile.name),
+        subtitle = stringResource(R.string.settings_combined_add_description),
         onDismissRequest = onDismiss,
         widthFraction = 0.52f,
         content = {
             if (candidateProviders.isEmpty()) {
                 Text(
-                    text = "All M3U playlists are already in this combined source.",
+                    text = stringResource(R.string.settings_combined_all_added),
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnSurfaceDim
                 )
@@ -409,19 +435,19 @@ public fun AddCombinedProviderDialog(
                             modifier = Modifier.fillMaxWidth(),
                             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
                             colors = ClickableSurfaceDefaults.colors(
-                                containerColor = if (isSelected) Primary.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.04f),
+                                containerColor = if (isSelected) Primary.copy(alpha = 0.16f) else com.streamvault.core.ui.theme.SurfaceElevated,
                                 focusedContainerColor = Primary.copy(alpha = 0.22f)
                             ),
                             border = ClickableSurfaceDefaults.border(
                                 border = Border(
                                     border = BorderStroke(
                                         1.dp,
-                                        if (isSelected) Primary.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.08f)
+                                        if (isSelected) Primary.copy(alpha = 0.4f) else com.streamvault.core.ui.design.AppColors.Divider
                                     ),
                                     shape = RoundedCornerShape(12.dp)
                                 ),
                                 focusedBorder = Border(
-                                    border = BorderStroke(FocusSpec.BorderWidth, Color.White),
+                                    border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
                                     shape = RoundedCornerShape(12.dp)
                                 )
                             ),
@@ -457,7 +483,7 @@ public fun AddCombinedProviderDialog(
                 enabled = !isSubmitting
             )
             PremiumDialogFooterButton(
-                label = "Add",
+                label = stringResource(R.string.settings_combined_add),
                 onClick = { selectedProviderId?.let(onAddProvider) },
                 enabled = selectedProviderId != null && candidateProviders.isNotEmpty() && !isSubmitting,
                 emphasized = true

@@ -7,6 +7,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.darkColorScheme
 import androidx.tv.material3.lightColorScheme
+import androidx.compose.material3.MaterialTheme as StandardMaterialTheme
+import androidx.compose.material3.darkColorScheme as standardDarkColorScheme
+import androidx.compose.material3.lightColorScheme as standardLightColorScheme
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppPalette
 import com.streamvault.core.ui.design.AppShapes
@@ -21,6 +24,46 @@ fun StreamVaultTheme(
 ) {
     val palette = AppPalette.forTheme(themeId)
     val typography = rememberAppTypography()
+    val tvColorScheme = if (palette.isLight) {
+        lightColorScheme(
+            primary = palette.brand,
+            onPrimary = palette.onPrimary,
+            secondary = palette.success,
+            onSecondary = Color.White,
+            tertiary = palette.info,
+            onTertiary = Color.White,
+            surface = palette.surface,
+            onSurface = palette.textPrimary,
+            surfaceVariant = palette.surfaceElevated,
+            onSurfaceVariant = palette.textSecondary,
+            background = palette.canvasElevated,
+            onBackground = palette.textPrimary,
+            error = palette.live,
+            onError = palette.onPrimary,
+            errorContainer = palette.live.copy(alpha = 0.12f),
+            onErrorContainer = Color(0xFF601410)
+        )
+    } else {
+        darkColorScheme(
+            primary = palette.brand,
+            onPrimary = palette.onPrimary,
+            secondary = palette.success,
+            onSecondary = Color(0xFF003320),
+            tertiary = palette.info,
+            onTertiary = Color(0xFF00344A),
+            surface = palette.surface,
+            onSurface = palette.textPrimary,
+            surfaceVariant = palette.surfaceElevated,
+            onSurfaceVariant = palette.textSecondary,
+            background = palette.canvasElevated,
+            onBackground = palette.textPrimary,
+            error = palette.live,
+            onError = palette.onPrimary,
+            errorContainer = palette.live.copy(alpha = 0.20f),
+            onErrorContainer = Color(0xFFFFDCDE)
+        )
+    }
+    val standardColorScheme = standardMaterialColorScheme(palette)
     SideEffect {
         AppColors.current = palette
     }
@@ -29,47 +72,47 @@ fun StreamVaultTheme(
         LocalAppShapes provides AppShapes()
     ) {
         MaterialTheme(
-            colorScheme = if (palette.isLight) {
-                lightColorScheme(
-                    primary = palette.brand,
-                    onPrimary = palette.onPrimary,
-                    secondary = palette.success,
-                    onSecondary = Color.White,
-                    tertiary = palette.info,
-                    onTertiary = Color.White,
-                    surface = palette.surface,
-                    onSurface = palette.textPrimary,
-                    surfaceVariant = palette.surfaceElevated,
-                    onSurfaceVariant = palette.textSecondary,
-                    background = palette.canvasElevated,
-                    onBackground = palette.textPrimary,
-                    error = palette.live,
-                    onError = palette.onPrimary,
-                    errorContainer = palette.live.copy(alpha = 0.12f),
-                    onErrorContainer = Color(0xFF601410)
-                )
-            } else {
-                darkColorScheme(
-                    primary = palette.brand,
-                    onPrimary = palette.onPrimary,
-                    secondary = palette.success,
-                    onSecondary = Color(0xFF003320),
-                    tertiary = palette.info,
-                    onTertiary = Color(0xFF00344A),
-                    surface = palette.surface,
-                    onSurface = palette.textPrimary,
-                    surfaceVariant = palette.surfaceElevated,
-                    onSurfaceVariant = palette.textSecondary,
-                    background = palette.canvasElevated,
-                    onBackground = palette.textPrimary,
-                    error = palette.live,
-                    onError = palette.onPrimary,
-                    errorContainer = palette.live.copy(alpha = 0.20f),
-                    onErrorContainer = Color(0xFFFFDCDE)
-                )
-            },
+            colorScheme = tvColorScheme,
             typography = typography,
-            content = content
-        )
+        ) {
+            StandardMaterialTheme(
+                colorScheme = standardColorScheme,
+                content = content,
+            )
+        }
     }
+}
+
+internal fun standardMaterialColorScheme(
+    palette: AppPalette,
+): androidx.compose.material3.ColorScheme = if (palette.isLight) {
+    standardLightColorScheme(
+        primary = palette.brand,
+        onPrimary = palette.onPrimary,
+        secondary = palette.success,
+        surface = palette.surface,
+        onSurface = palette.textPrimary,
+        surfaceVariant = palette.surfaceElevated,
+        onSurfaceVariant = palette.textSecondary,
+        background = palette.canvasElevated,
+        onBackground = palette.textPrimary,
+        error = palette.live,
+        onError = palette.onPrimary,
+        outline = palette.outline,
+    )
+} else {
+    standardDarkColorScheme(
+        primary = palette.brand,
+        onPrimary = palette.onPrimary,
+        secondary = palette.success,
+        surface = palette.surface,
+        onSurface = palette.textPrimary,
+        surfaceVariant = palette.surfaceElevated,
+        onSurfaceVariant = palette.textSecondary,
+        background = palette.canvasElevated,
+        onBackground = palette.textPrimary,
+        error = palette.live,
+        onError = palette.onPrimary,
+        outline = palette.outline,
+    )
 }
