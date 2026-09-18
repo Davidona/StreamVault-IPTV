@@ -54,4 +54,69 @@ class StreamInfoTest {
         assertThat(error).isNotNull()
         assertThat(error!!.message).contains("allowed stream-entry URL scheme")
     }
+
+    @Test
+    fun drmInfo_accepts_redacted_static_clearkey_source() {
+        val key = StaticClearKey(
+            keyIdBase64Url = "ESIzRFVmd4iZqrvM3e7_8A",
+            keyBase64Url = "_-7dzLuqmYh3ZlVEMyIRAA"
+        )
+        val license = StaticClearKeyLicense(
+            keys = listOf(key),
+            fingerprint = "sha256:test"
+        )
+
+        val drmInfo = DrmInfo(
+            scheme = DrmScheme.CLEARKEY,
+            staticClearKeyLicense = license
+        )
+
+        assertThat(drmInfo.licenseUrl).isEmpty()
+        assertThat(drmInfo.staticClearKeyLicense).isEqualTo(license)
+        assertThat(drmInfo.toString()).doesNotContain(key.keyBase64Url)
+        assertThat(license.toString()).doesNotContain(key.keyBase64Url)
+    }
+
+    @Test
+    fun drmInfo_rejects_multiple_license_sources() {
+        val error = try {
+            DrmInfo(
+                scheme = DrmScheme.CLEARKEY,
+                licenseUrl = "https://license.example.com/clearkey",
+                staticClearKeyLicense = StaticClearKeyLicense(
+                    keys = listOf(
+                        StaticClearKey("ESIzRFVmd4iZqrvM3e7_8A", "_-7dzLuqmYh3ZlVEMyIRAA")
+                    ),
+                    fingerprint = "sha256:test"
+                )
+            )
+            null
+        } catch (e: IllegalArgumentException) {
+            e
+        }
+
+        assertThat(error).isNotNull()
+        assertThat(error!!.message).contains("exactly one")
+    }
+
+    @Test
+    fun drmInfo_rejects_static_license_for_non_clearkey_scheme() {
+        val error = try {
+            DrmInfo(
+                scheme = DrmScheme.WIDEVINE,
+                staticClearKeyLicense = StaticClearKeyLicense(
+                    keys = listOf(
+                        StaticClearKey("ESIzRFVmd4iZqrvM3e7_8A", "_-7dzLuqmYh3ZlVEMyIRAA")
+                    ),
+                    fingerprint = "sha256:test"
+                )
+            )
+            null
+        } catch (e: IllegalArgumentException) {
+            e
+        }
+
+        assertThat(error).isNotNull()
+        assertThat(error!!.message).contains("ClearKey")
+    }
 }

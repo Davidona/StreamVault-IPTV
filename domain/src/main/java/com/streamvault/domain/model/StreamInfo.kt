@@ -63,20 +63,85 @@ data class PlaybackTransportPolicy(
     }
 }
 
+data class StaticClearKey(
+    val keyIdBase64Url: String,
+    val keyBase64Url: String
+) {
+    init {
+        require(keyIdBase64Url.isNotBlank()) { "Static ClearKey key ID must not be blank" }
+        require(keyBase64Url.isNotBlank()) { "Static ClearKey key must not be blank" }
+    }
+
+    override fun toString(): String = "StaticClearKey(<redacted>)"
+}
+
+data class StaticClearKeyLicense(
+    val keys: List<StaticClearKey>,
+    val fingerprint: String
+) {
+    init {
+        require(keys.isNotEmpty()) { "Static ClearKey license must contain at least one key" }
+        require(fingerprint.isNotBlank()) { "Static ClearKey license fingerprint must not be blank" }
+    }
+
+    override fun toString(): String = "StaticClearKeyLicense(keys=${keys.size}, fingerprint=$fingerprint)"
+}
+
 data class DrmInfo(
     val scheme: DrmScheme,
-    val licenseUrl: String,
+    val licenseUrl: String = "",
     val headers: Map<String, String> = emptyMap(),
     val multiSession: Boolean = false,
     val forceDefaultLicenseUrl: Boolean = false,
-    val playClearContentWithoutKey: Boolean = false
+    val playClearContentWithoutKey: Boolean = false,
+    val staticClearKeyLicense: StaticClearKeyLicense? = null
 ) {
+    private val hasRemoteLicense: Boolean
+        get() = licenseUrl.isNotBlank()
+
     init {
-        require(licenseUrl.isNotBlank()) { "DrmInfo licenseUrl must not be blank" }
-        require(StreamEntryUrlPolicy.isAllowed(licenseUrl)) {
-            "DrmInfo licenseUrl must use an allowed stream-entry URL scheme"
+        require(hasRemoteLicense xor (staticClearKeyLicense != null)) {
+            "DrmInfo must contain exactly one remote or static license source"
+        }
+        if (hasRemoteLicense) {
+            require(StreamEntryUrlPolicy.isAllowed(licenseUrl)) {
+                "DrmInfo licenseUrl must use an allowed stream-entry URL scheme"
+            }
+        }
+        if (staticClearKeyLicense != null) {
+            require(scheme == DrmScheme.CLEARKEY) {
+                "Static license material is supported only for ClearKey"
+            }
         }
     }
+
+    override fun toString(): String = buildString {
+        append("DrmInfo(scheme=")
+        append(scheme)
+        append(", licenseUrl=")
+        append(if (hasRemoteLicense) redactedUrl(licenseUrl) else "<local>")
+        append(", headers=")
+        append(headers.keys)
+        append(", multiSession=")
+        append(multiSession)
+        append(", forceDefaultLicenseUrl=")
+        append(forceDefaultLicenseUrl)
+        append(", playClearContentWithoutKey=")
+        append(playClearContentWithoutKey)
+        append(", staticClearKeyLicense=")
+        append(staticClearKeyLicense?.let { "<${it.keys.size} keys>" } ?: "null")
+        append(')')
+    }
+
+    private fun redactedUrl(url: String): String = runCatching {
+        val parsed = java.net.URI(url)
+        buildString {
+            append(parsed.scheme ?: "<url>")
+            append("://")
+            append(parsed.host ?: "<host>")
+            parsed.port.takeIf { it >= 0 }?.let { append(':').append(it) }
+        }
+    }.getOrDefault("<url>")
 }
 
 enum class DrmScheme {
