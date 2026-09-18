@@ -117,12 +117,20 @@ class M3uPlaybackMetadataBuilder {
         when (normalizedKey) {
             "inputstream.adaptive.manifest_type" -> manifestType = parseManifestType(value)
             "inputstream.adaptive.license_type" -> drmScheme = parseDrmScheme(value)
-            "inputstream.adaptive.license_key" -> licenseKey = value.takeIf(String::isNotBlank)
+            "inputstream.adaptive.license_key" -> applyLicenseKey(value)
             "inputstream.adaptive.manifest_headers" -> parseHeaders(value)?.let { putHeaderMap("manifest", it) }
             "inputstream.adaptive.stream_headers" -> parseHeaders(value)?.let { putHeaderMap("stream", it) }
             "inputstream.adaptive.common_headers" -> parseHeaders(value)?.let { putHeaderMap("common", it) }
             "inputstream.adaptive.license_headers" -> parseHeaders(value)?.let { putHeaderMap("license", it) }
         }
+    }
+
+    private fun applyLicenseKey(raw: String) {
+        val parts = raw.split('|', limit = 3)
+        licenseKey = parts.firstOrNull()?.trim()?.takeIf(String::isNotBlank)
+        parts.getOrNull(1)
+            ?.let(::parseHeaders)
+            ?.let { putHeaderMap("license", it) }
     }
 
     private fun putHeader(target: String, rawName: String, rawValue: String) {
@@ -165,6 +173,13 @@ class M3uPlaybackMetadataBuilder {
 }
 
 object M3uPlaybackMetadataCodec {
+    fun fingerprint(raw: String?): String {
+        if (raw.isNullOrBlank()) return ""
+        return MessageDigest.getInstance("SHA-256")
+            .digest(raw.toByteArray(StandardCharsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(Locale.ROOT, byte) }
+    }
+
     fun encode(metadata: M3uPlaybackMetadata): String {
         val root = buildJsonObject {
             put("version", metadata.version)

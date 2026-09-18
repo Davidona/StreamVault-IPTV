@@ -49,7 +49,7 @@ internal fun preloadStreamIdentity(streamInfo: StreamInfo): String {
             .joinToString("&") { "${it.key}=${it.value}" }
         listOf(
             drmInfo.scheme,
-            drmInfo.licenseUrl,
+            drmInfo.staticClearKeyLicense?.fingerprint ?: stableHash(drmInfo.licenseUrl),
             drmHeaders,
             drmInfo.multiSession,
             drmInfo.forceDefaultLicenseUrl,

@@ -257,7 +257,8 @@ class M3uClassificationRepositoryImpl @Inject constructor(
             categoryName = liveDestination.name,
             streamUrl = movie.streamUrl,
             providerId = providerId,
-            isAdult = movie.isAdult
+            isAdult = movie.isAdult,
+            playbackMetadataJson = movie.playbackMetadataJson
         )
         val newChannelId = channelDao.insert(channel)
         migrateHistory(movie.id, ContentType.MOVIE, newChannelId, ContentType.LIVE, channel)
@@ -323,7 +324,8 @@ class M3uClassificationRepositoryImpl @Inject constructor(
                 categoryName = "Movies",
                 streamUrl = channel.streamUrl,
                 providerId = channel.providerId,
-                isAdult = channel.isAdult
+                isAdult = channel.isAdult,
+                playbackMetadataJson = channel.playbackMetadataJson
             )
         )
     }

@@ -277,6 +277,8 @@ class ChannelRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean): Result<StreamInfo> = try {
+        val persistedChannel = channelDao.getById(channel.selectedVariantId)
+            ?: channelDao.getById(channel.id)
         xtreamStreamUrlResolver.resolveAndCommitMetadata(
             url = channel.streamUrl,
             fallbackProviderId = channel.providerId,
@@ -299,7 +301,7 @@ class ChannelRepositoryImpl @Inject constructor(
                     streamType = StreamType.fromContainerExtension(resolvedStream.containerExtension),
                     containerExtension = resolvedStream.containerExtension,
                     expirationTime = resolvedStream.expirationTime
-                )
+                ).withM3uPlaybackMetadata(persistedChannel?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for channel: ${channel.name}")
     } catch (e: Exception) {

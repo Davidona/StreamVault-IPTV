@@ -5,6 +5,7 @@ import com.streamvault.data.local.entity.ChannelEntity
 import com.streamvault.data.local.entity.MovieEntity
 import com.streamvault.data.local.dao.M3uClassificationDao
 import com.streamvault.data.parser.M3uParser
+import com.streamvault.data.parser.M3uPlaybackMetadataCodec
 import com.streamvault.data.parser.M3uMediaKind
 import com.streamvault.data.parser.M3uSourceIdentity
 import com.streamvault.data.parser.M3uVodClassifier
@@ -161,7 +162,8 @@ internal class SyncManagerM3uImporter(
                                 entry.userAgent,
                                 entry.rating,
                                 entry.year,
-                                entry.genre
+                                entry.genre,
+                                entry.playbackMetadata?.let(M3uPlaybackMetadataCodec::encode)
                             )
                         )
                         if (parsedCount >= nextMilestone) {
@@ -187,6 +189,7 @@ internal class SyncManagerM3uImporter(
 
                         val safeLogoUrl = UrlSecurityPolicy.sanitizeImportedAssetUrl(entry.tvgLogo)
                         val safeCatchUpSource = UrlSecurityPolicy.sanitizeImportedAssetUrl(entry.catchUpSource)
+                        val playbackMetadataJson = entry.playbackMetadata?.let(M3uPlaybackMetadataCodec::encode)
 
                         val sourceKey = M3uSourceIdentity.fromEntry(provider.id, entry)
                         val sourceStableId = M3uSourceIdentity.stableLongId(provider.id, entry)
@@ -218,7 +221,8 @@ internal class SyncManagerM3uImporter(
                                     catchUpDays = entry.catchUpDays ?: 0,
                                     catchUpSource = safeCatchUpSource,
                                     providerId = provider.id,
-                                    isAdult = AdultContentClassifier.isAdultCategoryName(groupTitle)
+                                    isAdult = AdultContentClassifier.isAdultCategoryName(groupTitle),
+                                    playbackMetadataJson = playbackMetadataJson
                                 )
                             )
                             seriesToReconcile += stableStreamId to override?.toSeriesAssignment()
@@ -269,7 +273,8 @@ internal class SyncManagerM3uImporter(
                                     rating = entry.rating?.toFloatOrNull() ?: 0f,
                                     year = entry.year,
                                     genre = entry.genre,
-                                    isAdult = isAdult
+                                    isAdult = isAdult,
+                                    playbackMetadataJson = playbackMetadataJson
                                 )
                             )
                             movieCount++
@@ -303,7 +308,8 @@ internal class SyncManagerM3uImporter(
                                     catchUpDays = entry.catchUpDays ?: 0,
                                     catchUpSource = safeCatchUpSource,
                                     providerId = provider.id,
-                                    isAdult = isAdult
+                                    isAdult = isAdult,
+                                    playbackMetadataJson = playbackMetadataJson
                                 )
                             )
                             liveCount++

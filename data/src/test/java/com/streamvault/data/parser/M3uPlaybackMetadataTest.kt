@@ -59,6 +59,22 @@ class M3uPlaybackMetadataTest {
     }
 
     @Test
+    fun `pipe formatted remote license key keeps URL and license headers`() {
+        val builder = M3uPlaybackMetadataBuilder()
+        builder.applyDirective("#KODIPROP:inputstream.adaptive.license_type=widevine")
+        builder.applyDirective(
+            "#KODIPROP:inputstream.adaptive.license_key=" +
+                "https://license.example/key|Authorization=Bearer%20token&Content-Type=application%2Fjson|R{SSM}"
+        )
+
+        val metadata = builder.build()!!
+
+        assertThat(metadata.licenseUrl).isEqualTo("https://license.example/key")
+        assertThat(metadata.licenseHeaders["Authorization"]).isEqualTo("Bearer token")
+        assertThat(metadata.licenseHeaders["Content-Type"]).isEqualTo("application/json")
+    }
+
+    @Test
     fun `codec round trip keeps normalized metadata`() {
         val builder = M3uPlaybackMetadataBuilder()
         builder.applyDirective("#KODIPROP:inputstream.adaptive.manifest_type=mpd")

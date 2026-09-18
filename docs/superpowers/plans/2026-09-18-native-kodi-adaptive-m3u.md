@@ -117,7 +117,7 @@ Cover case-insensitive aliases, `mpd`/`hls`/`ism`, duplicate scalar replacement,
 
 ```kotlin
 @Test
-fun `widevine URL metadata normalizes JioTV directives`() {
+fun `widevine URL metadata normalizes Kodi directives`() {
     val builder = M3uPlaybackMetadataBuilder()
     builder.applyDirective("#KODIPROP:inputstream.adaptive.manifest_type=mpd")
     builder.applyDirective("#KODIPROP:inputstream.adaptive.license_type=com.widevine.alpha")
@@ -180,7 +180,7 @@ git commit -m "feat: normalize Kodi adaptive M3U metadata"
 
 - [ ] **Step 1: Write failing parser regression tests**
 
-Add one issue #169 fixture and one JioTV fixture. Assert the URL remains the first non-comment line, the metadata is attached only to the preceding `#EXTINF`, a later entry does not inherit it, and `#EXTVLCOPT:http-user-agent`/referer are preserved.
+Add one issue #169 fixture and one provider fixture. Assert the URL remains the first non-comment line, the metadata is attached only to the preceding `#EXTINF`, a later entry does not inherit it, and `#EXTVLCOPT:http-user-agent`/referer are preserved.
 
 ```kotlin
 @Test
@@ -494,7 +494,7 @@ Expected: PASS.
 
 - [ ] **Step 6: Validate an authorized Widevine DASH channel**
 
-Import a direct JioTV-style or equivalent authorized M3U entry, confirm the license request succeeds, and capture 61 screenshots at two-second intervals. Record channel name, screenshot count, unique hash count, media-session state, and sanitized DRM/player log findings.
+Import a direct provider-style or equivalent authorized M3U entry, confirm the license request succeeds, and capture 61 screenshots at two-second intervals. Record channel name, screenshot count, unique hash count, media-session state, and sanitized DRM/player log findings.
 
 - [ ] **Step 7: Validate an authorized static-ClearKey DASH channel**
 
@@ -532,7 +532,7 @@ Expected: no diff errors and no production/test occurrence of the issue reporter
 
 - Every new behavior was introduced by a failing test that subsequently passed.
 - Database migration 77-to-78 and schema validation pass.
-- JioTV-style Widevine and issue #169-style static ClearKey both reach the correct Media3 paths.
+- Provider-style Widevine and issue #169-style static ClearKey both reach the correct Media3 paths.
 - Raw keys and sensitive request values are absent from logs and identities.
 - All affected unit suites, lint tasks, application build, and migration instrumentation tests pass.
 - Sustained device validation evidence is recorded for Widevine, static ClearKey, and non-DRM playback, or the absence of authorized test streams is reported explicitly without claiming live playback validation.

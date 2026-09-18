@@ -658,6 +658,8 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getStreamInfo(movie: Movie): Result<StreamInfo> = try {
+        val persistedMovie = movieDao.getById(movie.selectedVariantId ?: movie.id)
+            ?: movieDao.getById(movie.id)
         xtreamStreamUrlResolver.resolveAndCommitMetadata(
             url = movie.streamUrl,
             fallbackProviderId = movie.providerId,
@@ -679,7 +681,7 @@ class MovieRepositoryImpl @Inject constructor(
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
                     expirationTime = resolvedStream.expirationTime
-                )
+                ).withM3uPlaybackMetadata(persistedMovie?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for movie: ${movie.name}")
     } catch (e: Exception) {

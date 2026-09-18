@@ -15,7 +15,7 @@ local DRM callback and will never be placed in URLs or logs.
 
 ## Goals
 
-- Play JioTV-style DASH entries whose Kodi properties specify a Widevine license
+- Play provider-style DASH entries whose Kodi properties specify a Widevine license
   URL.
 - Play URL-licensed PlayReady and ClearKey entries through the existing Media3
   DRM configuration path.
@@ -219,7 +219,7 @@ channel, one static-ClearKey DASH channel, and one non-DRM regression channel.
 
 ## Acceptance criteria
 
-- A direct JioTV-style M3U entry with a Widevine HTTPS license URL plays without
+- A direct provider-style M3U entry with a Widevine HTTPS license URL plays without
   Adaptive Bridge.
 - An issue #169-style DASH entry with a valid static ClearKey `KID:key` reaches
   Media3 through a local DRM callback and plays when its MPD contains compatible

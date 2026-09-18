@@ -20,6 +20,7 @@ import androidx.media3.exoplayer.smoothstreaming.SsMediaSource
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.drm.DrmSessionManagerProvider
 import com.streamvault.domain.model.DrmInfo
 import com.streamvault.domain.model.DrmScheme
 import com.streamvault.domain.model.VodHttpProtocolMode
@@ -127,6 +128,15 @@ class PlayerMediaSourceFactory(
             )
                 .setLoadErrorHandlingPolicy(retryPolicy)
         }
+        streamInfo.drmInfo?.staticClearKeyLicense?.let { license ->
+            val drmSessionManager = staticClearKeyDrmSessionManager(license)
+            val provider = DrmSessionManagerProvider { drmSessionManager }
+            when (mediaSourceFactory) {
+                is DashMediaSource.Factory -> mediaSourceFactory.setDrmSessionManagerProvider(provider)
+                is HlsMediaSource.Factory -> mediaSourceFactory.setDrmSessionManagerProvider(provider)
+                is SsMediaSource.Factory -> mediaSourceFactory.setDrmSessionManagerProvider(provider)
+            }
+        }
         return timeoutProfile to mediaSourceFactory
     }
 
@@ -141,15 +151,18 @@ class PlayerMediaSourceFactory(
             )
             .apply {
                 streamInfo.drmInfo?.let { drmInfo ->
-                    setDrmConfiguration(
-                        MediaItem.DrmConfiguration.Builder(drmInfo.scheme.toUuid())
-                            .setLicenseUri(drmInfo.licenseUrl)
-                            .setLicenseRequestHeaders(drmInfo.headers)
-                            .setMultiSession(drmInfo.multiSession)
-                            .setForceDefaultLicenseUri(drmInfo.forceDefaultLicenseUrl)
-                            .setPlayClearContentWithoutKey(drmInfo.playClearContentWithoutKey)
-                            .build()
-                    )
+                    val drmConfiguration = MediaItem.DrmConfiguration.Builder(drmInfo.scheme.toUuid())
+                        .apply {
+                            if (drmInfo.licenseUrl.isNotBlank()) {
+                                setLicenseUri(drmInfo.licenseUrl)
+                            }
+                        }
+                        .setLicenseRequestHeaders(drmInfo.headers)
+                        .setMultiSession(drmInfo.multiSession)
+                        .setForceDefaultLicenseUri(drmInfo.forceDefaultLicenseUrl)
+                        .setPlayClearContentWithoutKey(drmInfo.playClearContentWithoutKey)
+                        .build()
+                    setDrmConfiguration(drmConfiguration)
                 }
             }
             .build()

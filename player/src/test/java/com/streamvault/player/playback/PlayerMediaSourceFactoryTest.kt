@@ -5,6 +5,10 @@ import androidx.media3.extractor.ts.TsExtractor
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
+import com.streamvault.domain.model.DrmInfo
+import com.streamvault.domain.model.DrmScheme
+import com.streamvault.domain.model.StaticClearKey
+import com.streamvault.domain.model.StaticClearKeyLicense
 import okhttp3.OkHttpClient
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,5 +63,30 @@ class PlayerMediaSourceFactoryTest {
 
         assertThat(timeoutProfile).isEqualTo(PlayerTimeoutProfile.PRELOAD)
         assertThat(mediaSource).isInstanceOf(ProgressiveMediaSource::class.java)
+    }
+
+    @Test
+    fun `static clearKey media item omits remote license URI`() {
+        val dataSourceProvider = PlayerDataSourceFactoryProvider(
+            context = RuntimeEnvironment.getApplication(),
+            baseClient = OkHttpClient()
+        )
+        val factory = PlayerMediaSourceFactory(dataSourceProvider)
+        val streamInfo = StreamInfo(
+            url = "https://example.test/channel.mpd",
+            streamType = StreamType.DASH,
+            drmInfo = DrmInfo(
+                scheme = DrmScheme.CLEARKEY,
+                staticClearKeyLicense = StaticClearKeyLicense(
+                    keys = listOf(StaticClearKey("ABEiM0RVZneImaq7zN3u_w", "_-7dzLuqmYh3ZlVEMyIRAA")),
+                    fingerprint = "fingerprint"
+                )
+            )
+        )
+
+        val drmConfiguration = factory.mediaItemFor(streamInfo).localConfiguration?.drmConfiguration
+
+        assertThat(drmConfiguration).isNotNull()
+        assertThat(drmConfiguration?.licenseUri?.toString().orEmpty()).isEmpty()
     }
 }
