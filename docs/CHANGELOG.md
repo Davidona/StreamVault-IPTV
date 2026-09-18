@@ -19,7 +19,8 @@ All notable product changes are recorded in this document.
 - Added portal-backed Stalker VOD search with mixed movie/series results, persisted result IDs, paging, parental/hidden-category filtering, and a Browsing setting to disable it.
 - Added a Media3 `FrameExtractor` pilot for supported VOD seek thumbnails, while retaining `MediaMetadataRetriever` as a fallback for unsupported or failed sources.
 - Added bounded VOD and episode sliding-window preloading for current and adjacent series or catch-up items, with lifecycle cleanup, stale-session protection, and direct-playback fallback; ordinary live playback remains on its existing path.
-- Added native adaptive M3U playback metadata support for Kodi manifest/DRM directives, remote Widevine/PlayReady/ClearKey licenses, static ClearKey keys, per-entry headers, and persisted restart-safe playback configuration.
+- Added native adaptive M3U playback metadata support for Kodi-style manifest and DRM directives, including DASH, HLS, and Smooth stream selection, per-entry headers, User-Agent and Referer handling, remote Widevine/PlayReady/ClearKey licenses, and static ClearKey keys.
+- Added restart-safe persistence for adaptive M3U playback configuration through the Room v77-to-v78 migration, preserving metadata across imports and playback resolution without logging raw key material.
 
 ### Fixed
 
@@ -37,6 +38,7 @@ All notable product changes are recorded in this document.
 - Fixed Stalker guide synchronization continuing through dead per-channel EPG endpoints after both bulk and first per-channel responses are confirmed empty.
 - Fixed Stalker channel logos returned as bare or portal-relative paths by resolving them against the portal logo directory, including channels imported before the fix.
 - Fixed Xtream series showing an empty episode list after re-entering: a hydrated series whose local episodes went missing is now re-fetched, and re-hydration no longer replaces a larger cached episode set with a smaller, partially re-scraped provider response.
+- Fixed adaptive M3U metadata being dropped between playlist parsing, import staging, catalog synchronization, and channel or movie playback reconstruction.
 
 ### Changed
 
