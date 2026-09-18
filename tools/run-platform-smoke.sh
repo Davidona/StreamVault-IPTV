@@ -50,6 +50,16 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
     exit 1
   fi
 
+  # Each service suite runs in a separate Gradle invocation. Clear the target app between
+  # invocations so a START_STICKY service from the preceding suite cannot be redelivered while
+  # the next timeout probe is starting.
+  reset_service_smoke_state() {
+    adb shell am force-stop com.streamvault.app.debug >/dev/null 2>&1 || true
+    adb shell pm clear com.streamvault.app.debug >/dev/null 2>&1 || true
+  }
+
+  reset_service_smoke_state
+
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
   ./gradlew --console=plain \
@@ -58,6 +68,8 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest \
     --no-daemon
 
+  reset_service_smoke_state
+
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceQuotaInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
   ./gradlew --console=plain \
@@ -65,6 +77,8 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.service.DownloadForegroundServiceQuotaInstrumentationTest \
     --no-daemon
+
+  reset_service_smoke_state
 
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceRecoveryInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
