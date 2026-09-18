@@ -111,10 +111,12 @@ will not log raw license values or static keys.
 
 ## Persistence
 
-Room will add a nullable `playback_metadata_json` column to both the `channels`
-and `movies` tables. Existing rows receive `NULL`. The database version and
-migration registry will advance by one version, and exported Room schemas will
-be updated through the normal schema-generation task.
+Room will add a nullable `playback_metadata_json` column to the `channels`,
+`movies`, `channel_import_stage`, and `movie_import_stage` tables. The staging
+columns allow the existing atomic catalog-apply path to copy metadata without a
+side table or post-commit update. Existing rows receive `NULL`. The database
+version and migration registry will advance by one version, and exported Room
+schemas will be updated through the normal schema-generation task.
 
 M3U synchronization will encode normalized metadata when constructing staged
 `ChannelEntity` and `MovieEntity` rows. Sync fingerprints must include a stable,
