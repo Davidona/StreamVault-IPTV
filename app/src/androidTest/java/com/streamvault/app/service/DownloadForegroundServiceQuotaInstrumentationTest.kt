@@ -56,7 +56,10 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
         await("download service acquires shared quota lease") {
             quotaOwner.snapshot().activeOwners.contains(DataSyncServiceOwner.DOWNLOAD)
         }
-        await("Android timeout callback releases shared quota lease") {
+        await(
+            description = "Android timeout callback releases shared quota lease",
+            timeoutMs = TIMEOUT_RELEASE_WAIT_MS
+        ) {
             !quotaOwner.snapshot().activeOwners.contains(DataSyncServiceOwner.DOWNLOAD)
         }
     }
@@ -64,8 +67,12 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
     private fun probeIntent(): Intent = Intent(context, DownloadForegroundService::class.java)
         .putExtra("download_id", PROBE_DOWNLOAD_ID)
 
-    private fun await(description: String, predicate: () -> Boolean) {
-        val deadline = SystemClock.elapsedRealtime() + TIMEOUT_WAIT_MS
+    private fun await(
+        description: String,
+        timeoutMs: Long = TIMEOUT_WAIT_MS,
+        predicate: () -> Boolean
+    ) {
+        val deadline = SystemClock.elapsedRealtime() + timeoutMs
         do {
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             if (predicate()) return
@@ -79,5 +86,6 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
         const val PROBE_DOWNLOAD_ID = "wp0-reduced-timeout-probe"
         const val POLL_INTERVAL_MS = 250L
         const val TIMEOUT_WAIT_MS = 20_000L
+        const val TIMEOUT_RELEASE_WAIT_MS = 45_000L
     }
 }

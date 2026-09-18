@@ -43,6 +43,12 @@ export PLATFORM_SMOKE_ACTIVE_SUITE
 if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
   adb shell am compat enable FGS_INTRODUCE_TIME_LIMITS com.streamvault.app.debug
   adb shell device_config put activity_manager data_sync_fgs_timeout_duration 5000
+  fgs_timeout_duration=$(adb shell device_config get activity_manager data_sync_fgs_timeout_duration | tr -d '\r')
+  if [ "$fgs_timeout_duration" != "5000" ]; then
+    printf 'API %s smoke setup did not apply data_sync_fgs_timeout_duration (got %s)\n' \
+      "$api_level" "$fgs_timeout_duration" >&2
+    exit 1
+  fi
 
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
