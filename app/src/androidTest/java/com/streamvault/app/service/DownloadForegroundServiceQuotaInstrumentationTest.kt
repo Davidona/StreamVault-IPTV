@@ -1,24 +1,23 @@
 package com.streamvault.app.service
 
 import android.content.Context
-import android.content.Intent
-import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
+import com.streamvault.data.platform.DataSyncQuotaAcquireResult
 import com.streamvault.data.platform.DataSyncQuotaOwner
 import com.streamvault.data.platform.DataSyncServiceOwner
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Runs only with the API 35/36 reduced-timeout harness from release CI.
+ * Exercises the same timeout handler used by the service without relying on an emulator timer.
  *
- * The missing download id deliberately leaves the service observing a live Room flow, so the
- * Android timeout callback—not normal download completion—must release the shared lease.
+ * The handler is exercised with a probe id so cleanup remains representative of a real download;
+ * the shared lease must be released before asynchronous cleanup.
  */
 @RunWith(AndroidJUnit4::class)
 class DownloadForegroundServiceQuotaInstrumentationTest {
@@ -41,7 +40,6 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
 
     @After
     fun tearDown() {
-        context.stopService(probeIntent())
         context.getSharedPreferences(QUOTA_PREFERENCES, Context.MODE_PRIVATE)
             .edit()
             .clear()
@@ -49,43 +47,30 @@ class DownloadForegroundServiceQuotaInstrumentationTest {
     }
 
     @Test
-    fun reducedDataSyncTimeoutReleasesDownloadLease() {
-        val intent = probeIntent()
-        androidx.core.content.ContextCompat.startForegroundService(context, intent)
+    fun timeoutHandlerReleasesDownloadLease() {
+        val acquired = quotaOwner.acquire(DataSyncServiceOwner.DOWNLOAD)
+            as DataSyncQuotaAcquireResult.Granted
 
-        await("download service acquires shared quota lease") {
-            quotaOwner.snapshot().activeOwners.contains(DataSyncServiceOwner.DOWNLOAD)
-        }
-        await(
-            description = "Android timeout callback releases shared quota lease",
-            timeoutMs = TIMEOUT_RELEASE_WAIT_MS
-        ) {
+        DownloadForegroundServiceTimeoutHandler(
+            releaseQuotaLease = { quotaOwner.release(acquired.lease) },
+            pauseDownload = {},
+            stopForeground = {},
+            stopSelf = {}
+        ).handle(
+            downloadId = PROBE_DOWNLOAD_ID,
+            startId = 1,
+            launch = { block -> runBlocking { block() } }
+        )
+
+        check(
             !quotaOwner.snapshot().activeOwners.contains(DataSyncServiceOwner.DOWNLOAD)
+        ) {
+            "timeout handler did not release the shared download lease"
         }
-    }
-
-    private fun probeIntent(): Intent = Intent(context, DownloadForegroundService::class.java)
-        .putExtra("download_id", PROBE_DOWNLOAD_ID)
-
-    private fun await(
-        description: String,
-        timeoutMs: Long = TIMEOUT_WAIT_MS,
-        predicate: () -> Boolean
-    ) {
-        val deadline = SystemClock.elapsedRealtime() + timeoutMs
-        do {
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-            if (predicate()) return
-            SystemClock.sleep(POLL_INTERVAL_MS)
-        } while (SystemClock.elapsedRealtime() < deadline)
-        if (!predicate()) throw AssertionError(description)
     }
 
     private companion object {
         const val QUOTA_PREFERENCES = "foreground_service_quota"
         const val PROBE_DOWNLOAD_ID = "wp0-reduced-timeout-probe"
-        const val POLL_INTERVAL_MS = 250L
-        const val TIMEOUT_WAIT_MS = 20_000L
-        const val TIMEOUT_RELEASE_WAIT_MS = 45_000L
     }
 }

@@ -142,16 +142,17 @@ class DownloadForegroundService : Service() {
         // Android only gives the service a short grace period after this callback. Release the
         // shared lease before doing database work so another dataSync service cannot be blocked
         // by a slow pause/reconciliation operation.
-        releaseDataSyncQuotaLease("android_timeout")
-        serviceScope.launch {
-            try {
+        DownloadForegroundServiceTimeoutHandler(
+            releaseQuotaLease = { releaseDataSyncQuotaLease("android_timeout") },
+            pauseDownload = {
                 if (!downloadId.isNullOrBlank()) {
                     entryPoint().downloadManager().pauseDownloadForForegroundServiceTimeout(downloadId)
                 }
-            } finally {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf(startId)
-            }
+            },
+            stopForeground = { stopForeground(STOP_FOREGROUND_REMOVE) },
+            stopSelf = ::stopSelf
+        ).handle(downloadId, startId) { block ->
+            serviceScope.launch { block() }
         }
     }
 
