@@ -19,6 +19,7 @@ All notable product changes are recorded in this document.
 - Added portal-backed Stalker VOD search with mixed movie/series results, persisted result IDs, paging, parental/hidden-category filtering, and a Browsing setting to disable it.
 - Added a Media3 `FrameExtractor` pilot for supported VOD seek thumbnails, while retaining `MediaMetadataRetriever` as a fallback for unsupported or failed sources.
 - Added bounded VOD and episode sliding-window preloading for current and adjacent series or catch-up items, with lifecycle cleanup, stale-session protection, and direct-playback fallback; ordinary live playback remains on its existing path.
+- Added native adaptive M3U playback metadata support for Kodi manifest/DRM directives, remote Widevine/PlayReady/ClearKey licenses, static ClearKey keys, per-entry headers, and persisted restart-safe playback configuration.
 
 ### Fixed
 
