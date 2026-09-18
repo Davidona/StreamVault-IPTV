@@ -59,6 +59,28 @@ class M3uParserTest {
     }
 
     @Test
+    fun `parse_kodiAdaptiveDirectives_attachesPlaybackMetadataToEntry`() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:-1 group-title="DRM",Protected channel
+            #KODIPROP:inputstream.adaptive.manifest_type=mpd
+            #KODIPROP:inputstream.adaptive.license_type=com.widevine.alpha
+            #KODIPROP:inputstream.adaptive.license_key=https://license.example/key
+            #KODIPROP:inputstream.adaptive.license_headers=Authorization=Bearer%20token
+            #EXTVLCOPT:http-user-agent=Mozilla/5.0
+            https://stream.example.com/channel.mpd
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.playbackMetadata?.manifestType).isEqualTo(com.streamvault.domain.model.StreamType.DASH)
+        assertThat(entry.playbackMetadata?.drmScheme).isEqualTo(com.streamvault.domain.model.DrmScheme.WIDEVINE)
+        assertThat(entry.playbackMetadata?.licenseUrl).isEqualTo("https://license.example/key")
+        assertThat(entry.playbackMetadata?.licenseHeaders?.get("Authorization")).isEqualTo("Bearer token")
+        assertThat(entry.userAgent).isEqualTo("Mozilla/5.0")
+    }
+
+    @Test
     fun `parse_malformedEntry_skipsGracefully`() {
         // Second entry has no URL line — should be skipped
         val m3u = """
