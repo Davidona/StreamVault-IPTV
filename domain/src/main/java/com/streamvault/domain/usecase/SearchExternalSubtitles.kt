@@ -2,6 +2,7 @@ package com.streamvault.domain.usecase
 
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ExternalSubtitle
+import com.streamvault.domain.model.Result
 import com.streamvault.domain.repository.ExternalSubtitleRepository
 import javax.inject.Inject
 

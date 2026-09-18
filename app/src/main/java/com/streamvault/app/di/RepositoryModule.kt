@@ -98,6 +98,9 @@ abstract class RepositoryModule {
     abstract fun bindExternalRatingsRepository(impl: ExternalRatingsRepositoryImpl): ExternalRatingsRepository
 
     @Binds @Singleton
+    abstract fun bindExternalSubtitleRepository(impl: OpenSubtitlesRepositoryImpl): ExternalSubtitleRepository
+
+    @Binds @Singleton
     abstract fun bindSyncMetadataRepository(impl: SyncMetadataRepositoryImpl): SyncMetadataRepository
 
     @Binds @Singleton

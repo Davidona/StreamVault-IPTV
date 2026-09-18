@@ -69,6 +69,7 @@ releases/*.apk
 # AI tooling
 .claude/
 .opencode/
+docs/superpowers/
 
 # Dev handoff notes
 docs/*-handoff.md
