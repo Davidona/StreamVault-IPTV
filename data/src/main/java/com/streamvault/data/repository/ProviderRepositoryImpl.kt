@@ -502,7 +502,7 @@ class ProviderRepositoryImpl @Inject constructor(
         channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
-    ): Result<Provider> {
+    ): Result<Provider> = try {
         val normalizedServerUrl = ProviderInputSanitizer.normalizeUrl(serverUrl)
         val normalizedUsername = ProviderInputSanitizer.normalizeUsername(username)
         val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
@@ -567,7 +567,7 @@ class ProviderRepositoryImpl @Inject constructor(
             is CapabilityResolution.Restricted -> return Result.error(resolution.reason)
             is CapabilityResolution.Unsupported -> return Result.error(resolution.reason)
         }
-        return when (val authResult = provider.authenticate()) {
+        when (val authResult = provider.authenticate()) {
             is Result.Success -> {
                 onProgress?.invoke("Profile accepted; catalog validated")
                 val onboardingTarget = if (existingProvider != null) {
@@ -634,6 +634,8 @@ class ProviderRepositoryImpl @Inject constructor(
             is Result.Error -> Result.error(authResult.message, authResult.exception)
             is Result.Loading -> Result.error("Unexpected loading state")
         }
+    } catch (e: Exception) {
+        Result.error("Failed to add Xtream provider: ${e.message}", e)
     }
 
     internal suspend fun validateM3u(
