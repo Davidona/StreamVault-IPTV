@@ -54,9 +54,9 @@ jobs:
             adb_delay: -delay-adb
           - api-level: 36
             runner: ubuntu-latest
-            arch: x86
+            arch: x86_64
             target: android-tv
-            gpu: software
+            gpu: swiftshader_indirect
             adb_delay: -delay-adb
 
     runs-on: ${{ matrix.runner }}
