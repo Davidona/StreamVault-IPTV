@@ -496,47 +496,11 @@
             column="27"/>
     </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/3f8a5b7dab1700b8834b7e8f20429e72/transformed/out/jars/classes.jar"/>
-    </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/3f8a5b7dab1700b8834b7e8f20429e72/transformed/out/jars/classes.jar"/>
-    </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/a3eb26184ace93baaaa3e542875762ee/transformed/out/jars/classes.jar"/>
-    </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/a3eb26184ace93baaaa3e542875762ee/transformed/out/jars/classes.jar"/>
-    </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/3f8a5b7dab1700b8834b7e8f20429e72/transformed/out/jars/classes.jar"/>
-    </issue>
 
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="E:/GradleHome/caches/8.12/transforms/a3eb26184ace93baaaa3e542875762ee/transformed/out/jars/classes.jar"/>
-    </issue>
 
     <issue
         id="InsecureBaseConfiguration"
