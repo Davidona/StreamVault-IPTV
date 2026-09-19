@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">ספק התקנה</string>
+  <string name="welcome_loading_title">מכין את הספרייה שלך</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">IPTV פרימיום לסלון</string>
+  <string name="welcome_subtitle">הישען אחורה אל ערוצים חיים, צפייה בהתעדכנות, סרטים וסדרות עם חווית Android TV של צד ראשון.</string>
+  <string name="settings_cancel">בטל</string>
+</resources>

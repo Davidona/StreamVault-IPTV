@@ -2,9 +2,20 @@ import java.util.Properties
 import java.io.FileInputStream
 import java.security.KeyStore
 import java.security.MessageDigest
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Copy
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -57,8 +68,8 @@ android {
         applicationId = "com.streamvault.app"
         minSdk = 25
         targetSdk = 36
-        versionCode = 19
-        versionName = "1.0.17.1"
+        versionCode = 20
+        versionName = "1.0.18"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         providers.gradleProperty("compatApi").orNull?.let { expectedApi ->
             testInstrumentationRunnerArguments["expected_api"] = expectedApi
@@ -122,6 +133,34 @@ android {
             }
             matchingFallbacks += listOf("release")
         }
+        create("benchmark") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            matchingFallbacks += listOf("release")
+        }
+        create("nonMinifiedRelease") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
+            // This build type exists only for local baseline-profile generation. It is the sole
+            // release-like target permitted to consume local.properties development seed values.
+            buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
+            buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")
+            buildConfigField("String", "XTREAM_DEV_PASSWORD", "\"${localProp("xtream.dev.password")}\"")
+            buildConfigField("String", "XTREAM_DEV_NAME", "\"${localProp("xtream.dev.name")}\"")
+            buildConfigField("String", "M3U_DEV_URL", "\"${localProp("m3u.dev.url")}\"")
+            buildConfigField("String", "M3U_DEV_NAME", "\"${localProp("m3u.dev.name")}\"")
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            matchingFallbacks += listOf("release")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -133,6 +172,183 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
+    }
+
+    baselineProfile {
+        mergeIntoMain = true
+        saveInSrc = true
+        automaticGenerationDuringBuild = false
+    }
+
+    /**
+     * AGP emits startup and general profile captures as separate source files. Startup rules
+     * are also baseline rules, so keep the maintained baseline source as their union while
+     * preserving startup-prof.txt as the startup-only subset consumed for DEX layout.
+     */
+abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val baselineProfile: RegularFileProperty
+
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val startupProfile: RegularFileProperty
+
+        @get:OutputFile
+        abstract val mergedProfile: RegularFileProperty
+
+        @get:OutputFile
+        abstract val mergedStartupProfile: RegularFileProperty
+
+        @TaskAction
+        fun merge() {
+            fun normalizeRule(rule: String): String = rule
+                .replace("\$app_nonMinifiedRelease", "\$streamvault_app")
+                .replace("\$app_beta", "\$streamvault_app")
+                .replace("\$app_release", "\$streamvault_app")
+
+            fun rules(file: java.io.File): List<String> = file.readLines()
+                .map(String::trim)
+                .filter { it.isNotEmpty() && !it.startsWith("#") }
+                .map(::normalizeRule)
+
+            fun ruleKey(rule: String): String {
+                val descriptorStart = rule.indexOf('L')
+                return if (descriptorStart >= 0 && rule.substring(0, descriptorStart)
+                        .all { it in "HSP" }
+                ) {
+                    rule.substring(descriptorStart)
+                } else {
+                    rule
+                }
+            }
+
+            fun mergeFlags(first: String, second: String): String {
+                val descriptorStart = first.indexOf('L')
+                if (descriptorStart < 0 || ruleKey(first) != ruleKey(second)) return first
+                val flags = (first.substring(0, descriptorStart) +
+                    second.substring(0, second.indexOf('L')))
+                    .toSet()
+                return buildString {
+                    "HSP".forEach { flag -> if (flag in flags) append(flag) }
+                    append(first.substring(descriptorStart))
+                }
+            }
+
+            fun deduplicate(input: List<String>): List<String> {
+                val output = ArrayList<String>(input.size)
+                val indexByKey = LinkedHashMap<String, Int>(input.size)
+                input.forEach { rule ->
+                    val key = ruleKey(rule)
+                    val existingIndex = indexByKey[key]
+                    if (existingIndex == null) {
+                        indexByKey[key] = output.size
+                        output += rule
+                    } else {
+                        output[existingIndex] = mergeFlags(output[existingIndex], rule)
+                    }
+                }
+                return output
+            }
+
+            val baselineRules = deduplicate(rules(baselineProfile.get().asFile))
+            val startupRules = deduplicate(rules(startupProfile.get().asFile))
+            val mergedRules = ArrayList<String>(baselineRules.size + startupRules.size)
+            val indexByKey = LinkedHashMap<String, Int>(baselineRules.size)
+            baselineRules.forEach { rule ->
+                val key = ruleKey(rule)
+                val existingIndex = indexByKey[key]
+                if (existingIndex == null) {
+                    indexByKey[key] = mergedRules.size
+                    mergedRules += rule
+                } else {
+                    mergedRules[existingIndex] = mergeFlags(mergedRules[existingIndex], rule)
+                }
+            }
+            startupRules.forEach { startupRule ->
+                val key = ruleKey(startupRule)
+                val existingIndex = indexByKey[key]
+                if (existingIndex == null) {
+                    indexByKey[key] = mergedRules.size
+                    mergedRules += startupRule
+                } else {
+                    mergedRules[existingIndex] = mergeFlags(mergedRules[existingIndex], startupRule)
+                }
+            }
+            val output = mergedProfile.get().asFile
+            output.parentFile.mkdirs()
+            output.writeText(mergedRules.joinToString(separator = "\n", postfix = "\n"))
+            val normalizedStartupOutput = mergedStartupProfile.get().asFile
+            normalizedStartupOutput.parentFile.mkdirs()
+            normalizedStartupOutput.writeText(startupRules.joinToString(separator = "\n", postfix = "\n"))
+            logger.lifecycle(
+                "Merged startup rules into baseline source: " +
+                    "baseline=${baselineRules.size}, startup=${startupRules.size}, " +
+                    "merged=${mergedRules.size}."
+            )
+        }
+    }
+
+    val generatedProfileDirectory = layout.projectDirectory.dir("src/main/generated/baselineProfiles")
+    val mergeStartupRulesIntoBaselineProfile = tasks.register<MergeStartupRulesIntoBaselineProfileTask>(
+        "mergeStartupRulesIntoBaselineProfile"
+    ) {
+        baselineProfile.set(generatedProfileDirectory.file("baseline-prof.txt"))
+        startupProfile.set(generatedProfileDirectory.file("startup-prof.txt"))
+        mergedProfile.set(layout.buildDirectory.file("intermediates/merged-generated-baseline-profile/baseline-prof.txt"))
+        mergedStartupProfile.set(
+            layout.buildDirectory.file("intermediates/merged-generated-baseline-profile/startup-prof.txt")
+        )
+    }
+    val installMergedBaselineProfile = tasks.register<Copy>("installMergedBaselineProfile") {
+        dependsOn(mergeStartupRulesIntoBaselineProfile)
+        from(mergeStartupRulesIntoBaselineProfile.flatMap { it.mergedProfile }) {
+            rename { "baseline-prof.txt" }
+        }
+        from(mergeStartupRulesIntoBaselineProfile.flatMap { it.mergedStartupProfile }) {
+            rename { "startup-prof.txt" }
+        }
+        into(generatedProfileDirectory)
+    }
+    tasks.matching { it.name == "copyBaselineProfileIntoSrc" }.configureEach {
+        // The profile plugin owns this task and registers it after the app script is evaluated.
+        // Declare ordering explicitly so Gradle knows the merge consumes its copied outputs.
+        mergeStartupRulesIntoBaselineProfile.get().mustRunAfter(this)
+        finalizedBy(installMergedBaselineProfile)
+    }
+
+    // Release-like art/startup merge tasks consume the normalized files written by the custom
+    // installer above. Keep the dependency explicit so Gradle's task validation remains sound
+    // when profile verification and a beta/release assembly are requested together. During
+    // `generateBaselineProfile`, the producer must package the non-minified release before the
+    // producer's copy task can install the newly collected files; only those non-minified merge
+    // tasks omit the dependency to avoid a cycle. Beta/release merges remain explicit even when
+    // generation and assembly are requested together.
+    val profileGenerationRequested = gradle.startParameter.taskNames.any { taskName ->
+        taskName.substringAfterLast(':') in setOf(
+            "generateBaselineProfile",
+            "copyBaselineProfileIntoSrc",
+            "mergeBaselineProfile",
+        )
+    }
+    setOf(
+        "mergeBetaArtProfile",
+        "mergeReleaseArtProfile",
+        "mergeBetaStartupProfile",
+        "mergeReleaseStartupProfile",
+    )
+        .forEach { mergeTaskName ->
+            tasks.matching { it.name == mergeTaskName }.configureEach {
+                dependsOn(installMergedBaselineProfile)
+            }
+        }
+    if (!profileGenerationRequested) {
+        setOf("mergeNonMinifiedReleaseArtProfile", "mergeNonMinifiedReleaseStartupProfile")
+            .forEach { mergeTaskName ->
+                tasks.matching { it.name == mergeTaskName }.configureEach {
+                    dependsOn(installMergedBaselineProfile)
+                }
+            }
     }
 
     compileOptions {
@@ -159,10 +375,61 @@ android {
     }
 }
 
+abstract class VerifyFeatureNavigationBoundaryTask : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sourceRoot: DirectoryProperty
+
+    @TaskAction
+    fun verify() {
+        val expectedFiles = setOf("LiveGraph.kt")
+        val files = sourceRoot.get().asFile.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .toList()
+        check(files.map { it.name }.toSet() == expectedFiles) {
+            "App-local graph registrations must be exactly $expectedFiles, found ${files.map { it.name }}"
+        }
+        val violations = files
+            .filter { source ->
+                val text = source.readText()
+                "NavHostController" in text || "NavController" in text
+            }
+            .map { it.name }
+        check(violations.isEmpty()) {
+            "Feature graph registrations must not reference a root navigation controller: $violations"
+        }
+    }
+}
+
+val verifyFeatureNavigationBoundary = tasks.register<VerifyFeatureNavigationBoundaryTask>(
+    "verifyFeatureNavigationBoundary"
+) {
+    sourceRoot.set(layout.projectDirectory.dir("src/main/java/com/streamvault/app/navigation/graph"))
+}
+tasks.named("check") {
+    dependsOn(verifyFeatureNavigationBoundary)
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        // Keep Kotlin `internal` JVM names stable across release-like variants. Baseline
+        // profiles are collected from nonMinifiedRelease and packaged into both release and
+        // beta; variant-derived module names would otherwise make profile rules miss in beta.
+        // KGP/AGP supplies a variant-derived moduleName by default. Keep this explicit compiler
+        // argument last so profile rules collected from one variant match the internal JVM
+        // names packaged by every release-like variant.
+        freeCompilerArgs.add("-module-name=streamvault_app")
     }
+}
+
+// Diagnostic-only output for the Compose reduction work. These reports are
+// build artifacts and are intentionally not committed. They expose unstable
+// parameters, restartable/skippable composables, and large generated groups
+// before we change UI state ownership or module boundaries.
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("reports/compose-compiler")
+    metricsDestination = layout.buildDirectory.dir("reports/compose-compiler")
 }
 
 kover {
@@ -175,9 +442,19 @@ kover {
 
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(project(":core:navigation"))
+    implementation(project(":core:ui"))
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":player"))
+    implementation(project(":feature:playback"))
+    implementation(project(":feature:provider"))
+    implementation(project(":feature:settings"))
+    implementation(project(":feature:live"))
+    implementation(project(":feature:catalog"))
+    implementation(project(":feature:system"))
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":benchmark"))
 
     // Compose BOM
     val composeBom = platform(libs.compose.bom)
@@ -202,7 +479,7 @@ dependencies {
     implementation(libs.media3.exoplayer.rtsp)
     implementation(libs.media3.datasource.okhttp)
     implementation(libs.media3.ui)
-    implementation(files("../player/libs/media3-decoder-ffmpeg-1.9.2.aar"))
+    implementation(files("../player/libs/media3-decoder-ffmpeg-1.11.0.aar"))
 
     // Room
     implementation(libs.room.runtime)
@@ -256,8 +533,10 @@ dependencies {
 
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(libs.navigation.testing)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.truth)
 }
 

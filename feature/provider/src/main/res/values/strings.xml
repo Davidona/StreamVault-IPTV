@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Cancel</string>
+    <string name="settings_syncing_title">Syncing data...</string>
+    <string name="settings_syncing_subtitle">Please wait while your playlist is imported.</string>
+    <string name="settings_syncing_btn">Syncing...</string>
+    <string name="settings_backup_restore">Backup &amp; Restore</string>
+    <string name="settings_restore_data">Import Data</string>
+    <string name="settings_restore_subtitle">Choose a backup file, or open a backup with StreamVault from a file manager.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Add a provider</string>
+    <string name="setup_edit_provider">Edit Provider</string>
+    <string name="setup_update_desc">Update your IPTV provider details</string>
+    <string name="setup_add_desc">Add your IPTV provider</string>
+    <string name="setup_shell_eyebrow">Provider Onboarding</string>
+    <string name="setup_shell_subtitle">Use Xtream or M3U. You can change it later.</string>
+    <string name="setup_form_subtitle">Choose a source, enter the details, and continue. You can manage it later from Settings.</string>
+    <string name="setup_source_type_label">Source Type</string>
+    <string name="setup_info_xtream_title">Use Xtream when credentials are available</string>
+    <string name="setup_info_xtream_body">Best when you have server, user, and password.</string>
+    <string name="setup_info_stalker_body">Portal URL plus a provider-approved MAC address.</string>
+    <string name="setup_info_m3u_title">Use M3U for URL or file-based playlists</string>
+    <string name="setup_info_m3u_body">Use a playlist link or import a local file.</string>
+    <string name="setup_info_manage_title">You can manage providers later</string>
+    <string name="setup_info_manage_body">Refresh, edit, or replace it later from Settings.</string>
+    <string name="setup_import_backup">Import Backup</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">M3U Playlist</string>
+    <string name="setup_name_hint">Playlist Name (Optional)</string>
+    <string name="setup_server_hint">Server URL</string>
+    <string name="setup_user_hint">Username</string>
+    <string name="setup_pass_hint">Password</string>
+    <string name="setup_show_password">Show password</string>
+    <string name="setup_hide_password">Hide password</string>
+    <string name="setup_phone_pairing_title">Add from phone</string>
+    <string name="setup_phone_pairing_body">Scan a QR code and enter provider credentials from a phone on the same Wi-Fi.</string>
+    <string name="setup_phone_pairing_start">Show QR code</string>
+    <string name="setup_phone_pairing_restart">New QR code</string>
+    <string name="setup_phone_pairing_stop">Stop pairing</string>
+    <string name="setup_phone_pairing_same_wifi">Open this from a phone on the same Wi-Fi. Credentials are sent directly to this TV.</string>
+    <string name="setup_phone_pairing_qr_description">QR code for phone provider setup</string>
+    <string name="setup_phone_pairing_idle">Local only</string>
+    <string name="setup_phone_pairing_ready">Scan now</string>
+    <string name="setup_phone_pairing_receiving">Adding</string>
+    <string name="setup_phone_pairing_complete">Added</string>
+    <string name="setup_phone_pairing_error">Error</string>
+    <string name="setup_connecting">Connecting...</string>
+    <string name="setup_save">Save Changes</string>
+    <string name="setup_login">Login</string>
+    <string name="setup_advanced_options_label">Advanced Options</string>
+    <string name="setup_advanced_options_helper">Control how guide data is fetched during provider setup and refresh.</string>
+    <string name="setup_advanced_options_show">Show</string>
+    <string name="setup_advanced_options_hide">Hide</string>
+    <string name="setup_m3u_vod_classification_label">M3U VOD Classification</string>
+    <string name="setup_m3u_vod_classification_helper">M3U only. Classify decoded movie URLs and localized group or title hints as Movies; recognized live-stream URLs remain in Live TV.</string>
+    <string name="setup_xtream_live_sync_mode_label">Xtream Live Sync</string>
+    <string name="setup_xtream_live_sync_mode_helper">Choose how Live TV channels are fetched. Auto protects weak devices and routine refreshes while keeping categories populated.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Recommended. Uses category sync on low-memory devices, background refreshes, hidden-category refreshes, and stressed providers.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Category by category</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Always fetch Live TV one category at a time. Safer for large providers and weak Android TV devices.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Stream all</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Try the provider-wide Live endpoint using the streaming parser. Falls back to category sync if unsafe or failed.</string>
+    <string name="setup_epg_sync_mode_label">EPG Sync</string>
+    <string name="setup_epg_sync_mode_helper">Upfront keeps today’s behavior. Background finishes setup first, and Skip leaves guide refresh for later.</string>
+    <string name="setup_epg_sync_mode_upfront_title">Full EPG now</string>
+    <string name="setup_epg_sync_mode_upfront_description">Download provider and external guide data during setup before it finishes.</string>
+    <string name="setup_epg_sync_mode_background_title">Load EPG in background</string>
+    <string name="setup_epg_sync_mode_background_description">Finish setup first, then fetch guide data automatically in the background.</string>
+    <string name="setup_epg_sync_mode_skip_title">Skip EPG for now</string>
+    <string name="setup_epg_sync_mode_skip_description">Do not fetch guide data automatically. You can refresh EPG later from Settings.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker can use the portal’s native guide when XMLTV is missing or unavailable. Upfront imports it during setup, Background defers it, and Skip leaves guide loading on demand.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Download live channels and import the Stalker portal guide during setup. If XMLTV is configured and works, it is used first.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Finish setup first, then import the Stalker portal guide in the background. If XMLTV is configured and works, it is used first.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Do not bulk import guide data automatically. Live guide data can still load on demand when you browse channels.</string>
+    <string name="setup_m3u_hint">M3U URL</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">File</string>
+    <string name="setup_choose_file">Choose M3U File</string>
+    <string name="setup_file_replace_hint">Press to replace file</string>
+    <string name="setup_file_select_title">Select M3U File</string>
+    <string name="setup_file_browse_hint">Browse local storage or USB</string>
+    <string name="setup_file_import_failed">Could not import playlist file. Please try again.</string>
+    <string name="setup_file_import_storage_full">Storage is full. Free up space and try importing again.</string>
+    <string name="setup_discard_draft_title">Discard setup draft?</string>
+    <string name="setup_discard_draft_body">This provider setup is incomplete. Go back and lose the current draft?</string>
+    <string name="setup_discard_draft_confirm">Discard</string>
+    <string name="setup_discard_draft_cancel">Keep editing</string>
+    <string name="setup_validating">Validating...</string>
+    <string name="setup_add">Add Playlist</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Quick Connect</string>
+    <string name="setup_jellyfin_quick_connect_code">Code: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Open your Jellyfin server in a browser and enter this code, or scan the QR code with your phone.</string>
+    <string name="setup_server_url">Server URL</string>
+    <string name="setup_username">Username</string>
+    <string name="setup_password">Password</string>
+    <string name="setup_name">Name</string>
+    <string name="setup_name_placeholder">My Jellyfin Server</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Import from Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+</resources>

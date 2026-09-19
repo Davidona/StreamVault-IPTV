@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import android.util.Log
 import com.streamvault.data.util.AdultContentClassifier
 import com.streamvault.data.util.UrlSecurityPolicy
@@ -81,6 +83,8 @@ data class StalkerVodCatalogItem(
     val item: VodCatalogItem
 )
 
+private object LiveStreamLimitReached : Exception("live stream cap reached")
+
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -137,7 +141,12 @@ internal companion object {
         private const val AUTH_FAILURE_COOLDOWN_MILLIS = 2_000L
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
+        private const val VOD_FILE_SOURCE_KEY = "vod_file"
+        private val BARE_VOD_MOVIE_CMD_REGEX = Regex("^/media/(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val BARE_VOD_FILE_CMD_REGEX = Regex("^/media/file_(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
+        private val NUMERIC_ID_REGEX = Regex("^\\d+$")
         private val sharedAuthCache = ConcurrentHashMap<String, CachedAuth>()
+        private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
         private val resolvedStreamUrlCache = ConcurrentHashMap<String, CachedResolvedUrl>()
@@ -145,6 +154,7 @@ internal companion object {
 
         fun clearSharedAuthCacheForTests() {
             sharedAuthCache.clear()
+            sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
         }
 
@@ -157,6 +167,8 @@ internal companion object {
             if (providerId <= 0L) return
             val authPrefix = "provider:$providerId|"
             sharedAuthCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthCache::remove)
+            val portalPrefix = "portal:$providerId|"
+            sharedPortalAuthCache.keys.filter { it.startsWith(portalPrefix) }.forEach(sharedPortalAuthCache::remove)
             sharedAuthFailureCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthFailureCache::remove)
             resolvedStreamUrlCache.keys
                 .filter { it.startsWith("$providerId|") }
@@ -166,6 +178,7 @@ internal companion object {
 
         private fun trimSharedCaches() {
             trimMap(sharedAuthCache, MAX_AUTH_CACHE_ENTRIES)
+            trimMap(sharedPortalAuthCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(sharedAuthFailureCache, MAX_AUTH_CACHE_ENTRIES)
             trimMap(resolvedStreamUrlCache, MAX_RESOLVED_URL_CACHE_ENTRIES)
             while (missingVodClassificationLogged.size > MAX_MISSING_CLASSIFICATION_ENTRIES) {
@@ -223,7 +236,11 @@ internal companion object {
             authFailureCache = null
             categoryCache.clear()
             sharedAuthCache.remove(authCacheKey())
+            if (providerId > 0L) {
+                sharedPortalAuthCache.remove(portalIdentityKey())
+            }
             sharedAuthFailureCache.remove(authCacheKey())
+            portalStateStore?.clearResumableAuth(providerId)
             clearResolvedStreamUrlCache()
             api.invalidateSessionScopes(providerId)
         }
@@ -409,30 +426,53 @@ internal companion object {
         return session to profile
     }
 
-    suspend fun streamLiveStreams(onChannel: suspend (Channel) -> Unit): Result<Int> {
+    suspend fun streamLiveStreams(
+        maxChannels: Int? = null,
+        onChannel: suspend (Channel) -> Unit
+    ): Result<Int> {
         return runWithAuthorizedSession { session, _ ->
             val pendingItems = ArrayList<StalkerItemRecord>(LIVE_IDENTITY_BATCH_SIZE)
+            val limit = maxChannels?.takeIf { it > 0 }
+            var acceptedCount = 0
 
             suspend fun flushPendingItems() {
                 if (pendingItems.isEmpty()) return
                 bindRemoteIds(ContentType.LIVE, pendingItems.map(StalkerItemRecord::id))
                 pendingItems.forEach { item ->
-                    toChannel(item)?.let { channel -> onChannel(channel) }
+                    toChannel(item)?.let { channel ->
+                        onChannel(channel)
+                    }
                 }
                 pendingItems.clear()
             }
 
-            when (val result = api.streamLiveStreams(session, currentDeviceProfile()) { item ->
-                pendingItems += item
-                if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
-                    flushPendingItems()
+            val result = try {
+                api.streamLiveStreams(session, currentDeviceProfile()) { item ->
+                    if (limit != null && acceptedCount >= limit) {
+                        throw LiveStreamLimitReached
+                    }
+                    pendingItems += item
+                    acceptedCount++
+                    if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
+                        flushPendingItems()
+                    }
                 }
-            }) {
+            } catch (capReached: LiveStreamLimitReached) {
+                flushPendingItems()
+                return@runWithAuthorizedSession Result.success(acceptedCount)
+            }
+
+            when (result) {
                 is Result.Success -> {
                     flushPendingItems()
                     Result.success(result.data)
                 }
-                is Result.Error -> Result.error(result.message, result.exception)
+                is Result.Error -> {
+                    if (result.exception is LiveStreamLimitReached) {
+                        flushPendingItems()
+                        Result.success(acceptedCount)
+                    } else Result.error(result.message, result.exception)
+                }
                 is Result.Loading -> Result.error("Unexpected loading state")
             }
         }
@@ -473,6 +513,32 @@ internal companion object {
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
+
+    suspend fun searchVodPage(
+        query: String,
+        page: Int
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
+        val normalizedQuery = query.trim()
+        if (normalizedQuery.isBlank()) {
+            return Result.success(
+                StalkerPagedResult(
+                    items = emptyList(),
+                    page = page,
+                    totalPages = 0,
+                    pageSize = 0,
+                    advertisedTotalItems = 0,
+                    advertisedTotalPages = 0
+                )
+            )
+        }
+        return getClassifiedVodPage(
+            categoryType = ContentType.VOD,
+            categoryId = null,
+            page = page,
+            seriesCategoryId = null,
+            searchQuery = normalizedQuery
+        )
+    }
 
     suspend fun getSplitVodPage(
         categoryId: Long,
@@ -519,12 +585,17 @@ internal companion object {
 
     private suspend fun getClassifiedVodPage(
         categoryType: ContentType,
-        categoryId: Long,
+        categoryId: Long?,
         page: Int,
-        seriesCategoryId: Long = categoryId
+        seriesCategoryId: Long? = categoryId,
+        searchQuery: String? = null
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
         val rawResult = mapPagedItems(categoryType, categoryId) { session, profile, rawCategoryId ->
-            api.getVodStreamsPage(session, profile, rawCategoryId, page)
+            if (searchQuery == null) {
+                api.getVodStreamsPage(session, profile, rawCategoryId, page)
+            } else {
+                api.getVodStreamsPage(session, profile, rawCategoryId, page, searchQuery)
+            }
         }
         return when (rawResult) {
             is Result.Success -> {
@@ -565,6 +636,7 @@ internal companion object {
             }
             is Result.Error -> Result.error(rawResult.message, rawResult.exception)
             is Result.Loading -> Result.error("Unexpected loading state")
+            else -> Result.error("Portal returned no item response")
         }
     }
 
@@ -642,8 +714,8 @@ internal companion object {
             ContentType.SERIES_EPISODE -> ContentType.SERIES
             else -> type
         }
-        return resolveRawCategoryId(normalizedType, categoryId)?.trim() == "*" ||
-            categoryId == syntheticCategoryId(normalizedType, "*")
+        return categoryId == syntheticCategoryId(normalizedType, "*") ||
+            resolveRawCategoryId(normalizedType, categoryId)?.trim() == "*"
     }
 
     override suspend fun getSeriesInfo(seriesId: Long): Result<Series> =
@@ -727,6 +799,12 @@ internal companion object {
         }
     }
 
+    override suspend fun getEpg(request: GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+            ?: return Result.error("EPG lookup needs numeric portal channel id")
+        return getEpg(numericKey)
+    }
+
     suspend fun getBulkEpg(periodHours: Int = 6): Result<List<Program>> {
         return runWithAuthorizedSession { session, _ ->
             when (val epgResult = api.getBulkEpg(session, currentDeviceProfile(), periodHours)) {
@@ -778,6 +856,26 @@ internal companion object {
         }
     }
 
+    override suspend fun getShortEpg(request: GuideRequest): Result<List<Program>> {
+        val numericKey = request.streamId.takeIf { it > 0L }?.toString()
+        val numericResult = numericKey?.let { getShortEpg(it, request.limit) }
+        if (numericResult is Result.Success && numericResult.data.isNotEmpty()) {
+            return numericResult
+        }
+
+        val xmlKey = request.epgChannelId
+            ?.trim()
+            ?.takeIf(String::isNotBlank)
+            ?.takeUnless { it == numericKey }
+        val xmlResult = xmlKey?.let { getShortEpg(it, request.limit) }
+        return when {
+            xmlResult is Result.Success && xmlResult.data.isNotEmpty() -> xmlResult
+            numericResult != null -> numericResult
+            xmlResult is Result.Error -> xmlResult
+            else -> Result.error("Short EPG lookup returned no programs")
+        }
+    }
+
     suspend fun resolvePlaybackInfo(
         kind: StalkerStreamKind,
         cmd: String,
@@ -813,6 +911,62 @@ internal companion object {
         )
     }
 
+    /**
+     * Looks up the file rows for a bare video-club movie command after the portal rejects
+     * the existing command with `nothing_to_play`.
+     *
+     * This is deliberately lazy so portals where the existing command already works keep
+     * the original request count and playback ordering.
+     */
+    private suspend fun loadMovieFileFallbackCandidates(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        descriptor: StalkerPlaybackDescriptor
+    ): Result<List<StalkerCommandVariant>> {
+        if (descriptor.candidates.any {
+                detectStalkerPlaybackMode(it.cmd, descriptor.capabilities) == StalkerPlaybackMode.DIRECT_URL
+            }
+        ) {
+            return Result.success(emptyList())
+        }
+        val movieId = descriptor.candidates
+            .mapNotNull(::extractBareVodMovieId)
+            .firstOrNull()
+            ?: return Result.success(emptyList())
+        return when (val result = api.getVodFiles(session, profile, movieId)) {
+            is Result.Success -> Result.success(
+                result.data
+                    .mapIndexedNotNull { index, record ->
+                        vodFileCmdForRecord(record)?.let { cmd ->
+                            StalkerCommandVariant(
+                                cmd = cmd,
+                                playbackMode = detectStalkerPlaybackMode(cmd, descriptor.capabilities),
+                                sourceKey = VOD_FILE_SOURCE_KEY,
+                                priority = index
+                            )
+                        }
+                    }
+                    .distinctBy { it.cmd.trim() }
+            )
+            is Result.Error -> {
+                Log.d(TAG, "Stalker VOD file lookup failed movie=$movieId reason=${result.message}")
+                Result.error(result.message, result.exception)
+            }
+            is Result.Loading -> Result.error("Unexpected loading state")
+        }
+    }
+
+    private fun extractBareVodMovieId(variant: StalkerCommandVariant): String? {
+        val cmd = variant.cmd.substringAfter(' ', missingDelimiterValue = variant.cmd).trim()
+        return BARE_VOD_MOVIE_CMD_REGEX.matchEntire(cmd)?.groupValues?.getOrNull(1)
+    }
+
+    private fun vodFileCmdForRecord(record: StalkerItemRecord): String? {
+        record.cmd?.trim()?.takeIf { BARE_VOD_FILE_CMD_REGEX.matches(it) }?.let { return it }
+        val numericId = record.id.trim().takeIf { it.matches(NUMERIC_ID_REGEX) } ?: return null
+        return "/media/file_${numericId}.mpg"
+    }
+
     private suspend fun resolvePlaybackInfoInternal(
         kind: StalkerStreamKind,
         descriptor: StalkerPlaybackDescriptor,
@@ -830,7 +984,12 @@ internal companion object {
                     .sortedBy { variant ->
                         if (preferredPlaybackMode != null && variant.playbackMode == preferredPlaybackMode) 0 else 1
                     }
-                orderedCandidates.forEach { variant ->
+                    .toMutableList()
+                var candidateIndex = 0
+                var vodFileFallbackAttempted = false
+                var vodFileFallbackCandidatesAdded = false
+                while (candidateIndex < orderedCandidates.size) {
+                    val variant = orderedCandidates[candidateIndex++]
                     val adapter = resolveStalkerPlaybackAdapter(
                         descriptor = descriptor,
                         variant = variant,
@@ -880,7 +1039,7 @@ internal companion object {
 
                     if (!adapter.requiresCreateLink(variant)) {
                         lastError = Result.error("This portal requires a different playback path than the default command.")
-                        return@forEach
+                        continue
                     }
 
                     consultResolvedStreamUrlCache(kind, variant.cmd)?.let { cachedResolvedUrl ->
@@ -943,9 +1102,45 @@ is Result.Success -> {
                         }
                         is Result.Error -> {
                             lastError = linkResult
-                            if (generateSequence(linkResult.exception) { it.cause }
-                                    .any { it is StalkerApiError.ContentUnavailable }
-                            ) {
+                            val contentUnavailable = generateSequence(linkResult.exception) { it.cause }
+                                .any { it is StalkerApiError.ContentUnavailable }
+                            if (contentUnavailable) {
+                                if (
+                                    kind == StalkerStreamKind.MOVIE &&
+                                    variant.sourceKey != VOD_FILE_SOURCE_KEY &&
+                                    !vodFileFallbackAttempted
+                                ) {
+                                    vodFileFallbackAttempted = true
+                                    val fallbackResult = loadMovieFileFallbackCandidates(
+                                        session = session,
+                                        profile = profile,
+                                        descriptor = descriptor
+                                    )
+                                    when (fallbackResult) {
+                                        is Result.Success -> {
+                                            if (fallbackResult.data.isNotEmpty()) {
+                                                // Keep all pre-existing command variants ahead of the
+                                                // recovery rows so the fallback cannot change their order.
+                                                orderedCandidates.addAll(fallbackResult.data)
+                                                vodFileFallbackCandidatesAdded = true
+                                                continue
+                                            }
+                                        }
+                                        is Result.Error -> {
+                                            lastError = fallbackResult
+                                            if (isAuthorizationFailure(fallbackResult.message, fallbackResult.exception)) {
+                                                // Let the existing rebootstrap path handle an auth failure
+                                                // from the secondary lookup instead of hiding it as a
+                                                // content-unavailable response.
+                                                break
+                                            }
+                                        }
+                                        is Result.Loading -> Unit
+                                    }
+                                }
+                                if (variant.sourceKey == VOD_FILE_SOURCE_KEY || vodFileFallbackCandidatesAdded) {
+                                    continue
+                                }
                                 val message = linkResult.message.takeIf(String::isNotBlank)
                                     ?: "The provider reported that this item is currently unavailable."
                                 return Result.error(
@@ -1402,6 +1597,9 @@ is Result.Success -> {
                 sessionCache = null
                 accountProfileCache = null
                 sharedAuthCache.remove(authCacheKey())
+                if (providerId > 0L) {
+                    sharedPortalAuthCache.remove(portalIdentityKey())
+                }
                 api.invalidateSessionScopes(providerId)
             }
             (authFailureCache ?: sharedAuthFailureCache[authCacheKey()])?.let { failure ->
@@ -1417,10 +1615,40 @@ is Result.Success -> {
                 ) {
                     sessionCache = cachedAuth.session
                     accountProfileCache = cachedAuth.profile
+                    api.restoreSession(cachedAuth.session, currentDeviceProfile())
                     return@withLock Result.success(cachedAuth.session to cachedAuth.profile)
                 }
                 sharedAuthCache.remove(authCacheKey(), cachedAuth)
                 api.invalidateSessionScopes(providerId)
+            }
+
+            if (providerId > 0L) {
+                sharedPortalAuthCache[portalIdentityKey()]?.let { cachedAuth ->
+                    if (!cachedAuth.session.isExpired() &&
+                        cachedAuth.profile.expirationDate?.let { it > System.currentTimeMillis() } != false
+                    ) {
+                        sessionCache = cachedAuth.session
+                        accountProfileCache = cachedAuth.profile
+                        sharedAuthCache[authCacheKey()] = cachedAuth
+                        api.restoreSession(cachedAuth.session, currentDeviceProfile())
+                        return@withLock Result.success(cachedAuth.session to cachedAuth.profile)
+                    }
+                    sharedPortalAuthCache.remove(portalIdentityKey(), cachedAuth)
+                    api.invalidateSessionScopes(providerId)
+                }
+            }
+
+            if (providerId > 0L) {
+                portalStateStore?.resumableAuth(providerId, configurationGeneration)?.let { resumed ->
+                    sessionCache = resumed.session
+                    accountProfileCache = resumed.profile
+                    val cachedAuth = CachedAuth(session = resumed.session, profile = resumed.profile)
+                    sharedAuthCache[authCacheKey()] = cachedAuth
+                    sharedPortalAuthCache[portalIdentityKey()] = cachedAuth
+                    api.restoreSession(resumed.session, currentDeviceProfile())
+                    StalkerTelemetry.strategySelected(providerId, "RESUMED_SESSION", "PERSISTED_TOKEN")
+                    return@withLock Result.success(resumed.session to resumed.profile)
+                }
             }
 
             val persistedState = portalStateStore?.getValidated(providerId)
@@ -1485,8 +1713,13 @@ is Result.Success -> {
                 onProgress = onProgress
             ).copy(providerId = providerId)
             val initialAuthResult = discoveryCoordinator.authenticate(profile)
+            val initialAuthThrottled = (initialAuthResult as? Result.Error)?.exception?.isPortalThrottle() == true
             val finalAuthResult = when {
                 initialAuthResult !is Result.Error -> initialAuthResult
+                initialAuthThrottled -> {
+                    StalkerTelemetry.strategySelected(providerId, "AUTH_THROTTLE_BACKOFF", "THROTTLED_AUTH_RETRY_SKIPPED")
+                    initialAuthResult
+                }
                 persistedEndpointUrl != null -> {
                     portalStateStore?.markEndpointUnhealthy(
                         providerId,
@@ -1532,6 +1765,12 @@ is Result.Success -> {
                         session = authResult.data.first,
                         profile = authResult.data.second
                     )
+                    if (providerId > 0L) {
+                        sharedPortalAuthCache[portalIdentityKey()] = CachedAuth(
+                            session = authResult.data.first,
+                            profile = authResult.data.second
+                        )
+                    }
                     trimSharedCaches()
                     portalStateStore?.recordAuthentication(
                         providerId = providerId,
@@ -2129,13 +2368,11 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         if (url.isNullOrBlank()) return null
         if (url.startsWith("http://", true) || url.startsWith("https://", true)) return url
         if (!url.startsWith("/")) return url
-        val origin = runCatching { URI(portalUrl) }.getOrNull() ?: return url
-        val scheme = origin.scheme?.takeIf { it == "http" || it == "https" } ?: "https"
-        val host = origin.host?.takeIf(String::isNotBlank) ?: return url
-        val port = origin.port.takeIf { it > 0 }
-        val authority = if (port != null && port != (if (scheme == "https") 443 else 80)) "$host:$port" else host
-        return "$scheme://$authority$url"
+        return StalkerLogoUrlResolver.resolvePortalUrl(portalUrl, url)
     }
+
+    private fun resolveChannelLogoUrl(url: String?): String? =
+        StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, url)
 
     private fun toChannel(item: StalkerItemRecord): Channel? {
         val numericId = stableItemId(ContentType.LIVE, item.id)
@@ -2164,7 +2401,7 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
         return Channel(
             id = 0L,
             name = resolvedName,
-            logoUrl = resolvePortalUrl(item.logoUrl),
+            logoUrl = resolveChannelLogoUrl(item.logoUrl),
             categoryId = category.id,
             categoryName = category.name,
             streamUrl = streamUrl,
@@ -2577,6 +2814,22 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             .digest(normalized.toByteArray(Charsets.UTF_8))
             .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
         return "provider:$providerId|$digest"
+    }
+
+    /** Stable portal identity used when learned hints differ between provider instances. */
+    private fun portalIdentityKey(): String {
+        val normalized = listOf(
+            providerId.toString(),
+            StalkerUrlFactory.normalizePortalUrl(portalUrl),
+            normalizedMacAddress(),
+            authMode.name,
+            normalizedUsername(),
+            normalizedPassword()
+        ).joinToString(separator = "\u001f")
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(normalized.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
+        return "portal:$providerId|$digest"
     }
 
     private fun authMutexKey(): String = "provider:$providerId|auth"

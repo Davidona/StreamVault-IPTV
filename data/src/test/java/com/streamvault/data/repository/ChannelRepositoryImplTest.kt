@@ -5,10 +5,13 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.FavoriteDao
+import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.entity.CategoryCount
 import com.streamvault.data.local.entity.ChannelBrowseEntity
 import com.streamvault.data.local.entity.CategoryEntity
+import com.streamvault.data.local.entity.ProviderConfigEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
@@ -17,6 +20,11 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.StalkerConfig
+import com.streamvault.domain.model.StalkerDeviceIdentity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -27,20 +35,28 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ChannelRepositoryImplTest {
 
     private val channelDao: ChannelDao = mock()
     private val categoryDao: CategoryDao = mock()
     private val favoriteDao: FavoriteDao = mock()
+    private val categoryFlowCache: ChannelCategoryFlowCache = mock()
     private val preferencesRepository: PreferencesRepository = mock()
     private val parentalControlManager: ParentalControlManager = mock()
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver = mock()
+    private val providerSnapshotDao: ProviderSnapshotDao = mock()
+    private val providerConfigurationCodec: ProviderConfigurationCodec = mock()
 
     @Before
     fun setUpDefaults() {
+        whenever(categoryFlowCache.getOrCreate(any(), any())).thenAnswer { invocation ->
+            invocation.getArgument<() -> Flow<List<com.streamvault.domain.model.Category>>>(1).invoke()
+        }
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(preferencesRepository.liveChannelNumberingMode).thenReturn(flowOf(ChannelNumberingMode.PROVIDER))
         whenever(preferencesRepository.liveChannelGroupingMode).thenReturn(flowOf(LiveChannelGroupingMode.GROUPED))
@@ -50,6 +66,7 @@ class ChannelRepositoryImplTest {
         whenever(preferencesRepository.liveVariantObservations).thenReturn(flowOf(emptyMap()))
         whenever(preferencesRepository.hideDecorativeLiveRows).thenReturn(flowOf(true))
         whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
+        whenever(providerSnapshotDao.getConfigSync(any())).thenReturn(null)
     }
 
     @Test
@@ -167,6 +184,65 @@ class ChannelRepositoryImplTest {
         val result = repository.getCategories(7L).first()
 
         assertThat(result.map { it.name to it.count }).containsExactly(
+            "All Channels" to 3,
+            "Kids" to 3
+        ).inOrder()
+    }
+
+    @Test
+    fun `getCategoriesSnapshot bypasses the category flow cache`() = runTest {
+        val categoryEntities = kotlinx.coroutines.flow.MutableStateFlow(
+            listOf(categoryEntity(id = 10L, name = "Old"))
+        )
+        val categoryCounts = kotlinx.coroutines.flow.MutableStateFlow(
+            listOf(CategoryCount(categoryId = 10L, item_count = 1))
+        )
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.LIVE.name)).thenReturn(categoryEntities)
+        whenever(channelDao.getGroupedCategoryCounts(7L)).thenReturn(categoryCounts)
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+
+        val repository = createRepository()
+        assertThat(repository.getCategories(7L).first().map { it.name }).containsExactly("All Channels", "Old")
+        verify(categoryFlowCache, times(1)).getOrCreate(eq(7L), any())
+
+        categoryEntities.value = listOf(categoryEntity(id = 20L, name = "New"))
+        categoryCounts.value = listOf(CategoryCount(categoryId = 20L, item_count = 2))
+
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name })
+            .containsExactly("All Channels", "New")
+        verify(categoryFlowCache, times(1)).getOrCreate(eq(7L), any())
+    }
+
+    @Test
+    fun `category visibility and counts update when parental preference changes`() = runTest {
+        val parentalLevel = MutableStateFlow(0)
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(parentalLevel)
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.LIVE.name)).thenReturn(
+            flowOf(
+                listOf(
+                    categoryEntity(id = 10L, name = "Kids"),
+                    categoryEntity(id = 20L, name = "Adults", isUserProtected = true)
+                )
+            )
+        )
+        whenever(channelDao.getGroupedCategoryCounts(7L)).thenReturn(
+            flowOf(
+                listOf(
+                    CategoryCount(categoryId = 10L, item_count = 3),
+                    CategoryCount(categoryId = 20L, item_count = 5)
+                )
+            )
+        )
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+
+        val repository = createRepository()
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name to it.count }).containsExactly(
+            "All Channels" to 8,
+            "Kids" to 3,
+            "Adults" to 5
+        ).inOrder()
+        parentalLevel.value = 3
+        assertThat(repository.getCategoriesSnapshot(7L).map { it.name to it.count }).containsExactly(
             "All Channels" to 3,
             "Kids" to 3
         ).inOrder()
@@ -351,6 +427,179 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `getChannels resolves stored bare stalker logos using current portal config`() = runTest {
+        whenever(channelDao.getByProvider(7L)).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 536L,
+                        streamId = 536L,
+                        name = "News One",
+                        logoUrl = "536.png",
+                        streamUrl = "https://stream/536",
+                        number = 1,
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+        whenever(providerSnapshotDao.getConfigSync(7L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 7L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-7",
+                encryptedConfigJson = "{}",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "{}"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://portal.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+
+        val result = createRepository().getChannels(7L).first()
+
+        assertThat(result.single().logoUrl)
+            .isEqualTo("http://portal.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
+    fun `getChannelsByIds resolves mixed provider stalker logos against each provider`() = runTest {
+        whenever(preferencesRepository.liveChannelGroupingMode)
+            .thenReturn(flowOf(LiveChannelGroupingMode.RAW_VARIANTS))
+        whenever(channelDao.getByIds(listOf(101L, 202L))).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 101L,
+                        streamId = 101L,
+                        name = "Provider One Channel",
+                        logoUrl = "101.png",
+                        streamUrl = "https://stream/101",
+                        number = 1,
+                        providerId = 1L
+                    ),
+                    ChannelBrowseEntity(
+                        id = 202L,
+                        streamId = 202L,
+                        name = "Provider Two Channel",
+                        logoUrl = "202.png",
+                        streamUrl = "https://stream/202",
+                        number = 1,
+                        providerId = 2L
+                    )
+                )
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(1L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 1L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-1",
+                encryptedConfigJson = "one",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(2L)).thenReturn(
+            ProviderConfigEntity(
+                providerId = 2L,
+                type = ProviderType.STALKER_PORTAL,
+                schemaVersion = 1,
+                configurationGeneration = 1L,
+                identityKey = "stalker-2",
+                encryptedConfigJson = "two",
+                updatedAt = 1L
+            )
+        )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "one"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://one.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:01")
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "two"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://two.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:02")
+                )
+            )
+
+        val result = createRepository().getChannelsByIds(listOf(101L, 202L)).first()
+
+        assertThat(result.map { it.logoUrl }).containsExactly(
+            "http://one.example/stalker_portal/misc/logos/120/101.png",
+            "http://two.example/stalker_portal/misc/logos/120/202.png"
+        ).inOrder()
+    }
+
+    @Test
+    fun `getChannel reads updated stalker portal config after an edit`() = runTest {
+        whenever(channelDao.getBrowseById(536L)).thenReturn(
+            ChannelBrowseEntity(
+                id = 536L,
+                streamId = 536L,
+                name = "News One",
+                logoUrl = "536.png",
+                streamUrl = "https://stream/536",
+                number = 1,
+                providerId = 7L
+            )
+        )
+        whenever(providerSnapshotDao.getConfigSync(7L))
+            .thenReturn(
+                ProviderConfigEntity(
+                    providerId = 7L,
+                    type = ProviderType.STALKER_PORTAL,
+                    schemaVersion = 1,
+                    configurationGeneration = 1L,
+                    identityKey = "stalker-7",
+                    encryptedConfigJson = "old",
+                    updatedAt = 1L
+                ),
+                ProviderConfigEntity(
+                    providerId = 7L,
+                    type = ProviderType.STALKER_PORTAL,
+                    schemaVersion = 1,
+                    configurationGeneration = 2L,
+                    identityKey = "stalker-7",
+                    encryptedConfigJson = "new",
+                    updatedAt = 2L
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "old"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://old.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+        whenever(providerConfigurationCodec.decode(ProviderType.STALKER_PORTAL, "new"))
+            .thenReturn(
+                StalkerConfig(
+                    portalUrl = "http://new.example/stalker_portal/server/load.php",
+                    device = StalkerDeviceIdentity(macAddress = "00:1A:79:12:34:56")
+                )
+            )
+
+        val repository = createRepository()
+
+        assertThat(repository.getChannel(536L)?.logoUrl)
+            .isEqualTo("http://old.example/stalker_portal/misc/logos/120/536.png")
+        assertThat(repository.getChannel(536L)?.logoUrl)
+            .isEqualTo("http://new.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
     fun `searchChannels returns empty list when sqlite throws for malformed fts query`() = runTest {
         whenever(channelDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
@@ -411,9 +660,12 @@ class ChannelRepositoryImplTest {
         channelDao = channelDao,
         categoryDao = categoryDao,
         favoriteDao = favoriteDao,
+        categoryFlowCache = categoryFlowCache,
         preferencesRepository = preferencesRepository,
         parentalControlManager = parentalControlManager,
-        xtreamStreamUrlResolver = xtreamStreamUrlResolver
+        xtreamStreamUrlResolver = xtreamStreamUrlResolver,
+        providerSnapshotDao = providerSnapshotDao,
+        providerConfigurationCodec = providerConfigurationCodec
     )
 
     private fun categoryEntity(

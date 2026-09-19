@@ -17,11 +17,6 @@ cleanup_platform_smoke() {
     sh ./tools/capture-platform-smoke-diagnostics.sh || true
   fi
 
-  if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
-    adb shell device_config delete activity_manager data_sync_fgs_timeout_duration >/dev/null 2>&1 || true
-    adb shell am compat disable FGS_INTRODUCE_TIME_LIMITS com.streamvault.app.debug >/dev/null 2>&1 || true
-  fi
-
   exit "$status"
 }
 
@@ -33,17 +28,48 @@ fi
 
 PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.compat.PlatformCompatibilityMatrixTest"
 export PLATFORM_SMOKE_ACTIVE_SUITE
-./gradlew --console=plain \
-  :app:connectedDebugAndroidTest \
-  "-PcompatApi=${api_level}" \
-  "-PcompatAbi=${compat_abi}" \
-  -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.compat.PlatformCompatibilityMatrixTest \
-  --no-daemon
+run_compatibility_suite() {
+  if [ "$api_level" != "25" ]; then
+    ./gradlew --console=plain \
+      :app:connectedDebugAndroidTest \
+      "-PcompatApi=${api_level}" \
+      "-PcompatAbi=${compat_abi}" \
+      -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.compat.PlatformCompatibilityMatrixTest \
+      --no-daemon
+    return
+  fi
+
+  # API 25 occasionally loses the emulator's package-install stream after boot. Retry only
+  # that infrastructure failure; real test failures still fail the smoke job immediately.
+  attempt=1
+  retry_log="${TMPDIR:-/tmp}/streamvault-platform-smoke-api-${api_level}.log"
+  while [ "$attempt" -le 2 ]; do
+    if ./gradlew --console=plain \
+      :app:connectedDebugAndroidTest \
+      "-PcompatApi=${api_level}" \
+      "-PcompatAbi=${compat_abi}" \
+      -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.compat.PlatformCompatibilityMatrixTest \
+      --no-daemon >"$retry_log" 2>&1; then
+      cat "$retry_log"
+      return
+    fi
+
+    cat "$retry_log"
+    if [ "$attempt" -eq 2 ] || ! grep -Eq \
+      'Failed to install (split )?APK|Failed to install-write all apks|device offline' "$retry_log"; then
+      return 1
+    fi
+
+    adb wait-for-device || true
+    adb uninstall com.streamvault.app.debug >/dev/null 2>&1 || true
+    adb uninstall com.streamvault.app.debug.test >/dev/null 2>&1 || true
+    attempt=$((attempt + 1))
+  done
+}
+
+run_compatibility_suite
 
 if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
-  adb shell am compat enable FGS_INTRODUCE_TIME_LIMITS com.streamvault.app.debug
-  adb shell device_config put activity_manager data_sync_fgs_timeout_duration 5000
-
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
   ./gradlew --console=plain \

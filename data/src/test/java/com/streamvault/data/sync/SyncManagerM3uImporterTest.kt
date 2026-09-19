@@ -2,6 +2,7 @@ package com.streamvault.data.sync
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.parser.M3uParser
+import com.streamvault.data.parser.M3uPlaybackMetadataCodec
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.CancellationException
@@ -126,6 +127,36 @@ class SyncManagerM3uImporterTest {
         assertThat(failure).isInstanceOf(CatalogAdmissionExceeded::class.java)
         assertThat(failure).hasMessageThat().contains("field length limit")
         assertThat(fixture.finalized).isFalse()
+    }
+
+    @Test
+    fun `adaptive metadata is included in staged channel entity`() = runTest {
+        val playlist = """
+            #EXTM3U
+            #EXTINF:-1 group-title="Protected",Protected channel
+            #KODIPROP:inputstream.adaptive.manifest_type=mpd
+            #KODIPROP:inputstream.adaptive.license_type=clearkey
+            #KODIPROP:inputstream.adaptive.license_key=00112233445566778899aabbccddeeff:ffeeddccbbaa99887766554433221100
+            #EXTVLCOPT:http-user-agent=Mozilla/5.0
+            https://stream.example.com/protected.mpd
+        """.trimIndent().toByteArray()
+        val fixture = fixture(
+            body = playlist,
+            limits = CatalogSizeLimits(maxM3uDecompressedBytes = 4_096, maxM3uLineBytes = 1_024)
+        )
+        var stagedChannels = emptyList<com.streamvault.data.local.entity.ChannelEntity>()
+        doAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            stagedChannels = (invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>).toList()
+            Unit
+        }.whenever(fixture.store).stageChannelBatch(any(), any(), any())
+
+        fixture.importer.importPlaylist(provider(), onProgress = null)
+
+        val metadata = M3uPlaybackMetadataCodec.decode(stagedChannels.single().playbackMetadataJson)
+        assertThat(metadata?.manifestType).isEqualTo(com.streamvault.domain.model.StreamType.DASH)
+        assertThat(metadata?.staticClearKeyLicense?.keys).hasSize(1)
+        assertThat(metadata?.userAgent).isEqualTo("Mozilla/5.0")
     }
 
     @Test

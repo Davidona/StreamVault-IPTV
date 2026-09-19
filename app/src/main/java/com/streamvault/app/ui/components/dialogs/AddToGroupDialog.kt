@@ -24,14 +24,14 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Category
 import androidx.compose.ui.res.stringResource
 import com.streamvault.app.R
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.design.AppColors
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.shape.CircleShape
 import kotlinx.coroutines.delay
 import androidx.tv.material3.*
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.interaction.mouseClickable
 import android.view.KeyEvent as AndroidKeyEvent
 
 @Composable
@@ -144,7 +144,7 @@ fun AddToGroupDialog(
                             modifier = Modifier.weight(1f, fill = false),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                        // ── Favorites ────────────────────────────────
+                        // ג”€ג”€ Favorites ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                         item {
                             var isFocused by remember { mutableStateOf(false) }
                             Button(
@@ -226,7 +226,7 @@ fun AddToGroupDialog(
                             }
                         }
 
-                        // ── Split Screen ─────────────────────────────
+                        // ג”€ג”€ Split Screen ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                         if (channel != null && onOpenSplitScreenPlanner != null) {
                             item {
                                 var isFocused by remember { mutableStateOf(false) }
@@ -268,7 +268,7 @@ fun AddToGroupDialog(
                             }
                         }
 
-                        // ── Hide channel ─────────────────────────────
+                        // ג”€ג”€ Hide channel ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                         if (channel != null && onHideChannel != null) {
                             item {
                                 var isFocused by remember { mutableStateOf(false) }
@@ -306,7 +306,7 @@ fun AddToGroupDialog(
                             }
                         }
 
-                        // ── Remove from Recent ───────────────────────
+                        // ג”€ג”€ Remove from Recent ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                         if (onRemoveFromRecent != null) {
                             item {
                                 var isFocused by remember { mutableStateOf(false) }
@@ -347,7 +347,7 @@ fun AddToGroupDialog(
                             }
                         }
 
-                        // ── Custom Groups Section ─────────────────────
+                        // ג”€ג”€ Custom Groups Section ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
                         item {
                             Box(
                                 modifier = Modifier
@@ -364,7 +364,11 @@ fun AddToGroupDialog(
                             )
                         }
 
-                        items(groups) { group ->
+                        items(
+                            items = groups,
+                            key = { it.id },
+                            contentType = { "category" }
+                        ) { group ->
                             val isMember = memberOfGroups.contains(group.id)
                             var isFocused by remember { mutableStateOf(false) }
                             val groupAction = { if (isMember) safeRemoveFromGroup(group) else safeAddToGroup(group) }

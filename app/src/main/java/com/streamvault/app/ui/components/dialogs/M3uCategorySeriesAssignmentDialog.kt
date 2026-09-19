@@ -28,8 +28,8 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.domain.repository.M3uCategoryItem
 import com.streamvault.domain.repository.M3uSeriesAssignment
 
@@ -79,7 +79,11 @@ fun M3uCategorySeriesAssignmentDialog(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(items, key = { it.channelId }) { item ->
+                    items(
+                        items = items,
+                        key = { it.channelId },
+                        contentType = { "series_assignment" }
+                    ) { item ->
                         val draft = drafts[item.channelId] ?: return@items
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(item.title, color = OnSurface)

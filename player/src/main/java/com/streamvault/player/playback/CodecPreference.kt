@@ -1,6 +1,8 @@
 package com.streamvault.player.playback
 
+import androidx.media3.common.Format
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import com.streamvault.domain.model.DecoderMode
@@ -18,6 +20,18 @@ internal fun shouldUseManagedCodecSelector(
     requestedMode: DecoderMode,
     decoderPolicy: ActiveDecoderPolicy
 ): Boolean = requestedMode != DecoderMode.AUTO && decoderPolicy != ActiveDecoderPolicy.AUTO
+
+internal fun buildDecoderReuseWorkaroundEvaluation(
+    decoderName: String,
+    oldFormat: Format,
+    newFormat: Format
+): DecoderReuseEvaluation = DecoderReuseEvaluation(
+    decoderName,
+    oldFormat,
+    newFormat,
+    DecoderReuseEvaluation.REUSE_RESULT_NO,
+    DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED
+)
 
 internal data class PlaybackRendererPlan(
     val useAudioVideoSyncSink: Boolean,

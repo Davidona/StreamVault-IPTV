@@ -1,0 +1,5 @@
+app/src/test/java/com/streamvault/app/plugins/PluginPlaybackRoutingTest.kt
+app/src/test/java/com/streamvault/app/plugins/StreamVaultPluginOwnerTest.kt
+
+No Welcome, Downloads, or Plugins presentation tests existed before this slice;
+characterization coverage is a required first implementation task.

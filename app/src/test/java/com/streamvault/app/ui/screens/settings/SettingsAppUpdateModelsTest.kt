@@ -5,6 +5,10 @@ import com.streamvault.app.update.AppUpdateActionState
 import com.streamvault.app.update.AppUpdateChannel
 import com.streamvault.app.update.AppUpdateDownloadStatus
 import com.streamvault.app.update.isRemoteVersionNewerForBuild
+import com.streamvault.feature.settings.api.SettingsUpdateActionState
+import com.streamvault.feature.settings.api.SettingsUpdateDownloadStatus
+import com.streamvault.feature.settings.presentation.AppUpdateUiModel
+import com.streamvault.feature.settings.presentation.latestActionState
 import org.junit.Test
 
 class SettingsAppUpdateModelsTest {
@@ -105,11 +109,11 @@ class SettingsAppUpdateModelsTest {
             latestVersionName = "1.0.12",
             downloadUrl = "https://example.com/StreamVault.apk",
             isUpdateAvailable = true,
-            downloadStatus = AppUpdateDownloadStatus.Downloaded,
+            downloadStatus = SettingsUpdateDownloadStatus.DOWNLOADED,
             downloadedVersionName = "1.0.12"
         )
 
-        assertThat(update.latestActionState()).isEqualTo(AppUpdateActionState.InstallLatest)
+        assertThat(update.latestActionState()).isEqualTo(SettingsUpdateActionState.INSTALL_LATEST)
     }
 
     @Test
@@ -118,11 +122,11 @@ class SettingsAppUpdateModelsTest {
             latestVersionName = "1.0.13",
             downloadUrl = "https://example.com/StreamVault.apk",
             isUpdateAvailable = true,
-            downloadStatus = AppUpdateDownloadStatus.Downloaded,
+            downloadStatus = SettingsUpdateDownloadStatus.DOWNLOADED,
             downloadedVersionName = "1.0.12"
         )
 
-        assertThat(update.latestActionState()).isEqualTo(AppUpdateActionState.DownloadLatest)
+        assertThat(update.latestActionState()).isEqualTo(SettingsUpdateActionState.DOWNLOAD_LATEST)
     }
 
     @Test
@@ -131,12 +135,12 @@ class SettingsAppUpdateModelsTest {
             latestVersionName = "1.0.12",
             downloadUrl = "https://example.com/StreamVault.apk",
             isUpdateAvailable = true,
-            downloadStatus = AppUpdateDownloadStatus.Downloaded,
+            downloadStatus = SettingsUpdateDownloadStatus.DOWNLOADED,
             downloadedVersionName = "1.0.12",
             installPermissionRequired = true
         )
 
-        assertThat(update.latestActionState()).isEqualTo(AppUpdateActionState.InstallPermissionRequired)
+        assertThat(update.latestActionState()).isEqualTo(SettingsUpdateActionState.INSTALL_PERMISSION_REQUIRED)
     }
 
     @Test
@@ -145,10 +149,10 @@ class SettingsAppUpdateModelsTest {
             latestVersionName = "1.0.12",
             downloadUrl = "https://example.com/StreamVault.apk",
             isUpdateAvailable = true,
-            downloadStatus = AppUpdateDownloadStatus.Downloading,
+            downloadStatus = SettingsUpdateDownloadStatus.DOWNLOADING,
             downloadedVersionName = "1.0.12"
         )
 
-        assertThat(update.latestActionState()).isEqualTo(AppUpdateActionState.Downloading)
+        assertThat(update.latestActionState()).isEqualTo(SettingsUpdateActionState.DOWNLOADING)
     }
 }

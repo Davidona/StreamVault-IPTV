@@ -19,6 +19,24 @@ interface ProviderSyncCommands {
         epgSyncModeOverride: ProviderEpgSyncMode? = null,
         onProgress: ((String) -> Unit)? = null,
         trackInitialLiveOnboarding: Boolean = false
+    ): Result<Unit> = sync(
+        providerId = providerId,
+        force = force,
+        movieFastSyncOverride = movieFastSyncOverride,
+        epgSyncModeOverride = epgSyncModeOverride,
+        onProgress = onProgress,
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        bootstrap = false
+    )
+
+    suspend fun sync(
+        providerId: Long,
+        force: Boolean = false,
+        movieFastSyncOverride: Boolean? = null,
+        epgSyncModeOverride: ProviderEpgSyncMode? = null,
+        onProgress: ((String) -> Unit)? = null,
+        trackInitialLiveOnboarding: Boolean = false,
+        bootstrap: Boolean
     ): Result<Unit>
 
     suspend fun syncWithProviderOverride(
@@ -30,6 +48,28 @@ interface ProviderSyncCommands {
         trackInitialLiveOnboarding: Boolean = false,
         providerOverride: Provider? = null,
         afterCatalogApply: (suspend () -> Unit)? = null
+    ): Result<Unit> = syncWithProviderOverride(
+        providerId = providerId,
+        force = force,
+        movieFastSyncOverride = movieFastSyncOverride,
+        epgSyncModeOverride = epgSyncModeOverride,
+        onProgress = onProgress,
+        trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+        providerOverride = providerOverride,
+        afterCatalogApply = afterCatalogApply,
+        bootstrap = false
+    )
+
+    suspend fun syncWithProviderOverride(
+        providerId: Long,
+        force: Boolean = false,
+        movieFastSyncOverride: Boolean? = null,
+        epgSyncModeOverride: ProviderEpgSyncMode? = null,
+        onProgress: ((String) -> Unit)? = null,
+        trackInitialLiveOnboarding: Boolean = false,
+        providerOverride: Provider? = null,
+        afterCatalogApply: (suspend () -> Unit)? = null,
+        bootstrap: Boolean
     ): Result<Unit>
 
     suspend fun syncEpg(

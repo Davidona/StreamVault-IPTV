@@ -115,6 +115,12 @@ class SeriesRepositoryImpl @Inject constructor(
         val id: Long
     )
 
+    private data class CursorWindowResult<T>(
+        val items: List<T>,
+        val totalVisibleCount: Int,
+        val exhausted: Boolean
+    )
+
     private val xtreamCategoryLoadLocks = KeyedMutexRegistry<String>()
     private val backgroundRefreshes = BoundedKeySet<String>(MAX_BACKGROUND_CATEGORY_REFRESHES)
     private val repositoryScope = CoroutineScope(
@@ -147,7 +153,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getSeriesByCategory(providerId: Long, categoryId: Long): Flow<List<Series>> =
         flow {
@@ -165,7 +171,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(seriesPresentationSettingsFlow) { list, settings ->
                         buildPresentedSeries(list, settings)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -189,7 +195,7 @@ class SeriesRepositoryImpl @Inject constructor(
             }.map { list -> list.map { it.toDomain() } }
                 .combine(seriesPresentationSettingsFlow) { list, settings ->
                     buildPresentedSeries(list, settings)
-                }
+                }.flowOn(Dispatchers.Default)
         )
     }
 
@@ -209,7 +215,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(seriesPresentationSettingsFlow) { list, settings ->
                         buildPresentedSeries(list, settings).take(limit)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -228,12 +234,14 @@ class SeriesRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    filteredCategories.filterNot { category ->
+                    val nonWildcard = filteredCategories.filterNot { category ->
                         stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
                     }
+                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
+                val allowWildcardHydration = previewCategories.size == filteredCategories.size
                 if (previewCategories.isEmpty()) {
                     send(emptyMap())
                     return@channelFlow
@@ -247,7 +255,7 @@ class SeriesRepositoryImpl @Inject constructor(
                             categoryId = category.categoryId,
                             provider = provider,
                             requiredCount = limitPerCategory,
-                            allowStalkerWildcard = false
+                            allowStalkerWildcard = allowWildcardHydration
                         )
                     }
                 }
@@ -265,7 +273,7 @@ class SeriesRepositoryImpl @Inject constructor(
                     seriesPresentationSettingsFlow
                 ) { previews, settings ->
                     previews.mapValues { (_, items) -> buildPresentedSeries(items, settings).take(limitPerCategory) }
-                }.collect { previews ->
+                }.flowOn(Dispatchers.Default).collect { previews ->
                     send(previews)
                 }
             }
@@ -284,7 +292,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Series>> =
         combine(
@@ -299,7 +307,7 @@ class SeriesRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(seriesPresentationSettingsFlow) { list, settings ->
                 buildPresentedSeries(list, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getSeriesByIds(ids: List<Long>): Flow<List<Series>> =
         seriesDao.getByIds(ids).map { entities -> entities.map { it.toDomain() } }
@@ -450,7 +458,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 series.map { if (it.id in favoriteIds) it.copy(isFavorite = true) else it }
             }.combine(seriesPresentationSettingsFlow) { series, settings ->
                 buildPresentedSeries(series, settings)
-            }
+            }.flowOn(Dispatchers.Default)
         }
 
     override suspend fun getSeriesById(seriesId: Long): Series? =
@@ -476,7 +484,10 @@ class SeriesRepositoryImpl @Inject constructor(
         }
 
         if (provider.type == ProviderType.XTREAM_CODES && seriesEntity.hasFreshXtreamDetails()) {
-            return Result.success(attachSeriesPresentation(buildSeriesWithPersistedEpisodes(seriesEntity), knownPresentation))
+            val localSeries = buildSeriesWithPersistedEpisodes(seriesEntity)
+            if (localSeries.seasons.any { season -> season.episodes.isNotEmpty() }) {
+                return Result.success(attachSeriesPresentation(localSeries, knownPresentation))
+            }
         }
         if (provider.type == ProviderType.STALKER_PORTAL && seriesEntity.hasFreshStalkerDetails()) {
             val localSeries = buildSeriesWithPersistedEpisodes(seriesEntity)
@@ -536,7 +547,8 @@ class SeriesRepositoryImpl @Inject constructor(
             is Result.Success -> {
                 val remoteSeries = remoteResult.data
                 val hasRemoteEpisodes = remoteSeries.seasons.any { season -> season.episodes.isNotEmpty() }
-                val hasPersistedEpisodes = episodeDao.getBySeriesSync(seriesEntity.id).isNotEmpty()
+                val persistedEpisodesBefore = episodeDao.getBySeriesSync(seriesEntity.id)
+                val hasPersistedEpisodes = persistedEpisodesBefore.isNotEmpty()
 
                 val updatedSeries = seriesEntity.copy(
                     name = remoteSeries.name.ifBlank { seriesEntity.name },
@@ -604,7 +616,10 @@ class SeriesRepositoryImpl @Inject constructor(
                         }
                     }
 
-                if (episodesToPersist.isNotEmpty()) {
+                val adoptRemoteEpisodes = episodesToPersist.isNotEmpty() &&
+                    (persistedEpisodesBefore.isEmpty() || episodesToPersist.size >= persistedEpisodesBefore.size)
+
+                if (adoptRemoteEpisodes) {
                     episodeDao.replaceAll(seriesEntity.id, providerId, episodesToPersist)
                 }
 
@@ -615,7 +630,7 @@ class SeriesRepositoryImpl @Inject constructor(
                 }
 
                 val remoteSeasonMetadataByNumber = remoteSeries.seasons.associateBy { it.seasonNumber }
-                val mergedSeasons = if (remoteSeries.seasons.any { it.episodes.isNotEmpty() }) {
+                val mergedSeasons = if (adoptRemoteEpisodes) {
                     remoteSeries.seasons
                         .sortedBy { it.seasonNumber }
                         .map { remoteSeason ->
@@ -1159,11 +1174,12 @@ class SeriesRepositoryImpl @Inject constructor(
             .map { it.contentId }
             .toSet()
 
-        val canUseCursorWindow = presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL &&
-            supportsCursorBrowse(query)
-        val items = if (canUseCursorWindow) {
-            fetchSeriesCursorWindow(query, favoriteIds)
+        val cursorWindow = if (supportsCursorBrowse(query)) {
+            fetchSeriesCursorWindow(query, favoriteIds, presentationSettings)
         } else {
+            null
+        }
+        val items = cursorWindow?.items ?: run {
             val series = seriesBrowseSource(query).first()
             val history = playbackHistoryDao.getByProvider(query.providerId).first()
             val inProgressIds = history
@@ -1201,7 +1217,9 @@ class SeriesRepositoryImpl @Inject constructor(
                 .take(query.limit)
         }
 
-        val totalCount = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+        val totalCount = if (cursorWindow != null) {
+            if (cursorWindow.exhausted) cursorWindow.totalVisibleCount else rawTotalCount
+        } else if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
             rawTotalCount
         } else {
             val series = seriesBrowseSource(query).first()
@@ -1316,16 +1334,18 @@ class SeriesRepositoryImpl @Inject constructor(
 
     private suspend fun fetchSeriesCursorWindow(
         query: LibraryBrowseQuery,
-        favoriteIds: Set<Long>
-    ): List<Series> {
+        favoriteIds: Set<Long>,
+        presentationSettings: SeriesPresentationSettings
+    ): CursorWindowResult<Series> {
         val parentalLevel = preferencesRepository.parentalControlLevel.first()
         val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
         val collected = ArrayList<Series>(targetVisibleCount)
 
-        when {
+        val exhausted = when {
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.LIBRARY -> {
                 collectSeriesPages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.lastModified, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesFreshPage(query, limit, cursor)
@@ -1334,6 +1354,7 @@ class SeriesRepositoryImpl @Inject constructor(
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.TITLE -> {
                 collectSeriesPages<NameCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { NameCursor(it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesNamePage(query, limit, cursor)
@@ -1341,6 +1362,7 @@ class SeriesRepositoryImpl @Inject constructor(
             }
             (query.sortBy == LibrarySortBy.RATING || query.filterBy.type == LibraryFilterType.TOP_RATED) -> {
                 collectSeriesPages<RatingCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { RatingCursor(it.rating, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesRatingPage(query, limit, cursor)
@@ -1349,14 +1371,21 @@ class SeriesRepositoryImpl @Inject constructor(
             query.sortBy == LibrarySortBy.UPDATED ||
                 query.filterBy.type == LibraryFilterType.RECENTLY_UPDATED -> {
                 collectSeriesPages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.lastModified, it.name, it.id) }
                 ) { limit, cursor ->
                     loadSeriesFreshPage(query, limit, cursor)
                 }
             }
+            else -> true
         }
 
-        return collected.drop(query.offset).take(query.limit)
+        val presented = buildPresentedSeries(collected, presentationSettings)
+        return CursorWindowResult(
+            items = presented.drop(query.offset).take(query.limit),
+            totalVisibleCount = presented.size,
+            exhausted = exhausted
+        )
     }
 
     private suspend fun <C> collectSeriesPages(
@@ -1364,15 +1393,16 @@ class SeriesRepositoryImpl @Inject constructor(
         parentalLevel: Int,
         collected: MutableList<Series>,
         favoriteIds: Set<Long>,
+        presentationSettings: SeriesPresentationSettings,
         extractCursor: (SeriesBrowseEntity) -> C,
         loadPage: suspend (limit: Int, cursor: C?) -> List<SeriesBrowseEntity>
-    ) {
+    ): Boolean {
         var cursor: C? = null
-        val targetVisibleCount = query.offset + query.limit
-        while (collected.size < targetVisibleCount) {
+        val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
+        while (presentedSeriesCount(collected, presentationSettings) < targetVisibleCount) {
             val batch = loadPage(CURSOR_BATCH_SIZE, cursor)
             if (batch.isEmpty()) {
-                return
+                return true
             }
             val visibleBatch = if (parentalLevel >= 3) {
                 batch.filterNot { it.isUserProtected }
@@ -1384,10 +1414,20 @@ class SeriesRepositoryImpl @Inject constructor(
                 if (item.id in favoriteIds) item.copy(isFavorite = true) else item
             }
             if (batch.size < CURSOR_BATCH_SIZE) {
-                return
+                return true
             }
             cursor = extractCursor(batch.last())
         }
+        return false
+    }
+
+    private fun presentedSeriesCount(
+        series: List<Series>,
+        presentationSettings: SeriesPresentationSettings
+    ): Int = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+        series.size
+    } else {
+        buildPresentedSeries(series, presentationSettings).size
     }
 
     private suspend fun loadSeriesNamePage(query: LibraryBrowseQuery, limit: Int, cursor: NameCursor?): List<SeriesBrowseEntity> {

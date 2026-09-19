@@ -1,0 +1,270 @@
+package com.streamvault.feature.live.epg
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Border
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
+import androidx.tv.material3.Text
+import com.streamvault.feature.live.R
+import com.streamvault.feature.live.presentation.epg.GuideDensity
+import com.streamvault.feature.live.presentation.epg.LiveGuideHeroBadge
+import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
+import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.domain.playback.isArchivePlayable
+import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.Program
+import java.util.Date
+
+internal data class GuideHeroSelection(
+    val channel: Channel,
+    val program: Program?,
+    val isFallbackToChannel: Boolean
+)
+
+internal fun resolveGuideHeroSelection(
+    uiState: EpgUiState,
+    focusedChannel: Channel?,
+    focusedProgram: Program?,
+    now: Long
+): GuideHeroSelection? {
+    val resolvedChannel = focusedChannel
+        ?.let { current -> uiState.channels.firstOrNull { it.id == current.id } }
+        ?: uiState.channels.firstOrNull()
+        ?: return null
+    val programs = resolvedChannel.guideLookupKey()?.let { lookupKey ->
+        uiState.programsByChannel[lookupKey].orEmpty()
+    }.orEmpty()
+    val resolvedProgram = focusedProgram?.let { focused ->
+        programs.firstOrNull {
+            it.startTime == focused.startTime &&
+                it.endTime == focused.endTime &&
+                it.title == focused.title
+        }
+    } ?: programs.firstOrNull { now in it.startTime until it.endTime } ?: programs.firstOrNull()
+    return GuideHeroSelection(
+        channel = resolvedChannel,
+        program = resolvedProgram,
+        isFallbackToChannel = resolvedProgram == null
+    )
+}
+@Composable
+internal fun GuideHeroSection(
+    uiState: EpgUiState,
+    focusedChannel: Channel?,
+    focusedProgram: Program?,
+    modifier: Modifier = Modifier
+) {
+    val now = currentLiveGuideNow()
+    val heroSelection by remember(uiState, focusedChannel, focusedProgram, now) {
+        derivedStateOf {
+            resolveGuideHeroSelection(
+                uiState = uiState,
+                focusedChannel = focusedChannel,
+                focusedProgram = focusedProgram,
+                now = now
+            )
+        }
+    }
+
+    ImmersiveGuideHero(
+        selection = heroSelection,
+        providerLabel = uiState.providerSourceLabel,
+        selectedCategoryName = uiState.categories
+            .firstOrNull { it.id == uiState.selectedCategoryId }
+            ?.name
+            .orEmpty(),
+        isGuideStale = uiState.isGuideStale,
+        channelCount = uiState.totalChannelCount,
+        channelsWithSchedule = uiState.channelsWithSchedule,
+        lastUpdatedAt = uiState.lastUpdatedAt,
+        isRefreshing = uiState.isRefreshing,
+        modifier = modifier
+    )
+}
+@Composable
+internal fun ImmersiveGuideHero(
+    selection: GuideHeroSelection?,
+    providerLabel: String,
+    selectedCategoryName: String,
+    isGuideStale: Boolean,
+    channelCount: Int,
+    channelsWithSchedule: Int,
+    lastUpdatedAt: Long?,
+    isRefreshing: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val appTimeFormat = LocalLiveTimeFormat.current
+    val format = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
+    val currentTime = System.currentTimeMillis()
+    val lastUpdatedLabel = remember(lastUpdatedAt, currentTime) {
+        lastUpdatedAt?.let { updatedAt ->
+            val minutes = ((currentTime - updatedAt).coerceAtLeast(0L) / 60_000L).toInt()
+            if (minutes <= 0) {
+                "Updated just now"
+            } else {
+                "$minutes min ago"
+            }
+        }
+    }
+
+    Surface(
+        modifier = modifier.height(96.dp),
+        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val channel = selection?.channel
+            ChannelLogoBadge(
+                channelName = channel?.name ?: stringResource(R.string.epg_title),
+                logoUrl = channel?.logoUrl,
+                modifier = Modifier
+                    .width(54.dp)
+                    .height(54.dp),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                val program = selection?.program
+                Text(
+                    text = program?.title ?: channel?.name ?: stringResource(R.string.epg_title),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 15.sp,
+                        lineHeight = 18.sp
+                    ),
+                    color = OnSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = buildString {
+                        channel?.let { append("${it.number}. ${it.name}") }
+                        if (providerLabel.isNotBlank()) {
+                            if (isNotEmpty()) append("  |  ")
+                            append(providerLabel)
+                        }
+                        if (selectedCategoryName.isNotBlank()) {
+                            if (isNotEmpty()) append("  |  ")
+                            append(selectedCategoryName)
+                        }
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceDim,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (program != null) {
+                    Text(
+                        text = "${format.format(Date(program.startTime))} - ${format.format(Date(program.endTime))}",
+                        style = MaterialTheme.typography.labelSmall.copy(lineHeight = 11.sp),
+                        color = OnSurface
+                    )
+                    if (currentTime in program.startTime until program.endTime) {
+                        LinearProgressIndicator(
+                            progress = { ((currentTime - program.startTime).toFloat() / (program.endTime - program.startTime).toFloat()).coerceIn(0f, 1f) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(4.dp),
+                            color = Primary,
+                            trackColor = SurfaceHighlight
+                        )
+                    }
+                    Text(
+                        text = program.description.ifBlank { stringResource(R.string.epg_hero_no_program_description) },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceDim,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.epg_no_schedule),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = OnSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.epg_hero_no_schedule_hint),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceDim,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.widthIn(min = 176.dp, max = 220.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                LiveGuideHeroBadge(text = stringResource(R.string.epg_schedule_summary_short, channelsWithSchedule, channelCount))
+                if (isRefreshing) {
+                    LiveGuideHeroBadge(text = stringResource(R.string.epg_loading))
+                }
+                if (selection?.program != null && selection.channel.isArchivePlayable(selection.program, currentLiveGuideNow())) {
+                    LiveGuideHeroBadge(
+                        text = if (selection.program.hasArchive) {
+                            stringResource(R.string.epg_program_replay_ready)
+                        } else {
+                            stringResource(R.string.epg_program_replay_partial)
+                        },
+                        highlight = true
+                    )
+                }
+                if (isGuideStale) {
+                    LiveGuideHeroBadge(
+                        text = stringResource(R.string.epg_stale_short),
+                        accentColor = Color(0xFFFF6B6B)
+                    )
+                }
+                if (!lastUpdatedLabel.isNullOrBlank()) {
+                    Text(
+                        text = lastUpdatedLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceDim
+                    )
+                }
+            }
+        }
+    }
+}

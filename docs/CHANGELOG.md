@@ -2,6 +2,76 @@
 
 All notable product changes are recorded in this document.
 
+## [1.0.18]
+
+### Added
+
+- Added an optional Live TV clock overlay with configurable corner placement, size, digital/clean/serif fonts, and System, 12-hour, or 24-hour time formatting.
+- Added VOD chapter navigation with timeline markers, chapter selection, and previous/next chapter actions.
+- Added chapter skip actions for Intro, Opening, Recap, and Outro segments, with contextual labels and seek-to-end behavior.
+- Added chapter-aware series autoplay that presents the existing next-episode countdown when end credits begin, while preserving the end-of-video fallback for media without usable credit chapters.
+- Added adaptive startup bitrate selection using network-class defaults and recent bandwidth measurements.
+- Added selectable Classic blue, M3 purple, and Light app themes, with persistent settings and backup/restore support.
+- Added persistent VOD audio and subtitle track choices: selections are saved per movie, shared across all episodes in the same series, and used as a global fallback for other VOD titles when a matching track is available; language and label matching survives provider track-ID changes, and explicit subtitle-off choices are preserved.
+- Added an opt-in Live TV setting to auto-hide the category sidebar after selection, with Back-button and focus-aware restoration.
+- Added VOD category pinning for Movies and Series, with pin-first browsing, Android TV pin controls, and pinned category content shelves on the Home dashboard.
+- Added measured frame-rate and stream-bitrate diagnostics for IPTV playback, including MPEG-TS streams that omit these values from their metadata.
+- Added portal-backed Stalker VOD search with mixed movie/series results, persisted result IDs, paging, parental/hidden-category filtering, and a Browsing setting to disable it.
+- Added a Media3 `FrameExtractor` pilot for supported VOD seek thumbnails, while retaining `MediaMetadataRetriever` as a fallback for unsupported or failed sources.
+- Added bounded VOD and episode sliding-window preloading for current and adjacent series or catch-up items, with lifecycle cleanup, stale-session protection, and direct-playback fallback; ordinary live playback remains on its existing path.
+- Added native adaptive M3U playback metadata support for Kodi-style manifest and DRM directives, including DASH, HLS, and Smooth stream selection, per-entry headers, User-Agent and Referer handling, remote Widevine/PlayReady/ClearKey licenses, and static ClearKey keys.
+- Added restart-safe persistence for adaptive M3U playback configuration through the Room v77-to-v78 migration, preserving metadata across imports and playback resolution without logging raw key material.
+
+### Fixed
+
+- Fixed provider observation cache eviction when another provider configuration fails to decode, preventing removed providers from retaining stale configuration data if they are added again later.
+- Fixed an episode-completion `StackOverflowError` caused by playback history marking recursively invoking itself instead of the watched callback.
+- Fixed opening credits and post-credit scenes being treated as end credits, and tightened generic Credits detection to avoid triggering next-episode autoplay too early.
+- Fixed VOD “More Like This” movie posters opening movie information instead of starting playback directly.
+- Fixed native EPG resolution for large channel lineups by chunking program lookups to stay below SQLite bind-variable limits on older Android devices.
+- Fixed EPG collisions for channels sharing an EPG identifier by keying resolved guide data by the provider stream ID when available, while preserving legacy EPG-ID fallback queries.
+- Fixed grouped VOD browse pagination and infinite scroll by using cursor windows, deduplicating before offset/limit application, and handling zero-timestamp catalog entries consistently.
+- Fixed provider configuration decoding after typed-provider migrations that omitted the embedded configuration type, preserving access to existing provider settings and credentials.
+- Fixed Stalker compatibility discovery treating every tokenless HTTP 200 response as a rate limit; generic endpoint or recipe responses now continue through fallback discovery.
+- Fixed Stalker VOD playback on portals that reject bare movie commands by resolving movie file rows and trying validated `/media/file_<fileId>.mpg` fallback commands while preserving existing playback behavior.
+- Fixed Stalker VOD category layout drift by retargeting stale stored category types before synchronization instead of forcing an unnecessary catalog re-download.
+- Fixed Stalker guide synchronization continuing through dead per-channel EPG endpoints after both bulk and first per-channel responses are confirmed empty.
+- Fixed Stalker channel logos returned as bare or portal-relative paths by resolving them against the portal logo directory, including channels imported before the fix.
+- Fixed Xtream series showing an empty episode list after re-entering: a hydrated series whose local episodes went missing is now re-fetched, and re-hydration no longer replaces a larger cached episode set with a smaller, partially re-scraped provider response.
+- Fixed adaptive M3U metadata being dropped between playlist parsing, import staging, catalog synchronization, and channel or movie playback reconstruction.
+- Fixed Xtream Codes and Xtream M3U URL setup crashing on devices with a broken hardware-backed Keystore (such as some budget Android TV boxes): credential encryption now falls back to a software key instead of aborting when the device cannot generate a hardware key.
+- Fixed large full-country XMLTV guides (such as iptv-epg.org's epg-us.xml.gz) failing to import with an "EPG decompressed XML bytes exceeded safety limit" error by raising the raw-download, decompressed-XML, and programme ingestion ceilings, since the parser streams to the database rather than buffering the whole document in memory.
+- Fixed a freshly-added EPG source resolving to no matches after assignment by downloading it once on assignment before re-resolving the provider's guide mappings, so the source has programme data available when it is first used.
+
+### Changed
+
+- Redesigned Settings around focused pages: Playback now separates audio, subtitles, network, controls, timers, and compatibility; Browsing is replaced by Live TV, Movies & Series, and App & Remote.
+- Added consistent settings cards, readable value rows, a single activation target for switches, proper category icons, and adaptive TV/compact navigation. Back restores the overview position and selected page.
+- Organized recording, backup, and support actions into dedicated pages, and moved Xtream text compatibility from Privacy to Providers without changing stored preferences or playback behavior.
+- Improved long-running app responsiveness by sharing memoized provider observation streams, reusing redacted configuration projections across collectors, moving snapshot reads and decoding off the main thread, and removing per-screen repository subscriptions from the app shell.
+- Updated the AndroidX Media3 playback stack from 1.9.2 to 1.11.0:
+  - Improved external subtitle loading and preferred subtitle-language selection, while keeping optional subtitle I/O failures non-fatal to playback.
+  - Updated the bundled FFmpeg decoder artifact to the matching Media3 release.
+  - Inherited playback reliability fixes for decoder recovery and prewarming, codec reuse and flushing, audio-output retries, low-memory load control, and HLS, DASH, and MPEG-TS seeking and timeline handling.
+  - Inherited subtitle timing and parser fixes for TTML and VobSub content.
+  - Inherited compatibility improvements for HLS Content Steering, DASH/HLS metadata, AV1 and Dolby Vision, VVC, Matroska, and MP4 formats when supported by the device.
+  - Reduced unnecessary artwork metadata extraction during playback to lower memory use on TV devices.
+- Improved Android TV navigation, focus handling, and Back-button behavior across Live TV, player controls, provider setup, and Settings.
+- Polished TV Guide settings inputs with visible theme-aware field boundaries, readable placeholder and entered text, and predictable keyboard dismissal from touch, mouse, and TV controls.
+- Redesigned the VOD playback controls UI, including the control layout, actions, and navigation behavior.
+- Improved playback quick-action readability by using shared theme-aware content colors across focused and unfocused controls, keeping contrast consistent across all playback buttons.
+- Improved Live TV control reliability, including timeshift seeking and rewind interactions.
+- Improved reliability when configuring providers, importing settings, and preserving playback preferences.
+- Updated Italian translations across the app and feature modules, including previously missing strings and corrected resource ownership.
+- Improved Stalker EPG synchronization by increasing channel batch sizes from 500 to 5,000, reducing request overhead for large channel lineups while retaining bounded processing.
+- Reduced storage usage by limiting the shared HTTP cache to 16 MiB and pruning past EPG entries after 12 hours when a provider does not require a longer catch-up window.
+- Improved device orientation behavior by allowing portrait rotation on phones and tablets while keeping Android TV and Fire TV interfaces locked to landscape.
+- Improved grouped VOD deduplication performance by moving movie and series presentation work off the main thread, adding bounded normalization caches, and avoiding unnecessary ICU normalization for ASCII titles.
+- Improved Stalker authentication resilience by stopping repeated handshakes after explicit soft-throttle signals, reusing short-lived encrypted sessions across provider instances and process restarts, and restoring session cookies for resumed API requests.
+- Improved Stalker on-demand guide loading by preferring numeric short-EPG lookups, pacing prefetch requests, and publishing guide results in bounded chunks.
+- Reduced repeated empty Stalker guide requests by sharing provider-scoped, expiring empty-key cache state between the Guide and Home now-playing fallbacks.
+- Improved new Stalker provider onboarding by importing a capped live preview and category shells first, then scheduling a generation-aware background sync for the complete catalog and guide.
+
 ## [1.0.17]
 
 ### Added

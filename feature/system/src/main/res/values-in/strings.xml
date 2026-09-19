@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Penyedia Pengaturan</string>
+  <string name="welcome_loading_title">Mempersiapkan perpustakaan Anda</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">IPTV premium untuk ruang tamu</string>
+  <string name="welcome_subtitle">Nikmati kembali saluran langsung, tayangan lanjutan, film, dan serial dengan pengalaman Android TV pihak pertama.</string>
+  <string name="settings_cancel">Batalkan</string>
+</resources>

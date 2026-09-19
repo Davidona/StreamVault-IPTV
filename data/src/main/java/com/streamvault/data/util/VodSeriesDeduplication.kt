@@ -6,6 +6,7 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
+import com.streamvault.domain.util.BoundedExpiringCache
 import java.text.Normalizer
 import java.time.Year
 import java.util.Locale
@@ -58,6 +59,22 @@ private val SERIES_QUALITY_CLEANUP_REGEX = Regex(
     RegexOption.IGNORE_CASE
 )
 private val SERIES_NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")
+private val SERIES_NON_ASCII_REGEX = Regex("[^\\u0000-\\u007F]")
+private val SERIES_COMBINING_MARKS_REGEX = Regex("\\p{Mn}+")
+
+private data class SeriesDisplayYearCacheKey(
+    val name: String,
+    val releaseDate: String?
+)
+
+private val seriesDisplayYearCache = BoundedExpiringCache<SeriesDisplayYearCacheKey, Int>(
+    maxEntries = 512,
+    ttlMillis = 6L * 60L * 60L * 1000L
+)
+private val normalizedSeriesTitleCache = BoundedExpiringCache<String, String>(
+    maxEntries = 1_024,
+    ttlMillis = 6L * 60L * 60L * 1000L
+)
 
 data class SeriesPresentationSettings(
     val duplicateHandlingMode: VodDuplicateHandlingMode,
@@ -268,18 +285,29 @@ private fun seriesRecencyBucket(series: Series): Int {
 }
 
 private fun normalizedSeriesTitle(value: String): String {
+    normalizedSeriesTitleCache.get(value)?.let { return it }
     val withoutProviderPrefix = value.substringAfter(" - ", value)
     val withoutYearSuffix = SERIES_YEAR_SUFFIX_REGEX.replace(withoutProviderPrefix, "")
     val withoutQuality = SERIES_QUALITY_CLEANUP_REGEX.replace(withoutYearSuffix, " ")
-    val normalized = Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}+"), "")
-        .lowercase(Locale.ROOT)
-    return SERIES_NON_ALPHANUMERIC_REGEX.replace(normalized, "").trim()
+    val normalized = if (SERIES_NON_ASCII_REGEX.containsMatchIn(withoutQuality)) {
+        Normalizer.normalize(withoutQuality, Normalizer.Form.NFD)
+            .replace(SERIES_COMBINING_MARKS_REGEX, "")
+    } else {
+        withoutQuality
+    }
+    val result = SERIES_NON_ALPHANUMERIC_REGEX.replace(normalized.lowercase(Locale.ROOT), "").trim()
+    normalizedSeriesTitleCache.put(value, result)
+    return result
 }
 
-private fun seriesDisplayYear(series: Series): Int? =
-    series.releaseDate?.filter(Char::isDigit)?.take(4)?.toIntOrNull()
+private fun seriesDisplayYear(series: Series): Int? {
+    val key = SeriesDisplayYearCacheKey(series.name, series.releaseDate)
+    seriesDisplayYearCache.get(key)?.let { return it }
+    val result = series.releaseDate?.filter(Char::isDigit)?.take(4)?.toIntOrNull()
         ?: SERIES_YEAR_REGEX.find(series.name)?.value?.toIntOrNull()
+    if (result != null) seriesDisplayYearCache.put(key, result)
+    return result
+}
 
 private fun seriesQualityScore(value: String): Int {
     val normalized = normalizeSeriesTokenText(value)
@@ -315,8 +343,12 @@ private fun seriesVariantLabel(series: Series): String {
 }
 
 private fun normalizeSeriesTokenText(value: String): String {
-    val normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}+"), "")
+    val normalized = if (SERIES_NON_ASCII_REGEX.containsMatchIn(value)) {
+        Normalizer.normalize(value, Normalizer.Form.NFD)
+            .replace(SERIES_COMBINING_MARKS_REGEX, "")
+    } else {
+        value
+    }
         .lowercase(Locale.ROOT)
         .replace(Regex("""[^a-z0-9]+"""), " ")
         .replace(Regex("""\s+"""), " ")

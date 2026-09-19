@@ -261,6 +261,39 @@ class ProviderSyncWorkerTest {
     }
 
     @Test
+    fun `periodic sync success keeps an inactive provider inactive`() = runTest {
+        val provider = ProviderEntity(
+            id = 9L,
+            name = "Playlist",
+            type = ProviderType.M3U,
+            serverUrl = "https://example.com/list.m3u",
+            m3uUrl = "https://example.com/list.m3u",
+            isActive = false,
+            status = ProviderStatus.PARTIAL,
+            lastSyncedAt = 0L
+        )
+        whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
+
+        reconcileTargetedProviderStatus(
+            providerDao = providerDao,
+            channelDao = channelDao,
+            categoryDao = categoryDao,
+            syncMetadataRepository = syncMetadataRepository,
+            syncManager = syncManager,
+            provider = provider,
+            result = Result.success(Unit),
+            activateOnSuccess = false,
+            currentTimeMillis = 456L
+        )
+
+        val updatedProvider = argumentCaptor<ProviderEntity>()
+        verify(providerDao).update(updatedProvider.capture())
+        assertThat(updatedProvider.firstValue.isActive).isFalse()
+        assertThat(updatedProvider.firstValue.status).isEqualTo(ProviderStatus.ACTIVE)
+        assertThat(updatedProvider.firstValue.lastSyncedAt).isEqualTo(456L)
+    }
+
+    @Test
     fun `targeted xtream resume success without committed live channels stays inactive partial`() = runTest {
         val provider = ProviderEntity(
             id = 9L,

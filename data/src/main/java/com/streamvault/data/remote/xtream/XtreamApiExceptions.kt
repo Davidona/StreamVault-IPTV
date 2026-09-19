@@ -1,24 +1,38 @@
 package com.streamvault.data.remote.xtream
 
+import com.streamvault.domain.provider.ProviderSetupFailure
+import com.streamvault.domain.provider.ProviderSetupFailureKind
 import java.io.IOException
 
-sealed class XtreamApiException(message: String, cause: Throwable? = null) : Exception(message, cause)
+sealed class XtreamApiException(message: String, cause: Throwable? = null) :
+    Exception(message, cause),
+    ProviderSetupFailure
 
-class XtreamNetworkException(message: String, cause: Throwable? = null) : IOException(message, cause)
+class XtreamNetworkException(message: String, cause: Throwable? = null) :
+    IOException(message, cause),
+    ProviderSetupFailure {
+    override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.NETWORK
+}
 
 class XtreamAuthenticationException(
-    val statusCode: Int,
+    override val statusCode: Int,
     message: String,
     cause: Throwable? = null
-) : XtreamApiException(message, cause)
+) : XtreamApiException(message, cause) {
+    override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.AUTHENTICATION
+}
 
-class XtreamParsingException(message: String, cause: Throwable? = null) : XtreamApiException(message, cause)
+class XtreamParsingException(message: String, cause: Throwable? = null) : XtreamApiException(message, cause) {
+    override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.PARSING
+}
 
 class XtreamRequestException(
-    val statusCode: Int,
+    override val statusCode: Int,
     message: String,
     cause: Throwable? = null
-) : XtreamApiException(message, cause)
+) : XtreamApiException(message, cause) {
+    override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.REQUEST
+}
 
 class XtreamResponseTooLargeException(
     val hint: String,
@@ -28,4 +42,6 @@ class XtreamResponseTooLargeException(
 ) : XtreamApiException(
     "Response from $hint exceeded safe in-memory budget (${observedBytes}B > ${maxAllowedBytes}B)",
     cause
-)
+) {
+    override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.RESPONSE_TOO_LARGE
+}

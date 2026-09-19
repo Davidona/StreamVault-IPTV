@@ -1,6 +1,6 @@
 package com.streamvault.data.validation
 
-import com.streamvault.data.util.ProviderInputSanitizer
+import com.streamvault.domain.util.ProviderInputSanitizer
 import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.domain.manager.ProviderSetupInputValidator
 import com.streamvault.domain.manager.ValidatedJellyfinProviderInput

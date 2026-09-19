@@ -11,11 +11,8 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import com.streamvault.app.diagnostics.CrashReportStore
 import com.streamvault.app.diagnostics.RuntimeDiagnosticsManager
-import com.streamvault.app.plugins.StreamVaultPluginManager
-import com.streamvault.app.ui.accessibility.isReducedMotionEnabled
+import com.streamvault.core.ui.accessibility.isReducedMotionEnabled
 import com.streamvault.data.remote.jellyfin.JellyfinImageAuthInterceptor
-import com.streamvault.domain.repository.DownloadManager
-import com.streamvault.domain.manager.ProgramReminderManager
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,17 +23,8 @@ import kotlinx.coroutines.flow.first
 import okio.Path.Companion.toOkioPath
 
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.streamvault.data.manager.recording.RecordingReconcileWorker
-import com.streamvault.data.manager.PendingBackupRestoreCoordinator
-import com.streamvault.data.sync.ProviderSyncWorker
-import com.streamvault.data.sync.XtreamIndexWorker
-import com.streamvault.data.sync.ProviderSyncLifecycle
-import com.streamvault.player.timeshift.TimeshiftDiskManager
 import javax.inject.Inject
+import javax.inject.Provider
 import okhttp3.OkHttpClient
 
 @HiltAndroidApp
@@ -45,35 +33,20 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Inject
-    lateinit var okHttpClient: OkHttpClient
+    lateinit var okHttpClient: Provider<OkHttpClient>
 
     @Inject
-    lateinit var jellyfinImageAuthInterceptor: JellyfinImageAuthInterceptor
+    lateinit var jellyfinImageAuthInterceptor: Provider<JellyfinImageAuthInterceptor>
 
     @Inject
-    lateinit var providerSyncLifecycle: ProviderSyncLifecycle
-
-    @Inject
-    lateinit var downloadManager: DownloadManager
-
-    @Inject
-    lateinit var streamVaultPluginManager: StreamVaultPluginManager
-
-    @Inject
-    lateinit var programReminderManager: ProgramReminderManager
-
-    @Inject
-    lateinit var startupWorkRegistry: StartupWorkRegistry
-
-    @Inject
-    lateinit var pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator
+    internal lateinit var appStartupCoordinator: AppStartupCoordinator
 
     @Inject
     lateinit var databaseStartupCoordinator: DatabaseStartupCoordinator
 
     private val imageOkHttpClient: OkHttpClient by lazy {
-        okHttpClient.newBuilder()
-            .addInterceptor(jellyfinImageAuthInterceptor)
+        okHttpClient.get().newBuilder()
+            .addInterceptor(jellyfinImageAuthInterceptor.get())
             .build()
     }
 
@@ -81,44 +54,15 @@ class StreamVaultApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         CrashReportStore.install(this)
         runtimeDiagnosticsManager.start()
+        // Open Room once the process has completed lightweight setup, then admit
+        // database-backed maintenance through the Phase 5 startup coordinator.
+        databaseStartupCoordinator.start()
         applicationScope.launch {
             databaseStartupCoordinator.state
                 .filterIsInstance<DatabaseStartupState.Ready>()
                 .first()
-            runDatabaseReadyStartupTasks()
+            appStartupCoordinator.startProcessMaintenance()
         }
-    }
-
-    private suspend fun runDatabaseReadyStartupTasks() {
-        runContainedStartupTasks(
-            tasks = listOf(
-                StartupTask("timeshift-cleanup") {
-                    TimeshiftDiskManager(applicationContext)
-                        .cleanupStaleDirectories(activeSessionDir = null)
-                },
-                StartupTask("download-recovery") {
-                    downloadManager.recoverInterruptedDownloads()
-                },
-                StartupTask("plugin-reconcile") {
-                    streamVaultPluginManager.reconcilePluginProviders()
-                },
-                StartupTask("reminder-restore") {
-                    programReminderManager.restoreScheduledReminders()
-                },
-                StartupTask("stalker-work-reconcile") {
-                    providerSyncLifecycle.reconcileStalkerIndexWorkAtStartup()
-                },
-                StartupTask("pending-backup-restore") {
-                    pendingBackupRestoreCoordinator.applyAllAvailable()
-                },
-                StartupTask("work-registration") {
-                    startupWorkRegistry.register()
-                }
-            ),
-            onFailure = { name, error ->
-                Log.e("StreamVaultStartup", "Startup task failed: $name", error)
-            }
-        )
     }
 
     override fun onTerminate() {

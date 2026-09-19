@@ -61,6 +61,7 @@ internal suspend fun reconcileTargetedProviderStatus(
     syncManager: ProviderSyncCommands,
     provider: com.streamvault.data.local.entity.ProviderEntity,
     result: com.streamvault.domain.model.Result<Unit>,
+    activateOnSuccess: Boolean = true,
     currentTimeMillis: Long = System.currentTimeMillis()
 ) {
     when (result) {
@@ -86,9 +87,13 @@ internal suspend fun reconcileTargetedProviderStatus(
                 )
                 return
             }
+            val currentProvider = providerDao.getById(provider.id) ?: provider
             providerDao.update(
                 provider.copy(
-                    isActive = true,
+                    // A periodic sync must never change the user's selected provider. The
+                    // explicit targeted-resume path may activate its provider, while all other
+                    // successful syncs retain the current persisted selection.
+                    isActive = activateOnSuccess || currentProvider.isActive,
                     status = finalStatus,
                     lastSyncedAt = currentTimeMillis
                 )
@@ -239,8 +244,13 @@ class ProviderSyncWorker(
                     } else {
                         entryPoint.syncCommands().sync(provider.id, force = false)
                     }
-                    if (requestedProviderId == provider.id) {
-                        reconcileTargetedProviderStatusFenced(entryPoint, provider, result)
+                    if (requestedProviderId == provider.id || !provider.isActive) {
+                        reconcileTargetedProviderStatusFenced(
+                            entryPoint = entryPoint,
+                            provider = provider,
+                            result = result,
+                            activateOnSuccess = requestedProviderId == provider.id
+                        )
                     }
                     when (result) {
                         is com.streamvault.domain.model.Result.Success ->
@@ -339,11 +349,25 @@ class ProviderSyncWorker(
     private suspend fun reconcileTargetedProviderStatusFenced(
         entryPoint: ProviderSyncWorkerEntryPoint,
         provider: ProviderEntity,
-        result: com.streamvault.domain.model.Result<Unit>
+        result: com.streamvault.domain.model.Result<Unit>,
+        activateOnSuccess: Boolean = true
     ) {
         entryPoint.databaseTransactionRunner().inTransaction {
             entryPoint.providerWorkflowCommitFence().assertCanCommit(provider.id)
-            reconcileTargetedProviderStatus(entryPoint, provider, result)
+            val activeProviderId = entryPoint.providerDao().getAllSync()
+                .firstOrNull { it.isActive }
+                ?.id
+            reconcileTargetedProviderStatus(
+                providerDao = entryPoint.providerDao(),
+                channelDao = entryPoint.channelDao(),
+                categoryDao = entryPoint.categoryDao(),
+                syncMetadataRepository = entryPoint.syncMetadataRepository(),
+                syncManager = entryPoint.syncCommands(),
+                provider = provider,
+                result = result,
+                activateOnSuccess = activateOnSuccess &&
+                    (activeProviderId == null || activeProviderId == provider.id)
+            )
         }
     }
 

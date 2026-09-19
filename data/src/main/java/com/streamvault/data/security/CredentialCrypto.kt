@@ -1,13 +1,17 @@
 package com.streamvault.data.security
 
+import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,7 +30,9 @@ interface CredentialCrypto {
  * Values are persisted as: enc:v1:<base64(iv + ciphertext)>
  */
 @Singleton
-class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
+class AndroidKeystoreCredentialCrypto @Inject constructor(
+    @ApplicationContext private val context: Context
+) : CredentialCrypto {
     private val TAG = "CredentialCrypto"
     private val KEYSTORE_TYPE = "AndroidKeyStore"
     private val KEY_ALIAS = "streamvault_credentials"
@@ -34,13 +40,17 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
     private val IV_SIZE_BYTES = 12
     private val AUTH_TAG_BITS = 128
     private val PREFIX = "enc:v1:"
+    private val SOFTWARE_KEY_FILE_NAME = "streamvault_credential_software.key"
+    private val SOFTWARE_KEY_ALGORITHM = "AES"
+    private val SOFTWARE_KEY_SIZE_BITS = 256
+    private val secretKeyProvider = CachingSecretKeyProvider(::loadOrCreateSecretKey)
 
     override fun encryptIfNeeded(value: String): String {
         if (value.isBlank() || value.startsWith(PREFIX)) return value
 
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeyProvider.get())
             val iv = cipher.iv
             val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
             val packed = iv + encrypted
@@ -68,7 +78,7 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(
                 Cipher.DECRYPT_MODE,
-                getOrCreateSecretKey(),
+                secretKeyProvider.get(),
                 GCMParameterSpec(AUTH_TAG_BITS, iv)
             )
             String(cipher.doFinal(ciphertext), Charsets.UTF_8)
@@ -78,7 +88,19 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
         }
     }
 
-    private fun getOrCreateSecretKey(): SecretKey {
+    private fun loadOrCreateSecretKey(): SecretKey {
+        return try {
+            loadOrCreateHardwareSecretKey()
+        } catch (e: Exception) {
+            // Some devices (notably budget Android TV boxes) ship a broken Keymaster/TEE whose
+            // hardware-backed Keystore cannot generate keys. Fall back to a software key so
+            // credential persistence keeps working instead of crashing on those devices.
+            Log.w(TAG, "Hardware-backed Keystore unavailable; falling back to a software key.", e)
+            loadOrCreateSoftwareSecretKey()
+        }
+    }
+
+    private fun loadOrCreateHardwareSecretKey(): SecretKey {
         val keyStore = KeyStore.getInstance(KEYSTORE_TYPE).apply { load(null) }
         val existing = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
         if (existing != null) return existing
@@ -96,5 +118,24 @@ class AndroidKeystoreCredentialCrypto @Inject constructor() : CredentialCrypto {
 
         keyGenerator.init(spec)
         return keyGenerator.generateKey()
+    }
+
+    /**
+     * Best-effort software AES key persisted in app-private storage. This is only reached when the
+     * hardware-backed Keystore is unusable, where a hardware-protected key is impossible by
+     * definition. The key material lives in the app sandbox (invisible to other apps) and keeps
+     * credentials encrypted at rest rather than storing them as plaintext.
+     */
+    private fun loadOrCreateSoftwareSecretKey(): SecretKey {
+        val keyFile = File(context.filesDir, SOFTWARE_KEY_FILE_NAME)
+        if (keyFile.exists()) {
+            return SecretKeySpec(keyFile.readBytes(), SOFTWARE_KEY_ALGORITHM)
+        }
+
+        val keyGenerator = KeyGenerator.getInstance(SOFTWARE_KEY_ALGORITHM)
+        keyGenerator.init(SOFTWARE_KEY_SIZE_BITS)
+        val key = keyGenerator.generateKey()
+        keyFile.writeBytes(key.encoded)
+        return key
     }
 }

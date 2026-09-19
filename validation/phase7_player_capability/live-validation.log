@@ -1,0 +1,8 @@
+2026-09-06 channel=00s Replay prepare resolvedStreamType=HLS timeoutProfile=LIVE target=<redacted>
+2026-09-06 channel=00s Replay first-frame-success streamType=HLS audioPath=PLATFORM_DECODER target=<redacted>
+2026-09-06 channel=00s Replay media-session state=PLAYING error=null metadata=00s Replay
+2026-09-06 channel=00s Replay scan fatal-error matches=0 stuck-player-timeout matches=0 unintended-mpeg-ts-fallback matches=0
+2026-09-06 channel=3ABN Dare To Dream Network prepare resolvedStreamType=HLS timeoutProfile=LIVE target=<redacted>
+2026-09-06 channel=3ABN Dare To Dream Network first-frame-success streamType=HLS audioPath=PLATFORM_DECODER target=<redacted>
+2026-09-06 channel=3ABN Dare To Dream Network media-session state=PLAYING error=null metadata=3ABN Dare To Dream Network
+2026-09-06 channel=3ABN Dare To Dream Network scan fatal-error matches=0 stuck-player-timeout matches=0 unintended-mpeg-ts-fallback matches=0

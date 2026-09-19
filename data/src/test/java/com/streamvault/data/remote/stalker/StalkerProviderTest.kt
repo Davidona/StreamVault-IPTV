@@ -6,11 +6,13 @@ import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.dao.StalkerRemoteIdentityDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.local.entity.StalkerRemoteIdentityEntity
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.PlaybackTransportMode
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.provider.GuideRequest
 import com.streamvault.domain.model.StalkerBootstrapRecipe
 import com.streamvault.domain.model.StalkerTransportGrant
 import com.streamvault.domain.model.StalkerTransportMode
@@ -19,6 +21,7 @@ import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import java.util.Base64
 
 class StalkerProviderTest {
 
@@ -41,6 +44,176 @@ class StalkerProviderTest {
         )
 
         assertThat(page.isComplete).isFalse()
+    }
+
+    @Test
+    fun getLiveStreams_resolves_bare_filename_logo_against_portal_install_root() = runTest {
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = FakeStalkerApiService(
+                profile = StalkerProviderProfile(accountName = "Room"),
+                liveStreams = listOf(
+                    StalkerItemRecord(
+                        id = "536",
+                        name = "News One",
+                        cmd = "ffmpeg http://localhost/ch/536_",
+                        streamUrl = "http://localhost/ch/536_",
+                        logoUrl = "536.png"
+                    )
+                )
+            ),
+            portalUrl = "http://portal.example/stalker_portal/server/load.php",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getLiveStreams()
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.single().logoUrl)
+            .isEqualTo("http://portal.example/stalker_portal/misc/logos/120/536.png")
+    }
+
+    @Test
+    fun shortEpgRequest_triesXmlKeyWhenNumericPortalKeyIsEmpty() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "42" to emptyList(),
+                "xml.channel" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "xml.channel",
+                        title = "Guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Guide entry")
+    }
+
+    @Test
+    fun shortEpgRequest_prefersNumericPortalKeyWhenItHasPrograms() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgByChannel = mapOf(
+                "42" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "42",
+                        title = "Numeric guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                ),
+                "xml.channel" to listOf(
+                    StalkerProgramRecord(
+                        id = "2",
+                        channelId = "xml.channel",
+                        title = "XML guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Numeric guide entry")
+        assertThat(api.shortEpgCalls).containsExactly("42")
+    }
+
+    @Test
+    fun shortEpgRequest_preservesNumericErrorWhenXmlFallbackIsEmpty() = runTest {
+        val numericFailure = Result.error(
+            message = "temporary portal failure",
+            exception = IllegalStateException("temporary portal failure")
+        )
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            shortEpgResultsByChannel = mapOf(
+                "42" to numericFailure,
+                "xml.channel" to Result.success(emptyList())
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getShortEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).message).isEqualTo("temporary portal failure")
+        assertThat(api.shortEpgCalls).containsExactly("42", "xml.channel").inOrder()
+    }
+
+    @Test
+    fun fullEpgRequest_usesNumericPortalKey() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            epgByChannel = mapOf(
+                "42" to listOf(
+                    StalkerProgramRecord(
+                        id = "1",
+                        channelId = "42",
+                        title = "Full guide entry",
+                        description = "",
+                        startTimeMillis = 1_000L,
+                        endTimeMillis = 2_000L
+                    )
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.getEpg(GuideRequest(streamId = 42L, epgChannelId = "xml.channel"))
+
+        assertThat((result as Result.Success).data.single().title).isEqualTo("Full guide entry")
+        assertThat(api.epgCalls).containsExactly("42")
     }
 
     @Test
@@ -266,6 +439,38 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun searchVodPage_forwardsQuery_andKeepsMixedResults() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie",
+                    streamUrl = "https://cdn.example.com/movie.mp4",
+                    isSeries = false
+                ),
+                StalkerItemRecord(id = "200", name = "Series", isSeries = true)
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 15,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:62",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.searchVodPage("  mix  ", 1)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.lastVodSearchQuery).isEqualTo("mix")
+        assertThat((result as Result.Success).data.items.map { it.rawItemId })
+            .containsExactly("100", "200").inOrder()
+    }
+
+    @Test
     fun authenticate_maps_expired_date_to_expired() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
@@ -333,7 +538,7 @@ class StalkerProviderTest {
     @Test
     fun authenticate_recovers_when_saved_endpoint_and_recipe_are_cooling_down() = runTest {
         val dao = FakePortalStateDao()
-        val stateStore = StalkerPortalStateStore(dao)
+        val stateStore = StalkerPortalStateStore(dao, TestCredentialCrypto())
         dao.upsert(
             StalkerPortalStateEntity(
                 providerId = 7L,
@@ -413,6 +618,116 @@ class StalkerProviderTest {
         assertThat(firstProvider.authenticate()).isInstanceOf(Result.Success::class.java)
         assertThat(secondProvider.authenticate()).isInstanceOf(Result.Success::class.java)
 
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_reusesSessionAcrossInstancesWithDifferentLearnedHints() = runTest {
+        val activationApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val syncApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val activation = StalkerProvider(
+            providerId = 21,
+            api = activationApi,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(activation.authenticate()).isInstanceOf(Result.Success::class.java)
+
+        val sync = StalkerProvider(
+            providerId = 21,
+            api = syncApi,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            magPresetHint = com.streamvault.domain.model.StalkerMagPreset.MAG254_STRICT,
+            bootstrapRecipeHint = StalkerBootstrapRecipe.STRICT_MAG,
+            endpointPreferenceHint = com.streamvault.domain.model.StalkerEndpointPreference.SERVER_LOAD,
+            cookieModeHint = com.streamvault.domain.model.StalkerCookieMode.BOTH,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        assertThat(sync.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(activationApi.authenticateCalls).isEqualTo(1)
+        assertThat(syncApi.authenticateCalls).isEqualTo(0)
+        assertThat(syncApi.restoreSessionCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_resumesPersistedSessionAfterProcessRestartWithoutHandshake() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val api = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val first = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(first.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+
+        StalkerProvider.clearSharedAuthCacheForTests()
+        val restarted = StalkerProvider(
+            providerId = 22,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            portalFingerprintHint = com.streamvault.domain.model.StalkerPortalFingerprint.STRICT_MAG,
+            deviceProfile = "MAG254",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        assertThat(restarted.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(1)
+        assertThat(api.restoreSessionCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun authenticate_skipsEndpointRepairRetryWhenThrottled() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        store.recordAuthentication(
+            providerId = 23,
+            session = StalkerSession(
+                loadUrl = "https://portal.example.com/server/load.php",
+                portalReferer = "https://portal.example.com/c/",
+                token = "stale-token"
+            ),
+            profile = StalkerProviderProfile(accountName = "Room"),
+            configurationGeneration = 0L
+        )
+        store.clearResumableAuth(23)
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            authenticationError = StalkerApiError.RateLimited()
+        )
+        val provider = StalkerProvider(
+            providerId = 23,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            portalStateStore = store
+        )
+
+        val result = provider.authenticate()
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
         assertThat(api.authenticateCalls).isEqualTo(1)
     }
 
@@ -1041,6 +1356,204 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun resolvePlaybackInfo_preserves_existing_movie_resolution_without_file_lookup() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.vodFileLookupCalls).isEmpty()
+        assertThat(api.createLinkCmds).containsExactly("/media/568068.mpg")
+    }
+
+    @Test
+    fun resolvePlaybackInfo_uses_file_lookup_after_bare_movie_reports_nothing_to_play() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199303.mpg" to Result.success("http://cdn.example.com/movie.m3u8")
+            ),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.vodFileLookupCalls).containsExactly("568068")
+        assertThat(api.createLinkCmds)
+            .containsExactly("/media/568068.mpg", "/media/file_3199303.mpg")
+            .inOrder()
+        assertThat((result as Result.Success).data.url)
+            .isEqualTo("http://cdn.example.com/movie.m3u8")
+    }
+
+    @Test
+    fun resolvePlaybackInfo_continues_through_failed_file_rows() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199303.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/file_3199304.mpg" to Result.success("http://cdn.example.com/movie.m3u8")
+            ),
+            vodFiles = listOf(
+                StalkerItemRecord(id = "3199303", name = "Broken 4K"),
+                StalkerItemRecord(id = "3199303", name = "Duplicate Broken 4K"),
+                StalkerItemRecord(id = "3199304", name = "Working 4K")
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(primaryCmd = "/media/568068.mpg")
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.createLinkCmds)
+            .containsExactly(
+                "/media/568068.mpg",
+                "/media/file_3199303.mpg",
+                "/media/file_3199304.mpg"
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun resolvePlaybackInfo_keeps_legacy_variants_before_file_fallback() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                ),
+                "/media/legacy-568068.mpg" to Result.success("http://cdn.example.com/legacy.m3u8"),
+                "/media/file_3199303.mpg" to Result.success("http://cdn.example.com/file.m3u8")
+            ),
+            vodFiles = listOf(StalkerItemRecord(id = "3199303", name = "4K"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = checkNotNull(
+                buildStalkerPlaybackDescriptor(
+                    primaryCmd = "/media/568068.mpg",
+                    alternateCommands = listOf("legacy" to "/media/legacy-568068.mpg")
+                )
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(api.createLinkCmds)
+            .containsExactly("/media/568068.mpg", "/media/legacy-568068.mpg")
+            .inOrder()
+    }
+
+    @Test
+    fun resolvePlaybackInfo_retries_authentication_when_file_lookup_is_unauthorized() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodFilesResult = Result.error(
+                "Portal token is invalid",
+                StalkerApiError.Authorization("Portal token is invalid", portalReason = "not_valid_token")
+            ),
+            createLinkResultsByCmd = mapOf(
+                "/media/568068.mpg" to Result.error(
+                    "nothing_to_play",
+                    StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
+                )
+            )
+        )
+        val provider = StalkerProvider(
+            providerId = 7,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG322",
+            timezone = "UTC",
+            locale = "en"
+        )
+
+        val result = provider.resolvePlaybackInfo(
+            kind = StalkerStreamKind.MOVIE,
+            descriptor = StalkerPlaybackDescriptor(
+                primaryMode = StalkerPlaybackMode.MULTI_CMD,
+                candidates = listOf(
+                    StalkerCommandVariant(
+                        cmd = "/media/568068.mpg",
+                        playbackMode = StalkerPlaybackMode.LOCALHOST_CMD
+                    )
+                )
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat(api.authenticateCalls).isEqualTo(2)
+        assertThat(api.vodFileLookupCalls).containsExactly("568068", "568068")
+    }
+
+    @Test
     fun authenticate_persists_effective_learned_mag_identity() = runTest {
         val provider = StalkerProvider(
             providerId = 7,
@@ -1124,14 +1637,28 @@ class StalkerProviderTest {
         private val seriesCategoriesResult: Result<List<StalkerCategoryRecord>>? = null,
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
-        private var authenticationFailuresBeforeSuccess: Int = 0
+        private val shortEpgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        private val shortEpgResultsByChannel: Map<String, Result<List<StalkerProgramRecord>>> = emptyMap(),
+        private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
+        private var authenticationFailuresBeforeSuccess: Int = 0,
+        private val authenticationError: Throwable? = null,
+        private val vodFiles: List<StalkerItemRecord> = emptyList(),
+        private val vodFilesResult: Result<List<StalkerItemRecord>>? = null,
+        private val createLinkResultsByCmd: Map<String, Result<String>> = emptyMap()
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
         var authenticateCalls: Int = 0
             private set
+        var restoreSessionCalls: Int = 0
+            private set
         var lastAuthenticateProfile: StalkerDeviceProfile? = null
             private set
+        val shortEpgCalls: MutableList<String> = mutableListOf()
+        val epgCalls: MutableList<String> = mutableListOf()
+        val vodFileLookupCalls: MutableList<String> = mutableListOf()
+        val createLinkCmds: MutableList<String> = mutableListOf()
+        var lastVodSearchQuery: String? = null
 
         override suspend fun authenticate(profile: StalkerDeviceProfile): Result<Pair<StalkerSession, StalkerProviderProfile>> {
             authenticateCalls += 1
@@ -1139,6 +1666,9 @@ class StalkerProviderTest {
             if (authenticationFailuresBeforeSuccess > 0) {
                 authenticationFailuresBeforeSuccess -= 1
                 return Result.error("authentication failed")
+            }
+            authenticationError?.let { error ->
+                return Result.error(error.message.orEmpty(), error)
             }
             return Result.success(
                 StalkerSession(
@@ -1187,6 +1717,26 @@ class StalkerProviderTest {
             page: Int
         ) = Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
 
+        override suspend fun getVodStreamsPage(
+            session: StalkerSession,
+            profile: StalkerDeviceProfile,
+            categoryId: String?,
+            page: Int,
+            searchQuery: String?
+        ) = run {
+            lastVodSearchQuery = searchQuery
+            Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        }
+
+        override suspend fun getVodFiles(
+            session: StalkerSession,
+            profile: StalkerDeviceProfile,
+            movieId: String
+        ): Result<List<StalkerItemRecord>> {
+            vodFileLookupCalls += movieId
+            return vodFilesResult ?: Result.success(vodFiles)
+        }
+
         override suspend fun getSeriesCategories(
             session: StalkerSession,
             profile: StalkerDeviceProfile
@@ -1221,13 +1771,20 @@ class StalkerProviderTest {
             profile: StalkerDeviceProfile,
             channelId: String,
             limit: Int
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            shortEpgCalls += channelId
+            return shortEpgResultsByChannel[channelId]
+                ?: Result.success(shortEpgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getEpg(
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             channelId: String
-        ) = Result.success(emptyList<StalkerProgramRecord>())
+        ): Result<List<StalkerProgramRecord>> {
+            epgCalls += channelId
+            return Result.success(epgByChannel[channelId].orEmpty())
+        }
 
         override suspend fun getBulkEpg(
             session: StalkerSession,
@@ -1260,10 +1817,15 @@ class StalkerProviderTest {
             archiveEndSeconds: Long?
         ): Result<String> {
             createLinkCalls += 1
-            return Result.success(createLinkUrl)
+            createLinkCmds += cmd
+            return createLinkResultsByCmd[cmd] ?: Result.success(createLinkUrl)
         }
 
         override fun currentCookieHeader(session: StalkerSession): String = currentCookieHeader
+
+        override fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) {
+            restoreSessionCalls += 1
+        }
     }
 
     private class FakePortalStateDao : StalkerPortalStateDao {
@@ -1276,6 +1838,14 @@ class StalkerProviderTest {
         }
 
         override suspend fun invalidate(providerId: Long): Int = if (rows.remove(providerId) != null) 1 else 0
+    }
+
+    private class TestCredentialCrypto : CredentialCrypto {
+        override fun encryptIfNeeded(value: String): String =
+            "enc:test:" + Base64.getEncoder().encodeToString(value.toByteArray(Charsets.UTF_8))
+
+        override fun decryptIfNeeded(value: String): String =
+            String(Base64.getDecoder().decode(value.removePrefix("enc:test:")), Charsets.UTF_8)
     }
 
     @Test

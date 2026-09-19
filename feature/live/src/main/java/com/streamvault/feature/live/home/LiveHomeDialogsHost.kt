@@ -1,0 +1,414 @@
+package com.streamvault.feature.live.home
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.streamvault.feature.live.R
+import com.streamvault.feature.live.presentation.home.HomeUiState
+import com.streamvault.feature.live.home.HomeViewModel
+import com.streamvault.core.ui.components.dialogs.PinDialog
+import com.streamvault.feature.live.api.LiveAddToGroupContent
+import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
+import com.streamvault.feature.live.api.LiveMultiViewPlannerContent
+import com.streamvault.feature.live.home.LiveCategoryOptionsDialog
+import com.streamvault.feature.live.home.LiveCategoryOptionsDialogLabels
+import com.streamvault.feature.live.home.LiveAddQuickFilterDialog
+import com.streamvault.feature.live.home.LiveAddQuickFilterDialogLabels
+import com.streamvault.feature.live.home.LiveDeleteGroupDialog
+import com.streamvault.feature.live.home.LiveDeleteGroupDialogLabels
+import com.streamvault.feature.live.home.LiveRenameGroupDialog
+import com.streamvault.feature.live.home.LiveRenameGroupDialogLabels
+import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerDialog
+import com.streamvault.feature.live.home.LiveM3uCategoryOrganizerLabels
+import com.streamvault.feature.live.home.LiveM3uSeriesAssignmentDialog
+import com.streamvault.feature.live.home.LiveM3uSeriesAssignmentLabels
+import com.streamvault.feature.live.home.LiveM3uCategorySeriesAssignmentDialog
+import com.streamvault.feature.live.home.LiveM3uCategorySeriesAssignmentLabels
+import com.streamvault.domain.model.ActiveLiveSource
+import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.VirtualCategoryIds
+import com.streamvault.domain.repository.ChannelRepository
+import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.repository.M3uCategoryItem
+import com.streamvault.domain.repository.M3uClassificationTarget
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+@Composable
+fun LiveHomeDialogsHost(
+    uiState: HomeUiState,
+    viewModel: HomeViewModel,
+    showPinDialog: Boolean,
+    pinError: String?,
+    pendingUnlockCategory: Category?,
+    pendingUnlockChannel: Channel?,
+    pendingLockToggleCategory: Category?,
+    showAddQuickFilterDialog: Boolean,
+    showSplitManagerDialog: Boolean,
+    pendingSplitPlannerChannel: Channel?,
+    onShowPinDialogChange: (Boolean) -> Unit,
+    onPinErrorChange: (String?) -> Unit,
+    onPendingUnlockCategoryChange: (Category?) -> Unit,
+    onPendingUnlockChannelChange: (Channel?) -> Unit,
+    onPendingLockToggleCategoryChange: (Category?) -> Unit,
+    onShowAddQuickFilterDialogChange: (Boolean) -> Unit,
+    onShowSplitManagerDialogChange: (Boolean) -> Unit,
+    onPendingSplitPlannerChannelChange: (Channel?) -> Unit,
+    onChannelClick: (Channel, Category?, Provider?, Long?, Long?) -> Unit,
+    onOpenMultiView: () -> Unit,
+    multiViewPlanner: LiveMultiViewPlannerContent,
+    addToGroupContent: LiveAddToGroupContent,
+    isChannelQueuedForMultiView: (Long) -> Boolean,
+    resolveProviderForChannel: (Channel) -> Provider?,
+    scope: CoroutineScope
+) {
+    val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
+    var pendingM3uSeriesChannel by remember { mutableStateOf<Channel?>(null) }
+    var pendingM3uCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingM3uSeriesCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingM3uSeriesItems by remember { mutableStateOf<List<M3uCategoryItem>?>(null) }
+
+    if (showPinDialog) {
+        PinDialog(
+            title = stringResource(R.string.pin_dialog_title),
+            cancelLabel = stringResource(R.string.pin_dialog_cancel),
+            onDismissRequest = {
+                onShowPinDialogChange(false)
+                onPinErrorChange(null)
+                onPendingUnlockCategoryChange(null)
+                onPendingUnlockChannelChange(null)
+            },
+            onPinEntered = { pin ->
+                scope.launch {
+                    pendingUnlockCategory?.let { category ->
+                        when (val unlockResult = viewModel.unlockCategoryWithPin(category, pin)) {
+                            is Result.Success -> {
+                                onShowPinDialogChange(false)
+                                onPinErrorChange(null)
+                                onPendingUnlockCategoryChange(null)
+                                onPendingUnlockChannelChange(null)
+                            }
+                            is Result.Error -> {
+                                onPinErrorChange(
+                                    if (unlockResult.message == "Incorrect PIN") {
+                                        incorrectPinMessage
+                                    } else {
+                                        unlockResult.message
+                                    }
+                                )
+                            }
+                            Result.Loading -> Unit
+                        }
+                        return@launch
+                    }
+
+                    if (viewModel.verifyPin(pin)) {
+                        onShowPinDialogChange(false)
+                        onPinErrorChange(null)
+
+                        pendingUnlockChannel?.let { channel ->
+                            viewModel.clearPreview()
+                            val combinedProfileId = (uiState.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId
+                            onChannelClick(channel, uiState.selectedCategory, resolveProviderForChannel(channel), combinedProfileId, uiState.selectedCombinedSourceProviderId)
+                            onPendingUnlockChannelChange(null)
+                        }
+
+                        pendingLockToggleCategory?.let { category ->
+                            viewModel.toggleCategoryLock(category)
+                            onPendingLockToggleCategoryChange(null)
+                        }
+
+                        onPendingUnlockCategoryChange(null)
+                        onPendingUnlockChannelChange(null)
+                    } else {
+                        onPinErrorChange(incorrectPinMessage)
+                    }
+                }
+            },
+            error = pinError
+        )
+    }
+
+    val selectedCategoryForOptions = uiState.selectedCategoryForOptions
+    if (selectedCategoryForOptions != null) {
+        val category = selectedCategoryForOptions
+        val isCategoryLocked =
+            (category.isAdult || category.isUserProtected) &&
+                uiState.parentalControlLevel in 1..2 &&
+                kotlin.math.abs(category.id) !in uiState.unlockedCategoryIds
+        LiveCategoryOptionsDialog(
+            category = category,
+            labels = LiveCategoryOptionsDialogLabels(
+                hint = stringResource(R.string.library_saved_manage_hint),
+                setDefault = stringResource(R.string.category_options_set_default),
+                pin = stringResource(R.string.category_options_pin),
+                unpin = stringResource(R.string.category_options_unpin),
+                rename = stringResource(R.string.category_options_rename),
+                hide = stringResource(R.string.category_options_hide),
+                hideFromLiveTv = stringResource(R.string.category_options_hide_from_live_tv),
+                clearRecent = stringResource(R.string.category_options_clear_recent),
+                reorder = stringResource(R.string.category_options_reorder),
+                organizeM3u = stringResource(R.string.m3u_organize_items),
+                lock = stringResource(R.string.category_options_lock),
+                unlock = stringResource(R.string.category_options_unlock),
+                delete = stringResource(R.string.category_options_delete),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
+            onDismissRequest = { viewModel.dismissCategoryOptions() },
+            onSetAsDefault = if (isCategoryLocked) null else {
+                {
+                    viewModel.setDefaultCategory(category)
+                    viewModel.dismissCategoryOptions()
+                }
+            },
+            isPinned = category.id in uiState.pinnedCategoryIds,
+            onTogglePinned = if (!isCategoryLocked && !category.isVirtual && category.id != ChannelRepository.ALL_CHANNELS_ID) {
+                { viewModel.toggleCategoryPinned(category) }
+            } else null,
+            onHide = if (!isCategoryLocked && !category.isVirtual && category.id != ChannelRepository.ALL_CHANNELS_ID) {
+                { viewModel.hideCategory(category) }
+            } else null,
+            onHideFromLiveTV = if (!isCategoryLocked && category.id in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT, ChannelRepository.ALL_CHANNELS_ID)) {
+                {
+                    when (category.id) {
+                        VirtualCategoryIds.FAVORITES -> viewModel.setShowFavoritesCategory(false)
+                        VirtualCategoryIds.RECENT -> viewModel.setShowRecentChannelsCategory(false)
+                        ChannelRepository.ALL_CHANNELS_ID -> viewModel.setShowAllChannelsCategory(false)
+                    }
+                    viewModel.dismissCategoryOptions()
+                }
+            } else null,
+            onClearAll = if (!isCategoryLocked && category.id == VirtualCategoryIds.RECENT) {
+                {
+                    viewModel.clearRecentChannels()
+                    viewModel.dismissCategoryOptions()
+                }
+            } else null,
+            onRename = if (!isCategoryLocked && category.isVirtual && category.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)) {
+                { viewModel.requestRenameGroup(category) }
+            } else null,
+            onToggleLock = {
+                viewModel.dismissCategoryOptions()
+                onPendingLockToggleCategoryChange(category)
+                onShowPinDialogChange(true)
+            },
+            onDelete = if (!isCategoryLocked && category.isVirtual && category.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)) {
+                { viewModel.requestDeleteGroup(category) }
+            } else null,
+            onReorderChannels = if (!isCategoryLocked && category.isVirtual && category.id != VirtualCategoryIds.RECENT) {
+                { viewModel.enterChannelReorderMode(category) }
+            } else null,
+            onOrganizeM3u = if (
+                !isCategoryLocked &&
+                    !uiState.isCombinedLiveSource &&
+                    uiState.provider?.type == ProviderType.M3U &&
+                    category.type == com.streamvault.domain.model.ContentType.LIVE &&
+                    !category.isVirtual
+            ) {
+                {
+                    pendingM3uCategory = category
+                    viewModel.dismissCategoryOptions()
+                }
+            } else null
+        )
+    }
+
+    if (showAddQuickFilterDialog) {
+        LiveAddQuickFilterDialog(
+            savedFilters = uiState.savedCategoryFilters,
+            labels = LiveAddQuickFilterDialogLabels(
+                title = stringResource(R.string.home_quick_filters_add_title),
+                subtitle = stringResource(R.string.home_quick_filters_add_subtitle),
+                placeholder = stringResource(R.string.home_quick_filters_add_placeholder),
+                action = stringResource(R.string.home_quick_filters_add_action),
+                cancel = stringResource(R.string.settings_cancel)
+            ),
+            onAddFilter = viewModel::addLiveTvCategoryFilter,
+            onDismiss = { onShowAddQuickFilterDialogChange(false) }
+        )
+    }
+
+    if (pendingSplitPlannerChannel != null) {
+        multiViewPlanner(
+            pendingSplitPlannerChannel,
+            { onPendingSplitPlannerChannelChange(null) },
+            {
+                onPendingSplitPlannerChannelChange(null)
+                viewModel.onDismissDialog()
+                viewModel.clearPreview()
+                onOpenMultiView()
+            }
+        )
+    }
+
+    val selectedChannelForDialog = uiState.selectedChannelForDialog
+    if (uiState.showDialog && selectedChannelForDialog != null && pendingSplitPlannerChannel == null) {
+        val channel = selectedChannelForDialog
+        addToGroupContent(
+            LiveAddToGroupDialogRequest(
+                contentTitle = channel.name,
+                channel = channel,
+                groups = uiState.categories.filter {
+                    it.isVirtual && it.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)
+                },
+                isFavorite = channel.isFavorite,
+                memberOfGroups = uiState.dialogGroupMemberships,
+                onDismiss = { viewModel.onDismissDialog() },
+                onToggleFavorite = {
+                    if (channel.isFavorite) viewModel.removeFavorite(channel) else viewModel.addFavorite(channel)
+                },
+                onAddToGroup = { group -> viewModel.addToGroup(channel, group) },
+                onRemoveFromGroup = { group -> viewModel.removeFromGroup(channel, group) },
+                onCreateGroup = if (
+                    uiState.isCombinedLiveSource &&
+                    uiState.selectedCombinedSourceProviderId == null &&
+                    uiState.currentCombinedProfileMembers.count { it.enabled } > 1
+                ) null else { name -> viewModel.createCustomGroup(name) },
+                isQueuedForSplitScreen = isChannelQueuedForMultiView(channel.id),
+                onOpenSplitScreenPlanner = { onPendingSplitPlannerChannelChange(channel) },
+                onRemoveFromRecent = if (uiState.selectedCategory?.id == VirtualCategoryIds.RECENT) {
+                    {
+                        viewModel.removeChannelFromRecent(channel)
+                        viewModel.onDismissDialog()
+                    }
+                } else null,
+                onHideChannel = { viewModel.hideChannel(channel) },
+                onMoveToMovies = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
+                    { viewModel.moveM3uChannelToMovies(channel) }
+                } else null,
+                onMoveToSeries = if (!uiState.isCombinedLiveSource && uiState.provider?.type == ProviderType.M3U) {
+                    {
+                        pendingM3uSeriesChannel = channel
+                        viewModel.onDismissDialog()
+                    }
+                } else null,
+            )
+        )
+    }
+
+    pendingM3uSeriesChannel?.let { channel ->
+        LiveM3uSeriesAssignmentDialog(
+            initialTitle = channel.name,
+            labels = LiveM3uSeriesAssignmentLabels(
+                title = stringResource(R.string.m3u_move_to_series),
+                seriesName = stringResource(R.string.m3u_series_name),
+                seasonNumber = stringResource(R.string.m3u_season_number),
+                episodeNumber = stringResource(R.string.m3u_episode_number),
+                classify = stringResource(R.string.m3u_classify),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
+            onDismiss = { pendingM3uSeriesChannel = null },
+            onConfirm = { assignment ->
+                pendingM3uSeriesChannel = null
+                viewModel.moveM3uChannelToSeries(channel, assignment)
+            }
+        )
+    }
+
+    pendingM3uCategory?.let { category ->
+        LiveM3uCategoryOrganizerDialog(
+            categoryName = category.name,
+            labels = LiveM3uCategoryOrganizerLabels(
+                subtitle = stringResource(R.string.m3u_category_rule_subtitle),
+                moveToMovies = stringResource(R.string.m3u_move_to_movies),
+                moveToSeries = stringResource(R.string.m3u_move_to_series),
+                keepLive = stringResource(R.string.m3u_keep_live),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
+            onDismiss = { pendingM3uCategory = null },
+            onTargetSelected = { target ->
+                if (target == M3uClassificationTarget.SERIES) {
+                    pendingM3uCategory = null
+                    viewModel.loadM3uCategoryItems(category) { items ->
+                        pendingM3uSeriesCategory = category
+                        pendingM3uSeriesItems = items
+                    }
+                } else {
+                    pendingM3uCategory = null
+                    viewModel.organizeM3uCategory(category, target)
+                }
+            }
+        )
+    }
+
+    if (pendingM3uSeriesCategory != null && pendingM3uSeriesItems != null) {
+        val category = pendingM3uSeriesCategory!!
+        LiveM3uCategorySeriesAssignmentDialog(
+            items = pendingM3uSeriesItems!!,
+            labels = LiveM3uCategorySeriesAssignmentLabels(
+                title = stringResource(R.string.m3u_series_review_title, category.name),
+                subtitle = stringResource(R.string.m3u_series_review_subtitle),
+                seriesName = stringResource(R.string.m3u_series_name),
+                seasonNumber = stringResource(R.string.m3u_season_number),
+                episodeNumber = stringResource(R.string.m3u_episode_number),
+                episodeUnresolved = stringResource(R.string.m3u_episode_unresolved),
+                classify = stringResource(R.string.m3u_classify),
+                cancel = stringResource(R.string.category_options_cancel)
+            ),
+            onDismiss = {
+                pendingM3uSeriesCategory = null
+                pendingM3uSeriesItems = null
+            },
+            onConfirm = { assignments ->
+                pendingM3uSeriesCategory = null
+                pendingM3uSeriesItems = null
+                viewModel.organizeM3uCategory(
+                    category = category,
+                    target = M3uClassificationTarget.SERIES,
+                    seriesAssignments = assignments
+                )
+            }
+        )
+    }
+
+    val groupToRename = uiState.groupToRename
+    if (uiState.showRenameGroupDialog && groupToRename != null) {
+        LiveRenameGroupDialog(
+            initialName = groupToRename.name,
+            errorMessage = uiState.renameGroupError,
+            labels = LiveRenameGroupDialogLabels(
+                title = stringResource(R.string.category_options_rename),
+                hint = stringResource(R.string.library_saved_manage_hint),
+                nameLabel = stringResource(R.string.add_group_name_hint),
+                cancel = stringResource(R.string.add_group_cancel),
+                confirm = stringResource(R.string.add_group_rename)
+            ),
+            onDismissRequest = { viewModel.cancelRenameGroup() },
+            onConfirm = { name -> viewModel.confirmRenameGroup(name) }
+        )
+    }
+
+    if (showSplitManagerDialog) {
+        multiViewPlanner(
+            null,
+            { onShowSplitManagerDialogChange(false) },
+            {
+                onShowSplitManagerDialogChange(false)
+                viewModel.clearPreview()
+                onOpenMultiView()
+            }
+        )
+    }
+
+    val groupToDelete = uiState.groupToDelete
+    if (uiState.showDeleteGroupDialog && groupToDelete != null) {
+        val group = groupToDelete
+        LiveDeleteGroupDialog(
+            labels = LiveDeleteGroupDialogLabels(
+                title = stringResource(R.string.home_delete_group_title),
+                body = stringResource(R.string.home_delete_group_body, group.name),
+                cancel = stringResource(R.string.home_delete_group_cancel),
+                confirm = stringResource(R.string.home_delete_group_confirm)
+            ),
+            onDismiss = viewModel::cancelDeleteGroup,
+            onConfirm = viewModel::confirmDeleteGroup
+        )
+    }
+}

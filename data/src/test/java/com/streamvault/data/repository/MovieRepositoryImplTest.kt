@@ -12,6 +12,7 @@ import com.streamvault.data.local.dao.XtreamContentIndexDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.entity.FavoriteEntity
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.MovieBrowseEntity
 import com.streamvault.data.local.entity.MovieCategoryHydrationEntity
 import com.streamvault.data.local.entity.MovieEntity
@@ -31,6 +32,7 @@ import com.streamvault.data.remote.stalker.StalkerCategoryRecord
 import com.streamvault.data.remote.stalker.StalkerItemRecord
 import com.streamvault.data.remote.stalker.StalkerPagedItems
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
+import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamStream
 import com.streamvault.data.remote.stalker.StalkerApiService
@@ -575,6 +577,44 @@ class MovieRepositoryImplTest {
 
         verify(stalkerApiService, timeout(1_000)).getVodStreamsPage(any(), any(), anyOrNull(), eq(1))
         verify(stalkerApiService, never()).getVodStreamsPage(any(), any(), anyOrNull(), eq(2))
+    }
+
+    @Test
+    fun `stalker preview keeps wildcard-only movie category`() = runTest {
+        val wildcardId = stalkerStableHashId(7L, ContentType.MOVIE, "*")
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.MOVIE.name)).thenReturn(
+            flowOf(
+                listOf(
+                    CategoryEntity(
+                        providerId = 7L,
+                        categoryId = wildcardId,
+                        name = "*",
+                        type = ContentType.MOVIE
+                    )
+                )
+            )
+        )
+        whenever(movieDao.getCountByCategory(7L, wildcardId)).thenReturn(flowOf(18))
+        whenever(movieCategoryHydrationDao.get(7L, wildcardId)).thenReturn(null)
+        whenever(movieDao.getByCategoryPreview(7L, wildcardId, 18)).thenReturn(
+            flowOf(
+                listOf(
+                    MovieBrowseEntity(
+                        id = 1L,
+                        streamId = 1L,
+                        name = "Movie",
+                        categoryId = wildcardId,
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+        stubProvider(stalkerProvider())
+
+        val result = createRepository().getCategoryPreviewRows(7L, listOf(wildcardId), 18).first()
+
+        assertThat(result[wildcardId]).hasSize(1)
     }
 
     @Test
@@ -1146,6 +1186,39 @@ class MovieRepositoryImplTest {
         assertThat(result.items.map { it.name }).containsExactly("Zulu Movie", "Alpha Movie").inOrder()
         verify(movieDao).getFreshCursorPage(7L, 40)
         verify(movieDao, never()).getByProviderCursorPage(any(), any())
+    }
+
+    @Test
+    fun `browseMovies groups duplicates while using the cursor window`() = runTest {
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(movieDao.getCount(7L)).thenReturn(flowOf(2))
+        whenever(movieDao.getFreshCursorPage(7L, 40)).thenReturn(
+            listOf(
+                movieEntity(id = 101L, name = "Arrival HD", genre = "Sci-Fi", categoryId = 42L, rating = 7.9f)
+                    .copy(year = "2016", releaseDate = "2016-11-11", addedAt = 20L),
+                movieEntity(id = 102L, name = "Arrival 4K", genre = "Sci-Fi", categoryId = 42L, rating = 7.9f)
+                    .copy(year = "2016", releaseDate = "2016-11-11", addedAt = 10L)
+            )
+        )
+        whenever(favoriteDao.getAllByType(7L, ContentType.MOVIE.name)).thenReturn(flowOf(emptyList()))
+
+        val result = createRepository(
+            duplicateHandlingMode = VodDuplicateHandlingMode.SMART,
+            variantPreferenceMode = VodVariantPreferenceMode.BEST_QUALITY
+        ).browseMovies(
+            LibraryBrowseQuery(
+                providerId = 7L,
+                sortBy = LibrarySortBy.LIBRARY,
+                offset = 0,
+                limit = 20
+            )
+        ).first()
+
+        assertThat(result.totalCount).isEqualTo(1)
+        assertThat(result.items).hasSize(1)
+        assertThat(result.items.single().selectedVariantId).isEqualTo(102L)
+        verify(movieDao).getFreshCursorPage(7L, 40)
+        verify(movieDao, never()).getByProviderPage(any(), any(), any())
     }
 
     private fun createRepository(

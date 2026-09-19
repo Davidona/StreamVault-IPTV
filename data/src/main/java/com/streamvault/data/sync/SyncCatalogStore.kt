@@ -17,6 +17,7 @@ import com.streamvault.data.local.entity.MovieImportStageEntity
 import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.local.entity.SeriesImportStageEntity
 import com.streamvault.data.local.entity.TmdbIdentityEntity
+import com.streamvault.data.parser.M3uPlaybackMetadataCodec
 import com.streamvault.data.remote.xtream.XtreamStreamKind
 import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.domain.model.ContentType
@@ -718,6 +719,7 @@ internal class SyncCatalogStore(
                     isAdult = channel.isAdult,
                     logicalGroupId = channel.logicalGroupId,
                     errorCount = channel.errorCount,
+                    playbackMetadataJson = channel.playbackMetadataJson,
                     syncFingerprint = channelFingerprint(channel)
                 )
             }
@@ -754,6 +756,7 @@ internal class SyncCatalogStore(
                     tmdbId = movie.tmdbId,
                     youtubeTrailer = movie.youtubeTrailer,
                     isAdult = movie.isAdult,
+                    playbackMetadataJson = movie.playbackMetadataJson,
                     syncFingerprint = movieFingerprint(movie),
                     addedAt = movie.addedAt
                 )
@@ -926,6 +929,7 @@ internal class SyncCatalogStore(
             tmdbId = movie.tmdbId,
             youtubeTrailer = movie.youtubeTrailer,
             isAdult = movie.isAdult,
+            playbackMetadataJson = movie.playbackMetadataJson,
             syncFingerprint = movieFingerprint(movie),
             addedAt = movie.addedAt
         )
@@ -977,7 +981,8 @@ internal class SyncCatalogStore(
                 channel.catchUpSupported.toString(),
                 channel.catchUpDays.toString(),
                 channel.isAdult.toString(),
-                normalizeText(xtreamLiveToken.containerExtension)
+                normalizeText(xtreamLiveToken.containerExtension),
+                M3uPlaybackMetadataCodec.fingerprint(channel.playbackMetadataJson)
             )
         }
         return fingerprint(
@@ -992,7 +997,8 @@ internal class SyncCatalogStore(
             channel.catchUpSupported.toString(),
             channel.catchUpDays.toString(),
             normalizeUrl(channel.catchUpSource),
-            channel.isAdult.toString()
+            channel.isAdult.toString(),
+            M3uPlaybackMetadataCodec.fingerprint(channel.playbackMetadataJson)
         )
     }
 
@@ -1017,7 +1023,8 @@ internal class SyncCatalogStore(
             movie.tmdbId?.toString().orEmpty(),
             normalizeUrl(movie.youtubeTrailer),
             movie.isAdult.toString(),
-            movie.addedAt.toString()
+            movie.addedAt.toString(),
+            M3uPlaybackMetadataCodec.fingerprint(movie.playbackMetadataJson)
         )
     }
 

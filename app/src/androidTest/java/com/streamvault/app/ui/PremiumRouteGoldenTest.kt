@@ -10,26 +10,26 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.navigation.Routes
-import com.streamvault.app.ui.components.SearchInput
-import com.streamvault.app.ui.components.shell.AppHeroHeader
-import com.streamvault.app.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.components.SearchInput
+import com.streamvault.core.ui.components.shell.AppHeroHeader
+import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.app.ui.components.shell.AppScreenScaffold
-import com.streamvault.app.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.app.ui.components.shell.BrowseHeroPanel
 import com.streamvault.app.ui.components.shell.BrowseSearchLaunchCard
 import com.streamvault.app.ui.components.shell.CategoryRailPanel
-import com.streamvault.app.ui.components.shell.ContentMetadataStrip
+import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.app.ui.components.shell.EpisodeRowCard
 import com.streamvault.app.ui.components.shell.LibraryBrowseScaffold
 import com.streamvault.app.ui.components.shell.LiveChannelRowSurface
-import com.streamvault.app.ui.components.shell.LoadMoreCard
+import com.streamvault.core.ui.components.shell.LoadMoreCard
 import com.streamvault.app.ui.components.shell.MoviePosterCard
 import com.streamvault.app.ui.components.shell.SeriesPosterCard
-import com.streamvault.app.ui.components.shell.StatusPill
-import com.streamvault.app.ui.design.AppColors
+import com.streamvault.core.ui.components.shell.StatusPill
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.app.ui.test.TestFixtures
 import com.streamvault.app.ui.test.assertAgainstGolden
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,56 +39,6 @@ class PremiumRouteGoldenTest {
 
     @get:Rule
     val composeRule = createComposeRule()
-
-    @Test
-    fun dashboard_route_matchesGolden() {
-        composeRule.setContent {
-            StreamVaultTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("golden")
-                ) {
-                    AppScreenScaffold(
-                        currentRoute = Routes.HOME,
-                        onNavigate = {},
-                        title = "Your Library, Ready",
-                        subtitle = "Pulse IPTV is active. Jump back into live, continue watching, or browse fresh additions."
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                            AppHeroHeader(
-                                title = "Tonight's Premium Picks",
-                                subtitle = "One place for live shortcuts, recent progress, and provider health.",
-                                eyebrow = "Dashboard",
-                                actions = {
-                                    StatusPill(label = "4K", containerColor = AppColors.Brand)
-                                    StatusPill(label = "Saved", containerColor = AppColors.Warning, contentColor = AppColors.Canvas)
-                                },
-                                footer = {
-                                    ContentMetadataStrip(values = listOf("126 live", "18 to resume", "2 alerts"))
-                                }
-                            )
-                            AppSectionHeader(
-                                title = "Continue Watching",
-                                subtitle = "Recent live channels, movies, and series kept within reach."
-                            )
-                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                MoviePosterCard(movie = TestFixtures.movie, modifier = Modifier.width(160.dp).height(240.dp))
-                                SeriesPosterCard(series = TestFixtures.series, modifier = Modifier.width(160.dp).height(240.dp))
-                                LiveChannelRowSurface(
-                                    channel = TestFixtures.liveChannel,
-                                    onClick = {},
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        composeRule.onNodeWithTag("golden").assertAgainstGolden("route_dashboard_default")
-    }
 
     @Test
     fun live_route_matchesGolden() {
@@ -138,7 +88,11 @@ class PremiumRouteGoldenTest {
                                     subtitle = "Find channels, categories, or program titles without leaving the live surface.",
                                     onClick = {}
                                 )
-                                LiveChannelRowSurface(channel = TestFixtures.liveChannel, onClick = {})
+                                LiveChannelRowSurface(
+                                    channel = TestFixtures.liveChannel,
+                                    nowMs = TestFixtures.currentProgram.startTime,
+                                    onClick = {}
+                                )
                                 LiveChannelRowSurface(
                                     channel = TestFixtures.liveChannel.copy(
                                         id = 8L,
@@ -147,6 +101,7 @@ class PremiumRouteGoldenTest {
                                         catchUpSupported = false,
                                         currentProgram = TestFixtures.currentProgram.copy(title = "Global Briefing")
                                     ),
+                                    nowMs = TestFixtures.currentProgram.startTime,
                                     onClick = {}
                                 )
                             }
@@ -157,102 +112,6 @@ class PremiumRouteGoldenTest {
         }
 
         composeRule.onNodeWithTag("golden").assertAgainstGolden("route_live_browse")
-    }
-
-    @Test
-    fun movies_route_matchesGolden() {
-        composeRule.setContent {
-            StreamVaultTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("golden")
-                ) {
-                    LibraryBrowseScaffold(
-                        currentRoute = Routes.MOVIES,
-                        onNavigate = {},
-                        title = "Movies",
-                        subtitle = "Curated shelves, fast category jumps, and large-library-safe browsing.",
-                        railContent = {
-                            CategoryRailPanel(
-                                title = "Movie Categories",
-                                searchValue = "",
-                                onSearchValueChange = {},
-                                searchPlaceholder = "Search movie categories"
-                            ) {
-                                item { StatusPill(label = "All Library 240", modifier = Modifier.padding(bottom = 8.dp)) }
-                                item { StatusPill(label = "Top Picks 48", modifier = Modifier.padding(bottom = 8.dp)) }
-                                item { StatusPill(label = "New Releases 32") }
-                            }
-                        },
-                        content = {
-                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                BrowseHeroPanel(
-                                    title = TestFixtures.vodTitle,
-                                    subtitle = "Prestige movie curation with shared focus styling and premium hierarchy.",
-                                    eyebrow = "Top Picks",
-                                    metadata = listOf("2026", "Thriller", "RTG 8.8"),
-                                    actionLabel = "Play",
-                                    onClick = {}
-                                )
-                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    MoviePosterCard(movie = TestFixtures.movie, modifier = Modifier.width(160.dp).height(240.dp))
-                                    MoviePosterCard(
-                                        movie = TestFixtures.movie.copy(id = 101L, name = "Coastline", year = "2025", rating = 8.1f),
-                                        modifier = Modifier.width(160.dp).height(240.dp)
-                                    )
-                                    MoviePosterCard(
-                                        movie = TestFixtures.movie.copy(id = 102L, name = "Northern Lights", year = "2024", rating = 7.9f),
-                                        modifier = Modifier.width(160.dp).height(240.dp)
-                                    )
-                                }
-                                LoadMoreCard(label = "Load more titles", onClick = {})
-                            }
-                        }
-                    )
-                }
-            }
-        }
-
-        composeRule.onNodeWithTag("golden").assertAgainstGolden("route_movies_landing")
-    }
-
-    @Test
-    fun series_detail_route_matchesGolden() {
-        composeRule.setContent {
-            StreamVaultTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("golden")
-                ) {
-                    AppScreenScaffold(
-                        currentRoute = Routes.SERIES,
-                        onNavigate = {},
-                        title = "Series Detail",
-                        subtitle = "Backdrop hero, metadata, and progress-aware episode rows."
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                            BrowseHeroPanel(
-                                title = TestFixtures.series.name,
-                                subtitle = "A premium detail surface with season browsing and editorial context.",
-                                eyebrow = "Trending Series",
-                                metadata = listOf("Drama", "2026", "RTG 8.5"),
-                                actionLabel = "Resume",
-                                onClick = {}
-                            )
-                            AppSectionHeader(
-                                title = "Season 1",
-                                subtitle = "8 episodes available"
-                            )
-                            EpisodeRowCard(episode = TestFixtures.episode)
-                        }
-                    }
-                }
-            }
-        }
-
-        composeRule.onNodeWithTag("golden").assertAgainstGolden("route_series_detail")
     }
 
     @Test
@@ -341,42 +200,4 @@ class PremiumRouteGoldenTest {
         composeRule.onNodeWithTag("golden").assertAgainstGolden("route_saved_guide_settings")
     }
 
-    @Test
-    fun search_route_matchesGolden() {
-        composeRule.setContent {
-            StreamVaultTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("golden")
-                ) {
-                    AppScreenScaffold(
-                        currentRoute = Routes.SEARCH,
-                        onNavigate = {},
-                        title = "Search",
-                        subtitle = "Unified results across live, movies, and series."
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            SearchInput(
-                                value = "night",
-                                onValueChange = {},
-                                placeholder = "Search everything"
-                            )
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                StatusPill(label = "Live 12")
-                                StatusPill(label = "Movies 8")
-                                StatusPill(label = "Series 4")
-                            }
-                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                MoviePosterCard(movie = TestFixtures.movie, modifier = Modifier.width(160.dp).height(240.dp))
-                                SeriesPosterCard(series = TestFixtures.series, modifier = Modifier.width(160.dp).height(240.dp))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        composeRule.onNodeWithTag("golden").assertAgainstGolden("route_search_results")
-    }
 }

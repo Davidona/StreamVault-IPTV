@@ -106,6 +106,7 @@ internal class SyncManagerPlanDelegate(
             provider = request.snapshot.toLegacyProvider(),
             force = request.force,
             onProgress = request.onProgress,
+            bootstrap = request.bootstrap,
             afterCatalogApply = request.afterCatalogApply,
             deferProviderStateUntilCatalogCommit = request.deferProviderStateUntilCatalogCommit
         )

@@ -15,8 +15,8 @@ import androidx.annotation.RequiresApi
 import com.streamvault.app.MainActivity
 import com.streamvault.app.R
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.navigation.ExternalDestination
-import com.streamvault.app.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.AppDestination
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.app.navigation.toPlayerNavigationRequest
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ContentType
@@ -195,7 +195,7 @@ class LauncherRecommendationsManager @Inject constructor(
                     description = series.plot ?: series.genre ?: provider.name,
                     posterArtUri = artworkUri(series.posterUrl ?: series.backdropUrl),
                     intentUri = buildDestinationIntent(
-                        ExternalDestination.SeriesDetail(series.id)
+                        AppDestination.SeriesDetail(series.id)
                     ).toUri(Intent.URI_INTENT_SCHEME),
                     weight = (FRESH_SERIES_WEIGHT_BASE - index).coerceAtLeast(0),
                     durationMillis = 0L,
@@ -364,14 +364,14 @@ class LauncherRecommendationsManager @Inject constructor(
             .putExtra(MainActivity.EXTRA_PLAYER_REQUEST, request)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-    private fun buildDestinationIntent(destination: ExternalDestination): Intent =
+    private fun buildDestinationIntent(destination: AppDestination): Intent =
         Intent(context, MainActivity::class.java)
             .setAction(Intent.ACTION_VIEW)
             .putExtra(MainActivity.EXTRA_EXTERNAL_DESTINATION, destination)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
     private fun buildBrowseIntent(): Intent =
-        buildDestinationIntent(ExternalDestination.Home)
+        buildDestinationIntent(AppDestination.Home)
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun requestChannelBrowsable(channelId: Long) {

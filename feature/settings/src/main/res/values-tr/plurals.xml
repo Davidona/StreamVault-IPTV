@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
+<plurals name="settings_live_tv_quick_filters_count">
+        <item quantity="one">%1$d kaydedildi</item>
+        <item quantity="other">%1$d kaydedildi</item>
+    </plurals>
+<plurals name="settings_timeout_seconds">
+        <item quantity="one">%d saniye</item>
+        <item quantity="other">%d saniye</item>
+    </plurals>
+<plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d dakika</item>
+        <item quantity="other">%1$d dakika</item>
+    </plurals>
+<plurals name="settings_top_navigation_count">
+        <item quantity="one">%d tab</item>
+        <item quantity="other">%d tabs</item>
+    </plurals>
+<plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d shelf</item>
+        <item quantity="other">%d shelves</item>
+    </plurals>
+</resources>

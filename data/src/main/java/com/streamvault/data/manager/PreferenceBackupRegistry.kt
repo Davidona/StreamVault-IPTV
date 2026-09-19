@@ -13,26 +13,29 @@ internal object PreferenceBackupRegistry {
         "last_active_provider_id", "active_live_source_type", "active_live_source_id",
         "default_view_mode", "parental_control_level", "parental_pin_hash", "parental_pin_salt",
         "default_category_id", "app_language", "app_landing_destination", "app_top_level_destinations",
-        "app_home_dashboard_shelves", "app_time_format", "live_tv_channel_mode",
+        "app_home_dashboard_shelves", "app_time_format", "app_theme", "live_tv_channel_mode", "live_tv_auto_hide_categories",
         "show_live_source_switcher", "show_favorites_category", "show_all_channels_category",
         "show_recent_channels_category", "live_tv_category_filters", "live_tv_quick_filter_visibility",
         "hide_decorative_live_rows", "live_channel_numbering_mode", "live_channel_grouping_mode",
         "grouped_channel_label_mode", "live_variant_preference_mode", "live_variant_selections",
-        "vod_view_mode", "vod_infinite_scroll", "vod_category_load_mode", "vod_duplicate_handling_mode",
+        "vod_view_mode", "vod_type_badge_as_icon", "vod_infinite_scroll", "vod_portal_search", "vod_category_load_mode", "vod_duplicate_handling_mode",
         "vod_variant_preference_mode", "vod_variant_selections", "guide_density", "guide_channel_mode",
         "guide_default_category_id", "guide_favorites_only", "guide_anchor_time",
         "epg_time_shift_by_provider", "promoted_live_group_ids", "multiview_preset_1",
         "multiview_preset_2", "multiview_preset_3", "multiview_performance_mode",
         "multiview_center_two_slot_layout", "multiview_respect_provider_connection_limit",
-        "is_incognito_mode", "player_muted", "player_media_session_enabled",
+        "is_incognito_mode", "player_muted", "player_media_session_enabled", "player_back_button_visibility",
         "player_fast_retry_on_transient_failures", "player_audio_decoder_mode", "player_video_decoder_mode",
         "player_playback_buffer_mode", "player_live_stream_format_mode", "player_vod_http_protocol_mode",
         "player_audio_output_preference", "player_compatibility_memory_enabled", "player_surface_mode",
         "player_playback_speed", "player_external_playback_mode", "player_av_sync_enabled",
-        "player_av_offset_ms", "preferred_audio_language", "player_subtitle_text_scale",
+        "player_av_offset_ms", "preferred_audio_language", "player_vod_track_global_preferences",
+        "player_vod_track_preferences", "player_subtitle_text_scale",
         "player_subtitle_text_color", "player_subtitle_background_color", "player_live_translation_enabled",
         "player_live_translation_endpoint", "player_controls_timeout_seconds",
         "player_live_overlay_timeout_seconds", "player_notice_timeout_seconds",
+        "player_live_clock_enabled", "player_live_clock_position", "player_live_clock_size",
+        "player_live_clock_font",
         "player_diagnostics_timeout_seconds", "player_wifi_max_video_height",
         "player_ethernet_max_video_height", "player_timeshift_enabled", "player_timeshift_depth_minutes",
         "player_timeshift_backend", "default_stop_playback_timer_minutes",
@@ -68,7 +71,7 @@ internal object PreferenceBackupRegistry {
     private val globalStoragePrefixes = setOf("remote_shortcut_")
     private val runtimeStoragePrefixes = setOf(
         "xtream_text_import_applied_generation_", "last_live_category_id_",
-        "last_split_catalog_type_", "aspect_ratio_"
+        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_"
     )
 
     private val providerKeys = setOf(
@@ -86,13 +89,14 @@ internal object PreferenceBackupRegistry {
         "vodVariantSelections_"
     )
     private val globalKeys = setOf(
-        "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat",
+        "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat", "appTheme",
         "defaultViewMode", "appLandingDestination", "appTopLevelDestinations", "appHomeDashboardShelves",
         "remoteShortcutPreferences", "liveTvCategoryFilters", "liveTvQuickFilterVisibility", "liveTvChannelMode",
+        "liveTvAutoHideCategories",
         "showLiveSourceSwitcher", "showFavoritesCategory", "showAllChannelsCategory", "showRecentChannelsCategory",
         "hideDecorativeLiveRows", "liveChannelNumberingMode", "liveChannelGroupingMode", "groupedChannelLabelMode",
-        "liveVariantPreferenceMode", "vodViewMode", "vodInfiniteScroll", "vodCategoryLoadMode",
-        "vodDuplicateHandlingMode", "vodVariantPreferenceMode", "playerMediaSessionEnabled",
+        "liveVariantPreferenceMode", "vodViewMode", "vodTypeBadgeAsIcon", "vodInfiniteScroll", "vodPortalSearch", "vodCategoryLoadMode",
+        "vodDuplicateHandlingMode", "vodVariantPreferenceMode", "playerMediaSessionEnabled", "playerBackButtonVisibility",
         "playerFastRetryOnTransientFailures", "playerAudioDecoderMode", "playerVideoDecoderMode",
         "playerPlaybackBufferMode", "playerAudioOutputPreference", "playerCompatibilityMemoryEnabled",
         "playerSurfaceMode", "playerLiveStreamFormatMode", "playerVodHttpProtocolMode", "playerPlaybackSpeed",
@@ -101,6 +105,7 @@ internal object PreferenceBackupRegistry {
         "preferredAudioLanguage", "playerSubtitleTextScale", "playerSubtitleTextColor",
         "playerSubtitleBackgroundColor", "playerLiveTranslationEnabled", "playerLiveTranslationEndpoint",
         "playerControlsTimeoutSeconds", "playerLiveOverlayTimeoutSeconds", "playerNoticeTimeoutSeconds",
+        "playerLiveClockEnabled", "playerLiveClockPosition", "playerLiveClockSize", "playerLiveClockFont",
         "playerDiagnosticsTimeoutSeconds", "playerWifiMaxVideoHeight", "playerEthernetMaxVideoHeight",
         "playerTimeshiftEnabled", "playerTimeshiftDepthMinutes", "playerTimeshiftBackend",
         "defaultStopPlaybackTimerMinutes", "defaultIdleStandbyTimerMinutes", "preventStandbyDuringPlayback",
@@ -123,7 +128,8 @@ internal object PreferenceBackupRegistry {
             key in setOf(
                 "last_active_provider_id", "active_live_source_type", "active_live_source_id",
                 "default_category_id", "guide_default_category_id", "epg_time_shift_by_provider",
-                "promoted_live_group_ids", "live_variant_selections", "vod_variant_selections"
+                "promoted_live_group_ids", "live_variant_selections", "vod_variant_selections",
+                "player_vod_track_preferences"
             )
         ) PreferenceBackupClassification.PORTABLE_PROVIDER_CONTENT
         else PreferenceBackupClassification.PORTABLE_GLOBAL

@@ -54,7 +54,8 @@ class M3uParser {
         val rating: String? = null,
         val year: String? = null,
         val genre: String? = null,
-        val durationSeconds: Int? = null
+        val durationSeconds: Int? = null,
+        val playbackMetadata: M3uPlaybackMetadata? = null
     )
 
     data class ParseResult(
@@ -67,6 +68,7 @@ class M3uParser {
         val entries = mutableListOf<M3uEntry>()
         var header = M3uHeader()
         var pendingExtinf: ParsedExtinf? = null
+        var pendingPlaybackMetadata: M3uPlaybackMetadataBuilder? = null
 
         // lineSequence() streams the InputStream one line at a time — only a single
         // String is allocated per iteration; prior lines are immediately eligible for GC.
@@ -82,13 +84,21 @@ class M3uParser {
                         }
                         line.startsWith("#EXTINF", ignoreCase = true) -> {
                             pendingExtinf = parseExtinf(line)
+                            pendingPlaybackMetadata = pendingExtinf?.let { M3uPlaybackMetadataBuilder() }
                         }
                         line.startsWith("#") -> {
+                            pendingPlaybackMetadata?.applyDirective(line)
                             pendingExtinf = pendingExtinf?.let { applyPendingDirective(it, line) }
                         }
                         pendingExtinf != null -> {
-                            parseEntry(pendingExtinf!!, line, header.userAgent)?.let(entries::add)
+                            parseEntry(
+                                pendingExtinf!!,
+                                line,
+                                header.userAgent,
+                                pendingPlaybackMetadata?.build()
+                            )?.let(entries::add)
                             pendingExtinf = null
+                            pendingPlaybackMetadata = null
                         }
                         else -> {
                             // Non-comment, non-URL line with no pending EXTINF — skip
@@ -110,6 +120,7 @@ class M3uParser {
         val source = playlistLines(inputStream, declaredCharset)
         var header = M3uHeader()
         var pendingExtinf: ParsedExtinf? = null
+        var pendingPlaybackMetadata: M3uPlaybackMetadataBuilder? = null
 
         // Use a for-loop over lineSequence() rather than .forEach{} because onHeader and
         // onEntry are suspend lambdas. Sequence.forEach is not an inline function, so the
@@ -126,6 +137,7 @@ class M3uParser {
                         if (pendingExtinf != null) {
                             onInvalidEntry()
                             pendingExtinf = null
+                            pendingPlaybackMetadata = null
                         }
                         header = parseHeader(line)
                         onHeader(header)
@@ -135,15 +147,23 @@ class M3uParser {
                             onInvalidEntry()
                         }
                         pendingExtinf = parseExtinf(line)
+                        pendingPlaybackMetadata = pendingExtinf?.let { M3uPlaybackMetadataBuilder() }
                     }
                     line.startsWith("#") -> {
+                        pendingPlaybackMetadata?.applyDirective(line)
                         pendingExtinf = pendingExtinf?.let { applyPendingDirective(it, line) }
                     }
                     pendingExtinf != null -> {
-                        parseEntry(pendingExtinf!!, line, header.userAgent)
+                        parseEntry(
+                            pendingExtinf!!,
+                            line,
+                            header.userAgent,
+                            pendingPlaybackMetadata?.build()
+                        )
                             ?.let { onEntry(it) }
                             ?: onInvalidEntry()
                         pendingExtinf = null
+                        pendingPlaybackMetadata = null
                     }
                     else -> {
                         // Non-comment, non-URL line with no pending EXTINF — skip
@@ -152,6 +172,7 @@ class M3uParser {
             }
             if (pendingExtinf != null) {
                 onInvalidEntry()
+                pendingPlaybackMetadata = null
             }
         }
     }
@@ -175,7 +196,12 @@ class M3uParser {
         }
     }
 
-    private fun parseEntry(extinf: ParsedExtinf, url: String, globalUserAgent: String?): M3uEntry? {
+    private fun parseEntry(
+        extinf: ParsedExtinf,
+        url: String,
+        globalUserAgent: String?,
+        playbackMetadata: M3uPlaybackMetadata?
+    ): M3uEntry? {
         if (url.isBlank() || extinf.name.isBlank()) return null
         if (!isAllowedStreamUrl(url)) return null
         return M3uEntry(
@@ -192,11 +218,12 @@ class M3uParser {
             catchUpSource = extinf.catchUpSource,
             timeshift = extinf.timeshift,
             url = url,
-            userAgent = extinf.userAgent ?: globalUserAgent,
+            userAgent = extinf.userAgent ?: playbackMetadata?.userAgent ?: globalUserAgent,
             rating = extinf.rating,
             year = extinf.year,
             genre = extinf.genre,
-            durationSeconds = extinf.durationSeconds
+            durationSeconds = extinf.durationSeconds,
+            playbackMetadata = playbackMetadata
         )
     }
 

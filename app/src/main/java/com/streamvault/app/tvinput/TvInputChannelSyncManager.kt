@@ -11,7 +11,7 @@ import android.provider.BaseColumns
 import android.util.Log
 import com.streamvault.app.MainActivity
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.LegacyProvider as Provider

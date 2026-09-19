@@ -1,6 +1,7 @@
 package com.streamvault.app.navigation
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.AppLandingDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.Channel
@@ -19,15 +20,14 @@ class RoutesTest {
 
     @Test
     fun `livePlayer preserves playback context`() {
-        val request = Routes.livePlayer(
-            channel = Channel(
+        val request = Channel(
                 id = 42L,
                 name = "News HD",
                 streamUrl = "https://example.com/live.m3u8",
                 epgChannelId = "news.hd",
                 categoryId = 9L,
                 providerId = 7L
-            ),
+            ).toLivePlayerRequest(
             categoryId = 9L,
             providerId = 7L,
             isVirtual = false
@@ -43,13 +43,12 @@ class RoutesTest {
 
     @Test
     fun `livePlayer falls back to all channels when category is missing`() {
-        val request = Routes.livePlayer(
-            channel = Channel(
-                id = 8L,
+        val request = Channel(
+                id = 42L,
                 name = "Sports",
                 streamUrl = "https://example.com/sports.m3u8",
                 providerId = 3L
-            ),
+            ).toLivePlayerRequest(
             categoryId = null,
             providerId = 3L
         )
@@ -60,15 +59,13 @@ class RoutesTest {
 
     @Test
     fun `moviePlayer preserves provider and category context`() {
-        val request = Routes.moviePlayer(
-            Movie(
+        val request = Movie(
                 id = 15L,
                 name = "Film",
                 streamUrl = "https://example.com/movie.mp4",
                 categoryId = 21L,
                 providerId = 5L
-            )
-        )
+            ).toPlayerNavigationRequest()
 
         assertThat(request.internalId).isEqualTo(15L)
         assertThat(request.categoryId).isEqualTo(21L)
@@ -78,16 +75,14 @@ class RoutesTest {
 
     @Test
     fun `episodePlayer preserves episode playback context`() {
-        val request = Routes.episodePlayer(
-            Episode(
+        val request = Episode(
                 id = 33L,
                 title = "Pilot",
                 episodeNumber = 1,
                 seasonNumber = 1,
                 streamUrl = "https://example.com/episode.mp4",
                 providerId = 11L
-            )
-        )
+            ).toPlayerNavigationRequest()
 
         assertThat(request.internalId).isEqualTo(33L)
         assertThat(request.providerId).isEqualTo(11L)
@@ -95,8 +90,8 @@ class RoutesTest {
     }
 
     @Test
-    fun `player route supports archive playback context`() {
-        val request = Routes.player(
+    fun `player request supports archive playback context`() {
+        val request = playerNavigationRequest(
             streamUrl = "https://example.com/live.m3u8",
             title = "News HD",
             internalId = 42L,
@@ -110,6 +105,27 @@ class RoutesTest {
         assertThat(request.archiveStartMs).isEqualTo(1_700_000_000_000L)
         assertThat(request.archiveEndMs).isEqualTo(1_700_000_360_000L)
         assertThat(request.archiveTitle).isEqualTo("News HD: Morning Show")
+    }
+
+    @Test
+    fun `player request preserves typed return destination back to guide`() {
+        val returnDestination = AppDestination.Guide(
+            categoryId = 9L,
+            anchorTimeMs = 1_700_000_360_000L,
+            favoritesOnly = false
+        )
+        val request = Channel(
+                id = 42L,
+                name = "Sports",
+                streamUrl = "https://example.com/live.m3u8",
+                providerId = 7L
+            ).toLivePlayerRequest(
+            categoryId = 9L,
+            providerId = 7L,
+            returnDestination = returnDestination
+        )
+
+        assertThat(request.returnDestination).isEqualTo(returnDestination)
     }
 
     @Test
@@ -187,25 +203,25 @@ class RoutesTest {
 
     @Test
     fun `player route preserves return route back to guide`() {
-        val returnRoute = Routes.epg(
+        val request = Channel(
+            id = 42L,
+            name = "News HD",
+            streamUrl = "https://example.com/live.m3u8",
+            epgChannelId = "news.hd",
             categoryId = 9L,
-            anchorTime = 1_700_000_360_000L,
-            favoritesOnly = false
-        )
-        val request = Routes.livePlayer(
-            channel = Channel(
-                id = 42L,
-                name = "News HD",
-                streamUrl = "https://example.com/live.m3u8",
-                epgChannelId = "news.hd",
-                categoryId = 9L,
-                providerId = 7L
-            ),
+            providerId = 7L
+        ).toLivePlayerRequest(
             categoryId = 9L,
             providerId = 7L,
-            returnRoute = returnRoute
+            returnDestination = AppDestination.Guide(
+                categoryId = 9L,
+                anchorTimeMs = 1_700_000_360_000L,
+                favoritesOnly = false
+            )
         )
 
-        assertThat(request.returnRoute).isEqualTo(returnRoute)
+        assertThat(request.returnDestination).isEqualTo(
+            AppDestination.Guide(9L, 1_700_000_360_000L, false)
+        )
     }
 }

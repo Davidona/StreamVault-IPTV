@@ -140,6 +140,12 @@ class MovieRepositoryImpl @Inject constructor(
         val id: Long
     )
 
+    private data class CursorWindowResult<T>(
+        val items: List<T>,
+        val totalVisibleCount: Int,
+        val exhausted: Boolean
+    )
+
     private val xtreamCategoryLoadLocks = KeyedMutexRegistry<String>()
     private val backgroundRefreshes = BoundedKeySet<String>(MAX_BACKGROUND_CATEGORY_REFRESHES)
     private val repositoryScope = CoroutineScope(
@@ -165,7 +171,7 @@ class MovieRepositoryImpl @Inject constructor(
             else movieDao.getByProvider(providerId)
         }.combine(moviePresentationSettingsFlow) { list, settings ->
             buildPresentedMovies(list.map { it.toDomain() }, settings)
-        }
+        }.flowOn(Dispatchers.Default)
 
     override fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>> =
         flow {
@@ -176,7 +182,7 @@ class MovieRepositoryImpl @Inject constructor(
                     else movieDao.getByCategory(providerId, categoryId)
                 }.combine(moviePresentationSettingsFlow) { list, settings ->
                     buildPresentedMovies(list.map { it.toDomain() }, settings)
-                }
+                }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -206,7 +212,7 @@ class MovieRepositoryImpl @Inject constructor(
             }.map { list -> list.map { it.toDomain() } }
                 .combine(moviePresentationSettingsFlow) { movies, settings ->
                     buildPresentedMovies(movies, settings)
-                }
+                }.flowOn(Dispatchers.Default)
         )
     }
 
@@ -232,7 +238,7 @@ class MovieRepositoryImpl @Inject constructor(
                 }.map { list -> list.map { it.toDomain() } }
                     .combine(moviePresentationSettingsFlow) { movies, settings ->
                         buildPresentedMovies(movies, settings).take(limit)
-                    }
+                    }.flowOn(Dispatchers.Default)
             )
         }
 
@@ -251,12 +257,14 @@ class MovieRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    filteredCategories.filterNot { category ->
+                    val nonWildcard = filteredCategories.filterNot { category ->
                         stalkerProvider.isWildcardCategory(ContentType.MOVIE, category.categoryId)
                     }
+                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
+                val allowWildcardHydration = previewCategories.size == filteredCategories.size
                 if (previewCategories.isEmpty()) {
                     send(emptyMap())
                     return@channelFlow
@@ -268,7 +276,7 @@ class MovieRepositoryImpl @Inject constructor(
                         fetchIfMissing = true,
                         refreshStaleInBackground = false,
                         requiredCount = limitPerCategory,
-                        allowStalkerWildcard = false
+                        allowStalkerWildcard = allowWildcardHydration
                     )
                 }
                 // SQL LIMIT applied per-category — avoids loading the full catalog into memory
@@ -286,7 +294,7 @@ class MovieRepositoryImpl @Inject constructor(
                     moviePresentationSettingsFlow
                 ) { previews, settings ->
                     previews.mapValues { (_, movies) -> buildPresentedMovies(movies, settings).take(limitPerCategory) }
-                }.collect { previews ->
+                }.flowOn(Dispatchers.Default).collect { previews ->
                     send(previews)
                 }
             }
@@ -305,7 +313,7 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -320,7 +328,7 @@ class MovieRepositoryImpl @Inject constructor(
         }.map { list -> list.map { it.toDomain() } }
             .combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings).take(limit)
-            }
+            }.flowOn(Dispatchers.Default)
 
     override fun getRecommendations(providerId: Long, limit: Int): Flow<List<Movie>> =
         combine(
@@ -532,7 +540,7 @@ class MovieRepositoryImpl @Inject constructor(
                 movies.map { if (it.id in favoriteIds) it.copy(isFavorite = true) else it }
             }.combine(moviePresentationSettingsFlow) { movies, settings ->
                 buildPresentedMovies(movies, settings)
-            }
+            }.flowOn(Dispatchers.Default)
         }
 
     override suspend fun getMovie(movieId: Long): Movie? =
@@ -650,6 +658,8 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getStreamInfo(movie: Movie): Result<StreamInfo> = try {
+        val persistedMovie = movieDao.getById(movie.selectedVariantId ?: movie.id)
+            ?: movieDao.getById(movie.id)
         xtreamStreamUrlResolver.resolveAndCommitMetadata(
             url = movie.streamUrl,
             fallbackProviderId = movie.providerId,
@@ -671,7 +681,7 @@ class MovieRepositoryImpl @Inject constructor(
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
                     expirationTime = resolvedStream.expirationTime
-                )
+                ).withM3uPlaybackMetadata(persistedMovie?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for movie: ${movie.name}")
     } catch (e: Exception) {
@@ -1219,10 +1229,12 @@ class MovieRepositoryImpl @Inject constructor(
             .map { it.contentId }
             .toSet()
 
-        val canUseCursorWindow = presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL && supportsCursorBrowse(query)
-        val items = if (canUseCursorWindow) {
-            fetchMovieCursorWindow(query, favoriteIds)
+        val cursorWindow = if (supportsCursorBrowse(query)) {
+            fetchMovieCursorWindow(query, favoriteIds, presentationSettings)
         } else {
+            null
+        }
+        val items = cursorWindow?.items ?: run {
             val movies = movieBrowseSource(query).first()
             val history = playbackHistoryDao.getByProvider(query.providerId).first()
             val inProgressIds = history
@@ -1247,7 +1259,9 @@ class MovieRepositoryImpl @Inject constructor(
                 .take(query.limit)
         }
 
-        val totalCount = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+        val totalCount = if (cursorWindow != null) {
+            if (cursorWindow.exhausted) cursorWindow.totalVisibleCount else rawTotalCount
+        } else if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
             rawTotalCount
         } else {
             val movies = movieBrowseSource(query).first()
@@ -1349,16 +1363,18 @@ class MovieRepositoryImpl @Inject constructor(
 
     private suspend fun fetchMovieCursorWindow(
         query: LibraryBrowseQuery,
-        favoriteIds: Set<Long>
-    ): List<Movie> {
+        favoriteIds: Set<Long>,
+        presentationSettings: MoviePresentationSettings
+    ): CursorWindowResult<Movie> {
         val parentalLevel = preferencesRepository.parentalControlLevel.first()
         val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
         val collected = ArrayList<Movie>(targetVisibleCount)
 
-        when {
+        val exhausted = when {
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.LIBRARY -> {
                 collectMoviePages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.addedAt, it.name, it.id) }
                 ) { limit, cursor ->
                     loadMovieFreshPage(query, limit, cursor)
@@ -1367,6 +1383,7 @@ class MovieRepositoryImpl @Inject constructor(
             query.filterBy.type == LibraryFilterType.ALL &&
                 query.sortBy == LibrarySortBy.TITLE -> {
                 collectMoviePages<NameCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { NameCursor(it.name, it.id) }
                 ) { limit, cursor ->
                     loadMovieNamePage(query, limit, cursor)
@@ -1374,6 +1391,7 @@ class MovieRepositoryImpl @Inject constructor(
             }
             (query.sortBy == LibrarySortBy.RATING || query.filterBy.type == LibraryFilterType.TOP_RATED) -> {
                 collectMoviePages<RatingCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { RatingCursor(it.rating, it.name, it.id) }
                 ) { limit, cursor ->
                     loadMovieRatingPage(query, limit, cursor)
@@ -1382,14 +1400,21 @@ class MovieRepositoryImpl @Inject constructor(
             query.sortBy == LibrarySortBy.UPDATED ||
                 query.filterBy.type == LibraryFilterType.RECENTLY_UPDATED -> {
                 collectMoviePages<FreshCursor>(query, parentalLevel, collected, favoriteIds,
+                    presentationSettings,
                     extractCursor = { FreshCursor(it.addedAt, it.name, it.id) }
                 ) { limit, cursor ->
                     loadMovieFreshPage(query, limit, cursor)
                 }
             }
+            else -> true
         }
 
-        return collected.drop(query.offset).take(query.limit)
+        val presented = buildPresentedMovies(collected, presentationSettings)
+        return CursorWindowResult(
+            items = presented.drop(query.offset).take(query.limit),
+            totalVisibleCount = presented.size,
+            exhausted = exhausted
+        )
     }
 
     private suspend fun <C> collectMoviePages(
@@ -1397,15 +1422,16 @@ class MovieRepositoryImpl @Inject constructor(
         parentalLevel: Int,
         collected: MutableList<Movie>,
         favoriteIds: Set<Long>,
+        presentationSettings: MoviePresentationSettings,
         extractCursor: (MovieBrowseEntity) -> C,
         loadPage: suspend (limit: Int, cursor: C?) -> List<MovieBrowseEntity>
-    ) {
+    ): Boolean {
         var cursor: C? = null
-        val targetVisibleCount = query.offset + query.limit
-        while (collected.size < targetVisibleCount) {
+        val targetVisibleCount = (query.offset + query.limit).coerceAtLeast(query.limit)
+        while (presentedMovieCount(collected, presentationSettings) < targetVisibleCount) {
             val batch = loadPage(CURSOR_BATCH_SIZE, cursor)
             if (batch.isEmpty()) {
-                return
+                return true
             }
             val visibleBatch = if (parentalLevel >= 3) {
                 batch.filterNot { it.isUserProtected }
@@ -1417,10 +1443,20 @@ class MovieRepositoryImpl @Inject constructor(
                 if (movie.id in favoriteIds) movie.copy(isFavorite = true) else movie
             }
             if (batch.size < CURSOR_BATCH_SIZE) {
-                return
+                return true
             }
             cursor = extractCursor(batch.last())
         }
+        return false
+    }
+
+    private fun presentedMovieCount(
+        movies: List<Movie>,
+        presentationSettings: MoviePresentationSettings
+    ): Int = if (presentationSettings.duplicateHandlingMode == VodDuplicateHandlingMode.SHOW_ALL) {
+        movies.size
+    } else {
+        buildPresentedMovies(movies, presentationSettings).size
     }
 
     private suspend fun loadMovieNamePage(query: LibraryBrowseQuery, limit: Int, cursor: NameCursor?): List<MovieBrowseEntity> {

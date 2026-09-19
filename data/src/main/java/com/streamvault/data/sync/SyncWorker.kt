@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteFullException
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.streamvault.data.preferences.DatabaseMaintenanceSnapshot
+import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.data.preferences.PreferencesRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn

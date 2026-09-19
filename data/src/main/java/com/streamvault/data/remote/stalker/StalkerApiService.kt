@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerBootstrapRecipe
@@ -298,6 +300,9 @@ interface StalkerApiService {
     /** Removes all in-memory transport/session state owned by one provider. */
     fun invalidateSessionScopes(providerId: Long) = Unit
 
+    /** Restores persisted session transport state before a resumed request. */
+    fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) = Unit
+
     suspend fun getLiveCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile
@@ -332,6 +337,23 @@ interface StalkerApiService {
         categoryId: String?,
         page: Int
     ): Result<StalkerPagedItems>
+
+    suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPage(session, profile, categoryId, page)
+
+    /** Returns the playable file rows exposed when opening a video-club movie. */
+    suspend fun getVodFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        movieId: String
+    ): Result<List<StalkerItemRecord>> {
+        return Result.error("VOD file lookup is not supported by this transport.")
+    }
 
     suspend fun getSeriesCategories(
         session: StalkerSession,

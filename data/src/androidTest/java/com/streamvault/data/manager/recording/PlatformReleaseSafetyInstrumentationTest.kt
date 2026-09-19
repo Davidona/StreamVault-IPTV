@@ -5,14 +5,12 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.manager.reminder.ProgramReminderRestoreReceiver
 import com.streamvault.data.manager.reminder.ProgramReminderRestoreWorker
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
@@ -31,12 +29,10 @@ class PlatformReleaseSafetyInstrumentationTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        WorkManagerTestInitHelper.initializeTestWorkManager(
-            context,
-            Configuration.Builder()
-                .setExecutor(Executors.newSingleThreadExecutor())
-                .build()
-        )
+        // Keep both WorkManager executors synchronous. This test verifies durable enqueueing; it
+        // does not need to execute the worker. A background worker executor can make the test
+        // completion callback reach SystemJobService.onExecuted off the main thread on API 35.
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
         workManager = WorkManager.getInstance(context)
         workManager.cancelAllWork().result.get(10, TimeUnit.SECONDS)
     }

@@ -24,12 +24,14 @@ import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.provider.ProviderConfigRevisionCodec
 import com.streamvault.data.provider.ProviderCapabilityResolver
+import com.streamvault.data.provider.DefaultProviderPublicProjection
+import com.streamvault.data.provider.ProviderObservationStreams
 import com.streamvault.data.provider.StalkerClientOptions
 import com.streamvault.data.provider.TypedProviderClientFactory
 import com.streamvault.data.provider.toAccountRuntime
+import com.streamvault.data.provider.redactedCredentials
 import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.data.provider.toLegacyProvider
-import com.streamvault.data.provider.toGenerationValidLearning
 import com.streamvault.data.provider.guidePolicy
 import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.remote.jellyfin.JellyfinProvider
@@ -37,11 +39,13 @@ import com.streamvault.data.remote.stalker.StalkerApiService
 import com.streamvault.data.remote.stalker.StalkerPlaybackMode
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerIdentityStrategy
 import com.streamvault.data.remote.stalker.StalkerApiError
 import com.streamvault.data.remote.xtream.XtreamProvider
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.security.CredentialDecryptionException
+import com.streamvault.data.util.ProviderUrlProtocolResolver
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.ProviderSyncWorker
 import com.streamvault.data.sync.ProviderWorkflowDisposition
@@ -51,7 +55,7 @@ import com.streamvault.data.sync.ProviderWorkflowCommitFence
 import com.streamvault.data.sync.hasUsableLiveCatalogForActivation
 import com.streamvault.data.local.entity.ProviderWorkflowPhase
 import com.streamvault.data.local.entity.ProviderWorkflowReason
-import com.streamvault.data.util.ProviderInputSanitizer
+import com.streamvault.domain.util.ProviderInputSanitizer
 import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.*
@@ -76,7 +80,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -141,6 +144,14 @@ class ProviderRepositoryImpl @Inject constructor(
 
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    private val observationStreams by lazy {
+        ProviderObservationStreams(
+            providerDao = providerDao,
+            providerSnapshotDao = providerSnapshotDao,
+            projection = DefaultProviderPublicProjection(providerConfigurationCodec, gson)
+        )
+    }
+
     private data class PendingProviderEdit(
         val revision: Long,
         val candidate: Provider,
@@ -153,55 +164,9 @@ class ProviderRepositoryImpl @Inject constructor(
         val pendingEdit: PendingProviderEdit? = null
     )
 
-    override fun getProviders(): Flow<List<Provider>> = combine(
-        providerDao.getAll(),
-        providerSnapshotDao.observeConfigs(),
-        providerSnapshotDao.observeRuntimes(),
-        providerSnapshotDao.observeStalkerPortalStates()
-    ) { identities, configs, runtimes, portalStates ->
-        val configsByProvider = configs.associateBy { it.providerId }
-        val runtimesByProvider = runtimes.associateBy { it.providerId }
-        val portalStatesByProvider = portalStates.associateBy { it.providerId }
-        identities.map { identity ->
-            val stored = configsByProvider[identity.id]
-            if (stored == null) {
-                identity.toPublicDomain()
-            } else {
-                val stableIdentity = StableProvider(
-                    id = identity.id,
-                    name = identity.name,
-                    type = identity.type,
-                    isActive = identity.isActive,
-                    status = identity.status,
-                    lastSyncedAt = identity.lastSyncedAt,
-                    createdAt = identity.createdAt
-                )
-                val runtime = runtimesByProvider[identity.id]?.toDomainRuntime()
-                    ?: ProviderAccountRuntime()
-                val learning = if (identity.type == ProviderType.STALKER_PORTAL) {
-                    portalStatesByProvider[identity.id]?.toGenerationValidLearning(
-                        gson,
-                        stored.configurationGeneration
-                    )
-                } else {
-                    null
-                }
-                ProviderSnapshot(
-                    provider = stableIdentity,
-                    configuration = providerConfigurationCodec.decode(
-                        stored.type,
-                        stored.encryptedConfigJson
-                    ),
-                    configurationGeneration = stored.configurationGeneration,
-                    accountRuntime = runtime,
-                    stalkerLearning = learning
-                ).toLegacyProvider().redactedCredentials()
-            }
-        }
-    }
+    override fun getProviders(): Flow<List<Provider>> = observationStreams.providers
 
-    override fun getActiveProvider(): Flow<Provider?> =
-        getProviders().map { providers -> providers.firstOrNull { it.isActive } }
+    override fun getActiveProvider(): Flow<Provider?> = observationStreams.activeProvider
 
     override suspend fun getProvider(id: Long): Provider? =
         loadLegacyProvider(id)?.redactedCredentials()
@@ -537,11 +502,11 @@ class ProviderRepositoryImpl @Inject constructor(
         channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
-    ): Result<Provider> {
+    ): Result<Provider> = try {
         val normalizedServerUrl = ProviderInputSanitizer.normalizeUrl(serverUrl)
         val normalizedUsername = ProviderInputSanitizer.normalizeUsername(username)
         val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
-        val resolvedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(normalizedServerUrl)
+        val resolvedServerUrl = ProviderUrlProtocolResolver.resolve(normalizedServerUrl)
 
         ProviderInputSanitizer.validateUrl(resolvedServerUrl)?.let { message ->
             return Result.error(message)
@@ -602,7 +567,7 @@ class ProviderRepositoryImpl @Inject constructor(
             is CapabilityResolution.Restricted -> return Result.error(resolution.reason)
             is CapabilityResolution.Unsupported -> return Result.error(resolution.reason)
         }
-        return when (val authResult = provider.authenticate()) {
+        when (val authResult = provider.authenticate()) {
             is Result.Success -> {
                 onProgress?.invoke("Profile accepted; catalog validated")
                 val onboardingTarget = if (existingProvider != null) {
@@ -669,6 +634,8 @@ class ProviderRepositoryImpl @Inject constructor(
             is Result.Error -> Result.error(authResult.message, authResult.exception)
             is Result.Loading -> Result.error("Unexpected loading state")
         }
+    } catch (e: Exception) {
+        Result.error("Failed to add Xtream provider: ${e.message}", e)
     }
 
     internal suspend fun validateM3u(
@@ -683,7 +650,7 @@ class ProviderRepositoryImpl @Inject constructor(
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
     ): Result<Provider> = try {
-        val normalizedUrl = ProviderInputSanitizer.resolveUrlProtocol(
+        val normalizedUrl = ProviderUrlProtocolResolver.resolve(
             ProviderInputSanitizer.normalizeUrl(url)
         )
         val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
@@ -773,7 +740,7 @@ class ProviderRepositoryImpl @Inject constructor(
         id: Long? = null
     ): Result<Provider> {
         return try {
-            val normalizedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(
+            val normalizedServerUrl = ProviderUrlProtocolResolver.resolve(
                 ProviderInputSanitizer.normalizeUrl(serverUrl)
             )
             val normalizedUsername = ProviderInputSanitizer.normalizeUsername(username)
@@ -849,7 +816,7 @@ class ProviderRepositoryImpl @Inject constructor(
         id: Long? = null
     ): Result<Provider> {
         return try {
-            val normalizedServerUrl = ProviderInputSanitizer.resolveUrlProtocol(
+            val normalizedServerUrl = ProviderUrlProtocolResolver.resolve(
                 ProviderInputSanitizer.normalizeUrl(serverUrl)
             )
             val normalizedName = ProviderInputSanitizer.normalizeProviderName(name)
@@ -964,7 +931,7 @@ class ProviderRepositoryImpl @Inject constructor(
         }
         val requestedCompatibility = StalkerCompatibilityRegistry.find(requestedProfileId)
         if (requestedCompatibility?.identityStrategy ==
-            com.streamvault.data.remote.stalker.StalkerIdentityStrategy.MANUAL_FIELDS_REQUIRED &&
+            StalkerIdentityStrategy.MANUAL_FIELDS_REQUIRED &&
             normalizedSerialNumber.isBlank() && normalizedDeviceId.isBlank() && normalizedSignature.isBlank()
         ) {
             return Result.error(
@@ -1405,7 +1372,8 @@ class ProviderRepositoryImpl @Inject constructor(
                 providerId = target.providerData.id,
                 force = false,
                 onProgress = onProgress,
-                trackInitialLiveOnboarding = trackInitialLiveOnboarding
+                trackInitialLiveOnboarding = trackInitialLiveOnboarding,
+                bootstrap = true
             )
         } else {
             syncManager.syncWithProviderOverride(
@@ -1494,18 +1462,6 @@ class ProviderRepositoryImpl @Inject constructor(
 
     private suspend fun loadLegacyProvider(providerId: Long): Provider? =
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
-
-    private fun ProviderAccountRuntimeEntity.toDomainRuntime() = ProviderAccountRuntime(
-        maxConnections = maxConnections,
-        expirationDate = expirationDate,
-        apiVersion = apiVersion,
-        allowedOutputFormats = runCatching {
-            gson.fromJson(allowedOutputFormatsJson, Array<String>::class.java).toList()
-        }.getOrDefault(emptyList()),
-        catalogLayout = catalogLayout,
-        catalogLayoutDetectionVersion = catalogLayoutDetectionVersion,
-        observedAt = observedAt
-    )
 
     private suspend fun restoreStalkerEditIfStillPending(
         existingProvider: Provider?,
@@ -1797,7 +1753,15 @@ class ProviderRepositoryImpl @Inject constructor(
                 )
                 shouldResume = true
             } else {
-                updateProviderSyncStatus(providerId, finalStatus, System.currentTimeMillis())
+                if (provider != null) {
+                    providerDao.setActive(providerId)
+                }
+                updateProviderSyncStatus(
+                    providerId,
+                    finalStatus,
+                    lastSyncedAt = System.currentTimeMillis(),
+                    isActive = true
+                )
                 shouldScheduleEpg = true
             }
         }
@@ -1830,7 +1794,8 @@ class ProviderRepositoryImpl @Inject constructor(
             streamId = streamId,
             epgChannelId = epgChannelId,
             limit = limit,
-            guide = guide
+            guide = guide,
+            shortEpgOnly = providerEntity.type == ProviderType.STALKER_PORTAL
         )
         if (result is Result.Success && result.data.isNotEmpty()) {
             cacheProgramsForChannel(providerId, result.data)
@@ -1875,7 +1840,8 @@ class ProviderRepositoryImpl @Inject constructor(
                             streamId = request.streamId,
                             epgChannelId = request.epgChannelId,
                             limit = limit,
-                            guide = guide
+                            guide = guide,
+                            shortEpgOnly = providerEntity.type == ProviderType.STALKER_PORTAL
                         )
                     }
                 }
@@ -2043,13 +2009,6 @@ class ProviderRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun ProviderEntity.toPublicDomain(): Provider {
-        return toDomain().copy(password = "")
-    }
-
-    /** Public provider projections must never expose decrypted account credentials. */
-    private fun Provider.redactedCredentials(): Provider = copy(password = "")
-
     /**
      * Settings edit a redacted public projection. Do not turn those non-secret edits into a
      * credential deletion; explicit setup/password changes still pass a nonblank value through.
@@ -2080,7 +2039,8 @@ class ProviderRepositoryImpl @Inject constructor(
         streamId: Long,
         epgChannelId: String?,
         limit: Int,
-        guide: GuideSource
+        guide: GuideSource,
+        shortEpgOnly: Boolean = false
     ): Result<List<Program>> {
         if (providerId <= 0L || streamId <= 0L) {
             return Result.error("Live stream context is unavailable.")
@@ -2098,6 +2058,13 @@ class ProviderRepositoryImpl @Inject constructor(
             return Result.success(
                 normalizeXtreamPrograms(providerId, epgChannelId ?: streamId.toString(), shortPrograms)
             )
+        }
+        if (shortEpgOnly) {
+            return when (shortResult) {
+                is Result.Success -> Result.success(emptyList())
+                is Result.Error -> Result.error(shortResult.message, shortResult.exception)
+                is Result.Loading -> Result.error("Unexpected loading state")
+            }
         }
         return when (val fullResult = guide.getEpg(request)) {
             is Result.Success -> Result.success(

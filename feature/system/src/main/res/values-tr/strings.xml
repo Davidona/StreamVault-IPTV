@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Sağlayıcı Kur</string>
+  <string name="welcome_loading_title">Kitaplığınız hazırlanıyor</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">Oturma odası için premium IPTV</string>
+  <string name="welcome_subtitle">Canlı kanallar, geri sarma izleme, filmler ve dizilerle Android TV\'ye özel bir deneyimde rahatlayın.</string>
+  <string name="settings_cancel">İptal</string>
+</resources>

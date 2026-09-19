@@ -19,6 +19,7 @@ interface ChannelRepository {
     fun searchChannelsByCategory(providerId: Long, categoryId: Long, query: String): Flow<List<Channel>>
     fun searchChannelsByCategoryPaged(providerId: Long, categoryId: Long, query: String, limit: Int): Flow<List<Channel>>
     fun getCategories(providerId: Long): Flow<List<Category>>
+    suspend fun getCategoriesSnapshot(providerId: Long): List<Category>
     fun searchChannels(providerId: Long, query: String): Flow<List<Channel>>
     suspend fun getChannel(channelId: Long): Channel?
     suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean = false): Result<StreamInfo>

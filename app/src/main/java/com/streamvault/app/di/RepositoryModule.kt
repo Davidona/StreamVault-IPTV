@@ -31,6 +31,10 @@ import com.streamvault.domain.manager.BackupRestoreStatusStore
 import com.streamvault.data.manager.BackupRestoreStatusStoreImpl
 import com.streamvault.domain.provider.ProviderCapabilityRegistry
 import com.streamvault.domain.provider.ProviderSourceRegistry
+import com.streamvault.domain.provider.PlayerPlaybackResolver
+import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.app.playback.AppPlayerPlaybackResolver
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import dagger.Binds
 import dagger.Module
@@ -122,6 +126,15 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindParentalPinVerifier(impl: PreferencesRepository): ParentalPinVerifier
+
+    @Binds @Singleton
+    abstract fun bindSettingsPreferences(impl: PreferencesRepository): SettingsPreferences
+
+    @Binds @Singleton
+    abstract fun bindPlayerPreferences(impl: PreferencesRepository): PlayerPreferences
+
+    @Binds @Singleton
+    abstract fun bindPlayerPlaybackResolver(impl: AppPlayerPlaybackResolver): PlayerPlaybackResolver
 
     @Binds @Singleton
     abstract fun bindProviderSetupInputValidator(impl: ProviderSetupInputValidatorImpl): ProviderSetupInputValidator

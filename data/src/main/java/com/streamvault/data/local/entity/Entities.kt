@@ -235,6 +235,7 @@ data class ChannelEntity(
     @ColumnInfo(name = "logical_group_id") val logicalGroupId: String = "",
     @ColumnInfo(name = "error_count") val errorCount: Int = 0,
     @ColumnInfo(name = "quality_options_json") val qualityOptionsJson: String? = null,
+    @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null,
     @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = ""
 )
 
@@ -380,7 +381,8 @@ data class MovieEntity(
     @ColumnInfo(name = "added_at") val addedAt: Long = 0L,
     @ColumnInfo(name = "cache_state") val cacheState: String = "DETAIL_HYDRATED",
     @ColumnInfo(name = "detail_hydrated_at") val detailHydratedAt: Long = 0L,
-    @ColumnInfo(name = "remote_stale_at") val remoteStaleAt: Long = 0L
+    @ColumnInfo(name = "remote_stale_at") val remoteStaleAt: Long = 0L,
+    @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null
 )
 
 data class MovieBrowseEntity(
@@ -619,6 +621,7 @@ data class ChannelImportStageEntity(
     @ColumnInfo(name = "is_adult") val isAdult: Boolean = false,
     @ColumnInfo(name = "logical_group_id") val logicalGroupId: String = "",
     @ColumnInfo(name = "error_count") val errorCount: Int = 0,
+    @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null,
     @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = ""
 )
 
@@ -660,6 +663,7 @@ data class MovieImportStageEntity(
     @ColumnInfo(name = "youtube_trailer") val youtubeTrailer: String? = null,
     @ColumnInfo(name = "is_adult") val isAdult: Boolean = false,
     @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = "",
+    @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null,
     @ColumnInfo(name = "added_at") val addedAt: Long = 0L
 )
 

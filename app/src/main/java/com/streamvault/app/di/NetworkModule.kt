@@ -20,6 +20,8 @@ import com.streamvault.player.AudioCompatibilityMemoryStore
 import com.streamvault.player.Media3PlayerEngine
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.PlaybackSupportSnapshotStore
+import com.streamvault.player.di.AuxiliaryPlayerEngine
+import com.streamvault.player.di.MainPlayerEngine
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +38,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
+    private const val HTTP_CACHE_MAX_BYTES = 16L * 1024 * 1024
 
     @Provides
     @Singleton
@@ -60,7 +64,7 @@ object NetworkModule {
             .cache(
                 Cache(
                     directory = File(context.cacheDir, "streamvault_http_cache"),
-                    maxSize = 256L * 1024 * 1024
+                    maxSize = HTTP_CACHE_MAX_BYTES
                 )
             )
             .connectTimeout(NetworkTimeoutConfig.CONNECT_TIMEOUT_SECONDS, SECONDS)

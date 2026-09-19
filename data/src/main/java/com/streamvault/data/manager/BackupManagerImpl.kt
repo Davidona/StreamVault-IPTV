@@ -60,7 +60,7 @@ import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.provider.guidePolicy
 import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.provider.toAccountRuntime
-import com.streamvault.data.remote.stalker.StalkerCompatibilityRegistry
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.manager.BackupData
 import com.streamvault.domain.manager.ActiveLiveSourceBackup
 import com.streamvault.domain.manager.BackupConflictStrategy
@@ -118,6 +118,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.ProviderAccountRuntime
+import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.repository.ProviderSnapshotRepository
 import com.streamvault.domain.model.StalkerBootstrapRecipe
@@ -202,6 +203,7 @@ class BackupManagerImpl @Inject constructor(
                 put("parentalPinSalt", parentalPinBackup?.saltBase64 ?: "")
                 put("appLanguage", preferencesRepository.appLanguage.first())
                 put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
+                put("appTheme", preferencesRepository.appTheme.first().storageValue)
                 put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
                 put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
                 put(
@@ -216,6 +218,7 @@ class BackupManagerImpl @Inject constructor(
                 put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
                 put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
                 put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+                put("liveTvAutoHideCategories", preferencesRepository.liveTvAutoHideCategories.first().toString())
                 put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
                 put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
                 put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
@@ -226,11 +229,14 @@ class BackupManagerImpl @Inject constructor(
                 put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
                 put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
                 put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+                put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
                 put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+                put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
                 put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
                 put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
                 put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
                 put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+                put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
                 put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
                 put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
                 put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -256,6 +262,10 @@ class BackupManagerImpl @Inject constructor(
                 put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
                 put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
                 put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+                put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
+                put("playerLiveClockPosition", preferencesRepository.playerLiveClockPosition.first().storageValue)
+                put("playerLiveClockSize", preferencesRepository.playerLiveClockSize.first().storageValue)
+                put("playerLiveClockFont", preferencesRepository.playerLiveClockFont.first().storageValue)
                 put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
                 put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
                 put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
@@ -3141,6 +3151,7 @@ class BackupManagerImpl @Inject constructor(
             put("parentalPinSalt", parentalPinBackup?.saltBase64.orEmpty())
             put("appLanguage", preferencesRepository.appLanguage.first())
             put("appTimeFormat", preferencesRepository.appTimeFormat.first().storageValue)
+            put("appTheme", preferencesRepository.appTheme.first().storageValue)
             put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
             put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
             put("appTopLevelDestinations", preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue })
@@ -3149,6 +3160,7 @@ class BackupManagerImpl @Inject constructor(
             put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
             put("liveTvQuickFilterVisibility", preferencesRepository.liveTvQuickFilterVisibility.first() ?: "always")
             put("liveTvChannelMode", preferencesRepository.liveTvChannelMode.first().orEmpty())
+            put("liveTvAutoHideCategories", preferencesRepository.liveTvAutoHideCategories.first().toString())
             put("showLiveSourceSwitcher", preferencesRepository.showLiveSourceSwitcher.first().toString())
             put("showFavoritesCategory", preferencesRepository.showFavoritesCategory.first().toString())
             put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
@@ -3159,11 +3171,14 @@ class BackupManagerImpl @Inject constructor(
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
             put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
             put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+            put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
             put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
+            put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
             put("vodCategoryLoadMode", preferencesRepository.vodCategoryLoadMode.first().storageValue)
             put("vodDuplicateHandlingMode", preferencesRepository.vodDuplicateHandlingMode.first().storageValue)
             put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
             put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
+            put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
             put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
             put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
             put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -3189,6 +3204,10 @@ class BackupManagerImpl @Inject constructor(
             put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
             put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
             put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
+            put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
+            put("playerLiveClockPosition", preferencesRepository.playerLiveClockPosition.first().storageValue)
+            put("playerLiveClockSize", preferencesRepository.playerLiveClockSize.first().storageValue)
+            put("playerLiveClockFont", preferencesRepository.playerLiveClockFont.first().storageValue)
             put("playerNoticeTimeoutSeconds", preferencesRepository.playerNoticeTimeoutSeconds.first().toString())
             put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
             put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
@@ -3600,6 +3619,11 @@ class BackupManagerImpl @Inject constructor(
                 com.streamvault.domain.model.AppTimeFormat.fromStorage(savedFormat)
             )
         }
+        prefs["appTheme"]?.takeIf { it.isNotBlank() }?.let { savedTheme ->
+            preferencesRepository.setAppTheme(
+                com.streamvault.domain.model.AppTheme.fromStorage(savedTheme)
+            )
+        }
         prefs["defaultViewMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setDefaultViewMode(it) }
         prefs["appLandingDestination"]?.takeIf { it.isNotBlank() }?.let { savedDestination ->
@@ -3630,6 +3654,8 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setLiveTvQuickFilterVisibility(it) }
         prefs["liveTvChannelMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setLiveTvChannelMode(it) }
+        prefs["liveTvAutoHideCategories"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setLiveTvAutoHideCategories(it) }
         prefs["showLiveSourceSwitcher"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setShowLiveSourceSwitcher(it) }
         prefs["showFavoritesCategory"]?.toBooleanStrictOrNull()
@@ -3660,8 +3686,12 @@ class BackupManagerImpl @Inject constructor(
         }
         prefs["vodViewMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setVodViewMode(it) }
+        prefs["vodTypeBadgeAsIcon"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setVodTypeBadgeAsIcon(it) }
         prefs["vodInfiniteScroll"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setVodInfiniteScroll(it) }
+        prefs["vodPortalSearch"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setVodPortalSearch(it) }
         prefs["vodCategoryLoadMode"]?.let { savedMode ->
             preferencesRepository.setVodCategoryLoadMode(
                 com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(savedMode)
@@ -3679,6 +3709,17 @@ class BackupManagerImpl @Inject constructor(
         }
         prefs["playerMediaSessionEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerMediaSessionEnabled(it) }
+        prefs["playerBackButtonVisibility"]
+            ?.takeIf { savedVisibility ->
+                PlayerBackButtonVisibility.entries.any { visibility ->
+                    visibility.storageValue.equals(savedVisibility.trim(), ignoreCase = true)
+                }
+            }
+            ?.let { savedVisibility ->
+                preferencesRepository.setPlayerBackButtonVisibility(
+                    PlayerBackButtonVisibility.fromStorage(savedVisibility)
+                )
+            }
         prefs["playerFastRetryOnTransientFailures"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerFastRetryOnTransientFailures(it) }
         val legacyDecoderMode = prefs["playerDecoderMode"]
@@ -3768,6 +3809,23 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setPlayerControlsTimeoutSeconds(it) }
         prefs["playerLiveOverlayTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerLiveOverlayTimeoutSeconds(it) }
+        prefs["playerLiveClockEnabled"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerLiveClockEnabled(it) }
+        prefs["playerLiveClockPosition"]?.let { savedPosition ->
+            preferencesRepository.setPlayerLiveClockPosition(
+                com.streamvault.domain.model.LiveClockPosition.fromStorage(savedPosition)
+            )
+        }
+        prefs["playerLiveClockSize"]?.let { savedSize ->
+            preferencesRepository.setPlayerLiveClockSize(
+                com.streamvault.domain.model.LiveClockSize.fromStorage(savedSize)
+            )
+        }
+        prefs["playerLiveClockFont"]?.let { savedFont ->
+            preferencesRepository.setPlayerLiveClockFont(
+                com.streamvault.domain.model.LiveClockFont.fromStorage(savedFont)
+            )
+        }
         prefs["playerNoticeTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerNoticeTimeoutSeconds(it) }
         prefs["playerDiagnosticsTimeoutSeconds"]?.toIntOrNull()

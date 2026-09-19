@@ -1,0 +1,335 @@
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:69:                    R.string.multiview_policy_summary,
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:80:                text = stringResource(R.string.multiview_focused_prefix, focused.title),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:99:                        R.string.multiview_telemetry_snapshot,
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:138:                Text(stringResource(R.string.multiview_replace_slot))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:150:                Text(stringResource(R.string.multiview_remove_slot))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:162:                    Text(stringResource(R.string.multiview_audio_follow_focus))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:175:                    Text(stringResource(R.string.multiview_pin_audio))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:188:                    val presetLabel = stringResource(R.string.multiview_preset_label, preset.index + 1)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\EnhancedMultiViewControlHud.kt:219:                            Text(text = stringResource(R.string.multiview_preset_save, preset.index + 1))
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerControlsOverlayHost.kt:199:            text = stringResource(R.string.settings_recording_status_recording),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerControlsOverlayHost.kt:236:        autoResolutionLabel = stringResource(R.string.player_resolution_auto_label, videoFormat.resolutionLabel)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:81:            stringResource(R.string.multiview_planner_pick_slot, pendingChannel!!.name)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:83:            stringResource(R.string.multiview_planner_added, pendingChannel!!.name)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:85:            stringResource(R.string.multiview_planner_ready_subtitle)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:87:            stringResource(R.string.multiview_planner_empty)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:91:        title = stringResource(R.string.multiview_planner_title),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:98:                    label = stringResource(R.string.multiview_policy_balanced),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:102:                    label = stringResource(R.string.multiview_policy_summary, stringResource(R.string.multiview_policy_auto), slots.count { it != null }),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:145:                    title = stringResource(R.string.multiview_empty_slot),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:146:                    subtitle = stringResource(R.string.multiview_planner_empty)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:153:                    label = stringResource(R.string.multiview_planner_clear),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:163:                    stringResource(R.string.settings_cancel)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:165:                    stringResource(R.string.category_options_cancel)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:172:                        stringResource(R.string.multiview_planner_launch)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:174:                        stringResource(R.string.multiview_planner_launch_disabled)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:237:                        label = stringResource(R.string.multiview_empty_slot),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:242:                            stringResource(R.string.multiview_add_to_split)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:244:                            stringResource(R.string.multiview_empty_slot)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:251:                            stringResource(R.string.multiview_planner_slot_hint)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:253:                            stringResource(R.string.multiview_replace_empty)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:268:                            label = stringResource(R.string.multiview_slot_label, slotIndex + 1),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:291:                            stringResource(R.string.multiview_replace_slot)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewPlannerDialog.kt:293:                            stringResource(R.string.multiview_remove_slot)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:165:                                    text = stringResource(R.string.player_channel_list_title, channels.size),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:185:                                            text = stringResource(R.string.player_last_group_label, lastVisitedCategoryName),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:197:                                    text = stringResource(R.string.player_last_group_hint),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:206:                                text = stringResource(R.string.player_channel_list_hint),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:220:                                        text = stringResource(R.string.player_recent_channels),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:360:                                            label = stringResource(R.string.player_channel_selected),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:366:                                            label = stringResource(R.string.player_archive_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:568:                            text = stringResource(R.string.epg_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:576:                                text = stringResource(R.string.channel_number_name_format, displayChannelNumber, currentChannel.name),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:584:                                    stringResource(R.string.epg_catchup_available, days)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:585:                                } ?: stringResource(R.string.epg_catchup_available_unknown)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:589:                                        icon = stringResource(R.string.player_catchup_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:607:                            text = stringResource(R.string.player_epg_overlay_hint),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:617:                            text = stringResource(R.string.epg_now_playing),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:633:                                    text = stringResource(R.string.time_range_format, timeFormat.format(Date(currentProgram.startTime)), timeFormat.format(Date(currentProgram.endTime))),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:639:                                    text = stringResource(R.string.label_duration_min, currentProgram.durationMinutes),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:669:                                    text = stringResource(R.string.player_minutes_remaining, remainingMin),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:686:                            Text(stringResource(R.string.epg_no_info), color = OnSurfaceDim)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:696:                                text = stringResource(R.string.epg_upcoming_schedule),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:720:                                            text = stringResource(R.string.epg_up_next),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:738:                                            text = stringResource(R.string.time_range_format, timeFormat.format(Date(program.startTime)), timeFormat.format(Date(program.endTime))),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:744:                                            text = stringResource(R.string.label_duration_min, program.durationMinutes),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:751:                                                label = stringResource(R.string.player_archive_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:839:                    text = stringResource(R.string.player_diagnostics_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:845:                    !diagnostics.audioVideoSyncEnabled -> stringResource(R.string.player_diagnostics_av_sync_stock)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:846:                    diagnostics.audioVideoSyncSinkActive -> stringResource(R.string.player_diagnostics_av_sync_custom)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:847:                    else -> stringResource(R.string.player_diagnostics_av_sync_waiting)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:857:                        PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_source))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:859:                            PlayerMetaRow(stringResource(R.string.player_diagnostics_provider), diagnostics.providerName)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:862:                            PlayerMetaRow(stringResource(R.string.player_diagnostics_source), diagnostics.providerSourceLabel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:864:                        PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_playback))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:866:                            stringResource(R.string.player_diagnostics_audio_decoder_mode),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:870:                            stringResource(R.string.player_diagnostics_video_decoder_mode),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:873:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_active_decoder), diagnostics.activeDecoderName)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:874:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_surface), diagnostics.renderSurfaceType)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:875:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_stream_class), diagnostics.streamClassLabel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:876:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_playback_state), diagnostics.playbackStateLabel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:878:                            PlayerMetaRow(stringResource(R.string.player_diagnostics_archive), diagnostics.archiveSupportLabel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:880:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_alternates), diagnostics.alternativeStreamCount.toString())
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:882:                            PlayerMetaRow(stringResource(R.string.player_diagnostics_channel_errors), diagnostics.channelErrorCount.toString())
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:884:                        PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_video))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:885:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_resolution), "${stats.width}x${stats.height}")
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:886:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_video_codec), stats.videoCodec)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:887:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_video_bitrate), "${stats.videoBitrate / 1000} kbps")
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:888:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_dropped_frames), stats.droppedFrames.toString())
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:889:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_video_stalls), diagnostics.videoStallCount.toString())
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:891:                            PlayerMetaRow(stringResource(R.string.player_diagnostics_last_frame), "${diagnostics.lastVideoFrameAgoMs} ms")
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:902:                        PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_audio))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:903:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_audio_codec), stats.audioCodec)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:905:                            stringResource(R.string.player_diagnostics_audio_decoder),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:909:                            stringResource(R.string.player_diagnostics_audio_output_path),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:913:                            stringResource(R.string.player_diagnostics_ffmpeg),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:921:                            stringResource(R.string.player_diagnostics_compatibility_source),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:924:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_av_sync), avSyncPathLabel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:925:                        PlayerMetaRow(stringResource(R.string.player_diagnostics_av_offset), formatOffsetLabel(diagnostics.audioVideoOffsetMs))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:928:                                stringResource(R.string.player_diagnostics_compatibility_note),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:929:                                stringResource(R.string.player_diagnostics_compatibility_note_value),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:936:                PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_recovery))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:938:                    PlayerMetaRow(stringResource(R.string.player_diagnostics_last_failure), reason, maxLines = 3)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:942:                        text = stringResource(R.string.player_diagnostics_recovery_actions),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:959:                        text = stringResource(R.string.player_diagnostics_troubleshooting),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:1079:                                text = stringResource(R.string.label_categories),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerAuxiliaryOverlays.kt:1142:                                            text = stringResource(R.string.home_locked_short),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:501:                            text = androidx.compose.ui.res.stringResource(R.string.multiview_empty_slot),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:519:                            text = androidx.compose.ui.res.stringResource(R.string.multiview_stream_error),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:542:                            text = stringResource(R.string.multiview_policy_blocked),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:597:                                    stringResource(R.string.multiview_audio_pinned_badge)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:599:                                    stringResource(R.string.multiview_audio_badge)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:655:                    R.string.multiview_policy_summary,
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:665:                    R.string.multiview_telemetry_snapshot,
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:678:                text = stringResource(R.string.multiview_focused_prefix, focused.title),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:691:                Text(stringResource(R.string.multiview_replace_slot))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:697:                Text(stringResource(R.string.multiview_remove_slot))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:701:                    Text(stringResource(R.string.multiview_audio_follow_focus))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:708:                    Text(stringResource(R.string.multiview_pin_audio))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:716:                    val presetLabel = stringResource(R.string.multiview_preset_label, preset.index + 1)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:727:                        Text(text = stringResource(R.string.multiview_preset_save, preset.index + 1))
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:767:        title = if (selectedCategory == null) stringResource(R.string.multiview_replace_title) else selectedCategory.name,
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:873:                label = stringResource(R.string.settings_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:898:                        pinError = context.getString(R.string.home_incorrect_pin)
+app/src/main/java/com/streamvault/app/ui/screens/multiview\MultiViewScreen.kt:902:            title = stringResource(R.string.pin_dialog_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:217:                                    label = stringResource(R.string.player_live_channel, displayChannelNumber),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:223:                                    label = stringResource(R.string.player_live_rewind_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:229:                                    label = stringResource(R.string.player_recording_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:234:                                    label = stringResource(R.string.player_recording_scheduled_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:275:                                    label = stringResource(R.string.player_catchup_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:297:                                        R.string.player_time_range_minutes,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:322:                                        text = stringResource(R.string.player_minutes_remaining, remainingMin),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:336:                                        text = stringResource(R.string.player_next_label),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:357:                                text = stringResource(R.string.player_no_guide_data),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:391:                        icon = if (showTimeshiftControls) "DVR" else stringResource(R.string.player_action_playback),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:393:                            stringResource(R.string.player_live_dvr_controls)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:395:                            stringResource(R.string.player_pause)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:397:                            stringResource(R.string.player_play)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:427:                        icon = stringResource(R.string.player_action_mute),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:428:                        label = if (isMuted) stringResource(R.string.player_unmute) else stringResource(R.string.player_mute),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:436:                            icon = stringResource(R.string.player_subs),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:437:                            label = stringResource(R.string.player_subs),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:446:                            icon = stringResource(R.string.player_action_quality),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:447:                            label = stringResource(R.string.player_quality_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:456:                            icon = stringResource(R.string.player_action_variants),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:457:                            label = stringResource(R.string.player_variants_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:466:                            icon = stringResource(R.string.player_action_format),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:467:                            label = stringResource(R.string.player_format_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:476:                            icon = stringResource(R.string.player_audio),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:477:                            label = stringResource(R.string.player_audio),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:487:                            label = stringResource(R.string.player_av_sync_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:498:                        icon = stringResource(R.string.player_action_guide),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:499:                        label = stringResource(R.string.player_epg_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:510:                        icon = stringResource(R.string.player_action_split),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:511:                        label = stringResource(R.string.player_multiview_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:522:                        icon = stringResource(R.string.player_action_diagnostics),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:523:                        label = stringResource(R.string.player_stats),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:534:                            icon = stringResource(R.string.player_action_group),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:547:                        label = stringResource(R.string.player_record),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:567:                            label = stringResource(R.string.player_catchup_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:586:                        icon = stringResource(R.string.player_action_cast),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:587:                        label = if (isCastConnected) stringResource(R.string.player_stop_casting) else stringResource(R.string.player_cast),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:597:                        icon = stringResource(R.string.player_action_pip),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:598:                        label = stringResource(R.string.player_pip_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:608:                        icon = stringResource(R.string.player_action_view),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:622:                        title = stringResource(R.string.player_record_options),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:628:                                            stringResource(R.string.player_cancel_scheduled_recording)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:630:                                            stringResource(R.string.player_stop_recording)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:639:                                    ChannelInfoMenuEntry(stringResource(R.string.player_record_now)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:645:                            add(ChannelInfoMenuEntry(stringResource(R.string.player_schedule_recording)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:649:                            add(ChannelInfoMenuEntry(stringResource(R.string.player_schedule_daily_recording)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:653:                            add(ChannelInfoMenuEntry(stringResource(R.string.player_schedule_weekly_recording)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:666:                        title = stringResource(R.string.player_catchup_options),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:669:                                add(ChannelInfoMenuEntry(stringResource(R.string.player_restart)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:676:                                add(ChannelInfoMenuEntry(stringResource(R.string.player_browse_archive)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:682:                            add(ChannelInfoMenuEntry(stringResource(R.string.player_browse_guide_catchup)) {
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:748:            stringResource(R.string.player_live_timeshift_buffering)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:751:            R.string.player_live_offset,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:754:        else -> stringResource(R.string.player_live_ready)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:791:                            text = stringResource(R.string.player_live_rewind_badge),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:803:                                R.string.player_live_buffer_depth,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:818:                        topLabel = stringResource(R.string.player_rewind),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:819:                        mainLabel = stringResource(R.string.player_seek_back_10),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:854:                                    contentDescription = stringResource(R.string.player_play),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:863:                        topLabel = stringResource(R.string.player_forward),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:864:                        mainLabel = stringResource(R.string.player_seek_forward_10),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:872:                        topLabel = stringResource(R.string.player_live_ready),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:873:                        mainLabel = stringResource(R.string.player_jump_to_live_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:898:                    text = stringResource(R.string.player_live_buffer_start),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:904:                        stringResource(R.string.player_live_offset, formatTimeLabel(behindLive))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:906:                        stringResource(R.string.player_live_ready)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerChannelInfoOverlay.kt:912:                    text = stringResource(R.string.player_live_buffer_end),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:169:        is PlayerError.NetworkError -> stringResource(R.string.player_error_network)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:170:        is PlayerError.SourceError -> stringResource(R.string.player_error_source)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:171:        is PlayerError.DecoderError -> stringResource(R.string.player_error_decoder)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:172:        is PlayerError.DrmError -> stringResource(R.string.player_error_drm)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:173:        is PlayerError.UnknownError -> stringResource(R.string.player_error_unknown)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:174:        null -> stringResource(R.string.player_error_unknown)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:191:                text = stringResource(R.string.player_error_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:242:                    stringResource(R.string.player_error_live_hint)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:244:                    stringResource(R.string.player_error_back)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:277:        TrackType.AUDIO -> stringResource(R.string.player_track_audio)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:278:        TrackType.VIDEO -> stringResource(R.string.player_video_quality)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:279:        TrackType.TEXT -> stringResource(R.string.player_track_subs)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:331:                                name = stringResource(R.string.player_track_off),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:365:                                name = stringResource(R.string.player_track_live_translation),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:431:                    text = stringResource(R.string.player_channel_variants),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:526:                    text = stringResource(R.string.player_stream_format),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:610:                    text = stringResource(R.string.player_playback_speed_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:729:        stringResource(R.string.player_timer_warning_stop, formatTimerCountdown(state.stopRemainingMs))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:731:        stringResource(R.string.player_timer_warning_idle, formatTimerCountdown(state.idleRemainingMs))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:754:                Text(text = stringResource(R.string.player_timer_extend_30))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:757:                Text(text = stringResource(R.string.player_timer_disable))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:782:        state.previewOffsetMs != null -> stringResource(R.string.player_av_sync_preview)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:783:        state.hasChannelOverride -> stringResource(R.string.player_av_sync_channel)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:784:        else -> stringResource(R.string.player_av_sync_global)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:826:                    text = stringResource(R.string.player_av_sync_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:831:                    text = stringResource(R.string.player_av_sync_value, effectiveLabel, sourceLabel),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:840:                            name = stringResource(R.string.player_av_sync_minus_50),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:849:                            name = stringResource(R.string.player_av_sync_plus_50),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:857:                            name = stringResource(R.string.player_av_sync_reset),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:865:                                name = stringResource(R.string.player_av_sync_save_channel),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:876:                            name = stringResource(R.string.player_av_sync_save_global),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:887:                                name = stringResource(R.string.player_av_sync_use_global),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:996:                            text = stringResource(R.string.player_episodes),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1038:                                    text = stringResource(R.string.series_seasons),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1191:                                                        text = stringResource(R.string.player_selected),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1308:        stringResource(R.string.player_timer_off)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1311:            R.plurals.settings_timer_minutes,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1388:                    text = stringResource(R.string.player_selected),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1453:                text = stringResource(R.string.player_resume_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1459:                text = stringResource(R.string.player_resume_desc, title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1481:                        stringResource(R.string.player_resume_start_over),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1505:                        stringResource(R.string.player_resume),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1522:        PlayerNoticeAction.RETRY -> stringResource(R.string.player_retry)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1523:        PlayerNoticeAction.LAST_CHANNEL -> stringResource(R.string.player_last_channel_action)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1524:        PlayerNoticeAction.ALTERNATE_STREAM -> stringResource(R.string.player_try_alternate_stream)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1525:        PlayerNoticeAction.OPEN_GUIDE -> stringResource(R.string.player_open_guide_action)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1562:                text = stringResource(R.string.player_up_next),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1614:                        text = stringResource(R.string.player_auto_play_countdown, secondsRemaining),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1648:                        text = stringResource(R.string.player_auto_play_play_now),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerSystemOverlays.kt:1667:                        text = stringResource(R.string.player_auto_play_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerScreen.kt:143:        reminderBlockedMessage = stringResource(R.string.notification_permission_reminder_required),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerScreen.kt:144:        recordingBlockedMessage = stringResource(R.string.notification_permission_recording_alert_required)
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerScreen.kt:640:                        text = stringResource(R.string.player_buffering),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:81:        val headerTitle = focusedProgram?.title ?: focusedChannel?.name ?: stringResource(R.string.epg_title)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:82:        val favoritesLabel = stringResource(R.string.epg_favorites_filter_favorites)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:172:                            label = selectedCategoryName.ifBlank { stringResource(R.string.epg_filter_short) },
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:178:                            label = stringResource(R.string.epg_jump_now),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:183:                            label = stringResource(R.string.epg_search_label),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:188:                            label = stringResource(R.string.settings_cancel),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:206:                            title = stringResource(R.string.epg_loading),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:214:                            title = stringResource(R.string.epg_title),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerTransparentGuideOverlay.kt:217:                                ?: stringResource(R.string.epg_no_schedule),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:38:                    message = appContext.getString(R.string.cast_started),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:51:                    message = appContext.getString(R.string.cast_unavailable),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:100:        message = appContext.getString(R.string.cast_disconnected),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:317:        CastMediaRequestUnsupportedReason.EMPTY_URL -> R.string.cast_item_unavailable
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:318:        CastMediaRequestUnsupportedReason.UNSUPPORTED_PROTOCOL -> R.string.cast_protocol_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:319:        CastMediaRequestUnsupportedReason.DRM_PROTECTED -> R.string.cast_drm_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:325:        CastRewriteRequiredReason.LOCAL_URI -> R.string.cast_local_url_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:326:        CastRewriteRequiredReason.CUSTOM_HEADERS -> R.string.cast_headers_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:327:        CastRewriteRequiredReason.CUSTOM_USER_AGENT -> R.string.cast_user_agent_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:328:        CastRewriteRequiredReason.PROXY -> R.string.cast_proxy_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:330:        CastRewriteRequiredReason.SCOPED_TRANSPORT -> R.string.cast_invalid_ssl_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:331:        null -> R.string.cast_stream_unsupported
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:337:        is CastPlaybackEvent.MediaLoadSucceeded -> R.string.cast_started
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:338:        is CastPlaybackEvent.MediaLoadFailed -> R.string.cast_load_failed
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:339:        is CastPlaybackEvent.SessionStartFailed -> R.string.cast_session_failed
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:340:        is CastPlaybackEvent.ReceiverUnavailable -> R.string.cast_receiver_unavailable
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerViewModelActions.kt:341:        CastPlaybackEvent.RouteSelectionCancelled -> R.string.cast_selection_cancelled
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:347:                        inputState.invalid -> stringResource(R.string.player_channel_not_found)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:349:                        else -> stringResource(R.string.player_type_channel_number)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:386:                text = stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:463:                        "LIVE" -> stringResource(R.string.nav_live_tv)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:464:                        "MOVIE" -> stringResource(R.string.player_type_movie)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:465:                        else -> stringResource(R.string.player_type_series)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:478:                            stringResource(R.string.player_type_movie)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:480:                            stringResource(R.string.player_type_series)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:520:                        text = stringResource(R.string.player_close),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:789:            add(PlayerActionSpec("jump_to_live", stringResource(R.string.player_jump_to_live), onSeekToLiveEdge))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:793:            stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:798:            stringResource(if (isCastConnected) R.string.player_stop_casting else R.string.player_cast),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:804:                title = stringResource(R.string.player_stop_playback_after),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:806:                    R.string.player_stop_timer_status,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:816:                title = stringResource(R.string.player_idle_standby_after),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:818:                    R.string.player_idle_timer_status,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:825:        add(PlayerActionSpec("picture_in_picture", stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:827:            add(PlayerActionSpec("external_player", stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:830:            add(PlayerActionSpec("restart", stringResource(R.string.player_restart), onRestartProgram))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:831:            add(PlayerActionSpec("archive", stringResource(R.string.player_archive), onOpenArchive))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:834:            add(PlayerActionSpec("stop_recording", stringResource(R.string.player_stop_recording), onStopRecording))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:836:            add(PlayerActionSpec("record", stringResource(R.string.player_record), onStartRecording))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:837:            add(PlayerActionSpec("schedule_recording", stringResource(R.string.player_schedule_recording), onScheduleRecording))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:838:            add(PlayerActionSpec("schedule_daily_recording", stringResource(R.string.player_schedule_daily_recording), onScheduleDailyRecording))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:839:            add(PlayerActionSpec("schedule_weekly_recording", stringResource(R.string.player_schedule_weekly_recording), onScheduleWeeklyRecording))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:843:        add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:845:            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:848:            add(PlayerActionSpec("audio", stringResource(R.string.player_audio), onOpenAudioTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:851:            add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:854:            add(PlayerActionSpec("audio_video_sync", stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:856:        add(PlayerActionSpec("split_screen", stringResource(R.string.multiview_nav), onOpenSplitScreen))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:870:                        stringResource(R.string.player_live_rewind_badge)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:872:                        stringResource(R.string.player_live_now)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:877:                    PlayerMetaPill(text = stringResource(R.string.player_live_channel, displayChannelNumber))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:880:                    PlayerMetaPill(text = stringResource(R.string.player_archive_badge))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:883:                    PlayerMetaPill(text = stringResource(R.string.player_muted_badge))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:886:                    PlayerMetaPill(text = stringResource(R.string.player_stop_timer_status, formatTimerRemaining(sleepTimerUiState.stopRemainingMs)))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:889:                    PlayerMetaPill(text = stringResource(R.string.player_idle_timer_status, formatTimerRemaining(sleepTimerUiState.idleRemainingMs)))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:895:                                R.string.player_live_offset,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:899:                            stringResource(R.string.player_live_ready)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:913:                        stringResource(R.string.channel_number_name_format, displayChannelNumber, currentChannelName.orEmpty())
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:918:                    stringResource(R.string.player_no_guide_data)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:975:            text = currentChannelName?.let { stringResource(R.string.channel_number_name_format, displayChannelNumber, it) }.orEmpty(),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1067:    val playbackLabel = stringResource(R.string.player_playback_label)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1071:            stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1075:            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1078:            add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1081:            add(PlayerActionSpec("episodes", stringResource(R.string.player_episodes), onOpenEpisodes))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1084:            add(PlayerActionSpec("external_player", stringResource(R.string.player_open_in_external_player), onOpenExternalPlayer))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1087:            add(PlayerActionSpec("audio", stringResource(R.string.player_audio), onOpenAudioTracks))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1092:                stringResource(R.string.player_playback_speed_value, formatPlaybackSpeedLabel(playbackSpeed)),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1097:            add(PlayerActionSpec("audio_video_sync", stringResource(R.string.player_av_sync_short), onOpenAudioVideoSync))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1102:                title = stringResource(R.string.player_stop_playback_after),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1104:                    R.string.player_stop_timer_status,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1114:                title = stringResource(R.string.player_idle_standby_after),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1116:                    R.string.player_idle_timer_status,
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1125:            stringResource(if (isCastConnected) R.string.player_stop_casting else R.string.player_cast),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1128:        add(PlayerActionSpec("picture_in_picture", stringResource(R.string.player_picture_in_picture), onEnterPictureInPicture))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1129:        add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1157:                stringResource(R.string.player_type_movie)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1159:                stringResource(R.string.player_type_series)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1164:            PlayerMetaPill(text = stringResource(R.string.player_muted_badge))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1204:                        contentDescription = stringResource(R.string.player_rewind),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1236:                                    contentDescription = stringResource(R.string.player_play),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1245:                        contentDescription = stringResource(R.string.player_forward),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1644:                    PlayerMetaPill(text = stringResource(R.string.player_more_controls))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1728:    val scrubberCd = stringResource(R.string.player_live_scrubber_cd)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1754:                        contentDescription = stringResource(R.string.player_rewind),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1776:                                    contentDescription = stringResource(R.string.player_play),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1785:                        contentDescription = stringResource(R.string.player_forward),
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1810:                            stringResource(R.string.player_live_ready)
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1812:                            stringResource(R.string.player_live_offset, formatTimeshiftDuration(currentOffsetMs))
+app/src/main/java/com/streamvault/app/ui/screens/player\overlay\PlayerControlsChrome.kt:1832:                            text = stringResource(R.string.player_jump_to_live_short),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerModalHosts.kt:150:            title = stringResource(R.string.player_stop_playback_after),
+app/src/main/java/com/streamvault/app/ui/screens/player\PlayerModalHosts.kt:164:            title = stringResource(R.string.player_idle_standby_after),

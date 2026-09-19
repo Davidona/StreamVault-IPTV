@@ -118,12 +118,12 @@ class EpgRepositoryImplTest {
     }
 
     @Test
-    fun `getResolvedProgramsForPlaybackChannel_prefersResolvedPrograms`() = runTest {
+    fun `getResolvedProgramsForPlaybackChannel_prefersResolvedProgramsByStreamId`() = runTest {
         val resolvedPrograms = listOf(
             Program(
                 id = 1L,
                 providerId = 7L,
-                channelId = "bbc1.uk",
+                channelId = "42",
                 title = "Resolved News",
                 startTime = 100L,
                 endTime = 200L
@@ -136,7 +136,7 @@ class EpgRepositoryImplTest {
                 startTime = 0L,
                 endTime = 500L
             )
-        ).thenReturn(mapOf("bbc1.uk" to resolvedPrograms))
+        ).thenReturn(mapOf("42" to resolvedPrograms))
 
         val repository = EpgRepositoryImpl(
             programDao = programDao,
@@ -152,7 +152,7 @@ class EpgRepositoryImplTest {
             providerId = 7L,
             internalChannelId = 101L,
             epgChannelId = "bbc1.uk",
-            streamId = 0L,
+            streamId = 42L,
             startTime = 0L,
             endTime = 500L
         )
@@ -588,7 +588,7 @@ class EpgRepositoryImplTest {
         whenever(xmltvParser.parseStreaming(any(), anyOrNull(), any())).thenAnswer { invocation ->
             val onProgram = invocation.getArgument<suspend (Program) -> Unit>(2)
             runBlocking {
-                repeat(600) { index ->
+                repeat(5_001) { index ->
                     parserCallbackTransactionDepths += transactionDepth
                     onProgram(
                         Program(
@@ -619,9 +619,9 @@ class EpgRepositoryImplTest {
 
         assertThat(result.isSuccess).isTrue()
         assertThat(transactionCount).isEqualTo(4)
-        assertThat(parserCallbackTransactionDepths).hasSize(600)
+        assertThat(parserCallbackTransactionDepths).hasSize(5_001)
         assertThat(parserCallbackTransactionDepths.all { it == 0 }).isTrue()
-        assertThat(insertTransactionDepths).isNotEmpty()
+        assertThat(insertTransactionDepths).hasSize(2)
         assertThat(insertTransactionDepths.all { it > 0 }).isTrue()
     }
 

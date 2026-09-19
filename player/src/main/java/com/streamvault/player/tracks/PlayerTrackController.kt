@@ -8,6 +8,7 @@ import androidx.media3.common.Format
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.PlayerTrack
 import com.streamvault.player.TrackType
@@ -33,6 +34,7 @@ class PlayerTrackController(
     private var preferredAudioLanguageTag: String? = null
     private var preferredWifiMaxVideoHeight: Int? = null
     private var preferredEthernetMaxVideoHeight: Int? = null
+    private var vodTrackPreferences: VodTrackPreferences? = null
 
     fun resetSelections() {
         _availableAudioTracks.value = emptyList()
@@ -48,16 +50,66 @@ class PlayerTrackController(
             .clearOverridesOfType(C.TRACK_TYPE_TEXT)
             .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
             .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
             .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
             .setPreferredAudioLanguage(preferredAudioLanguageTag)
-            .setViewportSizeToPhysicalDisplaySize(context, true)
+            .applyPreferredTextTrackPolicy(resolvePreferredTextTrackPolicy(vodTrackPreferences))
+            .setViewportSizeToPhysicalDisplaySize(true)
             .apply {
                 resolvedMaxVideoHeightForCurrentNetwork(constrainResolutionForMultiView)?.let { maxHeight ->
                     setMaxVideoSize(Int.MAX_VALUE, maxHeight)
                 } ?: clearVideoSizeConstraints()
             }
             .build()
+    }
+
+    fun setVodTrackPreferences(player: ExoPlayer?, preferences: VodTrackPreferences?) {
+        vodTrackPreferences = preferences
+        player?.let(::applyVodTrackPreferences)
+    }
+
+    fun applyVodTrackPreferences(player: ExoPlayer) {
+        val preferences = vodTrackPreferences ?: return
+        val builder = player.trackSelectionParameters
+            .buildUpon()
+            .applyPreferredTextTrackPolicy(resolvePreferredTextTrackPolicy(preferences))
+
+        preferences.audio?.let { preference ->
+            val selected = resolvePreferredPlayerTrack(preference, _availableAudioTracks.value)
+            if (selected != null) {
+                findOverride(player.currentTracks, C.TRACK_TYPE_AUDIO, selected.id)?.let { override ->
+                    builder
+                        .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
+                        .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+                        .setOverrideForType(override)
+                    _availableAudioTracks.update { tracks ->
+                        tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
+                    }
+                }
+            }
+        }
+
+        preferences.subtitle?.let { preference ->
+            val selected = resolvePreferredPlayerTrack(preference, _availableSubtitleTracks.value)
+            builder.clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            if (preference.disabled || selected == null) {
+                builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                _availableSubtitleTracks.update { tracks -> tracks.map { it.copy(isSelected = false) } }
+            } else {
+                findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, selected.id)?.let { override ->
+                    builder
+                        .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                        .setOverrideForType(override)
+                    _availableSubtitleTracks.update { tracks ->
+                        tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
+                    }
+                }
+            }
+        }
+
+        val updatedParameters = builder.build()
+        if (updatedParameters != player.trackSelectionParameters) {
+            player.trackSelectionParameters = updatedParameters
+        }
     }
 
     fun setPreferredAudioLanguage(player: ExoPlayer?, languageTag: String?) {

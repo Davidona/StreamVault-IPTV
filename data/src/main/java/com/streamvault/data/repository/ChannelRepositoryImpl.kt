@@ -2,14 +2,18 @@ package com.streamvault.data.repository
 
 import android.database.sqlite.SQLiteException
 import android.util.Log
+import androidx.tracing.Trace
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.FavoriteDao
+import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.ChannelBrowseEntity
 import com.streamvault.data.local.entity.CategoryCount
 import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.provider.ProviderConfigurationCodec
+import com.streamvault.data.remote.stalker.StalkerLogoUrlResolver
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.util.rankSearchResults
 import com.streamvault.data.util.toFtsPrefixQuery
@@ -25,7 +29,9 @@ import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.LiveChannelVariantAttributes
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.ChannelRepository
@@ -51,12 +57,16 @@ class ChannelRepositoryImpl @Inject constructor(
     private val channelDao: ChannelDao,
     private val categoryDao: CategoryDao,
     private val favoriteDao: FavoriteDao,
+    private val categoryFlowCache: ChannelCategoryFlowCache,
     private val preferencesRepository: PreferencesRepository,
     private val parentalControlManager: com.streamvault.domain.manager.ParentalControlManager,
-    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver
+    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver,
+    private val providerSnapshotDao: ProviderSnapshotDao,
+    private val providerConfigurationCodec: ProviderConfigurationCodec
 ) : ChannelRepository {
     private companion object {
         const val TAG = "ChannelRepository"
+        const val CATEGORY_FLOW_BUILD_TRACE = "StreamVault.CategoryFlow.Build"
         const val GLOBAL_SEARCH_LIMIT = 500
         const val CATEGORY_SEARCH_LIMIT = 300
         const val MIN_SEARCH_QUERY_LENGTH = 2
@@ -156,7 +166,12 @@ class ChannelRepositoryImpl @Inject constructor(
         }
         val filtered = applyVisibilityFilter(entities, level, unlockedCats, hideDecorativeRows)
             .filterNot { it.id in hiddenIds }
-        val presented = buildPresentedChannels(filtered, settings, unlockedCats)
+        val presented = buildPresentedChannels(
+            filtered,
+            settings,
+            unlockedCats,
+            stalkerPortalUrlForProvider = { stalkerPortalRoot(providerId) }
+        )
         applyNumbering(presented, settings.numberingMode, offset)
     }
 
@@ -165,37 +180,48 @@ class ChannelRepositoryImpl @Inject constructor(
             .let { flow -> observeChannels(flow, providerId) }
 
     override fun getCategories(providerId: Long): Flow<List<Category>> =
+        categoryFlowCache.getOrCreate(providerId) { buildCategoriesFlow(providerId) }
+
+    override suspend fun getCategoriesSnapshot(providerId: Long): List<Category> =
+        buildCategoriesFlow(providerId).first()
+
+    private fun buildCategoriesFlow(providerId: Long): Flow<List<Category>> =
         combine(
             categoryDao.getByProviderAndType(providerId, ContentType.LIVE.name),
             decorativeAwareCategoryCountFlow(providerId),
             preferencesRepository.parentalControlLevel,
             parentalControlManager.unlockedCategoriesForProvider(providerId)
         ) { categories: List<CategoryEntity>, categoryCounts: List<CategoryCount>, level: Int, unlockedCats: Set<Long> ->
-            val countMap = categoryCounts.associate { count -> count.categoryId to count.item_count }
-            val countedCategories = categories.map { entity ->
-                entity.toDomain().copy(count = countMap[entity.categoryId] ?: 0)
-            }
-            val visibleCategories = if (level >= 3) {
-                countedCategories.filter { category -> !category.isAdult && !category.isUserProtected }
-            } else {
-                countedCategories
-            }
-            val filteredCategories = visibleCategories.map { category ->
-                if (level < 3 && unlockedCats.contains(category.id)) {
-                    category.copy(isUserProtected = false)
-                } else {
-                    category
+            Trace.beginSection(CATEGORY_FLOW_BUILD_TRACE)
+            try {
+                val countMap = categoryCounts.associate { count -> count.categoryId to count.item_count }
+                val countedCategories = categories.map { entity ->
+                    entity.toDomain().copy(count = countMap[entity.categoryId] ?: 0)
                 }
+                val visibleCategories = if (level >= 3) {
+                    countedCategories.filter { category -> !category.isAdult && !category.isUserProtected }
+                } else {
+                    countedCategories
+                }
+                val filteredCategories = visibleCategories.map { category ->
+                    if (level < 3 && unlockedCats.contains(category.id)) {
+                        category.copy(isUserProtected = false)
+                    } else {
+                        category
+                    }
+                }
+
+                val allChannelsCategory = Category(
+                    id = ChannelRepository.ALL_CHANNELS_ID,
+                    name = "All Channels",
+                    type = ContentType.LIVE,
+                    count = filteredCategories.sumOf(Category::count)
+                )
+
+                listOf(allChannelsCategory) + filteredCategories
+            } finally {
+                Trace.endSection()
             }
-
-            val allChannelsCategory = Category(
-                id = ChannelRepository.ALL_CHANNELS_ID,
-                name = "All Channels",
-                type = ContentType.LIVE,
-                count = filteredCategories.sumOf(Category::count)
-            )
-
-            listOf(allChannelsCategory) + filteredCategories
         }.flowOn(Dispatchers.Default)
 
     override fun searchChannels(providerId: Long, query: String): Flow<List<Channel>> {
@@ -233,17 +259,26 @@ class ChannelRepositoryImpl @Inject constructor(
     // hidden set back to Channel objects), they must not be gated by visibility.
     override suspend fun getChannel(channelId: Long): Channel? {
         val entity = channelDao.getBrowseById(channelId) ?: return null
+        val stalkerPortalUrl = withContext(Dispatchers.IO) {
+            stalkerPortalRoot(entity.providerId)
+        }
         val settings = currentPresentationSettings()
         val observation = settings.observedQualities[channelId]
         if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS || entity.logicalGroupId.isBlank()) {
-            return entity.toPresentedRawChannel(observation)
+            return entity.toPresentedRawChannel(observation, stalkerPortalUrl)
         }
         val groupedEntities = channelDao.getByLogicalGroupId(entity.providerId, entity.logicalGroupId)
             .ifEmpty { listOf(entity) }
-        return buildGroupedChannels(groupedEntities, settings).firstOrNull()
+        return buildGroupedChannels(
+            groupedEntities,
+            settings,
+            stalkerPortalUrlForProvider = { stalkerPortalUrl }
+        ).firstOrNull()
     }
 
     override suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean): Result<StreamInfo> = try {
+        val persistedChannel = channelDao.getById(channel.selectedVariantId)
+            ?: channelDao.getById(channel.id)
         xtreamStreamUrlResolver.resolveAndCommitMetadata(
             url = channel.streamUrl,
             fallbackProviderId = channel.providerId,
@@ -266,7 +301,7 @@ class ChannelRepositoryImpl @Inject constructor(
                     streamType = StreamType.fromContainerExtension(resolvedStream.containerExtension),
                     containerExtension = resolvedStream.containerExtension,
                     expirationTime = resolvedStream.expirationTime
-                )
+                ).withM3uPlaybackMetadata(persistedChannel?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for channel: ${channel.name}")
     } catch (e: Exception) {
@@ -299,11 +334,17 @@ class ChannelRepositoryImpl @Inject constructor(
             ) { requested, entityPool, level, settings, hideDecorativeRows ->
                 val filteredRequested = applyVisibilityFilter(requested, level, emptySet(), hideDecorativeRows)
                 val filteredPool = applyVisibilityFilter(entityPool, level, emptySet(), hideDecorativeRows)
+                val stalkerPortalUrls = (requested + filteredPool)
+                    .asSequence()
+                    .map(ChannelBrowseEntity::providerId)
+                    .distinct()
+                    .associateWith(::stalkerPortalRoot)
                 buildChannelsForRequestedIds(
                     requestedIds = ids,
                     requestedEntities = filteredRequested,
                     entityPool = filteredPool.ifEmpty { filteredRequested },
-                    settings = settings
+                    settings = settings,
+                    stalkerPortalUrlForProvider = { providerId -> stalkerPortalUrls[providerId] }
                 )
             }.flowOn(Dispatchers.Default)
         }
@@ -346,7 +387,15 @@ class ChannelRepositoryImpl @Inject constructor(
         val hiddenIds = values[4] as Set<Long>
         val filtered = applyVisibilityFilter(entities, level, unlockedCats, hideDecorativeRows)
             .filterNot { it.id in hiddenIds }
-        applyNumbering(buildPresentedChannels(filtered, settings, unlockedCats), settings.numberingMode)
+        applyNumbering(
+            buildPresentedChannels(
+                filtered,
+                settings,
+                unlockedCats,
+                stalkerPortalUrlForProvider = { stalkerPortalRoot(providerId) }
+            ),
+            settings.numberingMode
+        )
     }.flowOn(Dispatchers.Default)
 
     private fun decorativeAwareCategoryCountFlow(providerId: Long): Flow<List<CategoryCount>> =
@@ -424,17 +473,23 @@ class ChannelRepositoryImpl @Inject constructor(
         requestedIds: List<Long>,
         requestedEntities: List<ChannelBrowseEntity>,
         entityPool: List<ChannelBrowseEntity>,
-        settings: ChannelPresentationSettings
+        settings: ChannelPresentationSettings,
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         if (requestedEntities.isEmpty()) return emptyList()
         if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             val rawById = requestedEntities.associateBy { it.id }
             return requestedIds.mapNotNull { rawId ->
-                rawById[rawId]?.toPresentedRawChannel(settings.observedQualities[rawId])
+                rawById[rawId]?.let { entity ->
+                    entity.toPresentedRawChannel(
+                        settings.observedQualities[rawId],
+                        stalkerPortalUrlForProvider(entity.providerId)
+                    )
+                }
             }
         }
 
-        val groupedChannels = buildGroupedChannels(entityPool, settings)
+        val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
         val groupedByRawId = buildRawVariantLookup(groupedChannels)
         val seenLogicalGroups = linkedSetOf<String>()
         return requestedIds.mapNotNull { rawId ->
@@ -447,14 +502,18 @@ class ChannelRepositoryImpl @Inject constructor(
     private fun buildPresentedChannels(
         entities: List<ChannelBrowseEntity>,
         settings: ChannelPresentationSettings,
-        unlockedCats: Set<Long>
+        unlockedCats: Set<Long>,
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         val base = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             entities.map { entity ->
-                entity.toPresentedRawChannel(settings.observedQualities[entity.id])
+                entity.toPresentedRawChannel(
+                    settings.observedQualities[entity.id],
+                    stalkerPortalUrlForProvider(entity.providerId)
+                )
             }
         } else {
-            buildGroupedChannels(entities, settings)
+            buildGroupedChannels(entities, settings, stalkerPortalUrlForProvider)
         }
         return base.map { channel ->
             if (channel.categoryId != null && unlockedCats.contains(channel.categoryId)) {
@@ -467,7 +526,8 @@ class ChannelRepositoryImpl @Inject constructor(
 
     private fun buildGroupedChannels(
         entities: List<ChannelBrowseEntity>,
-        settings: ChannelPresentationSettings
+        settings: ChannelPresentationSettings,
+        stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         val grouped = linkedMapOf<String, MutableList<ChannelBrowseEntity>>()
         entities.forEach { entity ->
@@ -512,7 +572,7 @@ class ChannelRepositoryImpl @Inject constructor(
                 id = selectedVariant.rawChannelId,
                 name = displayName,
                 canonicalName = canonicalName,
-                logoUrl = representative.resolveLogoUrl(),
+                logoUrl = representative.resolveLogoUrl(stalkerPortalUrlForProvider(representative.providerId)),
                 groupTitle = representative.groupTitle,
                 categoryId = representative.categoryId,
                 categoryName = representative.categoryName,
@@ -803,14 +863,15 @@ class ChannelRepositoryImpl @Inject constructor(
     }
 
     private fun ChannelBrowseEntity.toPresentedRawChannel(
-        observedQuality: LiveChannelObservedQuality?
+        observedQuality: LiveChannelObservedQuality?,
+        stalkerPortalUrl: String?
     ): Channel {
         val variant = toVariant(observedQuality)
         return Channel(
             id = id,
             name = name,
             canonicalName = variant.canonicalName,
-            logoUrl = resolveLogoUrl(),
+            logoUrl = resolveLogoUrl(stalkerPortalUrl),
             groupTitle = groupTitle,
             categoryId = categoryId,
             categoryName = categoryName,
@@ -834,14 +895,27 @@ class ChannelRepositoryImpl @Inject constructor(
         )
     }
 
-    private fun ChannelBrowseEntity.resolveLogoUrl(): String? {
+    private fun ChannelBrowseEntity.resolveLogoUrl(stalkerPortalUrl: String?): String? {
         val supplierLogo = logoUrl?.takeIf { it.isNotBlank() }
         val epgLogo = epgIconUrl?.takeIf { it.isNotBlank() }
-        return when (channelLogoSourcePolicy) {
+        val selected = when (channelLogoSourcePolicy) {
             ChannelLogoSourcePolicy.SUPPLIER_PREFERRED -> supplierLogo ?: epgLogo
             ChannelLogoSourcePolicy.EPG_PREFERRED -> epgLogo ?: supplierLogo
             ChannelLogoSourcePolicy.SUPPLIER_ONLY -> supplierLogo
             ChannelLogoSourcePolicy.EPG_ONLY -> epgLogo
         }
+        if (selected.isNullOrBlank()) return null
+        val portalUrl = stalkerPortalUrl ?: return selected
+        return StalkerLogoUrlResolver.resolveChannelLogoUrl(portalUrl, selected)
+    }
+
+    private fun stalkerPortalRoot(providerId: Long): String? {
+        val config = providerSnapshotDao.getConfigSync(providerId)
+            ?.takeIf { it.type == ProviderType.STALKER_PORTAL }
+            ?: return null
+        val decoded = runCatching {
+            providerConfigurationCodec.decode(config.type, config.encryptedConfigJson)
+        }.getOrNull()
+        return (decoded as? StalkerConfig)?.portalUrl?.trim()?.takeIf(String::isNotBlank)
     }
 }

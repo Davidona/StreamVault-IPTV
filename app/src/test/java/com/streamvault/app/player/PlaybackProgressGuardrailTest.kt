@@ -8,13 +8,15 @@ import org.junit.Test
 class PlaybackProgressGuardrailTest {
 
     @Test
-    fun `app and player sources do not call direct repository progress apis`() {
+    fun `app player and playback feature sources do not call direct repository progress apis`() {
         val projectRoot = resolveProjectRoot()
         val violations = buildList {
             addAll(findViolations(projectRoot, "app/src/main", ".updateWatchProgress("))
             addAll(findViolations(projectRoot, "app/src/main", ".updateEpisodeWatchProgress("))
             addAll(findViolations(projectRoot, "player/src/main", ".updateWatchProgress("))
             addAll(findViolations(projectRoot, "player/src/main", ".updateEpisodeWatchProgress("))
+            addAll(findViolations(projectRoot, "feature/playback/src/main", ".updateWatchProgress("))
+            addAll(findViolations(projectRoot, "feature/playback/src/main", ".updateEpisodeWatchProgress("))
         }
 
         assertThat(violations).isEmpty()

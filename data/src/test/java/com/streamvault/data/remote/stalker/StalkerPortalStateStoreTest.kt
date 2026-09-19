@@ -3,6 +3,7 @@ package com.streamvault.data.remote.stalker
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.StalkerCookieMode
 import com.streamvault.domain.model.StalkerEndpointPreference
@@ -13,12 +14,13 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import org.junit.Test
+import java.util.Base64
 
 class StalkerPortalStateStoreTest {
     @Test
     fun `rate limit cooldown is persisted independently and can be cleared`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
 
         store.recordRateLimitCooldown(9L, cooldownUntil = 61_000L, now = 1_000L)
         val limited = requireNotNull(store.get(9L))
@@ -32,7 +34,7 @@ class StalkerPortalStateStoreTest {
     @Test
     fun `capabilities are validated for seven days and selectively invalidated`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         val now = 1_000L
 
         store.recordBulkLive(1L, supported = false, now = now)
@@ -55,7 +57,7 @@ class StalkerPortalStateStoreTest {
     @Test
     fun `endpoint health is hashed bounded and expires independently`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         val now = 10_000L
         val endpoint = "https://portal.example/stalker_portal/server/load.php"
 
@@ -76,7 +78,7 @@ class StalkerPortalStateStoreTest {
     @Test
     fun `healthy probe restores concurrency only after persisted cooldown`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         store.recordStressCooldown(3L, cooldownUntil = 2_000L, now = 1_000L)
 
         store.recordHealthyMetadataProbe(3L, now = 1_999L)
@@ -90,7 +92,7 @@ class StalkerPortalStateStoreTest {
     @Test
     fun `failed authentication recipe cools down without invalidating endpoint`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         val now = 5_000L
         dao.upsert(
             StalkerPortalStateEntity(
@@ -112,7 +114,7 @@ class StalkerPortalStateStoreTest {
     @Test
     fun `authentication and playback observations share one generation-bound learning envelope`() = runTest {
         val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao)
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         store.recordAuthentication(
             providerId = 8L,
             session = StalkerSession(
@@ -144,6 +146,41 @@ class StalkerPortalStateStoreTest {
             .isEqualTo("https://portal.test/load.php")
     }
 
+    @Test
+    fun `resumable session is encrypted and respects generation age and clearing`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val session = StalkerSession(
+            loadUrl = "https://portal.test/load.php",
+            portalReferer = "https://portal.test/c/",
+            token = "tok123",
+            serverCookieHeader = "sid=secret-cookie"
+        ).copy(authenticatedAtMillis = 10_000L)
+
+        store.recordAuthentication(
+            providerId = 11L,
+            session = session,
+            profile = StalkerProviderProfile(accountName = "Room"),
+            now = 10_000L,
+            configurationGeneration = 7L
+        )
+
+        val learningJson = requireNotNull(store.get(11L)).learningJson
+        assertThat(learningJson).doesNotContain("tok123")
+        assertThat(learningJson).doesNotContain("secret-cookie")
+
+        val resumed = store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 70_000L)
+        assertThat(resumed?.session?.token).isEqualTo("tok123")
+        assertThat(resumed?.session?.serverCookieHeader).isEqualTo("sid=secret-cookie")
+        assertThat(resumed?.profile?.accountName).isEqualTo("Room")
+
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 8L, now = 70_000L)).isNull()
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 10_000L + 31L * 60L * 1000L)).isNull()
+
+        store.clearResumableAuth(11L)
+        assertThat(store.resumableAuth(providerId = 11L, configurationGeneration = 7L, now = 70_000L)).isNull()
+    }
+
     private class FakePortalStateDao : StalkerPortalStateDao {
         private val rows = mutableMapOf<Long, StalkerPortalStateEntity>()
 
@@ -154,5 +191,13 @@ class StalkerPortalStateStoreTest {
         }
 
         override suspend fun invalidate(providerId: Long): Int = if (rows.remove(providerId) != null) 1 else 0
+    }
+
+    private class TestCredentialCrypto : CredentialCrypto {
+        override fun encryptIfNeeded(value: String): String =
+            "enc:test:" + Base64.getEncoder().encodeToString(value.toByteArray(Charsets.UTF_8))
+
+        override fun decryptIfNeeded(value: String): String =
+            String(Base64.getDecoder().decode(value.removePrefix("enc:test:")), Charsets.UTF_8)
     }
 }

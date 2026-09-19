@@ -1,6 +1,5 @@
 package com.streamvault.app
 
-import android.app.SearchManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -9,26 +8,25 @@ import android.os.StrictMode
 import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.lifecycleScope
-import com.streamvault.app.cast.CastManager
+import androidx.activity.viewModels
+import androidx.core.view.doOnPreDraw
 import com.streamvault.app.cast.CastRouteChooserActivity
-import com.streamvault.app.backup.BackupFileBridge
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.localization.resolveAppLocale
+import com.streamvault.core.ui.localization.resolveAppLocale
 import com.streamvault.app.navigation.AppNavigation
-import com.streamvault.app.navigation.ExternalDestination
-import com.streamvault.app.navigation.ExternalNavigationRequest
-import com.streamvault.app.navigation.PlayerNavigationRequest
-import com.streamvault.app.tv.LauncherRecommendationsManager
-import com.streamvault.app.tv.WatchNextManager
-import com.streamvault.app.tvinput.TvInputChannelSyncManager
-import com.streamvault.app.ui.theme.StreamVaultTheme
+import com.streamvault.app.navigation.AppNavigationCoordinator
+import com.streamvault.app.navigation.ExternalNavigationRequestParser
+import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.ExternalNavigationRequest
+import com.streamvault.core.navigation.AppDestination
+import com.streamvault.feature.playback.cast.CastManager
+import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.app.ui.time.LocalAppTimeFormat
-import com.streamvault.domain.repository.ChannelRepository
-import com.streamvault.domain.repository.CombinedM3uRepository
-import com.streamvault.domain.repository.FavoriteRepository
-import com.streamvault.domain.repository.PlaybackHistoryRepository
+import com.streamvault.app.ui.time.toUiTimeFormat
+import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
+import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.model.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 import javax.inject.Inject
@@ -65,18 +63,25 @@ import androidx.core.view.WindowInsetsControllerCompat
 import java.util.Locale
 import android.content.Context
 import android.content.ContextWrapper
-import android.net.Uri
 import android.content.res.AssetManager
 import android.content.res.Resources
-import android.speech.RecognizerIntent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.streamvault.app.diagnostics.CrashReportStore
+import com.streamvault.app.backup.BackupFileBridge
+import com.streamvault.app.navigation.playerNavigationRequest
+import com.streamvault.app.settings.AppSettingsBackupFileAdapter
+import com.streamvault.app.settings.AppSettingsPlatformHost
+import com.streamvault.domain.model.Result
+import com.streamvault.feature.settings.api.SettingsPlatformHost
+import com.streamvault.feature.settings.api.SettingsRecordingPlaybackRequest
+import com.streamvault.feature.catalog.api.CatalogPlatformHost
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), CatalogPlatformHost {
 
     companion object {
         const val EXTRA_PLAYER_REQUEST = "com.streamvault.app.extra.PLAYER_REQUEST"
@@ -96,28 +101,10 @@ class MainActivity : ComponentActivity() {
     lateinit var preferencesRepository: PreferencesRepository
 
     @Inject
-    lateinit var combinedM3uRepository: CombinedM3uRepository
-
-    @Inject
-    lateinit var favoriteRepository: FavoriteRepository
-
-    @Inject
-    lateinit var playbackHistoryRepository: PlaybackHistoryRepository
-
-    @Inject
-    lateinit var channelRepository: ChannelRepository
-
-    @Inject
     lateinit var providerRepository: ProviderRepository
 
     @Inject
-    lateinit var watchNextManager: WatchNextManager
-
-    @Inject
-    lateinit var launcherRecommendationsManager: LauncherRecommendationsManager
-
-    @Inject
-    lateinit var tvInputChannelSyncManager: TvInputChannelSyncManager
+    internal lateinit var appStartupCoordinator: AppStartupCoordinator
 
     @Inject
     lateinit var castManager: CastManager
@@ -128,9 +115,56 @@ class MainActivity : ComponentActivity() {
     private val _pictureInPictureModeFlow = MutableStateFlow(false)
     val pictureInPictureModeFlow: StateFlow<Boolean> = _pictureInPictureModeFlow.asStateFlow()
 
-    private val _externalNavigationRequestFlow = MutableStateFlow<ExternalNavigationRequest?>(null)
-    val externalNavigationRequestFlow: StateFlow<ExternalNavigationRequest?> =
-        _externalNavigationRequestFlow.asStateFlow()
+    private val appNavigationCoordinator: AppNavigationCoordinator by viewModels()
+
+    private val pendingExternalNavigationRequests = ArrayDeque<ExternalNavigationRequest>()
+
+    @Inject
+    lateinit var externalNavigationRequestParser: ExternalNavigationRequestParser
+
+    @Inject
+    lateinit var settingsBackupFileAdapter: AppSettingsBackupFileAdapter
+
+    private val settingsPlatformHost: SettingsPlatformHost by lazy {
+        AppSettingsPlatformHost(
+            context = this,
+            backupFiles = settingsBackupFileAdapter,
+            playRecordingOperation = { request: SettingsRecordingPlaybackRequest ->
+                openPlayer(
+                    playerNavigationRequest(
+                        streamUrl = request.streamUrl,
+                        title = request.title,
+                        internalId = request.internalId ?: -1L,
+                        providerId = request.providerId,
+                        contentType = request.contentType ?: "MOVIE",
+                        returnDestination = AppDestination.Settings()
+                    )
+                )
+            },
+            shareBackupOperation = { uri ->
+                runCatching {
+                    startActivity(BackupFileBridge.buildShareIntent(uri))
+                    Result.success(Unit)
+                }.getOrElse { error ->
+                    Result.error(getString(R.string.settings_backup_share_failed), error)
+                }
+            },
+            shareCrashReportOperation = {
+                val file = CrashReportStore.latestReportFile(this)
+                if (!file.isFile || file.length() <= 0L) {
+                    Result.error(getString(R.string.settings_crash_report_missing))
+                } else {
+                    runCatching {
+                        val uri = CrashReportStore.providerUriForFile(this, file)
+                        startActivity(CrashReportStore.buildShareIntent(uri))
+                        Result.success(Unit)
+                    }.getOrElse { error ->
+                        Result.error(getString(R.string.settings_crash_report_share_failed), error)
+                    }
+                }
+            }
+        )
+    }
 
     private var playerPictureInPictureState = PlayerPictureInPictureState()
 
@@ -151,9 +185,15 @@ class MainActivity : ComponentActivity() {
         applyImmersiveSystemUi()
         _pictureInPictureModeFlow.value = isInPictureInPictureMode
         handleExternalIntent(intent)
+        if (isTelevisionDevice()) {
+            // Lock TVs to landscape — the manifest uses "unspecified" so phones/tablets
+            // can freely rotate, but TV UI is designed for landscape only.
+            requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        }
         setContent {
             val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
             val appTimeFormat by preferencesRepository.appTimeFormat.collectAsState(initial = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
+            val appTheme by preferencesRepository.appTheme.collectAsState(initial = AppTheme.DEFAULT)
             val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
@@ -194,9 +234,11 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
                 LocalLayoutDirection provides layoutDirection,
-                LocalAppTimeFormat provides appTimeFormat
+                LocalAppTimeFormat provides appTimeFormat,
+                LocalLiveTimeFormat provides appTimeFormat,
+                LocalUiTimeFormat provides appTimeFormat.toUiTimeFormat()
             ) {
-                StreamVaultTheme {
+                StreamVaultTheme(themeId = appTheme.storageValue) {
                     when (val state = databaseStartupState) {
                         DatabaseStartupState.Opening -> DatabaseStartupScreen(state = state)
                         is DatabaseStartupState.Failed -> DatabaseStartupScreen(
@@ -207,23 +249,25 @@ class MainActivity : ComponentActivity() {
                             onShareReport = ::shareLatestFailureReport
                         )
                         DatabaseStartupState.Ready -> {
+                            AppNavigation(
+                                coordinator = appNavigationCoordinator,
+                                settingsPlatformHost = settingsPlatformHost,
+                                catalogPlatformHost = this@MainActivity,
+                                onCloseApp = ::finishAffinity
+                            )
                             LaunchedEffect(Unit) {
-                                if (isTelevisionDevice()) {
-                                    watchNextManager.refreshWatchNext()
-                                    launcherRecommendationsManager.refreshRecommendations()
-                                    tvInputChannelSyncManager.refreshTvInputCatalog()
+                                dispatchPendingExternalNavigationRequests()
+                                window.decorView.doOnPreDraw {
+                                    window.decorView.post {
+                                        appStartupCoordinator.onFirstUiFrameDrawn(isTelevisionDevice())
+                                    }
                                 }
                             }
-                            AppNavigation(mainActivity = this@MainActivity)
                         }
                     }
                 }
             }
         }
-
-        // Start Room only after the application/test process has finished its lightweight setup.
-        // Compatibility instrumentation does not create this activity, so it cannot be blocked
-        // by a full schema open while Android is still starting the instrumented process.
         databaseStartupCoordinator.start()
     }
 
@@ -280,12 +324,10 @@ class MainActivity : ComponentActivity() {
         applyPlayerPictureInPictureParams()
     }
 
-    fun clearExternalNavigationRequest() {
-        _externalNavigationRequestFlow.value = null
-    }
-
     fun openPlayer(request: PlayerNavigationRequest) {
-        _externalNavigationRequestFlow.value = ExternalNavigationRequest.Player(request)
+        appNavigationCoordinator.submitExternalRequest(
+            ExternalNavigationRequest.Player(request)
+        )
     }
 
     fun enterPlayerPictureInPictureModeFromPlayer(): Boolean {
@@ -310,7 +352,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun openCastRouteChooser() {
+    override fun openCastRouteChooser() {
         startActivity(Intent(this, CastRouteChooserActivity::class.java))
     }
 
@@ -380,8 +422,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleExternalIntent(intent: Intent?) {
-        val request = intent?.toExternalNavigationRequest() ?: return
-        _externalNavigationRequestFlow.value = request
+        intent?.let(externalNavigationRequestParser::parse)?.let {
+            pendingExternalNavigationRequests += it
+            dispatchPendingExternalNavigationRequests()
+        }
+    }
+
+    private fun dispatchPendingExternalNavigationRequests() {
+        if (databaseStartupCoordinator.state.value != DatabaseStartupState.Ready) return
+        while (pendingExternalNavigationRequests.isNotEmpty()) {
+            appNavigationCoordinator.submitExternalRequest(
+                pendingExternalNavigationRequests.removeFirst()
+            )
+        }
     }
 
     private fun shareLatestFailureReport() {
@@ -390,111 +443,6 @@ class MainActivity : ComponentActivity() {
         runCatching {
             val uri = CrashReportStore.providerUriForFile(this, file)
             startActivity(CrashReportStore.buildShareIntent(uri))
-        }
-    }
-
-    private fun Intent.toExternalNavigationRequest(): ExternalNavigationRequest? {
-        readPlayerRequestExtra()?.let { return ExternalNavigationRequest.Player(it) }
-        readExternalDestinationExtra()?.let { return ExternalNavigationRequest.Destination(it) }
-        getStringExtra(EXTRA_EXTERNAL_ROUTE)
-            ?.let(ExternalDestination::fromLegacyRoute)
-            ?.let { return ExternalNavigationRequest.Destination(it) }
-        if (hasExtra(EXTRA_EXTERNAL_ROUTE)) {
-            return ExternalNavigationRequest.Destination(ExternalDestination.Home)
-        }
-        readImportedPlaylistUri()?.let { return ExternalNavigationRequest.ImportM3u(it) }
-        readImportedBackupUri()?.let { return ExternalNavigationRequest.ImportBackup(it) }
-
-        val query = when (action) {
-            Intent.ACTION_SEARCH,
-            Intent.ACTION_ASSIST,
-            RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE -> {
-                getStringExtra(SearchManager.QUERY)
-                    ?: getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
-            }
-
-            else -> null
-        }?.trim().orEmpty()
-
-        query.takeIf { it.isNotBlank() }?.let(ExternalNavigationRequest::Search)?.let { return it }
-
-        return if (action == Intent.ACTION_VIEW) {
-            ExternalNavigationRequest.Destination(ExternalDestination.Home)
-        } else {
-            null
-        }
-    }
-
-    private fun Intent.readImportedPlaylistUri(): String? {
-        if (action != Intent.ACTION_VIEW) return null
-        val targetUri = data ?: return null
-        val normalizedPath = targetUri.toString().substringBefore('?').lowercase(Locale.ROOT)
-        val mimeType = type?.lowercase(Locale.ROOT).orEmpty()
-        val isPlaylistMime = mimeType in setOf(
-            "audio/x-mpegurl",
-            "audio/mpegurl",
-            "application/x-mpegurl",
-            "application/vnd.apple.mpegurl",
-            "application/mpegurl"
-        )
-        val isPlaylistPath = normalizedPath.endsWith(".m3u") || normalizedPath.endsWith(".m3u8")
-        if (!isPlaylistMime && !isPlaylistPath) return null
-        return when (targetUri.scheme?.lowercase(Locale.ROOT)) {
-            "content", "file" -> targetUri.toString()
-            else -> null
-        }
-    }
-
-    private fun Intent.readImportedBackupUri(): String? {
-        val targetUri = when (action) {
-            Intent.ACTION_VIEW -> data
-            Intent.ACTION_SEND -> readStreamUriExtra()
-            else -> null
-        } ?: return null
-        if (!isBackupJsonCandidate(targetUri)) return null
-        return BackupFileBridge.copyToImportInbox(this@MainActivity, targetUri)?.toString()
-            ?: targetUri.toString()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readStreamUriExtra(): Uri? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-        } else {
-            getParcelableExtra(Intent.EXTRA_STREAM) as? Uri
-        } ?: clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
-    }
-
-    private fun Intent.isBackupJsonCandidate(uri: Uri): Boolean {
-        val normalizedPath = uri.toString().substringBefore('?').lowercase(Locale.ROOT)
-        val mimeType = type?.lowercase(Locale.ROOT).orEmpty()
-        val isJsonMime = mimeType in setOf(
-            "application/json",
-            "text/json",
-            "application/x-json",
-            "application/octet-stream",
-            "text/plain",
-        )
-        val isJsonPath = normalizedPath.endsWith(".json")
-        if (!isJsonMime && !isJsonPath) return false
-        return uri.scheme?.lowercase(Locale.ROOT) in setOf("content", "file")
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readPlayerRequestExtra(): PlayerNavigationRequest? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getSerializableExtra(EXTRA_PLAYER_REQUEST, PlayerNavigationRequest::class.java)
-        } else {
-            getSerializableExtra(EXTRA_PLAYER_REQUEST) as? PlayerNavigationRequest
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun Intent.readExternalDestinationExtra(): ExternalDestination? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getSerializableExtra(EXTRA_EXTERNAL_DESTINATION, ExternalDestination::class.java)
-        } else {
-            getSerializableExtra(EXTRA_EXTERNAL_DESTINATION) as? ExternalDestination
         }
     }
 }

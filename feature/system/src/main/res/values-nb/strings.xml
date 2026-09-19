@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Sett opp leverandør</string>
+  <string name="welcome_loading_title">Forbereder biblioteket ditt</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">Premium IPTV for stuen</string>
+  <string name="welcome_subtitle">Len deg tilbake med direktesendte kanaler, opptak, filmer og serier med en førsteparts Android TV-opplevelse.</string>
+  <string name="settings_cancel">Avbryt</string>
+</resources>

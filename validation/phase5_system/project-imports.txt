@@ -1,0 +1,56 @@
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:52:import com.streamvault.app.R
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:53:import com.streamvault.core.ui.image.rememberCrossfadeImageModel
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:54:import com.streamvault.app.ui.components.shell.AppNavigationChrome
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:55:import com.streamvault.app.ui.components.shell.AppScreenScaffold
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:56:import com.streamvault.core.ui.design.AppColors
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:57:import com.streamvault.domain.model.DownloadItem
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsScreen.kt:58:import com.streamvault.domain.model.DownloadStatus
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsUiState.kt:3:import com.streamvault.domain.model.DownloadItem
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsUiState.kt:4:import com.streamvault.domain.model.DownloadStorageConfig
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsViewModel.kt:10:import com.streamvault.app.R
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsViewModel.kt:11:import com.streamvault.domain.model.DownloadItem
+app/src/main/java/com/streamvault/app/ui/screens/downloads/DownloadsViewModel.kt:12:import com.streamvault.domain.repository.DownloadManager
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:54:import com.streamvault.app.navigation.Routes
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:55:import com.streamvault.app.plugins.InstalledStreamVaultPlugin
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:56:import com.streamvault.app.plugins.PluginConfigurationAction
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:57:import com.streamvault.app.plugins.PluginConfigurationField
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:58:import com.streamvault.app.plugins.PluginConfigurationSection
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:59:import com.streamvault.app.plugins.owner
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:60:import com.streamvault.app.plugins.toBundleSafeKey
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:61:import com.streamvault.core.ui.components.dialogs.PremiumDialog
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:62:import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:63:import com.streamvault.app.ui.components.shell.AppNavigationChrome
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:64:import com.streamvault.app.ui.components.shell.AppScreenScaffold
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:65:import com.streamvault.core.ui.components.shell.StatusPill
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:66:import com.streamvault.core.ui.design.AppColors
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:67:import com.streamvault.core.ui.design.FocusSpec
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:68:import com.streamvault.core.ui.interaction.TvButton
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:69:import com.streamvault.core.ui.theme.FocusBorder
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:70:import com.streamvault.core.ui.theme.OnSurface
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsScreen.kt:71:import com.streamvault.core.ui.theme.Primary
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:6:import com.streamvault.app.plugins.InstalledStreamVaultPlugin
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:7:import com.streamvault.app.plugins.PluginConfigurationAction
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:8:import com.streamvault.app.plugins.PluginConfigurationField
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:9:import com.streamvault.app.plugins.PluginConfigurationSchema
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:10:import com.streamvault.app.plugins.StreamVaultPluginManager
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:11:import com.streamvault.app.plugins.StreamVaultPluginOwner
+app/src/main/java/com/streamvault/app/ui/screens/plugins/PluginsViewModel.kt:12:import com.streamvault.app.plugins.owner
+app/src/main/java/com/streamvault/domain/model/Result.kt:13:import com.streamvault.domain.model.Result
+app/src/main/java/com/streamvault/domain/provider/ProviderSource.kt:5:import com.streamvault.domain.provider.ProviderSource
+app/src/main/java/com/streamvault/domain/provider/ProviderSourceRegistry.kt:5:import com.streamvault.domain.provider.ProviderSourceRegistry
+app/src/main/java/com/streamvault/app/ui/screens/welcome/WelcomeScreen.kt:37:import com.streamvault.app.BuildConfig
+app/src/main/java/com/streamvault/app/ui/screens/welcome/WelcomeScreen.kt:38:import com.streamvault.app.R
+app/src/main/java/com/streamvault/core/ui/components/shell/StatusPill.kt:39:import com.streamvault.core.ui.components.shell.StatusPill
+app/src/main/java/com/streamvault/core/ui/design/AppColors.kt:40:import com.streamvault.core.ui.design.AppColors
+app/src/main/java/com/streamvault/core/ui/interaction/TvButton.kt:41:import com.streamvault.core.ui.interaction.TvButton
+app/src/main/java/com/streamvault/data/sync/SyncProgressBus.kt:42:import com.streamvault.data.sync.SyncProgressBus
+app/src/main/java/com/streamvault/data/sync/SyncProgressAggregate.kt:43:import com.streamvault.data.sync.SyncProgressAggregate
+app/src/main/java/com/streamvault/domain/repository/ProviderRepository.kt:44:import com.streamvault.domain.repository.ProviderRepository
+app/src/main/java/com/streamvault/domain/sync/Section.kt:45:import com.streamvault.domain.sync.Section
+app/src/main/java/com/streamvault/domain/usecase/M3uProviderSetupCommand.kt:46:import com.streamvault.domain.usecase.M3uProviderSetupCommand
+app/src/main/java/com/streamvault/domain/usecase/ValidateAndAddProvider.kt:47:import com.streamvault.domain.usecase.ValidateAndAddProvider
+app/src/main/java/com/streamvault/domain/usecase/XtreamProviderSetupCommand.kt:48:import com.streamvault.domain.usecase.XtreamProviderSetupCommand
+
+The import scan was run against the eight pre-extraction production files. The
+feature-owned target must retain only core navigation/UI and domain imports;
+app, data, and plugin-runtime imports are boundary work items.

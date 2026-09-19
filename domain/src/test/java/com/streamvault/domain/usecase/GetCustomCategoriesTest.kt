@@ -184,6 +184,8 @@ class GetCustomCategoriesTest {
         override fun searchChannelsByCategory(providerId: Long, categoryId: Long, query: String): Flow<List<Channel>> = error("Not used in test")
         override fun searchChannelsByCategoryPaged(providerId: Long, categoryId: Long, query: String, limit: Int): Flow<List<Channel>> = error("Not used in test")
         override fun getCategories(providerId: Long): Flow<List<com.streamvault.domain.model.Category>> = error("Not used in test")
+        override suspend fun getCategoriesSnapshot(providerId: Long): List<com.streamvault.domain.model.Category> =
+            error("Not used in test")
         override fun searchChannels(providerId: Long, query: String): Flow<List<Channel>> = error("Not used in test")
         override suspend fun getChannel(channelId: Long): Channel? = error("Not used in test")
         override suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean) = error("Not used in test")

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Ρύθμιση παρόχου</string>
+  <string name="welcome_loading_title">Προετοιμασία της βιβλιοθήκης σας</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">Premium IPTV για το σαλόνι</string>
+  <string name="welcome_subtitle">Χαλαρώστε με ζωντανά κανάλια, catch-up προβολή, ταινίες και σειρές με μια εμπειρία Android TV πρώτης κατηγορίας.</string>
+  <string name="settings_cancel">Ακύρωση</string>
+</resources>

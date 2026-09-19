@@ -117,7 +117,7 @@ class PreloadCoordinator(
             val headersPart = it.headers.entries
                 .sortedBy { e -> e.key }
                 .joinToString("&") { e -> "${e.key}=${e.value}" }
-            "${it.scheme}:${it.licenseUrl}:${stableHash(headersPart)}"
+            "${it.scheme}:${it.staticClearKeyLicense?.fingerprint ?: stableHash(it.licenseUrl)}:${stableHash(headersPart)}"
         }
     }
 

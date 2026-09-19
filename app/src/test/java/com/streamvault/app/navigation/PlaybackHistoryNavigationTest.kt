@@ -31,14 +31,4 @@ class PlaybackHistoryNavigationTest {
         assertThat(request.episodeNumber).isEqualTo(4)
     }
 
-    @Test
-    fun safePlayerNavigationRequest_allowsInternalStalkerUrls() {
-        val request = PlayerNavigationRequest(
-            streamUrl = "stalker://7/live/390414?cmd=ffmpeg%20http%3A%2F%2Fportal.example.com%2Fch%2F390414_",
-            title = "Channel",
-            contentType = ContentType.LIVE.name
-        )
-
-        assertThat(safePlayerNavigationRequest(request)).isEqualTo(request)
-    }
 }

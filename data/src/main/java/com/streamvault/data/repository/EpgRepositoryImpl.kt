@@ -85,7 +85,7 @@ class EpgRepositoryImpl @Inject constructor(
 
     companion object {
         private const val MAX_EPG_SIZE_BYTES = NetworkTimeoutConfig.EPG_MAX_SIZE_BYTES
-        private const val EPG_PROGRAM_BATCH_SIZE = 500
+        private const val EPG_PROGRAM_BATCH_SIZE = 5_000
         private const val NOW_AND_NEXT_LOOKBACK_MS = 60L * 60L * 1000L
         private const val NOW_AND_NEXT_LOOKAHEAD_MS = 2L * 60L * 60L * 1000L
         private const val NOW_AND_NEXT_REFRESH_INTERVAL_MS = 60L * 1000L
@@ -387,7 +387,7 @@ class EpgRepositoryImpl @Inject constructor(
         endTime: Long
     ): List<Program> {
         val normalizedChannelId = epgChannelId?.trim()?.takeIf { it.isNotEmpty() }
-        val lookupKey = normalizedChannelId ?: streamId.takeIf { it > 0L }?.toString()
+        val lookupKey = streamId.takeIf { it > 0L }?.toString() ?: normalizedChannelId
         val offsetMs = shiftMsFor(providerId)
 
         if (internalChannelId > 0L && lookupKey != null) {

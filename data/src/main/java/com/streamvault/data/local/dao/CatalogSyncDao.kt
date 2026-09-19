@@ -312,6 +312,13 @@ interface CatalogSyncDao {
                   AND stage.provider_id = :providerId
                   AND stage.stream_id = channels.stream_id
             ),
+            playback_metadata_json = (
+                SELECT stage.playback_metadata_json
+                FROM channel_import_stage AS stage
+                WHERE stage.session_id = :sessionId
+                  AND stage.provider_id = :providerId
+                  AND stage.stream_id = channels.stream_id
+            ),
             sync_fingerprint = (
                 SELECT stage.sync_fingerprint
                 FROM channel_import_stage AS stage
@@ -352,6 +359,7 @@ interface CatalogSyncDao {
             provider_id,
             is_adult,
             is_user_protected,
+            playback_metadata_json,
             sync_fingerprint
         )
         SELECT
@@ -378,6 +386,7 @@ interface CatalogSyncDao {
                   AND category.type = 'LIVE'
                   AND category.is_user_protected = 1
             ) THEN 1 ELSE 0 END,
+            stage.playback_metadata_json,
             stage.sync_fingerprint
         FROM channel_import_stage AS stage
         WHERE stage.session_id = :sessionId
@@ -543,6 +552,13 @@ interface CatalogSyncDao {
                   AND stage.provider_id = :providerId
                   AND stage.stream_id = movies.stream_id
             ),
+            playback_metadata_json = (
+                SELECT stage.playback_metadata_json
+                FROM movie_import_stage AS stage
+                WHERE stage.session_id = :sessionId
+                  AND stage.provider_id = :providerId
+                  AND stage.stream_id = movies.stream_id
+            ),
             sync_fingerprint = (
                 SELECT stage.sync_fingerprint
                 FROM movie_import_stage AS stage
@@ -591,6 +607,7 @@ interface CatalogSyncDao {
             last_watched_at,
             is_adult,
             is_user_protected,
+            playback_metadata_json,
             sync_fingerprint,
             added_at
         )
@@ -626,6 +643,7 @@ interface CatalogSyncDao {
                   AND category.type IN ('MOVIE', 'VOD')
                   AND category.is_user_protected = 1
             ) THEN 1 ELSE 0 END,
+            stage.playback_metadata_json,
             stage.sync_fingerprint,
             stage.added_at
         FROM movie_import_stage AS stage

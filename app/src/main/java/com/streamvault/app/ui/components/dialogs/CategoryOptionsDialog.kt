@@ -27,11 +27,12 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.app.R
-import com.streamvault.app.ui.theme.OnSurface
-import com.streamvault.app.ui.theme.OnSurfaceDim
-import com.streamvault.app.ui.theme.Primary
-import com.streamvault.app.ui.theme.SurfaceElevated
-import com.streamvault.app.ui.interaction.mouseClickable
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.components.dialogs.rememberDialogOpenGestureBlocker
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.Alignment
 import com.streamvault.domain.model.Category

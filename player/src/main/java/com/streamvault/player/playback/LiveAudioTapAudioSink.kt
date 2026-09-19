@@ -6,7 +6,15 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.audio.AudioSink
 import com.streamvault.player.LiveAudioPcmBuffer
 import com.streamvault.player.LiveAudioTap
+import com.streamvault.player.PlayerPcmEncoding
 import java.nio.ByteBuffer
+
+internal fun toPlayerPcmEncoding(encoding: Int): PlayerPcmEncoding =
+    if (encoding == C.ENCODING_PCM_16BIT) {
+        PlayerPcmEncoding.PCM_16_BIT
+    } else {
+        PlayerPcmEncoding.UNSUPPORTED
+    }
 
 @UnstableApi
 internal class LiveAudioTapAudioSink(
@@ -17,11 +25,12 @@ internal class LiveAudioTapAudioSink(
     private var channelCount: Int = Format.NO_VALUE
     private var encoding: Int = C.ENCODING_INVALID
 
-    override fun configure(inputFormat: Format, specifiedBufferSize: Int, outputChannels: IntArray?) {
+    override fun configure(audioSinkConfig: AudioSink.AudioSinkConfig) {
+        val inputFormat = audioSinkConfig.format
         sampleRate = inputFormat.sampleRate
         channelCount = inputFormat.channelCount
         encoding = inputFormat.pcmEncoding
-        delegate.configure(inputFormat, specifiedBufferSize, outputChannels)
+        delegate.configure(audioSinkConfig)
     }
 
     override fun handleBuffer(
@@ -43,7 +52,8 @@ internal class LiveAudioTapAudioSink(
         presentationTimeUs: Long
     ) {
         val tap = tapProvider() ?: return
-        if (encoding != C.ENCODING_PCM_16BIT || sampleRate <= 0 || channelCount <= 0 || endPosition <= startPosition) {
+        val playerEncoding = toPlayerPcmEncoding(encoding)
+        if (playerEncoding == PlayerPcmEncoding.UNSUPPORTED || sampleRate <= 0 || channelCount <= 0 || endPosition <= startPosition) {
             return
         }
         val adjustedPresentationTimeUs = presentationTimeUs + consumedOffsetUs(startPosition)
@@ -59,7 +69,7 @@ internal class LiveAudioTapAudioSink(
                 presentationTimeUs = adjustedPresentationTimeUs,
                 sampleRate = sampleRate,
                 channelCount = channelCount,
-                encoding = encoding
+                encoding = playerEncoding
             )
         )
     }

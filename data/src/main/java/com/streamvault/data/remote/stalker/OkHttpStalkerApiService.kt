@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import android.util.Log
 import com.google.gson.JsonObject as GsonJsonObject
 import com.google.gson.JsonParser
@@ -94,6 +96,7 @@ class OkHttpStalkerApiService @Inject constructor(
 
     private data class SessionScope(
         val cookieJar: InMemoryStalkerCookieJar = InMemoryStalkerCookieJar(),
+        @Volatile var restoredCookieHeader: String = "",
         @Volatile var macQueryRequired: Boolean = false,
         @Volatile var lastAccessAt: Long = System.currentTimeMillis()
     )
@@ -174,6 +177,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     val attemptProfile = profile.withRecipe(recipe, effectiveAuthMode)
                     val sessionScope = sessionScopeFor(attemptProfile)
                     sessionScope.cookieJar.clear()
+                    sessionScope.restoredCookieHeader = ""
                     val cookieJar = sessionScope.cookieJar
                     // Compatibility discovery is per authentication scope. A portal may
                     // change its request contract between profiles/endpoints, so do not
@@ -208,7 +212,21 @@ class OkHttpStalkerApiService @Inject constructor(
                     val token = handshakePayload.findString("token")
                         ?.takeIf { it.isNotBlank() }
                         ?: run {
-                            lastError = IOException("Portal handshake did not return a token.")
+                            // A tokenless 200 is ambiguous: it may be a soft throttle, but it
+                            // may also be an incompatible endpoint or a portal response that
+                            // needs another discovery recipe. Explicit throttle markers are
+                            // handled by ensureNoPortalError(); keep the generic case eligible
+                            // for endpoint/recipe fallback.
+                            val missingToken = IOException("Portal handshake did not return a token.")
+                            failedHandshakeAttempts += handshakeAttemptKey
+                            StalkerTelemetry.authenticationAttempt(
+                                profile.providerId,
+                                recipe.compatibilityProfileId,
+                                endpointFamily,
+                                "HANDSHAKE",
+                                authenticationFailureOutcome(missingToken)
+                            )
+                            lastError = preferredAuthenticationFailure(lastError, missingToken)
                             continue
                         }
                     val handshakeRandom = handshakePayload.findString("random").orEmpty()
@@ -733,6 +751,20 @@ class OkHttpStalkerApiService @Inject constructor(
         profile: StalkerDeviceProfile,
         categoryId: String?,
         page: Int
+    ): Result<StalkerPagedItems> = getVodStreamsPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        page = page,
+        searchQuery = null
+    )
+
+    override suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
@@ -743,8 +775,30 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
             }
         )
+    }
+
+    override suspend fun getVodFiles(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        movieId: String
+    ): Result<List<StalkerItemRecord>> = runApiCall("Failed to load movie files") {
+        fetchPagedItemPage(
+            session = session,
+            profile = profile,
+            page = 1,
+            baseQuery = mapOf(
+                "type" to "vod",
+                "action" to "get_ordered_list",
+                "movie_id" to movieId,
+                "season_id" to "0",
+                "episode_id" to "0",
+                "row" to "0",
+                "JsHttpRequest" to "1-xml"
+            )
+        ).items
     }
 
     override suspend fun getSeriesCategories(
@@ -1261,13 +1315,25 @@ class OkHttpStalkerApiService @Inject constructor(
         return session.loadUrl
     }
 
-    override fun currentCookieHeader(session: StalkerSession): String =
-        sessionScopes[session.sessionScopeKey]
-            ?.also { scope -> scope.lastAccessAt = System.currentTimeMillis() }
-            ?.cookieJar
-            ?.cookieHeaderFor(session.loadUrl)
-            .orEmpty()
-            .ifBlank { session.serverCookieHeader }
+    override fun currentCookieHeader(session: StalkerSession): String {
+        val scope = sessionScopes[session.sessionScopeKey]
+            ?.also { it.lastAccessAt = System.currentTimeMillis() }
+        return mergeCookieHeaders(
+            scope?.cookieJar?.cookieHeaderFor(session.loadUrl).orEmpty(),
+            scope?.restoredCookieHeader.orEmpty(),
+            session.serverCookieHeader
+        )
+    }
+
+    override fun restoreSession(session: StalkerSession, profile: StalkerDeviceProfile) {
+        val scopeKey = session.sessionScopeKey.takeIf { it.isNotBlank() } ?: sessionScopeKey(profile)
+        val scope = sessionScopes.computeIfAbsent(scopeKey) {
+            SessionScope(lastAccessAt = System.currentTimeMillis())
+        }
+        scope.lastAccessAt = System.currentTimeMillis()
+        scope.restoredCookieHeader = session.serverCookieHeader
+        scopeAliases[sessionScopeAliasKey(profile)] = scopeKey
+    }
 
     override fun invalidateSessionScopes(providerId: Long) {
         val prefix = "provider:$providerId|"
@@ -2075,6 +2141,7 @@ class OkHttpStalkerApiService @Inject constructor(
         if (findBoolean("not_valid_token") == true) {
             throw invalidTokenError()
         }
+        explicitRateLimitError()?.let { throw it }
         // Some Ministra/Stalker families return workflow failures as a scalar `js`
         // payload instead of the usual `{ "js": { "error": ... } }` envelope.
         // Treat that scalar as a portal outcome so create_link cannot degrade
@@ -2093,6 +2160,50 @@ class OkHttpStalkerApiService @Inject constructor(
         val message = rootObjectOrNull()?.findString("msg")
             ?: findString("msg")
         message?.let { authorizationMessage(it)?.let { error -> throw error } }
+    }
+
+    /**
+     * A tokenless HTTP 200 is not, by itself, evidence of throttling. Only classify a
+     * response as a soft rate limit when the portal provides an explicit signal.
+     */
+    private fun JsonElement.explicitRateLimitError(): StalkerApiError.RateLimited? {
+        val payload = payloadObjectOrNull() ?: return null
+        val message = listOf("error", "msg", "message", "reason", "detail")
+            .mapNotNull { key -> payload.findString(key) }
+            .firstOrNull()
+        val retryAfterMillis = payload.retryAfterMillisOrNull()
+        val hasRetryAfter = listOf(
+            "retry_after",
+            "retry-after",
+            "retryAfter",
+            "retry_after_ms",
+            "retryAfterMillis"
+        ).any { key -> payload.containsKey(key) }
+        val hasRateLimitFlag = listOf("rate_limit", "rate_limited", "ratelimited", "throttled", "throttle")
+            .any { key ->
+                payload.findBoolean(key) == true ||
+                    payload.findString(key)?.lowercase(Locale.ROOT) in setOf(
+                        "rate_limit",
+                        "rate_limited",
+                        "ratelimited",
+                        "throttled",
+                        "throttle",
+                        "true",
+                        "1",
+                        "yes"
+                    )
+            }
+        val hasRateLimitCode = listOf("status", "code", "http_status", "httpStatus")
+            .any { key -> payload.findString(key)?.toIntOrNull() == 429 }
+        val hasRateLimitText = message?.isExplicitRateLimitMessage() == true
+        if (!hasRetryAfter && !hasRateLimitFlag && !hasRateLimitCode && !hasRateLimitText) {
+            return null
+        }
+        return StalkerApiError.RateLimited(
+            message = message ?: "Portal handshake was rate limited.",
+            httpStatus = 200,
+            retryAfterMillis = retryAfterMillis
+        )
     }
 
     /**
@@ -2354,6 +2465,8 @@ class OkHttpStalkerApiService @Inject constructor(
         if (raw.isBlank() || isPlaceholderErrorValue(raw)) return null
         val normalized = raw.lowercase(Locale.ROOT)
         return when {
+            raw.isExplicitRateLimitMessage() ->
+                StalkerApiError.RateLimited(message = raw, httpStatus = 200)
             normalized == "nothing_to_play" || normalized.contains("nothing to play") ->
                 StalkerApiError.ContentUnavailable(portalReason = "nothing_to_play")
             listOf("not valid mac", "invalid mac").any(normalized::contains) ->
@@ -2578,6 +2691,8 @@ class OkHttpStalkerApiService @Inject constructor(
         val requestPriority = when {
             request.url.queryParameter("action").equals("create_link", ignoreCase = true) ->
                 StalkerNetworkPriority.INTERACTIVE
+            request.url.queryParameter("action").equals("get_short_epg", ignoreCase = true) ->
+                StalkerNetworkPriority.PREFETCH
             currentCoroutineContext()[StalkerRequestPriorityContext]?.priority in setOf(
                 com.streamvault.domain.model.StalkerRequestPriority.EPG,
                 com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX
@@ -2719,13 +2834,33 @@ class OkHttpStalkerApiService @Inject constructor(
         profile.macAddress.takeIf { it.isNotBlank() }?.let { cookies["mac"] = encode(it) }
         profile.locale.takeIf { it.isNotBlank() }?.let { cookies["stb_lang"] = encode(it) }
         profile.timezone.takeIf { it.isNotBlank() }?.let { cookies["timezone"] = encode(it) }
-        cookieJarFor(profile).cookieHeaderFor(url).split(';')
-            .mapNotNull { part ->
-                val key = part.substringBefore('=', missingDelimiterValue = "").trim()
-                val value = part.substringAfter('=', missingDelimiterValue = "").trim()
-                key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
-        }.forEach { (key, value) ->
-            cookies.putIfAbsent(key, value)
+        val sessionScope = sessionScopeFor(profile)
+        listOf(
+            sessionScope.cookieJar.cookieHeaderFor(url),
+            sessionScope.restoredCookieHeader
+        ).forEach { header ->
+            header.split(';')
+                .mapNotNull { part ->
+                    val key = part.substringBefore('=', missingDelimiterValue = "").trim()
+                    val value = part.substringAfter('=', missingDelimiterValue = "").trim()
+                    key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
+                }.forEach { (key, value) ->
+                    cookies.putIfAbsent(key, value)
+                }
+        }
+        return cookies.entries.joinToString("; ") { (key, value) -> "$key=$value" }
+    }
+
+    private fun mergeCookieHeaders(vararg headers: String): String {
+        val cookies = linkedMapOf<String, String>()
+        headers.forEach { header ->
+            header.split(';')
+                .mapNotNull { part ->
+                    val key = part.substringBefore('=', missingDelimiterValue = "").trim()
+                    val value = part.substringAfter('=', missingDelimiterValue = "").trim()
+                    key.takeIf { it.isNotBlank() && value.isNotBlank() }?.let { it to value }
+                }
+                .forEach { (key, value) -> cookies.putIfAbsent(key, value) }
         }
         return cookies.entries.joinToString("; ") { (key, value) -> "$key=$value" }
     }
@@ -2870,11 +3005,8 @@ class OkHttpStalkerApiService @Inject constructor(
 
     private fun sessionScopeFor(profile: StalkerDeviceProfile): SessionScope {
         val now = System.currentTimeMillis()
-        val key = if (profile.authEpoch > 0L) {
-            sessionScopeKey(profile)
-        } else {
-            scopeAliases[sessionScopeAliasKey(profile)] ?: sessionScopeKey(profile)
-        }
+        val key = scopeAliases[sessionScopeAliasKey(profile)]
+            ?: sessionScopeKey(profile)
         val scope = sessionScopes.computeIfAbsent(key) { SessionScope(lastAccessAt = now) }
         scope.lastAccessAt = now
         if (sessionScopes.size > MAX_SESSION_SCOPES) {
@@ -3574,6 +3706,38 @@ class OkHttpStalkerApiService @Inject constructor(
     private fun JsonObject.findInt(key: String): Int? {
         val element = this[key] as? JsonPrimitive ?: return null
         return element.contentOrNull?.trim()?.toIntOrNull()
+    }
+
+    private fun JsonObject.retryAfterMillisOrNull(): Long? {
+        val milliseconds = listOf("retry_after_ms", "retryAfterMillis")
+            .firstOrNull { key -> containsKey(key) }
+            ?.let { key -> findString(key) }
+            ?.toLongOrNull()
+            ?.coerceAtLeast(0L)
+        if (milliseconds != null) return milliseconds
+        return listOf("retry_after", "retry-after", "retryAfter")
+            .firstOrNull { key -> containsKey(key) }
+            ?.let { key -> findString(key) }
+            ?.toLongOrNull()
+            ?.coerceAtLeast(0L)
+            ?.times(1000L)
+    }
+
+    private fun String.isExplicitRateLimitMessage(): Boolean {
+        val normalized = lowercase(Locale.ROOT)
+            .replace('_', ' ')
+            .replace('-', ' ')
+        return normalized == "429" || listOf(
+            "rate limit",
+            "rate limited",
+            "ratelimited",
+            "too many requests",
+            "request throttled",
+            "throttled",
+            "throttle",
+            "http 429",
+            "status 429"
+        ).any(normalized::contains)
     }
 
     private fun GsonJsonObject.findString(key: String): String? {

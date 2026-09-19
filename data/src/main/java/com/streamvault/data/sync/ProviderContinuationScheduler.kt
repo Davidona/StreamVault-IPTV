@@ -9,6 +9,12 @@ internal class ProviderContinuationScheduler(
 ) : SyncContinuationScheduler {
     override suspend fun schedule(snapshot: ProviderSnapshot, work: List<SyncContinuation>) {
         val providerId = snapshot.provider.id
+        if (work.any { it.operation == SyncContinuationOperation.FULL_CATALOG }) {
+            // A catalog continuation resumes the committed provider workflow. The snapshot
+            // generation is not a ProviderConfigRevisionEntity revision and must not be sent
+            // through the configuration-edit worker path (fresh providers have no revision row).
+            workScheduler.scheduleProviderResume(providerId)
+        }
         if (work.any { it.operation == SyncContinuationOperation.REFRESH_GUIDE }) {
             workScheduler.scheduleBackgroundEpg(providerId)
         }

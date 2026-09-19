@@ -10,10 +10,12 @@ import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes as Media3AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.Metadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.text.Cue
+import androidx.media3.common.Timeline
+import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultLivePlaybackSpeedControl
@@ -29,6 +31,7 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 import androidx.media3.exoplayer.video.VideoRendererEventListener
+import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.session.MediaSession
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.DecoderMode
@@ -38,6 +41,7 @@ import com.streamvault.domain.model.PlaybackCompatibilityKey
 import com.streamvault.domain.model.PlaybackCompatibilityRecord
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
 import com.streamvault.player.audio.PlayerAudioFocusController
@@ -53,6 +57,7 @@ import com.streamvault.player.playback.PlaybackBufferPolicy
 import com.streamvault.player.playback.PlaybackErrorCategory
 import com.streamvault.player.playback.FfmpegAudioFallbackRequest
 import com.streamvault.player.playback.FfmpegExtensionSupport
+import com.streamvault.player.playback.InitialBitratePolicy
 import com.streamvault.player.playback.LiveHlsBufferPromotionDecider
 import com.streamvault.player.playback.PlaybackLogSanitizer
 import com.streamvault.player.playback.PlaybackPreparationPlan
@@ -61,6 +66,7 @@ import com.streamvault.player.playback.PlaybackRetryContext
 import com.streamvault.player.playback.PlayerDataSourceFactoryProvider
 import com.streamvault.player.playback.PlayerErrorClassifier
 import com.streamvault.player.playback.PlayerMediaSourceFactory
+import com.streamvault.player.playback.Media3PreloadWindowManager
 import com.streamvault.player.playback.PlayerRetryPolicy
 import com.streamvault.player.playback.PlayerTimeoutProfile
 import com.streamvault.player.playback.PreloadCoordinator
@@ -73,6 +79,7 @@ import com.streamvault.player.playback.StreamTypeResolver
 import com.streamvault.player.playback.VideoStallDetector
 import com.streamvault.player.playback.AutomaticRecoveryAction
 import com.streamvault.player.playback.buildLiveTsFallbackStreamInfo
+import com.streamvault.player.playback.buildDecoderReuseWorkaroundEvaluation
 import com.streamvault.player.playback.buildPlaybackRendererPlan
 import com.streamvault.player.playback.shouldAttemptAutomaticRecovery
 import com.streamvault.player.playback.hasEffectivePlaybackStarted
@@ -85,7 +92,9 @@ import com.streamvault.player.playback.shouldRecoverPositionAdvancingReadyStalls
 import com.streamvault.player.playback.shouldRecoverReadyStalls
 import com.streamvault.player.playback.shouldReconnectLiveStall
 import com.streamvault.player.playback.shouldForceSoftwareForAmbiguousDecoderFallback
+import com.streamvault.player.stats.FrameRateDetector
 import com.streamvault.player.stats.PlayerStatsCollector
+import com.streamvault.player.stats.PlayerTransferByteCounter
 import com.streamvault.player.timeshift.DefaultLiveTimeshiftManager
 import com.streamvault.player.timeshift.LiveTimeshiftBackend
 import com.streamvault.player.timeshift.LiveTimeshiftState
@@ -197,6 +206,7 @@ class Media3PlayerEngine @Inject constructor(
     private var compatibilityDecisionSource: String = "DEFAULT"
     @Volatile
     private var pendingLearnedAudioFallback: PendingLearnedAudioFallback? = null
+    private var vodTrackPreferencesConfiguredForNextPrepare = false
     private var videoStallCount = 0
     private var videoStallRecoveryAttempt = 0
     private var videoStallSafeRecoveryPerformed = false
@@ -247,6 +257,9 @@ class Media3PlayerEngine @Inject constructor(
 
     private val _duration = MutableStateFlow(0L)
     override val duration: StateFlow<Long> = _duration.asStateFlow()
+
+    private val _chapters = MutableStateFlow<List<PlayerChapter>>(emptyList())
+    override val chapters: StateFlow<List<PlayerChapter>> = _chapters.asStateFlow()
 
     private val _videoFormat = MutableStateFlow(VideoFormat(0, 0))
     override val videoFormat: StateFlow<VideoFormat> = _videoFormat.asStateFlow()
@@ -308,19 +321,36 @@ class Media3PlayerEngine @Inject constructor(
     }
     override val isMuted: StateFlow<Boolean> = audioFocusController.isMuted
 
+    private val transferByteCounter = PlayerTransferByteCounter()
+    private val lastBandwidthEstimateBps = AtomicLong(0L)
+    private val bandwidthMeter = DefaultBandwidthMeter.Builder(context)
+        .setInitialBitrateSupplier(InitialBitratePolicy { lastBandwidthEstimateBps.get() })
+        .setResetOnNetworkTypeChange(true)
+        .build()
+    private val frameRateDetector = FrameRateDetector()
     private val statsCollector = PlayerStatsCollector(
         scopeProvider = { scope },
         currentPosition = _currentPosition,
         duration = _duration,
         videoFormat = _videoFormat,
         playerStats = _playerStats,
-        playbackState = _playbackState
+        playbackState = _playbackState,
+        networkBytesProvider = { transferByteCounter.totalNetworkBytes },
+        frameRateDetector = frameRateDetector
     ).also {
         it.bind { exoPlayer }
     }
-    private val dataSourceFactoryProvider = PlayerDataSourceFactoryProvider(context, okHttpClient)
+    private val dataSourceFactoryProvider =
+        PlayerDataSourceFactoryProvider(
+            context = context,
+            baseClient = okHttpClient,
+            transferListener = transferByteCounter,
+            additionalTransferListener = bandwidthMeter.transferListener
+        )
     private val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceFactoryProvider)
     private val preloadCoordinator = PreloadCoordinator()
+    private var preloadWindowManager: Media3PreloadWindowManager? = null
+    private var pendingPreloadWindow: PlayerPreloadWindow? = null
     private val compatibilityProfile: PlaybackCompatibilityProfile = DefaultPlaybackCompatibilityProfile
     private val audioDecoderPreferencePolicy = DefaultDecoderPreferencePolicy()
     private val videoDecoderPreferencePolicy = DefaultDecoderPreferencePolicy()
@@ -418,6 +448,10 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
+        if (!vodTrackPreferencesConfiguredForNextPrepare) {
+            trackController.setVodTrackPreferences(exoPlayer, null)
+        }
+        vodTrackPreferencesConfiguredForNextPrepare = false
         prepareInternal(streamInfo = streamInfo, preserveRetryState = false, seekPositionMs = null, autoPlay = true)
     }
 
@@ -479,11 +513,12 @@ class Media3PlayerEngine @Inject constructor(
         _playbackState.value = PlaybackState.IDLE
         _isPlaying.value = false
         _mediaTitle.value = null
+        _chapters.value = emptyList()
         lastStreamInfo = null
         lastMediaId = null
         playbackStarted = false
         hasRenderedFirstVideoFrame = false
-        clearInjectedSubtitleCues()
+        setInjectedSubtitleText(null)
         statsCollector.stop()
         statsCollector.reset()
         audioFocusController.onPauseOrStop()
@@ -583,6 +618,14 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun setMediaSessionEnabled(enabled: Boolean) {
         enableMediaSession = enabled
+    }
+
+    override fun setAudioFocusBypassed(bypassed: Boolean) {
+        bypassAudioFocus = bypassed
+    }
+
+    override fun setResolutionConstrainedForMultiView(constrained: Boolean) {
+        constrainResolutionForMultiView = constrained
     }
 
     override fun setFastRetryOnTransientFailures(enabled: Boolean) {
@@ -722,6 +765,11 @@ class Media3PlayerEngine @Inject constructor(
         trackController.setPreferredAudioLanguage(exoPlayer, languageTag)
     }
 
+    override fun setVodTrackPreferences(preferences: VodTrackPreferences?) {
+        vodTrackPreferencesConfiguredForNextPrepare = true
+        trackController.setVodTrackPreferences(exoPlayer, preferences)
+    }
+
     override fun setSubtitleStyle(style: PlayerSubtitleStyle) {
         subtitleStyleController.updateStyle(style)
         viewBinder.reapplyStyle()
@@ -744,12 +792,8 @@ class Media3PlayerEngine @Inject constructor(
         exoPlayer?.let { trackController.selectSubtitleTrack(it, trackId) }
     }
 
-    override fun setInjectedSubtitleCues(cues: List<Cue>) {
-        viewBinder.setInjectedSubtitleCues(cues)
-    }
-
-    override fun clearInjectedSubtitleCues() {
-        viewBinder.clearInjectedSubtitleCues()
+    override fun setInjectedSubtitleText(text: String?) {
+        viewBinder.setInjectedSubtitleText(text)
     }
 
     override fun setLiveAudioTap(tap: LiveAudioTap?) {
@@ -772,14 +816,11 @@ class Media3PlayerEngine @Inject constructor(
             vodHttpProtocolMode = requestedVodHttpProtocolMode,
             preload = false
         )
-        val subtitleConfig = androidx.media3.common.MediaItem.SubtitleConfiguration.Builder(subtitleUri)
-            .setMimeType(androidx.media3.common.MimeTypes.APPLICATION_SUBRIP)
-            .setLanguage(language)
-            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-            .build()
-        val subtitleSource = androidx.media3.exoplayer.source.SingleSampleMediaSource.Factory(
-            androidx.media3.datasource.DefaultDataSource.Factory(context)
-        ).createMediaSource(subtitleConfig, C.TIME_UNSET)
+        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language)
+        val subtitleSource = buildExternalSubtitleMediaSource(
+            dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
+            configuration = subtitleConfig
+        )
         val merged = androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleSource)
 
         player.trackSelectionParameters = player.trackSelectionParameters.withExternalSubtitleEnabled()
@@ -807,6 +848,9 @@ class Media3PlayerEngine @Inject constructor(
     override fun preload(streamInfo: StreamInfo?) {
         if (streamInfo == null) {
             preloadCoordinator.invalidate("cleared")
+            preloadWindowManager?.clearWindow()
+            pendingPreloadWindow = null
+            Log.i(TAG, "preload-window reset reason=legacy-clear")
             return
         }
         if (streamInfo.url == lastStreamInfo?.url) return
@@ -825,6 +869,27 @@ class Media3PlayerEngine @Inject constructor(
             preload = true
         )
         preloadCoordinator.store(mediaId, streamInfo, playbackPlan.resolvedStreamType, mediaSource)
+    }
+
+    override fun preloadWindow(window: PlayerPreloadWindow) {
+        val normalized = normalizePlayerPreloadWindow(window)
+        if (normalized.items.isEmpty()) {
+            preloadWindowManager?.clearWindow()
+            pendingPreloadWindow = null
+            Log.i(TAG, "preload-window skipped reason=empty-or-invalid")
+            return
+        }
+
+        // The legacy cache is intended for adjacent live-channel zapping. A VOD or
+        // catch-up window must not accidentally reuse that source for another class.
+        preloadCoordinator.invalidate("sliding-window")
+        pendingPreloadWindow = normalized
+        preloadWindowManager?.updateWindow(normalized)
+        Log.i(
+            TAG,
+            "preload-window accepted currentIndex=${normalized.currentIndex} " +
+                "sourceCount=${normalized.items.size} manager=${preloadWindowManager != null}"
+        )
     }
 
     override fun createRenderView(
@@ -877,6 +942,7 @@ class Media3PlayerEngine @Inject constructor(
         retryJob?.cancel()
         retryJob = null
         preloadCoordinator.release()
+        pendingPreloadWindow = null
         statsCollector.stop()
         audioFocusController.release()
         mediaSession?.release()
@@ -884,6 +950,11 @@ class Media3PlayerEngine @Inject constructor(
         viewBinder.clear()
         exoPlayer?.release()
         exoPlayer = null
+        preloadWindowManager?.release()
+        if (preloadWindowManager != null) {
+            Log.i(TAG, "preload-window manager-released reason=engine-reset")
+        }
+        preloadWindowManager = null
         lastStreamInfo = null
         lastMediaId = null
         currentRetryPolicy = null
@@ -901,7 +972,8 @@ class Media3PlayerEngine @Inject constructor(
         _playbackState.value = PlaybackState.IDLE
         _isPlaying.value = false
         _mediaTitle.value = null
-        clearInjectedSubtitleCues()
+        _chapters.value = emptyList()
+        setInjectedSubtitleText(null)
         trackController.resetSelections()
         statsCollector.reset()
         videoStallDetector.reset()
@@ -988,6 +1060,7 @@ class Media3PlayerEngine @Inject constructor(
         lastSupportErrorMessage = null
         _error.tryEmit(null)
         _mediaTitle.value = null
+        _chapters.value = emptyList()
         trackController.resetSelections()
         statsCollector.reset()
         videoStallDetector.reset()
@@ -1094,14 +1167,22 @@ class Media3PlayerEngine @Inject constructor(
             }
             player.playbackParameters = PlaybackParameters(_playbackSpeed.value)
 
-            val mediaSource = preloadCoordinator.tryReuse(mediaId, streamInfo, currentResolvedStreamType)
-                ?: mediaSourceFactory.create(
-                    streamInfo = streamInfo,
-                    resolvedStreamType = currentResolvedStreamType,
-                    retryPolicy = currentRetryPolicy!!,
-                    vodHttpProtocolMode = requestedVodHttpProtocolMode,
-                    preload = false
-                ).second
+            val managedMediaSource = preloadWindowManager?.getMediaSource(streamInfo)
+            val mediaSource = managedMediaSource
+                ?: preloadCoordinator.tryReuse(mediaId, streamInfo, currentResolvedStreamType)
+                ?: run {
+                    Log.i(TAG, "preload-source direct-fallback mediaId=$mediaId")
+                    mediaSourceFactory.create(
+                        streamInfo = streamInfo,
+                        resolvedStreamType = currentResolvedStreamType,
+                        retryPolicy = currentRetryPolicy!!,
+                        vodHttpProtocolMode = requestedVodHttpProtocolMode,
+                        preload = false
+                    ).second
+                }
+            if (managedMediaSource != null) {
+                Log.i(TAG, "preload-source reused mediaId=$mediaId source=window")
+            }
             preloadCoordinator.onPlaybackStarted(mediaId)
             player.setMediaSource(mediaSource)
             player.prepare()
@@ -1143,6 +1224,11 @@ class Media3PlayerEngine @Inject constructor(
         mediaSession = null
         existing.release()
         exoPlayer = null
+        preloadWindowManager?.release()
+        if (preloadWindowManager != null) {
+            Log.i(TAG, "preload-window manager-recreated reason=player-recreate")
+        }
+        preloadWindowManager = null
         viewBinder.attachPlayer(null)
         // The caller (prepareInternal) will create a fresh player and set it up fully.
     }
@@ -1153,6 +1239,7 @@ class Media3PlayerEngine @Inject constructor(
             exoPlayer = player
             statsCollector.bind { exoPlayer }
             audioFocusController.reapplyVolume()
+            pendingPreloadWindow?.let { preloadWindowManager?.updateWindow(it) }
             if (enableMediaSession) {
                 mediaSession = MediaSession.Builder(context, player)
                     .setId(mediaSessionId)
@@ -1187,28 +1274,60 @@ class Media3PlayerEngine @Inject constructor(
             .setFallbackMaxPlaybackSpeed(1.0f)
             .build()
 
-        return ExoPlayer.Builder(context, renderersFactory)
-            .setLoadControl(loadControl)
-            .setLivePlaybackSpeedControl(livePlaybackSpeedControl)
-            .setSeekBackIncrementMs(10_000)
-            .setSeekForwardIncrementMs(10_000)
-            .setAudioAttributes(
-                Media3AudioAttributes.Builder()
-                    .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_UNKNOWN)
-                    .build(),
-                false
-            )
-            .build()
+        val preloadManager = Media3PreloadWindowManager(
+            context = context,
+            mediaSourceFactory = mediaSourceFactory,
+            dataSourceFactoryProvider = dataSourceFactoryProvider,
+            bandwidthMeter = bandwidthMeter
+        )
+        preloadWindowManager = preloadManager
+        return preloadManager.createPlayer(
+            renderersFactory = renderersFactory,
+            loadControl = loadControl,
+            preloadDataSourceFactory = createPreloadDataSourceFactory(),
+            configure = { builder ->
+                builder
+                    .setLivePlaybackSpeedControl(livePlaybackSpeedControl)
+                    .setSeekBackIncrementMs(10_000)
+                    .setSeekForwardIncrementMs(10_000)
+                    .setAudioAttributes(
+                        Media3AudioAttributes.Builder()
+                            .setUsage(C.USAGE_MEDIA)
+                            .setContentType(C.AUDIO_CONTENT_TYPE_UNKNOWN)
+                            .build(),
+                        false
+                    )
+            }
+        )
             .apply {
                 videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                 playbackParameters = PlaybackParameters(_playbackSpeed.value)
-                setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
-                    videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))
-                }
+                 setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
+                     videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))
+                     frameRateDetector.onFrame(presentationTimeUs)
+                 }
                 addAnalyticsListener(createAnalyticsListener())
                 addListener(createPlayerListener())
             }
+    }
+
+    private fun createPreloadDataSourceFactory(): androidx.media3.datasource.DataSource.Factory {
+        val streamInfo = lastStreamInfo ?: return androidx.media3.datasource.DefaultDataSource.Factory(context)
+        val resolvedType = runCatching {
+            buildPlaybackPreparationPlan(
+                streamInfo = streamInfo,
+                preload = true,
+                playbackStarted = { false }
+            ).resolvedStreamType
+        }.getOrNull() ?: return androidx.media3.datasource.DefaultDataSource.Factory(context)
+        return runCatching {
+            dataSourceFactoryProvider.createFactory(
+                streamInfo = streamInfo,
+                resolvedStreamType = resolvedType,
+                vodHttpProtocolMode = requestedVodHttpProtocolMode,
+                preload = true
+            ).second
+        }.getOrElse { androidx.media3.datasource.DefaultDataSource.Factory(context) }
     }
 
     private fun PlaybackBufferPolicy.describeForLog(
@@ -1328,28 +1447,24 @@ class Media3PlayerEngine @Inject constructor(
                     return
                 }
 
-                out.add(object : MediaCodecVideoRenderer(
-                    context,
-                    videoCodecSelector,
-                    allowedVideoJoiningTimeMs,
-                    enableDecoderFallback,
-                    eventHandler,
-                    eventListener,
-                    50
-                ) {
+                val rendererBuilder = MediaCodecVideoRenderer.Builder(context)
+                    .setMediaCodecSelector(videoCodecSelector)
+                    .setAllowedJoiningTimeMs(allowedVideoJoiningTimeMs)
+                    .setEnableDecoderFallback(enableDecoderFallback)
+                    .setEventHandler(eventHandler)
+                    .setEventListener(eventListener)
+                    .setMaxDroppedFramesToNotify(50)
+                out.add(object : MediaCodecVideoRenderer(rendererBuilder) {
                     override fun canReuseCodec(
                         codecInfo: MediaCodecInfo,
                         oldFormat: Format,
-                        newFormat: Format
-                    ): DecoderReuseEvaluation {
-                        return DecoderReuseEvaluation(
-                            codecInfo.name,
-                            oldFormat,
-                            newFormat,
-                            DecoderReuseEvaluation.REUSE_RESULT_NO,
-                            DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED
-                        )
-                    }
+                        newFormat: Format,
+                        isAdaptiveFormatChange: Boolean
+                    ): DecoderReuseEvaluation = buildDecoderReuseWorkaroundEvaluation(
+                        decoderName = codecInfo.name,
+                        oldFormat = oldFormat,
+                        newFormat = newFormat
+                    )
                 })
             }
         }
@@ -1451,6 +1566,9 @@ class Media3PlayerEngine @Inject constructor(
                 totalBytesLoaded: Long,
                 bitrateEstimate: Long
             ) {
+                if (bitrateEstimate > 0L) {
+                    lastBandwidthEstimateBps.set(bitrateEstimate)
+                }
                 statsCollector.onBandwidthEstimate(bitrateEstimate)
             }
 
@@ -1538,12 +1656,18 @@ class Media3PlayerEngine @Inject constructor(
                 syncTimeshiftState()
             }
 
+            override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                refreshChapters()
+            }
+
             override fun onMediaMetadataChanged(metadata: androidx.media3.common.MediaMetadata) {
                 _mediaTitle.value = metadata.title?.toString()?.takeIf { it.isNotBlank() }
             }
 
             override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                 trackController.onTracksChanged(tracks)
+                exoPlayer?.let(trackController::applyVodTrackPreferences)
+                refreshChapters(tracks)
                 // Detect the silent failure: the stream contains audio groups but no track
                 // is decodable on this device (e.g. EAC3/AC3 without passthrough or a
                 // software decoder). ExoPlayer simply skips the audio renderer without
@@ -1574,6 +1698,37 @@ class Media3PlayerEngine @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun refreshChapters(tracks: Tracks? = exoPlayer?.currentTracks) {
+        val player = exoPlayer ?: run {
+            _chapters.value = emptyList()
+            return
+        }
+        val timeline = player.currentTimeline
+        if (tracks == null || timeline.isEmpty) {
+            _chapters.value = emptyList()
+            return
+        }
+
+        val window = Timeline.Window()
+        timeline.getWindow(player.currentMediaItemIndex, window)
+        val metadataEntries = buildList<Metadata.Entry> {
+            tracks.groups.forEach { group ->
+                repeat(group.length) { trackIndex ->
+                    group.getTrackFormat(trackIndex).metadata?.let { metadata ->
+                        repeat(metadata.length()) { entryIndex ->
+                            add(metadata[entryIndex])
+                        }
+                    }
+                }
+            }
+        }
+        _chapters.value = mapChapterMetadata(
+            metadata = metadataEntries.takeIf { it.isNotEmpty() }?.let(::Metadata),
+            windowOffsetMs = window.positionInFirstPeriodUs / 1_000L,
+            durationMs = player.duration.takeIf { it > 0L && it != C.TIME_UNSET } ?: 0L
+        )
     }
 
     private fun playerOrNull(): ExoPlayer? = exoPlayer

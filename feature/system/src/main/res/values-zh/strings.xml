@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">设置提供商</string>
+  <string name="welcome_loading_title">正在准备您的媒体库</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">客厅里的高级 IPTV</string>
+  <string name="welcome_subtitle">轻松观看直播频道、回看、电影和剧集，享受原生 Android TV 体验。</string>
+  <string name="settings_cancel">取消</string>
+</resources>

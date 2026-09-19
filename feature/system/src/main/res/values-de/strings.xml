@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Setup-Anbieter</string>
+  <string name="welcome_loading_title">Vorbereiten Ihrer Bibliothek</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Series</string>
+  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="welcome_tagline">Premium-IPTV für das Wohnzimmer</string>
+  <string name="welcome_subtitle">Lehnen Sie sich zurück und genießen Sie Live-Kanäle, Catch-up, Filme und Serien mit einer erstklassigen Android-TV-Erfahrung.</string>
+  <string name="settings_cancel">Abbrechen</string>
+</resources>

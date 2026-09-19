@@ -138,16 +138,21 @@ class DownloadForegroundService : Service() {
     override fun onTimeout(startId: Int, fgsType: Int) {
         val downloadId = currentDownloadId
         Log.e(TAG, "Foreground-service time allowance exhausted; pausing download $downloadId")
-        serviceScope.launch {
-            try {
+
+        // Android only gives the service a short grace period after this callback. Release the
+        // shared lease before doing database work so another dataSync service cannot be blocked
+        // by a slow pause/reconciliation operation.
+        DownloadForegroundServiceTimeoutHandler(
+            releaseQuotaLease = { releaseDataSyncQuotaLease("android_timeout") },
+            pauseDownload = {
                 if (!downloadId.isNullOrBlank()) {
                     entryPoint().downloadManager().pauseDownloadForForegroundServiceTimeout(downloadId)
                 }
-            } finally {
-                releaseDataSyncQuotaLease("android_timeout")
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf(startId)
-            }
+            },
+            stopForeground = { stopForeground(STOP_FOREGROUND_REMOVE) },
+            stopSelf = ::stopSelf
+        ).handle(downloadId, startId) { block ->
+            serviceScope.launch { block() }
         }
     }
 

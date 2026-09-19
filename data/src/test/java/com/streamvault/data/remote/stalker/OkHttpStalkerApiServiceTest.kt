@@ -1926,6 +1926,59 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodFiles_requests_movie_files_by_movie_id() = runTest {
+        var requestedMovieId: String? = null
+        var requestedAction: String? = null
+        var requestedType: String? = null
+        var requestedSeasonId: String? = null
+        var requestedEpisodeId: String? = null
+        var requestedRow: String? = null
+        var requestedJsHttpRequest: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedMovieId = chain.request().url.queryParameter("movie_id")
+                    requestedAction = chain.request().url.queryParameter("action")
+                    requestedType = chain.request().url.queryParameter("type")
+                    requestedSeasonId = chain.request().url.queryParameter("season_id")
+                    requestedEpisodeId = chain.request().url.queryParameter("episode_id")
+                    requestedRow = chain.request().url.queryParameter("row")
+                    requestedJsHttpRequest = chain.request().url.queryParameter("JsHttpRequest")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"3199303","name":"Punjabi / Ultra high quality (4K)","cmd":"http://cdn.example.com/8be12/index.m3u8"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodFiles(
+            stalkerSession(),
+            stalkerProfile(),
+            movieId = "568068"
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedAction).isEqualTo("get_ordered_list")
+        assertThat(requestedMovieId).isEqualTo("568068")
+        assertThat(requestedType).isEqualTo("vod")
+        assertThat(requestedSeasonId).isEqualTo("0")
+        assertThat(requestedEpisodeId).isEqualTo("0")
+        assertThat(requestedRow).isEqualTo("0")
+        assertThat(requestedJsHttpRequest).isEqualTo("1-xml")
+        val files = (result as Result.Success).data
+        assertThat(files).hasSize(1)
+        assertThat(files.first().id).isEqualTo("3199303")
+    }
+
+    @Test
     fun getVodStreamsPage_treats_199_as_incomplete_and_200_as_complete_when_total_is_200() = runTest {
         val service = OkHttpStalkerApiService(
             okHttpClient = fakeClient(
@@ -2950,6 +3003,137 @@ class OkHttpStalkerApiServiceTest {
         assertThat(error.message).contains("Please contact your provider to register this device.")
         // Terminal: no bootstrap/catalog call may follow a conflicted profile.
         assertThat(requestedActions).containsExactly("handshake", "get_profile").inOrder()
+    }
+
+    @Test
+    fun authenticate_explicitTokenlessThrottle_abortsAsRateLimitedWithoutFurtherHandshakes() = runTest {
+        val requestedActions = mutableListOf<String>()
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    requestedActions += request.url.queryParameter("action").orEmpty()
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"msg":"Too many requests","retry_after":30}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.authenticate(stalkerProfile())
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        val error = (result as Result.Error).exception
+        assertThat(error).isInstanceOf(StalkerApiError.RateLimited::class.java)
+        assertThat((error as StalkerApiError.RateLimited).retryAfterMillis).isEqualTo(30_000L)
+        assertThat(requestedActions).containsExactly("handshake")
+    }
+
+    @Test
+    fun authenticate_genericTokenlessHandshake_continuesEndpointAndRecipeDiscovery() = runTest {
+        val requestedActions = mutableListOf<String>()
+        var handshakeCount = 0
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    val action = request.url.queryParameter("action").orEmpty()
+                    requestedActions += action
+                    val body = when (action) {
+                        "handshake" -> if (++handshakeCount == 1) {
+                            """{"js":{}}"""
+                        } else {
+                            """{"js":{"token":"token-123","random":"abc"}}"""
+                        }
+                        "get_profile" -> """{"js":{"status":1,"name":"Living Room"}}"""
+                        else -> """{"js":{}}"""
+                    }
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(body.toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.authenticate(stalkerProfile())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(handshakeCount).isAtLeast(2)
+        assertThat(requestedActions).contains("get_profile")
+    }
+
+    @Test
+    fun restoreSession_rehydratesServerCookiesForNormalApiRequests() = runTest {
+        var requestCookie = ""
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestCookie = chain.request().header("Cookie").orEmpty()
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body("""{"js":[]}""".toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        val session = stalkerSession().copy(
+            sessionScopeKey = "restored-scope",
+            serverCookieHeader = "sid=restored-cookie"
+        )
+        val profile = stalkerProfile()
+
+        service.restoreSession(session, profile)
+        val result = service.getVodCategories(session, profile)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestCookie).contains("sid=restored-cookie")
+    }
+
+    @Test
+    fun restoreSession_keepsRestoredCookiesWhenResponseRefreshesOnlyOneCookie() = runTest {
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .addHeader("Set-Cookie", "sid=refreshed; Path=/; HttpOnly")
+                        .body("""{"js":[]}""".toResponseBody("application/json".toMediaType()))
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        val session = stalkerSession().copy(
+            sessionScopeKey = "restored-scope",
+            serverCookieHeader = "sid=restored-cookie; affinity=keep-me"
+        )
+        val profile = stalkerProfile()
+
+        service.restoreSession(session, profile)
+        service.getVodCategories(session, profile)
+
+        assertThat(service.currentCookieHeader(session)).contains("sid=refreshed")
+        assertThat(service.currentCookieHeader(session)).contains("affinity=keep-me")
     }
 
     @Test

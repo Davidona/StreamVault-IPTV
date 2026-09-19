@@ -1,5 +1,7 @@
 package com.streamvault.app.plugins
 
+import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
+import com.streamvault.feature.system.api.StreamVaultPluginManifest
 import java.net.URI
 import kotlinx.coroutines.withTimeoutOrNull
 

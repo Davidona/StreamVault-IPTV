@@ -13,6 +13,7 @@ import com.streamvault.data.local.dao.XtreamContentIndexDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.entity.EpisodeBrowseEntity
 import com.streamvault.data.local.entity.EpisodeEntity
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.local.entity.SeriesBrowseEntity
 import com.streamvault.data.local.entity.SeriesCategoryHydrationEntity
@@ -34,6 +35,7 @@ import com.streamvault.data.remote.stalker.StalkerPagedItems
 import com.streamvault.data.remote.stalker.StalkerProviderProfile
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
+import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.stalker.StalkerSeasonRecord
 import com.streamvault.data.remote.stalker.StalkerSeriesDetails
 import com.streamvault.data.remote.stalker.StalkerSession
@@ -75,6 +77,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -102,6 +105,12 @@ class SeriesRepositoryImplTest {
     private val preferencesRepository: PreferencesRepository = mock()
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver = mock()
     private val seriesCategoryHydrationDao: SeriesCategoryHydrationDao = mock()
+
+    @Before
+    fun clearStalkerCaches() {
+        StalkerProvider.clearSharedAuthCacheForTests()
+        StalkerProvider.clearResolvedStreamUrlCacheForTests()
+    }
     private val jellyfinProvider: JellyfinProvider = mock()
     private val xtreamContentIndexDao: XtreamContentIndexDao = mock()
     private val xtreamIndexJobDao: XtreamIndexJobDao = mock()
@@ -221,13 +230,56 @@ class SeriesRepositoryImplTest {
                 status = ProviderStatus.ACTIVE
             )
         )
-        whenever(episodeDao.getBySeriesSync(99L)).thenReturn(emptyList())
+        whenever(episodeDao.getBySeriesSync(99L)).thenReturn(
+            listOf(
+                EpisodeBrowseEntity(
+                    id = 1L,
+                    episodeId = 301L,
+                    title = "Episode 1",
+                    episodeNumber = 1,
+                    seasonNumber = 1,
+                    seriesId = 99L,
+                    providerId = 7L
+                )
+            )
+        )
 
         val result = createRepository().getSeriesDetails(7L, 99L)
 
         assertThat(result.getOrNull()?.name).isEqualTo("Cached Series")
         verify(xtreamApiService, never()).getSeriesInfo(any(), any())
         verify(xtreamContentIndexDao, never()).markDetailHydrated(any(), any(), any(), any(), anyOrNull(), any())
+    }
+
+    @Test
+    fun `getSeriesDetails rehydrates fresh xtream series that lost its episodes`() = runTest {
+        val hydratedAt = System.currentTimeMillis()
+        val seriesEntity = SeriesEntity(
+            id = 99L,
+            seriesId = 301L,
+            name = "Cached Series",
+            providerId = 7L,
+            cacheState = "DETAIL_HYDRATED",
+            detailHydratedAt = hydratedAt
+        )
+        whenever(seriesDao.getById(99L)).thenReturn(seriesEntity)
+        stubProvider(
+            Provider(
+                id = 7L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "http://example.com",
+                username = "user",
+                password = "pass",
+                status = ProviderStatus.ACTIVE
+            )
+        )
+        whenever(episodeDao.getBySeriesSync(99L)).thenReturn(emptyList())
+
+        createRepository().getSeriesDetails(7L, 99L)
+
+        verify(seriesCatalogSource).hydrateSeries(any(), any())
+        verify(xtreamContentIndexDao).markDetailHydrated(any(), any(), any(), any(), anyOrNull(), any())
     }
 
     @Test
@@ -465,6 +517,45 @@ class SeriesRepositoryImplTest {
 
         verify(stalkerApiService).getSeriesPage(any(), any(), anyOrNull(), eq(1))
         verify(stalkerApiService, never()).getSeriesPage(any(), any(), anyOrNull(), eq(2))
+    }
+
+    @Test
+    fun `stalker preview keeps wildcard-only series category`() = runTest {
+        val wildcardId = stalkerStableHashId(7L, ContentType.SERIES, "*")
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+            flowOf(
+                listOf(
+                    CategoryEntity(
+                        providerId = 7L,
+                        categoryId = wildcardId,
+                        name = "*",
+                        type = ContentType.SERIES
+                    )
+                )
+            )
+        )
+        whenever(seriesDao.getCountByCategory(7L, wildcardId)).thenReturn(flowOf(18))
+        whenever(seriesCategoryHydrationDao.get(7L, wildcardId)).thenReturn(null)
+        whenever(seriesDao.getByCategoryPreview(7L, wildcardId, 18)).thenReturn(
+            flowOf(
+                listOf(
+                    SeriesBrowseEntity(
+                        id = 1L,
+                        seriesId = 1L,
+                        providerSeriesId = "1",
+                        name = "Series",
+                        categoryId = wildcardId,
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+        stubProvider(stalkerProvider())
+
+        val result = createRepository().getCategoryPreviewRows(7L, listOf(wildcardId), 18).first()
+
+        assertThat(result[wildcardId]).hasSize(1)
     }
 
     @Test
@@ -839,6 +930,85 @@ class SeriesRepositoryImplTest {
     }
 
     @Test
+    fun `getSeriesDetails keeps persisted episodes when remote returns a partial set`() = runTest {
+        whenever(preferencesRepository.xtreamBase64TextCompatibility).thenReturn(flowOf(false))
+        val seriesEntity = SeriesEntity(
+            id = 15L,
+            seriesId = 301L,
+            name = "Stored Series",
+            providerId = 7L
+        )
+        whenever(seriesDao.getById(15L)).thenReturn(seriesEntity)
+        stubProvider(
+            Provider(
+                id = 7L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "http://example.com",
+                username = "user",
+                password = "pass",
+                status = ProviderStatus.ACTIVE
+            )
+        )
+        whenever(episodeDao.getBySeriesSync(15L)).thenReturn(
+            listOf(
+                EpisodeBrowseEntity(
+                    id = 1L,
+                    episodeId = 7001L,
+                    title = "Episode 1",
+                    episodeNumber = 1,
+                    seasonNumber = 1,
+                    seriesId = 15L,
+                    providerId = 7L
+                ),
+                EpisodeBrowseEntity(
+                    id = 2L,
+                    episodeId = 7002L,
+                    title = "Episode 2",
+                    episodeNumber = 2,
+                    seasonNumber = 1,
+                    seriesId = 15L,
+                    providerId = 7L
+                )
+            )
+        )
+        whenever(seriesCatalogSource.hydrateSeries(any(), any())).thenReturn(
+            Result.success(
+                Series(
+                    id = 15L,
+                    name = "Stored Series",
+                    providerId = 7L,
+                    seriesId = 301L,
+                    seasons = listOf(
+                        Season(
+                            seasonNumber = 1,
+                            episodes = listOf(
+                                Episode(
+                                    id = 0L,
+                                    episodeId = 7001L,
+                                    title = "Episode 1",
+                                    episodeNumber = 1,
+                                    seasonNumber = 1,
+                                    seriesId = 15L,
+                                    providerId = 7L
+                                )
+                            ),
+                            episodeCount = 1
+                        )
+                    )
+                )
+            )
+        )
+
+        val result = createRepository().getSeriesDetails(7L, 15L)
+
+        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Success::class.java)
+        val series = (result as com.streamvault.domain.model.Result.Success).data
+        assertThat(series.seasons.flatMap { it.episodes }.map { it.title }).containsExactly("Episode 1", "Episode 2")
+        verify(episodeDao, never()).replaceAll(any(), any(), any())
+    }
+
+    @Test
     fun `getSeriesDetails uses provider series id for stalker details`() = runTest {
         val seriesEntity = SeriesEntity(
             id = 15L,
@@ -999,29 +1169,27 @@ class SeriesRepositoryImplTest {
     fun `browseSeries groups duplicate series when duplicate handling is enabled`() = runTest {
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(seriesDao.getCount(7L)).thenReturn(flowOf(2))
-        whenever(seriesDao.getByProviderPage(7L, 100, 0)).thenReturn(
-            flowOf(
-                listOf(
-                    SeriesBrowseEntity(
-                        id = 17L,
-                        seriesId = 1700L,
-                        providerSeriesId = "1700",
-                        name = "Drama HD",
-                        providerId = 7L,
-                        releaseDate = "2024-01-01",
-                        tmdbId = 5000L,
-                        lastModified = 10L
-                    ),
-                    SeriesBrowseEntity(
-                        id = 18L,
-                        seriesId = 1800L,
-                        providerSeriesId = "1800",
-                        name = "Drama 4K",
-                        providerId = 7L,
-                        releaseDate = "2024-02-01",
-                        tmdbId = 5000L,
-                        lastModified = 20L
-                    )
+        whenever(seriesDao.getFreshCursorPage(7L, 40)).thenReturn(
+            listOf(
+                SeriesBrowseEntity(
+                    id = 17L,
+                    seriesId = 1700L,
+                    providerSeriesId = "1700",
+                    name = "Drama HD",
+                    providerId = 7L,
+                    releaseDate = "2024-01-01",
+                    tmdbId = 5000L,
+                    lastModified = 10L
+                ),
+                SeriesBrowseEntity(
+                    id = 18L,
+                    seriesId = 1800L,
+                    providerSeriesId = "1800",
+                    name = "Drama 4K",
+                    providerId = 7L,
+                    releaseDate = "2024-02-01",
+                    tmdbId = 5000L,
+                    lastModified = 20L
                 )
             )
         )
@@ -1044,7 +1212,8 @@ class SeriesRepositoryImplTest {
         assertThat(result.items).hasSize(1)
         assertThat(result.items.single().selectedVariantId).isEqualTo(18L)
         assertThat(result.items.single().variants.map { it.rawSeriesId }).containsExactly(18L, 17L).inOrder()
-        verify(seriesDao, never()).getFreshCursorPage(any(), any())
+        verify(seriesDao).getFreshCursorPage(7L, 40)
+        verify(seriesDao, never()).getByProviderPage(any(), any(), any())
     }
 
     @Test

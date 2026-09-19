@@ -10,8 +10,8 @@ import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.DrmScheme
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VideoFormat
+import com.streamvault.domain.settings.VodTrackPreferences
 import androidx.media3.common.PlaybackException
-import androidx.media3.common.text.Cue
 import androidx.media3.datasource.HttpDataSource
 import com.streamvault.player.playback.PlaybackErrorCategory
 import com.streamvault.player.playback.PlayerErrorClassifier
@@ -44,6 +44,7 @@ interface PlayerEngine {
     val isPlaying: StateFlow<Boolean>
     val currentPosition: StateFlow<Long>
     val duration: StateFlow<Long>
+    val chapters: StateFlow<List<PlayerChapter>>
     val videoFormat: StateFlow<VideoFormat>
     val error: Flow<PlayerError?>
     val retryStatus: StateFlow<PlayerRetryStatus?>
@@ -77,6 +78,8 @@ interface PlayerEngine {
     fun setSurfaceMode(mode: PlayerSurfaceMode)
     fun setVodHttpProtocolMode(mode: VodHttpProtocolMode)
     fun setMediaSessionEnabled(enabled: Boolean)
+    fun setAudioFocusBypassed(bypassed: Boolean) {}
+    fun setResolutionConstrainedForMultiView(constrained: Boolean) {}
     fun setFastRetryOnTransientFailures(enabled: Boolean)
     fun setVolume(volume: Float)
     fun setMuted(muted: Boolean)
@@ -92,14 +95,14 @@ interface PlayerEngine {
     fun pauseTimeshift()
     fun resumeTimeshift()
     fun setPreferredAudioLanguage(languageTag: String?)
+    fun setVodTrackPreferences(preferences: VodTrackPreferences?)
     fun setSubtitleStyle(style: PlayerSubtitleStyle)
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?)
     fun selectAudioTrack(trackId: String)
     fun selectVideoTrack(trackId: String)
     fun selectSubtitleTrack(trackId: String?) // null to disable subtitles
     fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String)
-    fun setInjectedSubtitleCues(cues: List<Cue>)
-    fun clearInjectedSubtitleCues()
+    fun setInjectedSubtitleText(text: String?)
     fun setLiveAudioTap(tap: LiveAudioTap?)
     fun clearLiveAudioTap() = setLiveAudioTap(null)
     fun release()
@@ -125,6 +128,15 @@ interface PlayerEngine {
      * Call with `null` to discard any preloaded data.
      */
     fun preload(streamInfo: StreamInfo?)
+
+    /**
+     * Preload a bounded VOD or catch-up navigation window. Implementations that
+     * do not support sliding-window preloading may safely ignore this request.
+     */
+    fun preloadWindow(window: PlayerPreloadWindow) {}
+
+    /** Clears both sliding-window and legacy single-item preload state. */
+    fun clearPreloadWindow() = preload(null)
 
     fun createRenderView(
         context: Context,
@@ -173,6 +185,12 @@ data class PlayerStats(
     val videoStallCount: Int = 0,
     val lastVideoFrameAgoMs: Long = 0,
     val videoBitrate: Int = 0,
+    /** Frame rate declared by the stream/container; 0 when not declared (common for MPEG-TS). */
+    val frameRate: Float = 0f,
+    /** Nominal frame rate detected once from frame timestamps and then locked; 0 until detected. */
+    val measuredFrameRate: Float = 0f,
+    /** Running average of the whole-stream network bitrate in bps, rounded to 0.1 Mbps; 0 until measured. */
+    val measuredBitrate: Long = 0L,
     val droppedFrames: Int = 0,
     val width: Int = 0,
     val height: Int = 0,

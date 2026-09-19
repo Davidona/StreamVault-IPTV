@@ -2,6 +2,8 @@ package com.streamvault.app.ui.remote
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.RemoteShortcutAction
+import com.streamvault.feature.live.presentation.remote.LiveBrowseRemoteShortcutHandler
+import com.streamvault.feature.live.presentation.remote.dispatchLiveBrowseRemoteShortcut
 import org.junit.Test
 
 class RemoteShortcutDispatchTest {

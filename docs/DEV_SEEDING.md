@@ -37,6 +37,44 @@ m3u.dev.name=iptv-org France
 Browse [`iptv-org/iptv`](https://github.com/iptv-org/iptv) for other
 country/category playlists.
 
+### Option C — Deterministic local Catalog fixture
+
+For Catalog movie/series/detail journeys without a provider account, run the
+checked-in fixture from the repository root:
+
+```bash
+python -m unittest tools.tests.test_catalog_xtream_fixture
+python tools/catalog_xtream_fixture.py --port 8765
+```
+
+Then configure the debug build with the emulator host mapping:
+
+```properties
+xtream.dev.server=http://10.0.2.2:8765
+xtream.dev.username=fixture
+xtream.dev.password=fixture
+xtream.dev.name=Catalog Fixture
+```
+
+The fixture serves one live channel, 63 movies, 63 series, and deterministic
+detail/episode metadata. The first two movie/series entries are stable named
+fixtures; generated pagination-category entries make the 60-item page boundary
+reproducible. It is for local diagnostic and acceptance journeys; stop the
+process and remove the four entries after testing. The script never contacts
+an external provider.
+
+For the repeatable TV semantic journey, with the fixture-configured debug APK
+installed, run:
+
+```powershell
+python tools/catalog_connected_validation.py --adb E:\androidSdk\platform-tools\adb.exe --serial emulator-5554
+```
+
+The harness drives production D-pad/UIAutomator semantics and writes its XML
+snapshots and `report.json` under the ignored `build/catalog-validation`
+directory. It does not edit `local.properties` or claim Cast/download receiver
+success.
+
 ## How it works
 
 `WelcomeViewModel.maybeSeedDevProvider()` runs once at app start, before

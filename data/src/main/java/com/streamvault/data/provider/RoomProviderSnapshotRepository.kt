@@ -10,22 +10,42 @@ import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.domain.model.*
 import com.streamvault.domain.repository.ProviderSnapshotRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RoomProviderSnapshotRepository @Inject constructor(
+class RoomProviderSnapshotRepository internal constructor(
     private val providerDao: ProviderDao,
     private val snapshotDao: ProviderSnapshotDao,
     private val stalkerPortalStateDao: StalkerPortalStateDao,
     private val codec: ProviderConfigurationCodec,
-    private val gson: Gson
+    private val gson: Gson,
+    private val workDispatcher: CoroutineDispatcher
 ) : ProviderSnapshotRepository {
+    @Inject
+    constructor(
+        providerDao: ProviderDao,
+        snapshotDao: ProviderSnapshotDao,
+        stalkerPortalStateDao: StalkerPortalStateDao,
+        codec: ProviderConfigurationCodec,
+        gson: Gson
+    ) : this(
+        providerDao = providerDao,
+        snapshotDao = snapshotDao,
+        stalkerPortalStateDao = stalkerPortalStateDao,
+        codec = codec,
+        gson = gson,
+        workDispatcher = Dispatchers.IO
+    )
+
     private val stringListType = object : TypeToken<List<String>>() {}.type
 
-    override suspend fun getSnapshot(providerId: Long): ProviderSnapshot? {
-        val provider = providerDao.getById(providerId) ?: return null
-        val storedConfig = snapshotDao.getConfig(providerId) ?: return null
+    override suspend fun getSnapshot(providerId: Long): ProviderSnapshot? = withContext(workDispatcher) {
+        val provider = providerDao.getById(providerId) ?: return@withContext null
+        val storedConfig = snapshotDao.getConfig(providerId) ?: return@withContext null
         if (storedConfig.type != provider.type) {
             throw IllegalStateException("Provider/configuration type mismatch for $providerId")
         }
@@ -36,7 +56,7 @@ class RoomProviderSnapshotRepository @Inject constructor(
                 storedConfig.configurationGeneration
             )
         } else null
-        return ProviderSnapshot(
+        ProviderSnapshot(
             provider = StableProvider(
                 id = provider.id,
                 name = provider.name,

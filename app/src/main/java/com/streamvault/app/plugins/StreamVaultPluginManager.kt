@@ -15,7 +15,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
 import com.streamvault.app.BuildConfig
-import com.streamvault.app.cast.CastMediaRequest
+import com.streamvault.feature.playback.api.CastMediaRequest
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.data.local.dao.PluginProviderOwnershipDao
 import com.streamvault.data.local.entity.PluginProviderOwnershipEntity
@@ -37,6 +37,17 @@ import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.ProviderSetupRequest
+import com.streamvault.feature.system.api.InstalledStreamVaultPlugin
+import com.streamvault.feature.system.api.PluginActionResult
+import com.streamvault.feature.system.api.PluginConfigurationSchema
+import com.streamvault.feature.system.api.PluginConfigurationSnapshot
+import com.streamvault.feature.system.api.PluginDiscoveryState
+import com.streamvault.feature.system.api.PluginDiscoveryStatus
+import com.streamvault.feature.system.api.StreamVaultPluginComponent
+import com.streamvault.feature.system.api.StreamVaultPluginContract
+import com.streamvault.feature.system.api.StreamVaultPluginManifest
+import com.streamvault.feature.system.api.StreamVaultPluginOwner
+import com.streamvault.feature.system.api.owner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI

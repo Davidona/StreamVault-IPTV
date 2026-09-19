@@ -12,6 +12,11 @@ import com.streamvault.player.PlayerRenderSurfaceType
 import com.streamvault.player.PlayerSurfaceResizeMode
 import com.streamvault.player.R
 
+internal fun buildInjectedSubtitleCues(text: String?): List<Cue> =
+    text?.takeIf(String::isNotBlank)
+        ?.let { listOf(Cue.Builder().setText(it).build()) }
+        .orEmpty()
+
 class PlayerViewBinder(
     private val subtitleStyleController: SubtitleStyleController
 ) {
@@ -79,13 +84,8 @@ class PlayerViewBinder(
         applyInjectedCues(boundPlayerView)
     }
 
-    fun setInjectedSubtitleCues(cues: List<Cue>) {
-        injectedSubtitleCues = cues
-        applyInjectedCues(boundPlayerView)
-    }
-
-    fun clearInjectedSubtitleCues() {
-        injectedSubtitleCues = emptyList()
+    fun setInjectedSubtitleText(text: String?) {
+        injectedSubtitleCues = buildInjectedSubtitleCues(text)
         applyInjectedCues(boundPlayerView)
     }
 

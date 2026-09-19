@@ -25,7 +25,9 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -410,6 +412,57 @@ class EpgResolutionEngineTest {
     }
 
     @Test
+    fun `getResolvedProgrammes_usesStreamIdWhenEpgIdsCollide`() = runTest {
+        val now = System.currentTimeMillis()
+        val startTime = now - 3600_000
+        val endTime = now + 3600_000
+        whenever(channelEpgMappingDao.getForChannels(PROVIDER_ID, listOf(1L, 2L))).thenReturn(
+            listOf(
+                ChannelEpgMappingEntity(
+                    id = 1,
+                    providerChannelId = 1,
+                    providerId = PROVIDER_ID,
+                    sourceType = EpgSourceType.EXTERNAL.name,
+                    epgSourceId = SOURCE_1,
+                    xmltvChannelId = "external.one",
+                    matchType = EpgMatchType.MANUAL.name,
+                    confidence = 1.0f,
+                    updatedAt = now
+                ),
+                ChannelEpgMappingEntity(
+                    id = 2,
+                    providerChannelId = 2,
+                    providerId = PROVIDER_ID,
+                    sourceType = EpgSourceType.EXTERNAL.name,
+                    epgSourceId = SOURCE_1,
+                    xmltvChannelId = "external.two",
+                    matchType = EpgMatchType.MANUAL.name,
+                    confidence = 1.0f,
+                    updatedAt = now
+                )
+            )
+        )
+        whenever(channelDao.getGuideLookupsByIds(listOf(1L, 2L))).thenReturn(
+            listOf(
+                makeGuideLookup(id = 1L, epgChannelId = "shared.epg", streamId = 101L),
+                makeGuideLookup(id = 2L, epgChannelId = "shared.epg", streamId = 202L)
+            )
+        )
+        whenever(epgProgrammeDao.getForChannels(SOURCE_1, listOf("external.one", "external.two"), startTime, endTime)).thenReturn(
+            listOf(
+                EpgProgrammeEntity(id = 1, epgSourceId = SOURCE_1, xmltvChannelId = "external.one", startTime = startTime, endTime = endTime, title = "One News"),
+                EpgProgrammeEntity(id = 2, epgSourceId = SOURCE_1, xmltvChannelId = "external.two", startTime = startTime, endTime = endTime, title = "Two News")
+            )
+        )
+
+        val result = engine.getResolvedProgrammes(PROVIDER_ID, listOf(1L, 2L), startTime, endTime)
+
+        assertThat(result.keys).containsExactly("101", "202")
+        assertThat(result["101"]!!.single().title).isEqualTo("One News")
+        assertThat(result["202"]!!.single().title).isEqualTo("Two News")
+    }
+
+    @Test
     fun `getResolvedProgrammes_providerNative_returnsProgrammes`() = runTest {
         val now = System.currentTimeMillis()
         val startTime = now - 3600_000
@@ -491,6 +544,23 @@ class EpgResolutionEngineTest {
         val result = engine.getResolvedProgrammes(PROVIDER_ID, listOf(1L), now - 3600_000, now + 3600_000)
 
         assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun `resolveForProvider_overFiveHundredChannels_chunks_native_program_lookup`() = runTest {
+        val channels = (1..600).map { i ->
+            makeChannel(id = i.toLong(), name = "Channel $i", epgChannelId = "ch.$i")
+        }
+        whenever(channelDao.getByProviderSync(PROVIDER_ID)).thenReturn(channels)
+        whenever(providerEpgSourceDao.getEnabledForProviderSync(PROVIDER_ID)).thenReturn(emptyList())
+        whenever(channelEpgMappingDao.getForProvider(PROVIDER_ID)).thenReturn(emptyList())
+
+        engine.resolveForProvider(PROVIDER_ID)
+
+        val captor = argumentCaptor<List<String>>()
+        verify(programDao, times(2)).getChannelIdsWithPrograms(eq(PROVIDER_ID), captor.capture())
+        assertThat(captor.allValues.map { it.size }).isEqualTo(listOf(500, 100))
+        assertThat(captor.allValues.flatten().distinct().size).isEqualTo(600)
     }
 
     // ── Helpers ────────────────────────────────────────────────────

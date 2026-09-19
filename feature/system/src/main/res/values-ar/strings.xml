@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">إعداد مزوّد</string>
+  <string name="welcome_loading_title">جارٍ تحضير مكتبتك</string>
+  <string name="sync_section_live">البث المباشر</string>
+  <string name="sync_section_vod">الأفلام والمسلسلات</string>
+  <string name="sync_section_series">المسلسلات</string>
+  <string name="sync_items_indexed_format">تمت فهرسة %1$d عنصرًا</string>
+  <string name="welcome_tagline">تجربة IPTV متميّزة مصمَّمة لشاشة غرفة المعيشة</string>
+  <string name="welcome_subtitle">ارجع إلى القنوات المباشرة وتابع ما بدأت مشاهدته واستكشف الأفلام والمسلسلات بتجربة Android TV أصيلة.</string>
+  <string name="settings_cancel">إلغاء</string>
+</resources>

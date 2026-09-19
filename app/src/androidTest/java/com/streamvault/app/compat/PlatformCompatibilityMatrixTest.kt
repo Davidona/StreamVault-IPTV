@@ -4,7 +4,8 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.app.navigation.ExternalDestination
+import com.streamvault.app.navigation.AppRouteCodec
+import com.streamvault.core.navigation.AppDestination
 import com.streamvault.app.service.DownloadServiceStartMode
 import com.streamvault.app.service.resolveDownloadServiceStartMode
 import java.net.URLEncoder
@@ -33,40 +34,40 @@ class PlatformCompatibilityMatrixTest {
     @Test
     fun legacyRouteParsingKeepsEncodedUtf8ValuesOnEverySupportedApi() {
         val encodedImport = URLEncoder.encode("https://fixture.invalid/playlist?name=Ειδήσεις", StandardCharsets.UTF_8.name())
-        val destination = ExternalDestination.fromLegacyRoute(
+        val destination = AppRouteCodec.decodeLegacyExternalRoute(
             "provider_setup?providerId=7&importUri=$encodedImport"
         )
 
         assertThat(destination).isEqualTo(
-            ExternalDestination.ProviderSetup(
+            AppDestination.ProviderSetup(
                 providerId = 7L,
                 importUri = "https://fixture.invalid/playlist?name=Ειδήσεις"
             )
         )
         assertThat(
-            ExternalDestination.fromLegacyRoute("provider_setup?importUri=%not-a-valid-escape")
-        ).isEqualTo(ExternalDestination.ProviderSetup())
+            AppRouteCodec.decodeLegacyExternalRoute("provider_setup?importUri=%not-a-valid-escape")
+        ).isEqualTo(AppDestination.ProviderSetup())
     }
 
     @Test
     fun encodedReturnRouteAndRepeatedParametersRemainSafe() {
         assertThat(
-            ExternalDestination.fromLegacyRoute(
-                "movie_detail/42?returnRoute=live_tv%3Fcategory%3Dnews%2520east"
+            AppRouteCodec.decodeLegacyExternalRoute(
+                "movie_detail/42?returnRoute=live_tv%3FcategoryId%3D7"
             )
         ).isEqualTo(
-            ExternalDestination.MovieDetail(
+            AppDestination.MovieDetail(
                 movieId = 42L,
-                returnRoute = "live_tv?category=news%20east"
+                returnDestination = AppDestination.LiveTv(7L)
             )
         )
 
         assertThat(
-            ExternalDestination.fromLegacyRoute(
+            AppRouteCodec.decodeLegacyExternalRoute(
                 "movie_detail/42?returnRoute=live_tv&returnRoute=home"
             )
         ).isEqualTo(
-            ExternalDestination.MovieDetail(movieId = 42L, returnRoute = "home")
+            AppDestination.MovieDetail(movieId = 42L, returnDestination = AppDestination.Home)
         )
     }
 

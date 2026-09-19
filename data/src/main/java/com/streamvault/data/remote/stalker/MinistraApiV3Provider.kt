@@ -1,5 +1,7 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.domain.model.StalkerCompatibilityRegistry
+
 import android.content.Context
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.Category
