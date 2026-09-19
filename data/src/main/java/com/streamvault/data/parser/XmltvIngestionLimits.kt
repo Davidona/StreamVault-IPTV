@@ -7,7 +7,7 @@ data class XmltvIngestionLimits(
     val maxRawBytes: Long = NetworkTimeoutConfig.EPG_MAX_RAW_SIZE_BYTES,
     val maxDecompressedBytes: Long = NetworkTimeoutConfig.EPG_MAX_SIZE_BYTES,
     val maxChannels: Int = 100_000,
-    val maxProgrammes: Int = 1_000_000,
+    val maxProgrammes: Int = 2_000_000,
     val maxFieldChars: Int = 65_536,
     val maxCategoriesPerProgramme: Int = 64,
     val maxXmlDepth: Int = 32

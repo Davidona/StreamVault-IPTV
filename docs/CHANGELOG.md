@@ -40,6 +40,8 @@ All notable product changes are recorded in this document.
 - Fixed Xtream series showing an empty episode list after re-entering: a hydrated series whose local episodes went missing is now re-fetched, and re-hydration no longer replaces a larger cached episode set with a smaller, partially re-scraped provider response.
 - Fixed adaptive M3U metadata being dropped between playlist parsing, import staging, catalog synchronization, and channel or movie playback reconstruction.
 - Fixed Xtream Codes and Xtream M3U URL setup crashing on devices with a broken hardware-backed Keystore (such as some budget Android TV boxes): credential encryption now falls back to a software key instead of aborting when the device cannot generate a hardware key.
+- Fixed large full-country XMLTV guides (such as iptv-epg.org's epg-us.xml.gz) failing to import with an "EPG decompressed XML bytes exceeded safety limit" error by raising the raw-download, decompressed-XML, and programme ingestion ceilings, since the parser streams to the database rather than buffering the whole document in memory.
+- Fixed a freshly-added EPG source resolving to no matches after assignment by downloading it once on assignment before re-resolving the provider's guide mappings, so the source has programme data available when it is first used.
 
 ### Changed
 

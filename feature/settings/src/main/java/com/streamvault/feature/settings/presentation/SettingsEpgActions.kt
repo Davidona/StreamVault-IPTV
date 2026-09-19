@@ -193,12 +193,25 @@ class SettingsEpgActions(
                 val result = epgSourceRepository.assignSourceToProvider(providerId, epgSourceId, nextPriority)
                 if (result is Result.Error) {
                     uiState.update { it.copy(userMessage = result.message) }
-                } else {
-                    refreshProviderEpgSummary(providerId)
+                    return@launch
+                }
+                // A freshly-added source has no programme data yet, so assigning it would
+                // otherwise resolve to "Matched 0/N". Download it once now (rate-limited)
+                // so the assignment produces real matches, then surface any refresh error.
+                uiState.update { it.copy(refreshingEpgSourceIds = it.refreshingEpgSourceIds + epgSourceId) }
+                val refreshResult = epgSourceRepository.refreshSource(epgSourceId)
+                refreshProviderEpgSummary(providerId)
+                uiState.update {
+                    it.copy(
+                        refreshingEpgSourceIds = it.refreshingEpgSourceIds - epgSourceId,
+                        userMessage = if (refreshResult is Result.Error) refreshResult.message else null
+                    )
                 }
             } catch (cancelled: CancellationException) {
+                uiState.update { it.copy(refreshingEpgSourceIds = it.refreshingEpgSourceIds - epgSourceId) }
                 throw cancelled
             } catch (error: Exception) {
+                uiState.update { it.copy(refreshingEpgSourceIds = it.refreshingEpgSourceIds - epgSourceId) }
                 showUnexpectedError(error, "Failed to assign EPG source")
             }
         }
