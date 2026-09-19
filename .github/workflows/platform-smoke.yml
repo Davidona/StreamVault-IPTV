@@ -83,6 +83,28 @@ jobs:
           test -w /dev/kvm
 
       - name: Run compatibility instrumentation suite
+        id: platform-smoke-run
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: ${{ matrix.arch }}
+          target: ${{ matrix.target }}
+          emulator-boot-timeout: 900
+          disable-linux-hw-accel: false
+          emulator-options: -no-window -gpu ${{ matrix.gpu }} -no-snapshot -noaudio -no-boot-anim -no-metrics ${{ matrix.adb_delay }}
+          profile: tv_1080p
+          script: |
+            chmod +x gradlew tools/run-platform-smoke.sh tools/wait-for-emulator.sh
+            ./tools/run-platform-smoke.sh "${{ matrix.api-level }}" "${{ matrix.arch }}"
+
+      # The API 36 android-tv image intermittently drops adb immediately after
+      # `sys.boot_completed` on the Linux KVM runners, failing the emulator action
+      # before our test script starts (roughly half of runs). Retry once so a
+      # transient emulator/adb crash does not fail the release gate; a genuine test
+      # failure still fails on the second attempt.
+      - name: Run compatibility instrumentation suite (retry)
+        if: steps.platform-smoke-run.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
