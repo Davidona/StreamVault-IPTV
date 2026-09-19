@@ -35,17 +35,21 @@ dependencies {
 tasks.register("verifyLintBaseline") {
     group = "verification"
     description = "Verifies that the committed lint baseline is present and non-empty."
+    // Resolve the baseline files while configuring the task. Reading `rootProject`
+    // from inside the action would force the whole project object into the cached
+    // task graph, which the configuration cache cannot serialize.
+    val baselinePaths = listOf(
+        "app/lint-baseline.xml",
+        "data/lint-baseline.xml",
+        "player/lint-baseline.xml"
+    )
+    val baselineFiles = baselinePaths.map { rootProject.file(it) }
     doLast {
-        val baselinePaths = listOf(
-            "app/lint-baseline.xml",
-            "data/lint-baseline.xml",
-            "player/lint-baseline.xml"
-        )
         val issuePattern = Regex("""<issue(?:\s|>)""")
         val issueIdPattern = Regex("""<issue\b[^>]*\bid=\"([^\"]+)\"""")
 
-        baselinePaths.forEach { path ->
-            val baseline = rootProject.file(path)
+        baselineFiles.forEachIndexed { index, baseline ->
+            val path = baselinePaths[index]
             check(baseline.isFile) {
                 "Lint baseline not found: $path"
             }
