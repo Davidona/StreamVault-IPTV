@@ -5,6 +5,7 @@ package com.streamvault.player.playback
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.core.graphics.scale
 import androidx.media3.common.MediaItem
 import androidx.media3.inspector.frame.FrameExtractor
 import androidx.media3.common.util.UnstableApi
@@ -201,7 +202,7 @@ class Media3FrameThumbnailExtractor @Inject constructor(
         val scaledHeight = (height * (maxWidth.toFloat() / width.toFloat()))
             .toInt()
             .coerceAtLeast(1)
-        return Bitmap.createScaledBitmap(this, maxWidth, scaledHeight, true)
+        return this.scale(maxWidth, scaledHeight, true)
     }
 }
 
