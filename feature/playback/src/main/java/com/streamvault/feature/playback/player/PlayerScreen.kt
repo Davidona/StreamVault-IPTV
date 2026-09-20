@@ -81,6 +81,7 @@ import com.streamvault.feature.playback.player.overlay.EpgOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerErrorOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerNoticeBanner
 import com.streamvault.feature.playback.player.overlay.PlayerResumePrompt
+import com.streamvault.feature.playback.player.overlay.PlayerClosePlaybackConfirmation
 import com.streamvault.feature.playback.player.overlay.PlayerAspectRatioToast
 import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 import com.streamvault.feature.playback.player.overlay.PlayerBackButtonPlacement
@@ -178,6 +179,7 @@ fun PlayerScreen(
 
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
+    var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
     
     val focusRequester = remember { FocusRequester() }
     val channelListFocusRequester = remember { FocusRequester() }
@@ -233,7 +235,7 @@ fun PlayerScreen(
     val liveOverlayVisible = contentType == "LIVE" && (showChannelListOverlay || showCategoryListOverlay || showEpgOverlay || showChannelInfoOverlay)
     val channelInfoOverlayVisible = contentType == "LIVE" && showChannelInfoOverlay
     val nextEpisodeCountdownVisible = !isInPictureInPictureMode && autoPlayCountdown != null
-    val anyOverlayVisible = liveOverlayVisible || nextEpisodeCountdownVisible || modalState.hasVisibleModal || showDiagnostics
+    val anyOverlayVisible = liveOverlayVisible || nextEpisodeCountdownVisible || modalState.hasVisibleModal || showDiagnostics || showClosePlaybackConfirmation
     val backButtonHasBlockingOverlay =
         (liveOverlayVisible && !channelInfoOverlayVisible) ||
             nextEpisodeCountdownVisible ||
@@ -408,6 +410,7 @@ fun PlayerScreen(
     val handleBackPress: () -> Unit = {
             when (playerBackActionAtEvent {
                 PlayerBackNavigationState(
+                    showClosePlaybackConfirmation = showClosePlaybackConfirmation,
                     hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
                     hasAutoPlayCountdown = autoPlayCountdown != null,
                     hasPlayerNotice = playerNotice != null,
@@ -451,7 +454,14 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
-                PlayerBackAction.NAVIGATE_BACK -> onBack()
+                PlayerBackAction.CANCEL_CLOSE_PLAYBACK -> showClosePlaybackConfirmation = false
+                PlayerBackAction.NAVIGATE_BACK -> {
+                    if (playerPreferences.confirmClosePlayback) {
+                        showClosePlaybackConfirmation = true
+                    } else {
+                        onBack()
+                    }
+                }
             }
     }
 
@@ -484,7 +494,8 @@ fun PlayerScreen(
             hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
             canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
                 viewModel.currentSeries.value?.seasons.sanitizedForPlayer()
-                    ?.any { it.episodes.isNotEmpty() } == true
+                    ?.any { it.episodes.isNotEmpty() } == true,
+            showClosePlaybackConfirmation = showClosePlaybackConfirmation
         )
     }
 
@@ -647,6 +658,10 @@ fun PlayerScreen(
                     }
                     PlayerInputAction.DelegateBack -> {
                         handleBackPress()
+                        true
+                    }
+                    PlayerInputAction.CancelClosePlayback -> {
+                        showClosePlaybackConfirmation = false
                         true
                     }
                 }
@@ -880,6 +895,17 @@ fun PlayerScreen(
                 title = resumePrompt.title,
                 onStartOver = { viewModel.dismissResumePrompt(resume = false) },
                 onResume = { viewModel.dismissResumePrompt(resume = true) }
+            )
+        }
+
+        // Close Playback Confirmation
+        if (showClosePlaybackConfirmation) {
+            PlayerClosePlaybackConfirmation(
+                onConfirm = {
+                    showClosePlaybackConfirmation = false
+                    onBack()
+                },
+                onCancel = { showClosePlaybackConfirmation = false }
             )
         }
         

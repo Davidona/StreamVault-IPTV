@@ -176,6 +176,10 @@
     <string name="player_recording_scheduled_badge">Scheduled</string>
     <string name="player_resolution_auto_label">AUTO:%1$s</string>
     <string name="player_restart">Restart</string>
+    <string name="player_close_playback_title">Close playback?</string>
+    <string name="player_close_playback_desc">This will stop playback and return to the previous screen.</string>
+    <string name="player_close_playback_confirm">Yes</string>
+    <string name="player_close_playback_cancel">No</string>
     <string name="player_resume">Resume</string>
     <string name="player_resume_desc">Do you want to resume %1$s from where you left off?</string>
     <string name="player_resume_start_over">Start Over</string>

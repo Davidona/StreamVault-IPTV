@@ -61,6 +61,7 @@ data class SettingsPreferenceSnapshot(
     val preferredAudioLanguage: String,
     val playerMediaSessionEnabled: Boolean,
     val playerBackButtonVisibility: PlayerBackButtonVisibility,
+    val playerConfirmClosePlayback: Boolean,
     val playerFastRetryOnTransientFailures: Boolean,
     val playerAudioDecoderMode: DecoderMode,
     val playerVideoDecoderMode: DecoderMode,

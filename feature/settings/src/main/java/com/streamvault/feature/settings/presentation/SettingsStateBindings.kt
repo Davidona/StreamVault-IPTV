@@ -56,6 +56,7 @@ fun observeSettingsPreferenceSnapshot(
             preferredAudioLanguage = "auto",
             playerMediaSessionEnabled = true,
             playerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT,
+            playerConfirmClosePlayback = false,
             playerFastRetryOnTransientFailures = false,
             playerAudioDecoderMode = DecoderMode.AUTO,
             playerVideoDecoderMode = DecoderMode.AUTO,
@@ -150,6 +151,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(playerMediaSessionEnabled = mediaSessionEnabled)
     }.combine(preferencesRepository.playerBackButtonVisibility) { snapshot, visibility ->
         snapshot.copy(playerBackButtonVisibility = visibility)
+    }.combine(preferencesRepository.playerConfirmClosePlayback) { snapshot, confirmClosePlayback ->
+        snapshot.copy(playerConfirmClosePlayback = confirmClosePlayback)
     }.combine(preferencesRepository.playerFastRetryOnTransientFailures) { snapshot, enabled ->
         snapshot.copy(playerFastRetryOnTransientFailures = enabled)
     }.combine(preferencesRepository.playerAudioDecoderMode) { snapshot, decoderMode ->

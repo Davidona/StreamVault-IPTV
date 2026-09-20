@@ -795,6 +795,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setPlayerConfirmClosePlayback(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerConfirmClosePlayback(enabled)
+        }
+    }
+
     fun setPlayerFastRetryOnTransientFailures(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPlayerFastRetryOnTransientFailures(enabled)

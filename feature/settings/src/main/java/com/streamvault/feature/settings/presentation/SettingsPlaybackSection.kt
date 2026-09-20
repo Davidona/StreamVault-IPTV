@@ -280,6 +280,13 @@ public fun LazyListScope.settingsPlaybackSection(
                     onClick = { showPlayerBackButtonVisibilityDialog = true }
                 ,
                     modifier = if (targetItemId == "playback.back_button") targetFocusModifier else Modifier,)
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_confirm_close_playback),
+                    value = stringResource(R.string.settings_confirm_close_playback_subtitle),
+                    checked = uiState.playerConfirmClosePlayback,
+                    onCheckedChange = viewModel::setPlayerConfirmClosePlayback
+                ,
+                    modifier = if (targetItemId == "playback.confirm_close") targetFocusModifier else Modifier,)
                 ClickableSettingsRow(
                     label = stringResource(R.string.settings_player_controls_timeout),
                     value = controlsTimeoutLabel,

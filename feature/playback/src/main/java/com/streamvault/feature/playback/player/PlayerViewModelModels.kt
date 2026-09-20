@@ -52,7 +52,8 @@ data class PlayerPreferencesUiState(
     val liveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
     val liveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
     val liveClockFont: LiveClockFont = LiveClockFont.DIGITAL_MONO,
-    val backButtonVisibility: PlayerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT
+    val backButtonVisibility: PlayerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT,
+    val confirmClosePlayback: Boolean = false
 )
 
 data class PlayerDiagnosticsUiState(

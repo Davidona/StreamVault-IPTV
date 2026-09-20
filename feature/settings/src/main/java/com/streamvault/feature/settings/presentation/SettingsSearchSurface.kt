@@ -232,6 +232,7 @@ private fun resolvedSettingsCatalog(
         setting("playback.ethernet_cap", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_ethernet_quality_cap, "quality"),
         setting("playback.speed_test", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_speed_test_title, "connection speed"),
         setting("playback.back_button", SettingsCategory.PLAYBACK, SettingsPage.CONTROLS, R.string.settings_player_back_button, "player controls"),
+        setting("playback.confirm_close", SettingsCategory.PLAYBACK, SettingsPage.CONTROLS, R.string.settings_confirm_close_playback, "exit confirm"),
         setting("playback.controls_timeout", SettingsCategory.PLAYBACK, SettingsPage.CONTROLS, R.string.settings_player_controls_timeout),
         setting("playback.live_overlay_timeout", SettingsCategory.PLAYBACK, SettingsPage.CONTROLS, R.string.settings_live_overlay_timeout),
         setting("playback.notice_timeout", SettingsCategory.PLAYBACK, SettingsPage.CONTROLS, R.string.settings_player_notice_timeout),

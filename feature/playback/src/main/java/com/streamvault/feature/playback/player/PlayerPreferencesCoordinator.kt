@@ -32,6 +32,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerAudioOutputPreference get() = preferencesRepository.playerAudioOutputPreference
     internal val playerAudioVideoOffsetMs get() = preferencesRepository.playerAudioVideoOffsetMs
     internal val playerBackButtonVisibility get() = preferencesRepository.playerBackButtonVisibility
+    internal val playerConfirmClosePlayback get() = preferencesRepository.playerConfirmClosePlayback
     internal val playerCompatibilityMemoryEnabled get() = preferencesRepository.playerCompatibilityMemoryEnabled
     internal val playerControlsTimeoutSeconds get() = preferencesRepository.playerControlsTimeoutSeconds
     internal val playerDiagnosticsTimeoutSeconds get() = preferencesRepository.playerDiagnosticsTimeoutSeconds

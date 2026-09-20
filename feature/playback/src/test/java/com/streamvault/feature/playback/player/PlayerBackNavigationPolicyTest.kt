@@ -77,4 +77,16 @@ class PlayerBackNavigationPolicyTest {
         assertThat(playerBackAction(PlayerBackNavigationState()))
             .isEqualTo(PlayerBackAction.NAVIGATE_BACK)
     }
+
+    @Test
+    fun `close playback confirmation cancels before every other layer`() {
+        val state = PlayerBackNavigationState(
+            showClosePlaybackConfirmation = true,
+            hasPendingNumericChannelInput = true,
+            showChannelInfoOverlay = true,
+            showControls = true
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CANCEL_CLOSE_PLAYBACK)
+    }
 }
