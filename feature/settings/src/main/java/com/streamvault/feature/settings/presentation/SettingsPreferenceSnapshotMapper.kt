@@ -19,6 +19,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         preferredAudioLanguage = snapshot.preferredAudioLanguage,
         playerMediaSessionEnabled = snapshot.playerMediaSessionEnabled,
         playerBackButtonVisibility = snapshot.playerBackButtonVisibility,
+        playerConfirmClosePlayback = snapshot.playerConfirmClosePlayback,
         playerFastRetryOnTransientFailures = snapshot.playerFastRetryOnTransientFailures,
         playerAudioDecoderMode = snapshot.playerAudioDecoderMode,
         playerVideoDecoderMode = snapshot.playerVideoDecoderMode,

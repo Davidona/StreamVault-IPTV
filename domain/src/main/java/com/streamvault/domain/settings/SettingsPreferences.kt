@@ -42,6 +42,8 @@ interface SettingsPreferences {
 
     val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility>
 
+    val playerConfirmClosePlayback: Flow<Boolean>
+
     val playerFastRetryOnTransientFailures: Flow<Boolean>
 
     val playerAudioDecoderMode: Flow<DecoderMode>
@@ -215,6 +217,8 @@ interface SettingsPreferences {
     suspend fun setPlayerMediaSessionEnabled(enabled: Boolean)
 
     suspend fun setPlayerBackButtonVisibility(visibility: PlayerBackButtonVisibility)
+
+    suspend fun setPlayerConfirmClosePlayback(enabled: Boolean)
 
     suspend fun setPlayerFastRetryOnTransientFailures(enabled: Boolean)
 

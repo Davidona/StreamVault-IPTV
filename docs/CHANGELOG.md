@@ -2,6 +2,19 @@
 
 All notable product changes are recorded in this document.
 
+## [1.0.19]
+
+### Added
+
+- Added exit icon in the top navbar.
+- Added a pop up warning when trying to exit a player (Off by default, can be toggled in settings).
+
+### Fixed
+
+- Fixed pressing OK in the live TV player activating the overlay back button and returning to the channel list.
+- Fixed live streams continuing to play in the background after leaving the player by returning the preview handoff to the surface it started from.
+- Fixed focused icon buttons turning fully white and hiding their icon.
+
 ## [1.0.18]
 
 ### Added

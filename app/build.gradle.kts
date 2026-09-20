@@ -68,8 +68,8 @@ android {
         applicationId = "com.streamvault.app"
         minSdk = 25
         targetSdk = 36
-        versionCode = 20
-        versionName = "1.0.18"
+        versionCode = 21
+        versionName = "1.0.19"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         providers.gradleProperty("compatApi").orNull?.let { expectedApi ->
             testInstrumentationRunnerArguments["expected_api"] = expectedApi

@@ -249,6 +249,7 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_MUTED = booleanPreferencesKey("player_muted")
         val PLAYER_MEDIA_SESSION_ENABLED = booleanPreferencesKey("player_media_session_enabled")
         val PLAYER_BACK_BUTTON_VISIBILITY = stringPreferencesKey("player_back_button_visibility")
+        val PLAYER_CONFIRM_CLOSE_PLAYBACK = booleanPreferencesKey("player_confirm_close_playback")
         val PLAYER_FAST_RETRY_ON_TRANSIENT_FAILURES =
             booleanPreferencesKey("player_fast_retry_on_transient_failures")
         val PLAYER_DECODER_MODE = stringPreferencesKey("player_decoder_mode")
@@ -481,6 +482,10 @@ class PreferencesRepository @Inject constructor(
 
     override val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility> = context.dataStore.data.map { preferences ->
         PlayerBackButtonVisibility.fromStorage(preferences[PreferencesKeys.PLAYER_BACK_BUTTON_VISIBILITY])
+    }
+
+    override val playerConfirmClosePlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PLAYER_CONFIRM_CLOSE_PLAYBACK] ?: false
     }
 
     override val playerFastRetryOnTransientFailures: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -1150,6 +1155,12 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerBackButtonVisibility(visibility: PlayerBackButtonVisibility) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_BACK_BUTTON_VISIBILITY] = visibility.storageValue
+        }
+    }
+
+    override suspend fun setPlayerConfirmClosePlayback(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_CONFIRM_CLOSE_PLAYBACK] = enabled
         }
     }
 

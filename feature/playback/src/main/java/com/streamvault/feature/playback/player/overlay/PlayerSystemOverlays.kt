@@ -1517,6 +1517,110 @@ fun PlayerResumePrompt(
 }
 
 @Composable
+fun PlayerClosePlaybackConfirmation(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val confirmFocusRequester = remember { FocusRequester() }
+    val cancelFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        cancelFocusRequester.requestFocusSafely(
+            tag = "PlayerClosePlaybackConfirmation",
+            target = "Cancel button"
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.85f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .widthIn(max = 500.dp)
+                .background(SurfaceElevated, RoundedCornerShape(12.dp))
+                .focusGroup()
+                .onPreviewKeyEvent { event ->
+                    if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                    when (event.nativeKeyEvent.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_UP,
+                        KeyEvent.KEYCODE_DPAD_DOWN -> true
+                        else -> false
+                    }
+                }
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.player_close_playback_title),
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.player_close_playback_desc),
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextSecondary,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                TvClickableSurface(
+                    onClick = onCancel,
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Primary,
+                        focusedContainerColor = PrimaryLight
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(cancelFocusRequester)
+                        .focusProperties {
+                            right = confirmFocusRequester
+                        }
+                ) {
+                    Text(
+                        stringResource(R.string.player_close_playback_cancel),
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                TvClickableSurface(
+                    onClick = onConfirm,
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = SurfaceElevated,
+                        focusedContainerColor = SurfaceHighlight
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(confirmFocusRequester)
+                        .focusProperties {
+                            left = cancelFocusRequester
+                        }
+                ) {
+                    Text(
+                        stringResource(R.string.player_close_playback_confirm),
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun playerNoticeActionLabel(action: PlayerNoticeAction): String =
     when (action) {
         PlayerNoticeAction.RETRY -> stringResource(R.string.player_retry)

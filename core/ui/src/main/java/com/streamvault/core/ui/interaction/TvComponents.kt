@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
@@ -25,6 +27,7 @@ import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Surface
+import com.streamvault.core.ui.design.AppColors
 
 /**
  * Drop-in replacement for TV Material3 Surface(onClick) that automatically adds
@@ -45,6 +48,7 @@ fun TvClickableSurface(
     onLongClick: (() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val activationTracker = remember { RemoteKeyActivationTracker() }
     Surface(
         onClick = onClick,
         onLongClick = onLongClick,
@@ -57,7 +61,11 @@ fun TvClickableSurface(
         modifier = modifier
             .then(
                 if (onLongClick != null) Modifier
-                else Modifier.activateOnRemoteKey(enabled = enabled, onClick = onClick)
+                else Modifier.activateOnRemoteKey(
+                    tracker = activationTracker,
+                    enabled = enabled,
+                    onClick = onClick
+                )
             )
             .mouseClickable(onClick = onClick, enabled = enabled, onLongClick = onLongClick),
         enabled = enabled,
@@ -89,10 +97,11 @@ fun TvButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val activationTracker = remember { RemoteKeyActivationTracker() }
     Button(
         onClick = onClick,
         modifier = modifier
-            .activateOnRemoteKey(enabled = enabled, onClick = onClick)
+            .activateOnRemoteKey(tracker = activationTracker, enabled = enabled, onClick = onClick)
             .mouseClickable(onClick = onClick, enabled = enabled),
         enabled = enabled,
         scale = scale,
@@ -120,10 +129,16 @@ fun TvIconButton(
     glow: ButtonGlow = IconButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
     shape: ButtonShape = IconButtonDefaults.shape(),
-    colors: ButtonColors = IconButtonDefaults.colors(),
+    colors: ButtonColors = IconButtonDefaults.colors(
+        containerColor = Color.Transparent,
+        contentColor = AppColors.TextPrimary,
+        focusedContainerColor = AppColors.SurfaceEmphasis,
+        focusedContentColor = AppColors.TextPrimary,
+    ),
     border: ButtonBorder = IconButtonDefaults.border(),
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val activationTracker = remember { RemoteKeyActivationTracker() }
     IconButton(
         onClick = onClick,
         onLongClick = onLongClick,
@@ -133,7 +148,11 @@ fun TvIconButton(
         modifier = modifier
             .then(
                 if (onLongClick != null) Modifier
-                else Modifier.activateOnRemoteKey(enabled = enabled, onClick = onClick)
+                else Modifier.activateOnRemoteKey(
+                    tracker = activationTracker,
+                    enabled = enabled,
+                    onClick = onClick
+                )
             )
             .mouseClickable(onClick = onClick, enabled = enabled),
         enabled = enabled,
@@ -178,13 +197,51 @@ internal fun remoteActivationHandling(
     }
 }
 
+/**
+ * Tracks a remote activation key across DOWN/UP for a single control so it only
+ * fires [RemoteActivationHandling.Activate] after receiving the matching DOWN.
+ *
+ * Compose dispatches each key event to whatever node holds focus at that moment.
+ * A control can therefore gain focus between the DOWN and UP of one physical
+ * press (for example, a back button that appears after OK opened an overlay).
+ * Without this guard the orphaned UP would be treated as that control's own
+ * activation, making a single OK press both open the overlay and immediately
+ * dismiss it.
+ */
+internal class RemoteKeyActivationTracker {
+    private var downReceived = false
+
+    fun handlingFor(
+        enabled: Boolean,
+        keyCode: Int,
+        action: Int,
+        hasLongClick: Boolean,
+    ): RemoteActivationHandling =
+        when (remoteActivationHandling(enabled, keyCode, action, hasLongClick)) {
+            RemoteActivationHandling.Ignore -> {
+                if (action == KeyEvent.ACTION_UP) downReceived = false
+                RemoteActivationHandling.Ignore
+            }
+            RemoteActivationHandling.Consume -> {
+                downReceived = true
+                RemoteActivationHandling.Consume
+            }
+            RemoteActivationHandling.Activate -> {
+                val activate = downReceived
+                downReceived = false
+                if (activate) RemoteActivationHandling.Activate else RemoteActivationHandling.Consume
+            }
+        }
+}
+
 private fun Modifier.activateOnRemoteKey(
+    tracker: RemoteKeyActivationTracker,
     enabled: Boolean,
     onClick: () -> Unit
 ): Modifier = onPreviewKeyEvent { event ->
     val nativeEvent = event.nativeKeyEvent
     when (
-        remoteActivationHandling(
+        tracker.handlingFor(
             enabled = enabled,
             keyCode = nativeEvent.keyCode,
             action = nativeEvent.action,

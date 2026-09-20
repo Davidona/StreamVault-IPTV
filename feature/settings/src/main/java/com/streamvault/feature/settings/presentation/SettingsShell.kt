@@ -25,6 +25,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -37,6 +38,7 @@ internal fun SettingsLocalHeader(
     parentTitle: String?,
     onBack: (() -> Unit)?,
     onSearch: (() -> Unit)? = null,
+    onExit: (() -> Unit)? = null,
     searchModifier: Modifier = Modifier,
     backModifier: Modifier = Modifier,
 ) {
@@ -114,6 +116,12 @@ internal fun SettingsLocalHeader(
                     tint = colors.primaryText,
                 )
             }
+        }
+        if (onExit != null) {
+            AppTopBarCloseAction(
+                onClick = onExit,
+                contentDescription = stringResource(R.string.settings_close_app),
+            )
         }
     }
 }

@@ -86,6 +86,7 @@ data class SettingsUiState(
     val preferredAudioLanguage: String = "auto",
     val playerMediaSessionEnabled: Boolean = true,
     val playerBackButtonVisibility: PlayerBackButtonVisibility = PlayerBackButtonVisibility.DEFAULT,
+    val playerConfirmClosePlayback: Boolean = false,
     val playerFastRetryOnTransientFailures: Boolean = false,
     val playerAudioDecoderMode: DecoderMode = DecoderMode.AUTO,
     val playerVideoDecoderMode: DecoderMode = DecoderMode.AUTO,

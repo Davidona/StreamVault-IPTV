@@ -61,4 +61,70 @@ class TvComponentsTest {
             )
         ).isEqualTo(RemoteActivationHandling.Ignore)
     }
+
+    @Test
+    fun trackerActivationRequiresTheMatchingDown() {
+        val tracker = RemoteKeyActivationTracker()
+
+        assertThat(
+            tracker.handlingFor(
+                enabled = true,
+                keyCode = KeyEvent.KEYCODE_DPAD_CENTER,
+                action = KeyEvent.ACTION_UP,
+                hasLongClick = false,
+            )
+        ).isNotEqualTo(RemoteActivationHandling.Activate)
+    }
+
+    @Test
+    fun trackerActivatesOnceAfterDownThenUp() {
+        val tracker = RemoteKeyActivationTracker()
+
+        assertThat(
+            tracker.handlingFor(
+                enabled = true,
+                keyCode = KeyEvent.KEYCODE_DPAD_CENTER,
+                action = KeyEvent.ACTION_DOWN,
+                hasLongClick = false,
+            )
+        ).isEqualTo(RemoteActivationHandling.Consume)
+
+        assertThat(
+            tracker.handlingFor(
+                enabled = true,
+                keyCode = KeyEvent.KEYCODE_DPAD_CENTER,
+                action = KeyEvent.ACTION_UP,
+                hasLongClick = false,
+            )
+        ).isEqualTo(RemoteActivationHandling.Activate)
+    }
+
+    @Test
+    fun trackerDoesNotActivateOnRepeatedOrphanUps() {
+        val tracker = RemoteKeyActivationTracker()
+
+        tracker.handlingFor(
+            enabled = true,
+            keyCode = KeyEvent.KEYCODE_ENTER,
+            action = KeyEvent.ACTION_DOWN,
+            hasLongClick = false,
+        )
+        assertThat(
+            tracker.handlingFor(
+                enabled = true,
+                keyCode = KeyEvent.KEYCODE_ENTER,
+                action = KeyEvent.ACTION_UP,
+                hasLongClick = false,
+            )
+        ).isEqualTo(RemoteActivationHandling.Activate)
+
+        assertThat(
+            tracker.handlingFor(
+                enabled = true,
+                keyCode = KeyEvent.KEYCODE_ENTER,
+                action = KeyEvent.ACTION_UP,
+                hasLongClick = false,
+            )
+        ).isNotEqualTo(RemoteActivationHandling.Activate)
+    }
 }

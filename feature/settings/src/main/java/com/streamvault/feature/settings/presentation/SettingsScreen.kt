@@ -512,6 +512,7 @@ public fun SettingsScreen(
                     },
                     onBack = onBack,
                     onSearch = ::openSettingsSearch,
+                    onExit = onCloseApp,
                     searchModifier = searchButtonModifier,
                     compact = compact
                 )
@@ -620,6 +621,7 @@ public fun SettingsScreen(
                         }
                     } else null,
                     onSearch = if (compact) (::openSettingsSearch) else null,
+                    onExit = onCloseApp,
                     searchModifier = searchButtonModifier,
                     requestedDestination = requestedDestination,
                     onSearchResultBack = ::returnToSearchResults,

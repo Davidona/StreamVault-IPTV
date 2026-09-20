@@ -182,6 +182,8 @@
     <string name="settings_player_back_button_always">Always visible</string>
     <string name="settings_player_back_button_with_controls">Show with controls</string>
     <string name="settings_player_back_button_hidden">Hidden</string>
+    <string name="settings_confirm_close_playback">Confirm closing playback</string>
+    <string name="settings_confirm_close_playback_subtitle">Ask before the back button stops playback and returns to the previous screen.</string>
     <string name="settings_multiview_center_two_slot_layout">Center 1-2 Channel Multiview</string>
     <string name="settings_multiview_center_two_slot_layout_subtitle">When one or two multiview slots are active, center them on screen instead of using the default 2x2 grid.</string>
     <string name="settings_multiview_respect_provider_connection_limit">Respect provider connection limit</string>

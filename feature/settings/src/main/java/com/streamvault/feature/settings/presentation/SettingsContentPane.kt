@@ -59,6 +59,7 @@ public fun SettingsContentPane(
     compact: Boolean = false,
     onCategoryBack: (() -> Unit)? = null,
     onSearch: (() -> Unit)? = null,
+    onExit: (() -> Unit)? = null,
     searchModifier: Modifier = Modifier,
     requestedDestination: SettingsSearchTarget? = null,
     onSearchResultBack: (() -> Unit)? = null,
@@ -220,6 +221,7 @@ public fun SettingsContentPane(
                     },
                     onBack = headerBack,
                     onSearch = onSearch,
+                    onExit = onExit,
                     searchModifier = searchModifier,
                     backModifier = Modifier
                         .focusRequester(pageHeaderFocus)

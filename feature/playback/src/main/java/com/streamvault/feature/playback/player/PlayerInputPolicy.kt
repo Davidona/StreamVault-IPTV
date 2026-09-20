@@ -45,7 +45,8 @@ internal data class PlayerInputState(
     val showEpisodePicker: Boolean = false,
     val showControls: Boolean = false,
     val hasPendingNumericChannelInput: Boolean = false,
-    val canOpenEpisodePicker: Boolean = false
+    val canOpenEpisodePicker: Boolean = false,
+    val showClosePlaybackConfirmation: Boolean = false
 )
 
 /**
@@ -84,6 +85,7 @@ internal sealed interface PlayerInputAction {
     data object ShowEpisodePicker : PlayerInputAction
     data class InputNumericDigit(val digit: Int) : PlayerInputAction
     data object DelegateBack : PlayerInputAction
+    data object CancelClosePlayback : PlayerInputAction
 }
 
 internal data class PlayerInputDecision(
@@ -113,6 +115,7 @@ internal fun playerPreviewInputDecision(
         state.showSplitDialog ||
         state.showEpisodePicker ||
         state.showControls ||
+        state.showClosePlaybackConfirmation ||
         (state.showChannelInfoOverlay && state.channelInfoSubPanelOpen)
     ) {
         return PlayerInputDecision(PlayerInputAction.Pass)
@@ -143,6 +146,8 @@ internal fun playerInputDecision(
     }
 
     when {
+        state.showClosePlaybackConfirmation ->
+            return modalInputDecision(PlayerInputAction.CancelClosePlayback, key)
         state.showAudioVideoOffsetDialog ->
             return modalInputDecision(PlayerInputAction.DismissAudioVideoOffset, key)
         state.showSpeedSelection ->

@@ -237,6 +237,7 @@ class BackupManagerImpl @Inject constructor(
                 put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
                 put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
                 put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
+                put("playerConfirmClosePlayback", preferencesRepository.playerConfirmClosePlayback.first().toString())
                 put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
                 put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
                 put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -3179,6 +3180,7 @@ class BackupManagerImpl @Inject constructor(
             put("vodVariantPreferenceMode", preferencesRepository.vodVariantPreferenceMode.first().storageValue)
             put("playerMediaSessionEnabled", preferencesRepository.playerMediaSessionEnabled.first().toString())
             put("playerBackButtonVisibility", preferencesRepository.playerBackButtonVisibility.first().storageValue)
+            put("playerConfirmClosePlayback", preferencesRepository.playerConfirmClosePlayback.first().toString())
             put("playerFastRetryOnTransientFailures", preferencesRepository.playerFastRetryOnTransientFailures.first().toString())
             put("playerAudioDecoderMode", preferencesRepository.playerAudioDecoderMode.first().name)
             put("playerVideoDecoderMode", preferencesRepository.playerVideoDecoderMode.first().name)
@@ -3720,6 +3722,8 @@ class BackupManagerImpl @Inject constructor(
                     PlayerBackButtonVisibility.fromStorage(savedVisibility)
                 )
             }
+        prefs["playerConfirmClosePlayback"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerConfirmClosePlayback(it) }
         prefs["playerFastRetryOnTransientFailures"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerFastRetryOnTransientFailures(it) }
         val legacyDecoderMode = prefs["playerDecoderMode"]

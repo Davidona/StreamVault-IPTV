@@ -53,6 +53,7 @@ public fun SettingsNavigationRail(
     onCategorySelected: (Int) -> Unit,
     onBack: () -> Unit = {},
     onSearch: () -> Unit = {},
+    onExit: (() -> Unit)? = null,
     searchModifier: Modifier = Modifier,
     compact: Boolean = LocalConfiguration.current.screenWidthDp < 600
 ) {
@@ -103,6 +104,7 @@ public fun SettingsNavigationRail(
                 parentTitle = stringResource(R.string.settings_back_to_app),
                 onBack = onBack,
                 onSearch = onSearch,
+                onExit = onExit,
                 searchModifier = searchModifier,
             )
             LazyColumn(

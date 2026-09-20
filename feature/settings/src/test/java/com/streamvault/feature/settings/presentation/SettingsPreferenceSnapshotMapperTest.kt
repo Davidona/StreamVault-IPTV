@@ -63,6 +63,7 @@ class SettingsPreferenceSnapshotMapperTest {
         preferredAudioLanguage = "auto",
         playerMediaSessionEnabled = true,
         playerBackButtonVisibility = PlayerBackButtonVisibility.ALWAYS,
+        playerConfirmClosePlayback = false,
         playerFastRetryOnTransientFailures = false,
         playerAudioDecoderMode = DecoderMode.AUTO,
         playerVideoDecoderMode = DecoderMode.AUTO,

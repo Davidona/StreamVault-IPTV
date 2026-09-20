@@ -97,6 +97,7 @@ internal object PreferenceBackupRegistry {
         "hideDecorativeLiveRows", "liveChannelNumberingMode", "liveChannelGroupingMode", "groupedChannelLabelMode",
         "liveVariantPreferenceMode", "vodViewMode", "vodTypeBadgeAsIcon", "vodInfiniteScroll", "vodPortalSearch", "vodCategoryLoadMode",
         "vodDuplicateHandlingMode", "vodVariantPreferenceMode", "playerMediaSessionEnabled", "playerBackButtonVisibility",
+        "playerConfirmClosePlayback",
         "playerFastRetryOnTransientFailures", "playerAudioDecoderMode", "playerVideoDecoderMode",
         "playerPlaybackBufferMode", "playerAudioOutputPreference", "playerCompatibilityMemoryEnabled",
         "playerSurfaceMode", "playerLiveStreamFormatMode", "playerVodHttpProtocolMode", "playerPlaybackSpeed",

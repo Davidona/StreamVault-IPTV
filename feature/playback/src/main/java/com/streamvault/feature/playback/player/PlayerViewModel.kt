@@ -762,6 +762,9 @@ class PlayerViewModel @Inject constructor(
                 .combine(playerPreferencesCoordinator.playerBackButtonVisibility) { state, backButtonVisibility ->
                     state.copy(backButtonVisibility = backButtonVisibility)
                 }
+                .combine(playerPreferencesCoordinator.playerConfirmClosePlayback) { state, confirmClosePlayback ->
+                    state.copy(confirmClosePlayback = confirmClosePlayback)
+                }
                 .collect { state ->
                 _playerPreferencesUiState.value = state
             }

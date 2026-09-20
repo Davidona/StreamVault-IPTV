@@ -213,6 +213,26 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `close playback confirmation cancels on back and consumes other keys`() {
+        val state = liveState(showClosePlaybackConfirmation = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.Back).action)
+            .isEqualTo(PlayerInputAction.CancelClosePlayback)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadCenter).action)
+            .isEqualTo(PlayerInputAction.Pass)
+        assertThat(playerInputDecision(state, PlayerInputKey.Info).action)
+            .isEqualTo(PlayerInputAction.Consume)
+    }
+
+    @Test
+    fun `preview passes while close playback confirmation is visible`() {
+        val state = liveState(showClosePlaybackConfirmation = true)
+
+        assertThat(playerPreviewInputDecision(state, PlayerInputKey.DpadUp).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
     fun `numeric digits become actions only for live content`() {
         assertThat(playerInputDecision(liveState(), PlayerInputKey.Digit(7)).action)
             .isEqualTo(PlayerInputAction.InputNumericDigit(7))
@@ -243,7 +263,8 @@ class PlayerInputPolicyTest {
         showEpisodePicker: Boolean = false,
         showControls: Boolean = false,
         hasPendingNumericChannelInput: Boolean = false,
-        canOpenEpisodePicker: Boolean = false
+        canOpenEpisodePicker: Boolean = false,
+        showClosePlaybackConfirmation: Boolean = false
     ) = PlayerInputState(
         contentType = contentType,
         isCatchUpPlayback = isCatchUpPlayback,
@@ -266,6 +287,7 @@ class PlayerInputPolicyTest {
         showEpisodePicker = showEpisodePicker,
         showControls = showControls,
         hasPendingNumericChannelInput = hasPendingNumericChannelInput,
-        canOpenEpisodePicker = canOpenEpisodePicker
+        canOpenEpisodePicker = canOpenEpisodePicker,
+        showClosePlaybackConfirmation = showClosePlaybackConfirmation
     )
 }
