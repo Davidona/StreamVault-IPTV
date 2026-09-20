@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
@@ -26,6 +27,7 @@ import androidx.tv.material3.ClickableSurfaceShape
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Surface
+import com.streamvault.core.ui.design.AppColors
 
 /**
  * Drop-in replacement for TV Material3 Surface(onClick) that automatically adds
@@ -127,7 +129,12 @@ fun TvIconButton(
     glow: ButtonGlow = IconButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
     shape: ButtonShape = IconButtonDefaults.shape(),
-    colors: ButtonColors = IconButtonDefaults.colors(),
+    colors: ButtonColors = IconButtonDefaults.colors(
+        containerColor = Color.Transparent,
+        contentColor = AppColors.TextPrimary,
+        focusedContainerColor = AppColors.SurfaceEmphasis,
+        focusedContentColor = AppColors.TextPrimary,
+    ),
     border: ButtonBorder = IconButtonDefaults.border(),
     content: @Composable BoxScope.() -> Unit,
 ) {
