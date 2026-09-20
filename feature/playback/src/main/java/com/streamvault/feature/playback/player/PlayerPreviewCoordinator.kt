@@ -19,6 +19,8 @@ class PlayerPreviewCoordinator @Inject constructor(
     private val preparationCoordinator: PlayerPreparationCoordinator,
     private val preferencesCoordinator: PlayerPreferencesCoordinator,
 ) {
+    private var adoptedHandoffSource: PreviewHandoffSource? = null
+
     internal fun consumeFullscreenHandoff(
         channelId: Long,
         providerId: Long?
@@ -27,6 +29,20 @@ class PlayerPreviewCoordinator @Inject constructor(
 
     internal fun clear(engine: PlayerEngine?) {
         handoffManager.clear(engine)
+    }
+
+    /**
+     * Returns the browse surface that handed the active engine to the fullscreen
+     * player, or null when the active engine was not adopted from a preview.
+     *
+     * Consuming resets the value so a later teardown cannot reverse-handoff a
+     * stream to a stale origin. This is what routes a Guide preview back to the
+     * Guide instead of letting the Home surface silently adopt it.
+     */
+    internal fun consumeAdoptedHandoffSource(): PreviewHandoffSource? {
+        val source = adoptedHandoffSource
+        adoptedHandoffSource = null
+        return source
     }
 
     internal fun beginReverseHandoff(
@@ -58,6 +74,7 @@ class PlayerPreviewCoordinator @Inject constructor(
             logInfo("Skipping preview handoff for Fire TV live HLS; fullscreen will prepare a fresh session.")
             clear(session.engine)
             session.engine.release()
+            adoptedHandoffSource = null
             return false
         }
 
@@ -77,12 +94,14 @@ class PlayerPreviewCoordinator @Inject constructor(
             if (!isCurrent()) {
                 engineCoordinator.switchTo(engineCoordinator.mainEngine)
                 adoptedEngine.release()
+                adoptedHandoffSource = null
                 false
             } else {
                 onAdopted(session.streamInfo)
                 adoptedEngine.resetLiveHandoffGrace()
                 engineCoordinator.currentEngine.play()
                 onStarted(session.streamInfo)
+                adoptedHandoffSource = session.source
                 true
             }
         }.getOrElse {
@@ -91,6 +110,7 @@ class PlayerPreviewCoordinator @Inject constructor(
                 engineCoordinator.switchTo(engineCoordinator.mainEngine)
             }
             adoptedEngine.release()
+            adoptedHandoffSource = null
             false
         }
     }
