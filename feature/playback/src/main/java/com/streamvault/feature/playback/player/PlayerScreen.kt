@@ -96,6 +96,8 @@ import com.streamvault.core.navigation.AppDestination
 
 
 
+private const val CLOSE_PLAYBACK_CONFIRM_GUARD_MS = 350L
+
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun PlayerScreen(
@@ -180,6 +182,7 @@ fun PlayerScreen(
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
+    var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
     
     val focusRequester = remember { FocusRequester() }
     val channelListFocusRequester = remember { FocusRequester() }
@@ -407,6 +410,22 @@ fun PlayerScreen(
         }
     }
 
+    fun openClosePlaybackConfirmation() {
+        closePlaybackConfirmationOpenedAtMs = System.currentTimeMillis()
+        showClosePlaybackConfirmation = true
+    }
+
+    // The BACK press that opens the confirmation can still deliver a tail event
+    // (for example the matching ACTION_UP, or a back callback for the same
+    // press) to the freshly shown dialog. Ignore cancels that arrive within the
+    // same press window so a single BACK opens the dialog instead of toggling it.
+    fun dismissClosePlaybackConfirmation() {
+        if (System.currentTimeMillis() - closePlaybackConfirmationOpenedAtMs < CLOSE_PLAYBACK_CONFIRM_GUARD_MS) {
+            return
+        }
+        showClosePlaybackConfirmation = false
+    }
+
     val handleBackPress: () -> Unit = {
             when (playerBackActionAtEvent {
                 PlayerBackNavigationState(
@@ -454,10 +473,10 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
-                PlayerBackAction.CANCEL_CLOSE_PLAYBACK -> showClosePlaybackConfirmation = false
+                PlayerBackAction.CANCEL_CLOSE_PLAYBACK -> dismissClosePlaybackConfirmation()
                 PlayerBackAction.NAVIGATE_BACK -> {
                     if (playerPreferences.confirmClosePlayback) {
-                        showClosePlaybackConfirmation = true
+                        openClosePlaybackConfirmation()
                     } else {
                         onBack()
                     }
@@ -661,7 +680,7 @@ fun PlayerScreen(
                         true
                     }
                     PlayerInputAction.CancelClosePlayback -> {
-                        showClosePlaybackConfirmation = false
+                        dismissClosePlaybackConfirmation()
                         true
                     }
                 }

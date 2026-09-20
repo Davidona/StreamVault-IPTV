@@ -10,6 +10,7 @@
     <string name="nav_epg">Guide</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_plugins">Plugins</string>
+    <string name="nav_close_app">Close app</string>
 
     
     <string name="welcome_enter_app">Enter App</string>

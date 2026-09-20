@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.streamvault.app.playback.rememberPlaybackPlatformHost
+import com.streamvault.app.ui.components.shell.LocalAppCloseAction
 import com.streamvault.app.ui.components.shell.LocalAppDestinationItems
 import com.streamvault.app.ui.components.shell.rememberAppDestinationItems
 import com.streamvault.core.navigation.AppDestination
@@ -52,7 +53,10 @@ fun AppNavigation(
         catalogLayout = state.catalogLayout ?: CatalogLayout.SPLIT
     )
 
-    CompositionLocalProvider(LocalAppDestinationItems provides navigationDestinations) {
+    CompositionLocalProvider(
+        LocalAppDestinationItems provides navigationDestinations,
+        LocalAppCloseAction provides onCloseApp
+    ) {
         AppNavHost(
             navController = navController,
             actions = navigator,

@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.streamvault.app.R
 import com.streamvault.app.navigation.Routes
+import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
 import com.streamvault.core.ui.components.shell.CoreAppScreenScaffold
 import com.streamvault.core.ui.components.shell.NavigationChrome
 import com.streamvault.core.ui.components.shell.UiDestination
@@ -37,6 +38,8 @@ enum class AppNavigationChrome {
 }
 
 internal val LocalAppDestinationItems = staticCompositionLocalOf<List<UiDestination>?> { null }
+
+internal val LocalAppCloseAction = staticCompositionLocalOf<(() -> Unit)?> { null }
 
 @Composable
 fun AppScreenScaffold(
@@ -59,6 +62,8 @@ fun AppScreenScaffold(
             configuredDestinations = AppTopLevelDestination.defaultOrder,
             catalogLayout = CatalogLayout.SPLIT
         )
+    val closeAppAction = LocalAppCloseAction.current
+    val closeAppLabel = stringResource(R.string.nav_close_app)
 
     CoreAppScreenScaffold(
         currentDestinationId = currentRoute,
@@ -75,7 +80,15 @@ fun AppScreenScaffold(
         compactHeader = compactHeader,
         showScreenHeader = showScreenHeader,
         header = header,
-        topBarActions = topBarActions,
+        topBarActions = {
+            topBarActions?.invoke(this)
+            if (closeAppAction != null) {
+                AppTopBarCloseAction(
+                    onClick = closeAppAction,
+                    contentDescription = closeAppLabel
+                )
+            }
+        },
         contentPadding = contentPadding,
         content = content
     )
