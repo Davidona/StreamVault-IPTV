@@ -25,6 +25,7 @@ internal object PreferenceBackupRegistry {
         "multiview_preset_2", "multiview_preset_3", "multiview_performance_mode",
         "multiview_center_two_slot_layout", "multiview_respect_provider_connection_limit",
         "is_incognito_mode", "player_muted", "player_media_session_enabled", "player_back_button_visibility",
+        "player_confirm_close_playback",
         "player_fast_retry_on_transient_failures", "player_audio_decoder_mode", "player_video_decoder_mode",
         "player_playback_buffer_mode", "player_live_stream_format_mode", "player_vod_http_protocol_mode",
         "player_audio_output_preference", "player_compatibility_memory_enabled", "player_surface_mode",
