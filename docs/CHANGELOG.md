@@ -11,7 +11,8 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
-- Fixed pressing OK in the live TV player returning to the guide while the stream kept playing in the background.
+- Fixed pressing OK in the live TV player activating the overlay back button and returning to the channel list.
+- Fixed live streams continuing to play in the background after leaving the player by returning the preview handoff to the surface it started from.
 
 ## [1.0.18]
 
