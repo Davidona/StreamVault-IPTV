@@ -79,6 +79,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.timeout
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
@@ -515,7 +516,7 @@ class SeriesRepositoryImplTest {
 
         repository.getCategoryPreviewRows(7L, listOf(77L), 18).first()
 
-        verify(stalkerApiService).getSeriesPage(any(), any(), anyOrNull(), eq(1))
+        verify(stalkerApiService, timeout(5_000)).getSeriesPage(any(), any(), anyOrNull(), eq(1))
         verify(stalkerApiService, never()).getSeriesPage(any(), any(), anyOrNull(), eq(2))
     }
 
