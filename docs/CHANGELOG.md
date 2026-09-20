@@ -11,7 +11,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
-- Fixed pressing OK in the live TV player returning to the channel list while the stream kept playing in the background.
+- Fixed pressing OK in the live TV player returning to the guide while the stream kept playing in the background.
 
 ## [1.0.18]
 
