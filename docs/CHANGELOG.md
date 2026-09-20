@@ -2,6 +2,17 @@
 
 All notable product changes are recorded in this document.
 
+## [1.0.19]
+
+### Added
+
+- Added exit icon in the top navbar.
+- Added a pop up warning when trying to exit a player (Off by default, can be toggled in settings).
+
+### Fixed
+
+- Fixed pressing OK in the live TV player returning to the channel list while the stream kept playing in the background.
+
 ## [1.0.18]
 
 ### Added
