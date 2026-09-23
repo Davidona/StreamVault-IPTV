@@ -382,6 +382,18 @@ class Media3PlayerEngine @Inject constructor(
             while (true) {
                 delay(1_000L)
                 val stats = _playerStats.value
+                if (lastStreamInfo != null && Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
+                    Log.d(
+                        "PlaybackPerf",
+                        "mediaId=${lastMediaId.orEmpty()} " +
+                            "type=$currentResolvedStreamType state=${_playbackState.value} " +
+                            "bufferMs=${stats.bufferedDurationMs} rebuffers=${stats.rebufferCount} " +
+                            "deliveredBps=${stats.measuredBitrate} estimateBps=${stats.bandwidthEstimate} " +
+                            "selectedBps=${stats.videoBitrate} size=${stats.width}x${stats.height} " +
+                            "drops=${stats.droppedFrames} decoder=$selectedVideoDecoderName " +
+                            "policy=${currentBufferPolicyLabel.orEmpty()}"
+                    )
+                }
                 val liveStream = isCurrentStreamLive()
                 val effectivePlaybackStarted = isEffectivelyPlaybackStarted()
                 val liveBufferingRecoveryEligible = liveStream && effectivePlaybackStarted
