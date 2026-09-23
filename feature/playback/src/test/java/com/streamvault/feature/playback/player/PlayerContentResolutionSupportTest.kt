@@ -3,6 +3,7 @@ package com.streamvault.feature.playback.player
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
@@ -94,6 +95,7 @@ class PlayerContentResolutionSupportTest {
         assertThat(result.streamInfo?.url).isEqualTo(expected.url)
         assertThat(result.streamInfo?.headers).containsEntry("Cookie", "session=abc")
         assertThat(result.streamInfo?.title).isEqualTo("Current Title")
+        assertThat(result.streamInfo?.playbackContentKind).isEqualTo(PlaybackContentKind.ON_DEMAND)
     }
 
     @Test
@@ -123,6 +125,71 @@ class PlayerContentResolutionSupportTest {
         assertThat(result.streamInfo?.url).isEqualTo(expected.url)
         assertThat(result.streamInfo?.userAgent).isEqualTo("StreamVault")
         assertThat(result.streamInfo?.title).isEqualTo("Current Title")
+        assertThat(result.streamInfo?.playbackContentKind).isEqualTo(PlaybackContentKind.ON_DEMAND)
+    }
+
+    @Test
+    fun `movie intent wins over misleading live path in the resolved URL`() = runBlocking {
+        val url = "https://example.test/live/movie.m3u8"
+        val resolver: PlayerPlaybackResolver = mock()
+        whenever(
+            resolver.resolveAndCommitMetadata(
+                url = url,
+                fallbackProviderId = null,
+                fallbackStreamId = null,
+                fallbackContentType = ContentType.MOVIE,
+                fallbackContainerExtension = null,
+                preferStableUrl = false
+            )
+        ).thenReturn(Result.success(null))
+
+        val result = resolvePlayerPlaybackStreamInfo(
+            logicalUrl = url,
+            internalContentId = 0L,
+            providerId = 0L,
+            contentType = ContentType.MOVIE,
+            currentTitle = "Movie",
+            currentSeries = null,
+            currentEpisode = null,
+            channelRepository = mock<ChannelRepository>(),
+            movieRepository = mock<MovieRepository>(),
+            seriesRepository = mock<SeriesRepository>(),
+            playerPlaybackResolver = resolver
+        )
+
+        assertThat(result.streamInfo?.playbackContentKind).isEqualTo(PlaybackContentKind.ON_DEMAND)
+    }
+
+    @Test
+    fun `live DASH keeps live intent even when container was previously treated as VOD`() = runBlocking {
+        val url = "https://example.test/live/channel.mpd"
+        val resolver: PlayerPlaybackResolver = mock()
+        whenever(
+            resolver.resolveAndCommitMetadata(
+                url = url,
+                fallbackProviderId = null,
+                fallbackStreamId = null,
+                fallbackContentType = ContentType.LIVE,
+                fallbackContainerExtension = null,
+                preferStableUrl = false
+            )
+        ).thenReturn(Result.success(null))
+
+        val result = resolvePlayerPlaybackStreamInfo(
+            logicalUrl = url,
+            internalContentId = 0L,
+            providerId = 0L,
+            contentType = ContentType.LIVE,
+            currentTitle = "Live Channel",
+            currentSeries = null,
+            currentEpisode = null,
+            channelRepository = mock<ChannelRepository>(),
+            movieRepository = mock<MovieRepository>(),
+            seriesRepository = mock<SeriesRepository>(),
+            playerPlaybackResolver = resolver
+        )
+
+        assertThat(result.streamInfo?.playbackContentKind).isEqualTo(PlaybackContentKind.LIVE)
     }
 
     @Test

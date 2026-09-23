@@ -19,13 +19,22 @@ data class StreamInfo(
     val containerExtension: String? = null,
     val catchUpUrl: String? = null,
     val expirationTime: Long? = null,
-    val drmInfo: DrmInfo? = null
+    val drmInfo: DrmInfo? = null,
+    val playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
 ) {
     init {
         require(url.isNotBlank()) { "StreamInfo url must not be blank" }
         expirationTime?.let { require(it >= 0) { "StreamInfo expirationTime must be non-negative" } }
         proxyPort?.let { require(it in 1..65535) { "StreamInfo proxyPort must be between 1 and 65535" } }
     }
+}
+
+/** The semantic playback category, independent of the resolved stream's URL or container. */
+enum class PlaybackContentKind {
+    UNKNOWN,
+    LIVE,
+    ON_DEMAND,
+    CATCH_UP
 }
 
 enum class PlaybackTransportMode {

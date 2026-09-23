@@ -41,6 +41,7 @@ import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.MovieDetailPresentationHint
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PagedResult
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
@@ -680,7 +681,8 @@ class MovieRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.ON_DEMAND
                 ).withM3uPlaybackMetadata(persistedMovie?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for movie: ${movie.name}")

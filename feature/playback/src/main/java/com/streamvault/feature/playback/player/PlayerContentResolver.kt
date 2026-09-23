@@ -3,6 +3,7 @@ package com.streamvault.feature.playback.player
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
@@ -92,7 +93,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (shouldUseStoredLiveStreamInfo(logicalUrl, channel.streamUrl)) {
                         channelRepository.getStreamInfo(channel).getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.LIVE
+                                )
                             )
                         }
                     }
@@ -108,7 +112,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (streamInfoResult.isSuccess) {
                         streamInfoResult.getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.ON_DEMAND
+                                )
                             )
                         }
                     } else {
@@ -144,7 +151,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (streamInfoResult.isSuccess) {
                         streamInfoResult.getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.ON_DEMAND
+                                )
                             )
                         }
                     } else {
@@ -181,7 +191,8 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     proxyPort = resolved.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolved.expirationTime
+                    expirationTime = resolved.expirationTime,
+                    playbackContentKind = contentType.toPlaybackContentKind()
                 )
             )
         }
@@ -216,8 +227,12 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 url = it,
                 title = currentTitle,
                 streamType = StreamType.fromContainerExtension(fallbackContainerExtension),
-                containerExtension = fallbackContainerExtension
+                containerExtension = fallbackContainerExtension,
+                playbackContentKind = contentType.toPlaybackContentKind()
             )
         }
     )
 }
+
+private fun ContentType.toPlaybackContentKind(): PlaybackContentKind =
+    if (this == ContentType.LIVE) PlaybackContentKind.LIVE else PlaybackContentKind.ON_DEMAND

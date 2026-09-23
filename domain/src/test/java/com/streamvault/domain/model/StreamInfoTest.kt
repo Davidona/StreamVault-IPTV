@@ -6,6 +6,13 @@ import org.junit.Test
 class StreamInfoTest {
 
     @Test
+    fun playbackContentKind_defaultsToUnknownForLegacyCallers() {
+        val streamInfo = StreamInfo(url = "https://cdn.example.com/video.m3u8")
+
+        assertThat(streamInfo.playbackContentKind).isEqualTo(PlaybackContentKind.UNKNOWN)
+    }
+
+    @Test
     fun expirationTime_preserves_non_negative_value() {
         val streamInfo = StreamInfo(
             url = "https://cdn.example.com/video.m3u8?expires=1774017000",

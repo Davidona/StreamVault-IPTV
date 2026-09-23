@@ -74,7 +74,9 @@ class PlayerPreparationCoordinator @Inject constructor(
             }
 
             DomainResult.Loading -> Unit
-            is DomainResult.Success -> preparedStreamInfo = pluginPrepareResult.data
+            is DomainResult.Success -> preparedStreamInfo = pluginPrepareResult.data.copy(
+                playbackContentKind = request.streamInfo.playbackContentKind
+            )
         }
 
         var probeCacheKey: String? = null
@@ -118,7 +120,9 @@ class PlayerPreparationCoordinator @Inject constructor(
         val prepared = when (val result = streamPreparer.prepare(streamInfo)) {
             is DomainResult.Error -> return null
             DomainResult.Loading -> streamInfo
-            is DomainResult.Success -> result.data
+            is DomainResult.Success -> result.data.copy(
+                playbackContentKind = streamInfo.playbackContentKind
+            )
         }
         val preparedExpiry = prepared.expirationTime
         if (preparedExpiry != null && preparedExpiry > 0L && preparedExpiry < System.currentTimeMillis()) {

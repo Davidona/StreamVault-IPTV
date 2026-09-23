@@ -735,7 +735,8 @@ class SeriesRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.ON_DEMAND
                 )
             )
         } ?: Result.error("No stream URL available for episode: ${episode.title}")

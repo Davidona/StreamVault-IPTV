@@ -1,6 +1,7 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.repository.ProviderRepository
@@ -21,8 +22,11 @@ class PlayerPreparationCoordinatorPreloadTest {
     fun `preload preparation preserves prepared stream without touching foreground engine`() = runTest {
         val preparer = mock<PlaybackStreamPreparer>()
         val engine = mock<PlayerEngine>()
-        val input = StreamInfo("https://example.com/logical.m3u8")
-        val prepared = input.copy(
+        val input = StreamInfo(
+            url = "https://example.com/logical.m3u8",
+            playbackContentKind = PlaybackContentKind.ON_DEMAND
+        )
+        val prepared = StreamInfo(
             url = "https://cdn.example.com/prepared.m3u8",
             headers = mapOf("Authorization" to "Bearer redacted")
         )
@@ -38,7 +42,7 @@ class PlayerPreparationCoordinatorPreloadTest {
 
         val result = coordinator.prepareStreamForPreload(input)
 
-        assertThat(result).isEqualTo(prepared)
+        assertThat(result).isEqualTo(prepared.copy(playbackContentKind = PlaybackContentKind.ON_DEMAND))
         verify(engine, never()).prepare(any())
         verify(engine, never()).setMuted(any())
     }
