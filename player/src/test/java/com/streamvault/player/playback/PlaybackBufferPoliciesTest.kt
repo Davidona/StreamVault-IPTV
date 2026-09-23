@@ -2,7 +2,9 @@ package com.streamvault.player.playback
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackBufferMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.model.VideoFormat
 import org.junit.Test
 
@@ -95,6 +97,71 @@ class PlaybackBufferPoliciesTest {
         assertThat(policy.rebufferMs).isEqualTo(15_000)
         assertThat(policy.targetBufferBytes).isEqualTo(64 * 1024 * 1024)
         assertThat(policy.qualityReason).isEqualTo("metadata-2160p")
+    }
+
+    @Test
+    fun `explicit hls vod keeps baseline buffer sizes and skips quality promotion`() {
+        val policy = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            compatibilityMode = false,
+            lowMemoryDevice = false,
+            bufferMode = PlaybackBufferMode.AUTO,
+            streamInfo = StreamInfo(
+                url = "https://example.com/live/movie_2160p/index.m3u8",
+                title = "Movie UHD HDR",
+                playbackContentKind = PlaybackContentKind.ON_DEMAND
+            ),
+            observedVideoFormat = VideoFormat(width = 3_840, height = 2_160, isHdr = true)
+        )
+
+        assertThat(policy.label).isEqualTo("vod-hls-initial")
+        assertThat(policy.minBufferMs).isEqualTo(8_000)
+        assertThat(policy.maxBufferMs).isEqualTo(30_000)
+        assertThat(policy.playbackBufferMs).isEqualTo(1_500)
+        assertThat(policy.rebufferMs).isEqualTo(5_000)
+        assertThat(policy.targetBufferBytes).isEqualTo(-1)
+        assertThat(policy.qualityReason).isEqualTo("finite-content")
+    }
+
+    @Test
+    fun `explicit hls vod keeps low memory hls buffer limits`() {
+        val policy = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            compatibilityMode = false,
+            lowMemoryDevice = true,
+            bufferMode = PlaybackBufferMode.AUTO,
+            streamInfo = StreamInfo(
+                url = "https://example.com/movie_uhd.m3u8",
+                playbackContentKind = PlaybackContentKind.ON_DEMAND
+            )
+        )
+
+        assertThat(policy.label).isEqualTo("vod-hls-initial")
+        assertThat(policy.minBufferMs).isEqualTo(4_000)
+        assertThat(policy.maxBufferMs).isEqualTo(12_000)
+        assertThat(policy.targetBufferBytes).isEqualTo(-1)
+    }
+
+    @Test
+    fun `explicit live dash gets live baseline buffer`() {
+        val policy = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.DASH,
+            compatibilityMode = false,
+            lowMemoryDevice = false,
+            bufferMode = PlaybackBufferMode.AUTO,
+            streamInfo = StreamInfo(
+                url = "https://example.com/channel.mpd",
+                streamType = StreamType.DASH,
+                playbackContentKind = PlaybackContentKind.LIVE
+            )
+        )
+
+        assertThat(policy.label).isEqualTo("stable-live")
+        assertThat(policy.minBufferMs).isEqualTo(8_000)
+        assertThat(policy.maxBufferMs).isEqualTo(30_000)
+        assertThat(policy.playbackBufferMs).isEqualTo(1_500)
+        assertThat(policy.rebufferMs).isEqualTo(5_000)
+        assertThat(policy.targetBufferBytes).isEqualTo(-1)
     }
 
     @Test

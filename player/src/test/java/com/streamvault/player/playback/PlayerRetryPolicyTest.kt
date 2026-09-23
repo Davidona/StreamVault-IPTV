@@ -6,6 +6,7 @@ import androidx.media3.common.ParserException
 import androidx.media3.common.PlaybackException
 import androidx.media3.exoplayer.source.BehindLiveWindowException
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.PlaybackContentKind
 import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
@@ -152,6 +153,35 @@ class PlayerRetryPolicyTest {
         assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 4)).isFalse()
         assertThat(progressivePolicy.maxAttempts(error, playbackStarted = true)).isEqualTo(3)
         assertThat(progressivePolicy.retryReason(error)).isEqualTo("server-retryable")
+    }
+
+    @Test
+    fun `explicit hls vod uses finite source retry treatment`() {
+        val vodHlsContext = PlaybackRetryContext(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            timeoutProfile = PlayerTimeoutProfile.VOD,
+            playbackContentKind = PlaybackContentKind.ON_DEMAND
+        )
+        val vodHlsPolicy = PlayerRetryPolicy(vodHlsContext) { true }
+        val malformed = ParserException.createForMalformedContainer("bad movie segment", null)
+
+        assertThat(vodHlsContext.isLive).isFalse()
+        assertThat(vodHlsPolicy.maxAttempts(IOException("HTTP 503"), playbackStarted = false)).isEqualTo(2)
+        assertThat(vodHlsPolicy.maxAttempts(malformed, playbackStarted = true)).isEqualTo(0)
+        assertThat(vodHlsPolicy.retryReason(malformed)).isEqualTo("malformed-source")
+    }
+
+    @Test
+    fun `explicit live dash uses live retry treatment`() {
+        val liveDashContext = PlaybackRetryContext(
+            resolvedStreamType = ResolvedStreamType.DASH,
+            timeoutProfile = PlayerTimeoutProfile.LIVE,
+            playbackContentKind = PlaybackContentKind.LIVE
+        )
+        val liveDashPolicy = PlayerRetryPolicy(liveDashContext) { true }
+
+        assertThat(liveDashContext.isLive).isTrue()
+        assertThat(liveDashPolicy.maxAttempts(IOException("HTTP 503"), playbackStarted = false)).isEqualTo(10)
     }
 
     @Test

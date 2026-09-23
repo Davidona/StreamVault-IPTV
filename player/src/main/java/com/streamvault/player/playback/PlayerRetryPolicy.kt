@@ -6,6 +6,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.source.BehindLiveWindowException
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
+import com.streamvault.domain.model.PlaybackContentKind
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -16,13 +17,11 @@ private const val LIVE_HLS_MALFORMED_RETRY_ATTEMPTS_AFTER_START = 12
 
 data class PlaybackRetryContext(
     val resolvedStreamType: ResolvedStreamType,
-    val timeoutProfile: PlayerTimeoutProfile
+    val timeoutProfile: PlayerTimeoutProfile,
+    val playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
 ) {
     val isLive: Boolean
-        get() = resolvedStreamType == ResolvedStreamType.HLS ||
-            resolvedStreamType == ResolvedStreamType.SMOOTH_STREAMING ||
-            resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE ||
-            resolvedStreamType == ResolvedStreamType.RTSP
+        get() = isLivePlayback(playbackContentKind, resolvedStreamType)
 }
 
 @UnstableApi
@@ -73,7 +72,8 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.PROVIDER_LIMIT,
             PlaybackErrorCategory.EMPTY_RESPONSE,
             PlaybackErrorCategory.UNKNOWN -> streamContext.isLive
-            PlaybackErrorCategory.SOURCE_MALFORMED -> streamContext.resolvedStreamType == ResolvedStreamType.HLS
+            PlaybackErrorCategory.SOURCE_MALFORMED ->
+                streamContext.isLive && streamContext.resolvedStreamType == ResolvedStreamType.HLS
             PlaybackErrorCategory.HTTP_AUTH,
             PlaybackErrorCategory.SSL,
             PlaybackErrorCategory.CLEAR_TEXT_BLOCKED,
@@ -91,7 +91,7 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.PROVIDER_LIMIT -> "terminal-provider-limit"
             PlaybackErrorCategory.EMPTY_RESPONSE -> "terminal-empty-response"
             PlaybackErrorCategory.SOURCE_MALFORMED ->
-                if (streamContext.resolvedStreamType == ResolvedStreamType.HLS) {
+                if (streamContext.isLive && streamContext.resolvedStreamType == ResolvedStreamType.HLS) {
                     "malformed-live-hls-refresh"
                 } else {
                     "malformed-source"
@@ -177,7 +177,7 @@ class PlayerRetryPolicy(
             }
 
             PlaybackErrorCategory.SOURCE_MALFORMED -> when {
-                streamContext.resolvedStreamType == ResolvedStreamType.HLS && playbackStarted ->
+                streamContext.isLive && streamContext.resolvedStreamType == ResolvedStreamType.HLS && playbackStarted ->
                     LIVE_HLS_MALFORMED_RETRY_ATTEMPTS_AFTER_START
                 playbackStarted -> 0
                 else -> 1

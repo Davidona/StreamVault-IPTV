@@ -17,7 +17,11 @@ internal fun buildPlaybackPreparationPlan(
 ): PlaybackPreparationPlan {
     val resolvedStreamType = StreamTypeResolver.resolve(streamInfo)
     val timeoutProfile = PlayerTimeoutProfile.resolve(streamInfo, resolvedStreamType, preload = preload)
-    val retryContext = PlaybackRetryContext(resolvedStreamType, timeoutProfile)
+    val retryContext = PlaybackRetryContext(
+        resolvedStreamType = resolvedStreamType,
+        timeoutProfile = timeoutProfile,
+        playbackContentKind = streamInfo.playbackContentKind
+    )
     return PlaybackPreparationPlan(
         resolvedStreamType = resolvedStreamType,
         timeoutProfile = timeoutProfile,

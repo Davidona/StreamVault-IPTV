@@ -1,6 +1,7 @@
 package com.streamvault.player.playback
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
 import org.junit.Test
 
@@ -42,5 +43,21 @@ class PlaybackPreparationPlanTest {
 
         assertThat(preloadPlan.resolvedStreamType).isEqualTo(ResolvedStreamType.PROGRESSIVE)
         assertThat(preloadPlan.timeoutProfile).isEqualTo(PlayerTimeoutProfile.PRELOAD)
+    }
+
+    @Test
+    fun `explicit hls vod intent reaches retry context`() {
+        val plan = buildPlaybackPreparationPlan(
+            streamInfo = StreamInfo(
+                url = "https://example.com/live/movie.m3u8",
+                playbackContentKind = PlaybackContentKind.ON_DEMAND
+            ),
+            preload = false,
+            playbackStarted = { false }
+        )
+
+        assertThat(plan.retryContext.playbackContentKind).isEqualTo(PlaybackContentKind.ON_DEMAND)
+        assertThat(plan.retryContext.isLive).isFalse()
+        assertThat(plan.timeoutProfile).isEqualTo(PlayerTimeoutProfile.VOD)
     }
 }
