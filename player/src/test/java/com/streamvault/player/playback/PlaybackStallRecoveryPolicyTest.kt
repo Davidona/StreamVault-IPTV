@@ -1,6 +1,7 @@
 package com.streamvault.player.playback
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.player.PlaybackState
 import org.junit.Test
 
@@ -22,6 +23,19 @@ class PlaybackStallRecoveryPolicyTest {
         assertThat(shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.MPEG_TS_LIVE)).isTrue()
         assertThat(shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.HLS)).isTrue()
         assertThat(shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.PROGRESSIVE)).isFalse()
+    }
+
+    @Test
+    fun `frame silent hls recovery uses content intent and keeps unknown live behavior`() {
+        assertThat(
+            shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.HLS, PlaybackContentKind.ON_DEMAND)
+        ).isFalse()
+        assertThat(
+            shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.HLS, PlaybackContentKind.LIVE)
+        ).isTrue()
+        assertThat(
+            shouldRecoverFrameSilentReadyStalls(ResolvedStreamType.HLS, PlaybackContentKind.UNKNOWN)
+        ).isTrue()
     }
 
     @Test
@@ -53,6 +67,18 @@ class PlaybackStallRecoveryPolicyTest {
                 playbackState = PlaybackState.READY,
                 resolvedStreamType = ResolvedStreamType.PROGRESSIVE,
                 recoveryAttempt = 1
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `vod hls stalls do not reconnect through the live recovery path`() {
+        assertThat(
+            shouldReconnectLiveStall(
+                playbackState = PlaybackState.READY,
+                resolvedStreamType = ResolvedStreamType.HLS,
+                recoveryAttempt = 1,
+                playbackContentKind = PlaybackContentKind.ON_DEMAND
             )
         ).isFalse()
     }

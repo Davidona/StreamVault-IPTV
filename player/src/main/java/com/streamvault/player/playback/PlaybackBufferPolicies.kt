@@ -3,7 +3,6 @@ package com.streamvault.player.playback
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
-import com.streamvault.domain.model.VideoFormat
 import java.util.Locale
 
 internal data class PlaybackBufferPolicy(
@@ -53,9 +52,6 @@ internal object PlaybackBufferPolicies {
     private const val LARGE_LIVE_MAX_BUFFER_MS = 90_000
     private const val LARGE_LIVE_PLAYBACK_BUFFER_MS = 5_000
     private const val LARGE_LIVE_REBUFFER_MS = 15_000
-    private const val UHD_MIN_WIDTH = 3_840
-    private const val UHD_MIN_HEIGHT = 2_160
-    private const val HIGH_BITRATE_THRESHOLD_BPS = 20_000_000
 
     fun forPlayback(
         isLive: Boolean,
@@ -94,8 +90,7 @@ internal object PlaybackBufferPolicies {
         compatibilityMode = compatibilityMode,
         lowMemoryDevice = lowMemoryDevice,
         bufferMode = PlaybackBufferMode.AUTO,
-        streamInfo = null,
-        observedVideoFormat = null
+        streamInfo = null
     )
 
     fun forPlayback(
@@ -103,9 +98,7 @@ internal object PlaybackBufferPolicies {
         compatibilityMode: Boolean,
         lowMemoryDevice: Boolean,
         bufferMode: PlaybackBufferMode,
-        streamInfo: StreamInfo? = null,
-        observedVideoFormat: VideoFormat? = null,
-        qualityReasonOverride: String? = null
+        streamInfo: StreamInfo? = null
     ): PlaybackBufferPolicy {
         val kind = streamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN
         val isLive = isLivePlayback(kind, resolvedStreamType)
@@ -124,7 +117,7 @@ internal object PlaybackBufferPolicies {
             ).copy(label = "vod-hls-initial", qualityReason = "finite-content")
         }
         if (bufferMode == PlaybackBufferMode.AUTO && resolvedStreamType == ResolvedStreamType.HLS) {
-            val qualityReason = qualityReasonOverride ?: highQualityLiveHlsReason(streamInfo, observedVideoFormat)
+            val qualityReason = highQualityLiveHlsReason(streamInfo)
             return when {
                 qualityReason == null -> baselineLivePolicy(
                     resolvedStreamType = resolvedStreamType,
@@ -263,15 +256,7 @@ internal object PlaybackBufferPolicies {
         qualityReason = qualityReason
     )
 
-    fun highQualityLiveHlsReason(streamInfo: StreamInfo?, observedVideoFormat: VideoFormat?): String? {
-        observedVideoFormat?.let { format ->
-            when {
-                format.width >= UHD_MIN_WIDTH -> return "observed-width-${format.width}"
-                format.height >= UHD_MIN_HEIGHT -> return "observed-height-${format.height}"
-                format.bitrate >= HIGH_BITRATE_THRESHOLD_BPS -> return "observed-bitrate-${format.bitrate}"
-                format.isHdr -> return "observed-hdr"
-            }
-        }
+    fun highQualityLiveHlsReason(streamInfo: StreamInfo?): String? {
         val searchable = listOfNotNull(
             streamInfo?.title,
             streamInfo?.url,

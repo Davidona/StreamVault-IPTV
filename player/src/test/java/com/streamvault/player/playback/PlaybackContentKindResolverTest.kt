@@ -25,4 +25,11 @@ class PlaybackContentKindResolverTest {
         assertThat(isLivePlayback(PlaybackContentKind.UNKNOWN, ResolvedStreamType.HLS)).isTrue()
         assertThat(isLivePlayback(PlaybackContentKind.UNKNOWN, ResolvedStreamType.DASH)).isFalse()
     }
+
+    @Test
+    fun `hls live stall eligibility follows content intent`() {
+        assertThat(isLivePlayback(PlaybackContentKind.ON_DEMAND, ResolvedStreamType.HLS)).isFalse()
+        assertThat(isLivePlayback(PlaybackContentKind.LIVE, ResolvedStreamType.HLS)).isTrue()
+        assertThat(isLivePlayback(PlaybackContentKind.UNKNOWN, ResolvedStreamType.HLS)).isTrue()
+    }
 }

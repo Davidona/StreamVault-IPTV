@@ -5,7 +5,6 @@ import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
-import com.streamvault.domain.model.VideoFormat
 import org.junit.Test
 
 class PlaybackBufferPoliciesTest {
@@ -77,6 +76,33 @@ class PlaybackBufferPoliciesTest {
     }
 
     @Test
+    fun `explicit live hls still honors user selected medium and large buffers`() {
+        val streamInfo = StreamInfo(
+            url = "https://example.com/live/channel.m3u8",
+            playbackContentKind = PlaybackContentKind.LIVE
+        )
+        val medium = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            compatibilityMode = false,
+            lowMemoryDevice = false,
+            bufferMode = PlaybackBufferMode.MEDIUM,
+            streamInfo = streamInfo
+        )
+        val large = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            compatibilityMode = false,
+            lowMemoryDevice = false,
+            bufferMode = PlaybackBufferMode.LARGE,
+            streamInfo = streamInfo
+        )
+
+        assertThat(medium.label).isEqualTo("medium-live")
+        assertThat(medium.targetBufferBytes).isEqualTo(32 * 1024 * 1024)
+        assertThat(large.label).isEqualTo("large-live")
+        assertThat(large.targetBufferBytes).isEqualTo(64 * 1024 * 1024)
+    }
+
+    @Test
     fun `auto live hls promotes to large when metadata hints uhd`() {
         val policy = PlaybackBufferPolicies.forPlayback(
             resolvedStreamType = ResolvedStreamType.HLS,
@@ -110,8 +136,7 @@ class PlaybackBufferPoliciesTest {
                 url = "https://example.com/live/movie_2160p/index.m3u8",
                 title = "Movie UHD HDR",
                 playbackContentKind = PlaybackContentKind.ON_DEMAND
-            ),
-            observedVideoFormat = VideoFormat(width = 3_840, height = 2_160, isHdr = true)
+            )
         )
 
         assertThat(policy.label).isEqualTo("vod-hls-initial")
@@ -162,51 +187,6 @@ class PlaybackBufferPoliciesTest {
         assertThat(policy.playbackBufferMs).isEqualTo(1_500)
         assertThat(policy.rebufferMs).isEqualTo(5_000)
         assertThat(policy.targetBufferBytes).isEqualTo(-1)
-    }
-
-    @Test
-    fun `auto live hls promotes to large when observed format is uhd`() {
-        val policy = PlaybackBufferPolicies.forPlayback(
-            resolvedStreamType = ResolvedStreamType.HLS,
-            compatibilityMode = false,
-            lowMemoryDevice = false,
-            bufferMode = PlaybackBufferMode.AUTO,
-            observedVideoFormat = VideoFormat(width = 3_840, height = 2_160)
-        )
-
-        assertThat(policy.label).isEqualTo("auto-uhd-live-hls")
-        assertThat(policy.targetBufferBytes).isEqualTo(64 * 1024 * 1024)
-        assertThat(policy.qualityReason).isEqualTo("observed-width-3840")
-    }
-
-    @Test
-    fun `auto live hls promotes to large when observed format is high bitrate`() {
-        val policy = PlaybackBufferPolicies.forPlayback(
-            resolvedStreamType = ResolvedStreamType.HLS,
-            compatibilityMode = false,
-            lowMemoryDevice = false,
-            bufferMode = PlaybackBufferMode.AUTO,
-            observedVideoFormat = VideoFormat(width = 1_920, height = 1_080, bitrate = 20_000_000)
-        )
-
-        assertThat(policy.label).isEqualTo("auto-uhd-live-hls")
-        assertThat(policy.targetBufferBytes).isEqualTo(64 * 1024 * 1024)
-        assertThat(policy.qualityReason).isEqualTo("observed-bitrate-20000000")
-    }
-
-    @Test
-    fun `auto live hls promotes to large when observed format is hdr`() {
-        val policy = PlaybackBufferPolicies.forPlayback(
-            resolvedStreamType = ResolvedStreamType.HLS,
-            compatibilityMode = false,
-            lowMemoryDevice = false,
-            bufferMode = PlaybackBufferMode.AUTO,
-            observedVideoFormat = VideoFormat(width = 1_920, height = 1_080, isHdr = true)
-        )
-
-        assertThat(policy.label).isEqualTo("auto-uhd-live-hls")
-        assertThat(policy.targetBufferBytes).isEqualTo(64 * 1024 * 1024)
-        assertThat(policy.qualityReason).isEqualTo("observed-hdr")
     }
 
     @Test

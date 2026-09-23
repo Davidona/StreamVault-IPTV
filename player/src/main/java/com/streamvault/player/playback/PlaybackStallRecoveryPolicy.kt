@@ -1,29 +1,27 @@
 package com.streamvault.player.playback
 
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.player.PlaybackState
 
 internal fun shouldRecoverReadyStalls(resolvedStreamType: ResolvedStreamType): Boolean =
     true
 
-internal fun shouldRecoverPositionAdvancingReadyStalls(resolvedStreamType: ResolvedStreamType): Boolean =
-    !resolvedStreamType.isLiveForStallRecovery
+internal fun shouldRecoverPositionAdvancingReadyStalls(
+    resolvedStreamType: ResolvedStreamType,
+    playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
+): Boolean = !isLivePlayback(playbackContentKind, resolvedStreamType)
 
-internal fun shouldRecoverFrameSilentReadyStalls(resolvedStreamType: ResolvedStreamType): Boolean =
-    resolvedStreamType.isLiveForStallRecovery
+internal fun shouldRecoverFrameSilentReadyStalls(
+    resolvedStreamType: ResolvedStreamType,
+    playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
+): Boolean = isLivePlayback(playbackContentKind, resolvedStreamType)
 
 internal fun shouldReconnectLiveStall(
     playbackState: PlaybackState,
     resolvedStreamType: ResolvedStreamType,
-    recoveryAttempt: Int
+    recoveryAttempt: Int,
+    playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
 ): Boolean =
     recoveryAttempt == 1 &&
-        (
-            playbackState == PlaybackState.BUFFERING && resolvedStreamType.isLiveForStallRecovery ||
-                playbackState == PlaybackState.READY && resolvedStreamType.isLiveForStallRecovery
-        )
-
-private val ResolvedStreamType.isLiveForStallRecovery: Boolean
-    get() = this == ResolvedStreamType.HLS ||
-        this == ResolvedStreamType.SMOOTH_STREAMING ||
-        this == ResolvedStreamType.MPEG_TS_LIVE ||
-        this == ResolvedStreamType.RTSP
+        isLivePlayback(playbackContentKind, resolvedStreamType) &&
+        (playbackState == PlaybackState.BUFFERING || playbackState == PlaybackState.READY)
