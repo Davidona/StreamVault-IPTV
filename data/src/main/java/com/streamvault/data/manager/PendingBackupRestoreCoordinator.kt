@@ -259,12 +259,10 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             .members.all { resolveContent(providerId, it.content) != null }
         SECTION_PLAYBACK_HISTORY -> {
             val backup = gson.fromJson(item.payloadJson, PortablePlaybackHistoryBackup::class.java)
+            val resolved = resolveContent(providerId, backup.content)
             val parentRemoteId = backup.content.parentRemoteContentId
-            resolveContent(providerId, backup.content) != null &&
-                (parentRemoteId == null || resolveContent(
-                    providerId,
-                    backup.content.copy(contentType = ContentType.SERIES, remoteContentId = parentRemoteId)
-                ) != null)
+            resolved != null &&
+                (parentRemoteId == null || (resolved.seriesId ?: resolveParentSeriesId(providerId, parentRemoteId)) != null)
         }
         SECTION_PROTECTED_CONTENT -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableProtectedContentBackup::class.java).content) != null
         SECTION_HIDDEN_CONTENT -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableHiddenContentBackup::class.java).content) != null
@@ -378,11 +376,8 @@ class PendingBackupRestoreCoordinator @Inject constructor(
     private suspend fun applyPlaybackHistory(item: BackupRestoreItemEntity, providerId: Long): Boolean {
         val backup = gson.fromJson(item.payloadJson, PortablePlaybackHistoryBackup::class.java)
         val resolved = resolveContent(providerId, backup.content) ?: return false
-        val parentSeriesId = backup.content.parentRemoteContentId?.let { remoteParent ->
-            resolveContent(
-                providerId,
-                backup.content.copy(contentType = ContentType.SERIES, remoteContentId = remoteParent)
-            )?.localId
+        val parentSeriesId = resolved.seriesId ?: backup.content.parentRemoteContentId?.let { remoteParent ->
+            resolveParentSeriesId(providerId, remoteParent)
         }
         playbackHistoryDao.insertOrUpdate(
             PlaybackHistoryEntity(
@@ -601,7 +596,12 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                         ?.let { ResolvedContent(it.id, ContentType.SERIES) }
                     ContentType.SERIES_EPISODE -> episodeDao.getById(localId)
                         ?.takeIf { it.providerId == providerId }
-                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE) }
+                        ?.takeIf { episode ->
+                            reference.parentRemoteContentId
+                                ?.let { resolveParentSeriesId(providerId, it) == episode.seriesId }
+                                ?: true
+                        }
+                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE, seriesId = it.seriesId) }
                 }
             }
         val remoteLong = reference.remoteContentId.toLongOrNull()
@@ -630,19 +630,41 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                         ?.let { ResolvedContent(it.id, ContentType.SERIES) }
             }
             ContentType.SERIES_EPISODE -> {
-                val episode = remoteLong?.let { episodeDao.getByProviderAndEpisodeId(providerId, it) }
-                if (episode != null) {
-                    ResolvedContent(episode.id, ContentType.SERIES_EPISODE)
-                } else {
-                    episodeDao.getByProviderSync(providerId)
-                        .resolveUnique(reference, { it.title }, { it.streamUrl })
-                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE) }
+                // Episode ids are only unique within a series: with a known parent, never search wider.
+                val parentSeriesId = reference.parentRemoteContentId?.let { remoteParent ->
+                    resolveParentSeriesId(providerId, remoteParent) ?: return null
                 }
+                val byRemoteId = remoteLong?.let { remoteEpisodeId ->
+                    if (parentSeriesId != null) {
+                        episodeDao.getByProviderSeriesAndEpisodeId(providerId, parentSeriesId, remoteEpisodeId)
+                    } else {
+                        episodeDao.getAllByProviderAndEpisodeId(providerId, remoteEpisodeId).singleOrNull()
+                    }
+                }
+                val episode = byRemoteId ?: run {
+                    val candidates = if (parentSeriesId != null) {
+                        episodeDao.getEntitiesBySeriesSync(parentSeriesId)
+                    } else {
+                        episodeDao.getByProviderSync(providerId)
+                    }
+                    candidates.resolveUnique(reference, { it.title }, { it.streamUrl })
+                }
+                episode?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE, seriesId = it.seriesId) }
             }
         }
     }
 
-    private data class ResolvedContent(val localId: Long, val favoriteType: ContentType)
+    private suspend fun resolveParentSeriesId(providerId: Long, remoteSeriesId: String): Long? {
+        val series = seriesDao.getByProviderSeriesId(providerId, remoteSeriesId)
+            ?: remoteSeriesId.toLongOrNull()?.let { seriesDao.getBySeriesId(providerId, it) }
+        return series?.id
+    }
+
+    private data class ResolvedContent(
+        val localId: Long,
+        val favoriteType: ContentType,
+        val seriesId: Long? = null
+    )
 
     private operator fun RestoreResolutionSummary.plus(other: RestoreResolutionSummary) = RestoreResolutionSummary(
         appliedCount = appliedCount + other.appliedCount,

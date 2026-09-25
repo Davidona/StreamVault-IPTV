@@ -14,7 +14,7 @@ Every schema change must satisfy this checklist before the database version is a
 
 ## Current verification
 
-- Current schema: v75.
-- Exported historical origins: v1 and v3-v74; v2 has no committed Room schema export.
-- `StreamVaultDatabaseMigrationTest` validates all exported origins to v75 plus populated direct/multi-hop preservation fixtures.
-- Device result (2026-08-13): 37/37 passed on `Television_1080p(AVD) - 16`.
+- Current schema: v79.
+- Exported historical origins: v1 and v3-v78; v2 has no committed Room schema export.
+- `StreamVaultDatabaseMigrationTest` validates all exported origins to v79 plus populated direct/multi-hop preservation fixtures.
+- Device result (2026-09-25): 43/43 passed on `Television_1080p(AVD) - 16` (Android TV, API 36, arm64-v8a).
