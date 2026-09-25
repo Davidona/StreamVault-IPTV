@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 80,
-    "identityHash": "0294cba9c7af785c179086e385e2eba8",
+    "identityHash": "4c7a70bfc0d581d4c86dfa31d69b3de6",
     "entities": [
       {
         "tableName": "providers",
@@ -1297,14 +1297,15 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_episodes_provider_id` ON `${TABLE_NAME}` (`provider_id`)"
           },
           {
-            "name": "index_episodes_provider_id_episode_id",
+            "name": "index_episodes_provider_id_series_id_episode_id",
             "unique": true,
             "columnNames": [
               "provider_id",
+              "series_id",
               "episode_id"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `episode_id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_series_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `series_id`, `episode_id`)"
           }
         ],
         "foreignKeys": [
@@ -7193,7 +7194,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0294cba9c7af785c179086e385e2eba8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c7a70bfc0d581d4c86dfa31d69b3de6')"
     ]
   }
 }

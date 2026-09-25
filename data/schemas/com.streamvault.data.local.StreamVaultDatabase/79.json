@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 79,
-    "identityHash": "da1965fa706973ef424aa863c8c1d563",
+    "identityHash": "5074bfd566d603d838fdd377c95cf973",
     "entities": [
       {
         "tableName": "providers",
@@ -1297,14 +1297,15 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_episodes_provider_id` ON `${TABLE_NAME}` (`provider_id`)"
           },
           {
-            "name": "index_episodes_provider_id_episode_id",
+            "name": "index_episodes_provider_id_series_id_episode_id",
             "unique": true,
             "columnNames": [
               "provider_id",
+              "series_id",
               "episode_id"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `episode_id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_series_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `series_id`, `episode_id`)"
           }
         ],
         "foreignKeys": [
@@ -5335,7 +5336,7 @@
       },
       {
         "tableName": "xtream_live_onboarding_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `provider_type` TEXT NOT NULL, `content_type` TEXT NOT NULL, `phase` TEXT NOT NULL, `staged_session_id` INTEGER, `import_strategy` TEXT, `next_category_index` INTEGER NOT NULL, `accepted_row_count` INTEGER NOT NULL, `staged_flush_count` INTEGER NOT NULL, `sealed_session_id` INTEGER, `sealed_row_count` INTEGER NOT NULL DEFAULT 0, `sealed_configuration_generation` INTEGER, `sealed_mapping_profile` TEXT, `sync_profile_tier` TEXT, `sync_profile_batch_size` INTEGER NOT NULL, `sync_profile_strategy` TEXT, `sync_profile_low_memory` INTEGER NOT NULL, `sync_profile_memory_class_mb` INTEGER NOT NULL, `sync_profile_available_mem_mb` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `completed_at` INTEGER, PRIMARY KEY(`provider_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `provider_type` TEXT NOT NULL, `content_type` TEXT NOT NULL, `phase` TEXT NOT NULL, `staged_session_id` INTEGER, `import_strategy` TEXT, `next_category_index` INTEGER NOT NULL, `accepted_row_count` INTEGER NOT NULL, `staged_flush_count` INTEGER NOT NULL, `sync_profile_tier` TEXT, `sync_profile_batch_size` INTEGER NOT NULL, `sync_profile_strategy` TEXT, `sync_profile_low_memory` INTEGER NOT NULL, `sync_profile_memory_class_mb` INTEGER NOT NULL, `sync_profile_available_mem_mb` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `completed_at` INTEGER, PRIMARY KEY(`provider_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "providerId",
@@ -5388,28 +5389,6 @@
             "columnName": "staged_flush_count",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "sealedSessionId",
-            "columnName": "sealed_session_id",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "sealedRowCount",
-            "columnName": "sealed_row_count",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "sealedConfigurationGeneration",
-            "columnName": "sealed_configuration_generation",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "sealedMappingProfile",
-            "columnName": "sealed_mapping_profile",
-            "affinity": "TEXT"
           },
           {
             "fieldPath": "syncProfileTier",
@@ -7115,7 +7094,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da1965fa706973ef424aa863c8c1d563')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5074bfd566d603d838fdd377c95cf973')"
     ]
   }
 }

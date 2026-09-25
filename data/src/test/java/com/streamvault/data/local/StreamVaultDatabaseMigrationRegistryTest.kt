@@ -28,5 +28,7 @@ class StreamVaultDatabaseMigrationRegistryTest {
         assertThat(StreamVaultDatabaseMigrationRegistry.v76To77.single().endVersion).isEqualTo(77)
         assertThat(StreamVaultDatabaseMigrationRegistry.v77To78.single().endVersion).isEqualTo(78)
         assertThat(StreamVaultDatabaseMigrationRegistry.v78To79.single().endVersion).isEqualTo(79)
+        assertThat(StreamVaultDatabaseMigrationRegistry.v79To80.single().endVersion).isEqualTo(80)
+        assertThat(StreamVaultDatabaseMigrationRegistry.v80To81.single().endVersion).isEqualTo(81)
     }
 }

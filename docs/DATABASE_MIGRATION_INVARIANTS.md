@@ -12,9 +12,9 @@ Every schema change must satisfy this checklist before the database version is a
 - Verify `PRAGMA foreign_key_check` for every table written by the migration.
 - Downgrades remain unsupported and must fail explicitly; destructive fallback is prohibited.
 
-## Current verification
+## Current verification requirements
 
-- Current schema: v75.
-- Exported historical origins: v1 and v3-v74; v2 has no committed Room schema export.
-- `StreamVaultDatabaseMigrationTest` validates all exported origins to v75 plus populated direct/multi-hop preservation fixtures.
-- Device result (2026-08-13): 37/37 passed on `Television_1080p(AVD) - 16`.
+- Current schema: v81.
+- Exported historical origins: v1 and v3-v80; v2 has no committed Room schema export.
+- `StreamVaultDatabaseMigrationTest` validates exported origins through v81 plus populated direct/multi-hop preservation fixtures.
+- Migration 79 → 80 idempotently applies both local schema additions; migration 80 → 81 repairs the episode index for v80 databases created before this fix.
