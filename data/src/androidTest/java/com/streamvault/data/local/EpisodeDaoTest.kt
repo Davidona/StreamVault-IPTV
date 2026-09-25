@@ -9,7 +9,10 @@ import com.streamvault.data.local.dao.EpisodeDao
 import com.streamvault.data.local.dao.PlaybackHistoryDao
 import com.streamvault.data.local.entity.EpisodeEntity
 import com.streamvault.data.local.entity.PlaybackHistoryEntity
+import com.streamvault.data.local.entity.ProviderEntity
+import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -37,6 +40,31 @@ class EpisodeDaoTest {
     @Throws(IOException::class)
     fun closeDb() {
         db.close()
+    }
+
+    @Test
+    fun replaceAll_doesNotDeleteOtherSeriesEpisodesSharingSynthesizedIds() = runTest {
+        // Xtream synthesizes season * 10000 + episode when a panel omits episode ids (issue #166).
+        fun season1(seriesId: Long, count: Int) = (1..count).map { number ->
+            EpisodeEntity(
+                episodeId = 10_000L + number,
+                title = "S01E$number",
+                episodeNumber = number,
+                seasonNumber = 1,
+                seriesId = seriesId,
+                providerId = 5L
+            )
+        }
+
+        db.providerDao().insert(ProviderEntity(id = 5L, name = "Xtream", type = ProviderType.XTREAM_CODES))
+        db.seriesDao().insert(SeriesEntity(id = 91L, seriesId = 3001L, name = "A", providerId = 5L))
+        db.seriesDao().insert(SeriesEntity(id = 92L, seriesId = 3002L, name = "B", providerId = 5L))
+
+        episodeDao.replaceAll(seriesId = 91L, providerId = 5L, episodes = season1(91L, count = 10))
+        episodeDao.replaceAll(seriesId = 92L, providerId = 5L, episodes = season1(92L, count = 5))
+
+        assertThat(episodeDao.getBySeriesSync(91L)).hasSize(10)
+        assertThat(episodeDao.getBySeriesSync(92L)).hasSize(5)
     }
 
     @Test

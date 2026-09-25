@@ -19,8 +19,10 @@ import com.streamvault.data.local.dao.VirtualGroupDao
 import com.streamvault.data.local.entity.BackupRestoreItemEntity
 import com.streamvault.data.local.entity.ChannelEntity
 import com.streamvault.data.local.entity.CategoryEntity
+import com.streamvault.data.local.entity.EpisodeEntity
 import com.streamvault.data.local.entity.FavoriteEntity
 import com.streamvault.data.local.entity.ProviderEntity
+import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.provider.toProviderSnapshot
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.PortableContentReference
@@ -411,6 +413,110 @@ class PendingBackupRestoreCoordinatorTest {
     }
 
     @Test
+    fun `episode favorite resolves within its parent series when episode ids collide`() = runBlocking {
+        val fixture = EpisodeFavoriteFixture()
+        whenever(fixture.seriesDao.getBySeriesId(77, 3002)).thenReturn(
+            SeriesEntity(id = 31, seriesId = 3002, name = "Owner", providerId = 77)
+        )
+        whenever(fixture.episodeDao.getByProviderSeriesAndEpisodeId(77, 31, 10001)).thenReturn(
+            EpisodeEntity(id = 501, episodeId = 10001, title = "S01E01", episodeNumber = 1, seasonNumber = 1, seriesId = 31, providerId = 77)
+        )
+
+        val result = fixture.coordinator().applyForProvider(77)
+
+        assertThat(result.appliedCount).isEqualTo(1)
+        verify(fixture.favoriteDao).insert(
+            argThat<FavoriteEntity> { contentId == 501L && contentType == ContentType.SERIES_EPISODE }
+        )
+        verify(fixture.episodeDao, never()).getAllByProviderAndEpisodeId(any(), any())
+        Unit
+    }
+
+    @Test
+    fun `episode favorite stays pending when its parent series cannot be resolved`() = runBlocking {
+        val fixture = EpisodeFavoriteFixture()
+        // Another series' episode shares the synthesized id; it must not be picked.
+        whenever(fixture.episodeDao.getAllByProviderAndEpisodeId(77, 10001)).thenReturn(
+            listOf(EpisodeEntity(id = 400, episodeId = 10001, title = "S01E01", episodeNumber = 1, seasonNumber = 1, seriesId = 30, providerId = 77))
+        )
+
+        val result = fixture.coordinator().applyForProvider(77)
+
+        assertThat(result.appliedCount).isEqualTo(0)
+        verify(fixture.favoriteDao, never()).insert(any())
+        Unit
+    }
+
+    @Test
+    fun `episode favorite without parent ignores ambiguous remote ids`() = runBlocking {
+        val fixture = EpisodeFavoriteFixture(parentRemoteContentId = null)
+        whenever(fixture.episodeDao.getAllByProviderAndEpisodeId(77, 10001)).thenReturn(
+            listOf(
+                EpisodeEntity(id = 400, episodeId = 10001, title = "Pilot A", episodeNumber = 1, seasonNumber = 1, seriesId = 30, providerId = 77),
+                EpisodeEntity(id = 501, episodeId = 10001, title = "Pilot B", episodeNumber = 1, seasonNumber = 1, seriesId = 31, providerId = 77)
+            )
+        )
+
+        val result = fixture.coordinator().applyForProvider(77)
+
+        assertThat(result.appliedCount).isEqualTo(0)
+        verify(fixture.favoriteDao, never()).insert(any())
+        Unit
+    }
+
+    private class EpisodeFavoriteFixture(parentRemoteContentId: String? = "3002") {
+        val ledger: BackupRestoreLedgerDao = mock()
+        val providerDao: ProviderDao = mock()
+        val favoriteDao: FavoriteDao = mock()
+        val seriesDao: SeriesDao = mock()
+        val episodeDao: EpisodeDao = mock()
+        val gson = Gson()
+
+        init {
+            val reference = PortableContentReference(
+                provider = BackupProviderReference(
+                    serverUrl = "https://example.com/",
+                    username = "user",
+                    providerType = ProviderType.XTREAM_CODES
+                ),
+                contentType = ContentType.SERIES_EPISODE,
+                remoteContentId = "10001",
+                parentRemoteContentId = parentRemoteContentId,
+                name = "S01E01"
+            )
+            val item = BackupRestoreItemEntity(
+                id = 6,
+                jobId = "job",
+                providerIdentityKey = "https://example.com|user|XTREAM_CODES|",
+                section = "FAVORITES",
+                contentType = "SERIES_EPISODE",
+                stableReferenceKey = "provider|SERIES_EPISODE:10001",
+                referenceJson = gson.toJson(reference),
+                payloadJson = gson.toJson(PortableFavoriteBackup(reference, position = 1, addedAt = 1)),
+                createdAt = 1,
+                updatedAt = 1
+            )
+            runBlocking {
+                whenever(providerDao.getById(77)).thenReturn(
+                    ProviderEntity(id = 77, name = "Provider", type = ProviderType.XTREAM_CODES)
+                )
+                whenever(ledger.getRetryableItemsByLocalProviderId(77)).thenReturn(listOf(item))
+                whenever(ledger.getRetryableItems("__GLOBAL__")).thenReturn(emptyList())
+            }
+        }
+    }
+
+    private fun EpisodeFavoriteFixture.coordinator() = coordinator(
+        ledger = ledger,
+        providerDao = providerDao,
+        favoriteDao = favoriteDao,
+        channelDao = mock(),
+        gson = gson,
+        seriesDao = seriesDao,
+        episodeDao = episodeDao
+    )
+
+    @Test
     fun `provider pass applies hidden category after category catalog is available`() = runBlocking {
         val ledger: BackupRestoreLedgerDao = mock()
         val providerDao: ProviderDao = mock()
@@ -489,7 +595,9 @@ class PendingBackupRestoreCoordinatorTest {
         providerDao: ProviderDao,
         favoriteDao: FavoriteDao,
         channelDao: ChannelDao,
-        gson: Gson
+        gson: Gson,
+        seriesDao: SeriesDao = mock(),
+        episodeDao: EpisodeDao = mock()
     ) = PendingBackupRestoreCoordinator(
         ledgerDao = ledger,
         providerDao = providerDao,
@@ -498,8 +606,8 @@ class PendingBackupRestoreCoordinatorTest {
         playbackHistoryDao = mock(),
         channelDao = channelDao,
         movieDao = mock(),
-        seriesDao = mock(),
-        episodeDao = mock(),
+        seriesDao = seriesDao,
+        episodeDao = episodeDao,
         searchHistoryDao = mock(),
         channelPreferenceDao = mock(),
         channelEpgMappingDao = mock(),

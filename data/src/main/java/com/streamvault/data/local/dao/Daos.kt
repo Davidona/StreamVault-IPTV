@@ -2877,8 +2877,12 @@ interface EpisodeDao {
     @Query("SELECT * FROM episodes WHERE id = :id")
     suspend fun getById(id: Long): EpisodeEntity?
 
+    /** Episode ids are only unique per series; prefer [getByProviderSeriesAndEpisodeId] when the series is known. */
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId LIMIT 1")
     suspend fun getByProviderAndEpisodeId(providerId: Long, episodeId: Long): EpisodeEntity?
+
+    @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId")
+    suspend fun getAllByProviderAndEpisodeId(providerId: Long, episodeId: Long): List<EpisodeEntity>
 
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId")
     suspend fun getByProviderSync(providerId: Long): List<EpisodeEntity>

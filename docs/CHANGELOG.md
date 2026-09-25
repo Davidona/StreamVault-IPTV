@@ -2,6 +2,12 @@
 
 All notable product changes are recorded in this document.
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
+
 ## [1.0.19]
 
 ### Added

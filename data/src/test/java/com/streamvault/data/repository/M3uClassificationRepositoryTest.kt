@@ -196,6 +196,20 @@ class M3uClassificationRepositoryTest {
             .isEqualTo(3)
     }
 
+    @Test
+    fun `reclassifying a stream into another series moves its episode`() = runTest {
+        insertLiveCategory()
+        val firstId = database.channelDao().insert(channel(606L, "Show S01E01"))
+        repository.classifyChannel(PROVIDER_ID, firstId, M3uClassificationTarget.SERIES, M3uSeriesAssignment("Show", seasonNumber = 1, episodeNumber = 1))
+        // A later playlist sync re-creates the channel and it is classified under a different name.
+        val secondId = database.channelDao().insert(channel(606L, "Show S01E01"))
+        repository.classifyChannel(PROVIDER_ID, secondId, M3uClassificationTarget.SERIES, M3uSeriesAssignment("Show (2020)", seasonNumber = 1, episodeNumber = 1))
+
+        val episodes = database.episodeDao().getByProviderSync(PROVIDER_ID).filter { it.episodeId == 606L }
+        val target = database.seriesDao().getByProviderSync(PROVIDER_ID).single { it.name == "Show (2020)" }
+        assertThat(episodes.map { it.seriesId }).containsExactly(target.id)
+    }
+
     private suspend fun insertLiveCategory() {
         database.categoryDao().insertAll(
             listOf(
