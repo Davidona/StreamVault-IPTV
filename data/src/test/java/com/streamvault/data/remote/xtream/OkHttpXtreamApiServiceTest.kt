@@ -5,6 +5,7 @@ import com.streamvault.data.remote.NetworkTimeoutConfig
 import com.streamvault.data.remote.http.HttpRequestProfile
 import com.streamvault.data.remote.dto.XtreamSeriesInfoResponse
 import java.io.IOException
+import java.io.InputStream
 import java.net.SocketTimeoutException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -16,6 +17,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -25,6 +27,9 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.ResponseBody
+import okio.buffer
+import okio.source
 import org.junit.Test
 
 class OkHttpXtreamApiServiceTest {
@@ -174,6 +179,53 @@ class OkHttpXtreamApiServiceTest {
         assertThat(requestJob.isCancelled).isTrue()
         withContext(Dispatchers.Default.limitedParallelism(1)) {
             assertThat(cancellationObserved.await(5, TimeUnit.SECONDS)).isTrue()
+        }
+    }
+
+    @Test
+    fun `stream rejects trailing documents after emitting valid rows`() = runTest {
+        val service = OkHttpXtreamApiService(clientReturning(200,
+            """[{"stream_id":101,"name":"One"}] [{"stream_id":102,"name":"Two"}]"""), json)
+        val seen = mutableListOf<Long>()
+        val failure = runCatching {
+            service.streamLiveStreamRows("https://example.test/player_api.php?action=get_live_streams") { seen += it.streamId }
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(XtreamParsingException::class.java)
+        assertThat(seen).containsExactly(101L)
+    }
+
+    @Test
+    fun `cancellation interrupts body reads after response headers have arrived`() = runTest {
+        val bodyStarted = CountDownLatch(1)
+        val cancellationObserved = CountDownLatch(1)
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val source = object : InputStream() {
+                override fun read(): Int {
+                    bodyStarted.countDown()
+                    while (!chain.call().isCanceled()) Thread.sleep(10)
+                    cancellationObserved.countDown()
+                    throw IOException("Canceled body read")
+                }
+            }.source().buffer()
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                .body(object : ResponseBody() {
+                    override fun contentType() = "application/json".toMediaType()
+                    override fun contentLength() = -1L
+                    override fun source() = source
+                }).build()
+        }.build()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            val job = scope.launch {
+                OkHttpXtreamApiService(client, json).streamLiveStreamRows(
+                    "https://example.test/player_api.php?action=get_live_streams") { }
+            }
+            assertThat(bodyStarted.await(5, TimeUnit.SECONDS)).isTrue()
+            withContext(Dispatchers.Default) { withTimeout(5_000) { job.cancelAndJoin() } }
+            assertThat(job.isCancelled).isTrue()
+            assertThat(cancellationObserved.await(5, TimeUnit.SECONDS)).isTrue()
+        } finally {
+            scope.cancel()
         }
     }
 

@@ -52,6 +52,7 @@ internal class XtreamCatalogSyncExecutor(
     private val channelDao: ChannelDao,
     private val categoryDao: CategoryDao,
     private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
+    private val configurationGeneration: suspend (Provider) -> Long? = { null },
     private val syncCatalogStore: SyncCatalogStore,
     private val sectionExecutor: XtreamCatalogSectionExecutor,
     private val liveStrategy: SyncManagerXtreamLiveStrategy,
@@ -86,6 +87,8 @@ internal class XtreamCatalogSyncExecutor(
         progress(provider.id, onProgress, "Connecting to server...")
         val useTextClassification = preferencesRepository.useXtreamTextClassification.first()
         val enableBase64TextCompatibility = preferencesRepository.xtreamBase64TextCompatibility.first()
+        val mappingProfile = "text=$useTextClassification;base64=$enableBase64TextCompatibility"
+        val receiptGeneration = if (trackInitialLiveOnboarding) configurationGeneration(provider) else null
         val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
         val requiredHiddenLiveCategoryIds = requiredHiddenCategoryIds(provider.id, ContentType.LIVE)
         val api = createProvider(provider, useTextClassification, enableBase64TextCompatibility)
@@ -114,7 +117,7 @@ internal class XtreamCatalogSyncExecutor(
         )
         val liveOutcome = runSuspendCatching {
             val recoveredLiveCommit = if (trackInitialLiveOnboarding) {
-                recoverOnboardingSession(provider, hiddenLiveCategoryIds, afterCatalogApply)
+                recoverOnboardingSession(provider, hiddenLiveCategoryIds, receiptGeneration, mappingProfile, afterCatalogApply)
             } else {
                 null
             }
@@ -167,22 +170,42 @@ internal class XtreamCatalogSyncExecutor(
             )
             if (trackInitialLiveOnboarding) {
                 val stagedAcceptedCount = liveSyncResult.stagedAcceptedCount
-                recordOnboardingState(
-                    provider = provider,
-                    phase = if (liveSyncResult.stagedSessionId != null) {
-                        XTREAM_ONBOARDING_PHASE_STAGED
-                    } else {
-                        XTREAM_ONBOARDING_PHASE_COMMITTING
-                    },
-                    now = System.currentTimeMillis(),
-                    stagedSessionId = liveSyncResult.stagedSessionId,
-                    importStrategy = liveSyncResult.catalogResult.strategyNameOrNull(),
-                    acceptedRowCount = stagedAcceptedCount,
-                    stagedFlushCount = stagedFlushCountFor(stagedAcceptedCount),
-                    clearError = true,
-                    runtimeProfile = runtimeProfile,
-                    syncProfileStrategy = liveSyncResult.profileStrategyName(runtimeProfile, trackInitialLiveOnboarding)
-                )
+                val canSeal = receiptGeneration != null && liveSyncResult.stagedSessionId != null &&
+                    liveSyncResult.catalogResult is CatalogStrategyResult.Success &&
+                    liveSyncResult.catalogResult.strategyName == "full"
+                val writeState: suspend () -> Unit = {
+                    // Recheck configuration inside the transaction that seals the
+                    // snapshot. A changed provider must not receive an old receipt.
+                    if (canSeal && configurationGeneration(provider) != receiptGeneration) {
+                        throw ProviderWorkflowSupersededException(provider.id, requireNotNull(receiptGeneration))
+                    }
+                    recordOnboardingState(
+                        provider = provider,
+                        phase = if (liveSyncResult.stagedSessionId != null) {
+                            XTREAM_ONBOARDING_PHASE_STAGED
+                        } else {
+                            XTREAM_ONBOARDING_PHASE_COMMITTING
+                        },
+                        now = System.currentTimeMillis(),
+                        stagedSessionId = liveSyncResult.stagedSessionId,
+                        importStrategy = liveSyncResult.catalogResult.strategyNameOrNull(),
+                        acceptedRowCount = stagedAcceptedCount,
+                        stagedFlushCount = stagedFlushCountFor(stagedAcceptedCount),
+                        clearError = true,
+                        runtimeProfile = runtimeProfile,
+                        syncProfileStrategy = liveSyncResult.profileStrategyName(runtimeProfile, trackInitialLiveOnboarding),
+                        sealedSessionId = liveSyncResult.stagedSessionId.takeIf { canSeal },
+                        sealedRowCount = stagedAcceptedCount,
+                        sealedConfigurationGeneration = receiptGeneration,
+                        sealedMappingProfile = mappingProfile
+                    )
+                }
+                val session = liveSyncResult.stagedSessionId
+                if (session != null && canSeal) {
+                    syncCatalogStore.sealCompletedLiveImport(provider.id, session, stagedAcceptedCount, liveSyncResult.categories, writeState)
+                } else {
+                    writeState()
+                }
             }
             val liveSequentialStress = liveSyncResult.strategyFeedback.segmentedStressDetected
             val liveProviderAdaptation = updateSequentialProviderAdaptation(
@@ -668,6 +691,8 @@ internal class XtreamCatalogSyncExecutor(
     private suspend fun recoverOnboardingSession(
         provider: Provider,
         hiddenLiveCategoryIds: Set<Long>,
+        currentGeneration: Long?,
+        mappingProfile: String,
         afterCatalogApply: suspend () -> Unit
     ): XtreamLiveCommitResult? {
         val state = xtreamLiveOnboardingDao.getIncompleteByProvider(provider.id) ?: return null
@@ -676,13 +701,17 @@ internal class XtreamCatalogSyncExecutor(
             discardOnboardingSession(provider, sessionId, "Saved Live TV import did not match this provider.")
             return null
         }
-        if (state.importStrategy != null && state.importStrategy != "full") {
+        if (state.importStrategy != "full" || state.sealedSessionId != sessionId ||
+            state.sealedRowCount <= 0 || state.sealedConfigurationGeneration == null ||
+            state.sealedConfigurationGeneration != currentGeneration || state.sealedMappingProfile != mappingProfile ||
+            hiddenLiveCategoryIds.isNotEmpty()) {
             discardOnboardingSession(provider, sessionId, "Saved Live TV import strategy could not be resumed.")
             return null
         }
         val stagedState = syncCatalogStore.stagedLiveImportState(provider.id, sessionId)
         val discardReason = when {
-            stagedState.channelCount <= 0 -> "Saved Live TV import was missing staged channels."
+            stagedState.channelCount != state.sealedRowCount || state.acceptedRowCount != state.sealedRowCount ->
+                "Saved Live TV import did not match its completed snapshot receipt."
             stagedState.movieCount > 0 || stagedState.seriesCount > 0 -> "Saved Live TV import contained rows for another catalog type."
             else -> null
         }
@@ -699,14 +728,6 @@ internal class XtreamCatalogSyncExecutor(
             stagedFlushCount = stagedFlushCountFor(stagedState.channelCount),
             clearError = true
         )
-        if (hiddenLiveCategoryIds.isNotEmpty()) {
-            mergeHiddenChannelsIntoStaging(provider.id, sessionId, hiddenLiveCategoryIds)
-        }
-        val commitState = if (hiddenLiveCategoryIds.isNotEmpty()) {
-            syncCatalogStore.stagedLiveImportState(provider.id, sessionId)
-        } else {
-            stagedState
-        }
         recordOnboardingState(
             provider,
             XTREAM_ONBOARDING_PHASE_COMMITTING,
@@ -719,7 +740,7 @@ internal class XtreamCatalogSyncExecutor(
         syncCatalogStore.applyStagedLiveCatalog(
             providerId = provider.id,
             sessionId = sessionId,
-            categories = commitState.categories.takeIf { it.isNotEmpty() },
+            categories = stagedState.categories.takeIf { it.isNotEmpty() },
             afterCatalogApply = afterCatalogApply
         )
         return XtreamLiveCommitResult(stagedState.channelCount, listOf("Live TV import resumed from saved staged session."))
@@ -750,36 +771,46 @@ internal class XtreamCatalogSyncExecutor(
         completedAt: Long? = null,
         clearStagedSession: Boolean = false,
         runtimeProfile: CatalogSyncRuntimeProfile? = null,
-        syncProfileStrategy: String? = null
+        syncProfileStrategy: String? = null,
+        sealedSessionId: Long? = null,
+        sealedRowCount: Int = 0,
+        sealedConfigurationGeneration: Long? = null,
+        sealedMappingProfile: String? = null
     ) {
-        val existing = xtreamLiveOnboardingDao.getByProvider(provider.id)
-        xtreamLiveOnboardingDao.upsert(
-            XtreamLiveOnboardingStateEntity(
-                providerId = provider.id,
-                providerType = provider.type.name,
-                contentType = ContentType.LIVE.name,
-                phase = phase,
-                stagedSessionId = if (clearStagedSession) null else stagedSessionId ?: existing?.stagedSessionId,
-                importStrategy = importStrategy ?: existing?.importStrategy,
-                nextCategoryIndex = nextCategoryIndex ?: existing?.nextCategoryIndex ?: 0,
-                acceptedRowCount = acceptedRowCount ?: existing?.acceptedRowCount ?: 0,
-                stagedFlushCount = stagedFlushCount ?: existing?.stagedFlushCount ?: 0,
-                syncProfileTier = runtimeProfile?.tier?.name ?: existing?.syncProfileTier,
-                syncProfileBatchSize = runtimeProfile?.stageBatchSize ?: existing?.syncProfileBatchSize ?: 0,
-                syncProfileStrategy = syncProfileStrategy ?: existing?.syncProfileStrategy,
-                syncProfileLowMemory = runtimeProfile?.snapshot?.isCurrentlyLowOnMemory ?: existing?.syncProfileLowMemory ?: false,
-                syncProfileMemoryClassMb = runtimeProfile?.snapshot?.memoryClassMb ?: existing?.syncProfileMemoryClassMb ?: 0,
-                syncProfileAvailableMemMb = runtimeProfile?.snapshot?.availableMemMb ?: existing?.syncProfileAvailableMemMb ?: 0L,
-                lastError = when {
-                    clearError -> null
-                    lastError != null -> lastError
-                    else -> existing?.lastError
-                },
-                createdAt = existing?.createdAt?.takeIf { it > 0L } ?: now,
-                updatedAt = now,
-                completedAt = completedAt
+        syncCatalogStore.withLiveCatalogFence(provider.id) {
+            val existing = xtreamLiveOnboardingDao.getByProvider(provider.id)
+            xtreamLiveOnboardingDao.upsert(
+                XtreamLiveOnboardingStateEntity(
+                    providerId = provider.id,
+                    providerType = provider.type.name,
+                    contentType = ContentType.LIVE.name,
+                    phase = phase,
+                    stagedSessionId = if (clearStagedSession) null else stagedSessionId ?: existing?.stagedSessionId,
+                    importStrategy = importStrategy ?: existing?.importStrategy,
+                    nextCategoryIndex = nextCategoryIndex ?: existing?.nextCategoryIndex ?: 0,
+                    acceptedRowCount = acceptedRowCount ?: existing?.acceptedRowCount ?: 0,
+                    stagedFlushCount = stagedFlushCount ?: existing?.stagedFlushCount ?: 0,
+                    sealedSessionId = if (clearStagedSession) null else sealedSessionId ?: existing?.sealedSessionId,
+                    sealedRowCount = if (clearStagedSession) 0 else if (sealedSessionId != null) sealedRowCount else existing?.sealedRowCount ?: 0,
+                    sealedConfigurationGeneration = if (clearStagedSession) null else if (sealedSessionId != null) sealedConfigurationGeneration else existing?.sealedConfigurationGeneration,
+                    sealedMappingProfile = if (clearStagedSession) null else if (sealedSessionId != null) sealedMappingProfile else existing?.sealedMappingProfile,
+                    syncProfileTier = runtimeProfile?.tier?.name ?: existing?.syncProfileTier,
+                    syncProfileBatchSize = runtimeProfile?.stageBatchSize ?: existing?.syncProfileBatchSize ?: 0,
+                    syncProfileStrategy = syncProfileStrategy ?: existing?.syncProfileStrategy,
+                    syncProfileLowMemory = runtimeProfile?.snapshot?.isCurrentlyLowOnMemory ?: existing?.syncProfileLowMemory ?: false,
+                    syncProfileMemoryClassMb = runtimeProfile?.snapshot?.memoryClassMb ?: existing?.syncProfileMemoryClassMb ?: 0,
+                    syncProfileAvailableMemMb = runtimeProfile?.snapshot?.availableMemMb ?: existing?.syncProfileAvailableMemMb ?: 0L,
+                    lastError = when {
+                        clearError -> null
+                        lastError != null -> lastError
+                        else -> existing?.lastError
+                    },
+                    createdAt = existing?.createdAt?.takeIf { it > 0L } ?: now,
+                    updatedAt = now,
+                    completedAt = completedAt
+                )
             )
-        )
+        }
     }
 
     private suspend fun finalizeLiveCatalog(

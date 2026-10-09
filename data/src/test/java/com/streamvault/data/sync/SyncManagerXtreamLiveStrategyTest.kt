@@ -37,6 +37,8 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 
 class SyncManagerXtreamLiveStrategyTest {
 
@@ -120,7 +122,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val payload = strategy.loadXtreamLiveFull(provider, xtreamProvider, testRuntimeProfile(batchSize = 2))
 
         assertThat(payload.catalogResult).isInstanceOf(CatalogStrategyResult.Success::class.java)
-        assertThat(payload.stagedSessionId).isEqualTo(9001L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(stagedChannels.map { it.streamId }).containsExactly(777L)
         assertThat(stagedChannels.single().streamUrl).isEqualTo("xtream://42/live/777?ext=m3u8")
@@ -294,7 +296,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(1L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isFalse()
         assertThat(payload.strategyFeedback.preferredSegmentedFirst).isTrue()
@@ -385,7 +387,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
     assertThat(result.items).isEmpty()
-    assertThat(payload.stagedSessionId).isEqualTo(1L)
+    assertThat(payload.stagedSessionId).isNotNull()
     assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isTrue()
         assertThat(payload.strategyFeedback.fullCatalogUnsafe).isTrue()
@@ -508,7 +510,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(1L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isTrue()
         assertThat(payload.strategyFeedback.fullCatalogUnsafe).isTrue()
@@ -619,7 +621,7 @@ class SyncManagerXtreamLiveStrategyTest {
 
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(77L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(3)
         assertThat(stageCalls).containsExactly(listOf(1001L, 1002L), listOf(1003L)).inOrder()
     }
@@ -1019,6 +1021,22 @@ class SyncManagerXtreamLiveStrategyTest {
             seriesRequestTimeoutMillis = 60_000L,
             recoveryAbortWarningSuffix = "stopped early."
         )
+        val dao = mock<CatalogSyncDao>()
+        val stagedIds = java.util.concurrent.ConcurrentHashMap<Long, MutableSet<Long>>()
+        runBlocking {
+            whenever(dao.countChannelStages(any(), any())).thenAnswer { invocation ->
+                stagedIds[invocation.getArgument<Long>(1)]?.size ?: 0
+            }
+            whenever(dao.moveCompletedChannelStages(any(), any(), any())).thenAnswer { invocation ->
+                val source = stagedIds[invocation.getArgument<Long>(1)].orEmpty()
+                val target = stagedIds.computeIfAbsent(invocation.getArgument<Long>(2)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }
+                source.count { target.add(it) }
+            }
+            whenever(dao.clearChannelStages(any(), any())).thenAnswer { invocation ->
+                stagedIds.remove(invocation.getArgument<Long>(1))
+                Unit
+            }
+        }
         return SyncManagerXtreamLiveStrategy(
             xtreamCatalogApiService = apiService,
             xtreamCatalogHttpService = httpService,
@@ -1034,7 +1052,7 @@ class SyncManagerXtreamLiveStrategyTest {
                 movieDao = mock<MovieDao>(),
                 seriesDao = mock<SeriesDao>(),
                 categoryDao = mock<CategoryDao>(),
-                catalogSyncDao = mock<CatalogSyncDao>(),
+                catalogSyncDao = dao,
                 tmdbIdentityDao = mock<TmdbIdentityDao>(),
                 transactionRunner = object : DatabaseTransactionRunner {
                     override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
@@ -1046,7 +1064,14 @@ class SyncManagerXtreamLiveStrategyTest {
             categoryFailureWarning = { section, category, error -> "$section category $category failed: ${sanitize(error)}" },
             liveCategorySequentialModeWarning = "Live category sync used sequential mode.",
             isCurrentlyLowOnMemory = isCurrentlyLowOnMemory,
-            stageChannelItems = stageChannelItems,
+            stageChannelItems = { id, channels, seen, categories, session ->
+                val actualSession = requireNotNull(session)
+                val unique = channels.filter { seen.add(it.streamId) }
+                val result = stageChannelItems(id, unique, seen, categories, actualSession)
+                stagedIds.computeIfAbsent(actualSession) { java.util.concurrent.ConcurrentHashMap.newKeySet() }
+                    .addAll(unique.map { it.streamId })
+                result.copy(sessionId = actualSession, acceptedCount = unique.size)
+            },
             emitProgress = { _, _ -> }
         )
     }

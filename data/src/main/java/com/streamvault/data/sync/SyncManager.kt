@@ -571,6 +571,11 @@ class SyncManager @Inject constructor(
             channelDao = channelDao,
             categoryDao = categoryDao,
             xtreamLiveOnboardingDao = xtreamLiveOnboardingDao,
+            configurationGeneration = { provider ->
+                syncProviderSnapshotAdapter.getSnapshot(provider.id)
+                    ?.takeIf { it.configuration == syncProviderSnapshotAdapter.toSnapshot(provider).configuration }
+                    ?.configurationGeneration
+            },
             syncCatalogStore = syncCatalogStore,
             sectionExecutor = xtreamCatalogSectionExecutor,
             liveStrategy = xtreamLiveStrategy,

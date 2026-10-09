@@ -21,6 +21,12 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.PushbackInputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.DeserializationStrategy
@@ -210,7 +216,7 @@ class OkHttpXtreamApiService(
             .withRequestProfile(effectiveRequestProfile)
         try {
             val call = clientFor(effectiveProfile).newCall(request)
-            executeCancellable(call).use { response ->
+            withCancellableResponse(call) { response ->
                 if (!response.isSuccessful) {
                     val message = "HTTP ${response.code}"
                     Log.w(
@@ -241,6 +247,7 @@ class OkHttpXtreamApiService(
         } catch (e: XtreamApiException) {
             throw e
         } catch (e: IOException) {
+            currentCoroutineContext().ensureActive()
             Log.w(
                 TAG,
                 "Xtream request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
@@ -338,7 +345,7 @@ class OkHttpXtreamApiService(
             .withRequestProfile(effectiveRequestProfile)
         try {
             val call = clientFor(effectiveProfile).newCall(request)
-            executeCancellable(call).use { response ->
+            withCancellableResponse(call) { response ->
                 if (!response.isSuccessful) {
                     val message = "HTTP ${response.code}"
                     Log.w(
@@ -380,6 +387,7 @@ class OkHttpXtreamApiService(
         } catch (e: XtreamApiException) {
             throw e
         } catch (e: IOException) {
+            currentCoroutineContext().ensureActive()
             Log.w(
                 TAG,
                 "Xtream streamed request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
@@ -391,6 +399,18 @@ class OkHttpXtreamApiService(
                 // includes downstream mapping/staging. Neither is CPU time.
                 Log.i("XtreamSyncTiming", "phase=live-response elapsed_ms=${(System.nanoTime() - startedNanos) / 1_000_000} callback_ms=${callbackNanos / 1_000_000} rows=$emittedRows completed=$completed")
             }
+        }
+    }
+
+    private suspend fun <T> withCancellableResponse(call: Call, block: suspend (Response) -> T): T = coroutineScope {
+        // Cancellation stays connected while a response body is being read.
+        val watcher = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+            try { awaitCancellation() } finally { call.cancel() }
+        }
+        try {
+            executeCancellable(call).use { block(it) }
+        } finally {
+            watcher.cancel()
         }
     }
 
@@ -407,7 +427,7 @@ class OkHttpXtreamApiService(
 
             override fun onResponse(call: Call, response: Response) {
                 if (continuation.isActive) {
-                    continuation.resume(response)
+                    continuation.resume(response) { _, deliveredResponse, _ -> deliveredResponse.close() }
                 } else {
                     response.close()
                 }
@@ -512,6 +532,7 @@ class OkHttpXtreamApiService(
                     var emittedCount = 0
                     reader.beginArray()
                     while (reader.hasNext()) {
+                        currentCoroutineContext().ensureActive()
                         val element = try {
                             JsonParser.parseReader(reader)
                         } catch (e: RuntimeException) {
@@ -532,10 +553,16 @@ class OkHttpXtreamApiService(
                         emittedCount++
                     }
                     reader.endArray()
+                    if (reader.peek() != JsonToken.END_DOCUMENT) {
+                        throw XtreamParsingException("Trailing data after JSON array from ${descriptor.hint}")
+                    }
                     emittedCount
                 }
                 JsonToken.NULL -> {
                     reader.nextNull()
+                    if (reader.peek() != JsonToken.END_DOCUMENT) {
+                        throw XtreamParsingException("Trailing data after JSON null from ${descriptor.hint}")
+                    }
                     0
                 }
                 else -> throw XtreamParsingException(

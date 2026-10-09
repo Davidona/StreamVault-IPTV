@@ -1978,6 +1978,37 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate78To79_preservesSavedImportWithoutGrantingCompletionProof() {
+        val name = "streamvault-78-79-live-receipt"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            execSQL("INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) " +
+                "VALUES (1,'Synthetic','XTREAM_CODES',1,'UNKNOWN',0,0)")
+            execSQL("""
+                INSERT INTO xtream_live_onboarding_state (
+                    provider_id, provider_type, content_type, phase, staged_session_id, import_strategy,
+                    next_category_index, accepted_row_count, staged_flush_count, sync_profile_tier,
+                    sync_profile_batch_size, sync_profile_strategy, sync_profile_low_memory,
+                    sync_profile_memory_class_mb, sync_profile_available_mem_mb, last_error,
+                    created_at, updated_at, completed_at
+                ) VALUES (1, 'XTREAM_CODES', 'LIVE', 'STAGED', 123, 'full', 0, 7, 1,
+                    'MID', 250, 'STREAM_ALL', 0, 192, 512, NULL, 100, 200, NULL)
+            """.trimIndent())
+            close()
+        }
+        val migrated = migrationTestHelper.runMigrationsAndValidate(name, 79, true,
+            StreamVaultDatabase.MIGRATION_78_79)
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic'"))
+        assertEquals(1, countRows(migrated, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state WHERE provider_id=1
+              AND staged_session_id=123 AND accepted_row_count=7 AND phase='STAGED'
+              AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """

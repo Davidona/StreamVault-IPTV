@@ -358,7 +358,30 @@ class SyncManagerTest {
             org.mockito.kotlin.whenever(catalogSyncDao.getChannelStages(any(), any())).thenReturn(emptyList())
             org.mockito.kotlin.whenever(catalogSyncDao.getMovieStages(any(), any())).thenReturn(emptyList())
             org.mockito.kotlin.whenever(catalogSyncDao.getSeriesStages(any(), any())).thenReturn(emptyList())
-            org.mockito.kotlin.whenever(catalogSyncDao.countChannelStages(any(), any())).thenReturn(0)
+            val liveStages = java.util.concurrent.ConcurrentHashMap<Pair<Long, Long>, java.util.concurrent.ConcurrentHashMap<Long, com.streamvault.data.local.entity.ChannelImportStageEntity>>()
+            org.mockito.kotlin.whenever(catalogSyncDao.insertChannelStages(any())).thenAnswer { invocation ->
+                invocation.getArgument<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>(0).forEach { row ->
+                    liveStages.computeIfAbsent(row.providerId to row.sessionId) { java.util.concurrent.ConcurrentHashMap() }[row.streamId] = row
+                }
+                Unit
+            }
+            org.mockito.kotlin.whenever(catalogSyncDao.countChannelStages(any(), any())).thenAnswer { invocation ->
+                liveStages[invocation.getArgument<Long>(0) to invocation.getArgument<Long>(1)]?.size ?: 0
+            }
+            org.mockito.kotlin.whenever(catalogSyncDao.moveCompletedChannelStages(any(), any(), any())).thenAnswer { invocation ->
+                val provider = invocation.getArgument<Long>(0)
+                val source = liveStages[provider to invocation.getArgument<Long>(1)]
+                val target = liveStages.computeIfAbsent(provider to invocation.getArgument<Long>(2)) { java.util.concurrent.ConcurrentHashMap() }
+                source?.values?.count { target.putIfAbsent(it.streamId, it) == null } ?: 0
+            }
+            org.mockito.kotlin.whenever(catalogSyncDao.clearChannelStages(any(), any())).thenAnswer { invocation ->
+                liveStages.remove(invocation.getArgument<Long>(0) to invocation.getArgument<Long>(1))
+                Unit
+            }
+            org.mockito.kotlin.whenever(catalogSyncDao.clearProviderChannelStages(any())).thenAnswer { invocation ->
+                liveStages.keys.removeIf { it.first == invocation.getArgument<Long>(0) }
+                Unit
+            }
             org.mockito.kotlin.whenever(catalogSyncDao.countMovieStages(any(), any())).thenReturn(0)
             org.mockito.kotlin.whenever(catalogSyncDao.countSeriesStages(any(), any())).thenReturn(0)
             org.mockito.kotlin.whenever(catalogSyncDao.countCategoryStages(any(), any(), any())).thenReturn(0)
@@ -812,6 +835,10 @@ class SyncManagerTest {
                 phase = "STAGED",
                 stagedSessionId = 123L,
                 importStrategy = "full",
+                sealedSessionId = 123L,
+                sealedRowCount = 1,
+                sealedConfigurationGeneration = 0L,
+                sealedMappingProfile = "text=false;base64=false",
                 acceptedRowCount = 1,
                 stagedFlushCount = 1
             )
@@ -863,6 +890,48 @@ class SyncManagerTest {
         assertThat(xtreamBackend.requestedActions).contains("get_live_categories")
         assertThat(xtreamBackend.requestedActions).contains("get_live_streams")
         verify(catalogSyncDao).clearChannelStages(1L, 456L)
+    }
+
+    @Test
+    fun `unsealed nonempty onboarding rows are discarded instead of promoted`() = runTest {
+        assertUnrecoverableLiveSnapshot(savedLiveSnapshot().copy(sealedSessionId = null))
+    }
+
+    @Test
+    fun `onboarding receipt from another configuration is discarded`() = runTest {
+        assertUnrecoverableLiveSnapshot(savedLiveSnapshot().copy(sealedConfigurationGeneration = 9L))
+    }
+
+    @Test
+    fun `onboarding receipt from another mapping profile is discarded`() = runTest {
+        assertUnrecoverableLiveSnapshot(savedLiveSnapshot().copy(sealedMappingProfile = "text=true;base64=false"))
+    }
+
+    @Test
+    fun `onboarding receipt with missing staged rows is discarded`() = runTest {
+        assertUnrecoverableLiveSnapshot(savedLiveSnapshot().copy(sealedRowCount = 2, acceptedRowCount = 2))
+    }
+
+    @Test
+    fun `category onboarding snapshot without durable coverage is fetched again`() = runTest {
+        assertUnrecoverableLiveSnapshot(savedLiveSnapshot().copy(importStrategy = "category_bulk"))
+    }
+
+    private fun savedLiveSnapshot() = XtreamLiveOnboardingStateEntity(providerId = 1L, phase = "STAGED",
+        stagedSessionId = 456L, importStrategy = "full", acceptedRowCount = 1, sealedSessionId = 456L,
+        sealedRowCount = 1, sealedConfigurationGeneration = 0L, sealedMappingProfile = "text=false;base64=false")
+
+    private suspend fun assertUnrecoverableLiveSnapshot(state: XtreamLiveOnboardingStateEntity) {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        stubXtreamLiveCatalog()
+        stubXtreamEmptyVodAndSeriesCategories()
+        org.mockito.kotlin.whenever(xtreamLiveOnboardingDao.getIncompleteByProvider(1L)).thenReturn(state)
+        org.mockito.kotlin.whenever(catalogSyncDao.countChannelStages(1L, 456L)).thenReturn(1)
+        val result = mgr.sync(1L, force = false, trackInitialLiveOnboarding = true)
+        assertThat(result.isSuccess).isTrue()
+        assertThat(xtreamBackend.requestedActions).contains("get_live_streams")
+        verify(catalogSyncDao).clearChannelStages(1L, 456L)
+        verify(catalogSyncDao, org.mockito.kotlin.never()).deleteStaleChannelsForStage(1L, 456L)
     }
 
     @Test

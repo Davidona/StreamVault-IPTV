@@ -134,6 +134,22 @@ class ProviderWorkflowRunnerTest {
     }
 
     @Test
+    fun `superseded commit fence exits without publishing a retry or failure`() = runTest {
+        insertProvider()
+        val dao = database.providerWorkflowDao()
+        val disposition = runner.execute(PROVIDER_ID, ProviderWorkflowPhase.PRIMARY_CATALOG, ProviderWorkflowReason.PERIODIC) {
+            dao.request(providerId = PROVIDER_ID, phase = ProviderWorkflowPhase.PREPARE,
+                reason = ProviderWorkflowReason.CONFIG_CHANGE, now = System.currentTimeMillis(), supersede = true, force = true)
+            throw ProviderWorkflowSupersededException(PROVIDER_ID, 1)
+        }
+        assertThat(disposition).isEqualTo(ProviderWorkflowDisposition.SUPERSEDED)
+        val workflow = dao.getWorkflow(PROVIDER_ID)!!
+        assertThat(workflow.generation).isEqualTo(2L)
+        assertThat(workflow.state).isEqualTo(ProviderWorkflowState.PENDING)
+        assertThat(workflow.lastErrorCode).isNull()
+    }
+
+    @Test
     fun `overlapping execution is told to retry while current owner retains lease`() = runTest {
         insertProvider()
         val started = CompletableDeferred<Unit>()

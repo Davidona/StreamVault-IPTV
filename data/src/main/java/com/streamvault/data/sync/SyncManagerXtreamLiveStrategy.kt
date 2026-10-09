@@ -8,6 +8,7 @@ import com.streamvault.data.remote.dto.XtreamStream
 import com.streamvault.data.remote.xtream.OkHttpXtreamApiService
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamProvider
+import com.streamvault.data.remote.xtream.XtreamParsingException
 import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
@@ -57,6 +58,9 @@ internal class SyncManagerXtreamLiveStrategy(
         requiredHiddenLiveCategoryIds: Set<Long> = emptySet()
     ): CatalogSyncPayload<Channel> {
         Log.i(XTREAM_LIVE_STRATEGY_TAG, "Xtream live strategy start for provider ${provider.id}.")
+        // Recovery runs before entering this strategy. Any other saved batches
+        // are unsealed attempts and cannot be reused by this import.
+        syncCatalogStore.clearProviderStaging(provider.id)
         val rawLiveCategories = when (val attempt = xtreamSupport.attemptNonCancellation {
             xtreamSupport.retryXtreamCatalogTransient(provider.id) {
                 xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.LIGHTWEIGHT) {
@@ -219,7 +223,7 @@ internal class SyncManagerXtreamLiveStrategy(
     private fun CatalogSyncPayload<Channel>.shouldRetryLegacyFullDecode(): Boolean {
         val result = catalogResult
         if ((result as? CatalogStrategyResult.Failure)?.error is LowMemoryCatalogAbortException) return false
-        return result is CatalogStrategyResult.Failure ||
+        return (result is CatalogStrategyResult.Failure && result.error is XtreamParsingException) ||
             (result is CatalogStrategyResult.EmptyValid && result.warnings.any { warning ->
                 warning.contains("raw items but none were usable", ignoreCase = true)
             })
@@ -233,7 +237,7 @@ internal class SyncManagerXtreamLiveStrategy(
         mapRawBatch: suspend (Sequence<RawItem>) -> Sequence<Channel>,
         runtimeProfile: CatalogSyncRuntimeProfile
     ): CatalogSyncPayload<Channel> {
-        val fallbackCollector = FallbackCategoryCollector(provider.id, ContentType.LIVE)
+        var fallbackCollector = FallbackCategoryCollector(provider.id, ContentType.LIVE)
         val seenStreamIds = HashSet<Long>()
         val rawBatch = ArrayList<RawItem>(runtimeProfile.stageBatchSize)
         var stagedSessionId: Long? = null
@@ -243,6 +247,15 @@ internal class SyncManagerXtreamLiveStrategy(
         var flushCount = 0
         var mappingElapsedMs = 0L
         var stagingElapsedMs = 0L
+
+        suspend fun discardAttempt() {
+            stagedSessionId?.let { syncCatalogStore.discardStagedImport(provider.id, it) }
+            stagedSessionId = null
+            rawBatch.clear()
+            seenStreamIds.clear()
+            fallbackCollector = FallbackCategoryCollector(provider.id, ContentType.LIVE)
+            acceptedCount = 0
+        }
 
         fun abortIfLowMemory() {
             if (isCurrentlyLowOnMemory()) {
@@ -274,6 +287,9 @@ internal class SyncManagerXtreamLiveStrategy(
             }
             lateinit var staged: StagedCatalogSnapshot
             stagingElapsedMs += measureTimeMillis {
+                if (mappedChannels.isNotEmpty() && stagedSessionId == null) {
+                    stagedSessionId = syncCatalogStore.newSessionId()
+                }
                 staged = stageChannelItems(
                     provider.id,
                     mappedChannels,
@@ -305,16 +321,25 @@ internal class SyncManagerXtreamLiveStrategy(
         val fullChannelsElapsedMs = measureTimeMillis {
             when (val attempt = xtreamSupport.attemptNonCancellation {
                 xtreamSupport.retryXtreamCatalogTransient(provider.id) {
-                    xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.HEAVY) {
-                        streamItems { item ->
-                            rawBatch += item
-                            streamedRawCount++
-                            if (rawBatch.size >= runtimeProfile.stageBatchSize) {
+                    streamedRawCount = 0
+                    flushCount = 0
+                    mappingElapsedMs = 0L
+                    stagingElapsedMs = 0L
+                    try {
+                        xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.HEAVY) {
+                            streamItems { item ->
+                                rawBatch += item
+                                streamedRawCount++
+                                if (rawBatch.size >= runtimeProfile.stageBatchSize) {
+                                    flushRawBatch()
+                                }
+                            }.also {
                                 flushRawBatch()
                             }
-                        }.also {
-                            flushRawBatch()
                         }
+                    } catch (error: Throwable) {
+                        discardAttempt()
+                        throw error
                     }
                 }
             }) {
@@ -414,159 +439,188 @@ internal class SyncManagerXtreamLiveStrategy(
         }
 
         val fallbackCollector = FallbackCategoryCollector(provider.id, ContentType.LIVE)
-        val seenStreamIds = HashSet<Long>()
         val stageMutex = Mutex()
         var stagedSessionId: Long? = null
         var stagedAcceptedCount = 0
 
-        suspend fun stageMappedBatch(channels: List<Channel>) {
-            if (channels.isEmpty()) return
-            stageMutex.withLock {
-                val staged = stageChannelItems(
-                    provider.id,
-                    channels,
-                    seenStreamIds,
-                    fallbackCollector,
-                    stagedSessionId
-                )
-                stagedSessionId = staged.sessionId
-                stagedAcceptedCount += staged.acceptedCount
+        suspend fun fetchCompletedCategory(category: XtreamCategory): TimedCategoryOutcome<Channel> {
+            var attemptSessionId = syncCatalogStore.newSessionId()
+            val attemptSeenIds = HashSet<Long>()
+            var attemptCategories = FallbackCategoryCollector(provider.id, ContentType.LIVE)
+            var attemptHasRows = false
+
+            suspend fun discardAttempt() {
+                // Session identity is known before staging, including when the
+                // writer throws after accepting a batch.
+                syncCatalogStore.discardStagedImport(provider.id, attemptSessionId)
+                attemptHasRows = false
             }
-        }
 
-        val adaptiveConcurrency = xtreamAdaptiveSyncPolicy.concurrencyFor(
-            providerId = provider.id,
-            workloadSize = categories.size,
-            preferSequential = preferSequential,
-            stage = XtreamAdaptiveSyncPolicy.Stage.CATEGORY
-        )
-        val concurrency = adaptiveConcurrency.coerceAtMost(runtimeProfile.maxCategoryConcurrency)
-        progress(provider.id, onProgress, "Downloading Live TV by category 0/${categories.size}...")
-
-        // D11 — le total de catégories LIVE est fige une seule fois ici : la liste
-        // `categories` ne mute plus pendant la recuperation, donc la lambda
-        // `onCategoryCompleted` recoit le meme denominateur a chaque fenetre.
-        val executionPlan = xtreamSupport.executeCategoryRecoveryPlan(
-            provider = provider,
-            categories = categories,
-            initialConcurrency = concurrency,
-            sectionLabel = "Live TV",
-            sequentialModeWarning = liveCategorySequentialModeWarning,
-            onProgress = onProgress,
-            fetch = { category ->
-                xtreamFetcher.fetchLiveCategoryOutcome(
+            try {
+                val result = xtreamFetcher.fetchLiveCategoryOutcome(
                     provider = provider,
                     api = api,
                     category = category,
                     stageBatchSize = runtimeProfile.stageBatchSize,
-                    onMappedBatch = ::stageMappedBatch
+                    onAttemptReset = {
+                        if (attemptHasRows) discardAttempt()
+                        attemptSessionId = syncCatalogStore.newSessionId()
+                        attemptSeenIds.clear()
+                        attemptCategories = FallbackCategoryCollector(provider.id, ContentType.LIVE)
+                    },
+                    onMappedBatch = { channels ->
+                        if (channels.isNotEmpty()) {
+                            attemptHasRows = true
+                            stageChannelItems(
+                                provider.id, channels, attemptSeenIds, attemptCategories, attemptSessionId
+                            )
+                        }
+                    }
                 )
-            },
-            onCategoryCompleted = { completed, total, currentLabel ->
-                // D6 — emission structuree en parallele du callback string deja emis par
-                // `executeCategoryRecoveryPlan` via `progress(...)`. Le compteur cumulatif
-                // `stagedAcceptedCount` est mis a jour de maniere thread-safe sous le
-                // `stageMutex` (cf `stageMappedBatch`), la lecture ici est best-effort
-                // (snapshot UX, pas une metrique business).
-                emitProgress(provider.id,
-                    SyncProgress(
-                        section = Section.LIVE,
-                        current = completed,
-                        total = total,
-                        currentLabel = currentLabel,
-                        itemsIndexed = stagedAcceptedCount
-                    )
-                )
-            }
-        )
-        var timedOutcomes = executionPlan.outcomes
 
-        val categoryOutcomes = timedOutcomes.map { it.outcome }
-        val failureCount = timedOutcomes.count { it.outcome is CategoryFetchOutcome.Failure }
-        val fastFailureCount = timedOutcomes.count {
-            it.elapsedMs <= 5_000L && it.outcome is CategoryFetchOutcome.Failure
+                if (result.outcome is CategoryFetchOutcome.Success && attemptHasRows) {
+                    stageMutex.withLock {
+                        val target = stagedSessionId ?: syncCatalogStore.newSessionId()
+                        val moved = syncCatalogStore.mergeCompletedLiveCategory(provider.id, attemptSessionId, target)
+                        stagedSessionId = target
+                        stagedAcceptedCount += moved
+                        attemptCategories.entities().forEach {
+                            fallbackCollector.record(it.categoryId, it.name, it.isAdult)
+                        }
+                    }
+                }
+                return result
+            } finally {
+                discardAttempt()
+            }
         }
-        val downgradeRecommended = catalogStrategySupport.shouldDowngradeCategorySync(
-            categories.size,
-            failureCount,
-            fastFailureCount,
-            categoryOutcomes
-        )
-        var fallbackWarnings = executionPlan.warnings
-        if (concurrency > 1 && catalogStrategySupport.shouldRetryFailedCategories(
-                categories.size,
-                failureCount,
-                downgradeRecommended,
-                categoryOutcomes
+
+        var retainedSnapshot = false
+        try {
+            val adaptiveConcurrency = xtreamAdaptiveSyncPolicy.concurrencyFor(
+                providerId = provider.id,
+                workloadSize = categories.size,
+                preferSequential = preferSequential,
+                stage = XtreamAdaptiveSyncPolicy.Stage.CATEGORY
             )
-        ) {
-            val failedRetryTotal = timedOutcomes.count { it.outcome is CategoryFetchOutcome.Failure }
-            Log.w(
-                XTREAM_LIVE_STRATEGY_TAG,
-                "Xtream live category sync is continuing in sequential mode for failed categories on provider ${provider.id}."
-            )
-            progress(provider.id, onProgress, "Retrying failed Live TV categories 0/$failedRetryTotal...")
-            timedOutcomes = xtreamSupport.continueFailedCategoryOutcomes(
+            val concurrency = adaptiveConcurrency.coerceAtMost(runtimeProfile.maxCategoryConcurrency)
+            progress(provider.id, onProgress, "Downloading Live TV by category 0/${categories.size}...")
+
+            // D11 — le total de catégories LIVE est fige une seule fois ici : la liste
+            // `categories` ne mute plus pendant la recuperation, donc la lambda
+            // `onCategoryCompleted` recoit le meme denominateur a chaque fenetre.
+            val executionPlan = xtreamSupport.executeCategoryRecoveryPlan(
                 provider = provider,
-                timedOutcomes = timedOutcomes,
-                fetchSequentially = { category ->
-                    xtreamFetcher.fetchLiveCategoryOutcome(
-                        provider = provider,
-                        api = api,
-                        category = category,
-                        stageBatchSize = runtimeProfile.stageBatchSize,
-                        onMappedBatch = ::stageMappedBatch
+                categories = categories,
+                initialConcurrency = concurrency,
+                sectionLabel = "Live TV",
+                sequentialModeWarning = liveCategorySequentialModeWarning,
+                onProgress = onProgress,
+                fetch = ::fetchCompletedCategory,
+                onCategoryCompleted = { completed, total, currentLabel ->
+                    // D6 — emission structuree en parallele du callback string deja emis par
+                    // `executeCategoryRecoveryPlan` via `progress(...)`. Le compteur cumulatif
+                    // `stagedAcceptedCount` est mis a jour de maniere thread-safe sous le
+                    // `stageMutex` (cf `fetchCompletedCategory`), la lecture ici est best-effort
+                    // (snapshot UX, pas une metrique business).
+                    emitProgress(provider.id,
+                        SyncProgress(
+                            section = Section.LIVE,
+                            current = completed,
+                            total = total,
+                            currentLabel = currentLabel,
+                            itemsIndexed = stagedAcceptedCount
+                        )
                     )
-                },
-                onCategoryRetried = { completed, total, _ ->
-                    progress(provider.id, onProgress, "Retrying failed Live TV categories $completed/$total...")
                 }
             )
-            fallbackWarnings = (fallbackWarnings + if (downgradeRecommended) listOf(liveCategorySequentialModeWarning) else emptyList()).distinct()
-        }
+            var timedOutcomes = executionPlan.outcomes
 
-        val finalOutcomes = timedOutcomes.map { it.outcome }
-        val warnings = finalOutcomes
-            .filterIsInstance<CategoryFetchOutcome.Failure>()
-            .map { failure -> categoryFailureWarning("Live TV", failure.categoryName, failure.error) } +
-            fallbackWarnings
+            val categoryOutcomes = timedOutcomes.map { it.outcome }
+            val failureCount = timedOutcomes.count { it.outcome is CategoryFetchOutcome.Failure }
+            val fastFailureCount = timedOutcomes.count {
+                it.elapsedMs <= 5_000L && it.outcome is CategoryFetchOutcome.Failure
+            }
+            val downgradeRecommended = catalogStrategySupport.shouldDowngradeCategorySync(
+                categories.size,
+                failureCount,
+                fastFailureCount,
+                categoryOutcomes
+            )
+            var fallbackWarnings = executionPlan.warnings
+            if (concurrency > 1 && catalogStrategySupport.shouldRetryFailedCategories(
+                    categories.size,
+                    failureCount,
+                    downgradeRecommended,
+                    categoryOutcomes
+                )
+            ) {
+                val failedRetryTotal = timedOutcomes.count { it.outcome is CategoryFetchOutcome.Failure }
+                Log.w(
+                    XTREAM_LIVE_STRATEGY_TAG,
+                    "Xtream live category sync is continuing in sequential mode for failed categories on provider ${provider.id}."
+                )
+                progress(provider.id, onProgress, "Retrying failed Live TV categories 0/$failedRetryTotal...")
+                timedOutcomes = xtreamSupport.continueFailedCategoryOutcomes(
+                    provider = provider,
+                    timedOutcomes = timedOutcomes,
+                    fetchSequentially = ::fetchCompletedCategory,
+                    onCategoryRetried = { completed, total, _ ->
+                        progress(provider.id, onProgress, "Retrying failed Live TV categories $completed/$total...")
+                    }
+                )
+                fallbackWarnings = (fallbackWarnings + if (downgradeRecommended) listOf(liveCategorySequentialModeWarning) else emptyList()).distinct()
+            }
 
-        val failedCategories = finalOutcomes.count { it is CategoryFetchOutcome.Failure }
-        val emptyCategories = finalOutcomes.count { it is CategoryFetchOutcome.Empty }
-        val successfulCategories = finalOutcomes.count { it is CategoryFetchOutcome.Success }
-        Log.i(
-            XTREAM_LIVE_STRATEGY_TAG,
-            "Xtream live category strategy summary for provider ${provider.id}: successful=$successfulCategories empty=$emptyCategories failed=$failedCategories stagedChannels=$stagedAcceptedCount concurrency=$concurrency"
-        )
+            val finalOutcomes = timedOutcomes.map { it.outcome }
+            val warnings = finalOutcomes
+                .filterIsInstance<CategoryFetchOutcome.Failure>()
+                .map { failure -> categoryFailureWarning("Live TV", failure.categoryName, failure.error) } +
+                fallbackWarnings
 
-        return when {
-            stagedAcceptedCount > 0 && failedCategories == 0 -> CatalogSyncPayload(
-                catalogResult = CatalogStrategyResult.Success("category_bulk", emptyList(), warnings.toList()),
-                categories = fallbackCollector.entities().takeIf { it.isNotEmpty() },
-                stagedSessionId = stagedSessionId,
-                stagedAcceptedCount = stagedAcceptedCount
+            val failedCategories = finalOutcomes.count { it is CategoryFetchOutcome.Failure }
+            val emptyCategories = finalOutcomes.count { it is CategoryFetchOutcome.Empty }
+            val successfulCategories = finalOutcomes.count { it is CategoryFetchOutcome.Success }
+            val incompleteCoverage = finalOutcomes.size != categories.size
+            Log.i(
+                XTREAM_LIVE_STRATEGY_TAG,
+                "Xtream live category strategy summary for provider ${provider.id}: successful=$successfulCategories empty=$emptyCategories failed=$failedCategories stagedChannels=$stagedAcceptedCount concurrency=$concurrency"
             )
-            stagedAcceptedCount > 0 -> CatalogSyncPayload(
-                catalogResult = CatalogStrategyResult.Partial("category_bulk", emptyList(), warnings.toList()),
-                categories = fallbackCollector.entities().takeIf { it.isNotEmpty() },
-                stagedSessionId = stagedSessionId,
-                stagedAcceptedCount = stagedAcceptedCount
-            )
-            failedCategories > 0 -> CatalogSyncPayload(
-                catalogResult = CatalogStrategyResult.Failure(
-                    strategyName = "category_bulk",
-                    error = IllegalStateException("Live category-bulk sync failed for all usable categories"),
-                    warnings = warnings.toList()
-                ),
-                categories = null
-            )
-            else -> CatalogSyncPayload(
-                catalogResult = CatalogStrategyResult.EmptyValid(
-                    strategyName = "category_bulk",
-                    warnings = listOf("All live categories returned valid empty results.")
-                ),
-                categories = null
-            )
+
+            val payload: CatalogSyncPayload<Channel> = when {
+                stagedAcceptedCount > 0 && failedCategories == 0 && !incompleteCoverage -> CatalogSyncPayload(
+                    catalogResult = CatalogStrategyResult.Success("category_bulk", emptyList(), warnings.toList()),
+                    categories = fallbackCollector.entities().takeIf { it.isNotEmpty() },
+                    stagedSessionId = stagedSessionId,
+                    stagedAcceptedCount = stagedAcceptedCount
+                )
+                stagedAcceptedCount > 0 -> CatalogSyncPayload(
+                    catalogResult = CatalogStrategyResult.Partial("category_bulk", emptyList(), warnings.toList()),
+                    categories = fallbackCollector.entities().takeIf { it.isNotEmpty() },
+                    stagedSessionId = stagedSessionId,
+                    stagedAcceptedCount = stagedAcceptedCount
+                )
+                failedCategories > 0 || incompleteCoverage -> CatalogSyncPayload(
+                    catalogResult = CatalogStrategyResult.Failure(
+                        strategyName = "category_bulk",
+                        error = IllegalStateException("Live category-bulk sync failed for all usable categories"),
+                        warnings = warnings.toList()
+                    ),
+                    categories = null
+                )
+                else -> CatalogSyncPayload(
+                    catalogResult = CatalogStrategyResult.EmptyValid(
+                        strategyName = "category_bulk",
+                        warnings = listOf("All live categories returned valid empty results.")
+                    ),
+                    categories = null
+                )
+            }
+            return payload.also { retainedSnapshot = it.stagedSessionId != null }
+        } finally {
+            if (!retainedSnapshot) {
+                stagedSessionId?.let { syncCatalogStore.discardStagedImport(provider.id, it) }
+            }
         }
     }
 }

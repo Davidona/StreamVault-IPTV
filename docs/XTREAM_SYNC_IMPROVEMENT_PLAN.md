@@ -1,12 +1,14 @@
 # Xtream sync improvement plan
 
-Status: proposed implementation plan; implementation has not started.
+Status: implementation in progress on `codex/xtream-live-sync-performance`.
 Prepared 2026-10-09 against source revision `540ec30c`.
 
 Supporting evidence:
 
 - [Initial live import comparison](XTREAM_LIVE_IMPORT_COMPARISON.md)
 - [Current sync engine review](XTREAM_SYNC_PERFORMANCE_REVIEW.md)
+- [Initial backend baseline](XTREAM_SYNC_INITIAL_BASELINE.md)
+- [Attempt isolation and recovery implementation](XTREAM_SYNC_RECOVERY_IMPLEMENTATION.md)
 
 The reference implementation provides hypotheses to investigate, not a design
 authority or proof of correctness. Choose behavior for this app's measured

@@ -502,6 +502,38 @@ internal class SyncCatalogStore(
         clearSession(providerId, sessionId)
     }
 
+    suspend fun <T> withLiveCatalogFence(providerId: Long, block: suspend () -> T): T =
+        providerTransaction(providerId, block)
+
+    suspend fun sealCompletedLiveImport(
+        providerId: Long,
+        sessionId: Long,
+        expectedCount: Int,
+        categories: List<CategoryEntity>?,
+        writeReceipt: suspend () -> Unit
+    ) {
+        providerTransaction(providerId) {
+            check(expectedCount > 0 && catalogSyncDao.countChannelStages(providerId, sessionId) == expectedCount)
+            categories?.let { stageCategories(providerId, sessionId, it) }
+            writeReceipt()
+        }
+    }
+
+    suspend fun mergeCompletedLiveCategory(providerId: Long, sourceSessionId: Long, targetSessionId: Long): Int {
+        require(sourceSessionId != targetSessionId)
+        return providerTransaction(providerId) {
+            val moved = catalogSyncDao.moveCompletedChannelStages(providerId, sourceSessionId, targetSessionId)
+            requireStageCapacity(
+                currentCount = catalogSyncDao.countChannelStages(providerId, targetSessionId),
+                incomingCount = 0,
+                maximum = sizeLimits.maxChannelsPerProvider,
+                label = "channel"
+            )
+            catalogSyncDao.clearChannelStages(providerId, sourceSessionId)
+            moved
+        }
+    }
+
     private suspend fun <T> providerTransaction(
         providerId: Long,
         block: suspend () -> T
@@ -552,7 +584,7 @@ internal class SyncCatalogStore(
     }
 
     suspend fun clearProviderStaging(providerId: Long) {
-        transactionRunner.inTransaction {
+        providerTransaction(providerId) {
             catalogSyncDao.clearProviderChannelStages(providerId)
             catalogSyncDao.clearProviderMovieStages(providerId)
             catalogSyncDao.clearProviderSeriesStages(providerId)

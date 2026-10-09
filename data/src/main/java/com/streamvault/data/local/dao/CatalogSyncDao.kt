@@ -32,6 +32,11 @@ interface CatalogSyncDao {
     @Query("DELETE FROM channel_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun clearChannelStages(providerId: Long, sessionId: Long)
 
+    // Keep the first completed category's row when a provider repeats a stream
+    // in several categories. Failed attempts never reach this transfer.
+    @Query("UPDATE OR IGNORE channel_import_stage SET session_id = :targetSessionId WHERE provider_id = :providerId AND session_id = :sourceSessionId")
+    suspend fun moveCompletedChannelStages(providerId: Long, sourceSessionId: Long, targetSessionId: Long): Int
+
     @Query("DELETE FROM movie_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun clearMovieStages(providerId: Long, sessionId: Long)
 

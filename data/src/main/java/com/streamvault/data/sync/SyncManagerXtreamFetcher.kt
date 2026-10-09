@@ -8,6 +8,7 @@ import com.streamvault.data.remote.dto.XtreamStream
 import com.streamvault.data.remote.xtream.OkHttpXtreamApiService
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamProvider
+import com.streamvault.data.remote.xtream.XtreamParsingException
 import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.data.util.runSuspendCatching
 import com.streamvault.domain.model.Channel
@@ -29,7 +30,8 @@ internal class SyncManagerXtreamFetcher(
         api: XtreamProvider,
         category: XtreamCategory,
         stageBatchSize: Int? = null,
-        onMappedBatch: (suspend (List<Channel>) -> Unit)? = null
+        onMappedBatch: (suspend (List<Channel>) -> Unit)? = null,
+        onAttemptReset: suspend () -> Unit = {}
     ): TimedCategoryOutcome<Channel> {
         val endpoint = XtreamUrlFactory.buildPlayerApiUrl(
             serverUrl = provider.serverUrl,
@@ -82,6 +84,9 @@ internal class SyncManagerXtreamFetcher(
         val elapsedMs = measureTimeMillis {
             when (val attempt = xtreamSupport.attemptNonCancellation {
                 xtreamSupport.retryXtreamCatalogTransient(provider.id) {
+                    onAttemptReset()
+                    rawCount = 0
+                    mappedChannels = emptyList()
                     xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.CATEGORY) {
                         val thinResult = runSuspendCatching {
                             streamThinRowsInBatches()
@@ -92,12 +97,14 @@ internal class SyncManagerXtreamFetcher(
                             rawCount = thinCount
                             mappedChannels = thinChannels
                         } else {
+                            thinResult.exceptionOrNull()?.let { if (it !is XtreamParsingException) throw it }
                             thinResult.exceptionOrNull()?.let { error ->
                                 Log.w(
                                     XTREAM_FETCHER_TAG,
                                     "Xtream live category '${category.categoryName}' thin decode failed; retrying legacy decode: ${sanitizeThrowableMessage(error)}"
                                 )
                             }
+                            onAttemptReset()
                             val legacyStreams = xtreamCatalogApiService.getLiveStreams(endpoint)
                             rawCount = legacyStreams.size
                             emitMappedChannels(api.mapLiveStreamsResponse(legacyStreams))
