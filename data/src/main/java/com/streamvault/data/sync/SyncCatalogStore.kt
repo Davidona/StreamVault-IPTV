@@ -383,11 +383,11 @@ internal class SyncCatalogStore(
     }
 
     private suspend fun <T> timed(providerId: Long, stage: String, block: suspend () -> T): T {
-        val startedAt = System.currentTimeMillis()
+        val startedAt = System.nanoTime()
         return try {
             block()
         } finally {
-            Log.i(TAG, "catalog timing provider=$providerId stage=$stage took=${System.currentTimeMillis() - startedAt}ms")
+            Log.i(TAG, "catalog timing provider=$providerId stage=$stage took=${(System.nanoTime() - startedAt) / 1_000_000}ms")
         }
     }
 

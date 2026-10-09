@@ -36,7 +36,10 @@ if (localPropertiesFile.exists()) {
     FileInputStream(localPropertiesFile).use(localProperties::load)
 }
 
-fun localProp(key: String): String = localProperties.getProperty(key, "")
+// Opt-in performance APK has isolated app storage and never seeds real accounts.
+val xtreamSyncBenchmark = providers.gradleProperty("xtreamSyncBenchmark").orNull == "true"
+fun localProp(key: String): String =
+    if (xtreamSyncBenchmark) "" else localProperties.getProperty(key, "")
 
 fun computeOfficialSigningCertSha256(): String {
     if (!keystorePropertiesFile.exists()) return ""
@@ -109,7 +112,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = if (xtreamSyncBenchmark) ".syncbenchmark" else ".debug"
             versionNameSuffix = "-debug"
             buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
             buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")

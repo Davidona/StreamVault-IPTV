@@ -324,6 +324,11 @@ class OkHttpXtreamApiService(
         onItem: suspend (T) -> Unit
     ): Int = withContext(Dispatchers.IO) {
         val descriptor = describeEndpoint(endpoint)
+        val timingEnabled = descriptor.action == "get_live_streams"
+        val startedNanos = if (timingEnabled) System.nanoTime() else 0L
+        var callbackNanos = 0L
+        var emittedRows = 0
+        var completed = false
         val effectiveProfile = requestProfileFor(descriptor, profile)
         val effectiveRequestProfile = requestProfile.mergedWithDefaults(defaultRequestProfile)
         val request = Request.Builder()
@@ -360,8 +365,17 @@ class OkHttpXtreamApiService(
                     contentType = response.header("Content-Type"),
                     maxBytes = responseBudgetFor(descriptor),
                     deserializer = deserializer,
-                    onItem = onItem
-                )
+                    onItem = if (timingEnabled) { item ->
+                        val callbackStart = System.nanoTime()
+                        try {
+                            onItem(item)
+                            emittedRows++
+                            Unit
+                        } finally {
+                            callbackNanos += System.nanoTime() - callbackStart
+                        }
+                    } else onItem
+                ).also { completed = true }
             }
         } catch (e: XtreamApiException) {
             throw e
@@ -371,6 +385,12 @@ class OkHttpXtreamApiService(
                 "Xtream streamed request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
             )
             throw XtreamNetworkException(XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed"), e)
+        } finally {
+            if (timingEnabled) {
+                // Wall time includes network waits and decoding; callback time
+                // includes downstream mapping/staging. Neither is CPU time.
+                Log.i("XtreamSyncTiming", "phase=live-response elapsed_ms=${(System.nanoTime() - startedNanos) / 1_000_000} callback_ms=${callbackNanos / 1_000_000} rows=$emittedRows completed=$completed")
+            }
         }
     }
 
