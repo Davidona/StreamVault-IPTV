@@ -362,7 +362,9 @@ internal class SyncManagerXtreamLiveStrategy(
                 elapsedMs = fullChannelsElapsedMs,
                 itemCount = streamedRawCount,
                 error = fullChannelsFailure,
-                nextStep = failureNextStep
+                nextStep = if (decoderLabel == "thin" && fullChannelsFailure !is XtreamParsingException) {
+                    "category-bulk"
+                } else failureNextStep
             )
             return CatalogSyncPayload(
                 catalogResult = CatalogStrategyResult.Failure(
@@ -407,7 +409,7 @@ internal class SyncManagerXtreamLiveStrategy(
             elapsedMs = fullChannelsElapsedMs,
             itemCount = streamedRawCount,
             error = null,
-            nextStep = failureNextStep
+            nextStep = "category-bulk"
         )
         return CatalogSyncPayload(
             catalogResult = CatalogStrategyResult.EmptyValid(

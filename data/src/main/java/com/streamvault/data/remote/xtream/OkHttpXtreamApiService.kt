@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
+import com.google.gson.stream.MalformedJsonException
 import com.streamvault.data.remote.dto.XtreamAuthResponse
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamEpgResponse
@@ -17,6 +18,7 @@ import com.streamvault.data.remote.http.HttpRequestProfile
 import com.streamvault.data.remote.http.safeRequestIdentitySummary
 import com.streamvault.data.remote.http.withRequestProfile
 import java.io.IOException
+import java.io.EOFException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.PushbackInputStream
@@ -155,6 +157,7 @@ class OkHttpXtreamApiService(
             profile = RequestProfile.HEAVY_CATALOG,
             requestProfile = requestProfile,
             deserializer = XtreamLiveStreamRow.serializer(),
+            readItem = { XtreamLiveRowReader.read(it, json.configuration.ignoreUnknownKeys) },
             onItem = onItem
         )
 
@@ -328,6 +331,7 @@ class OkHttpXtreamApiService(
         profile: RequestProfile,
         requestProfile: HttpRequestProfile,
         deserializer: DeserializationStrategy<T>,
+        readItem: ((JsonReader) -> T)? = null,
         onItem: suspend (T) -> Unit
     ): Int = withContext(Dispatchers.IO) {
         val descriptor = describeEndpoint(endpoint)
@@ -372,6 +376,7 @@ class OkHttpXtreamApiService(
                     contentType = response.header("Content-Type"),
                     maxBytes = responseBudgetFor(descriptor),
                     deserializer = deserializer,
+                    readItem = readItem,
                     onItem = if (timingEnabled) { item ->
                         val callbackStart = System.nanoTime()
                         try {
@@ -386,6 +391,12 @@ class OkHttpXtreamApiService(
             }
         } catch (e: XtreamApiException) {
             throw e
+        } catch (e: EOFException) {
+            currentCoroutineContext().ensureActive()
+            throw XtreamParsingException("Incomplete JSON array from ${descriptor.hint}", e)
+        } catch (e: MalformedJsonException) {
+            currentCoroutineContext().ensureActive()
+            throw XtreamParsingException("Malformed JSON array from ${descriptor.hint}", e)
         } catch (e: IOException) {
             currentCoroutineContext().ensureActive()
             Log.w(
@@ -491,6 +502,7 @@ class OkHttpXtreamApiService(
         contentType: String?,
         maxBytes: Long?,
         deserializer: DeserializationStrategy<T>,
+        readItem: ((JsonReader) -> T)?,
         onItem: suspend (T) -> Unit
     ): Int {
         val effectiveMaxBytes = maxBytes?.plus(RESPONSE_BUDGET_HEADROOM_BYTES)
@@ -533,17 +545,12 @@ class OkHttpXtreamApiService(
                     reader.beginArray()
                     while (reader.hasNext()) {
                         currentCoroutineContext().ensureActive()
-                        val element = try {
-                            JsonParser.parseReader(reader)
-                        } catch (e: RuntimeException) {
-                            throw XtreamParsingException(
-                                "Malformed JSON from ${descriptor.hint}${sanitizedPreview(preview)?.let { " (preview=$it)" } ?: ""}",
-                                e
-                            )
-                        }
                         val item = try {
-                            json.decodeFromString(deserializer, element.toString())
-                        } catch (e: SerializationException) {
+                            if (readItem != null) readItem(reader) else {
+                                val element = JsonParser.parseReader(reader)
+                                json.decodeFromString(deserializer, element.toString())
+                            }
+                        } catch (e: RuntimeException) {
                             throw XtreamParsingException(
                                 "Malformed JSON from ${descriptor.hint}${sanitizedPreview(preview)?.let { " (preview=$it)" } ?: ""}",
                                 e
