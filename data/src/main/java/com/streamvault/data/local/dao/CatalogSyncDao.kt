@@ -609,7 +609,10 @@ interface CatalogSyncDao {
             is_user_protected,
             playback_metadata_json,
             sync_fingerprint,
-            added_at
+            added_at,
+            cache_state,
+            detail_hydrated_at,
+            remote_stale_at
         )
         SELECT
             stage.stream_id,
@@ -645,7 +648,10 @@ interface CatalogSyncDao {
             ) THEN 1 ELSE 0 END,
             stage.playback_metadata_json,
             stage.sync_fingerprint,
-            stage.added_at
+            stage.added_at,
+            'SUMMARY_ONLY',
+            0,
+            0
         FROM movie_import_stage AS stage
         WHERE stage.session_id = :sessionId
           AND stage.provider_id = :providerId

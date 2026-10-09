@@ -3,6 +3,7 @@ package com.streamvault.domain.usecase
 import com.streamvault.domain.manager.ProviderSetupInputValidator
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
+import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
@@ -265,7 +266,8 @@ class ValidateAndAddProvider @Inject constructor(
                                     epgSyncMode = command.epgSyncMode,
                                     liveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
                                     guideSourcePolicy = command.guideSourcePolicy,
-                                    channelLogoSourcePolicy = command.channelLogoSourcePolicy
+                                    channelLogoSourcePolicy = command.channelLogoSourcePolicy,
+                                    preferredLiveStreamFormat = parsedXtream.preferredLiveStreamFormat
                                 ),
                                 existingProviderId = command.existingProviderId
                             ),
@@ -463,7 +465,8 @@ class ValidateAndAddProvider @Inject constructor(
         data class Success(
             val serverUrl: String,
             val username: String,
-            val password: String
+            val password: String,
+            val preferredLiveStreamFormat: LiveStreamFormatMode?
         ) : ParsedXtreamPlaylistUrlResult
     }
 
@@ -509,7 +512,12 @@ class ValidateAndAddProvider @Inject constructor(
         return ParsedXtreamPlaylistUrlResult.Success(
             serverUrl = "$scheme://$authority",
             username = username,
-            password = password
+            password = password,
+            preferredLiveStreamFormat = when (query["output"]?.lowercase()) {
+                "ts" -> LiveStreamFormatMode.MPEG_TS
+                "m3u8" -> LiveStreamFormatMode.HLS
+                else -> null
+            }
         )
     }
 

@@ -9,6 +9,7 @@ import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.model.VodMovieVariant
+import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.provider.PlayerCredentialFailure
 import com.streamvault.domain.provider.PlayerPlaybackResolutionFailure
 import com.streamvault.domain.provider.PlayerPlaybackResolver
@@ -58,11 +59,38 @@ class PlayerContentResolver @Inject constructor(
     internal suspend fun getMovieVariants(movieId: Long): List<VodMovieVariant> =
         movieRepository.getMovieVariants(movieId)
 
+    internal suspend fun hasExplicitMovieVariantSelection(movieId: Long): Boolean =
+        movieRepository.hasExplicitMovieVariantSelection(movieId)
+
     internal suspend fun getMovieStreamInfo(movie: Movie): Result<StreamInfo> =
         movieRepository.getStreamInfo(movie)
 
     internal suspend fun getSeriesDetails(providerId: Long, seriesId: Long): Result<Series> =
         seriesRepository.getSeriesDetails(providerId, seriesId)
+
+    internal suspend fun getRawSeries(seriesId: Long): Series? = seriesRepository.getSeriesById(seriesId)
+
+    internal suspend fun getSeriesVariants(seriesId: Long): List<VodSeriesVariant> =
+        seriesRepository.getSeriesVariants(seriesId)
+
+    internal suspend fun hasExplicitSeriesVariantSelection(seriesId: Long): Boolean =
+        seriesRepository.hasExplicitSeriesVariantSelection(seriesId)
+
+    internal suspend fun getEpisodeStreamInfo(episode: Episode): Result<StreamInfo> =
+        seriesRepository.getEpisodeStreamInfo(episode)
+
+    internal suspend fun resolvePhysicalEpisodeStream(
+        source: PhysicalEpisodeSource,
+        logicalTitle: String
+    ): PlayerPlaybackStreamResolution = resolvePlaybackStream(
+        logicalUrl = source.episode.streamUrl,
+        internalContentId = source.episode.id,
+        providerId = source.episode.providerId,
+        contentType = ContentType.SERIES_EPISODE,
+        currentTitle = logicalTitle,
+        currentSeries = source.series,
+        currentEpisode = source.episode
+    ).let { resolution -> resolution.copy(streamInfo = resolution.streamInfo?.copy(title = logicalTitle)) }
 
     internal suspend fun getEpisodeById(episodeId: Long): Episode? =
         seriesRepository.getEpisodeById(episodeId)

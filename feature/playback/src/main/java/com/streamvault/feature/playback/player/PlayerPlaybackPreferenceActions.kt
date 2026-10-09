@@ -11,61 +11,11 @@ import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerError
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
-import kotlin.collections.LinkedHashSet
-
-private const val THUMBNAIL_PRELOAD_BUCKET_MS = 10_000L
-private const val THUMBNAIL_PRELOAD_FRAME_BUDGET = 6
-
-internal fun buildThumbnailPreloadPositions(
-    durationMs: Long,
-    currentPositionMs: Long,
-    bucketMs: Long = THUMBNAIL_PRELOAD_BUCKET_MS,
-    frameBudget: Int = THUMBNAIL_PRELOAD_FRAME_BUDGET
-): List<Long> {
-    if (durationMs <= 0L || bucketMs <= 0L || frameBudget <= 0) return emptyList()
-
-    val maxPositionMs = durationMs.coerceAtLeast(0L)
-    val anchorPositionMs = (currentPositionMs.coerceIn(0L, maxPositionMs) / bucketMs) * bucketMs
-    val plannedPositions = LinkedHashSet<Long>()
-    var offsetMs = 0L
-
-    while (plannedPositions.size < frameBudget) {
-        val forwardPositionMs = anchorPositionMs + offsetMs
-        if (forwardPositionMs <= maxPositionMs) {
-            plannedPositions += forwardPositionMs
-        }
-        if (plannedPositions.size >= frameBudget) break
-
-        if (offsetMs > 0L) {
-            val backwardPositionMs = anchorPositionMs - offsetMs
-            if (backwardPositionMs >= 0L) {
-                plannedPositions += backwardPositionMs
-            }
-        }
-
-        if (forwardPositionMs > maxPositionMs && anchorPositionMs - offsetMs < 0L) {
-            break
-        }
-        offsetMs += bucketMs
-    }
-
-    return plannedPositions.toList()
-}
-
-internal fun shouldStartThumbnailPreload(
-    preloadKey: String,
-    lastCompletedPreloadKey: String?,
-    inFlightPreloadKey: String?
-): Boolean = preloadKey.isNotBlank() &&
-    preloadKey != lastCompletedPreloadKey &&
-    preloadKey != inFlightPreloadKey
 
 fun PlayerViewModel.selectAudioTrack(trackId: String) {
     val selectedTrack = playerEngine.availableAudioTracks.value.firstOrNull { it.id == trackId }
@@ -120,6 +70,7 @@ private fun PlayerViewModel.persistVodTrackPreferences(
 }
 
 fun PlayerViewModel.selectVideoQuality(trackId: String) {
+    episodeSourceState.onVideoSelection()
     playerEngine.selectVideoTrack(trackId)
 }
 
@@ -411,42 +362,6 @@ fun PlayerViewModel.updateSeekPreview(positionMs: Long?) {
                     title = currentTitle,
                     isLoading = false
                 )
-            }
-        }
-    }
-}
-
-internal fun PlayerViewModel.startThumbnailPreload() {
-    val url = currentResolvedPlaybackUrl.ifBlank { currentStreamUrl }
-    val streamInfo = currentResolvedStreamInfo
-    val isLive = currentContentType == ContentType.LIVE
-    if (url.isBlank() || !playerThumbnailCoordinator.supportsFrameExtraction(url, streamInfo, isLive)) return
-    if (!shouldStartThumbnailPreload(url, lastCompletedThumbnailPreloadKey, inFlightThumbnailPreloadKey)) return
-    val durationMs = playerEngine.duration.value
-    if (durationMs <= 0L) return
-    val preloadPositions = buildThumbnailPreloadPositions(
-        durationMs = durationMs,
-        currentPositionMs = playerEngine.currentPosition.value
-    )
-    if (preloadPositions.isEmpty()) return
-
-    thumbnailPreloadJob?.cancel()
-    inFlightThumbnailPreloadKey = url
-    thumbnailPreloadJob = viewModelScope.launch(Dispatchers.Default) {
-        try {
-            preloadPositions.forEach { positionMs ->
-                ensureActive()
-                playerThumbnailCoordinator.loadFrame(
-                    streamUrl = url,
-                    streamInfo = streamInfo,
-                    isLive = isLive,
-                    positionMs = positionMs
-                )
-            }
-            lastCompletedThumbnailPreloadKey = url
-        } finally {
-            if (inFlightThumbnailPreloadKey == url) {
-                inFlightThumbnailPreloadKey = null
             }
         }
     }

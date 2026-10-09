@@ -2,6 +2,7 @@ package com.streamvault.data.repository
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.dao.CategoryDao
@@ -65,9 +66,11 @@ import com.streamvault.domain.model.StalkerTransportMode
 import com.streamvault.domain.model.StalkerTransportOrigin
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.GuideSourcePolicy
+import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.XtreamConfig
 import com.streamvault.domain.model.SyncMetadata
 import com.streamvault.domain.repository.SyncMetadataRepository
+import com.streamvault.domain.repository.ProviderSetupRequest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -822,6 +825,54 @@ class ProviderRepositoryImplTest {
         assertThat(result.isSuccess).isTrue()
         verify(providerDao).setActive(9L)
         verify(syncManager, never()).scheduleProviderSyncResume(9L)
+    }
+
+    @Test
+    fun `setupProvider persists playlist live format preference after Xtream authentication`() = runTest {
+        whenever(credentialCrypto.encryptIfNeeded("pass")).thenReturn("pass")
+        whenever(providerDao.insert(any())).thenReturn(9L)
+        whenever(syncManager.sync(eq(9L), eq(false), anyOrNull(), anyOrNull(), anyOrNull(), eq(true), eq(true)))
+            .thenReturn(Result.success(Unit))
+        whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
+        whenever(channelDao.getCount(9L)).thenReturn(flowOf(0))
+        whenever(syncMetadataRepository.getMetadata(9L)).thenReturn(SyncMetadata(providerId = 9L, movieCount = 3))
+        whenever(xtreamApiService.authenticate(any(), any())).thenReturn(
+            XtreamAuthResponse(
+                userInfo = XtreamUserInfo(
+                    username = "user",
+                    password = "pass",
+                    auth = 1,
+                    status = "Active"
+                ),
+                serverInfo = XtreamServerInfo(
+                    url = "example.com",
+                    port = "80",
+                    serverProtocol = "http"
+                )
+            )
+        )
+
+        val result = repository.setupProvider(
+            ProviderSetupRequest.Configured(
+                name = "Xtream",
+                configuration = XtreamConfig(
+                    serverUrl = "https://example.com",
+                    username = "user",
+                    password = "pass",
+                    fastSyncEnabled = false,
+                    preferredLiveStreamFormat = LiveStreamFormatMode.MPEG_TS
+                )
+            )
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        val committed = argumentCaptor<ProviderConfigEntity>()
+        verify(providerSnapshotDao).commitConfiguration(committed.capture())
+        val storedFormat = JsonParser.parseString(committed.firstValue.encryptedConfigJson)
+            .asJsonObject
+            .get("preferredLiveStreamFormat")
+            ?.asString
+        assertThat(storedFormat).isEqualTo(LiveStreamFormatMode.MPEG_TS.name)
     }
 
     @Test

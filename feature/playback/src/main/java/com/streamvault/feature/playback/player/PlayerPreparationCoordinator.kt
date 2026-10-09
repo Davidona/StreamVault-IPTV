@@ -7,6 +7,9 @@ import com.streamvault.domain.model.Result as DomainResult
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.PlayerEngine
+import com.streamvault.player.playback.ResolvedStreamType
+import com.streamvault.player.playback.StreamTypeResolver
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.player.playback.applyPlaybackTransportPolicy
 import com.streamvault.player.playback.applyUnsafeTlsBypass
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +38,8 @@ class PlayerPreparationCoordinator @Inject constructor(
         val probePassedPlaybackKeys: Set<String>,
         val probeBeforePlayback: Boolean,
         val audioVideoOffsetMs: Int,
-        val vodTrackPreferences: VodTrackPreferences? = null
+        val vodTrackPreferences: VodTrackPreferences? = null,
+        val requiredSourceType: ResolvedStreamType? = null
     )
 
     internal sealed interface Result {
@@ -91,6 +95,12 @@ class PlayerPreparationCoordinator @Inject constructor(
         }
 
         if (!isCurrent()) return null
+        if (request.requiredSourceType != null &&
+            (StreamTypeResolver.resolve(preparedStreamInfo) != request.requiredSourceType ||
+                preparedStreamInfo.playbackContentKind != PlaybackContentKind.ON_DEMAND)) {
+            val contentLabel = if (request.contentType == ContentType.MOVIE) "movie" else "episode"
+            return Result.Failure("The compatible $contentLabel is not a progressive on-demand source.", PlayerRecoveryType.SOURCE)
+        }
         applyPlaybackPreferences(
             engine = playerEngineCoordinator.currentEngine,
             contentType = request.contentType,
@@ -187,18 +197,15 @@ class PlayerPreparationCoordinator @Inject constructor(
             currentStreamUrl = request.currentStreamUrl,
             url = url
         )
-        if (provider.type != ProviderType.STALKER_PORTAL &&
-            cacheKey in request.probePassedPlaybackKeys
-        ) {
-            return false
-        }
-        return (
-            provider.type == ProviderType.XTREAM_CODES ||
-                provider.type == ProviderType.STALKER_PORTAL
-            ) && (
-                playerContentResolver.isInternalStreamUrl(request.currentStreamUrl) ||
-                    playerContentResolver.isInternalStreamUrl(url)
-                )
+        val hasInternalSource =
+            playerContentResolver.isInternalStreamUrl(request.currentStreamUrl) ||
+                playerContentResolver.isInternalStreamUrl(url)
+        return shouldProbeProviderStreamUrl(
+            providerType = provider.type,
+            url = url,
+            hasInternalSource = hasInternalSource,
+            probeAlreadyPassed = cacheKey in request.probePassedPlaybackKeys
+        )
     }
 
     private suspend fun probePlaybackUrl(streamInfo: StreamInfo): PlaybackProbeFailure? {

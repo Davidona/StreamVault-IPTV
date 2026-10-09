@@ -31,6 +31,7 @@ class PlayerTrackController(
     val availableVideoTracks: StateFlow<List<PlayerTrack>> = _availableVideoTracks.asStateFlow()
 
     private var selectedVideoTrackId: String = PLAYER_TRACK_AUTO_ID
+    internal val isVideoAutoSelected: Boolean get() = selectedVideoTrackId == PLAYER_TRACK_AUTO_ID
     private var preferredAudioLanguageTag: String? = null
     private var preferredWifiMaxVideoHeight: Int? = null
     private var preferredEthernetMaxVideoHeight: Int? = null
@@ -140,7 +141,7 @@ class PlayerTrackController(
             if (isAudio || isText || isVideo) {
                 for (index in 0 until group.length) {
                     val format = group.mediaTrackGroup.getFormat(index)
-                    val id = format.id ?: "${group.mediaTrackGroup.hashCode()}_$index"
+                    val id = playerTrackId(format, type, group.mediaTrackGroup.hashCode(), index)
                     val track = PlayerTrack(
                         id = id,
                         name = buildTrackName(format, type, index),
@@ -238,7 +239,7 @@ class PlayerTrackController(
             if (group.mediaTrackGroup.type != trackType) continue
             for (index in 0 until group.length) {
                 val format = group.mediaTrackGroup.getFormat(index)
-                val id = format.id ?: "${group.mediaTrackGroup.hashCode()}_$index"
+                val id = playerTrackId(format, trackType, group.mediaTrackGroup.hashCode(), index)
                 if (id == trackId) {
                     return TrackSelectionOverride(group.mediaTrackGroup, listOf(index))
                 }
@@ -324,9 +325,31 @@ internal fun normalizeSelectedVideoTrackId(
     selectedTrackId: String,
     availableTrackIds: List<String>
 ): String = when {
-    availableTrackIds.isEmpty() -> PLAYER_TRACK_AUTO_ID
     selectedTrackId == PLAYER_TRACK_AUTO_ID -> PLAYER_TRACK_AUTO_ID
+    availableTrackIds.isEmpty() -> selectedTrackId
     selectedTrackId in availableTrackIds -> selectedTrackId
     availableTrackIds.size == 1 -> availableTrackIds.first()
     else -> PLAYER_TRACK_AUTO_ID
 }
+
+internal fun playerTrackId(format: Format, trackType: Int, trackGroupHash: Int, index: Int): String =
+    format.id ?: if (trackType == C.TRACK_TYPE_VIDEO) {
+        listOf(
+            "video",
+            format.sampleMimeType.orEmpty(),
+            format.codecs.orEmpty(),
+            "${format.width}x${format.height}",
+            format.bitrate,
+            format.averageBitrate,
+            format.frameRate.toBits(),
+            format.rotationDegrees,
+            format.roleFlags,
+            format.selectionFlags,
+            format.language.orEmpty(),
+            format.label.orEmpty(),
+            format.colorInfo?.hashCode() ?: 0,
+            index
+        ).joinToString(":")
+    } else {
+        "${trackGroupHash}_$index"
+    }

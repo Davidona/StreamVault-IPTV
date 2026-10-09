@@ -38,6 +38,19 @@ internal fun resolvePlaybackProbeFailure(responseCode: Int): PlaybackProbeFailur
     else -> null
 }
 
+internal fun shouldProbeProviderStreamUrl(
+    providerType: ProviderType,
+    url: String,
+    hasInternalSource: Boolean,
+    probeAlreadyPassed: Boolean
+): Boolean {
+    if (shouldSkipPlaybackProbe(providerType, url)) return false
+    if (providerType != ProviderType.STALKER_PORTAL && probeAlreadyPassed) return false
+    return hasInternalSource && (
+        providerType == ProviderType.XTREAM_CODES || providerType == ProviderType.STALKER_PORTAL
+        )
+}
+
 internal fun shouldSkipPlaybackProbe(
     providerType: ProviderType,
     url: String

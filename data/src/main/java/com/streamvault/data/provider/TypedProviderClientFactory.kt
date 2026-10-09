@@ -156,10 +156,19 @@ class TypedProviderClientFactory @Inject constructor(
         )
     }
 
-    suspend fun resolveLiveContainerExtension(kind: XtreamStreamKind, value: String?): String? {
+    suspend fun resolveLiveContainerExtension(
+        snapshot: ProviderSnapshot,
+        kind: XtreamStreamKind,
+        value: String?
+    ): String? {
         if (kind != XtreamStreamKind.LIVE) return value
+        val providerPreference = (snapshot.configuration as? XtreamConfig)?.preferredLiveStreamFormat
         return when (preferencesRepository.playerLiveStreamFormatMode.first()) {
-            LiveStreamFormatMode.AUTO -> value
+            LiveStreamFormatMode.AUTO -> when (providerPreference) {
+                LiveStreamFormatMode.HLS -> "m3u8"
+                LiveStreamFormatMode.MPEG_TS -> "ts"
+                LiveStreamFormatMode.AUTO, null -> value
+            }
             LiveStreamFormatMode.HLS -> "m3u8"
             LiveStreamFormatMode.MPEG_TS -> "ts"
         }

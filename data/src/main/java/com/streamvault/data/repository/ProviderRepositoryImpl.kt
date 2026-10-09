@@ -426,6 +426,7 @@ class ProviderRepositoryImpl @Inject constructor(
                 xtreamLiveSyncMode = config.liveSyncMode,
                 guideSourcePolicy = config.guideSourcePolicy,
                 channelLogoSourcePolicy = config.channelLogoSourcePolicy,
+                preferredLiveStreamFormat = config.preferredLiveStreamFormat,
                 onProgress = onProgress,
                 id = request.existingProviderId
             )
@@ -500,6 +501,7 @@ class ProviderRepositoryImpl @Inject constructor(
         xtreamLiveSyncMode: com.streamvault.domain.model.ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
         guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
         channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
+        preferredLiveStreamFormat: LiveStreamFormatMode? = null,
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
     ): Result<Provider> = try {
@@ -557,7 +559,8 @@ class ProviderRepositoryImpl @Inject constructor(
                     guideSourcePolicy = guideSourcePolicy,
                     channelLogoSourcePolicy = channelLogoSourcePolicy,
                     fastSyncEnabled = xtreamFastSyncEnabled,
-                    liveSyncMode = xtreamLiveSyncMode
+                    liveSyncMode = xtreamLiveSyncMode,
+                    preferredLiveStreamFormat = preferredLiveStreamFormat
                 ),
                 configurationGeneration = candidateGeneration
             )
@@ -584,6 +587,7 @@ class ProviderRepositoryImpl @Inject constructor(
                         xtreamLiveSyncMode = xtreamLiveSyncMode,
                         guideSourcePolicy = guideSourcePolicy,
                         channelLogoSourcePolicy = channelLogoSourcePolicy,
+                        preferredLiveStreamFormat = preferredLiveStreamFormat,
                         xtreamFastSyncEnabled = false,
                         isActive = false,
                         status = ProviderStatus.PARTIAL,
@@ -604,6 +608,7 @@ class ProviderRepositoryImpl @Inject constructor(
                         xtreamLiveSyncMode = xtreamLiveSyncMode,
                         guideSourcePolicy = guideSourcePolicy,
                         channelLogoSourcePolicy = channelLogoSourcePolicy,
+                        preferredLiveStreamFormat = preferredLiveStreamFormat,
                         xtreamFastSyncEnabled = false,
                         isActive = false,
                         status = ProviderStatus.PARTIAL

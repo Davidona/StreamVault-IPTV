@@ -1258,6 +1258,54 @@ class SeriesRepositoryImplTest {
         assertThat(result.single().variants.map { it.rawSeriesId }).containsExactly(18L, 17L).inOrder()
     }
 
+    private suspend fun stubFallbackSeries() {
+        val source = SeriesEntity(id = 17L, seriesId = 1700L, name = "Drama 1080p", providerId = 7L, tmdbId = 5000L)
+        val candidate = source.copy(id = 18L, seriesId = 1800L, name = "Drama 720p")
+        whenever(seriesDao.getById(17L)).thenReturn(source)
+        whenever(seriesDao.getById(18L)).thenReturn(candidate)
+        whenever(seriesDao.getByProviderAndTmdbIdSync(7L, 5000L)).thenReturn(listOf(source, candidate))
+    }
+
+    @Test
+    fun currentAndStaleSavedChoiceBlockFallback() = runTest {
+        stubFallbackSeries()
+        for (selections in listOf(mapOf("7|series:7:tmdb:5000" to 999L), mapOf("7|series:7:drama:2024" to 18L))) {
+            assertThat(createRepository(VodDuplicateHandlingMode.SMART, preferredVariants = selections)
+                .hasExplicitSeriesVariantSelection(17L)).isTrue()
+        }
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun otherProviderChoiceDoesNotBlock() = runTest {
+        stubFallbackSeries()
+        val repository = createRepository(VodDuplicateHandlingMode.SMART,
+            preferredVariants = mapOf("8|series:8:tmdb:5000" to 18L, "7|unrelated" to 99L))
+        assertThat(repository.hasExplicitSeriesVariantSelection(17L)).isFalse()
+    }
+
+    @Test
+    fun autoPresentedSelectedIdIsNotManual() = runTest {
+        stubFallbackSeries()
+        val repository = createRepository(VodDuplicateHandlingMode.SMART)
+        assertThat(repository.getSeriesVariants(17L).map { it.rawSeriesId }).containsExactly(17L, 18L)
+        assertThat(repository.hasExplicitSeriesVariantSelection(17L)).isFalse()
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun showAllDoesNotInventVariants() = runTest {
+        stubFallbackSeries()
+        assertThat(createRepository().getSeriesVariants(17L)).isEmpty()
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun missingSeriesBlocksFallback() = runTest {
+        assertThat(createRepository().hasExplicitSeriesVariantSelection(999L)).isTrue()
+        assertThat(createRepository().getSeriesVariants(999L)).isEmpty()
+    }
+
     private fun createRepository(
         duplicateHandlingMode: VodDuplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL,
         variantPreferenceMode: VodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,

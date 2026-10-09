@@ -26,10 +26,12 @@ import com.streamvault.data.remote.stalker.StalkerRequestDescriptor
 import com.streamvault.data.remote.stalker.StalkerResponseMetrics
 import com.streamvault.data.remote.stalker.StalkerTrafficCoordinator
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.ContentCachePolicy
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.data.util.MoviePresentationSettings
 import com.streamvault.data.util.buildPresentedMovies
+import com.streamvault.data.util.movieLogicalGroupId
 import com.streamvault.data.util.rankSearchResults
 import com.streamvault.data.util.toFtsPrefixQuery
 import com.streamvault.domain.model.Category
@@ -489,7 +491,7 @@ class MovieRepositoryImpl @Inject constructor(
     private fun scheduleMoviePrefetch(providerId: Long, categoryId: Long, loadMode: VodCategoryLoadMode) {
         if (loadMode != VodCategoryLoadMode.PAGED) return
         repositoryScope.launch {
-            val provider = loadCompatibilityProvider(providerId) ?: return@launch
+            val provider = loadBackgroundCompatibilityProvider(providerId) ?: return@launch
             val current = movieCategoryHydrationDao.get(providerId, categoryId)
             if (current?.isComplete == true) return@launch
             if (provider.catalogLayout == CatalogLayout.SPLIT && provider.catalogLayoutDetectionVersion > 0) {
@@ -552,6 +554,28 @@ class MovieRepositoryImpl @Inject constructor(
             ?.toDomain()
             ?.let { movie -> attachMoviePresentation(movie).variants }
             .orEmpty()
+
+    override suspend fun hasExplicitMovieVariantSelection(movieId: Long): Boolean {
+        val movie = movieDao.getById(movieId)?.toDomain() ?: return true
+        if (movie.providerId <= 0L) return true
+        val settings = moviePresentationSettingsFlow.first()
+        val logicalGroupId = movie.logicalGroupId?.takeIf { it.isNotBlank() }
+            ?: movieLogicalGroupId(movie)
+        val selectionKey = "${movie.providerId}|$logicalGroupId"
+        if (selectionKey in settings.preferredVariants) return true
+
+        val raw = loadPresentationCandidates(movie).filter { it.providerId == movie.providerId }
+        val groupedMovie = buildPresentedMovies(
+            movies = raw.map { it.toDomain() },
+            settings = settings.copy(duplicateHandlingMode = VodDuplicateHandlingMode.GROUPED)
+        ).firstOrNull { presented ->
+            presented.id == movie.id || presented.variants.any { it.rawMovieId == movie.id }
+        }
+        val groupMovieIds = groupedMovie?.variants?.map { it.rawMovieId }.orEmpty().toSet() + movie.id
+        return settings.preferredVariants.any { (key, selectedMovieId) ->
+            key.startsWith("${movie.providerId}|") && selectedMovieId in groupMovieIds
+        }
+    }
 
     override suspend fun getMovieDetails(
         providerId: Long,
@@ -1680,7 +1704,7 @@ class MovieRepositoryImpl @Inject constructor(
         repositoryScope.launch {
             if (!backgroundRefreshes.awaitAdd(key)) return@launch
             try {
-                val provider = loadCompatibilityProvider(providerId) ?: return@launch
+                val provider = loadBackgroundCompatibilityProvider(providerId) ?: return@launch
                 if (provider.type != ProviderType.XTREAM_CODES && provider.type != ProviderType.STALKER_PORTAL) {
                     return@launch
                 }
@@ -1990,5 +2014,13 @@ class MovieRepositoryImpl @Inject constructor(
 
     private suspend fun loadCompatibilityProvider(providerId: Long): Provider? =
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
+
+    private suspend fun loadBackgroundCompatibilityProvider(providerId: Long): Provider? =
+        try {
+            loadCompatibilityProvider(providerId)
+        } catch (_: CredentialDecryptionException) {
+            Log.w(TAG, "Skipping background movie work because provider credentials are unreadable (providerId=$providerId)")
+            null
+        }
 }
 

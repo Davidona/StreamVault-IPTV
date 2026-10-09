@@ -20,6 +20,7 @@ import com.streamvault.data.sync.ContentCachePolicy
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.data.util.SeriesPresentationSettings
 import com.streamvault.data.util.buildPresentedSeries
+import com.streamvault.data.util.seriesLogicalGroupId
 import com.streamvault.domain.model.*
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.Result.Success
@@ -463,6 +464,29 @@ class SeriesRepositoryImpl @Inject constructor(
 
     override suspend fun getSeriesById(seriesId: Long): Series? =
         seriesDao.getById(seriesId)?.toDomain()
+
+    override suspend fun getSeriesVariants(seriesId: Long): List<VodSeriesVariant> {
+        val series = getSeriesById(seriesId) ?: return emptyList()
+        if (series.providerId <= 0L) return emptyList()
+        return attachSeriesPresentation(series).variants
+    }
+
+    override suspend fun hasExplicitSeriesVariantSelection(seriesId: Long): Boolean {
+        val series = getSeriesById(seriesId) ?: return true
+        if (series.providerId <= 0L) return true
+        val settings = seriesPresentationSettingsFlow.first()
+        val currentKey = "${series.providerId}|${seriesLogicalGroupId(series)}"
+        if (currentKey in settings.preferredVariants) return true
+        val raw = loadSeriesPresentationCandidates(series).filter { it.providerId == series.providerId }
+        // Membership is derived from existing grouping even if presentation is currently Show All.
+        val members = buildPresentedSeries(raw.map { it.toDomain() }, settings.copy(
+            duplicateHandlingMode = VodDuplicateHandlingMode.GROUPED
+        )).firstOrNull { it.id == series.id || it.variants.any { variant -> variant.rawSeriesId == series.id } }
+        val ids = members?.variants?.map { it.rawSeriesId }.orEmpty().toSet() + series.id
+        return settings.preferredVariants.any { (key, selectedId) ->
+            key.startsWith("${series.providerId}|") && selectedId in ids
+        }
+    }
 
     override suspend fun getEpisodeById(episodeId: Long): Episode? =
         episodeDao.getById(episodeId)?.toDomain()

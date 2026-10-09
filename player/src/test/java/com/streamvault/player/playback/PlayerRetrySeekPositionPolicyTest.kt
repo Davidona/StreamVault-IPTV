@@ -104,24 +104,72 @@ class PlayerRetrySeekPositionPolicyTest {
     }
 
     @Test
-    fun `new retry category starts its own attempt budget`() {
-        val nextAttempt = resolveRetryAttemptForCategory(
-            currentAttempt = 1,
-            lastCategory = PlaybackErrorCategory.LIVE_WINDOW,
-            nextCategory = PlaybackErrorCategory.SOURCE_MALFORMED
-        )
-
-        assertThat(nextAttempt).isEqualTo(1)
+    fun `whole source retry budget continues across changing error categories`() {
+        assertThat(resolveNextAppSourceRetryAttempt(currentAttempt = 1)).isEqualTo(2)
     }
 
     @Test
-    fun `same retry category increments current attempt`() {
-        val nextAttempt = resolveRetryAttemptForCategory(
-            currentAttempt = 2,
-            lastCategory = PlaybackErrorCategory.SOURCE_MALFORMED,
-            nextCategory = PlaybackErrorCategory.SOURCE_MALFORMED
-        )
+    fun `first whole source retry starts at one`() {
+        assertThat(resolveNextAppSourceRetryAttempt(currentAttempt = 0)).isEqualTo(1)
+    }
 
-        assertThat(nextAttempt).isEqualTo(3)
+    @Test
+    fun `scheduled source retry is rejected after the source generation changes`() {
+        assertThat(
+            isScheduledAppSourceRetryCurrent(
+                scheduledGeneration = 4L,
+                currentGeneration = 5L,
+                scheduledMediaId = "old-item",
+                currentMediaId = "new-item",
+                scheduledAttempt = 1,
+                currentAttempt = 1
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `scheduled source retry remains valid only for its media item and attempt`() {
+        assertThat(
+            isScheduledAppSourceRetryCurrent(
+                scheduledGeneration = 4L,
+                currentGeneration = 4L,
+                scheduledMediaId = "same-item",
+                currentMediaId = "same-item",
+                scheduledAttempt = 1,
+                currentAttempt = 1
+            )
+        ).isTrue()
+        assertThat(
+            isScheduledAppSourceRetryCurrent(
+                scheduledGeneration = 4L,
+                currentGeneration = 4L,
+                scheduledMediaId = "same-item",
+                currentMediaId = "same-item",
+                scheduledAttempt = 1,
+                currentAttempt = 2
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `user seek during a pending retry replaces the captured stale position`() {
+        assertThat(
+            resolveScheduledRetrySeekPositionMs(
+                category = PlaybackErrorCategory.NETWORK,
+                plannedPositionMs = 120_000L,
+                userSeekOverrideMs = 540_000L
+            )
+        ).isEqualTo(540_000L)
+    }
+
+    @Test
+    fun `behind live window retry always uses the live default position`() {
+        assertThat(
+            resolveScheduledRetrySeekPositionMs(
+                category = PlaybackErrorCategory.LIVE_WINDOW,
+                plannedPositionMs = 120_000L,
+                userSeekOverrideMs = 540_000L
+            )
+        ).isNull()
     }
 }

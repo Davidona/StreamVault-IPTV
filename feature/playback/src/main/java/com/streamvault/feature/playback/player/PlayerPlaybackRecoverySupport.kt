@@ -34,6 +34,9 @@ internal fun classifyPlaybackError(error: PlayerError): PlayerRecoveryType = whe
 internal fun resolvePlaybackErrorMessage(error: PlayerError): String = when (classifyPlaybackError(error)) {
     PlayerRecoveryType.NETWORK -> "This stream is not responding right now. You can retry or try another source."
     PlayerRecoveryType.SOURCE -> when {
+        error.message.contains("HTTP 404", ignoreCase = true) ->
+            "This stream resource was not found (HTTP 404). The provider may have removed it."
+
         error.message.contains("HTTP 456", ignoreCase = true) ||
             error.message.contains("access denied", ignoreCase = true) ->
             "This provider rejected playback for this channel. The MAC or subscription may not have access to this stream."

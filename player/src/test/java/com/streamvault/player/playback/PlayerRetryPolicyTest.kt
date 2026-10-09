@@ -4,14 +4,23 @@ import android.os.Bundle
 import androidx.media3.common.C
 import androidx.media3.common.ParserException
 import androidx.media3.common.PlaybackException
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.source.BehindLiveWindowException
+import androidx.media3.exoplayer.source.LoadEventInfo
+import androidx.media3.exoplayer.source.MediaLoadData
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
+import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackContentKind
 import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class PlayerRetryPolicyTest {
 
     private val liveContext = PlaybackRetryContext(
@@ -30,6 +39,71 @@ class PlayerRetryPolicyTest {
         playbackStarted = { true },
         fastRetryOnTransientFailures = { true }
     )
+
+    @Test
+    fun `retrying Media3 load owns recovery until load task concludes`() {
+        val errorInfo = loadError(responseCode = 503)
+
+        assertThat(policy.hasPendingLoadRecovery).isFalse()
+        assertThat(policy.getRetryDelayMsFor(errorInfo)).isEqualTo(1_000L)
+        assertThat(policy.hasPendingLoadRecovery).isTrue()
+
+        policy.onLoadTaskConcluded(errorInfo.loadEventInfo.loadTaskId)
+
+        assertThat(policy.hasPendingLoadRecovery).isFalse()
+    }
+
+    @Test
+    fun `load recovery transitions notify foreground priority immediately`() {
+        var notifications = 0
+        val observed = PlayerRetryPolicy(
+            streamContext = liveContext,
+            onLoadRecoveryChanged = { notifications++ },
+            playbackStarted = { true }
+        )
+        val errorInfo = loadError(responseCode = 503)
+
+        observed.getRetryDelayMsFor(errorInfo)
+        observed.onLoadTaskConcluded(errorInfo.loadEventInfo.loadTaskId)
+
+        assertThat(notifications).isEqualTo(2)
+    }
+
+    @Test
+    fun `Media3 fallback owns recovery until load task concludes`() {
+        val errorInfo = loadError(responseCode = 503)
+
+        assertThat(
+            policy.getFallbackSelectionFor(
+                fallbackOptions(locations = 2, tracks = 1),
+                errorInfo
+            )
+        ).isNotNull()
+        assertThat(policy.hasPendingLoadRecovery).isTrue()
+
+        policy.onLoadTaskConcluded(errorInfo.loadEventInfo.loadTaskId)
+
+        assertThat(policy.hasPendingLoadRecovery).isFalse()
+    }
+
+    @Test
+    fun `whole source retries are capped after Media3 has exhausted load retry`() {
+        val error = SocketTimeoutException("timed out")
+
+        assertThat(policy.shouldRetryWholeSource(error, playbackStarted = true, attempt = 1)).isTrue()
+        assertThat(policy.shouldRetryWholeSource(error, playbackStarted = true, attempt = 2)).isFalse()
+    }
+
+    @Test
+    fun `terminal errors never use whole source retry budget`() {
+        assertThat(
+            policy.shouldRetryWholeSource(
+                IOException("HTTP 403"),
+                playbackStarted = true,
+                attempt = 1
+            )
+        ).isFalse()
+    }
 
     @Test
     fun `live server errors retry 10 times with bounded backoff`() {
@@ -156,6 +230,69 @@ class PlayerRetryPolicyTest {
     }
 
     @Test
+    fun `eligible server error falls back to an available location`() {
+        val selection = policy.getFallbackSelectionFor(
+            fallbackOptions(locations = 2, tracks = 1),
+            loadError(responseCode = 503)
+        )
+
+        assertThat(selection?.type).isEqualTo(LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION)
+        assertThat(selection?.exclusionDurationMs)
+            .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_LOCATION_EXCLUSION_MS)
+    }
+
+    @Test
+    fun `404 skips retrying the missing resource but uses an available adaptive fallback`() {
+        val errorInfo = loadError(responseCode = 404)
+        val error = errorInfo.exception
+
+        assertThat(PlayerErrorClassifier.classify(error)).isEqualTo(PlaybackErrorCategory.HTTP_NOT_FOUND)
+        assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 1)).isFalse()
+        assertThat(policy.shouldRetryWholeSource(error, playbackStarted = true, attempt = 1)).isFalse()
+
+        val fallback = policy.getFallbackSelectionFor(
+            fallbackOptions(locations = 2, tracks = 1),
+            errorInfo
+        )
+        assertThat(fallback?.type).isEqualTo(LoadErrorHandlingPolicy.FALLBACK_TYPE_LOCATION)
+    }
+
+    @Test
+    fun `eligible server error falls back to an available track when no alternate location exists`() {
+        val selection = policy.getFallbackSelectionFor(
+            fallbackOptions(locations = 1, tracks = 2),
+            loadError(responseCode = 503)
+        )
+
+        assertThat(selection?.type).isEqualTo(LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK)
+        assertThat(selection?.exclusionDurationMs)
+            .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_EXCLUSION_MS)
+    }
+
+    @Test
+    fun `authentication error does not fall back and a single option has no fallback`() {
+        val options = fallbackOptions(locations = 2, tracks = 2)
+
+        assertThat(policy.getFallbackSelectionFor(options, loadError(responseCode = 403))).isNull()
+        assertThat(
+            policy.getFallbackSelectionFor(
+                fallbackOptions(locations = 1, tracks = 1),
+                loadError(responseCode = 503)
+            )
+        ).isNull()
+    }
+
+    @Test
+    fun `progressive source does not use adaptive fallback even when an alternate location exists`() {
+        assertThat(
+            progressivePolicy.getFallbackSelectionFor(
+                fallbackOptions(locations = 2, tracks = 1),
+                loadError(responseCode = 503)
+            )
+        ).isNull()
+    }
+
+    @Test
     fun `explicit hls vod uses finite source retry treatment`() {
         val vodHlsContext = PlaybackRetryContext(
             resolvedStreamType = ResolvedStreamType.HLS,
@@ -266,4 +403,28 @@ class PlayerRetryPolicyTest {
         message: String,
         errorCode: Int
     ) : PlaybackException(message, null, errorCode, Bundle.EMPTY, 0L)
+
+    private fun fallbackOptions(locations: Int, tracks: Int) =
+        LoadErrorHandlingPolicy.FallbackOptions(locations, 0, tracks, 0, false)
+
+    private fun loadError(responseCode: Int): LoadErrorHandlingPolicy.LoadErrorInfo {
+        val dataSpec = DataSpec.Builder()
+            .setUri("https://example.com/manifest.m3u8")
+            .build()
+        val exception = HttpDataSource.InvalidResponseCodeException(
+            responseCode,
+            null,
+            null,
+            emptyMap(),
+            dataSpec,
+            byteArrayOf()
+        )
+        val loadEventInfo = LoadEventInfo.Builder(LoadEventInfo.getNewId(), dataSpec, 0L).build()
+        return LoadErrorHandlingPolicy.LoadErrorInfo(
+            loadEventInfo,
+            MediaLoadData(C.DATA_TYPE_MEDIA),
+            exception,
+            1
+        )
+    }
 }

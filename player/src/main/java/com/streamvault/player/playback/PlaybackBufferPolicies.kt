@@ -155,7 +155,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = MPEG_TS_LIVE_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         lowMemoryDevice && compatibilityMode && isLive ->
             PlaybackBufferPolicy(
@@ -165,7 +165,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         lowMemoryDevice && isLive ->
             PlaybackBufferPolicy(
@@ -175,7 +175,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         lowMemoryDevice ->
             PlaybackBufferPolicy(
@@ -185,7 +185,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE ->
             PlaybackBufferPolicy(
@@ -195,7 +195,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = MPEG_TS_LIVE_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         compatibilityMode && isLive ->
             PlaybackBufferPolicy(
@@ -205,7 +205,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         isLive ->
             PlaybackBufferPolicy(
@@ -215,7 +215,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         else ->
             PlaybackBufferPolicy(
@@ -225,7 +225,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = VOD_PLAYBACK_BUFFER_MS,
                 rebufferMs = VOD_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
     }
 
@@ -239,8 +239,8 @@ internal object PlaybackBufferPolicies {
         maxBufferMs = MEDIUM_LIVE_MAX_BUFFER_MS,
         playbackBufferMs = MEDIUM_LIVE_PLAYBACK_BUFFER_MS,
         rebufferMs = MEDIUM_LIVE_REBUFFER_MS,
-        targetBufferBytes = MEDIUM_LIVE_TARGET_BUFFER_BYTES,
-        prioritizeTimeOverSizeThresholds = true,
+        targetBufferBytes = if (lowMemoryCapped) DEFAULT_TARGET_BUFFER_BYTES else MEDIUM_LIVE_TARGET_BUFFER_BYTES,
+        prioritizeTimeOverSizeThresholds = false,
         qualityReason = qualityReason,
         lowMemoryCapped = lowMemoryCapped
     )
@@ -252,7 +252,7 @@ internal object PlaybackBufferPolicies {
         playbackBufferMs = LARGE_LIVE_PLAYBACK_BUFFER_MS,
         rebufferMs = LARGE_LIVE_REBUFFER_MS,
         targetBufferBytes = LARGE_LIVE_TARGET_BUFFER_BYTES,
-        prioritizeTimeOverSizeThresholds = true,
+        prioritizeTimeOverSizeThresholds = false,
         qualityReason = qualityReason
     )
 

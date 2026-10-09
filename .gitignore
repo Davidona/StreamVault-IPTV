@@ -44,6 +44,7 @@ domain/bin/
 .pi/
 .kotlin/
 hs_err_pid*.log
+replay_pid*.log
 gradle_build.log
 ksp.log
 __pycache__/

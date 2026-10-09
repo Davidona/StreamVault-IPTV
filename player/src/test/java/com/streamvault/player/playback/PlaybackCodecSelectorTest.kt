@@ -2,6 +2,7 @@ package com.streamvault.player.playback
 
 import androidx.media3.common.Format
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.DecoderMode
@@ -63,6 +64,40 @@ class PlaybackCodecSelectorTest {
         assertThat(plan.useAudioVideoSyncSink).isFalse()
         assertThat(plan.useManagedCodecSelector).isFalse()
         assertThat(plan.extensionRendererMode).isEqualTo(PlaybackExtensionRendererMode.PLATFORM_FIRST)
+    }
+
+    @Test
+    fun `factory settings pass renderer order and decoder initialization fallback`() {
+        val autoPlan = buildPlaybackRendererPlan(
+            requestedMode = DecoderMode.AUTO,
+            activeDecoderMode = DecoderMode.AUTO,
+            decoderPolicy = ActiveDecoderPolicy.AUTO,
+            useAudioVideoSyncSink = false,
+            useVideoRendererWorkaround = false
+        )
+        val autoSettings = buildPlaybackRendererFactorySettings(autoPlan)
+        assertThat(autoSettings.audioExtensionRendererMode)
+            .isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+        assertThat(autoSettings.videoExtensionRendererMode)
+            .isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+        assertThat(autoSettings.enableDecoderFallback).isTrue()
+
+        val softwarePlan = buildPlaybackRendererPlan(
+            requestedAudioMode = DecoderMode.SOFTWARE,
+            activeAudioDecoderMode = DecoderMode.SOFTWARE,
+            audioDecoderPolicy = ActiveDecoderPolicy.SOFTWARE_PREFERRED,
+            requestedVideoMode = DecoderMode.SOFTWARE,
+            activeVideoDecoderMode = DecoderMode.SOFTWARE,
+            videoDecoderPolicy = ActiveDecoderPolicy.SOFTWARE_PREFERRED,
+            useAudioVideoSyncSink = false,
+            useVideoRendererWorkaround = false
+        )
+        val softwareSettings = buildPlaybackRendererFactorySettings(softwarePlan)
+        assertThat(softwareSettings.audioExtensionRendererMode)
+            .isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        assertThat(softwareSettings.videoExtensionRendererMode)
+            .isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        assertThat(softwareSettings.enableDecoderFallback).isTrue()
     }
 
     @Test

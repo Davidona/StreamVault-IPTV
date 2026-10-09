@@ -31,7 +31,8 @@ fun Provider.toTypedConfiguration(): ProviderConfiguration = when (type) {
         guideSourcePolicy = guideSourcePolicy,
         channelLogoSourcePolicy = channelLogoSourcePolicy,
         fastSyncEnabled = xtreamFastSyncEnabled,
-        liveSyncMode = xtreamLiveSyncMode
+        liveSyncMode = xtreamLiveSyncMode,
+        preferredLiveStreamFormat = preferredLiveStreamFormat
     )
     ProviderType.M3U -> M3uConfig(
         playlistUrl = m3uUrl.ifBlank { serverUrl },

@@ -179,6 +179,10 @@ fun PlayerScreen(
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
     val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
 
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.clearSeekPreview() }
+    }
+
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }

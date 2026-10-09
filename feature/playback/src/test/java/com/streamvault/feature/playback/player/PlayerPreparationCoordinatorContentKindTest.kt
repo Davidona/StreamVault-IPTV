@@ -14,6 +14,7 @@ import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.feature.playback.api.PlaybackStreamPreparer
 import com.streamvault.player.PlayerEngine
+import com.streamvault.player.playback.ResolvedStreamType
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
@@ -80,5 +81,35 @@ class PlayerPreparationCoordinatorContentKindTest {
         val expected = replacement.copy(playbackContentKind = PlaybackContentKind.ON_DEMAND)
         assertThat(result).isEqualTo(PlayerPreparationCoordinator.Result.Success(expected, null))
         verify(engine).prepare(expected)
+
+        val guarded = coordinator.prepare(
+            PlayerPreparationCoordinator.Request(
+                streamInfo = input,
+                contentType = ContentType.SERIES_EPISODE,
+                providerId = 0L,
+                currentStreamUrl = null,
+                probePassedPlaybackKeys = emptySet(),
+                probeBeforePlayback = false,
+                audioVideoOffsetMs = 0,
+                requiredSourceType = ResolvedStreamType.PROGRESSIVE
+            ), isCurrent = { true })
+        assertThat(guarded).isInstanceOf(PlayerPreparationCoordinator.Result.Failure::class.java)
+        // Exactly the original unguarded call reached the engine; guarded HLS must not.
+        org.mockito.kotlin.verify(engine, org.mockito.kotlin.times(1)).prepare(expected)
+
+        val episodeState = PlayerEpisodeSourceState()
+        val token = episodeState.reset(1)
+        val revision = episodeState.manualVideoRevision
+        var manualVideo = false
+        whenever(preparer.prepare(input)).thenAnswer {
+            manualVideo = true
+            input.copy(url = "https://fixture.invalid/avc.mp4").let { Result.success(it) }
+        }
+        val manualCanceled = coordinator.prepare(
+            PlayerPreparationCoordinator.Request(input, ContentType.SERIES_EPISODE, 0,
+                null, emptySet(), false, 0),
+            isCurrent = { isEpisodePreparationCurrent(episodeState, token, true, manualVideo, revision, true) })
+        assertThat(manualCanceled).isNull()
+        org.mockito.kotlin.verify(engine, org.mockito.kotlin.times(1)).prepare(org.mockito.kotlin.any())
     }
 }

@@ -37,6 +37,8 @@ interface MovieRepository {
     fun searchMovies(providerId: Long, query: String): Flow<List<Movie>>
     suspend fun getMovie(movieId: Long): Movie?
     suspend fun getMovieVariants(movieId: Long): List<VodMovieVariant> = emptyList()
+    /** True when the viewer explicitly pinned a provider variant for this movie group. */
+    suspend fun hasExplicitMovieVariantSelection(movieId: Long): Boolean = false
     suspend fun getMovieDetails(
         providerId: Long,
         movieId: Long,

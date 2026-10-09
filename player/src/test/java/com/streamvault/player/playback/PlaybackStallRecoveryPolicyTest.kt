@@ -2,10 +2,39 @@ package com.streamvault.player.playback
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackContentKind
-import com.streamvault.player.PlaybackState
 import org.junit.Test
 
 class PlaybackStallRecoveryPolicyTest {
+    @Test
+    fun `pending Media3 load retry defers app level stall recovery`() {
+        assertThat(
+            shouldDeferAppStallRecovery(
+                activeMediaLoadRetry = true,
+                sourceRetryPending = false
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `scheduled source retry defers app level stall recovery`() {
+        assertThat(
+            shouldDeferAppStallRecovery(
+                activeMediaLoadRetry = false,
+                sourceRetryPending = true
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `stall recovery is eligible when no retry owns the source`() {
+        assertThat(
+            shouldDeferAppStallRecovery(
+                activeMediaLoadRetry = false,
+                sourceRetryPending = false
+            )
+        ).isFalse()
+    }
+
     @Test
     fun `ready stalls are recovered for live transport streams`() {
         assertThat(shouldRecoverReadyStalls(ResolvedStreamType.MPEG_TS_LIVE)).isTrue()
@@ -38,48 +67,4 @@ class PlaybackStallRecoveryPolicyTest {
         ).isTrue()
     }
 
-    @Test
-    fun `live ready stalls reconnect the current stream`() {
-        assertThat(
-            shouldReconnectLiveStall(
-                playbackState = PlaybackState.READY,
-                resolvedStreamType = ResolvedStreamType.MPEG_TS_LIVE,
-                recoveryAttempt = 1
-            )
-        ).isTrue()
-    }
-
-    @Test
-    fun `live ready stalls stop reconnecting after first recovery attempt`() {
-        assertThat(
-            shouldReconnectLiveStall(
-                playbackState = PlaybackState.READY,
-                resolvedStreamType = ResolvedStreamType.MPEG_TS_LIVE,
-                recoveryAttempt = 2
-            )
-        ).isFalse()
-    }
-
-    @Test
-    fun `vod ready stalls do not reconnect as live streams`() {
-        assertThat(
-            shouldReconnectLiveStall(
-                playbackState = PlaybackState.READY,
-                resolvedStreamType = ResolvedStreamType.PROGRESSIVE,
-                recoveryAttempt = 1
-            )
-        ).isFalse()
-    }
-
-    @Test
-    fun `vod hls stalls do not reconnect through the live recovery path`() {
-        assertThat(
-            shouldReconnectLiveStall(
-                playbackState = PlaybackState.READY,
-                resolvedStreamType = ResolvedStreamType.HLS,
-                recoveryAttempt = 1,
-                playbackContentKind = PlaybackContentKind.ON_DEMAND
-            )
-        ).isFalse()
-    }
 }

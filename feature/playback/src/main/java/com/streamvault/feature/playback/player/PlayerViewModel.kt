@@ -80,8 +80,6 @@ class PlayerViewModel @Inject constructor(
     companion object {
         private const val MIN_WATCHED_FOR_AUTO_PLAY_MS = 5_000L
         private const val AUTO_PLAY_COUNTDOWN_SECONDS = 10
-        private const val TOKEN_RENEWAL_LEAD_MS = 60_000L
-        private const val TOKEN_RENEWAL_CHECK_INTERVAL_MS = 10_000L
         private const val LOW_BANDWIDTH_THRESHOLD_BPS = 500_000L
         private const val LOW_BANDWIDTH_DURATION_SECONDS = 30
         internal val PLAYBACK_TIMER_PRESETS_MINUTES = setOf(0, 15, 30, 45, 60, 90, 120)
@@ -223,6 +221,7 @@ class PlayerViewModel @Inject constructor(
     internal var lastRecordedVariantObservationSignature: String? = null
     internal var lastRecordedVodVariantObservationSignature: String? = null
     internal val playbackSessionCoordinator = PlaybackSessionCoordinator(viewModelScope)
+    internal val episodeSourceState = PlayerEpisodeSourceState()
     private val playerRecoveryExecutionPort = PlayerRecoveryExecutionPortAdapter(
         appPackageName = appContext.packageName,
         engineCoordinator = playerEngineCoordinator,
@@ -265,7 +264,18 @@ class PlayerViewModel @Inject constructor(
         },
         logRepositoryFailure = { operation, result -> logRepositoryFailure(operation, result) },
         fallbackToPreviousChannel = { reason -> fallbackToPreviousChannel(reason) },
-        hasLastChannel = { hasLastChannel() }
+        hasLastChannel = { hasLastChannel() },
+        tryFallbackToAvcEpisodeVariant = { requestVersion, playbackUrl -> tryFallbackToAvcEpisodeVariant(requestVersion, playbackUrl) },
+        handleEpisodeReplacementError = { error ->
+            if (episodeSourceState.attempted && episodeSourceState.recoveryPending) {
+                episodeSourceState.markFailed(episodeSourceState.token)
+                playerEngine.stop()
+                val type = classifyPlaybackError(error)
+                setLastFailureReason(error.message)
+                showPlayerNotice(resolvePlaybackErrorMessage(error), type, buildRecoveryActions(type))
+                true
+            } else false
+        }
     )
     internal val prepareRequestVersion: Long
         get() = playbackSessionCoordinator.currentId
@@ -377,12 +387,9 @@ class PlayerViewModel @Inject constructor(
     internal var lastVisitedCategoryJob: Job? = null
     internal var controlsHideJob: Job? = null
     internal var seekPreviewJob: Job? = null
-    internal var thumbnailPreloadJob: Job? = null
     private var preloadWindowJob: Job? = null
     private var preloadWindowInFlightFingerprint: String? = null
     private var acceptedPreloadWindowFingerprint: String? = null
-    internal var inFlightThumbnailPreloadKey: String? = null
-    internal var lastCompletedThumbnailPreloadKey: String? = null
     private var lowBandwidthMonitorJob: Job? = null
     internal var progressTrackingJob: Job? = null
     internal var tokenRenewalJob: Job? = null
@@ -533,7 +540,6 @@ class PlayerViewModel @Inject constructor(
                     } else {
                         if (currentContentType != ContentType.LIVE) {
                             recordMovieVariantSuccessObservation()
-                            startThumbnailPreload()
                         }
                         refreshPreloadWindow(prepareRequestVersion)
                     }
@@ -558,6 +564,9 @@ class PlayerViewModel @Inject constructor(
                     autoPlayEnabled = autoPlayEnabled
                 )
             }.collect { observation ->
+                if (currentContentType == ContentType.SERIES_EPISODE && playerEngine.playbackState.value == PlaybackState.READY) {
+                    episodeSourceState.confirmResume(episodeSourceState.token, observation.positionMs)
+                }
                 _skipChapter.value = if (
                     readySideEffectsRequestVersion == prepareRequestVersion &&
                     currentContentType.isSkippableChapterContent()
@@ -955,12 +964,12 @@ class PlayerViewModel @Inject constructor(
 
     internal fun beginPlaybackSession(): Long {
         val sessionId = playbackSessionCoordinator.begin().id
+        episodeSourceState.reset(sessionId)
         lastTriggeredCreditsChapterStartMs = null
         creditsAutoPlayTriggeredForSession = false
         _skipChapter.value = null
         playerRecoveryCoordinator.beginSession(sessionId)
         playerRecoveryExecutionCoordinator.cancel()
-        thumbnailPreloadJob?.cancel()
         preloadWindowJob?.cancel()
         preloadWindowJob = null
         preloadWindowInFlightFingerprint = null
@@ -989,6 +998,7 @@ class PlayerViewModel @Inject constructor(
         val neighborKeys: List<String>,
         val series: Series? = null,
         val episode: Episode? = null,
+        val physicalEpisode: PhysicalEpisodeSource? = null,
         val selectedProgram: Program? = null,
         val channel: com.streamvault.domain.model.Channel? = null,
         val timelinePrograms: List<Program> = emptyList()
@@ -1002,7 +1012,8 @@ class PlayerViewModel @Inject constructor(
             val series = currentSeries.value ?: return null
             val episode = currentEpisode.value ?: return null
             val neighbors = buildEpisodePreloadNeighbors(series, episode) ?: return null
-            val currentKey = episodePreloadKey(providerId, episode)
+            val physicalEpisode = episodeSourceState.source(episodeSourceState.token)
+            val currentKey = physicalEpisode?.let(::physicalEpisodePreloadKey) ?: episodePreloadKey(providerId, episode)
             return PreloadWindowSnapshot(
                 providerId = providerId,
                 current = PlayerPreloadItem(
@@ -1012,7 +1023,8 @@ class PlayerViewModel @Inject constructor(
                 ),
                 neighborKeys = neighbors.map { episodePreloadKey(providerId, it) },
                 series = series,
-                episode = episode
+                episode = episode,
+                physicalEpisode = physicalEpisode
             )
         }
 
@@ -1063,6 +1075,7 @@ class PlayerViewModel @Inject constructor(
         }
 
         preloadWindowJob?.cancel()
+        val episodeToken = episodeSourceState.token
         preloadWindowInFlightFingerprint = fingerprint
         preloadWindowJob = playbackSessionScope(requestVersion)?.launch {
             val window = when {
@@ -1072,7 +1085,10 @@ class PlayerViewModel @Inject constructor(
                         series = snapshot.series,
                         currentEpisode = snapshot.episode,
                         providerId = snapshot.providerId,
-                        isCurrent = { isActivePlaybackSession(requestVersion) }
+                        isCurrent = { isActivePlaybackSession(requestVersion) && episodeSourceState.isCurrent(episodeToken) },
+                        physicalCurrent = snapshot.physicalEpisode,
+                        allowNeighborMedia = playerProviderCoordinator.getProvider(snapshot.providerId)
+                            ?.maxConnections?.let { it > 1 } == true
                     )
 
                 snapshot.selectedProgram != null && snapshot.channel != null ->
@@ -1087,7 +1103,7 @@ class PlayerViewModel @Inject constructor(
 
                 else -> null
             }
-            if (window == null || !isActivePlaybackSession(requestVersion)) {
+            if (window == null || !isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) {
                 if (preloadWindowInFlightFingerprint == fingerprint) {
                     preloadWindowInFlightFingerprint = null
                 }
@@ -1137,9 +1153,10 @@ class PlayerViewModel @Inject constructor(
         seasonNumber: Int?,
         episodeNumber: Int?
     ): Episode? {
+        val episodeToken = episodeSourceState.token
         return when (val result = playerContentResolver.getSeriesDetails(providerId, seriesId)) {
             is Result.Success -> {
-                if (!isActivePlaybackSession(requestVersion)) return null
+                if (!isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) return null
                 val series = result.data.sanitizedForPlayer()
                 val resolution = buildSeriesEpisodeResolution(
                     series = series,
@@ -1172,7 +1189,7 @@ class PlayerViewModel @Inject constructor(
             }
 
             else -> {
-                if (!isActivePlaybackSession(requestVersion)) return null
+                if (!isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) return null
                 _currentSeries.value = null
                 _currentEpisode.value = null
                 _nextEpisode.value = null
@@ -1187,9 +1204,13 @@ class PlayerViewModel @Inject constructor(
     internal fun buildPlaybackHistorySnapshot(
         positionMs: Long,
         durationMs: Long
-    ): PlaybackHistory? = buildPlaybackHistorySnapshot(
-        positionMs = positionMs,
-        durationMs = durationMs,
+    ): PlaybackHistory? {
+        val progress = if (currentContentType == ContentType.SERIES_EPISODE) {
+            episodeSourceState.progressSnapshot(episodeSourceState.token, positionMs, durationMs) ?: return null
+        } else positionMs to durationMs
+        return buildPlaybackHistorySnapshot(
+        positionMs = progress.first,
+        durationMs = progress.second,
         currentContentId = currentContentId,
         currentProviderId = currentProviderId,
         currentContentType = currentContentType,
@@ -1201,6 +1222,7 @@ class PlayerViewModel @Inject constructor(
         currentSeasonNumber = currentSeasonNumber,
         currentEpisodeNumber = currentEpisodeNumber
     )
+    }
 
     internal fun isActivePlaybackSession(
         requestVersion: Long,
@@ -1243,16 +1265,26 @@ class PlayerViewModel @Inject constructor(
         streamInfo: com.streamvault.domain.model.StreamInfo,
         requestVersion: Long,
         probeBeforePlayback: Boolean = true,
-        showFailureNotice: Boolean = true
+        showFailureNotice: Boolean = true,
+        preserveVodTrackPreferences: Boolean = false,
+        episodeToken: EpisodeSourceToken = episodeSourceState.token,
+        requiredSourceType: com.streamvault.player.playback.ResolvedStreamType? = null,
+        requireAutoVideoSelection: Boolean = false,
+        videoSelectionRevision: Long = episodeSourceState.manualVideoRevision
     ): Boolean {
-        if (!isActivePlaybackSession(requestVersion)) return false
+        fun isCurrent() = isEpisodePreparationCurrent(episodeSourceState, episodeToken,
+            isActivePlaybackSession(requestVersion), hasManualVideoTrackChoice(playerEngine.availableVideoTracks.value),
+            videoSelectionRevision, requireAutoVideoSelection)
+        if (!isCurrent()) return false
 
-        activeVodTrackPreferences = playerPreparationCoordinator.resolveVodTrackPreferences(
-            contentType = currentContentType,
-            providerId = currentProviderId,
-            contentId = currentContentId,
-            seriesId = currentSeriesId
-        )
+        if (!preserveVodTrackPreferences) {
+            activeVodTrackPreferences = playerPreparationCoordinator.resolveVodTrackPreferences(
+                contentType = currentContentType,
+                providerId = currentProviderId,
+                contentId = currentContentId,
+                seriesId = currentSeriesId
+            )
+        }
 
         val preparationResult = playerPreparationCoordinator.prepare(
             request = PlayerPreparationCoordinator.Request(
@@ -1263,13 +1295,16 @@ class PlayerViewModel @Inject constructor(
                 probePassedPlaybackKeys = probePassedPlaybackKeys.toSet(),
                 probeBeforePlayback = probeBeforePlayback,
                 audioVideoOffsetMs = _audioVideoOffsetUiState.value.effectiveOffsetMs,
-                vodTrackPreferences = activeVodTrackPreferences
+                vodTrackPreferences = activeVodTrackPreferences,
+                requiredSourceType = requiredSourceType ?: episodeSourceState.source(episodeToken)?.let {
+                    com.streamvault.player.playback.ResolvedStreamType.PROGRESSIVE
+                }
             ),
-            isCurrent = { isActivePlaybackSession(requestVersion) }
+            isCurrent = { isCurrent() }
         ) ?: return false
 
         if (preparationResult is PlayerPreparationCoordinator.Result.Failure) {
-            if (!isActivePlaybackSession(requestVersion)) return false
+            if (!isCurrent()) return false
             setLastFailureReason(preparationResult.message)
             if (showFailureNotice) {
                 showPlayerNotice(
@@ -1283,7 +1318,7 @@ class PlayerViewModel @Inject constructor(
 
         val success = preparationResult as PlayerPreparationCoordinator.Result.Success
         success.probeCacheKey?.let(probePassedPlaybackKeys::add)
-        if (!isActivePlaybackSession(requestVersion)) return false
+        if (!isCurrent()) return false
         currentResolvedPlaybackUrl = success.streamInfo.url
         currentResolvedStreamInfo = success.streamInfo
         readySideEffectsRequestVersion = requestVersion
@@ -1645,7 +1680,12 @@ class PlayerViewModel @Inject constructor(
         internalContentId: Long,
         providerId: Long,
         contentType: ContentType
-    ): PlayerPlaybackStreamResolution = playerContentResolver.resolvePlaybackStream(
+    ): PlayerPlaybackStreamResolution {
+        val physical = episodeSourceState.source(episodeSourceState.token)
+            ?.takeIf { contentType == ContentType.SERIES_EPISODE && providerId == currentProviderId &&
+                internalContentId == currentContentId && logicalUrl == currentStreamUrl }
+        if (physical != null) return playerContentResolver.resolvePhysicalEpisodeStream(physical, currentTitle)
+        return playerContentResolver.resolvePlaybackStream(
             logicalUrl = logicalUrl,
             internalContentId = internalContentId,
             providerId = providerId,
@@ -1654,6 +1694,7 @@ class PlayerViewModel @Inject constructor(
             currentSeries = currentSeries.value,
             currentEpisode = currentEpisode.value
         )
+    }
 
     internal suspend fun resolvePlaybackStreamInfo(
         logicalUrl: String,

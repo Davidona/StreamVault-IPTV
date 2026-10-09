@@ -16,7 +16,12 @@ class ProviderConfigurationCodecTest {
     @Test
     fun `round trips every subtype without plaintext credentials`() {
         val configurations = listOf<ProviderConfiguration>(
-            XtreamConfig("https://x.test", "alice", "secret"),
+            XtreamConfig(
+                "https://x.test",
+                "alice",
+                "secret",
+                preferredLiveStreamFormat = LiveStreamFormatMode.MPEG_TS
+            ),
             M3uConfig("https://m.test/list.m3u", epgUrl = "https://m.test/epg.xml"),
             StalkerConfig(
                 portalUrl = "https://s.test",

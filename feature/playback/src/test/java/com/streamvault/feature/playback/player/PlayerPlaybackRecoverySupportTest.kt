@@ -20,6 +20,15 @@ class PlayerPlaybackRecoverySupportTest {
     }
 
     @Test
+    fun `404 source error is explained as an unavailable stream resource`() {
+        val error = PlayerError.SourceError("Stream resource not found (HTTP 404).")
+
+        assertThat(classifyPlaybackError(error)).isEqualTo(PlayerRecoveryType.SOURCE)
+        assertThat(resolvePlaybackErrorMessage(error))
+            .isEqualTo("This stream resource was not found (HTTP 404). The provider may have removed it.")
+    }
+
+    @Test
     fun `live provider auth retry is limited to managed IPTV providers`() {
         assertThat(shouldAttemptProviderAuthRetry(ProviderType.XTREAM_CODES, ContentType.LIVE)).isTrue()
         assertThat(shouldAttemptProviderAuthRetry(ProviderType.STALKER_PORTAL, ContentType.LIVE)).isTrue()

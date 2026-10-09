@@ -5,7 +5,6 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
-import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -148,22 +147,6 @@ internal fun releaseOutgoingLiveZapPlayback(
     stopPlayback()
     stopLiveTimeshift()
     clearPreload()
-}
-
-internal fun shouldPreloadAdjacentChannel(
-    streamUrl: String,
-    providerType: ProviderType?,
-    maxConnections: Int,
-    preloadCoolingDown: Boolean
-): Boolean {
-    if (streamUrl.isBlank() || preloadCoolingDown) return false
-    return when (providerType) {
-        ProviderType.M3U -> true
-        ProviderType.JELLYFIN -> true
-        ProviderType.XTREAM_CODES,
-        ProviderType.STALKER_PORTAL -> maxConnections >= 2
-        null -> false
-    }
 }
 
 fun PlayerViewModel.playNext() {
@@ -319,8 +302,6 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
             .first()
     }
 
-    preloadAdjacentChannel(index)
-
     requestEpg(
         providerId = currentProviderId,
         epgChannelId = channel.epgChannelId,
@@ -335,36 +316,6 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
     playerRecoveryCoordinator.clearStreamAttempts()
     playerRecoveryCoordinator.markStreamAttempt(channel.streamUrl)
     if (currentContentType == ContentType.LIVE && !isAutoFallback) scheduleZapBufferWatchdog(index)
-}
-
-internal fun PlayerViewModel.preloadAdjacentChannel(currentIndex: Int) {
-    if (channelList.size < 2) return
-    val nextIndex = (currentIndex + 1) % channelList.size
-    val nextChannel = channelList[nextIndex]
-    if (nextChannel.streamUrl.isBlank()) {
-        clearPreloadWindow()
-        return
-    }
-    playbackSessionScope()?.launch {
-        val provider = playerProviderCoordinator.getProvider(nextChannel.providerId)
-        if (!shouldPreloadAdjacentChannel(
-                streamUrl = nextChannel.streamUrl,
-                providerType = provider?.type,
-                maxConnections = provider?.maxConnections ?: 1,
-                preloadCoolingDown = playerRecoveryCoordinator.isLivePreloadCoolingDown(nextChannel.providerId)
-            )
-        ) {
-            clearPreloadWindow()
-            return@launch
-        }
-        val streamInfo = resolvePlaybackStreamInfo(
-            nextChannel.streamUrl,
-            nextChannel.id,
-            nextChannel.providerId,
-            ContentType.LIVE
-        ) ?: return@launch
-        playerEngine.preload(streamInfo)
-    }
 }
 
 internal fun PlayerViewModel.recordLivePlayback(channel: com.streamvault.domain.model.Channel) {

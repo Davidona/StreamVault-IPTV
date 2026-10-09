@@ -54,4 +54,44 @@ class PlayerPlaybackProbeSupportTest {
 
         assertThat(skipped).isFalse()
     }
+
+    @Test
+    fun `provider probe policy skips live urls and keeps eligible internal vod urls`() {
+        assertThat(
+            shouldProbeProviderStreamUrl(
+                providerType = ProviderType.XTREAM_CODES,
+                url = "http://example.com/live/user/pass/2112.m3u8",
+                hasInternalSource = true,
+                probeAlreadyPassed = false
+            )
+        ).isFalse()
+        assertThat(
+            shouldProbeProviderStreamUrl(
+                providerType = ProviderType.XTREAM_CODES,
+                url = "http://example.com/movie/user/pass/2112.mp4",
+                hasInternalSource = true,
+                probeAlreadyPassed = false
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `provider probe policy skips stalker temporary links and reuses passed xtream probes`() {
+        assertThat(
+            shouldProbeProviderStreamUrl(
+                providerType = ProviderType.STALKER_PORTAL,
+                url = "http://example.com/play/live.php?stream=2112&play_token=abc",
+                hasInternalSource = true,
+                probeAlreadyPassed = false
+            )
+        ).isFalse()
+        assertThat(
+            shouldProbeProviderStreamUrl(
+                providerType = ProviderType.XTREAM_CODES,
+                url = "http://example.com/movie/user/pass/2112.mp4",
+                hasInternalSource = true,
+                probeAlreadyPassed = true
+            )
+        ).isFalse()
+    }
 }

@@ -1,17 +1,21 @@
 package com.streamvault.player.playback
 
+import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.source.BehindLiveWindowException
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.streamvault.domain.model.PlaybackContentKind
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.ConcurrentHashMap
 
 private const val FAST_TRANSIENT_RETRY_DELAY_MS = 500L
+private const val MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE = 1
 private const val LIVE_TRANSIENT_RETRY_ATTEMPTS = 10
 private const val LIVE_HLS_MALFORMED_RETRY_ATTEMPTS_AFTER_START = 12
 
@@ -28,8 +32,16 @@ data class PlaybackRetryContext(
 class PlayerRetryPolicy(
     private val streamContext: PlaybackRetryContext,
     private val fastRetryOnTransientFailures: () -> Boolean = { false },
+    private val onLoadRecoveryChanged: () -> Unit = {},
     private val playbackStarted: () -> Boolean
 ) : LoadErrorHandlingPolicy {
+    private val defaultFallbackPolicy = DefaultLoadErrorHandlingPolicy()
+    private val pendingLoadRecoveryTaskIds = ConcurrentHashMap.newKeySet<Long>()
+
+    /** True while Media3 still owns a retry or fallback for a failed load task. */
+    val hasPendingLoadRecovery: Boolean
+        get() = pendingLoadRecoveryTaskIds.isNotEmpty()
+
     fun maxAttempts(error: Throwable, playbackStarted: Boolean): Int {
         return maxAttemptsFor(error, streamContext, playbackStarted)
     }
@@ -46,6 +58,23 @@ class PlayerRetryPolicy(
         }
         val maxAttempts = maxAttemptsFor(error, streamContext, playbackStarted)
         return attempt <= maxAttempts && maxAttempts > 0
+    }
+
+    /**
+     * App-level source replacement is a last resort after Media3 has exhausted its
+     * per-load retry and fallback handling. Allow one replacement per outage episode.
+     */
+    fun shouldRetryWholeSource(error: Throwable, playbackStarted: Boolean, attempt: Int): Boolean =
+        attempt <= MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE &&
+            shouldRetry(error, streamContext, playbackStarted, attempt)
+
+    fun maxWholeSourceRetryAttempts(error: Throwable, playbackStarted: Boolean): Int =
+        if (maxAttempts(error, playbackStarted) > 0) MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE else 0
+
+    fun clearPendingLoadRecovery() {
+        val hadPendingRecovery = pendingLoadRecoveryTaskIds.isNotEmpty()
+        pendingLoadRecoveryTaskIds.clear()
+        if (hadPendingRecovery) onLoadRecoveryChanged()
     }
 
     fun retryDelayMs(error: Throwable, attempt: Int): Long {
@@ -75,6 +104,7 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.SOURCE_MALFORMED ->
                 streamContext.isLive && streamContext.resolvedStreamType == ResolvedStreamType.HLS
             PlaybackErrorCategory.HTTP_AUTH,
+            PlaybackErrorCategory.HTTP_NOT_FOUND,
             PlaybackErrorCategory.SSL,
             PlaybackErrorCategory.CLEAR_TEXT_BLOCKED,
             PlaybackErrorCategory.DRM,
@@ -88,6 +118,7 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.LIVE_WINDOW -> "refresh-live-window"
             PlaybackErrorCategory.NETWORK -> "transient-network"
             PlaybackErrorCategory.HTTP_SERVER -> "server-retryable"
+            PlaybackErrorCategory.HTTP_NOT_FOUND -> "source-not-found"
             PlaybackErrorCategory.PROVIDER_LIMIT -> "terminal-provider-limit"
             PlaybackErrorCategory.EMPTY_RESPONSE -> "terminal-empty-response"
             PlaybackErrorCategory.SOURCE_MALFORMED ->
@@ -114,7 +145,27 @@ class PlayerRetryPolicy(
     override fun getFallbackSelectionFor(
         fallbackOptions: LoadErrorHandlingPolicy.FallbackOptions,
         loadErrorInfo: LoadErrorHandlingPolicy.LoadErrorInfo
-    ): LoadErrorHandlingPolicy.FallbackSelection? = null
+    ): LoadErrorHandlingPolicy.FallbackSelection? {
+        val adaptiveSource = when (streamContext.resolvedStreamType) {
+            ResolvedStreamType.HLS,
+            ResolvedStreamType.DASH,
+            ResolvedStreamType.SMOOTH_STREAMING -> true
+            else -> false
+        }
+        if (!adaptiveSource) return null
+
+        val category = PlayerErrorClassifier.classify(loadErrorInfo.exception)
+        if (category != PlaybackErrorCategory.HTTP_SERVER &&
+            category != PlaybackErrorCategory.HTTP_NOT_FOUND &&
+            category != PlaybackErrorCategory.UNKNOWN
+        ) return null
+
+        val selection = defaultFallbackPolicy.getFallbackSelectionFor(fallbackOptions, loadErrorInfo)
+        if (selection != null) {
+            markLoadRecoveryPending(loadErrorInfo.loadEventInfo.loadTaskId)
+        }
+        return selection
+    }
 
     override fun getMinimumLoadableRetryCount(dataType: Int): Int {
         return when {
@@ -130,13 +181,37 @@ class PlayerRetryPolicy(
         val attempt = loadErrorInfo.errorCount
         val error = loadErrorInfo.exception
         val started = playbackStarted()
-        if (!shouldRetry(error, streamContext, started, attempt)) {
-            return C.TIME_UNSET
+        val category = PlayerErrorClassifier.classify(error)
+        val retryDelayMs = if (shouldRetry(error, streamContext, started, attempt)) {
+            retryDelayMs(error, attempt)
+        } else {
+            C.TIME_UNSET
         }
-        return retryDelayMs(error, attempt)
+        if (Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
+            val causeTypes = generateSequence<Throwable>(error) { it.cause }
+                .map { it.javaClass.simpleName }
+                .distinct()
+                .joinToString(">")
+            Log.d(
+                "PlaybackPerf",
+                "load-retry category=$category attempt=$attempt delayMs=$retryDelayMs " +
+                    "started=$started streamType=${streamContext.resolvedStreamType} " +
+                    "contentKind=${streamContext.playbackContentKind} causes=$causeTypes"
+            )
+        }
+        if (retryDelayMs != C.TIME_UNSET) {
+            markLoadRecoveryPending(loadErrorInfo.loadEventInfo.loadTaskId)
+        }
+        return retryDelayMs
     }
 
-    override fun onLoadTaskConcluded(loadTaskId: Long) = Unit
+    override fun onLoadTaskConcluded(loadTaskId: Long) {
+        if (pendingLoadRecoveryTaskIds.remove(loadTaskId)) onLoadRecoveryChanged()
+    }
+
+    private fun markLoadRecoveryPending(loadTaskId: Long) {
+        if (pendingLoadRecoveryTaskIds.add(loadTaskId)) onLoadRecoveryChanged()
+    }
 
     private fun maxAttemptsFor(
         error: Throwable,
@@ -148,7 +223,8 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.DECODER,
             PlaybackErrorCategory.CLEAR_TEXT_BLOCKED,
             PlaybackErrorCategory.SSL,
-            PlaybackErrorCategory.HTTP_AUTH -> 0
+            PlaybackErrorCategory.HTTP_AUTH,
+            PlaybackErrorCategory.HTTP_NOT_FOUND -> 0
 
             PlaybackErrorCategory.FORMAT_UNSUPPORTED -> if (playbackStarted) 1 else 0
 

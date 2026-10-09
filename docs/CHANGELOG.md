@@ -2,6 +2,37 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.0]
+
+### Added
+
+- Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
+- Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
+
+### Fixed
+
+- Fixed repeated stream restarts during network outages and unnecessary recovery from nonfatal audio errors.
+- Fixed stalled live playback recovery to refresh the live window without interrupting active network retries.
+- Fixed adaptive playback failing to try another available rendition after eligible server or missing-segment errors.
+- Fixed expiring stream links renewing only once or unnecessarily restarting unchanged playback.
+- Fixed manual video-quality selections resetting during stream renewal.
+- Fixed automatic movie and episode fallback overriding saved variants or manual video-quality choices.
+- Fixed movie fallback losing playback position or track preferences, and accepting incompatible sources or conflicting codec labels.
+- Fixed Xtream catch-up links opening live content instead of the selected archived program.
+- Fixed Xtream playlist setup ignoring the requested HLS or MPEG-TS format when playback format is set to Auto.
+- Fixed matching AVC/H.264 and HEVC/H.265 movie versions failing to group together.
+- Fixed newly imported movie summaries skipping detail loading.
+- Fixed background movie refresh crashes when saved provider credentials cannot be decrypted.
+- Fixed cropped video during adaptive resolution changes on affected Android TV emulators.
+
+### Changed
+
+- Improved playback buffer memory limits based on stream bitrate, device memory, and multiview usage.
+- Prioritized active playback over adjacent-item preloading and removed startup thumbnail warmup.
+- Improved seek previews with request-header support and cancellation when seeking or leaving the player.
+- Reduced audio output buffering for more responsive playback.
+- Restored automatic live playback speed adjustments to stay near the live edge.
+
 ## [1.0.19]
 
 ### Added

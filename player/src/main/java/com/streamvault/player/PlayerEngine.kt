@@ -122,12 +122,6 @@ interface PlayerEngine {
      */
     fun setScrubbingMode(enabled: Boolean)
 
-    /**
-     * Pre-warm the player with a stream that will likely be played next.
-     * Only the initial manifest/key-frames are fetched — no full buffering.
-     * Call with `null` to discard any preloaded data.
-     */
-    fun preload(streamInfo: StreamInfo?)
 
     /**
      * Preload a bounded VOD or catch-up navigation window. Implementations that
@@ -135,8 +129,8 @@ interface PlayerEngine {
      */
     fun preloadWindow(window: PlayerPreloadWindow) {}
 
-    /** Clears both sliding-window and legacy single-item preload state. */
-    fun clearPreloadWindow() = preload(null)
+    /** Clears any sliding-window preload state. */
+    fun clearPreloadWindow() = Unit
 
     fun createRenderView(
         context: Context,
@@ -248,7 +242,14 @@ data class PlayerStats(
 sealed class PlayerError(val message: String) {
     class NetworkError(message: String) : PlayerError(message)
     class SourceError(message: String) : PlayerError(message)
-    class DecoderError(message: String) : PlayerError(message)
+    class DecoderError(message: String) : PlayerError(message) {
+        /** Stall signal emitted when opening another provider connection is intentionally suppressed. */
+        val isDeferredLiveStall: Boolean
+            get() = message.contains(
+                "Automatic recovery was not attempted to avoid opening another provider connection.",
+                ignoreCase = true
+            )
+    }
     class DrmError(message: String, val scheme: DrmScheme? = null) : PlayerError(message)
     class UnknownError(message: String) : PlayerError(message)
 
@@ -261,6 +262,7 @@ sealed class PlayerError(val message: String) {
                 PlaybackErrorCategory.FORMAT_UNSUPPORTED -> buildCodecErrorMessage(e)
                 PlaybackErrorCategory.NETWORK -> buildNetworkErrorMessage(chain)
                 PlaybackErrorCategory.HTTP_AUTH -> buildHttpErrorMessage(chain, "Access denied")
+                PlaybackErrorCategory.HTTP_NOT_FOUND -> "Stream resource not found (HTTP 404)."
                 PlaybackErrorCategory.HTTP_SERVER -> buildHttpErrorMessage(chain, "Server error")
                 PlaybackErrorCategory.PROVIDER_LIMIT ->
                     "Provider rejected playback, likely max connections or bandwidth limit (HTTP 509)."
@@ -288,6 +290,7 @@ sealed class PlayerError(val message: String) {
                 PlaybackErrorCategory.PROVIDER_LIMIT,
                 PlaybackErrorCategory.EMPTY_RESPONSE,
                 PlaybackErrorCategory.SOURCE_MALFORMED,
+                PlaybackErrorCategory.HTTP_NOT_FOUND,
                 PlaybackErrorCategory.LIVE_WINDOW -> SourceError(msg)
 
                 PlaybackErrorCategory.DECODER,

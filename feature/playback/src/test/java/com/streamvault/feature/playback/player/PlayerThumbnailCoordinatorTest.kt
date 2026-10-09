@@ -42,7 +42,7 @@ class PlayerThumbnailCoordinatorTest {
         )
 
         assertThat(result).isSameInstanceAs(bitmap)
-        verify(legacyProvider, never()).loadFrame(any(), any())
+        verify(legacyProvider, never()).loadFrame(any(), any(), any())
     }
 
     @Test

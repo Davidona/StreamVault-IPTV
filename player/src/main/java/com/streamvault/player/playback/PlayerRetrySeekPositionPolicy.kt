@@ -39,14 +39,28 @@ internal fun resolveRetryAttemptAfterPlaybackStarted(currentAttempt: Int): Int {
     return 0
 }
 
-internal fun resolveRetryAttemptForCategory(
-    currentAttempt: Int,
-    lastCategory: PlaybackErrorCategory?,
-    nextCategory: PlaybackErrorCategory
-): Int {
-    if (currentAttempt <= 0) return 1
-    if (lastCategory != nextCategory) return 1
-    return currentAttempt + 1
+internal fun resolveNextAppSourceRetryAttempt(currentAttempt: Int): Int =
+    (currentAttempt + 1).coerceAtLeast(1)
+
+internal fun isScheduledAppSourceRetryCurrent(
+    scheduledGeneration: Long,
+    currentGeneration: Long,
+    scheduledMediaId: String,
+    currentMediaId: String?,
+    scheduledAttempt: Int,
+    currentAttempt: Int
+): Boolean = scheduledGeneration == currentGeneration &&
+    scheduledMediaId == currentMediaId &&
+    scheduledAttempt == currentAttempt
+
+internal fun resolveScheduledRetrySeekPositionMs(
+    category: PlaybackErrorCategory,
+    plannedPositionMs: Long?,
+    userSeekOverrideMs: Long?
+): Long? = if (category == PlaybackErrorCategory.LIVE_WINDOW) {
+    null
+} else {
+    userSeekOverrideMs ?: plannedPositionMs
 }
 
 private fun Long?.isFiniteMediaDuration(): Boolean {

@@ -21,6 +21,12 @@ class PlayerErrorClassifierTest {
     }
 
     @Test
+    fun `404 maps to a missing source`() {
+        assertThat(PlayerErrorClassifier.classify(IOException("HTTP 404")))
+            .isEqualTo(PlaybackErrorCategory.HTTP_NOT_FOUND)
+    }
+
+    @Test
     fun `456 maps to auth`() {
         assertThat(PlayerErrorClassifier.classify(IOException("HTTP 456")))
             .isEqualTo(PlaybackErrorCategory.HTTP_AUTH)

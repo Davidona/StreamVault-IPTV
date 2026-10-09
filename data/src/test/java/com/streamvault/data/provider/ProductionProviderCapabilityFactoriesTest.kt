@@ -25,6 +25,10 @@ import com.streamvault.domain.model.StalkerPortalLearning
 import com.streamvault.domain.model.XtreamConfig
 import com.streamvault.domain.provider.CapabilityResolution
 import com.streamvault.domain.provider.PlaybackResolver
+import com.streamvault.domain.provider.PlaybackRequest
+import com.streamvault.domain.provider.ProviderContentReference
+import com.streamvault.data.remote.xtream.XtreamUrlFactory
+import com.streamvault.data.remote.xtream.XtreamStreamKind
 import org.junit.Test
 import kotlinx.coroutines.test.runTest
 import org.mockito.kotlin.mock
@@ -37,6 +41,45 @@ class ProductionProviderCapabilityFactoriesTest {
     private val channelDao: ChannelDao = mock()
     private val movieDao: MovieDao = mock()
     private val programDao: ProgramDao = mock()
+
+    @Test fun `Xtream live identity preserves every generated archive time range even on stable renewal`() = runTest {
+        val config = XtreamConfig("https://archive.test/base", "user name", "pass/word",
+            httpUserAgent = "ArchiveTest/1", httpHeaders = "X-Archive: validation")
+        val provider = snapshot(ProviderType.XTREAM_CODES, config)
+        whenever(clients.resolveLiveContainerExtension(provider, XtreamStreamKind.LIVE, "m3u8")).thenReturn("m3u8")
+        val resolver = (availableSet(registry().resolve(provider)).playback() as CapabilityResolution.Available).capability
+        val urls = listOf("m3u8", "ts").flatMap { extension ->
+            XtreamUrlFactory.buildCatchUpUrls(config.serverUrl, config.username, config.password,
+                4, "2026-10-03:07-55", 1001, listOf(extension)).also { assertThat(it).hasSize(6) }
+        }
+        for (url in urls) for (stable in listOf(false, true)) {
+            val resolved = resolver.resolve(PlaybackRequest(url, ProviderContentReference(provider.provider.id, streamId = 1001),
+                ContentType.LIVE, "m3u8", preferStableUrl = stable)).getOrNull()!!
+            assertThat(resolved.url).isEqualTo(url)
+            assertThat(resolved.userAgent).isEqualTo("ArchiveTest/1")
+            assertThat(resolved.headers).containsEntry("X-Archive", "validation")
+            assertThat(resolved.containerExtension).isEqualTo("m3u8")
+        }
+    }
+
+    @Test fun `Xtream ordinary live URLs still normalize to current provider credentials`() = runTest {
+        val config = XtreamConfig("https://archive.test", "current", "secret")
+        val provider = snapshot(ProviderType.XTREAM_CODES, config)
+        whenever(clients.resolveLiveContainerExtension(provider, XtreamStreamKind.LIVE, "m3u8")).thenReturn("m3u8")
+        val resolver = (availableSet(registry().resolve(provider)).playback() as CapabilityResolution.Available).capability
+        val inputs = listOf("https://archive.test/live/old/old/1001.m3u8",
+            XtreamUrlFactory.buildInternalStreamUrl(provider.provider.id, XtreamStreamKind.LIVE, 1001, "m3u8"),
+            "https://other.test/timeshift/current/secret/4/2026-10-03%3A07-55/1001.m3u8",
+            "https://archive.test/timeshift/old/old/4/2026-10-03%3A07-55/1001.m3u8",
+            "https://archive.test/timeshift/current/secret/4/2026-10-03%3A07-55/999.m3u8",
+            "https://archive.test/timeshift/current/secret/0/2026-10-03%3A07-55/1001.m3u8",
+            "https://archive.test/timeshift.php?username=current&password=secret&stream=1001&start=bad&duration=4")
+        for (url in inputs) for (stable in listOf(false, true)) {
+            val resolved = resolver.resolve(PlaybackRequest(url, ProviderContentReference(provider.provider.id, streamId = 1001),
+                ContentType.LIVE, "m3u8", preferStableUrl = stable)).getOrNull()!!
+            assertThat(resolved.url).isEqualTo("https://archive.test/live/current/secret/1001.m3u8")
+        }
+    }
 
     @Test
     fun `production factories register every provider type exactly once`() {

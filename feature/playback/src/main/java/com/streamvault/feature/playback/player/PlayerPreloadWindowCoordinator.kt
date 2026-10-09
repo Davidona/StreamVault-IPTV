@@ -24,18 +24,29 @@ class PlayerPreloadWindowCoordinator @Inject constructor(
         series: Series,
         currentEpisode: Episode,
         providerId: Long,
-        isCurrent: () -> Boolean
+        isCurrent: () -> Boolean,
+        physicalCurrent: PhysicalEpisodeSource? = null,
+        allowNeighborMedia: Boolean = true
     ): PlayerPreloadWindow? {
         if (!isCurrent()) return null
+        if (physicalCurrent != null || !allowNeighborMedia) {
+            // Recovery owns one provider media source. Keep navigation logical, but do not
+            // open sibling preload responses alongside the recovered rendition.
+            return PlayerPreloadWindow(items = listOf(current.copy(
+                key = physicalCurrent?.let(::physicalEpisodePreloadKey) ?: episodePreloadKey(providerId, currentEpisode),
+                contentType = PlayerPreloadContentType.VOD
+            )), currentIndex = 0)
+        }
         val neighbors = buildEpisodePreloadNeighbors(series, currentEpisode) ?: return null
         val items = mutableListOf<PlayerPreloadItem>()
+        val currentKey = physicalCurrent?.let(::physicalEpisodePreloadKey) ?: episodePreloadKey(providerId, currentEpisode)
 
         neighbors.forEach { episode ->
             if (!isCurrent()) return null
             val key = episodePreloadKey(providerId, episode)
             if (episodeMatches(episode, currentEpisode)) {
                 items += current.copy(
-                    key = key,
+                    key = currentKey,
                     contentType = PlayerPreloadContentType.VOD
                 )
                 return@forEach
@@ -70,7 +81,7 @@ class PlayerPreloadWindowCoordinator @Inject constructor(
             )
         }
 
-        val currentIndex = items.indexOfFirst { it.key == episodePreloadKey(providerId, currentEpisode) }
+        val currentIndex = items.indexOfFirst { it.key == currentKey }
         if (currentIndex < 0) return null
         return PlayerPreloadWindow(items = items, currentIndex = currentIndex)
     }

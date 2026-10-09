@@ -541,6 +541,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.datastore.preferences)
 }
 
 tasks.configureEach {
