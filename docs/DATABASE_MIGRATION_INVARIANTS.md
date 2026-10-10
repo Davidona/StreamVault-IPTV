@@ -16,5 +16,5 @@ Every schema change must satisfy this checklist before the database version is a
 
 - Current schema: v81.
 - Exported historical origins: v1 and v3-v80; v2 has no committed Room schema export.
-- `StreamVaultDatabaseMigrationTest` validates exported origins through v81 plus populated direct/multi-hop preservation fixtures.
+- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v81 plus populated direct/multi-hop preservation fixtures.
 - Migration 79 → 80 idempotently applies both local schema additions; migration 80 → 81 repairs the episode index for v80 databases created before this fix.
