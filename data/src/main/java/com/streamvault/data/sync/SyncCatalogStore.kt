@@ -42,6 +42,7 @@ internal class SyncCatalogStore(
     companion object {
         private const val TAG = "SyncCatalogStore"
         private const val STAGE_BATCH_SIZE = 500
+        private const val CATEGORY_SCOPE_QUERY_CHUNK_SIZE = 400
         private val TEXT_WHITESPACE = Regex("\\s+")
         private const val HEX_DIGITS = "0123456789abcdef"
     }
@@ -166,6 +167,35 @@ internal class SyncCatalogStore(
                 categories?.let { timed(providerId, "category-commit") { applyCategories(providerId, sessionId, "LIVE") } }
                 timed(providerId, "channel-insert-update-delete") { applyChannels(providerId, sessionId) }
                 // Room's content-sync triggers update search for these changed rows.
+                afterCatalogApply()
+            }
+        } finally {
+            clearSession(providerId, sessionId)
+        }
+    }
+
+    /** Promotes completed category scopes while retaining channels from failed/unvisited scopes. */
+    suspend fun applyStagedLiveCatalogWithCoverage(
+        providerId: Long,
+        sessionId: Long,
+        categories: List<CategoryEntity>?,
+        completeCategoryIds: Set<Long>,
+        pruneCategories: Boolean,
+        afterCatalogApply: suspend () -> Unit = {}
+    ) {
+        try {
+            providerTransaction(providerId) {
+                categories?.let { stageCategories(providerId, sessionId, it) }
+                categories?.let {
+                    applyCategories(providerId, sessionId, ContentType.LIVE.name, pruneStale = pruneCategories)
+                }
+                catalogSyncDao.updateChangedChannelsFromStage(providerId, sessionId)
+                catalogSyncDao.insertMissingChannelsFromStage(providerId, sessionId)
+                completeCategoryIds.chunked(CATEGORY_SCOPE_QUERY_CHUNK_SIZE).forEach { ids ->
+                    if (ids.isNotEmpty()) {
+                        catalogSyncDao.deleteStaleChannelsForStageInCategories(providerId, sessionId, ids)
+                    }
+                }
                 afterCatalogApply()
             }
         } finally {

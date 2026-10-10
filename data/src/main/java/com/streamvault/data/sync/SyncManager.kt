@@ -15,6 +15,7 @@ import com.streamvault.data.local.dao.ProviderDao
 import com.streamvault.data.local.dao.ProviderWorkflowDao
 import com.streamvault.data.local.dao.SeriesCategoryHydrationDao
 import com.streamvault.data.local.dao.SeriesDao
+import com.streamvault.data.local.dao.StalkerLiveCategoryRetryDao
 import com.streamvault.data.local.dao.TmdbIdentityDao
 import com.streamvault.data.local.dao.VodCategoryHydrationDao
 import com.streamvault.data.local.dao.VodCatalogEntryDao
@@ -194,6 +195,7 @@ class SyncManager @Inject constructor(
     private val tmdbIdentityDao: TmdbIdentityDao,
     private val xtreamContentIndexDao: XtreamContentIndexDao,
     private val xtreamIndexJobDao: XtreamIndexJobDao,
+    private val stalkerLiveCategoryRetryDao: StalkerLiveCategoryRetryDao,
     private val stalkerIndexJobStore: StalkerIndexJobStore,
     private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
     private val episodeDao: EpisodeDao,
@@ -626,6 +628,8 @@ class SyncManager @Inject constructor(
             categoryRecoverySupport = xtreamSupport,
             sectionExecutor = stalkerCatalogSectionExecutor,
             readinessTracker = stalkerReadinessTracker,
+            stalkerRequestCoordinator = stalkerRequestCoordinator,
+            liveCategoryRetryDao = stalkerLiveCategoryRetryDao,
             createProvider = ::createStalkerSyncProvider,
             syncProviderEpg = providerEpgExecutor::syncStalkerProviderEpg,
             progress = ::progress,
@@ -1698,62 +1702,25 @@ class SyncManager @Inject constructor(
         if (page != 1 || recovered !is Result.Success || recovered.data.items.isNotEmpty()) {
             return recovered
         }
-        val fallback = fetchStalkerSummaryFirstPageFallback(api, contentType, categoryId)
-        return if (fallback is Result.Success && fallback.data.items.isNotEmpty()) {
-            Log.i(
-                TAG,
-                "Recovered empty paged Stalker ${contentType.name} first page with non-paged fallback for category $categoryId"
-            )
-            fallback
-        } else if (fallback is Result.Error && fallback.exception is StalkerApiError.CatalogTruncated) {
-            val truncation = fallback.exception as StalkerApiError.CatalogTruncated
-            Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = emptyList(),
-                    page = 1,
-                    totalPages = truncation.pageLimit,
-                    pageSize = 0,
-                    hasAdvertisedTotal = true,
-                    advertisedTotalPages = truncation.advertisedTotalPages,
-                    isTruncated = true,
-                    terminationReason = "page_limit"
-                )
-            )
-        } else {
-            recovered
+        // Some portals return an empty first response transiently. Keep the historical
+        // second-request recovery, but retry only this page: getVodStreams/getSeriesList
+        // use the same ordered-list route and otherwise accumulate the whole category,
+        // losing the real page and coverage receipt. getSeriesListPage retains its native
+        // series -> VOD is_series compatibility fallback on each bounded attempt.
+        val retry = fetch()
+        return when (retry) {
+            is Result.Success -> {
+                if (retry.data.items.isNotEmpty()) {
+                    Log.i(
+                        TAG,
+                        "Recovered empty paged Stalker ${contentType.name} first page with a bounded page retry for category $categoryId"
+                    )
+                }
+                retry
+            }
+            is Result.Error -> retry
+            is Result.Loading -> Result.error("Unexpected loading state from Stalker first-page retry")
         }
-    }
-
-    private suspend fun fetchStalkerSummaryFirstPageFallback(
-        api: StalkerProvider,
-        contentType: ContentType,
-        categoryId: Long
-    ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> = when (contentType) {
-        ContentType.MOVIE -> when (val result = api.getVodStreams(categoryId)) {
-            is Result.Success -> Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = result.data,
-                    page = 1,
-                    totalPages = 1,
-                    pageSize = result.data.size
-                )
-            )
-            is Result.Error -> Result.error(result.message, result.exception)
-            is Result.Loading -> Result.error("Unexpected loading state from Stalker movie first-page fallback")
-        }
-        ContentType.SERIES -> when (val result = api.getSeriesList(categoryId)) {
-            is Result.Success -> Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = result.data,
-                    page = 1,
-                    totalPages = 1,
-                    pageSize = result.data.size
-                )
-            )
-            is Result.Error -> Result.error(result.message, result.exception)
-            is Result.Loading -> Result.error("Unexpected loading state from Stalker series first-page fallback")
-        }
-        else -> Result.error("Unsupported Stalker summary first-page fallback section: $contentType")
     }
 
     private suspend fun fetchStalkerWildcardSummaryPageWithRecovery(

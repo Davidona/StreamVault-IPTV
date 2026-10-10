@@ -28,6 +28,10 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
+- Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.
+- Overlapped Stalker live-category and bulk requests when provider admission allows it; category fallback now streams isolated attempts, preserves failed scopes, stops bootstrap after its accepted prefix, and leaves incomplete live coverage eligible for durable refresh.
+
 - Reworked Xtream Live sync with streamed decoding and bounded staging, and made bulk-first `AUTO` the normal-build default with category fallback for safety conditions and bulk failures.
 - Applied the Xtream live strategy to Add Provider and Settings refresh, including hidden-category routing and clearer sync progress.
 - Reduced repeated Xtream movie/series summary work with fingerprint checks and bounded resumable indexing; prioritized catalog work before guide refreshes and coalesced duplicate imports.

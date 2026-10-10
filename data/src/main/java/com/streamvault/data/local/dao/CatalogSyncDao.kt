@@ -423,6 +423,26 @@ interface CatalogSyncDao {
 
     @Query(
         """
+        DELETE FROM channels
+        WHERE provider_id = :providerId
+          AND category_id IN (:categoryIds)
+          AND NOT EXISTS (
+              SELECT 1
+              FROM channel_import_stage AS stage
+              WHERE stage.session_id = :sessionId
+                AND stage.provider_id = :providerId
+                AND stage.stream_id = channels.stream_id
+          )
+        """
+    )
+    suspend fun deleteStaleChannelsForStageInCategories(
+        providerId: Long,
+        sessionId: Long,
+        categoryIds: List<Long>
+    )
+
+    @Query(
+        """
         UPDATE movies
         SET name = (
                 SELECT stage.name

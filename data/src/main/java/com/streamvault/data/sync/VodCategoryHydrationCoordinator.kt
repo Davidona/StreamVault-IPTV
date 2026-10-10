@@ -131,17 +131,12 @@ internal class VodCategoryHydrationCoordinator(
                                 hydration!!.lastError ?: "Portal repeated a catalog page"
                             )
                         }
-                        val category = categoryDao.getByProviderAndTypeSync(providerId, ContentType.VOD.name)
-                            .firstOrNull { it.categoryId == categoryId }
-                        val protected = category?.isUserProtected == true
                         val movies = page.items.mapNotNull { entry ->
                             (entry.item as? VodCatalogItem.MovieItem)?.movie
-                                ?.copy(isUserProtected = protected)
                                 ?.toEntity()
                         }
                         val series = page.items.mapNotNull { entry ->
                             (entry.item as? VodCatalogItem.SeriesItem)?.series
-                                ?.copy(isUserProtected = protected)
                                 ?.toEntity()
                         }
                         val entries = page.items.mapIndexed { rawIndex, entry ->
@@ -174,8 +169,22 @@ internal class VodCategoryHydrationCoordinator(
                         val terminationReason = page.terminationReason
                             ?: "page_limit".takeIf { pageLimitReached }
                         transactionRunner.inTransaction {
-                            movieDao.upsertCategoryPage(providerId, movies)
-                            seriesDao.upsertCategoryPage(providerId, series)
+                            // Protection can be edited while the network request is in flight.
+                            // Read just this category at commit time so a long COMPLETE request
+                            // cannot apply a stale cached flag and the page/checkpoint stay atomic.
+                            val protected = categoryDao.getByProviderTypeAndCategoryId(
+                                providerId = providerId,
+                                type = ContentType.VOD.name,
+                                categoryId = categoryId
+                            )?.isUserProtected == true
+                            movieDao.upsertCategoryPage(
+                                providerId,
+                                movies.map { it.copy(isUserProtected = protected) }
+                            )
+                            seriesDao.upsertCategoryPage(
+                                providerId,
+                                series.map { it.copy(isUserProtected = protected) }
+                            )
                             vodCatalogEntryDao.replacePage(providerId, categoryId, page.page, entries)
                             val persistedCount = vodCatalogEntryDao.countByCategory(providerId, categoryId)
                             hydration = VodCategoryHydrationEntity(

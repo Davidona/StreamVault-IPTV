@@ -3029,6 +3029,9 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type ORDER BY provider_order ASC, id ASC")
     suspend fun getByProviderAndTypeSync(providerId: Long, type: String): List<CategoryEntity>
 
+    @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type AND category_id = :categoryId LIMIT 1")
+    suspend fun getByProviderTypeAndCategoryId(providerId: Long, type: String, categoryId: Long): CategoryEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
 

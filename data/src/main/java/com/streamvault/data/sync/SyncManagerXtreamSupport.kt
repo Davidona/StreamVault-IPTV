@@ -41,13 +41,14 @@ internal class SyncManagerXtreamSupport(
         onProgress: ((String) -> Unit)?,
         fetch: suspend (XtreamCategory) -> TimedCategoryOutcome<T>,
         refillWorkers: Boolean = false,
-        onCategoryCompleted: ((completed: Int, total: Int, currentLabel: String) -> Unit)? = null
+        onCategoryCompleted: ((completed: Int, total: Int, currentLabel: String) -> Unit)? = null,
+        shouldStopOnFailure: (Throwable) -> Boolean = { false }
     ): CategoryExecutionPlan<T> {
         if (categories.isEmpty()) {
             return CategoryExecutionPlan(emptyList())
         }
         if (refillWorkers) return executeRefilledCategoryPlan(provider, categories, initialConcurrency,
-            sectionLabel, sequentialModeWarning, onProgress, fetch, onCategoryCompleted)
+            sectionLabel, sequentialModeWarning, onProgress, fetch, onCategoryCompleted, shouldStopOnFailure)
 
         val outcomes = mutableListOf<TimedCategoryOutcome<T>>()
         val warnings = mutableListOf<String>()
@@ -55,6 +56,7 @@ internal class SyncManagerXtreamSupport(
         var forceSequential = initialConcurrency <= 1
         var consecutiveSequentialStressFailures = 0
         var stoppedEarly = false
+        var stopReason: CategoryExecutionStopReason? = null
 
         while (nextIndex < categories.size && !stoppedEarly) {
             val windowConcurrency = if (forceSequential) 1 else initialConcurrency
@@ -75,6 +77,15 @@ internal class SyncManagerXtreamSupport(
             outcomes += windowOutcomes
             nextIndex += window.size
 
+            if (windowOutcomes.any { timed ->
+                    val error = (timed.outcome as? CategoryFetchOutcome.Failure)?.error
+                    error != null && shouldStopOnFailure(error)
+                }
+            ) {
+                stoppedEarly = true
+                stopReason = CategoryExecutionStopReason.AUTHENTICATION
+            }
+
             val completed = outcomes.size
             progress(provider.id, onProgress, "Downloading $sectionLabel by category $completed/${categories.size}...")
             // Hook d'emission optionnel (M1 — T4) : permet aux strategies d'emettre un
@@ -83,7 +94,7 @@ internal class SyncManagerXtreamSupport(
             // concurrent, la fenetre est petite donc le label reste representatif).
             onCategoryCompleted?.invoke(completed, categories.size, window.last().categoryName)
 
-            if (!forceSequential && shouldRecoverRemainingCategoryRequests(categories.size, completed, outcomes.map { it.outcome })) {
+            if (!stoppedEarly && !forceSequential && shouldRecoverRemainingCategoryRequests(categories.size, completed, outcomes.map { it.outcome })) {
                 forceSequential = true
                 warnings += sequentialModeWarning
                 Log.w(
@@ -118,7 +129,7 @@ internal class SyncManagerXtreamSupport(
         return CategoryExecutionPlan(
             outcomes = outcomes,
             warnings = warnings.distinct(),
-            stopReason = if (stoppedEarly) CategoryExecutionStopReason.PROVIDER_STRESS else null
+            stopReason = stopReason ?: if (stoppedEarly) CategoryExecutionStopReason.PROVIDER_STRESS else null
         )
     }
 
@@ -130,7 +141,8 @@ internal class SyncManagerXtreamSupport(
         sequentialModeWarning: String,
         onProgress: ((String) -> Unit)?,
         fetch: suspend (XtreamCategory) -> TimedCategoryOutcome<T>,
-        onCategoryCompleted: ((Int, Int, String) -> Unit)?
+        onCategoryCompleted: ((Int, Int, String) -> Unit)?,
+        shouldStopOnFailure: (Throwable) -> Boolean
     ): CategoryExecutionPlan<T> = coroutineScope {
         val limit = initialConcurrency.coerceIn(1, categories.size)
         val completed = Channel<Pair<Int, TimedCategoryOutcome<T>>>(limit)
@@ -166,7 +178,9 @@ internal class SyncManagerXtreamSupport(
                 val error = (outcome as? CategoryFetchOutcome.Failure)?.error
                 progress(provider.id, onProgress, "Downloading $sectionLabel by category ${results.size}/${categories.size}...")
                 onCategoryCompleted?.invoke(results.size, categories.size, result.second.category.categoryName)
-                if (error is XtreamAuthenticationException) stopReason = CategoryExecutionStopReason.AUTHENTICATION
+                if (error is XtreamAuthenticationException || (error != null && shouldStopOnFailure(error))) {
+                    stopReason = CategoryExecutionStopReason.AUTHENTICATION
+                }
                 if (!sequential && shouldRecoverRemainingCategoryRequests(categories.size, results.size, results.map { it.second.outcome })) {
                     sequential = true
                     warnings += sequentialModeWarning

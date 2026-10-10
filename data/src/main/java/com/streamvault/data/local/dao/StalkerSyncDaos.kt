@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.streamvault.data.local.entity.StalkerIndexJobEntity
+import com.streamvault.data.local.entity.StalkerLiveCategoryRetryEntity
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.local.entity.StalkerRemoteIdentityEntity
 import com.streamvault.data.local.entity.StalkerDiscoveryStageEntity
@@ -35,6 +36,45 @@ interface StalkerIndexJobDao {
 }
 
 @Dao
+interface StalkerLiveCategoryRetryDao {
+    @Query("SELECT * FROM stalker_live_category_retries WHERE provider_id = :providerId AND configuration_generation = :configurationGeneration ORDER BY category_id")
+    suspend fun getForProvider(providerId: Long, configurationGeneration: Long): List<StalkerLiveCategoryRetryEntity>
+
+    @Query("DELETE FROM stalker_live_category_retries WHERE provider_id = :providerId AND configuration_generation != :configurationGeneration")
+    suspend fun deleteForOtherConfigurations(providerId: Long, configurationGeneration: Long): Int
+
+    @Query("DELETE FROM stalker_live_category_retries WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
+    suspend fun deleteCategories(providerId: Long, categoryIds: List<Long>): Int
+
+    @Query("DELETE FROM stalker_live_category_retries WHERE provider_id = :providerId")
+    suspend fun deleteForProvider(providerId: Long): Int
+
+    @Query("""
+        INSERT INTO stalker_live_category_retries (
+            provider_id, category_id, category_name, configuration_generation,
+            attempt_count, last_attempt_at, last_error
+        ) VALUES (
+            :providerId, :categoryId, :categoryName, :configurationGeneration,
+            1, :attemptedAt, :errorMessage
+        )
+        ON CONFLICT(provider_id, category_id) DO UPDATE SET
+            category_name = excluded.category_name,
+            configuration_generation = excluded.configuration_generation,
+            attempt_count = stalker_live_category_retries.attempt_count + 1,
+            last_attempt_at = excluded.last_attempt_at,
+            last_error = excluded.last_error
+    """)
+    suspend fun recordFailure(
+        providerId: Long,
+        categoryId: Long,
+        categoryName: String,
+        configurationGeneration: Long,
+        attemptedAt: Long,
+        errorMessage: String?
+    )
+}
+
+@Dao
 interface StalkerPortalStateDao {
     @Query("SELECT * FROM stalker_portal_state WHERE provider_id = :providerId LIMIT 1")
     suspend fun get(providerId: Long): StalkerPortalStateEntity?
@@ -48,6 +88,16 @@ interface StalkerPortalStateDao {
 
 @Dao
 interface StalkerRemoteIdentityDao {
+    @Query("SELECT * FROM stalker_remote_identities WHERE provider_id = :providerId AND content_type = :contentType AND raw_id IN (:rawIds)")
+    suspend fun getByRawIds(providerId: Long, contentType: String, rawIds: List<String>): List<StalkerRemoteIdentityEntity>
+
+    @Query("SELECT * FROM stalker_remote_identities WHERE provider_id = :providerId AND content_type = :contentType AND surrogate_id IN (:surrogateIds)")
+    suspend fun getBySurrogateIds(providerId: Long, contentType: String, surrogateIds: List<Long>): List<StalkerRemoteIdentityEntity>
+
+    // Never replace established identities. Ignored conflicts use the resolver's recovery path.
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(entities: List<StalkerRemoteIdentityEntity>): List<Long>
+
     @Query("SELECT * FROM stalker_remote_identities WHERE provider_id = :providerId AND content_type = :contentType AND raw_id = :rawId LIMIT 1")
     suspend fun getByRawId(providerId: Long, contentType: String, rawId: String): StalkerRemoteIdentityEntity?
 

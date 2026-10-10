@@ -9,16 +9,23 @@ import com.streamvault.data.local.dao.SeriesCategoryHydrationDao
 import com.streamvault.data.local.dao.SeriesDao
 import com.streamvault.data.local.dao.VodCategoryHydrationDao
 import com.streamvault.data.local.dao.VodCatalogEntryDao
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.remote.stalker.StalkerPagedResult
 import com.streamvault.data.remote.stalker.StalkerProvider
+import com.streamvault.data.remote.stalker.StalkerVodCatalogItem
 import com.streamvault.domain.model.LegacyProvider
+import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class VodCategoryHydrationCoordinatorTest {
@@ -75,6 +82,66 @@ class VodCategoryHydrationCoordinatorTest {
         assertThat(catalogBodyCompleted).isTrue()
     }
 
+    @Test
+    fun `unified page reads current category protection inside its commit transaction`() = runTest {
+        val categoryDao = mock<CategoryDao>()
+        val movieDao = mock<MovieDao>()
+        var transactionActive = false
+        whenever(categoryDao.getByProviderTypeAndCategoryId(7L, ContentType.VOD.name, 11L)).thenAnswer {
+            assertThat(transactionActive).isTrue()
+            CategoryEntity(
+                providerId = 7L,
+                categoryId = 11L,
+                name = "Protected",
+                type = ContentType.VOD,
+                isUserProtected = true
+            )
+        }
+        val api = mock<StalkerProvider>()
+        whenever(api.getUnifiedVodPage(11L, 1)).thenReturn(
+            Result.success(
+                StalkerPagedResult(
+                    items = listOf(
+                        StalkerVodCatalogItem(
+                            rawItemId = "movie-1",
+                            item = VodCatalogItem.MovieItem(
+                                Movie(id = 101L, streamId = 101L, name = "Movie")
+                            )
+                        )
+                    ),
+                    page = 1,
+                    totalPages = 1,
+                    pageSize = 1
+                )
+            )
+        )
+        val coordinator = coordinator(
+            api = api,
+            categoryDao = categoryDao,
+            movieDao = movieDao
+        ) { block ->
+            transactionActive = true
+            try {
+                block()
+            } finally {
+                transactionActive = false
+            }
+        }
+
+        val result = coordinator.hydrateUnifiedVodCategory(7L, 11L, VodCategoryHydrationRequest.OPEN)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        verify(categoryDao).getByProviderTypeAndCategoryId(7L, ContentType.VOD.name, 11L)
+        verify(categoryDao, org.mockito.kotlin.never()).getByProviderAndTypeSync(7L, ContentType.VOD.name)
+        verify(movieDao).upsertCategoryPage(
+            eq(7L),
+            org.mockito.kotlin.check { movies ->
+                assertThat(movies).hasSize(1)
+                assertThat(movies.single().isUserProtected).isTrue()
+            }
+        )
+    }
+
     private suspend fun successfulEmptyPageApi(): StalkerProvider = mock<StalkerProvider>().also { api ->
         whenever(api.getUnifiedVodPage(11L, 1)).thenReturn(
             Result.success(
@@ -90,8 +157,13 @@ class VodCategoryHydrationCoordinatorTest {
 
     private suspend fun coordinator(
         api: StalkerProvider,
+        categoryDao: CategoryDao? = null,
+        movieDao: MovieDao = mock(),
         transaction: suspend (suspend () -> Unit) -> Unit
     ): VodCategoryHydrationCoordinator {
+        val resolvedCategoryDao = categoryDao ?: mock<CategoryDao>().also {
+            whenever(it.getByProviderAndTypeSync(7L, "VOD")).thenReturn(emptyList())
+        }
         val provider = LegacyProvider(
             id = 7L,
             name = "test",
@@ -100,13 +172,11 @@ class VodCategoryHydrationCoordinatorTest {
         )
         return VodCategoryHydrationCoordinator(
             providerSyncLocks = ProviderSyncLockRegistry(),
-            categoryDao = mock<CategoryDao>().also {
-                whenever(it.getByProviderAndTypeSync(7L, "VOD")).thenReturn(emptyList())
-            },
+            categoryDao = resolvedCategoryDao,
             movieCategoryHydrationDao = mock<MovieCategoryHydrationDao>(),
             seriesCategoryHydrationDao = mock<SeriesCategoryHydrationDao>(),
             vodCategoryHydrationDao = mock<VodCategoryHydrationDao>(),
-            movieDao = mock<MovieDao>(),
+            movieDao = movieDao,
             seriesDao = mock<SeriesDao>(),
             vodCatalogEntryDao = mock<VodCatalogEntryDao>().also {
                 whenever(it.countByCategory(7L, 11L)).thenReturn(0)
