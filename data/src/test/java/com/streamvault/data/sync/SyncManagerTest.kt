@@ -513,6 +513,8 @@ class SyncManagerTest {
         xtreamIndexJobDao = xtreamIndexJobDao,
         stalkerLiveCategoryRetryDao = stalkerLiveCategoryRetryDao,
         stalkerIndexJobStore = StalkerIndexJobStore(object : StalkerIndexJobDao {
+            override fun observeAll(): Flow<List<StalkerIndexJobEntity>> = flowOf(emptyList())
+
             override fun observeForProvider(providerId: Long): Flow<List<StalkerIndexJobEntity>> = flowOf(emptyList())
 
             override suspend fun get(providerId: Long, section: String): StalkerIndexJobEntity? =
