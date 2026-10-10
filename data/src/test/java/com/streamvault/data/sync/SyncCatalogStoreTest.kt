@@ -68,6 +68,45 @@ class SyncCatalogStoreTest {
     }
 
     @Test
+    fun `live admission counts check fresh session once and enforce the limit`() = runTest {
+        val store = store(sizeLimits = CatalogSizeLimits(maxChannelsPerProvider = 2))
+        val first = ChannelEntity(streamId = 1, name = "One", providerId = 7)
+        store.stageAdmittedLiveBatch(7, 90, listOf(first), 1)
+        store.stageAdmittedLiveBatch(7, 90, listOf(first.copy(streamId = 2)), 2)
+        val failure = runCatching {
+            store.stageAdmittedLiveBatch(7, 90, listOf(first.copy(streamId = 3)), 3)
+        }.exceptionOrNull()
+        assertThat(failure).isNotNull()
+        verify(catalogSyncDao).countChannelStages(7, 90)
+        verify(catalogSyncDao, org.mockito.kotlin.times(2)).insertChannelStages(any())
+    }
+
+    @Test
+    fun `live admission refuses a nonempty initial session`() = runTest {
+        whenever(catalogSyncDao.countChannelStages(7, 90)).thenReturn(1)
+        val failure = runCatching {
+            store().stageAdmittedLiveBatch(7, 90, listOf(ChannelEntity(streamId = 1, name = "One", providerId = 7)), 1)
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java)
+        verify(catalogSyncDao, never()).insertChannelStages(any())
+    }
+
+    @Test
+    fun `category fingerprints retain the existing persisted encoding`() = runTest {
+        val category = CategoryEntity(categoryId = 12, name = "  NEWS\t世界  ", providerId = 7)
+        store().stageCategories(7, 90, listOf(category))
+        val rows = argumentCaptor<List<CategoryImportStageEntity>>()
+        verify(catalogSyncDao).insertCategoryStages(rows.capture())
+        val legacyDigest = java.security.MessageDigest.getInstance("SHA-256")
+        listOf("12", "news 世界", category.parentId?.toString().orEmpty(), "LIVE", category.providerOrder.toString(), "false").forEach {
+            legacyDigest.update(it.toByteArray(Charsets.UTF_8))
+            legacyDigest.update(0)
+        }
+        val legacyFingerprint = legacyDigest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        assertThat(rows.firstValue.single().syncFingerprint).isEqualTo(legacyFingerprint)
+    }
+
+    @Test
     fun `replaceLiveCatalog batches changed category and channel updates`() = runTest {
         val providerId = 7L
         val currentCategory = CategoryEntity(
@@ -145,18 +184,18 @@ class SyncCatalogStoreTest {
     }
 
     @Test
-    fun `applyStagedLiveCatalog rebuilds channel fts inside transaction`() = runTest {
+    fun `applyStagedLiveCatalog promotes inside transaction without rebuilding global fts`() = runTest {
         val runner = TrackingTransactionRunner()
         doAnswer {
             assertThat(runner.isInTransaction).isTrue()
             Unit
-        }.whenever(catalogSyncDao).rebuildChannelFts()
+        }.whenever(catalogSyncDao).updateChangedChannelsFromStage(7L, 55L)
 
         store(transactionRunner = runner).applyStagedLiveCatalog(providerId = 7L, sessionId = 55L, categories = null)
 
         // One transaction applies the catalog and one atomically clears its staging session.
         assertThat(runner.calls).isEqualTo(2)
-        verify(catalogSyncDao).rebuildChannelFts()
+        verify(catalogSyncDao, never()).rebuildChannelFts()
     }
 
     @Test

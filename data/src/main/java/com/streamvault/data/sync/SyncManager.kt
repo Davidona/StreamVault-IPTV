@@ -756,7 +756,9 @@ class SyncManager @Inject constructor(
             categoryFailureWarning = ::categoryFailureWarning,
             liveCategorySequentialModeWarning = LIVE_CATEGORY_SEQUENTIAL_MODE_WARNING,
             isCurrentlyLowOnMemory = applicationContext::isCurrentlyLowOnMemoryForSync,
-            stageChannelItems = catalogStager::stageChannelItems,
+            stageChannelItems = { id, items, seen, categories, session ->
+                catalogStager.stageChannelItems(id, items, seen, categories, session, useLiveAdmissionCount = true)
+            },
             emitProgress = ::emitProviderProgress
         )
     }
@@ -2118,29 +2120,9 @@ class SyncManager @Inject constructor(
     }
 
     private suspend fun backfillXtreamLiveIndex(providerId: Long, indexedAt: Long): Int {
-        val channels = channelDao.getByProviderSync(providerId)
-        if (channels.isEmpty()) return 0
-        val indexRows = channels.map { channel ->
-            XtreamContentIndexEntity(
-                providerId = providerId,
-                contentType = ContentType.LIVE,
-                remoteId = channel.streamId.toString(),
-                localContentId = channel.id.takeIf { it > 0 },
-                name = channel.name,
-                categoryId = channel.categoryId,
-                categoryName = channel.categoryName ?: channel.groupTitle,
-                imageUrl = channel.logoUrl,
-                isAdult = channel.isAdult,
-                indexedAt = indexedAt,
-                detailHydratedAt = indexedAt,
-                syncFingerprint = channel.syncFingerprint
-            )
+        return syncCatalogStore.withLiveCatalogFence(providerId) {
+            xtreamContentIndexDao.replaceLiveIndexFromChannels(providerId, indexedAt)
         }
-        transactionRunner.inTransaction {
-            xtreamContentIndexDao.deleteByProviderAndType(providerId, ContentType.LIVE.name)
-            xtreamContentIndexDao.upsertAll(indexRows)
-        }
-        return channels.size
     }
 
     private suspend fun upsertXtreamIndexJob(

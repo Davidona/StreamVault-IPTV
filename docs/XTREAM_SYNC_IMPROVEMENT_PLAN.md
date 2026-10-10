@@ -11,6 +11,7 @@ Supporting evidence:
 - [Attempt isolation and recovery implementation](XTREAM_SYNC_RECOVERY_IMPLEMENTATION.md)
 - [Live parsing and group identity implementation](XTREAM_SYNC_PARSING_IMPLEMENTATION.md)
 - [Bounded live pipeline implementation](XTREAM_SYNC_PIPELINE_IMPLEMENTATION.md)
+- [Database write and search implementation](XTREAM_SYNC_DATABASE_IMPLEMENTATION.md)
 
 The reference implementation provides hypotheses to investigate, not a design
 authority or proof of correctness. Choose behavior for this app's measured
@@ -286,7 +287,10 @@ P1 attempt isolation and conservative receipt-based recovery are implemented and
 validated. P2 direct live decoding and cheaper group identity are implemented
 with field-equivalence checks and measured component CPU reductions. P3 retrieval
 overlap and a bounded reader/writer pipeline are implemented with cancellation,
-resource-bound and real-graph setup/refresh evidence. P4–P8 remain pending.
+resource-bound and real-graph setup/refresh evidence. P4 stage accounting,
+fingerprint costs, SQL live-index projection and trigger-maintained search are
+implemented with fresh/migrated Room checks and measured backend improvements.
+P5–P8 remain pending.
 The new measurements identify writer cost, slow fallback and extra completed
 imports during some refresh intervals as remaining priorities. Earlier runs
 also showed memory-driven category fallback; the default-strategy gate has not

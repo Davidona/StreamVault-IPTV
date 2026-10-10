@@ -42,6 +42,8 @@ internal class SyncCatalogStore(
     companion object {
         private const val TAG = "SyncCatalogStore"
         private const val STAGE_BATCH_SIZE = 500
+        private val TEXT_WHITESPACE = Regex("\\s+")
+        private const val HEX_DIGITS = "0123456789abcdef"
     }
 
     data class StagedLiveImportState(
@@ -163,7 +165,7 @@ internal class SyncCatalogStore(
                 categories?.let { timed(providerId, "category-staging") { stageCategories(providerId, sessionId, it) } }
                 categories?.let { timed(providerId, "category-commit") { applyCategories(providerId, sessionId, "LIVE") } }
                 timed(providerId, "channel-insert-update-delete") { applyChannels(providerId, sessionId) }
-                timed(providerId, "channel-fts-rebuild") { catalogSyncDao.rebuildChannelFts() }
+                // Room's content-sync triggers update search for these changed rows.
                 afterCatalogApply()
             }
         } finally {
@@ -228,7 +230,7 @@ internal class SyncCatalogStore(
                 categories?.let { stageCategories(providerId, sessionId, it) }
                 categories?.let { applyCategories(providerId, sessionId, "LIVE", pruneStale = false) }
                 upsertChannels(providerId, sessionId)
-                catalogSyncDao.rebuildChannelFts()
+                // Partial promotion uses the same trigger-maintained search index.
                 afterCatalogApply()
             }
         } finally {
@@ -369,15 +371,36 @@ internal class SyncCatalogStore(
     }
 
     suspend fun stageChannelBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>) {
+        stageChannelBatchInternal(providerId, sessionId, channels, null)
+    }
+
+    /** Only for fresh, isolated attempts whose writer admits each ID once. */
+    suspend fun stageAdmittedLiveBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>, admittedCount: Int) {
+        stageChannelBatchInternal(providerId, sessionId, channels, admittedCount)
+    }
+
+    private suspend fun stageChannelBatchInternal(providerId: Long, sessionId: Long, channels: List<ChannelEntity>, admittedCount: Int?) {
         timed(providerId, "channel-staging-batch(${channels.size})") {
+            val stages = buildChannelStages(providerId, sessionId, channels)
             providerTransaction(providerId) {
+                val previousCount = if (admittedCount == null) {
+                    catalogSyncDao.countChannelStages(providerId, sessionId)
+                } else {
+                    require(admittedCount >= stages.size)
+                    if (admittedCount == stages.size) {
+                        // Establish the fresh-session invariant once. Recovery and
+                        // generic writers still use database accounting.
+                        check(catalogSyncDao.countChannelStages(providerId, sessionId) == 0)
+                    }
+                    admittedCount - stages.size
+                }
                 requireStageCapacity(
-                    currentCount = catalogSyncDao.countChannelStages(providerId, sessionId),
-                    incomingCount = channels.distinctBy { it.streamId }.size,
+                    currentCount = previousCount,
+                    incomingCount = stages.size,
                     maximum = sizeLimits.maxChannelsPerProvider,
                     label = "channel"
                 )
-                insertStageRows(buildChannelStages(providerId, sessionId, channels), catalogSyncDao::insertChannelStages)
+                insertStageRows(stages, catalogSyncDao::insertChannelStages)
             }
         }
     }
@@ -1104,14 +1127,21 @@ internal class SyncCatalogStore(
             messageDigest.update(value.toByteArray(Charsets.UTF_8))
             messageDigest.update(0)
         }
-        return messageDigest.digest().joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
+        val bytes = messageDigest.digest()
+        val hex = CharArray(bytes.size * 2)
+        bytes.forEachIndexed { index, byte ->
+            val value = byte.toInt() and 0xff
+            hex[index * 2] = HEX_DIGITS[value ushr 4]
+            hex[index * 2 + 1] = HEX_DIGITS[value and 0xf]
+        }
+        return String(hex)
     }
 
     private fun normalizeText(value: String?): String {
         return value
             .orEmpty()
             .trim()
-            .replace(Regex("\\s+"), " ")
+            .replace(TEXT_WHITESPACE, " ")
             .lowercase()
     }
 

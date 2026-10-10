@@ -173,6 +173,13 @@ internal class FallbackCategoryCollector(
         val resolvedCategoryId = categoryId ?: return
         val resolvedCategoryName = categoryName?.trim().takeUnless { it.isNullOrEmpty() }
             ?: "Category $resolvedCategoryId"
+        val existing = categories[resolvedCategoryId]
+        if (existing != null && existing.name == resolvedCategoryName) {
+            // This name was classified when first admitted. Explicit adult flags
+            // can still strengthen it on a later row.
+            if (isAdult && !existing.isAdult) categories[resolvedCategoryId] = existing.copy(isAdult = true)
+            return
+        }
         val candidate = CategoryEntity(
             categoryId = resolvedCategoryId,
             name = resolvedCategoryName,
@@ -181,7 +188,6 @@ internal class FallbackCategoryCollector(
             providerId = providerId,
             isAdult = isAdult || AdultContentClassifier.isAdultCategoryName(resolvedCategoryName)
         )
-        val existing = categories[resolvedCategoryId]
         categories[resolvedCategoryId] = if (existing == null) {
             candidate
         } else {

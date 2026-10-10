@@ -24,6 +24,8 @@ android {
     }
 
     testOptions {
+        // Library instrumentation runs as its own APK on current Android.
+        targetSdk = 36
         unitTests.isReturnDefaultValues = true
     }
 

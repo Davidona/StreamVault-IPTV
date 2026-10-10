@@ -262,7 +262,7 @@ class XtreamLiveAttemptIsolationTest {
             { _, _ -> "full failed" }, { _, _, _ -> "category failed" }, "sequential", stageChannelItems = { id, channels, seen, collector, session ->
                 beforeStage(channels)
                 if (failWriter || channels.any { it.streamId == failOnStreamId }) throw ProviderWorkflowSupersededException(id, 1)
-                stager.stageChannelItems(id, channels, seen, collector, session)
+                stager.stageChannelItems(id, channels, seen, collector, session, useLiveAdmissionCount = true)
             }, emitProgress = { _, _ -> }) to api
     }
 

@@ -109,6 +109,31 @@ abstract class XtreamContentIndexDao {
     @Query("DELETE FROM xtream_content_index WHERE provider_id = :providerId AND content_type = :contentType")
     abstract suspend fun deleteByProviderAndType(providerId: Long, contentType: String): Int
 
+    @Query("""
+        INSERT INTO xtream_content_index (
+            provider_id, content_type, remote_id, local_content_id, name,
+            category_id, category_name, image_url, container_extension, rating,
+            added_at, remote_updated_at, is_adult, indexed_at, detail_hydrated_at,
+            stale_state, error_state, sync_fingerprint
+        )
+        SELECT provider_id, 'LIVE', CAST(stream_id AS TEXT),
+            CASE WHEN id > 0 THEN id ELSE NULL END, name,
+            category_id, COALESCE(category_name, group_title), logo_url, NULL, 0,
+            0, 0, is_adult, :indexedAt, :indexedAt, 'ACTIVE', NULL, sync_fingerprint
+        FROM channels WHERE provider_id = :providerId
+    """)
+    protected abstract suspend fun insertLiveIndexFromChannels(providerId: Long, indexedAt: Long)
+
+    @Query("SELECT COUNT(*) FROM xtream_content_index WHERE provider_id = :providerId AND content_type = 'LIVE'")
+    protected abstract suspend fun countLiveIndex(providerId: Long): Int
+
+    @Transaction
+    open suspend fun replaceLiveIndexFromChannels(providerId: Long, indexedAt: Long): Int {
+        deleteByProviderAndType(providerId, "LIVE")
+        insertLiveIndexFromChannels(providerId, indexedAt)
+        return countLiveIndex(providerId)
+    }
+
     @Query(
         """
         DELETE FROM movies

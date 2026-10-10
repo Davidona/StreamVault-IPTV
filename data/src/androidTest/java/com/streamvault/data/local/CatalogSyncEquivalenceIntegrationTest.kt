@@ -75,8 +75,40 @@ class CatalogSyncEquivalenceIntegrationTest {
         assertThat(channelSnapshot(fullProviderId)).isEqualTo(channelSnapshot(repairProviderId))
         assertThat(movieSnapshot(fullProviderId)).isEqualTo(movieSnapshot(repairProviderId))
         assertThat(categorySnapshot(fullProviderId)).isEqualTo(categorySnapshot(repairProviderId))
-        assertThat(channelSnapshot(fullProviderId).map { it.streamId }).doesNotContain(999L)
-        assertThat(movieSnapshot(fullProviderId).map { it.streamId }).doesNotContain(999L)
+        assertThat(db.channelDao().getByProviderSync(fullProviderId).map { it.streamId }).doesNotContain(999L)
+        assertThat(db.movieDao().getByProviderSync(fullProviderId).map { it.streamId }).doesNotContain(999L)
+    }
+
+    @Test
+    fun liveIndexProjectionPreservesFieldsAndScopesReplacementToOneProvider() = runTest {
+        val providerId = insertProvider("Projection")
+        val otherId = insertProvider("Other")
+        store.replaceLiveCatalog(providerId, emptyList(), listOf(
+            ChannelEntity(streamId = 11, name = "News", providerId = providerId,
+                groupTitle = "Fallback", categoryId = 8, logoUrl = "https://example.test/logo", isAdult = true)
+        ))
+        store.replaceLiveCatalog(otherId, emptyList(), listOf(
+            ChannelEntity(streamId = 12, name = "Other", providerId = otherId)
+        ))
+        val dao = db.xtreamContentIndexDao()
+        assertThat(dao.replaceLiveIndexFromChannels(otherId, 100)).isEqualTo(1)
+        assertThat(dao.replaceLiveIndexFromChannels(providerId, 200)).isEqualTo(1)
+        val channel = db.channelDao().getByProviderSync(providerId).single()
+        val row = requireNotNull(dao.getByRemoteId(providerId, "LIVE", "11"))
+        assertThat(row.localContentId).isEqualTo(channel.id)
+        assertThat(row.name).isEqualTo(channel.name)
+        assertThat(row.categoryId).isEqualTo(8L)
+        assertThat(row.categoryName).isEqualTo("Fallback")
+        assertThat(row.imageUrl).isEqualTo(channel.logoUrl)
+        assertThat(row.isAdult).isTrue()
+        assertThat(row.indexedAt).isEqualTo(200L)
+        assertThat(row.detailHydratedAt).isEqualTo(200L)
+        assertThat(row.syncFingerprint).isEqualTo(channel.syncFingerprint)
+        assertThat(dao.getByRemoteId(otherId, "LIVE", "12")?.indexedAt).isEqualTo(100L)
+        db.channelDao().deleteByProvider(providerId)
+        assertThat(dao.replaceLiveIndexFromChannels(providerId, 300)).isEqualTo(0)
+        assertThat(dao.getByRemoteId(providerId, "LIVE", "11")).isNull()
+        assertThat(dao.getByRemoteId(otherId, "LIVE", "12")).isNotNull()
     }
 
     private suspend fun insertProvider(name: String): Long = db.providerDao().insert(
@@ -133,17 +165,18 @@ class CatalogSyncEquivalenceIntegrationTest {
     )
 
     private suspend fun channelSnapshot(providerId: Long) = db.channelDao().getByProviderSync(providerId)
-        .sortedBy { it.streamId }
-        .map { it.copy(id = 0L, providerId = 0L, syncFingerprint = "") }
+        .sortedBy { it.streamUrl }
+        // Synthetic M3U identities deliberately include the provider ID.
+        .map { it.copy(id = 0L, streamId = 0L, categoryId = null, providerId = 0L, syncFingerprint = "") }
 
     private suspend fun movieSnapshot(providerId: Long) = db.movieDao().getByProviderSync(providerId)
-        .sortedBy { it.streamId }
-        .map { it.copy(id = 0L, providerId = 0L, syncFingerprint = "") }
+        .sortedBy { it.streamUrl }
+        .map { it.copy(id = 0L, streamId = 0L, categoryId = null, providerId = 0L, syncFingerprint = "") }
 
     private suspend fun categorySnapshot(providerId: Long) = ContentType.entries
         .flatMap { type -> db.categoryDao().getByProviderAndTypeSync(providerId, type.name) }
-        .sortedWith(compareBy(CategoryEntity::type, CategoryEntity::categoryId))
-        .map { it.copy(id = 0L, providerId = 0L, syncFingerprint = "") }
+        .sortedWith(compareBy(CategoryEntity::type, CategoryEntity::name))
+        .map { it.copy(id = 0L, categoryId = 0L, providerId = 0L, syncFingerprint = "") }
 
     private companion object {
         const val PLAYLIST_URL = "https://catalog.example.test/playlist.m3u"
