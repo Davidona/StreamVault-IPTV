@@ -62,6 +62,12 @@ rebuild, now using a monotonic clock. The runner retains only structured
 benchmark data and explicitly recognized numeric timing lines. It never
 exports general provider logs, request URLs, response previews or passwords.
 
+The P3 bulk pipeline adds numeric `live-pipeline` records for batch counts,
+reader duration, final writer drain, send/backpressure time and estimated
+outstanding raw batch bytes. See the
+[pipeline report](XTREAM_SYNC_PIPELINE_IMPLEMENTATION.md) for resource accounting
+and overlap semantics. These durations overlap and are not CPU measurements.
+
 Java heap is sampled every 50 ms, with ART GC count deltas where available.
 These are debug-emulator measurements, not release-device performance, native
 RSS or an allocation profile. A short heap peak may fall between samples.
@@ -103,8 +109,9 @@ This package is an initial backend baseline, not the full P0 gate. Follow-up
 work still needs precise headers/first-row and workflow-wait timings, attempt
 and generation identifiers, row identity/field equivalence beyond counts,
 skipped/duplicate/hidden coverage, parser CPU/allocation profiling, auxiliary
-index readiness, and a first-browsable-screen measurement. Queue occupancy and
-writer-drain timings apply once the bounded pipeline exists. Run the full
+index readiness, and a first-browsable-screen measurement. Pipeline byte
+high-water and writer-drain timings now exist; actual heap/allocation attribution
+and queue occupancy over time remain open. Run the full
 five-sample scenario matrix and representative release-device measurements
 before freezing production tuning or claiming a speedup. Playback validation
 is separate and follows AGENTS.md's sustained capture/log requirements.

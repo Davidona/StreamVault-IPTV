@@ -11,6 +11,18 @@ SPEC.loader.exec_module(BENCHMARK)
 
 
 class BenchmarkReportTest(unittest.TestCase):
+    def test_pipeline_metrics_are_numeric_and_exact_format_only(self):
+        log = '\n'.join([
+            'I/XtreamSyncTiming( 123): phase=live-pipeline rows=100 batches=10 reader_ms=20 drain_ms=3 send_wait_ms=8 outstanding_batch_bytes=1024 queue_capacity=1 batch_byte_limit=4096',
+            'I/XtreamSyncTiming( 123): phase=live-pipeline rows=100 secret=private',
+        ])
+        records = BENCHMARK.parse_records(log)
+        self.assertEqual(1, len(records))
+        self.assertEqual(1024, records[0]["outstanding_batch_bytes"])
+        self.assertEqual(8, records[0]["send_wait_ms"])
+        self.assertEqual(records, BENCHMARK.summarize(records, [], {})["timings"])
+        self.assertNotIn("private", json.dumps(records))
+
     def test_only_benchmark_records_are_retained(self):
         log = '\n'.join([
             'I/OtherTag( 123): password=private',

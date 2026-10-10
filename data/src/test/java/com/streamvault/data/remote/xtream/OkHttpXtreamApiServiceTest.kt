@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
+import com.streamvault.data.sync.runXtreamLivePipeline
+import com.streamvault.data.sync.ProviderWorkflowSupersededException
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,6 +36,72 @@ import okio.source
 import org.junit.Test
 
 class OkHttpXtreamApiServiceTest {
+
+    @Test
+    fun `pipeline writer supersession cancels a body blocked after its first row`() = runBlocking {
+        withTimeout(5_000) {
+            val bodyBlocked = CountDownLatch(1)
+            val cancellationObserved = CountDownLatch(1)
+            val prefix = ("""[{"stream_id":1,"name":"One"},""" + " ".repeat(16_384)).toByteArray()
+            val client = OkHttpClient.Builder().addInterceptor { chain ->
+                val source = object : InputStream() {
+                    var offset = 0
+                    override fun read(): Int {
+                        if (offset < prefix.size) return prefix[offset++].toInt()
+                        bodyBlocked.countDown()
+                        while (!chain.call().isCanceled()) Thread.sleep(10)
+                        cancellationObserved.countDown()
+                        throw IOException("Canceled body read")
+                    }
+                }.source().buffer()
+                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                    .body(object : ResponseBody() {
+                        override fun contentType() = "application/json".toMediaType()
+                        override fun contentLength() = -1L
+                        override fun source() = source
+                    }).build()
+            }.build()
+            val service = OkHttpXtreamApiService(client, json)
+            val failure = runCatching {
+                runXtreamLivePipeline(1, 4096, 1, { _: com.streamvault.data.remote.dto.XtreamLiveStreamRow -> 256L },
+                    read = { emit -> service.streamLiveStreamRows("https://example.test/player_api.php?action=get_live_streams", onItem = emit) },
+                    consume = {
+                        check(bodyBlocked.await(4, TimeUnit.SECONDS))
+                        throw ProviderWorkflowSupersededException(1, 1)
+                    })
+            }.exceptionOrNull()
+            assertThat(failure).isInstanceOf(ProviderWorkflowSupersededException::class.java)
+            assertThat(cancellationObserved.count).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `streamed live rows reject huge tokens before full string allocation`() = runTest {
+        val prefix = """[{"stream_id":1,"name":"""".toByteArray()
+        val returned = AtomicInteger()
+        val source = object : InputStream() {
+            var offset = 0
+            override fun read(): Int {
+                returned.incrementAndGet()
+                return if (offset < prefix.size) prefix[offset++].toInt() else 'x'.code
+            }
+        }.source().buffer()
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                .body(object : ResponseBody() {
+                    override fun contentType() = "application/json".toMediaType()
+                    override fun contentLength() = -1L
+                    override fun source() = source
+                }).build()
+        }.build()
+        val failure = runCatching {
+            OkHttpXtreamApiService(client, json).streamLiveStreamRows(
+                "https://example.test/player_api.php?action=get_live_streams") { error("oversized row emitted") }
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(XtreamLiveRowTooLargeException::class.java)
+        // Includes Okio/InputStreamReader/JsonReader read-ahead, not a 96 MB response.
+        assertThat(returned.get()).isAtMost(XtreamLiveRowBudgetReader.MAX_ROW_CHARS + 32 * 1024)
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true

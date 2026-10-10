@@ -38,6 +38,12 @@ def parse_records(log: str) -> list[dict]:
             records.append({"event": "live-response", "elapsed_ms": int(timing[1]),
                             "callback_ms": int(timing[2]), "rows": int(timing[3]),
                             "completed": timing[4] == "true"})
+        pipeline = re.search(r"\bXtreamSyncTiming\s*\([^)]*\): phase=live-pipeline rows=(\d+) batches=(\d+) reader_ms=(\d+) drain_ms=(\d+) send_wait_ms=(\d+) outstanding_batch_bytes=(\d+) queue_capacity=(\d+) batch_byte_limit=(\d+)$", line)
+        if pipeline:
+            records.append(dict(event="live-pipeline", **dict(zip(
+                ["rows", "batches", "reader_ms", "drain_ms", "send_wait_ms",
+                 "outstanding_batch_bytes", "queue_capacity", "batch_byte_limit"],
+                map(int, pipeline.groups())))))
         stage = re.search(r"\bSyncCatalogStore\s*\([^)]*\): catalog timing provider=(\d+) stage=([a-z-]+(?:\(\d+\))?) took=(\d+)ms$", line)
         if stage:
             records.append({"event": "catalog-stage", "provider_id": int(stage[1]),
@@ -71,7 +77,7 @@ def summarize(records: list[dict], events: list[dict], metadata: dict) -> dict:
                        "channel_counts": sorted({s["channels"] for s in selected})})
     return {"fixture": metadata, "environment": next((r for r in records if r["event"] == "environment"), None),
             "complete": any(r["event"] == "complete" for r in records), "groups": groups, "samples": samples,
-            "timings": [r for r in records if r["event"] in {"live-response", "catalog-stage"}],
+            "timings": [r for r in records if r["event"] in {"live-response", "live-pipeline", "catalog-stage"}],
             "limits": ["Debug APK, synthetic local server, Java heap sampled every 50 ms.",
                        "Backend completion only; no UI readiness, native RSS, or playback measurement.",
                        "Refresh shares an account with setup; account request counts include both phases.",

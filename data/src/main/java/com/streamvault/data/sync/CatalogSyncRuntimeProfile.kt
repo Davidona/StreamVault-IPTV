@@ -58,6 +58,15 @@ internal data class CatalogSyncRuntimeProfile(
     val deferBackgroundWorkOnLowMemory: Boolean,
     val snapshot: SyncDeviceSnapshot
 ) {
+    // Preserve existing row counts until on-device tuning. Wide rows flush by
+    // estimated retained bytes first; LOW keeps only one queued batch.
+    val liveQueuedBatches: Int get() = if (tier == DeviceSyncTier.LOW) 1 else 2
+    val liveBatchBytes: Long get() = when (tier) {
+        DeviceSyncTier.LOW -> 256L * 1024
+        DeviceSyncTier.MID -> 512L * 1024
+        DeviceSyncTier.HIGH -> 1024L * 1024
+    }
+
     val diagnosticsLabel: String
         get() = "${tier.name.lowercase()} batch=$stageBatchSize memory=${snapshot.memoryClassMb}MB"
 

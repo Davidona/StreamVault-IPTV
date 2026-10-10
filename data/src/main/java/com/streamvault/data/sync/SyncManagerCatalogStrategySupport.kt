@@ -81,6 +81,8 @@ internal class SyncManagerCatalogStrategySupport(
         return when (error) {
             is XtreamResponseTooLargeException,
             is LowMemoryCatalogAbortException,
+            is XtreamLiveBufferLimitException,
+            is com.streamvault.data.remote.xtream.XtreamLiveRowTooLargeException,
             is XtreamParsingException -> true
             is java.net.SocketTimeoutException,
             is java.io.InterruptedIOException -> true

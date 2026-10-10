@@ -13,6 +13,9 @@ import com.streamvault.data.remote.xtream.XtreamProvider
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LegacyProvider
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.SyncMetadata
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
@@ -66,6 +69,54 @@ class XtreamLiveAttemptIsolationTest {
         assertThat(rows.map { it.streamId }).containsExactly(102L, 103L)
         assertThat(rows.single { it.streamId == 102L }.name).startsWith("fresh")
         assertThat(totalStages()).isEqualTo(2)
+    }
+
+    @Test
+    fun `cold metadata and bulk requests overlap and adult context is ready before staging`() = runBlocking<Unit> {
+        val bulkStarted = CountDownLatch(1)
+        val metadataRequests = AtomicInteger()
+        val bulkRequests = AtomicInteger()
+        val (strategy, api) = engine(primeCategories = false, categoryResponse = {
+            metadataRequests.incrementAndGet()
+            check(bulkStarted.await(5, TimeUnit.SECONDS)) { "bulk did not overlap metadata" }
+            """[{"category_id":"1","category_name":"One","is_adult":1}]"""
+        }, beforeStage = { channels -> assertThat(channels.all { it.isAdult }).isTrue() }) {
+            bulkRequests.incrementAndGet(); bulkStarted.countDown(); array(row(101), row(102), row(103))
+        }
+        val result = strategy.syncXtreamLiveCatalog(provider, api, SyncMetadata(provider.id), emptySet(), null, profile(), true)
+        assertThat(result.catalogResult).isInstanceOf(CatalogStrategyResult.Success::class.java)
+        assertThat(result.stagedAcceptedCount).isEqualTo(3)
+        assertThat(metadataRequests.get()).isEqualTo(1)
+        assertThat(bulkRequests.get()).isEqualTo(1)
+        assertThat(db.catalogSyncDao().getChannelStages(provider.id, requireNotNull(result.stagedSessionId)).all { it.isAdult }).isTrue()
+    }
+
+    @Test
+    fun `metadata failure is resolved once instead of fetched again by every batch`() = runBlocking<Unit> {
+        val metadataRequests = AtomicInteger()
+        val (strategy, api) = engine(primeCategories = false, categoryStatus = 400,
+            categoryResponse = { metadataRequests.incrementAndGet(); "{}" }) {
+            array(row(101), row(102), row(103))
+        }
+        val result = strategy.syncXtreamLiveCatalog(provider, api, SyncMetadata(provider.id), emptySet(), null, profile(), true)
+        assertThat(result.catalogResult).isInstanceOf(CatalogStrategyResult.Success::class.java)
+        assertThat(result.stagedAcceptedCount).isEqualTo(3)
+        assertThat(metadataRequests.get()).isEqualTo(1)
+        assertThat(result.categories).isNotEmpty()
+    }
+
+    @Test
+    fun `stressed provider resolves metadata before requesting bulk without deadlock`() = runBlocking<Unit> {
+        val policy = XtreamAdaptiveSyncPolicy()
+        policy.recordFailure(provider.id, java.io.IOException("connection reset"))
+        val bulkRequests = AtomicInteger()
+        val (strategy, api) = engine(policy = policy, primeCategories = false, categoryResponse = {
+            assertThat(bulkRequests.get()).isEqualTo(0)
+            """[{"category_id":"1","category_name":"One"}]"""
+        }) { bulkRequests.incrementAndGet(); array(row(101), row(102)) }
+        val result = strategy.syncXtreamLiveCatalog(provider, api, SyncMetadata(provider.id), emptySet(), null, profile(), true)
+        assertThat(result.stagedAcceptedCount).isEqualTo(2)
+        assertThat(bulkRequests.get()).isEqualTo(1)
     }
 
     @Test
@@ -190,14 +241,18 @@ class XtreamLiveAttemptIsolationTest {
     private fun categories() = listOf(XtreamCategory("1", "One"), XtreamCategory("2", "Two"))
 
     private suspend fun engine(failWriter: Boolean = false, failOnStreamId: Long? = null,
+        primeCategories: Boolean = true, categoryStatus: Int = 200, categoryResponse: (() -> String)? = null,
+        policy: XtreamAdaptiveSyncPolicy = XtreamAdaptiveSyncPolicy(),
+        beforeStage: suspend (List<com.streamvault.domain.model.Channel>) -> Unit = {},
         response: (String?) -> String): Pair<SyncManagerXtreamLiveStrategy, XtreamProvider> {
         val http = OkHttpXtreamApiService(OkHttpClient.Builder().addInterceptor { chain ->
-            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
-                .body(response(chain.request().url.queryParameter("category_id")).toResponseBody("application/json".toMediaType())).build()
+            val isCategories = chain.request().url.queryParameter("action") == "get_live_categories"
+            val body = if (isCategories && categoryResponse != null) categoryResponse() else response(chain.request().url.queryParameter("category_id"))
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(if (isCategories) categoryStatus else 200).message("OK")
+                .body(body.toResponseBody("application/json".toMediaType())).build()
         }.build(), Json { ignoreUnknownKeys = true; isLenient = true; explicitNulls = false; coerceInputValues = true })
         val api = XtreamProvider(provider.id, http, provider.serverUrl, provider.username, provider.password)
-        api.mapCategories(ContentType.LIVE, categories())
-        val policy = XtreamAdaptiveSyncPolicy()
+        if (primeCategories) api.mapCategories(ContentType.LIVE, categories())
         val progress: (Long, ((String) -> Unit)?, String) -> Unit = { _, callback, label -> callback?.invoke(label) }
         val sanitize: (Throwable?) -> String = { it?.javaClass?.simpleName.orEmpty() }
         val support = SyncManagerXtreamSupport(policy, { false }, sanitize, progress, 60_000, 60_000, "stopped")
@@ -205,6 +260,7 @@ class XtreamLiveAttemptIsolationTest {
         return SyncManagerXtreamLiveStrategy(http, http, policy, support, SyncManagerXtreamFetcher(http, http, support, sanitize),
             SyncManagerCatalogStrategySupport({ false }, 60_000), store, progress, sanitize,
             { _, _ -> "full failed" }, { _, _, _ -> "category failed" }, "sequential", stageChannelItems = { id, channels, seen, collector, session ->
+                beforeStage(channels)
                 if (failWriter || channels.any { it.streamId == failOnStreamId }) throw ProviderWorkflowSupersededException(id, 1)
                 stager.stageChannelItems(id, channels, seen, collector, session)
             }, emitProgress = { _, _ -> }) to api

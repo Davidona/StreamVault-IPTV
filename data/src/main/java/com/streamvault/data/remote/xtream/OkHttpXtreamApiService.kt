@@ -537,7 +537,10 @@ class OkHttpXtreamApiService(
             )?.let { throw it }
             stream.unread(previewBytes)
 
-            val reader = JsonReader(InputStreamReader(stream, charset))
+            val rowBudget = if (descriptor.action == "get_live_streams") {
+                XtreamLiveRowBudgetReader(InputStreamReader(stream, charset))
+            } else null
+            val reader = JsonReader(rowBudget ?: InputStreamReader(stream, charset))
             reader.isLenient = true
             return when (reader.peek()) {
                 JsonToken.BEGIN_ARRAY -> {
@@ -545,16 +548,21 @@ class OkHttpXtreamApiService(
                     reader.beginArray()
                     while (reader.hasNext()) {
                         currentCoroutineContext().ensureActive()
+                        rowBudget?.beginRow()
                         val item = try {
                             if (readItem != null) readItem(reader) else {
                                 val element = JsonParser.parseReader(reader)
                                 json.decodeFromString(deserializer, element.toString())
                             }
+                        } catch (e: XtreamLiveRowTooLargeException) {
+                            throw e
                         } catch (e: RuntimeException) {
                             throw XtreamParsingException(
                                 "Malformed JSON from ${descriptor.hint}${sanitizedPreview(preview)?.let { " (preview=$it)" } ?: ""}",
                                 e
                             )
+                        } finally {
+                            rowBudget?.endRow()
                         }
                         onItem(item)
                         emittedCount++

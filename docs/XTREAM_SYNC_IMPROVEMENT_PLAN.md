@@ -10,6 +10,7 @@ Supporting evidence:
 - [Initial backend baseline](XTREAM_SYNC_INITIAL_BASELINE.md)
 - [Attempt isolation and recovery implementation](XTREAM_SYNC_RECOVERY_IMPLEMENTATION.md)
 - [Live parsing and group identity implementation](XTREAM_SYNC_PARSING_IMPLEMENTATION.md)
+- [Bounded live pipeline implementation](XTREAM_SYNC_PIPELINE_IMPLEMENTATION.md)
 
 The reference implementation provides hypotheses to investigate, not a design
 authority or proof of correctness. Choose behavior for this app's measured
@@ -279,14 +280,17 @@ P6 is the first live performance release milestone; P7 follows it. Keep actual
 production AUTO behavior unchanged until the P6 gate. Experiments before then
 use explicit STREAM_ALL or debug configuration, with identical data coverage.
 
-Implementation progress on 2026-10-09: P0 has an initial backend baseline and
+Implementation progress on 2026-10-10: P0 has an initial backend baseline and
 isolated fixture; its complete release-device/readiness comparison remains open.
 P1 attempt isolation and conservative receipt-based recovery are implemented and
 validated. P2 direct live decoding and cheaper group identity are implemented
-with field-equivalence checks and measured component CPU reductions. P3–P8
-remain pending. Repeated 10,000-row runs still show memory-driven category
-fallback, so the default-strategy gate has not been met. See the implementation
-reports linked above for exact evidence and limits.
+with field-equivalence checks and measured component CPU reductions. P3 retrieval
+overlap and a bounded reader/writer pipeline are implemented with cancellation,
+resource-bound and real-graph setup/refresh evidence. P4–P8 remain pending.
+The new measurements identify writer cost, slow fallback and extra completed
+imports during some refresh intervals as remaining priorities. Earlier runs
+also showed memory-driven category fallback; the default-strategy gate has not
+been met. See the implementation reports linked above for evidence and limits.
 
 ## P0 measurement and fixture deliverables
 

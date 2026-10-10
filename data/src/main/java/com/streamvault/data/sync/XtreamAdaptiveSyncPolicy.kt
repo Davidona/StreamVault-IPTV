@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 internal class XtreamAdaptiveSyncPolicy {
     private companion object {
@@ -36,6 +38,15 @@ internal class XtreamAdaptiveSyncPolicy {
 
     private val providerHealth = ConcurrentHashMap<Long, ProviderHealth>()
     private val providerPacing = ConcurrentHashMap<Long, ProviderPacingState>()
+    // This policy is shared by SyncManager. Do not multiply queued bulk batches
+    // when different providers import simultaneously.
+    private val livePipelineSlot = Semaphore(1)
+
+    suspend fun <T> withLivePipelinePermit(block: suspend () -> T): T =
+        livePipelineSlot.withPermit { block() }
+
+    fun liveRequestConcurrencyFor(providerId: Long): Int =
+        if ((providerHealth[providerId]?.stressLevel ?: 0) > 0) 1 else 2
 
     suspend fun awaitTurn(providerId: Long, stage: Stage) {
         val waitMs = (providerHealth[providerId]?.backoffUntilMs ?: 0L) - System.currentTimeMillis()
