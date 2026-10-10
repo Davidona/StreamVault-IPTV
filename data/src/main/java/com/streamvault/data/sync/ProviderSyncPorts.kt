@@ -12,6 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface ProviderSyncCommands {
     fun currentSyncState(providerId: Long): SyncState
 
+    /** Resume queued primary work; implementations may coalesce an already completed catalog. */
+    suspend fun resumePrimaryCatalog(providerId: Long, trackInitialLiveOnboarding: Boolean): Result<Unit> =
+        sync(providerId, force = false, trackInitialLiveOnboarding = trackInitialLiveOnboarding)
+
     suspend fun sync(
         providerId: Long,
         force: Boolean = false,

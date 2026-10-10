@@ -775,6 +775,85 @@ class SyncManagerTest {
     }
 
     @Test
+    fun `primary resume waiting behind foreground sync rechecks completion under the lock`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.ACTIVE))
+        stubXtreamLiveCatalog()
+        stubXtreamEmptyVodAndSeriesCategories()
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        val entered = CompletableDeferred<Unit>()
+        val release = java.util.concurrent.CountDownLatch(1)
+        val foreground = async(kotlinx.coroutines.Dispatchers.Default) {
+            mgr.sync(1L, onProgress = { message ->
+                if (message == "Connecting to server...") {
+                    entered.complete(Unit)
+                    check(release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                }
+            })
+        }
+        try {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                withTimeout(5000) { entered.await() }
+            }
+            val resume = async(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { mgr.resumePrimaryCatalog(1, false) }
+            release.countDown()
+            assertThat(foreground.await().isSuccess).isTrue()
+            assertThat(resume.await().isSuccess).isTrue()
+            assertThat(xtreamBackend.requestedActions.count { it == "get_live_streams" }).isEqualTo(1)
+        } finally {
+            release.countDown()
+        }
+    }
+
+    @Test
+    fun `resume coalesces complete primary work before transitional provider status is finalized`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.PARTIAL, isActive = false))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now,
+            liveCount = 1, lastSyncStatus = "SUCCESS"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        assertThat(mgr.resumePrimaryCatalog(1, true).isSuccess).isTrue()
+        assertThat(xtreamBackend.requestedActions).isEmpty()
+    }
+
+    @Test
+    fun `queued primary resume coalesces a fresh successful complete catalog`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.ACTIVE))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now,
+            liveCount = 1, lastSyncStatus = "SUCCESS"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        val result = mgr.resumePrimaryCatalog(1, trackInitialLiveOnboarding = true)
+        assertThat(result.isSuccess).isTrue()
+        assertThat(xtreamBackend.requestedActions).isEmpty()
+    }
+
+    @Test
+    fun `queued primary resume does not coalesce an incomplete persisted catalog`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.ACTIVE))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now,
+            liveCount = 2, lastSyncStatus = "SUCCESS"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        stubXtreamLiveCatalog()
+        stubXtreamEmptyVodAndSeriesCategories()
+        mgr.resumePrimaryCatalog(1, trackInitialLiveOnboarding = false)
+        assertThat(xtreamBackend.requestedActions).contains("get_live_streams")
+    }
+
+    @Test
+    fun `queued primary resume does not coalesce a failed previous attempt`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.ACTIVE))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now,
+            liveCount = 1, lastSyncStatus = "FAILED_RETRYABLE"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        stubXtreamLiveCatalog()
+        stubXtreamEmptyVodAndSeriesCategories()
+        mgr.resumePrimaryCatalog(1, trackInitialLiveOnboarding = false)
+        assertThat(xtreamBackend.requestedActions).contains("get_live_streams")
+    }
+
+    @Test
     fun `sync_xtream_withFreshCache_andForceFalse_runs_index_first_shell`() = runTest {
         val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
         val now = System.currentTimeMillis()

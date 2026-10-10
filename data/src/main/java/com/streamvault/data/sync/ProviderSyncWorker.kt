@@ -232,9 +232,8 @@ class ProviderSyncWorker(
                         onboardingDao = entryPoint.xtreamLiveOnboardingDao()
                     )
                     val result = if (requestedProviderId == provider.id) {
-                        entryPoint.syncCommands().sync(
+                        entryPoint.syncCommands().resumePrimaryCatalog(
                             provider.id,
-                            force = false,
                             trackInitialLiveOnboarding = trackInitialLiveOnboarding
                         )
                     } else if (provider.type == ProviderType.XTREAM_CODES) {
@@ -652,9 +651,8 @@ class ProviderSyncWorker(
     ): com.streamvault.domain.model.Result<Unit> {
         val now = System.currentTimeMillis()
         if (shouldTrackInitialLiveOnboarding(provider, entryPoint.xtreamLiveOnboardingDao())) {
-            return entryPoint.syncCommands().sync(
+            return entryPoint.syncCommands().resumePrimaryCatalog(
                 provider.id,
-                force = false,
                 trackInitialLiveOnboarding = true
             )
         }

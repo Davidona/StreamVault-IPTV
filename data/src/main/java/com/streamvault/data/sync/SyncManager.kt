@@ -1162,11 +1162,46 @@ class SyncManager @Inject constructor(
         providerOverride: Provider?,
         afterCatalogApply: (suspend () -> Unit)?,
         bootstrap: Boolean
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): com.streamvault.domain.model.Result<Unit> = syncProviderInternal(
+        providerId, force, movieFastSyncOverride, epgSyncModeOverride, onProgress,
+        trackInitialLiveOnboarding, providerOverride, afterCatalogApply, bootstrap
+    )
+
+    override suspend fun resumePrimaryCatalog(providerId: Long, trackInitialLiveOnboarding: Boolean): Result<Unit> =
+        syncProviderInternal(providerId, false, null, null, null, trackInitialLiveOnboarding, null, null, false, resumeOnly = true)
+
+    private suspend fun syncProviderInternal(
+        providerId: Long,
+        force: Boolean,
+        movieFastSyncOverride: Boolean?,
+        epgSyncModeOverride: ProviderEpgSyncMode?,
+        onProgress: ((String) -> Unit)?,
+        trackInitialLiveOnboarding: Boolean,
+        providerOverride: Provider?,
+        afterCatalogApply: (suspend () -> Unit)?,
+        bootstrap: Boolean,
+        resumeOnly: Boolean = false
+    ): Result<Unit> = withProviderLock(providerId) lock@{
         var progressSession: SyncProgressSession? = null
         try {
             val providerEntity = providerDao.getById(providerId)
                 ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
+
+            if (resumeOnly) Log.i(TAG, "Primary resume provider=$providerId active=${providerEntity.isActive} status=${providerEntity.status}")
+            if (resumeOnly && providerEntity.type == ProviderType.XTREAM_CODES &&
+                providerEntity.status in setOf(com.streamvault.domain.model.ProviderStatus.ACTIVE, com.streamvault.domain.model.ProviderStatus.PARTIAL) &&
+                xtreamLiveOnboardingDao.getIncompleteByProvider(providerId) == null
+            ) {
+                val metadata = syncMetadataRepository.getMetadata(providerId)
+                if (metadata?.lastSyncStatus == "SUCCESS" &&
+                    !ContentCachePolicy.shouldRefresh(metadata.lastLiveSuccess, ContentCachePolicy.CATALOG_TTL_MILLIS, System.currentTimeMillis()) &&
+                    metadata.lastLiveSync <= metadata.lastLiveSuccess &&
+                    channelDao.countByProvider(providerId) == metadata.liveCount
+                ) {
+                    Log.i(TAG, "Xtream primary resume coalesced provider=$providerId")
+                    return@lock Result.success(Unit)
+                }
+            }
 
             require(providerOverride == null || providerOverride.id == providerId) {
                 "Provider override must match the requested provider ID."
