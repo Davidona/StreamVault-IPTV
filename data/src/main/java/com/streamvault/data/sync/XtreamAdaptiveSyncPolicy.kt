@@ -51,11 +51,7 @@ internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = Syst
         if ((providerHealth[providerId]?.stressLevel ?: 0) > 0) 1 else 2
 
     suspend fun awaitTurn(providerId: Long, stage: Stage) {
-        val health = providerHealth[providerId]
-        val waitMs = maxOf(health?.backoffUntilMs ?: 0L, health?.retryAfterUntilMs ?: 0L) - nowMillis()
-        if (waitMs > 0L) {
-            delay(waitMs)
-        }
+        awaitProviderBackoff(providerId)
         val requestSpacingMs = segmentedRequestSpacingFor(providerId, stage)
         if (requestSpacingMs <= 0L) {
             return
@@ -67,7 +63,17 @@ internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = Syst
             if (pacingWaitMs > 0L) {
                 delay(pacingWaitMs)
             }
+            awaitProviderBackoff(providerId)
             pacingState.nextSegmentedRequestStartMs = nowMillis() + requestSpacingMs
+        }
+    }
+
+    private suspend fun awaitProviderBackoff(providerId: Long) {
+        while (true) {
+            val health = providerHealth[providerId]
+            val waitMs = maxOf(health?.backoffUntilMs ?: 0L, health?.retryAfterUntilMs ?: 0L) - nowMillis()
+            if (waitMs <= 0L) return
+            delay(waitMs)
         }
     }
 

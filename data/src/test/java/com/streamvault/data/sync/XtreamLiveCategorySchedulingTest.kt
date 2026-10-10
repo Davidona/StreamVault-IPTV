@@ -8,6 +8,7 @@ import com.streamvault.domain.model.LegacyProvider
 import com.streamvault.domain.model.ProviderType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -66,6 +67,18 @@ class XtreamLiveCategorySchedulingTest {
         repeat(4) { policy.recordSuccess(7) }
         policy.awaitTurn(7, XtreamAdaptiveSyncPolicy.Stage.LIVE_CATEGORY)
         assertThat(testScheduler.currentTime).isEqualTo(10_000L)
+    }
+
+    @Test
+    fun `retry after extension while waiting delays the next request to the new deadline`() = runTest {
+        val policy = XtreamAdaptiveSyncPolicy { testScheduler.currentTime }
+        policy.recordFailure(7, XtreamNetworkException("HTTP 429", statusCode = 429, retryAfterMs = 10_000))
+        val waiting = async { policy.awaitTurn(7, XtreamAdaptiveSyncPolicy.Stage.LIVE_CATEGORY) }
+        delay(1000)
+        policy.recordFailure(7, XtreamNetworkException("HTTP 429", statusCode = 429, retryAfterMs = 20_000))
+        repeat(6) { policy.recordSuccess(7) }
+        waiting.await()
+        assertThat(testScheduler.currentTime).isEqualTo(21_000L)
     }
 
     @Test

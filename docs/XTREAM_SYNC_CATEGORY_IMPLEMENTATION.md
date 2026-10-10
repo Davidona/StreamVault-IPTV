@@ -25,6 +25,9 @@ fields instead of wrapping the exception again. Retry-After accepts seconds or
 an HTTP date. Provider-wide Retry-After deadlines survive successful concurrent
 requests and stress recovery; the next request waits for the later of that
 deadline and adaptive backoff. Authentication is not classified as throttling.
+Waiting requests recheck the deadline after waking, including when another
+response extends Retry-After while they are asleep; a deterministic test covers
+that extension.
 
 ## Evidence
 
