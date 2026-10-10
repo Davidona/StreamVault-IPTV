@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">在此浏览节目详情。选择回看按钮打开归档历史。</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">剧集</string>
+    <string name="player_previous_episode">上一集</string>
+    <string name="player_next_episode">下一集</string>
     <string name="player_error_back">或按返回键返回</string>
     <string name="player_error_decoder">无法播放此格式 — 请在设置中更改解码器模式</string>
     <string name="player_error_drm">DRM 许可证或设备安全要求阻止了播放</string>

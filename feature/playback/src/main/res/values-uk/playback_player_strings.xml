@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Переглядайте деталі гіда тут. Виберіть елемент catch-up, щоб відкрити архів.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Епізоди</string>
+    <string name="player_previous_episode">Попередній епізод</string>
+    <string name="player_next_episode">Наступний епізод</string>
     <string name="player_error_back">Або натисніть Назад, щоб повернутися</string>
     <string name="player_error_decoder">Не вдалося відтворити цей формат — спробуйте змінити режим декодера в Налаштуваннях</string>
     <string name="player_error_drm">Ліцензія DRM або вимоги безпеки пристрою завадили відтворенню</string>

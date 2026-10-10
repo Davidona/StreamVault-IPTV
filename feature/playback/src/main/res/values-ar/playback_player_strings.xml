@@ -106,6 +106,8 @@
     <string name="player_epg_overlay_hint">تصفح تفاصيل الدليل هنا. اختر شريحة المشاهدة اللاحقة لفتح سجل الأرشيف.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">الحلقات</string>
+    <string name="player_previous_episode">الحلقة السابقة</string>
+    <string name="player_next_episode">الحلقة التالية</string>
     <string name="player_error_back">أو اضغط رجوع للعودة</string>
     <string name="player_error_decoder">تعذّر تشغيل هذا التنسيق — جرّب تغيير وضع فك الترميز في الإعدادات</string>
     <string name="player_error_drm">منعت رخصة DRM أو متطلبات أمان الجهاز التشغيل</string>

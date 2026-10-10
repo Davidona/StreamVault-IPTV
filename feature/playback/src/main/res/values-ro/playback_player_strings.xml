@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Răsfoiți programele viitoare aici. Selectați un articol gata de arhivă pentru a începe recuperarea.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episoade</string>
+    <string name="player_previous_episode">Episodul anterior</string>
+    <string name="player_next_episode">Episodul următor</string>
     <string name="player_error_back">Sau apăsați Înapoi pentru a reveni</string>
     <string name="player_error_decoder">Nu se poate reda acest format — încercați să schimbați modul decodor din Setări</string>
     <string name="player_error_drm">Licența DRM sau cerințele de securitate ale dispozitivului au împiedicat redarea</string>

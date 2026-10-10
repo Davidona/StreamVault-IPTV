@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Zde si prohlédněte podrobnosti průvodce. Vyberte archivní štítek pro otevření historie archivu.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Epizody</string>
+    <string name="player_previous_episode">Předchozí epizoda</string>
+    <string name="player_next_episode">Další epizoda</string>
     <string name="player_error_back">Nebo se vraťte stisknutím Zpět</string>
     <string name="player_error_decoder">Tento formát nelze přehrát — zkuste v Nastavení změnit režim dekodéru</string>
     <string name="player_error_drm">Přehrávání zabránila licence DRM nebo požadavky na zabezpečení zařízení</string>

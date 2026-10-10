@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Bekijk hier de komende programma\'s. Selecteer een archiefklaar item om de inhaalactie te starten.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Afleveringen</string>
+    <string name="player_previous_episode">Vorige aflevering</string>
+    <string name="player_next_episode">Volgende aflevering</string>
     <string name="player_error_back">Of druk op Terug om terug te keren</string>
     <string name="player_error_decoder">Kan dit formaat niet afspelen. Probeer de decodermodus te wijzigen in Instellingen</string>
     <string name="player_error_drm">DRM-licentie of apparaatbeveiligingsvereisten verhinderden afspelen</string>

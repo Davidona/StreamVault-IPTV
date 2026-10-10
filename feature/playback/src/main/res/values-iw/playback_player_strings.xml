@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">עיין בתוכניות הקרובות כאן. בחר פריט מוכן לארכיון כדי להתחיל להתעדכן.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">פרקים</string>
+    <string name="player_previous_episode">הפרק הקודם</string>
+    <string name="player_next_episode">הפרק הבא</string>
     <string name="player_error_back">או הקש חזרה כדי לחזור</string>
     <string name="player_error_decoder">לא ניתן להפעיל את הפורמט הזה - נסה לשנות את מצב המפענח בהגדרות</string>
     <string name="player_error_drm">רישיון DRM או דרישות אבטחת המכשיר מנעו השמעה</string>

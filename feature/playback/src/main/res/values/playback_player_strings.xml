@@ -123,6 +123,8 @@
     <string name="player_epg_overlay_hint">Browse guide details here. Select the catch-up pill to open archive history.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episodes</string>
+    <string name="player_previous_episode">Previous episode</string>
+    <string name="player_next_episode">Next episode</string>
     <string name="player_error_back">Or press Back to return</string>
     <string name="player_error_decoder">Unable to play this format — try changing decoder mode in Settings</string>
     <string name="player_error_drm">DRM license or device security requirements prevented playback</string>

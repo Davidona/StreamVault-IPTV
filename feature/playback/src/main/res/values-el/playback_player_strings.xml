@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Περιηγηθείτε στις λεπτομέρειες του οδηγού εδώ. Επιλέξτε το κουμπί catch-up για να ανοίξετε το ιστορικό αρχείου.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Επεισόδια</string>
+    <string name="player_previous_episode">Προηγούμενο επεισόδιο</string>
+    <string name="player_next_episode">Επόμενο επεισόδιο</string>
     <string name="player_error_back">Ή πατήστε Πίσω για επιστροφή</string>
     <string name="player_error_decoder">Δεν είναι δυνατή η αναπαραγωγή αυτής της μορφής — δοκιμάστε να αλλάξετε τη λειτουργία αποκωδικοποιητή στις Ρυθμίσεις</string>
     <string name="player_error_drm">Η άδεια DRM ή οι απαιτήσεις ασφάλειας της συσκευής εμπόδισαν την αναπαραγωγή</string>

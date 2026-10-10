@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">ここで番組詳細を確認できます。キャッチアップのピルを選ぶとアーカイブ履歴を開けます。</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">エピソード</string>
+    <string name="player_previous_episode">前のエピソード</string>
+    <string name="player_next_episode">次のエピソード</string>
     <string name="player_error_back">またはBackを押して戻る</string>
     <string name="player_error_decoder">この形式は再生できません — 設定でデコーダーモードを変更してみてください</string>
     <string name="player_error_drm">DRMライセンスまたはデバイスのセキュリティ要件により再生できませんでした</string>

@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Xem chi tiết hướng dẫn tại đây. Chọn mục xem lại để mở lịch sử lưu trữ.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Tập</string>
+    <string name="player_previous_episode">Tập trước</string>
+    <string name="player_next_episode">Tập tiếp theo</string>
     <string name="player_error_back">Hoặc nhấn Quay lại để trở về</string>
     <string name="player_error_decoder">Không thể phát định dạng này — hãy thử đổi chế độ giải mã trong Cài đặt</string>
     <string name="player_error_drm">Yêu cầu giấy phép DRM hoặc bảo mật thiết bị đã ngăn phát lại</string>

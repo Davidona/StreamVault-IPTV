@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Parcourez les programmes à venir ici. Sélectionnez un élément prêt à être archivé pour commencer le rattrapage.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Épisodes</string>
+    <string name="player_previous_episode">Épisode précédent</string>
+    <string name="player_next_episode">Épisode suivant</string>
     <string name="player_error_back">Ou appuyez sur Retour pour revenir</string>
     <string name="player_error_decoder">Impossible de lire ce format — essayez de changer le mode du décodeur dans les Paramètres</string>
     <string name="player_error_drm">Les exigences de licence DRM ou de sécurité de l’appareil ont empêché la lecture</string>

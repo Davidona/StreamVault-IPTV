@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Telusuri program mendatang di sini. Pilih item yang siap diarsipkan untuk mulai mengejar ketinggalan.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episode</string>
+    <string name="player_previous_episode">Episode sebelumnya</string>
+    <string name="player_next_episode">Episode berikutnya</string>
     <string name="player_error_back">Atau tekan Kembali untuk kembali</string>
     <string name="player_error_decoder">Tidak dapat memutar format ini — coba ubah mode decoder di Pengaturan</string>
     <string name="player_error_drm">Lisensi DRM atau persyaratan keamanan perangkat mencegah pemutaran</string>

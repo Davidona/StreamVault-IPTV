@@ -6,6 +6,7 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added Previous and Next episode controls to the VOD overlay for series playback.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 - Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).

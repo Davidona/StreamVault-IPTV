@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Navegue pelos detalhes do guia aqui. Selecione a opção de catch-up para abrir o histórico.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episódios</string>
+    <string name="player_previous_episode">Episódio anterior</string>
+    <string name="player_next_episode">Próximo episódio</string>
     <string name="player_error_back">Ou pressione Voltar para retornar</string>
     <string name="player_error_decoder">Não é possível reproduzir este formato – tente alterar o modo do decodificador em Configurações</string>
     <string name="player_error_drm">Licença DRM ou requisitos de segurança do dispositivo impediram a reprodução</string>

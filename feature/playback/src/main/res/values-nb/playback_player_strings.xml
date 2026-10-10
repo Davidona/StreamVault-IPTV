@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Bla gjennom kommende programmer her. Velg et arkivklart element for å starte innhenting.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episoder</string>
+    <string name="player_previous_episode">Forrige episode</string>
+    <string name="player_next_episode">Neste episode</string>
     <string name="player_error_back">Eller trykk Tilbake for å gå tilbake</string>
     <string name="player_error_decoder">Kan ikke spille av dette formatet — prøv å endre dekodermodus i Innstillinger</string>
     <string name="player_error_drm">DRM-lisens eller enhetssikkerhetskrav forhindret avspilling</string>

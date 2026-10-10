@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Durchsuchen Sie hier kommende Programme. Wählen Sie ein archivierbares Element aus, um mit dem Nachholen zu beginnen.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episoden</string>
+    <string name="player_previous_episode">Vorherige Folge</string>
+    <string name="player_next_episode">Nächste Folge</string>
     <string name="player_error_back">Oder drücken Sie Zurück, um zurückzukehren</string>
     <string name="player_error_decoder">Dieses Format kann nicht abgespielt werden – versuchen Sie, den Decoder-Modus in den Einstellungen zu ändern</string>
     <string name="player_error_drm">DRM-Lizenz- oder Gerätesicherheitsanforderungen verhinderten die Wiedergabe</string>

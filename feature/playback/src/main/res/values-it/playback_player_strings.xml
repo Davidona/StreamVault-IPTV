@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Sfoglia i prossimi programmi qui. Seleziona un elemento pronto per l\'archiviazione per iniziare il recupero.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episodi</string>
+    <string name="player_previous_episode">Episodio precedente</string>
+    <string name="player_next_episode">Episodio successivo</string>
     <string name="player_error_back">Oppure premi Indietro per tornare</string>
     <string name="player_error_decoder">Impossibile riprodurre questo formato: prova a cambiare la modalità del decoder in Impostazioni</string>
     <string name="player_error_drm">La licenza DRM o i requisiti di sicurezza del dispositivo hanno impedito la riproduzione</string>

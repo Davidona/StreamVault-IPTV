@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Przeglądaj tu szczegóły programu. Wybierz opcję catch-up, aby otworzyć archiwum.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Odcinki</string>
+    <string name="player_previous_episode">Poprzedni odcinek</string>
+    <string name="player_next_episode">Następny odcinek</string>
     <string name="player_error_back">Lub naciśnij Wstecz, aby wrócić</string>
     <string name="player_error_decoder">Nie można odtworzyć tego formatu — spróbuj zmienić tryb dekodera w Ustawieniach</string>
     <string name="player_error_drm">Odtwarzanie zostało zablokowane przez licencję DRM lub wymagania bezpieczeństwa urządzenia</string>

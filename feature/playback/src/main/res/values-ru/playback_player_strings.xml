@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Здесь можно просмотреть подробности программы. Выберите метку catch-up, чтобы открыть архив.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Эпизоды</string>
+    <string name="player_previous_episode">Предыдущая серия</string>
+    <string name="player_next_episode">Следующая серия</string>
     <string name="player_error_back">Или нажмите «Назад», чтобы вернуться</string>
     <string name="player_error_decoder">Не удаётся воспроизвести этот формат — попробуйте изменить режим декодера в Настройках</string>
     <string name="player_error_drm">Воспроизведение невозможно из-за лицензии DRM или требований безопасности устройства</string>

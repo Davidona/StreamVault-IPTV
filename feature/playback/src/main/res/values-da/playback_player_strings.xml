@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Gennemse guideoplysninger her. Vælg catch-up-knappen for at åbne arkivhistorik.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Afsnit</string>
+    <string name="player_previous_episode">Forrige afsnit</string>
+    <string name="player_next_episode">Næste afsnit</string>
     <string name="player_error_back">Eller tryk på Tilbage for at vende tilbage</string>
     <string name="player_error_decoder">Kan ikke afspille dette format — prøv at ændre decoder-tilstand i Indstillinger</string>
     <string name="player_error_drm">DRM-licens eller enhedssikkerhedskrav forhindrede afspilning</string>

@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Böngéssze itt az útmutató részleteit. Válassza a visszanézés gombot az archívum megnyitásához.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Epizódok</string>
+    <string name="player_previous_episode">Előző epizód</string>
+    <string name="player_next_episode">Következő epizód</string>
     <string name="player_error_back">Vagy nyomja meg a Vissza gombot a visszatéréshez</string>
     <string name="player_error_decoder">Ez a formátum nem játszható le — próbálja meg módosítani a dekóder módot a Beállításokban</string>
     <string name="player_error_drm">A DRM-licenc vagy az eszköz biztonsági követelményei megakadályozták a lejátszást</string>

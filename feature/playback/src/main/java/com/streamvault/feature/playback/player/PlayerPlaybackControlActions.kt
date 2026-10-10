@@ -42,6 +42,11 @@ fun PlayerViewModel.playEpisode(episode: Episode, showResumePrompt: Boolean = tr
     )
 }
 
+fun PlayerViewModel.playEpisodeFromNavigation(episode: Episode) {
+    cancelAutoPlay()
+    playEpisode(episode)
+}
+
 fun PlayerViewModel.toggleMute() {
     val now = SystemClock.elapsedRealtime()
     if (now - lastMuteToggleAtMs < PLAYBACK_CONTROL_MUTE_TOGGLE_DEBOUNCE_MS) return

@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Rehber ayrıntılarına buradan göz atın. Arşiv geçmişini açmak için catch-up seçeneğini seçin.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Bölümler</string>
+    <string name="player_previous_episode">Önceki bölüm</string>
+    <string name="player_next_episode">Sonraki bölüm</string>
     <string name="player_error_back">Ya da geri dönmek için Geri’ye basın</string>
     <string name="player_error_decoder">Bu format oynatılamıyor — Ayarlar’dan kod çözücü modunu değiştirmeyi deneyin</string>
     <string name="player_error_drm">DRM lisansı veya cihaz güvenlik gereksinimleri oynatmayı engelledi</string>

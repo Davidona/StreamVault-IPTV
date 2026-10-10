@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">여기서 가이드 세부 정보를 확인하세요. 아카이브 기록을 열려면 캐치업 항목을 선택하세요.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">에피소드</string>
+    <string name="player_previous_episode">이전 에피소드</string>
+    <string name="player_next_episode">다음 에피소드</string>
     <string name="player_error_back">또는 뒤로를 눌러 돌아가세요</string>
     <string name="player_error_decoder">이 형식은 재생할 수 없습니다 — 설정에서 디코더 모드를 변경해 보세요</string>
     <string name="player_error_drm">DRM 라이선스 또는 기기 보안 요구 사항으로 인해 재생할 수 없습니다</string>

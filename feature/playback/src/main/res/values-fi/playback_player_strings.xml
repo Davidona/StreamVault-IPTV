@@ -102,6 +102,8 @@
     <string name="player_epg_overlay_hint">Selaa tulevia ohjelmia tästä. Aloita seuranta valitsemalla arkistointivalmis kohde.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Jaksot</string>
+    <string name="player_previous_episode">Edellinen jakso</string>
+    <string name="player_next_episode">Seuraava jakso</string>
     <string name="player_error_back">Tai palaa painamalla Takaisin</string>
     <string name="player_error_decoder">Tätä muotoa ei voi toistaa – yritä muuttaa dekooderitilaa asetuksista</string>
     <string name="player_error_drm">DRM-lisenssi tai laitteen suojausvaatimukset estivät toiston</string>
