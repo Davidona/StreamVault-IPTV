@@ -70,6 +70,12 @@ public fun LazyListScope.settingsBackupSection(
                     )
                 )
             }
+            Text(
+                text = stringResource(R.string.settings_backup_credentials_notice),
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceDim,
+                modifier = Modifier.fillMaxWidth()
+            )
             BackupActionCard(
                 icon = "\u2193",
                 title = stringResource(R.string.settings_restore_data),
@@ -231,6 +237,12 @@ public fun LazyListScope.settingsDriveBackupSection(
                         lastPullAtMs = uiState.driveSyncStatus.lastPullAtMs,
                         onSignOut = onSignOut,
                         actionModifier = if (targetItemId == "backup.drive_auth") targetFocusModifier else Modifier,
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_backup_credentials_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceDim,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),

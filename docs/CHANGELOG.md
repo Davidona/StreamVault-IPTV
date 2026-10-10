@@ -10,9 +10,11 @@ All notable product changes are recorded in this document.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 - Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
 - Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
+- Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
 
 ### Fixed
 
+- Fixed provider observation crashes on devices where saved credentials cannot be decrypted by skipping unnecessary credential decryption in public provider projections.
 - Fixed successful new-provider setup staying on Add Provider; new providers now navigate to Home, while edits return to the previous screen.
 - Fixed repeated stream restarts during network outages and unnecessary recovery from nonfatal audio errors.
 - Fixed stalled live playback recovery to refresh the live window without interrupting active network retries.
@@ -31,9 +33,12 @@ All notable product changes are recorded in this document.
 - Fixed M3U channels sharing a `tvg-id` but using different stream URLs or Acestream hashes from being incorrectly treated as the same channel (#231).
 - Fixed background movie refresh crashes when saved provider credentials cannot be decrypted.
 - Fixed cropped video during adaptive resolution changes on affected Android TV emulators.
+- Fixed backup imports rejecting internal restore checkpoints and episode conflict previews matching episodes without their parent-series identity.
+- Fixed backup export sharing to remove failed temporary files and share only completed exports.
 
 ### Changed
 
+- Raised M3U admission ceilings to 500,000 entries and 400,000 live channels or movies per provider.
 - Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
 - Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.
 - Overlapped Stalker live-category and bulk requests when provider admission allows it; category fallback now streams isolated attempts, preserves failed scopes, stops bootstrap after its accepted prefix, and leaves incomplete live coverage eligible for durable refresh.
@@ -48,6 +53,7 @@ All notable product changes are recorded in this document.
 - Improved seek previews with request-header support and cancellation when seeking or leaving the player.
 - Reduced audio output buffering for more responsive playback.
 - Restored automatic live playback speed adjustments to stay near the live edge.
+- Clarified in Settings that backup files contain provider passwords in readable form.
 
 ## [1.0.19]
 

@@ -574,6 +574,24 @@ class PreferencesRepository @Inject constructor(
         decodeVodTrackPreferences(preferences[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES])
     }
 
+    val vodTrackPreferencesByScope: Flow<Map<VodTrackPreferenceScope, VodTrackPreferences>> =
+        context.dataStore.data.map { preferences ->
+            decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])
+                .mapNotNull { (storageKey, trackPreferences) ->
+                    val parts = storageKey.split('|', limit = 3)
+                    if (parts.size != 3) return@mapNotNull null
+                    val providerId = parts[0].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val contentId = parts[2].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val scope = when (parts[1]) {
+                        "movie" -> VodTrackPreferenceScope.Movie(providerId, contentId)
+                        "series" -> VodTrackPreferenceScope.Series(providerId, contentId)
+                        else -> return@mapNotNull null
+                    }
+                    scope to trackPreferences
+                }
+                .toMap()
+        }
+
     override fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?> =
         context.dataStore.data.map { preferences ->
             decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])[
@@ -1279,6 +1297,20 @@ class PreferencesRepository @Inject constructor(
             ).toMutableMap()
             updated[scope.storageKey()] = preferences
             values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES] = encodeVodTrackPreferenceEntries(updated)
+        }
+    }
+
+    suspend fun clearVodTrackPreferencesForProvider(providerId: Long) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { values ->
+            val updated = decodeVodTrackPreferenceEntries(
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES]
+            ).filterKeys { key -> key.substringBefore('|').toLongOrNull() != providerId }
+            if (updated.isEmpty()) {
+                values.remove(PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES)
+            } else {
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES] = encodeVodTrackPreferenceEntries(updated)
+            }
         }
     }
 

@@ -151,6 +151,11 @@ public fun SettingsScreen(
             viewModel.exportConfig(
                 uriString = it.toString(),
                 onSuccess = { platformHost.backupFiles.rememberManagedExport(it) },
+                onFinished = { success ->
+                    if (!success) {
+                        DocumentFile.fromSingleUri(context, it)?.delete()
+                    }
+                },
             )
         }
     }
@@ -207,6 +212,9 @@ public fun SettingsScreen(
         viewModel.exportConfig(
             uriString = newFile.uri.toString(),
             onSuccess = { platformHost.backupFiles.rememberManagedExport(newFile.uri) },
+            onFinished = { success ->
+                if (!success) newFile.delete()
+            },
         )
     }
 
@@ -253,11 +261,17 @@ public fun SettingsScreen(
             return
         }
         val uri = platformHost.backupFiles.providerUri(file)
-        viewModel.exportConfig(uri.toString()) {
-            if (platformHost.shareBackup(uri) is Result.Error) {
-                viewModel.showUserMessage(shareFailedMessage)
-            }
-        }
+        viewModel.exportConfig(
+            uriString = uri.toString(),
+            onFinished = { exported ->
+                if (!exported) {
+                    file.delete()
+                } else if (platformHost.shareBackup(uri) is Result.Error) {
+                    file.delete()
+                    viewModel.showUserMessage(shareFailedMessage)
+                }
+            },
+        )
     }
 
     fun exportBackupWithoutPicker() {
@@ -318,7 +332,21 @@ public fun SettingsScreen(
             viewModel.showUserMessage(usbBackupFailedMessage)
             return
         }
-        viewModel.exportConfig(Uri.fromFile(file).toString())
+        val candidate = SettingsBackupFileCandidate(
+            displayName = file.name,
+            uri = Uri.fromFile(file),
+            lastModifiedMs = file.lastModified(),
+            sizeBytes = file.length(),
+        )
+        viewModel.exportConfig(
+            uriString = candidate.uri.toString(),
+            onFinished = { success ->
+                if (!success) {
+                    platformHost.backupFiles.delete(candidate)
+                }
+                refreshManagedLocalBackups()
+            }
+        )
     }
 
     fun restoreBackupFromUsb() {

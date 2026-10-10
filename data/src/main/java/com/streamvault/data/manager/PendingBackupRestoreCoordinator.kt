@@ -32,6 +32,7 @@ import com.streamvault.domain.manager.PortableProtectedContentBackup
 import com.streamvault.domain.manager.PortableHiddenContentBackup
 import com.streamvault.domain.manager.PortableContentPreferenceBackup
 import com.streamvault.domain.manager.PortableVariantChoiceBackup
+import com.streamvault.domain.manager.PortableVodTrackPreferenceBackup
 import com.streamvault.domain.manager.PortableManualEpgMappingV14Backup
 import com.streamvault.domain.manager.PortableMultiViewPresetV14Backup
 import com.streamvault.domain.manager.BackupProviderReference
@@ -46,6 +47,7 @@ import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.PortableSearchHistoryBackup
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.settings.VodTrackPreferenceScope
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -61,7 +63,7 @@ data class RestoreResolutionSummary(
     val failedCount: Int = 0
 )
 
-/** Applies durable v14 restore intentions after provider catalog transactions commit. */
+/** Applies portable restore intentions after provider catalog transactions commit. */
 @Singleton
 class PendingBackupRestoreCoordinator @Inject constructor(
     private val ledgerDao: BackupRestoreLedgerDao,
@@ -139,6 +141,9 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             SECTION_HIDDEN_CONTENT -> listOf(gson.fromJson(item.payloadJson, PortableHiddenContentBackup::class.java).content)
             SECTION_CONTENT_PREFERENCES -> listOf(gson.fromJson(item.payloadJson, PortableContentPreferenceBackup::class.java).content)
             SECTION_VARIANT_CHOICES -> listOf(gson.fromJson(item.payloadJson, PortableVariantChoiceBackup::class.java).selectedContent)
+            SECTION_VOD_TRACK_PREFERENCES -> listOf(
+                gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java).content
+            )
             SECTION_MANUAL_EPG -> listOf(gson.fromJson(item.payloadJson, PortableManualEpgMappingV14Backup::class.java).content)
             SECTION_MULTIVIEW -> gson.fromJson(item.payloadJson, PortableMultiViewPresetV14Backup::class.java).channels
             SECTION_RECORDING_SCHEDULES -> listOfNotNull(
@@ -216,6 +221,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         SECTION_HIDDEN_CATEGORIES -> applyHiddenCategory(item, providerId)
         SECTION_CONTENT_PREFERENCES -> applyContentPreference(item, providerId)
         SECTION_VARIANT_CHOICES -> applyVariantChoice(item, providerId)
+        SECTION_VOD_TRACK_PREFERENCES -> applyVodTrackPreference(item, providerId)
         SECTION_MANUAL_EPG -> applyManualEpg(item, providerId)
         SECTION_MULTIVIEW -> applyMultiView(item)
         SECTION_RECORDING_SCHEDULES -> applyRecordingSchedule(item, providerId)
@@ -272,6 +278,11 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         ) != null
         SECTION_CONTENT_PREFERENCES -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableContentPreferenceBackup::class.java).content) != null
         SECTION_VARIANT_CHOICES -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableVariantChoiceBackup::class.java).selectedContent) != null
+        SECTION_VOD_TRACK_PREFERENCES -> {
+            val reference = gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java).content
+            reference.contentType in setOf(ContentType.MOVIE, ContentType.VOD, ContentType.SERIES) &&
+                resolveContent(providerId, reference) != null
+        }
         SECTION_MANUAL_EPG -> {
             val backup = gson.fromJson(item.payloadJson, PortableManualEpgMappingV14Backup::class.java)
             val sourceUrl = backup.sourceUrl
@@ -308,6 +319,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                 preferencesRepository.clearPreferredLiveVariants(providerId)
                 preferencesRepository.clearPreferredVodVariants(providerId)
             }
+            SECTION_VOD_TRACK_PREFERENCES -> preferencesRepository.clearVodTrackPreferencesForProvider(providerId)
             SECTION_MANUAL_EPG -> channelEpgMappingDao.deleteByProvider(providerId)
             SECTION_SEARCH_HISTORY -> searchHistoryDao.deleteByProvider(providerId)
             SECTION_MULTIVIEW -> repeat(3) { preferencesRepository.setMultiViewPreset(it, emptyList()) }
@@ -462,6 +474,18 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             ContentType.VOD, ContentType.MOVIE, ContentType.SERIES, ContentType.SERIES_EPISODE ->
                 preferencesRepository.setPreferredVodVariant(providerId, backup.logicalGroupId, resolved.localId)
         }
+        return true
+    }
+
+    private suspend fun applyVodTrackPreference(item: BackupRestoreItemEntity, providerId: Long): Boolean {
+        val backup = gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java)
+        val resolved = resolveContent(providerId, backup.content) ?: return false
+        val scope = when (backup.content.contentType) {
+            ContentType.MOVIE, ContentType.VOD -> VodTrackPreferenceScope.Movie(providerId, resolved.localId)
+            ContentType.SERIES -> VodTrackPreferenceScope.Series(providerId, resolved.localId)
+            ContentType.LIVE, ContentType.SERIES_EPISODE -> return false
+        }
+        preferencesRepository.setVodTrackPreferences(scope, backup.preferences)
         return true
     }
 
@@ -696,6 +720,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         const val SECTION_HIDDEN_CATEGORIES = "HIDDEN_CATEGORIES"
         const val SECTION_CONTENT_PREFERENCES = "CONTENT_PREFERENCES"
         const val SECTION_VARIANT_CHOICES = "VARIANT_CHOICES"
+        const val SECTION_VOD_TRACK_PREFERENCES = "VOD_TRACK_PREFERENCES"
         const val SECTION_MANUAL_EPG = "MANUAL_EPG"
         const val SECTION_MULTIVIEW = "MULTIVIEW"
         const val SECTION_RECORDING_SCHEDULES = "RECORDING_SCHEDULES"

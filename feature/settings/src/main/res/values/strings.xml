@@ -633,6 +633,7 @@
     <string name="settings_recording_empty_subtitle">Start a manual recording from live playback or schedule one from the player.</string>
     <string name="settings_recording_pattern_hint">Use tokens like ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Export or import favorites, groups, and preferences.</string>
+    <string name="settings_backup_credentials_notice">Backup files include provider passwords in readable form so restored accounts can reconnect. Store and share them only with people you trust.</string>
     <string name="settings_backup_data">Export Data</string>
     <string name="settings_backup_share_data">Share Backup</string>
     <string name="settings_backup_share_subtitle">Send a backup file to a TV file manager or another app.</string>

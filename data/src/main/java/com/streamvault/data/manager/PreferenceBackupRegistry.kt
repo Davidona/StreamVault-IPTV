@@ -104,7 +104,7 @@ internal object PreferenceBackupRegistry {
         "playerSurfaceMode", "playerLiveStreamFormatMode", "playerVodHttpProtocolMode", "playerPlaybackSpeed",
         "playerExternalPlaybackMode", "playerAudioVideoSyncEnabled", "playerAudioVideoOffsetMs", "playerMuted",
         "multiViewPerformanceMode", "multiViewCenterTwoSlotLayout", "multiViewRespectProviderConnectionLimit",
-        "preferredAudioLanguage", "playerSubtitleTextScale", "playerSubtitleTextColor",
+        "preferredAudioLanguage", "playerVodTrackPreferences", "playerSubtitleTextScale", "playerSubtitleTextColor",
         "playerSubtitleBackgroundColor", "playerLiveTranslationEnabled", "playerLiveTranslationEndpoint",
         "playerControlsTimeoutSeconds", "playerLiveOverlayTimeoutSeconds", "playerNoticeTimeoutSeconds",
         "playerLiveClockEnabled", "playerLiveClockPosition", "playerLiveClockSize", "playerLiveClockFont",

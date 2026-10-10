@@ -27,7 +27,8 @@ internal fun decodeProviderConfigurationCompat(
     gson: Gson,
     credentialCrypto: CredentialCrypto,
     type: ProviderType,
-    payload: String
+    payload: String,
+    decryptCredentials: Boolean = true
 ): ProviderConfiguration {
     val payloadHasType = gson.fromJson(payload, Map::class.java)?.containsKey("type") == true
     val decoded = when (type) {
@@ -49,6 +50,8 @@ internal fun decodeProviderConfigurationCompat(
     }
 
     require(normalized.type == type) { "Configuration payload does not match stored provider type" }
+
+    if (!decryptCredentials) return normalized
 
     return when (normalized) {
         is XtreamConfig -> normalized.copy(password = credentialCrypto.decryptIfNeeded(normalized.password))

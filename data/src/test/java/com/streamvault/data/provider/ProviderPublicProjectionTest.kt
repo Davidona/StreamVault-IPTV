@@ -51,7 +51,7 @@ class ProviderPublicProjectionTest {
         assertThat(decoded.providerTemplate.serverUrl).isEqualTo("https://example.test")
         assertThat(decoded.providerTemplate.username).isEqualTo("user")
         assertThat(decoded.providerTemplate.password).isEmpty()
-        assertThat(crypto.decryptCalls.get()).isEqualTo(1)
+        assertThat(crypto.decryptCalls.get()).isEqualTo(0)
     }
 
     @Test
@@ -229,7 +229,7 @@ class ProviderPublicProjectionTest {
 
         override fun decryptIfNeeded(value: String): String {
             decryptCalls.incrementAndGet()
-            return value
+            error("Public provider projections must not decrypt credentials")
         }
     }
 }
