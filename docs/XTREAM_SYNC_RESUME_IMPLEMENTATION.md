@@ -66,4 +66,6 @@ final sync state was Success.
 Large-catalog writer cost remains substantial. This work removes duplicate
 primary retrieval; it does not claim to meet the complete latency target.
 
-AUTO strategy selection and the complete P6 acceptance matrix remain open.
+Normal app builds on this branch now use bulk-first AUTO. The policy change and
+fresh synthetic rechecks are documented in the [P6 tuning report](XTREAM_SYNC_P6_TUNING_REPORT.md);
+physical-device and first-screen acceptance remain open.

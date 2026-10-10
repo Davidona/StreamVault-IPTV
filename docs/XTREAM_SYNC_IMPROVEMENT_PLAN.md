@@ -14,6 +14,30 @@ Supporting evidence:
 - [Database write and search implementation](XTREAM_SYNC_DATABASE_IMPLEMENTATION.md)
 - [Live category scheduling implementation](XTREAM_SYNC_CATEGORY_IMPLEMENTATION.md)
 - [Completed primary resume coalescing](XTREAM_SYNC_RESUME_IMPLEMENTATION.md)
+- [P6 live strategy and tuning report](XTREAM_SYNC_P6_TUNING_REPORT.md)
+- [P7 summary and background implementation](XTREAM_SYNC_P7_IMPLEMENTATION.md)
+- [P0 50k scale and batch sweep](XTREAM_SYNC_P0_SCALE_REPORT.md)
+- [Failure handling and continuation queues](XTREAM_SYNC_FAILURE_HARDENING.md)
+
+## Current status (2026-10-10)
+
+| Work item | Status | Done | Remaining |
+| --- | --- | --- | --- |
+| P0 baseline | In progress | Synthetic backend fixture, initial baseline, synthetic first-browsable-row probe, controlled 50k-row scale/batch sweep, repeated/randomized 10k route comparisons across simulated LOW/MID/HIGH policies, field equivalence after both routes, hidden-scope refresh and fallback, and a verified 503 fallback terminal-state/retry-quiescence fix | Other fixture/provider profiles, terminal-state and retry-quiescence behavior for truncated-body and other failure paths, broader refresh cases, attributable allocation/CPU profile, release-build/device comparison and frozen acceptance gates |
+| P0 50k scale and batch sweep | Done | Six API 36 emulator batch profiles plus a matched 50k route comparison; 50,000/50,000 rows committed; same fixture hash | Exploratory only; no repeatable batch-size gain; see linked report |
+| P0 10k route comparisons | Done | Three alternating-order LOW/100 pairs plus three seeded randomized pairs per simulated LOW/MID/HIGH policy; complete samples and request logs; see the P0 report | One synthetic fixture and emulator only; other provider distributions remain open; this sweep did not change stage-batch defaults |
+| P0 persisted row/field equivalence | Done | All 50,000 rows and 200 category records checked after both routes; malformed rows, hidden-category refresh on both routes, and exact fields after HTTP 503/truncated-body category fallback checked; 10k HTTP 503 fallback now settles at Partial without post-fallback bulk retries | Synthetic emulator only; other failure paths and provider distributions remain open; see linked report |
+| P1–P5 | Done | Implementation and focused correctness/performance evidence are recorded in the linked reports | P6/P8 release acceptance still depends on these components passing the full matrix |
+| Failure handling and continuation queues | Done | Live/VOD authentication termination, durable category-discovery retries, failed-live freshness correction, permanent section queue handling, and 30-second truncated/503 fallback checks | Other fault/provider profiles, longer retry observation and real EPG/playback acceptance remain open; see linked report |
+| P6 implementation and emulator exploration | Done | Bulk-first AUTO is active in normal app profiles on this branch; hidden-scope behavior, progress labels, and synthetic 10k-row tuning matrix are implemented | Physical-device/provider acceptance remains open; stage batch defaults are unchanged |
+| P6 emulator follow-up | Done | Fresh benchmark APK exercised 10k-channel AUTO bulk success and HTTP 503 category fallback; prior Settings refresh, Welcome-to-Live first-row, and no-ID stale-worker checks also passed on API 36 emulator | Physical LOW/MID/HIGH, real-provider and sustained-playback validation remain deferred |
+| P6 physical-device/provider validation | Deferred | No physical devices are available; the branch debug APK is installed and launched for user-side provider testing | Run and record the real-provider sync/playback check; physical LOW/MID/HIGH validation stays deferred |
+| P7 implementation | Done | Summary diffing/fingerprints, checkpointed row/time slices, catalog-before-guide scheduling, focused unit coverage, and fingerprint allocation reduction | Bulk-refresh gain is route-specific; physical tuning remains open |
+| P7 emulator summary matrix | Done | 2k/1k category fallback under LOW/MID/HIGH/DEVICE; bulk-success comparison; 8k/4k bulk-success and LOW fallback; Room counts and warmup preservation checks passed | Physical tuning is tracked separately |
+| P7 before/after unchanged VOD refresh comparison | Done | Pre-P7 commit compared with P7 working tree on the same API 36 emulator, fixture, LOW policy and 100-row stage batch; ten measured bulk-success samples and five fallback samples per build | Bulk success was 59.69% faster; fallback was effectively unchanged; sampled heap increased, so no blanket speedup claim |
+| P7 fingerprint allocation follow-up | Done | Removed per-field length-buffer and per-byte formatter allocations while preserving persisted SHA-256 encoding; repeated emulator runs passed for bulk success and category fallback | Sampled refresh peak fell 32.4% on bulk success and 25.5% on fallback versus P7; physical tuning is still required |
+| P7 physical-device tuning | Deferred | Not run; no physical devices are available | Resume if target hardware becomes available |
+| P8 end-to-end release validation | Pending | — | Real-provider two-channel sustained playback and rollout/rollback evidence |
 
 The reference implementation provides hypotheses to investigate, not a design
 authority or proof of correctness. Choose behavior for this app's measured
@@ -279,28 +303,91 @@ or completion semantics.
 | P7 | Movie/series summaries reuse and background priority; incremental executor, worker, continuation scheduler, summary DB writes | P6 | Faster summaries, preserved hydrated details, catalog-before-guide scheduling, bounded completion jobs |
 | P8 | End-to-end acceptance, sustained playback, rollout and report | P6; P7 for full Xtream release | Gates met, evidence archived, rollback path proven |
 
-P6 is the first live performance release milestone; P7 follows it. Keep actual
-production AUTO behavior unchanged until the P6 gate. Experiments before then
-use explicit STREAM_ALL or debug configuration, with identical data coverage.
+P6 is the first live performance release milestone; P7 follows it. Normal app
+builds on this branch now use bulk-first AUTO so the changed sync can be tested
+directly. Keep the measured stage-batch defaults until physical-device evidence
+supports a retune. The isolated benchmark package can still compare the prior
+AUTO policy with the bulk-first policy using identical data coverage.
 
-Implementation progress on 2026-10-10: P0 has an initial backend baseline and
-isolated fixture; its complete release-device/readiness comparison remains open.
-P1 attempt isolation and conservative receipt-based recovery are implemented and
-validated. P2 direct live decoding and cheaper group identity are implemented
-with field-equivalence checks and measured component CPU reductions. P3 retrieval
-overlap and a bounded reader/writer pipeline are implemented with cancellation,
-resource-bound and real-graph setup/refresh evidence. P4 stage accounting,
-fingerprint costs, SQL live-index projection and trigger-maintained search are
-implemented with fresh/migrated Room checks and measured backend improvements.
-P5 refilled live-category workers and adaptive pacing are implemented with
-cancellation, authentication and Retry-After coverage. P6–P8 remain pending.
-Targeted primary recovery now rechecks completion under the provider lock to
-coalesce already successful foreground imports; its observed duplicate-refresh
-route has regression and fixture coverage.
-The new measurements identify writer cost, slow fallback and extra completed
-imports during some refresh intervals as remaining priorities. Earlier runs
-also showed memory-driven category fallback; the default-strategy gate has not
-been met. See the implementation reports linked above for evidence and limits.
+Implementation progress on 2026-10-10: P0 has an initial backend baseline,
+isolated fixture, synthetic first-browsable-row probe, controlled 50k-row
+scale/batch sweep, matched bulk/category comparison, all-row field equivalence
+for both initial-import routes, malformed-row handling, a hidden-scope live
+refresh check on both routes, 503 and truncated-body category fallback field
+checks, and repeated/randomized 10k route comparisons across simulated
+LOW/MID/HIGH policies. Larger batch profiles did not show a repeatable
+elapsed-time gain, so production batch defaults remain unchanged. The original
+503 run exposed `Syncing` plus three later bulk retries after full category
+coverage. After updating queued onboarding recovery coalescing, a repeat 10k
+HTTP 503 run verified 10,000 fields and 100 categories, settled at `Partial`,
+made only the three initial bulk attempts and zero post-fallback bulk requests;
+the log confirmed the queued recovery was coalesced after onboarding completed.
+The truncated-body run showed `Partial` after full row coverage but has not been
+rerun after this change. Other fixture/provider comparisons, lifecycle checks
+for other failure paths, broader refresh cases, attributable allocation/CPU
+profiling, release-build/device comparison and frozen acceptance gates remain
+open; see the
+[P0 scale report](XTREAM_SYNC_P0_SCALE_REPORT.md). P1 attempt isolation and conservative receipt-based
+recovery are implemented and validated. P2 direct live decoding and cheaper
+group identity are implemented with field-equivalence checks and measured
+component CPU reductions. P3 retrieval overlap and a bounded reader/writer
+pipeline are implemented with cancellation, resource-bound and real-graph
+setup/refresh evidence. P4 stage accounting, fingerprint costs, SQL live-index
+projection and trigger-maintained search are implemented with fresh/migrated
+Room checks and measured backend improvements. P5 refilled live-category
+workers and adaptive pacing are implemented with cancellation, authentication
+and Retry-After coverage. Targeted primary recovery now rechecks completion
+under the provider lock and coalesces already successful foreground imports.
+
+Bulk loading progress follow-up (2026-10-10): the Add Provider callback now
+reports the accepted channel count after successful staging writes, for example
+`Loading Live TV channels...` followed by `3,200 channels processed`. Updates
+are throttled to 250 ms, with the final drained count always published. A new
+attempt clears the discarded count. The bar remains indeterminate because
+the bulk endpoint supplies no reliable total; Saving and Ready remain tied to
+catalog promotion. Focused reporter, strategy callback and progress-parser
+tests cover these behaviors; no real-provider UI acceptance is claimed here.
+
+P6 bulk-first AUTO behavior, hidden-category routing and user-facing progress
+are implemented. Normal app profiles now enable bulk-first AUTO; the isolated
+benchmark package retains an explicit policy override for comparisons. Batch
+and policy measurements cover one synthetic API 36 emulator, 10,000 rows and
+five measured runs, but tier values were simulated. A fresh build was reinstalled
+and rerun on the emulator: AUTO retained and field-verified all 10,000 channels
+with one bulk request; a second AUTO run with three HTTP 503 bulk rejections
+completed all 100 category requests, retained and field-verified all 10,000
+channels, and emitted no post-fallback bulk retries. The synthetic setup-to-first-row
+measurement exercises the real Welcome-to-Live UI with a synthetic channel, and the no-ID
+ProviderSyncWorker stale-refresh branch succeeds through WorkManager with
+preserved 10k catalog coverage. These are emulator evidence, not physical-device
+or release-build comparisons; WorkManager interval/constraint scheduling,
+real-provider behavior and sustained playback remain open. The P6 release gate
+therefore remains open even though bulk-first AUTO is now active on this branch.
+Production stage-batch defaults remain unchanged. P7 summary deduplication,
+bounded category slices,
+catalog-before-guide scheduling and separate guide work are implemented with
+focused tests. The API 36 emulator completed the synthetic VOD/series matrix:
+2k/1k category fallback under LOW/MID/HIGH/DEVICE, a bulk-success comparison,
+and 8k/4k bulk-success and LOW fallback runs. Counts, index jobs, and warmup
+Room preservation checks passed. A separate unchanged-summary refresh
+comparison against pre-P7 commit
+`2af03f5149e888d25307457d4cce82fab3de74d9` used ten measured bulk-success
+samples and five fallback samples per build. Median time was 59.69% lower on
+the bulk-success route, while category fallback was effectively unchanged
+(0.89% lower). Maximum sampled Java heap rose from 10.09 to 17.19 MiB on bulk
+success and from 9.01 to 10.83 MiB on fallback. The full bulk sample set is
+reported because baseline timings settled during measurement; no samples were
+trimmed. The result supports only a bulk-success refresh gain; fallback and
+memory observations remain open for physical-device tuning. A follow-up removed
+per-field length-buffer and per-byte formatter allocations while retaining the
+same fingerprint encoding. Repeated unchanged-refresh runs reduced the sampled
+peak by 32.4% on bulk success and 25.5% on category fallback versus P7; fallback
+timing remained effectively unchanged. The bulk peak remains 1.52 MiB above
+the pre-P7 maximum, and all results are from one emulator. Physical tuning is
+deferred because no physical devices are available. P8 is pending because
+real-provider sustained playback and rollout/rollback validation have not been
+performed. The status table above marks completed work separately from open
+acceptance. Reports linked above record the evidence and limits.
 
 ## P0 measurement and fixture deliverables
 
@@ -434,19 +521,22 @@ Completion checklist:
 - [ ] Required browse/search indexes and user state remain correct.
 - [ ] Retry/cancel/death/edit/delete preserve coherent catalog ownership.
 - [ ] Two-channel sustained playback report recorded.
-- [ ] P7 catalog/guide follow-up improvements verified independently.
-- [ ] Before/after report includes build revisions, device/runtime, data seed,
+- [x] P7 catalog/guide follow-up improvements verified independently.
+- [x] Before/after report includes build revisions, device/runtime, data seed,
   counts, requests, medians/spread, heap/GC, fallback behavior and limitations.
-- [ ] AUTO rollout/rollback and any schema migration boundary documented.
+- [x] Branch AUTO activation/default behavior, direct-test APK and current
+  validation limits documented.
+- [ ] Release rollout/rollback and supported schema migration compatibility
+  proven.
 
 No package is marked complete until its evidence exists. The first P0 backend
 harness, timing hooks and measurements are implemented on
 `codex/xtream-live-sync-performance`. See the
 [benchmark guide](XTREAM_SYNC_BENCHMARK.md) and
-[initial baseline](XTREAM_SYNC_INITIAL_BASELINE.md) for measured results and
-the remaining P0 gates. The available emulator redirected all measured modes
-to categories, so an actual bulk comparison remains open. Follow-up work also
-showed requests continuing after workflow supersession: include prompt
-termination of that work in P1 before introducing more concurrency. Measured
-bottlenecks guide tuning while the correctness and complete-live outcome above
-remain fixed.
+[initial baseline](XTREAM_SYNC_INITIAL_BASELINE.md) for the initial redirected
+category-only runs and remaining P0 gates. Later P6 candidate runs exercised
+the synthetic bulk route; they do not replace physical-device, provider, or
+first-screen measurements. Follow-up work also showed requests continuing
+after workflow supersession; prompt termination and joined cleanup are covered
+by P1. Measured bottlenecks guide tuning while the correctness and complete-live
+outcome above remain fixed.

@@ -33,6 +33,25 @@ class XtreamSyncPerfFixtureTest(unittest.TestCase):
                             FIXTURE.Scenario(channels=103, categories=12, seed=2).metadata()["payload_sha256"])
         self.assertEqual(103, len(json.loads(b"".join(scenario.chunks()))))
 
+    def test_vod_and_series_rows_partition_and_hash_deterministically(self):
+        scenario = FIXTURE.Scenario(
+            channels=12, categories=3, movies=31, movie_categories=4,
+            series_items=19, series_categories=3
+        )
+        movie_bulk = list(scenario.movie_rows())
+        movie_partition = [row for category in range(1, 5) for row in scenario.movie_rows(category)]
+        series_bulk = list(scenario.series_rows())
+        series_partition = [row for category in range(1, 4) for row in scenario.series_rows(category)]
+        self.assertEqual(movie_bulk, sorted(movie_partition, key=lambda row: row["num"]))
+        self.assertEqual(series_bulk, sorted(series_partition, key=lambda row: row["series_id"]))
+        metadata = scenario.metadata()
+        self.assertEqual(31, metadata["expected_movies"])
+        self.assertEqual(19, metadata["expected_series"])
+        self.assertEqual(metadata["movie_payload_sha256"], scenario.metadata()["movie_payload_sha256"])
+        self.assertEqual(metadata["series_payload_sha256"], scenario.metadata()["series_payload_sha256"])
+        with self.assertRaises(ValueError):
+            FIXTURE.Scenario(movies=1)
+
     def start_server(self, **options):
         server = FIXTURE.FixtureServer(("127.0.0.1", 0), FIXTURE.Scenario(**options))
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -72,6 +91,26 @@ class XtreamSyncPerfFixtureTest(unittest.TestCase):
         self.assertEqual(503, error.exception.code)
         error.exception.close()
         self.assertEqual(10, len(self.get(base, "/player_api.php?action=get_live_streams&category_id=1")))
+
+    def test_vod_and_series_streams_support_full_rejection_and_category_fallback(self):
+        _, base = self.start_server(
+            channels=12, categories=3, movies=31, movie_categories=4,
+            series_items=19, series_categories=3,
+            bulk_vod_status=503, bulk_series_status=503
+        )
+        for action in ("get_vod_streams", "get_series"):
+            with self.assertRaises(HTTPError) as error:
+                self.get(base, "/player_api.php?action=" + action)
+            self.assertEqual(503, error.exception.code)
+            error.exception.close()
+        movies = [row for category in range(1, 5) for row in self.get(
+            base, f"/player_api.php?action=get_vod_streams&category_id={category}")]
+        series = [row for category in range(1, 4) for row in self.get(
+            base, f"/player_api.php?action=get_series&category_id={category}")]
+        self.assertEqual(31, len(movies))
+        self.assertEqual(19, len(series))
+        self.assertEqual(4, len(self.get(base, "/player_api.php?action=get_vod_categories")))
+        self.assertEqual(3, len(self.get(base, "/player_api.php?action=get_series_categories")))
 
     def test_disconnect_is_a_truncated_document_and_incomplete_event(self):
         _, base = self.start_server(channels=20, categories=2, disconnect_after_rows=5)

@@ -6,7 +6,7 @@
   <string name="sync_section_live">Live</string>
   <string name="sync_section_vod">VOD</string>
   <string name="sync_section_series">Series</string>
-  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="sync_items_indexed_format">%1$d items prepared</string>
   <string name="welcome_tagline">リビング向けのプレミアムIPTV</string>
   <string name="welcome_subtitle">ライブチャンネル、見逃し視聴、映画、シリーズを、Android TVの純正体験でゆったり楽しめます。</string>
   <string name="settings_cancel">キャンセル</string>

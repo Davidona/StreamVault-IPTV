@@ -15,9 +15,24 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.Series
+import kotlinx.coroutines.CancellationException
 import kotlin.system.measureTimeMillis
 
 private const val XTREAM_FETCHER_TAG = "SyncManager"
+
+/** Keeps callback failures out of transport retries and provider-health accounting. */
+internal class XtreamLiveWriterException(val failure: Exception) :
+    IllegalStateException("Live catalog writer failed", failure)
+
+private suspend fun runLiveWriter(block: suspend () -> Unit) {
+    try {
+        block()
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        throw XtreamLiveWriterException(error)
+    }
+}
 
 internal class SyncManagerXtreamFetcher(
     private val xtreamCatalogApiService: XtreamApiService,
@@ -47,7 +62,7 @@ internal class SyncManagerXtreamFetcher(
 
         suspend fun emitMappedChannels(channels: List<Channel>) {
             if (channels.isEmpty()) return
-            onMappedBatch?.invoke(channels)
+            onMappedBatch?.let { writer -> runLiveWriter { writer(channels) } }
             if (onMappedBatch == null) {
                 mappedChannels = mappedChannels + channels
             }
@@ -84,7 +99,7 @@ internal class SyncManagerXtreamFetcher(
         val elapsedMs = measureTimeMillis {
             when (val attempt = xtreamSupport.attemptNonCancellation {
                 xtreamSupport.retryXtreamCatalogTransient(provider.id) {
-                    onAttemptReset()
+                    runLiveWriter(onAttemptReset)
                     rawCount = 0
                     mappedChannels = emptyList()
                     xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.LIVE_CATEGORY) {
@@ -104,7 +119,7 @@ internal class SyncManagerXtreamFetcher(
                                     "Xtream live category '${category.categoryName}' thin decode failed; retrying legacy decode: ${sanitizeThrowableMessage(error)}"
                                 )
                             }
-                            onAttemptReset()
+                            runLiveWriter(onAttemptReset)
                             val legacyStreams = xtreamCatalogApiService.getLiveStreams(endpoint)
                             rawCount = legacyStreams.size
                             emitMappedChannels(api.mapLiveStreamsResponse(legacyStreams))
@@ -113,7 +128,11 @@ internal class SyncManagerXtreamFetcher(
                 }
             }) {
                 is Attempt.Success -> Unit
-                is Attempt.Failure -> categoryFailure = attempt.error
+                is Attempt.Failure -> {
+                    val error = attempt.error
+                    if (error is XtreamLiveWriterException) throw error.failure
+                    categoryFailure = error
+                }
             }
         }
         val outcome = when {

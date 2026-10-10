@@ -92,5 +92,7 @@ The final run contained no global channel FTS rebuild timing events.
 This is backend debug-emulator evidence. The emulator was restarted to resolve
 the test installation investigation, and repeated runs can differ in device
 state. Release-device end-to-end readiness, LOW/MID/HIGH acceptance and sustained
-real-channel playback remain open. AUTO remains unchanged until P6. These
-results do not establish a tenfold overall improvement.
+real-channel playback remain open. At the time of this P4 report, AUTO had not
+yet changed; P6 later enabled bulk-first AUTO in normal app profiles on this
+branch for direct testing. These results do not establish a tenfold overall
+improvement.

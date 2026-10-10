@@ -7,7 +7,7 @@
   <string name="sync_section_live">Live</string>
   <string name="sync_section_vod">VOD</string>
   <string name="sync_section_series">Series</string>
-  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="sync_items_indexed_format">%1$d items prepared</string>
   <string name="welcome_tagline">IPTV premium para la sala</string>
   <string name="welcome_subtitle">Vuelve a disfrutar de canales en vivo, ponte al día, películas y series con una experiencia de Android TV propia.</string>
   <string name="settings_cancel">Cancelar</string>

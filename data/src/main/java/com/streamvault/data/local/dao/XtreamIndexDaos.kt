@@ -38,6 +38,30 @@ abstract class XtreamContentIndexDao {
         remoteId: String
     ): XtreamContentIndexEntity?
 
+    @Query(
+        """
+        SELECT * FROM xtream_content_index
+        WHERE provider_id = :providerId
+          AND content_type = :contentType
+          AND remote_id IN (:remoteIds)
+        """
+    )
+    abstract suspend fun getByRemoteIds(
+        providerId: Long,
+        contentType: String,
+        remoteIds: List<String>
+    ): List<XtreamContentIndexEntity>
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM xtream_content_index
+        WHERE provider_id = :providerId
+          AND content_type = :contentType
+          AND stale_state = 'ACTIVE'
+        """
+    )
+    abstract suspend fun countActiveRows(providerId: Long, contentType: String): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun upsert(entity: XtreamContentIndexEntity)
 
@@ -237,6 +261,18 @@ interface XtreamIndexJobDao {
 
     @Query("SELECT * FROM xtream_index_jobs WHERE provider_id = :providerId AND section = :section")
     suspend fun get(providerId: Long, section: String): XtreamIndexJobEntity?
+
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM xtream_index_jobs
+            WHERE provider_id = :providerId
+              AND section IN ('LIVE', 'MOVIE', 'SERIES')
+              AND state IN ('QUEUED', 'RUNNING')
+        )
+        """
+    )
+    suspend fun hasPendingCatalogWork(providerId: Long): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: XtreamIndexJobEntity)

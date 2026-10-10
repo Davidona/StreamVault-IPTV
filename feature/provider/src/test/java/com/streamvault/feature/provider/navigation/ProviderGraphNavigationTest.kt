@@ -12,12 +12,12 @@ class ProviderGraphNavigationTest {
     fun completedProviderSetup_popsBackToSettingsWhenLaunchedFromSettings() {
         var backCalls = 0
         var startupRequests = 0
-        val actions = fakeNavigationActions {
+        val actions = fakeNavigationActions(onBack = {
             backCalls++
             true
-        }
+        })
 
-        completeProviderSetup(actions) { startupRequests++ }
+        completeProviderSetup(actions, isEditing = true) { startupRequests++ }
 
         assertThat(backCalls).isEqualTo(1)
         assertThat(startupRequests).isEqualTo(0)
@@ -26,16 +26,42 @@ class ProviderGraphNavigationTest {
     @Test
     fun completedProviderSetup_usesStartupNavigationWhenItHasNoBackStackEntry() {
         var startupRequests = 0
-        val actions = fakeNavigationActions { false }
+        val actions = fakeNavigationActions(onBack = { false })
 
-        completeProviderSetup(actions) { startupRequests++ }
+        completeProviderSetup(actions, isEditing = true) { startupRequests++ }
 
         assertThat(startupRequests).isEqualTo(1)
     }
 
-    private fun fakeNavigationActions(onBack: () -> Boolean): NavigationActions =
+    @Test
+    fun completedNewProviderSetup_navigatesHomeAndRemovesSetupRoute() {
+        var backCalls = 0
+        var startupRequests = 0
+        var navigation: Pair<AppDestination, NavigationOptions>? = null
+        val actions = fakeNavigationActions(
+            onBack = {
+                backCalls++
+                true
+            },
+            onNavigate = { destination, options -> navigation = destination to options }
+        )
+
+        completeProviderSetup(actions, isEditing = false) { startupRequests++ }
+
+        assertThat(backCalls).isEqualTo(0)
+        assertThat(startupRequests).isEqualTo(0)
+        assertThat(navigation?.first).isEqualTo(AppDestination.Home)
+        assertThat(navigation?.second?.popUpTo).isEqualTo(AppDestination.ProviderSetup())
+        assertThat(navigation?.second?.inclusive).isTrue()
+    }
+
+    private fun fakeNavigationActions(
+        onBack: () -> Boolean,
+        onNavigate: (AppDestination, NavigationOptions) -> Unit = { _, _ -> }
+    ): NavigationActions =
         object : NavigationActions {
-            override fun navigate(destination: AppDestination, options: NavigationOptions) = Unit
+            override fun navigate(destination: AppDestination, options: NavigationOptions) =
+                onNavigate(destination, options)
             override fun openPlayer(request: PlayerNavigationRequest) = Unit
             override fun back(): Boolean = onBack()
             override fun returnTo(destination: AppDestination?): Boolean = false

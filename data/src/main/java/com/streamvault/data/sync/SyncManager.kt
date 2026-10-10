@@ -1193,12 +1193,26 @@ class SyncManager @Inject constructor(
                 xtreamLiveOnboardingDao.getIncompleteByProvider(providerId) == null
             ) {
                 val metadata = syncMetadataRepository.getMetadata(providerId)
-                if (metadata?.lastSyncStatus == "SUCCESS" &&
+                // A launch recovery worker can observe onboarding mid-sync and then wait on
+                // this provider lock. If the foreground import completes while it waits, a
+                // category fallback may leave the overall sync PARTIAL even though it committed
+                // the full live catalog. Treat that completed onboarding as a reason to
+                // coalesce the queued resume, provided the durable live snapshot is complete.
+                val onboardingCompletedWhileQueued = trackInitialLiveOnboarding
+                if (metadata != null &&
+                    (metadata.lastSyncStatus == "SUCCESS" || onboardingCompletedWhileQueued) &&
                     !ContentCachePolicy.shouldRefresh(metadata.lastLiveSuccess, ContentCachePolicy.CATALOG_TTL_MILLIS, System.currentTimeMillis()) &&
                     metadata.lastLiveSync <= metadata.lastLiveSuccess &&
                     channelDao.countByProvider(providerId) == metadata.liveCount
                 ) {
-                    Log.i(TAG, "Xtream primary resume coalesced provider=$providerId")
+                    Log.i(
+                        TAG,
+                        if (onboardingCompletedWhileQueued) {
+                            "Xtream primary resume coalesced provider=$providerId; onboarding completed while queued."
+                        } else {
+                            "Xtream primary resume coalesced provider=$providerId."
+                        }
+                    )
                     return@lock Result.success(Unit)
                 }
             }
@@ -1470,6 +1484,8 @@ class SyncManager @Inject constructor(
         section: ContentType?,
         force: Boolean,
         maxCategoriesPerSection: Int?,
+        maxRowsPerSection: Int?,
+        maxDurationMillis: Long?,
         onProgress: ((String) -> Unit)?
     ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
@@ -1509,6 +1525,8 @@ class SyncManager @Inject constructor(
                         api,
                         contentType,
                         maxCategoriesPerSection,
+                        maxRowsPerSection,
+                        maxDurationMillis,
                         onProgress
                     )
                     ContentType.VOD,
@@ -1518,7 +1536,7 @@ class SyncManager @Inject constructor(
             if (failure != null) {
                 val state = XtreamIndexRecoveryPolicy.failureState(failure)
                 val currentJob = xtreamIndexJobDao.get(providerId, contentType.name)
-                if (currentJob?.state != "PARTIAL") {
+                if (currentJob?.state != "PARTIAL" || state == "FAILED_PERMANENT") {
                     val failureAt = System.currentTimeMillis()
                     upsertXtreamIndexJob(
                         providerId = providerId,
@@ -1869,26 +1887,58 @@ class SyncManager @Inject constructor(
         restoreWatchProgress: Boolean = true
     ): Int {
         if (movies.isEmpty()) return 0
-        val incoming = movies.map { movie -> movie.toEntity().copy(cacheState = "SUMMARY_ONLY", detailHydratedAt = 0L, remoteStaleAt = 0L) }
+        val incoming = movies.map { movie ->
+            movie.toEntity().copy(
+                cacheState = "SUMMARY_ONLY",
+                detailHydratedAt = 0L,
+                remoteStaleAt = 0L
+            ).let { summary -> summary.copy(syncFingerprint = XtreamSummaryFingerprint.movie(summary)) }
+        }
         val existingByStreamId = loadMoviesByStreamIds(providerId, incoming.map { it.streamId })
         val merged = incoming.map { summary ->
             val existing = existingByStreamId[summary.streamId]
             mergeMovieSummary(existing, summary)
         }
-        transactionRunner.inTransaction {
-            movieDao.insertAll(merged)
-            val persistedByStreamId = loadMoviesByStreamIds(providerId, merged.map { it.streamId })
-            xtreamContentIndexDao.upsertAll(
-                merged.map { movie ->
-                    val persisted = persistedByStreamId[movie.streamId] ?: movie
-                    movie.toXtreamIndexRow(providerId, persisted.id, indexedAt)
+        val updatedMovies = merged.filter { movie -> existingByStreamId[movie.streamId] != movie }
+        val indexRowsBefore = loadXtreamIndexRows(
+            providerId,
+            ContentType.MOVIE,
+            merged.map { it.streamId.toString() }
+        )
+        val movieIndexChanged = merged.any { movie ->
+            val localId = existingByStreamId[movie.streamId]?.id ?: movie.id
+            val row = movie.toXtreamIndexRow(providerId, localId, indexedAt)
+            val existing = indexRowsBefore[row.remoteId]
+            existing == null || existing.copy(indexedAt = row.indexedAt) != row
+        }
+        if (updatedMovies.isNotEmpty() || movieIndexChanged) {
+            transactionRunner.inTransaction {
+                if (updatedMovies.isNotEmpty()) movieDao.insertAll(updatedMovies)
+                val newlyInsertedStreamIds = updatedMovies
+                    .filter { existingByStreamId[it.streamId] == null }
+                    .map { it.streamId }
+                val insertedByStreamId = if (newlyInsertedStreamIds.isEmpty()) {
+                    emptyMap()
+                } else {
+                    loadMoviesByStreamIds(providerId, newlyInsertedStreamIds)
                 }
-            )
+                val indexRows = merged.distinctBy { it.streamId }.mapNotNull { movie ->
+                    val localId = existingByStreamId[movie.streamId]?.id?.takeIf { it > 0L }
+                        ?: insertedByStreamId[movie.streamId]?.id?.takeIf { it > 0L }
+                        ?: movie.id
+                    movie.toXtreamIndexRow(providerId, localId, indexedAt)
+                }
+                val indexUpdates = indexRows.filter { row ->
+                    val existing = indexRowsBefore[row.remoteId]
+                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                }
+                if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
+            }
         }
         if (restoreWatchProgress) {
             movieDao.restoreWatchProgress(providerId)
         }
-        return merged.size
+        return incoming.size
     }
 
     private suspend fun upsertXtreamSeriesSummaryBatch(
@@ -1897,23 +1947,55 @@ class SyncManager @Inject constructor(
         indexedAt: Long
     ): Int {
         if (series.isEmpty()) return 0
-        val incoming = series.map { item -> item.toEntity().copy(cacheState = "SUMMARY_ONLY", detailHydratedAt = 0L, remoteStaleAt = 0L) }
+        val incoming = series.map { item ->
+            item.toEntity().copy(
+                cacheState = "SUMMARY_ONLY",
+                detailHydratedAt = 0L,
+                remoteStaleAt = 0L
+            ).let { summary -> summary.copy(syncFingerprint = XtreamSummaryFingerprint.series(summary)) }
+        }
         val existingBySeriesId = loadSeriesByIds(providerId, incoming.map { it.seriesId })
         val merged = incoming.map { summary ->
             val existing = existingBySeriesId[summary.seriesId]
             mergeSeriesSummary(existing, summary)
         }
-        transactionRunner.inTransaction {
-            seriesDao.insertAll(merged)
-            val persistedBySeriesId = loadSeriesByIds(providerId, merged.map { it.seriesId })
-            xtreamContentIndexDao.upsertAll(
-                merged.map { item ->
-                    val persisted = persistedBySeriesId[item.seriesId] ?: item
-                    item.toXtreamIndexRow(providerId, persisted.id, indexedAt)
-                }
-            )
+        val updatedSeries = merged.filter { item -> existingBySeriesId[item.seriesId] != item }
+        val indexRowsBefore = loadXtreamIndexRows(
+            providerId,
+            ContentType.SERIES,
+            merged.map { it.providerSeriesId?.takeIf(String::isNotBlank) ?: it.seriesId.toString() }
+        )
+        val seriesIndexChanged = merged.any { item ->
+            val localId = existingBySeriesId[item.seriesId]?.id ?: item.id
+            val row = item.toXtreamIndexRow(providerId, localId, indexedAt)
+            val existing = indexRowsBefore[row.remoteId]
+            existing == null || existing.copy(indexedAt = row.indexedAt) != row
         }
-        return merged.size
+        if (updatedSeries.isNotEmpty() || seriesIndexChanged) {
+            transactionRunner.inTransaction {
+                if (updatedSeries.isNotEmpty()) seriesDao.insertAll(updatedSeries)
+                val newlyInsertedSeriesIds = updatedSeries
+                    .filter { existingBySeriesId[it.seriesId] == null }
+                    .map { it.seriesId }
+                val insertedBySeriesId = if (newlyInsertedSeriesIds.isEmpty()) {
+                    emptyMap()
+                } else {
+                    loadSeriesByIds(providerId, newlyInsertedSeriesIds)
+                }
+                val indexRows = merged.distinctBy { it.seriesId }.mapNotNull { item ->
+                    val localId = existingBySeriesId[item.seriesId]?.id?.takeIf { it > 0L }
+                        ?: insertedBySeriesId[item.seriesId]?.id?.takeIf { it > 0L }
+                        ?: item.id
+                    item.toXtreamIndexRow(providerId, localId, indexedAt)
+                }
+                val indexUpdates = indexRows.filter { row ->
+                    val existing = indexRowsBefore[row.remoteId]
+                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                }
+                if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
+            }
+        }
+        return incoming.size
     }
 
     private suspend fun upsertVodDerivedSeriesSummaryBatch(
@@ -1992,6 +2074,20 @@ class SyncManager @Inject constructor(
         )
     }
 
+    private suspend fun loadXtreamIndexRows(
+        providerId: Long,
+        contentType: ContentType,
+        remoteIds: List<String>
+    ): Map<String, XtreamContentIndexEntity> {
+        val distinctIds = remoteIds.distinct()
+        if (distinctIds.isEmpty()) return emptyMap()
+        return distinctIds.chunked(XTREAM_SQLITE_LOOKUP_CHUNK_SIZE)
+            .flatMap { chunk ->
+                xtreamContentIndexDao.getByRemoteIds(providerId, contentType.name, chunk)
+            }
+            .associateBy { it.remoteId }
+    }
+
     private fun mergeMovieSummary(existing: MovieEntity?, summary: MovieEntity): MovieEntity {
         if (existing == null) return summary
         val preserveDetails = existing.cacheState == "DETAIL_HYDRATED" && existing.detailHydratedAt > 0L
@@ -2009,12 +2105,14 @@ class SyncManager @Inject constructor(
             year = if (preserveDetails) existing.year else summary.year,
             tmdbId = summary.tmdbId ?: existing.tmdbId,
             youtubeTrailer = summary.youtubeTrailer ?: existing.youtubeTrailer,
+            syncFingerprint = summary.syncFingerprint.ifBlank { existing.syncFingerprint },
             watchProgress = existing.watchProgress,
             watchCount = existing.watchCount,
             lastWatchedAt = existing.lastWatchedAt,
             isUserProtected = existing.isUserProtected,
             cacheState = if (preserveDetails) existing.cacheState else "SUMMARY_ONLY",
             detailHydratedAt = if (preserveDetails) existing.detailHydratedAt else 0L,
+            playbackMetadataJson = if (preserveDetails) existing.playbackMetadataJson else summary.playbackMetadataJson,
             remoteStaleAt = 0L
         )
     }
@@ -2035,6 +2133,7 @@ class SyncManager @Inject constructor(
             tmdbId = summary.tmdbId ?: existing.tmdbId,
             youtubeTrailer = summary.youtubeTrailer ?: existing.youtubeTrailer,
             episodeRunTime = if (preserveDetails) existing.episodeRunTime else summary.episodeRunTime,
+            syncFingerprint = summary.syncFingerprint.ifBlank { existing.syncFingerprint },
             isUserProtected = existing.isUserProtected,
             cacheState = if (preserveDetails) existing.cacheState else "SUMMARY_ONLY",
             detailHydratedAt = if (preserveDetails) existing.detailHydratedAt else 0L,

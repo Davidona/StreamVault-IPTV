@@ -21,6 +21,15 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class CatalogIndexJobStoreTest {
+    @Test
+    fun `permanent rejection with no previous success does not restart automatically`() {
+        assertThat(store.shouldRunSummary(
+            XtreamIndexJobEntity(1L, "MOVIE", state = "FAILED_PERMANENT", lastSuccessAt = 0L)
+        )).isFalse()
+        assertThat(store.shouldRunSummary(
+            XtreamIndexJobEntity(1L, "MOVIE", state = "FAILED_RETRYABLE", lastSuccessAt = 0L)
+        )).isTrue()
+    }
     private val providerDao = mock<ProviderDao>()
     private val xtreamDao = mock<XtreamIndexJobDao>()
     private val stalkerDao = mock<StalkerIndexJobDao>()

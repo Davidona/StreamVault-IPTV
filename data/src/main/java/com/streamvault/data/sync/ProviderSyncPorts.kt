@@ -95,6 +95,8 @@ interface ProviderSyncCommands {
         section: ContentType? = null,
         force: Boolean = false,
         maxCategoriesPerSection: Int? = null,
+        maxRowsPerSection: Int? = null,
+        maxDurationMillis: Long? = null,
         onProgress: ((String) -> Unit)? = null
     ): Result<Unit>
 

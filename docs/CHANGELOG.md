@@ -11,6 +11,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed successful new-provider setup staying on Add Provider; new providers now navigate to Home, while edits return to the previous screen.
 - Fixed repeated stream restarts during network outages and unnecessary recovery from nonfatal audio errors.
 - Fixed stalled live playback recovery to refresh the live window without interrupting active network retries.
 - Fixed adaptive playback failing to try another available rendition after eligible server or missing-segment errors.
@@ -27,6 +28,9 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Reworked Xtream Live sync with streamed decoding and bounded staging, and made bulk-first `AUTO` the normal-build default with category fallback for safety conditions and bulk failures.
+- Applied the Xtream live strategy to Add Provider and Settings refresh, including hidden-category routing and clearer sync progress.
+- Reduced repeated Xtream movie/series summary work with fingerprint checks and bounded resumable indexing; prioritized catalog work before guide refreshes and coalesced duplicate imports.
 - Improved playback buffer memory limits based on stream bitrate, device memory, and multiview usage.
 - Prioritized active playback over adjacent-item preloading and removed startup thumbnail warmup.
 - Improved seek previews with request-header support and cancellation when seeking or leaving the player.

@@ -493,6 +493,9 @@ abstract class ChannelDao {
     @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId")
     abstract suspend fun countByProvider(providerId: Long): Int
 
+    @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
+    abstract suspend fun countByProviderAndCategories(providerId: Long, categoryIds: List<Long>): Int
+
     @Query("DELETE FROM channels WHERE provider_id = :providerId")
     abstract suspend fun deleteByProvider(providerId: Long)
 

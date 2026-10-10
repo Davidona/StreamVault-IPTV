@@ -145,8 +145,14 @@ internal data class TimedCategoryOutcome<T>(
 
 internal data class CategoryExecutionPlan<T>(
     val outcomes: List<TimedCategoryOutcome<T>>,
-    val warnings: List<String> = emptyList()
+    val warnings: List<String> = emptyList(),
+    val stopReason: CategoryExecutionStopReason? = null
 )
+
+internal enum class CategoryExecutionStopReason {
+    AUTHENTICATION,
+    PROVIDER_STRESS
+}
 
 internal data class M3uImportStats(
     val header: M3uParser.M3uHeader,

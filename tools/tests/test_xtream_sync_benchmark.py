@@ -11,6 +11,18 @@ SPEC.loader.exec_module(BENCHMARK)
 
 
 class BenchmarkReportTest(unittest.TestCase):
+    def test_quiescence_detects_bulk_restarted_after_category_fallback(self):
+        samples = [{"event": "sample", "run": "bench_test", "mode": "AUTO", "phase": "initial",
+                    "warmup": False, "elapsed_ms": 1, "channels": 1, "peak_java_heap_bytes": 1,
+                    "settle_seconds": 30}]
+        events = [{"event": "request_start", "request_id": i, "run": "bench_test",
+                   "action": "get_live_streams", "category_id": category}
+                  for i, category in enumerate([None, None, 1, 2, None], 1)]
+        report = BENCHMARK.summarize(samples, events, {})
+        self.assertEqual(1, report["samples"][0]["bulk_requests_after_fallback"])
+        report = BENCHMARK.summarize(samples, events[:-1], {})
+        self.assertEqual(0, report["samples"][0]["bulk_requests_after_fallback"])
+
     def test_pipeline_metrics_are_numeric_and_exact_format_only(self):
         log = '\n'.join([
             'I/XtreamSyncTiming( 123): phase=live-pipeline rows=100 batches=10 reader_ms=20 drain_ms=3 send_wait_ms=8 outstanding_batch_bytes=1024 queue_capacity=1 batch_byte_limit=4096',

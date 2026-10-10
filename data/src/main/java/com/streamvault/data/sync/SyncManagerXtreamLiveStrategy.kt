@@ -67,7 +67,6 @@ internal class SyncManagerXtreamLiveStrategy(
         // are unsealed attempts and cannot be reused by this import.
         syncCatalogStore.clearProviderStaging(provider.id)
         val shouldAttemptFullCatalog = effectiveLiveSyncMethod == EffectiveXtreamLiveSyncMethod.STREAM_ALL &&
-            hiddenLiveCategoryIds.isEmpty() &&
             runtimeProfile.shouldAttemptFullLiveCatalog(trackInitialLiveOnboarding)
         // A stressed provider gets one request at a time. Starting metadata first
         // also avoids a one-slot deadlock when the writer needs that context.
@@ -107,9 +106,16 @@ internal class SyncManagerXtreamLiveStrategy(
         var fullPayload = CatalogSyncPayload<Channel>(
             catalogResult = CatalogStrategyResult.EmptyValid("full"), categories = null)
         if (shouldAttemptFullCatalog) {
-            progress(provider.id, onProgress, "Downloading Live TV...")
+            progress(provider.id, onProgress, XtreamLiveProgressLabels.LOADING)
             fullPayload = requestSlots.withPermit {
-                loadXtreamLiveFull(provider, api, runtimeProfile, beforeMapping = { categoryContext.await() })
+                loadXtreamLiveFull(
+                    provider,
+                    api,
+                    runtimeProfile,
+                    beforeMapping = { categoryContext.await() },
+                    excludedCategoryIds = hiddenLiveCategoryIds - requiredHiddenLiveCategoryIds,
+                    onProgress = onProgress
+                )
             }
         }
         val (rawLiveCategories, resolvedCategories) = categoryContext.await()
@@ -147,6 +153,13 @@ internal class SyncManagerXtreamLiveStrategy(
                         fullCatalogUnsafe = false
                     )
                 )
+                is CatalogStrategyResult.Failure -> {
+                    // A different request topology cannot repair rejected credentials.
+                    // Keep the original failure so activation/recovery stays terminal.
+                    if (XtreamIndexRecoveryPolicy.isAuthenticationFailure(fullResult.error)) {
+                        return@coroutineScope fullPayload
+                    }
+                }
                 else -> Unit
             }
         } else {
@@ -191,16 +204,20 @@ internal class SyncManagerXtreamLiveStrategy(
         provider: Provider,
         api: XtreamProvider,
         runtimeProfile: CatalogSyncRuntimeProfile,
-        beforeMapping: suspend () -> Unit = {}
+        beforeMapping: suspend () -> Unit = {},
+        excludedCategoryIds: Set<Long> = emptySet(),
+        onProgress: ((String) -> Unit)? = null
     ): CatalogSyncPayload<Channel> = xtreamAdaptiveSyncPolicy.withLivePipelinePermit {
-        loadXtreamLiveFullWithPermit(provider, api, runtimeProfile, beforeMapping)
+        loadXtreamLiveFullWithPermit(provider, api, runtimeProfile, beforeMapping, excludedCategoryIds, onProgress)
     }
 
     private suspend fun loadXtreamLiveFullWithPermit(
         provider: Provider,
         api: XtreamProvider,
         runtimeProfile: CatalogSyncRuntimeProfile,
-        beforeMapping: suspend () -> Unit
+        beforeMapping: suspend () -> Unit,
+        excludedCategoryIds: Set<Long>,
+        onProgress: ((String) -> Unit)?
     ): CatalogSyncPayload<Channel> {
         val endpoint = XtreamUrlFactory.buildPlayerApiUrl(
             serverUrl = provider.serverUrl,
@@ -218,7 +235,9 @@ internal class SyncManagerXtreamLiveStrategy(
                 mapRawBatch = { batch -> api.mapLiveStreamsSequence(batch) },
                 estimatedBytes = { it.estimatedBufferBytes() },
                 beforeMapping = beforeMapping,
-                runtimeProfile = runtimeProfile
+                runtimeProfile = runtimeProfile,
+                excludedCategoryIds = excludedCategoryIds,
+                onProgress = onProgress
             )
         }
 
@@ -230,7 +249,9 @@ internal class SyncManagerXtreamLiveStrategy(
             mapRawBatch = { batch -> api.mapLiveStreamRowsSequence(batch) },
             estimatedBytes = { it.estimatedBufferBytes() },
             beforeMapping = beforeMapping,
-            runtimeProfile = runtimeProfile
+            runtimeProfile = runtimeProfile,
+            excludedCategoryIds = excludedCategoryIds,
+            onProgress = onProgress
         )
         if (!thinPayload.shouldRetryLegacyFullDecode()) {
             return thinPayload
@@ -248,7 +269,9 @@ internal class SyncManagerXtreamLiveStrategy(
             mapRawBatch = { batch -> api.mapLiveStreamsSequence(batch) },
             estimatedBytes = { it.estimatedBufferBytes() },
             beforeMapping = beforeMapping,
-            runtimeProfile = runtimeProfile
+            runtimeProfile = runtimeProfile,
+            excludedCategoryIds = excludedCategoryIds,
+            onProgress = onProgress
         )
     }
 
@@ -269,17 +292,21 @@ internal class SyncManagerXtreamLiveStrategy(
         mapRawBatch: suspend (Sequence<RawItem>) -> Sequence<Channel>,
         estimatedBytes: (RawItem) -> Long,
         beforeMapping: suspend () -> Unit,
-        runtimeProfile: CatalogSyncRuntimeProfile
+        runtimeProfile: CatalogSyncRuntimeProfile,
+        excludedCategoryIds: Set<Long>,
+        onProgress: ((String) -> Unit)?
     ): CatalogSyncPayload<Channel> {
         var fallbackCollector = FallbackCategoryCollector(provider.id, ContentType.LIVE)
         val seenStreamIds = HashSet<Long>()
         var stagedSessionId: Long? = null
         var acceptedCount = 0
         var streamedRawCount = 0
+        var filteredHiddenCount = 0
         var fullChannelsFailure: Throwable? = null
         var flushCount = 0
         var mappingElapsedMs = 0L
         var stagingElapsedMs = 0L
+        val loadingProgress = XtreamLiveLoadingProgress { message -> progress(provider.id, onProgress, message) }
 
         suspend fun discardAttempt() {
             stagedSessionId?.let { syncCatalogStore.discardStagedImport(provider.id, it) }
@@ -315,7 +342,12 @@ internal class SyncManagerXtreamLiveStrategy(
             if (rawBatch.isEmpty()) return
             lateinit var mappedChannels: List<Channel>
             mappingElapsedMs += measureTimeMillis {
-                mappedChannels = mapRawBatch(rawBatch.asSequence()).toList()
+                val mapped = mapRawBatch(rawBatch.asSequence()).toList()
+                mappedChannels = mapped.filter { channel ->
+                    val excluded = channel.categoryId != null && channel.categoryId in excludedCategoryIds
+                    if (excluded) filteredHiddenCount++
+                    !excluded
+                }
             }
             lateinit var staged: StagedCatalogSnapshot
             stagingElapsedMs += measureTimeMillis {
@@ -333,16 +365,14 @@ internal class SyncManagerXtreamLiveStrategy(
             stagedSessionId = staged.sessionId
             acceptedCount += staged.acceptedCount
             flushCount++
-            // D10 — mode HIGH (full catalog) : pas de count par categorie disponible,
-            // on emet en indetermine (`total = 0`) une fois par flush de batch (cadence
-            // <= 1/s en pratique, jamais par item). Le label reste vide car aucune
-            // categorie ne correspond a la fenetre courante.
+            // Counts represent successful staging writes, not a committed/ready catalog.
+            loadingProgress.batchStaged(acceptedCount)
             emitProgress(provider.id,
                 SyncProgress(
                     section = Section.LIVE,
                     current = 0,
                     total = 0,
-                    currentLabel = "",
+                    currentLabel = XtreamLiveProgressLabels.LOADING,
                     itemsIndexed = acceptedCount
                 )
             )
@@ -352,6 +382,7 @@ internal class SyncManagerXtreamLiveStrategy(
         val fullChannelsElapsedMs = measureTimeMillis {
             when (val attempt = xtreamSupport.attemptNonCancellation {
                 xtreamSupport.retryXtreamCatalogTransient(provider.id) {
+                    loadingProgress.startAttempt()
                     streamedRawCount = 0
                     flushCount = 0
                     mappingElapsedMs = 0L
@@ -408,12 +439,14 @@ internal class SyncManagerXtreamLiveStrategy(
             )
         }
 
-        if (streamedRawCount > 0) {
+        loadingProgress.readerDrained(acceptedCount)
+        if (streamedRawCount > 0 && (acceptedCount > 0 || filteredHiddenCount > 0)) {
             Log.i(
                 XTREAM_LIVE_STRATEGY_TAG,
                 "Xtream live full catalog succeeded for provider ${provider.id} using $decoderLabel decoder in ${fullChannelsElapsedMs}ms " +
                     "with $acceptedCount accepted items from $streamedRawCount raw items " +
-                    "across $flushCount flushes; mapping=${mappingElapsedMs}ms staging=${stagingElapsedMs}ms profile=${runtimeProfile.diagnosticsLabel}."
+                    "across $flushCount flushes; hidden_filtered=$filteredHiddenCount " +
+                    "mapping=${mappingElapsedMs}ms staging=${stagingElapsedMs}ms profile=${runtimeProfile.diagnosticsLabel}."
             )
             if (acceptedCount == 0) {
                 return CatalogSyncPayload(
@@ -583,7 +616,7 @@ internal class SyncManagerXtreamLiveStrategy(
                 categoryOutcomes
             )
             var fallbackWarnings = executionPlan.warnings
-            if (concurrency > 1 && catalogStrategySupport.shouldRetryFailedCategories(
+            if (executionPlan.stopReason == null && concurrency > 1 && catalogStrategySupport.shouldRetryFailedCategories(
                     categories.size,
                     failureCount,
                     downgradeRecommended,
@@ -600,6 +633,7 @@ internal class SyncManagerXtreamLiveStrategy(
                     provider = provider,
                     timedOutcomes = timedOutcomes,
                     fetchSequentially = ::fetchCompletedCategory,
+                    stopReason = executionPlan.stopReason,
                     onCategoryRetried = { completed, total, _ ->
                         progress(provider.id, onProgress, "Retrying failed Live TV categories $completed/$total...")
                     }

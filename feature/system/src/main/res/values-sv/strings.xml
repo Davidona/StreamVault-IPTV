@@ -6,7 +6,7 @@
   <string name="sync_section_live">Live</string>
   <string name="sync_section_vod">VOD</string>
   <string name="sync_section_series">Series</string>
-  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="sync_items_indexed_format">%1$d items prepared</string>
   <string name="welcome_tagline">Premium-IPTV för vardagsrummet</string>
   <string name="welcome_subtitle">Slappna av med livekanaler, reprisvisning, filmer och serier med en förstklassig Android TV-upplevelse.</string>
   <string name="settings_cancel">Avbryt</string>

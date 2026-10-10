@@ -266,6 +266,7 @@ class SyncManagerTest {
     // Mockito mocks — all return defaults (null/0/Unit), which will cause
     // the sync pipeline to throw and transition to Error state.
     private val channelDao: ChannelDao = mock()
+    private val workScheduler: ProviderSyncWorkScheduler = mock()
     private val movieDao: MovieDao = mock()
     private val seriesDao: SeriesDao = mock()
     private val episodeDao: EpisodeDao = mock()
@@ -387,6 +388,7 @@ class SyncManagerTest {
             org.mockito.kotlin.whenever(catalogSyncDao.countCategoryStages(any(), any(), any())).thenReturn(0)
             org.mockito.kotlin.whenever(catalogSyncDao.getChannelStageCategorySummaries(any(), any())).thenReturn(emptyList())
             org.mockito.kotlin.whenever(xtreamContentIndexDao.pruneStaleLocalContentRows(any(), any())).thenReturn(0)
+            org.mockito.kotlin.whenever(xtreamContentIndexDao.getByRemoteIds(any(), any(), any())).thenReturn(emptyList())
             // Default stubs for the streamed Stalker API methods. The tests in this file
             // generally don't stress live-stream streaming directly; without these defaults
             // the unstubbed mock returns null which crashes the `when (val streamResult)`
@@ -568,7 +570,7 @@ class SyncManagerTest {
         providerWorkLocks = ProviderWorkLockRegistry(),
         providerSyncLocks = ProviderSyncLockRegistry(),
         stalkerPlaybackCapabilityCache = com.streamvault.data.provider.StalkerPlaybackCapabilityCache(typedProviderClientFactory),
-        providerSyncWorkScheduler = mock()
+        providerSyncWorkScheduler = workScheduler
     )
     }
 
@@ -854,6 +856,30 @@ class SyncManagerTest {
     }
 
     @Test
+    fun `completed fallback catalog coalesces queued onboarding recovery despite warnings`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.PARTIAL))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now,
+            liveCount = 1, lastSyncStatus = "PARTIAL"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        assertThat(mgr.resumePrimaryCatalog(1, true).isSuccess).isTrue()
+        assertThat(xtreamBackend.requestedActions).isEmpty()
+    }
+
+    @Test
+    fun `onboarding recovery does not coalesce a newer failed live attempt`() = runTest {
+        val mgr = buildManager(providerEntity = sampleProvider().copy(status = com.streamvault.domain.model.ProviderStatus.PARTIAL))
+        val now = System.currentTimeMillis()
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1, lastLiveSync = now, lastLiveSuccess = now - 1000,
+            liveCount = 1, lastSyncStatus = "PARTIAL"))
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1)).thenReturn(1)
+        stubXtreamLiveCatalog()
+        stubXtreamEmptyVodAndSeriesCategories()
+        mgr.resumePrimaryCatalog(1, true)
+        assertThat(xtreamBackend.requestedActions).contains("get_live_streams")
+    }
+
+    @Test
     fun `sync_xtream_withFreshCache_andForceFalse_runs_index_first_shell`() = runTest {
         val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
         val now = System.currentTimeMillis()
@@ -1102,6 +1128,24 @@ class SyncManagerTest {
     }
 
     @Test
+    fun `failed full live refresh preserves library without marking it freshly successful`() = runTest {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        val previousSuccess = System.currentTimeMillis() - 60_000L
+        syncMetadataRepo.updateMetadata(SyncMetadata(providerId = 1L, liveCount = 7,
+            lastLiveSync = previousSuccess, lastLiveSuccess = previousSuccess))
+        org.mockito.kotlin.whenever(channelDao.getCount(1L)).thenReturn(flowOf(7))
+        xtreamBackend.respond(action = "get_live_categories", body = "[]")
+        xtreamBackend.respond(action = "get_live_streams", body = "{}", code = 401)
+        stubXtreamEmptyVodAndSeriesCategories()
+        assertThat(mgr.sync(1L, force = true).isSuccess).isTrue()
+        val metadata = syncMetadataRepo.getMetadata(1L)!!
+        assertThat(metadata.lastLiveSuccess).isEqualTo(previousSuccess)
+        assertThat(metadata.lastLiveSync).isGreaterThan(previousSuccess)
+        assertThat(metadata.liveCount).isEqualTo(7)
+        verify(catalogSyncDao, org.mockito.kotlin.never()).deleteStaleChannelsForStage(any(), any())
+    }
+
+    @Test
     fun `retrySection_live_xtream_full_success_keeps_staged_live_count`() = runTest {
         val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
         stubXtreamLiveCatalog()
@@ -1147,7 +1191,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun `retrySection_live_xtream_auto_manual_sync_uses_category_mode_on_mid_profile`() = runTest {
+    fun `retrySection live auto manual sync uses one bulk request on mid profile`() = runTest {
         val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
         xtreamBackend.respond(
             action = "get_live_categories",
@@ -1178,8 +1222,8 @@ class SyncManagerTest {
         advanceUntilIdle()
 
         assertThat(result.isSuccess).isTrue()
-        assertThat(xtreamBackend.requestedActions.count { it == "get_live_streams" }).isEqualTo(2)
-        assertThat(xtreamBackend.requestedActions.first()).isEqualTo("get_live_categories")
+        assertThat(xtreamBackend.requestedActions.count { it == "get_live_streams" }).isEqualTo(1)
+        assertThat(xtreamBackend.requestedActions).contains("get_live_categories")
     }
 
     @Test
@@ -1217,7 +1261,7 @@ class SyncManagerTest {
         val result = mgr.sync(1L, force = false)
         advanceUntilIdle()
 
-        assertThat(result.isSuccess).isTrue()
+        if (!result.isSuccess) throw AssertionError("Unexpected sync result: $result")
         assertThat(xtreamBackend.requestedActions.count { it == "get_live_streams" }).isEqualTo(2)
         assertThat(xtreamBackend.requestedActions).contains("get_vod_categories")
         assertThat(xtreamBackend.requestedActions).contains("get_series_categories")
@@ -1340,6 +1384,7 @@ class SyncManagerTest {
                     )
                 )
             )
+            org.mockito.kotlin.whenever(channelDao.countByProvider(1L)).thenReturn(2)
         }
         xtreamBackend.respond(
             action = "get_live_categories",
@@ -1394,6 +1439,7 @@ class SyncManagerTest {
         org.mockito.kotlin.whenever(categoryDao.getByProviderAndTypeSync(1L, ContentType.LIVE.name))
             .thenReturn(emptyList())
         org.mockito.kotlin.whenever(channelDao.getByProviderSync(1L)).thenReturn(emptyList())
+        org.mockito.kotlin.whenever(channelDao.countByProvider(1L)).thenReturn(1)
         xtreamBackend.respond(
             action = "get_live_categories",
             body = """
@@ -1523,6 +1569,31 @@ class SyncManagerTest {
         val jobs = argumentCaptor<XtreamIndexJobEntity>()
         verify(xtreamIndexJobDao, atLeastOnce()).upsert(jobs.capture())
         assertThat(jobs.allValues.last { it.section == "MOVIE" }.state).isEqualTo("FAILED_RETRYABLE")
+        verify(workScheduler).scheduleXtreamIndex(1L, ContentType.MOVIE, false)
+    }
+
+    @Test
+    fun `series category discovery failure queues durable recovery`() = runTest {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        stubXtreamLiveCatalog()
+        xtreamBackend.respond(action = "get_vod_categories", body = "[]")
+        xtreamBackend.respond(action = "get_series_categories", body = "{}", code = 503)
+        assertThat(mgr.sync(1L, force = false).isSuccess).isTrue()
+        verify(workScheduler).scheduleXtreamIndex(1L, ContentType.SERIES, false)
+        assertThat(xtreamBackend.requestedActions).doesNotContain("get_series")
+    }
+
+    @Test
+    fun `rejected movie category credentials are not queued for automatic recovery`() = runTest {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        stubXtreamLiveCatalog()
+        xtreamBackend.respond(action = "get_vod_categories", body = "{}", code = 401)
+        xtreamBackend.respond(action = "get_series_categories", body = "[]")
+        assertThat(mgr.sync(1L, force = false).isSuccess).isTrue()
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleXtreamIndex(1L, ContentType.MOVIE, false)
+        val jobs = argumentCaptor<XtreamIndexJobEntity>()
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(jobs.capture())
+        assertThat(jobs.allValues.last { it.section == "MOVIE" }.state).isEqualTo("FAILED_PERMANENT")
     }
 
     @Test
@@ -1691,6 +1762,24 @@ class SyncManagerTest {
                     job.totalCategories == 1
             }
         ).isTrue()
+    }
+
+    @Test
+    fun `permanent category rejection replaces previous partial job without queuing continuation`() = runBlocking {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        org.mockito.kotlin.whenever(categoryDao.getByProviderAndTypeSync(1L, ContentType.MOVIE.name)).thenReturn(
+            listOf(CategoryEntity(categoryId = 42L, name = "Action", type = ContentType.MOVIE, providerId = 1L)))
+        org.mockito.kotlin.whenever(xtreamIndexJobDao.get(1L, ContentType.MOVIE.name)).thenReturn(
+            XtreamIndexJobEntity(1L, "MOVIE", state = "PARTIAL", totalCategories = 1, failedCategories = 1))
+        xtreamBackend.respond(action = "get_vod_streams", body = "{}", code = 401)
+        val result = mgr.processQueuedXtreamIndexJobs(1L, ContentType.MOVIE, maxCategoriesPerSection = 2)
+        assertThat(xtreamBackend.requestedActions).contains("get_vod_streams")
+        val jobs = argumentCaptor<XtreamIndexJobEntity>()
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(jobs.capture())
+        com.google.common.truth.Truth.assertWithMessage("Job states/errors: %s", jobs.allValues.map { it.state to it.lastError })
+            .that(jobs.allValues.last().state).isEqualTo("FAILED_PERMANENT")
+        assertThat(result.isSuccess).isFalse()
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleXtreamIndex(1L, ContentType.MOVIE, false)
     }
 
     @Test

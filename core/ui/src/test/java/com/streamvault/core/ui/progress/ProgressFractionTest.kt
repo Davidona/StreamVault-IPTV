@@ -20,6 +20,11 @@ class ProgressFractionTest {
     }
 
     @Test
+    fun bulkChannelCountKeepsUnknownTotalIndicator() {
+        assertThat(extractProgressFraction("Loading Live TV channels...\n3,200 channels processed")).isNull()
+    }
+
+    @Test
     fun nonPositiveTotalReturnsNull() {
         assertThat(extractProgressFraction("Syncing 1 / 0")).isNull()
     }

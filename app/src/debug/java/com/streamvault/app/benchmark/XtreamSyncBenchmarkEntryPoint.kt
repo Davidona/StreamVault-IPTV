@@ -2,6 +2,8 @@ package com.streamvault.app.benchmark
 
 import com.streamvault.data.local.StreamVaultDatabase
 import com.streamvault.data.sync.ProviderSyncCommands
+import com.streamvault.domain.repository.SyncMetadataRepository
+import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.ValidateAndAddProvider
 import dagger.hilt.EntryPoint
@@ -16,4 +18,6 @@ interface XtreamSyncBenchmarkEntryPoint {
     fun providers(): ProviderRepository
     fun sync(): ProviderSyncCommands
     fun database(): StreamVaultDatabase
+    fun preferences(): SettingsPreferences
+    fun syncMetadata(): SyncMetadataRepository
 }

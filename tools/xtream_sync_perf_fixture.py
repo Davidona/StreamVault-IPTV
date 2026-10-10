@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Streaming, deterministic live-only Xtream fixture for sync measurements.
+"""Streaming, deterministic Xtream fixture for sync measurements.
 
 No provider account is required. Payloads are generated a row at a time; events
 contain action/scope/count/timing only, never URLs or query credentials.
@@ -24,11 +24,17 @@ from urllib.parse import parse_qs, urlparse
 class Scenario:
     channels: int = 10_000
     categories: int = 100
+    movies: int = 0
+    movie_categories: int = 0
+    series_items: int = 0
+    series_categories: int = 0
     seed: int = 1
     header_delay_ms: int = 0
     category_delay_ms: int = 0
     bytes_per_second: int = 0
     bulk_status: int = 200
+    bulk_vod_status: int = 200
+    bulk_series_status: int = 200
     disconnect_after_rows: int = 0
     malformed_every: int = 0
     throttle_every: int = 0
@@ -36,11 +42,20 @@ class Scenario:
     def __post_init__(self):
         if not 1 <= self.channels <= 500_000 or not 1 <= self.categories <= 10_000:
             raise ValueError("channels/categories are outside fixture limits")
+        if not 0 <= self.movies <= 500_000 or not 0 <= self.series_items <= 500_000:
+            raise ValueError("movies/series_items are outside fixture limits")
+        if not 0 <= self.movie_categories <= 10_000 or not 0 <= self.series_categories <= 10_000:
+            raise ValueError("movie/series categories are outside fixture limits")
+        if self.movies and not self.movie_categories:
+            raise ValueError("movie_categories is required when movies are configured")
+        if self.series_items and not self.series_categories:
+            raise ValueError("series_categories is required when series items are configured")
         for name, value in asdict(self).items():
             if value < 0:
                 raise ValueError(name + " must be nonnegative")
-        if not 100 <= self.bulk_status <= 599:
-            raise ValueError("bulk_status must be an HTTP status")
+        if any(not 100 <= status <= 599 for status in
+               (self.bulk_status, self.bulk_vod_status, self.bulk_series_status)):
+            raise ValueError("bulk statuses must be HTTP statuses")
 
     def rows(self, category_id: int | None = None) -> Iterator[dict]:
         # Jump directly to the selected category; no full-catalog scan per request.
@@ -72,18 +87,88 @@ class Scenario:
             yield encode(row)
         yield b"]"
 
+    def movie_rows(self, category_id: int | None = None) -> Iterator[dict]:
+        if not self.movie_categories:
+            return
+        start = 1 if category_id is None else category_id
+        step = 1 if category_id is None else self.movie_categories
+        if category_id is not None and not 1 <= category_id <= self.movie_categories:
+            return
+        for number in range(start, self.movies + 1, step):
+            category = (number - 1) % self.movie_categories + 1
+            yield {
+                "num": number,
+                "name": f"Benchmark Movie {number:06d}",
+                "stream_type": "movie",
+                "stream_id": 200_000 + number,
+                "stream_icon": "",
+                "category_id": str(category),
+                "container_extension": "mp4",
+                "added": str(1_700_000_000 + number),
+                "rating": "7.5",
+                "rating_5based": "3.75",
+                "tmdb": str(500_000 + number),
+                "youtube_trailer": "",
+                "is_adult": 0,
+            }
+
+    def series_rows(self, category_id: int | None = None) -> Iterator[dict]:
+        if not self.series_categories:
+            return
+        start = 1 if category_id is None else category_id
+        step = 1 if category_id is None else self.series_categories
+        if category_id is not None and not 1 <= category_id <= self.series_categories:
+            return
+        for number in range(start, self.series_items + 1, step):
+            category = (number - 1) % self.series_categories + 1
+            yield {
+                "series_id": 300_000 + number,
+                "name": f"Benchmark Series {number:06d}",
+                "cover": "",
+                "cover_big": "",
+                "category_id": str(category),
+                "genre": "Benchmark",
+                "rating": "7.0",
+                "episode_run_time": "45",
+                "last_modified": str(1_700_000_000 + number),
+                "is_adult": 0,
+            }
+
+    @staticmethod
+    def payload_info(rows: Iterator[dict]) -> tuple[str, int]:
+        digest = hashlib.sha256()
+        digest.update(b"[")
+        size = 1
+        first = True
+        for row in rows:
+            chunk = (b"" if first else b",") + encode(row)
+            first = False
+            digest.update(chunk)
+            size += len(chunk)
+        digest.update(b"]")
+        size += 1
+        return digest.hexdigest(), size
+
     def metadata(self) -> dict:
         digest = hashlib.sha256()
         size = 0
         for chunk in self.chunks():
             digest.update(chunk)
             size += len(chunk)
+        movie_hash, movie_size = self.payload_info(self.movie_rows())
+        series_hash, series_size = self.payload_info(self.series_rows())
         return {
             "fixture": "streamvault-xtream-sync-performance-v1",
             "scenario": asdict(self),
             "expected_channels": self.channels - (self.channels // self.malformed_every if self.malformed_every else 0),
+            "expected_movies": self.movies,
+            "expected_series": self.series_items,
             "payload_sha256": digest.hexdigest(),
             "payload_bytes": size,
+            "movie_payload_sha256": movie_hash,
+            "movie_payload_bytes": movie_size,
+            "series_payload_sha256": series_hash,
+            "series_payload_bytes": series_size,
             "playback_media": False,
         }
 
@@ -238,8 +323,41 @@ class Handler(BaseHTTPRequestHandler):
                     self.wfile.write(b"]")
                     self.wfile.flush()
                     size += 1
+            elif action in {"get_vod_categories", "get_series_categories"}:
+                time.sleep(scenario.category_delay_ms / 1000)
+                category_count = (scenario.movie_categories if action == "get_vod_categories"
+                                  else scenario.series_categories)
+                size = self.json_response([
+                    {"category_id": str(index),
+                     "category_name": f"Benchmark {('Movie' if action == 'get_vod_categories' else 'Series')} Group {index:04d}",
+                     "parent_id": 0, "is_adult": 0}
+                    for index in range(1, category_count + 1)
+                ])
+            elif action in {"get_vod_streams", "get_series"}:
+                is_movie = action == "get_vod_streams"
+                status = (scenario.bulk_vod_status if is_movie else scenario.bulk_series_status) \
+                    if category_id is None else 200
+                if status != 200:
+                    size = self.json_response({"error": "configured_failure"}, status)
+                else:
+                    source = scenario.movie_rows(category_id) if is_movie else scenario.series_rows(category_id)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(b"[")
+                    size = 1
+                    for row in source:
+                        chunk = (b"," if rows else b"") + encode(row)
+                        self.wfile.write(chunk)
+                        size += len(chunk)
+                        rows += 1
+                        if rows % 128 == 0:
+                            self.wfile.flush()
+                    self.wfile.write(b"]")
+                    self.wfile.flush()
+                    size += 1
             else:
-                # Isolate live ingestion from VOD/series/EPG work.
+                # EPG remains outside the catalog benchmark.
                 size = self.json_response([])
             completed = True
         except (BrokenPipeError, ConnectionResetError):

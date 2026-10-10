@@ -121,6 +121,7 @@ internal fun shouldRunPersistedIndexJob(
     successTtlMillis: Long
 ): Boolean {
     if (job == null) return true
+    if (job.state == "FAILED_PERMANENT") return false
     if (job.state in setOf("QUEUED", "PARTIAL", "STALE", "FAILED_RETRYABLE")) return true
     if (job.state == "RUNNING") {
         return !isFreshRunningIndexJob(job.updatedAt, now, staleRunningAfterMillis)

@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
+import com.streamvault.core.navigation.NavigationOptions
 import com.streamvault.feature.provider.api.ProviderBackupPreviewContent
 import com.streamvault.feature.provider.setup.ProviderSetupScreen
 
@@ -31,7 +32,9 @@ fun NavGraphBuilder.registerProviderGraph(
             onBack = { actions.back() },
             backupPreviewContent = backupPreviewContent,
             onProviderAdded = dropUnlessResumed {
-                completeProviderSetup(actions) {
+                // All create-provider protocols finish through this shared route.
+                // Only edits return to the screen that launched setup.
+                completeProviderSetup(actions, isEditing = providerId != null) {
                     onStartupNavigationRequested(AppDestination.ProviderSetup())
                 }
             }
@@ -41,9 +44,19 @@ fun NavGraphBuilder.registerProviderGraph(
 
 internal fun completeProviderSetup(
     actions: NavigationActions,
+    isEditing: Boolean,
     onStartupNavigationRequested: () -> Unit
 ) {
-    if (!actions.back()) {
+    if (!isEditing) {
+        actions.navigate(
+            AppDestination.Home,
+            NavigationOptions(
+                launchSingleTop = true,
+                popUpTo = AppDestination.ProviderSetup(),
+                inclusive = true
+            )
+        )
+    } else if (!actions.back()) {
         onStartupNavigationRequested()
     }
 }

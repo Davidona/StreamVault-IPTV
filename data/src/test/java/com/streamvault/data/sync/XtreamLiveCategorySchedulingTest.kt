@@ -51,6 +51,7 @@ class XtreamLiveCategorySchedulingTest {
             }, refillWorkers = true)
         assertThat(started).containsExactly("1", "2")
         assertThat(plan.outcomes).hasSize(2)
+        assertThat(plan.stopReason).isEqualTo(CategoryExecutionStopReason.AUTHENTICATION)
         var retries = 0
         support().continueFailedCategoryOutcomes(provider, plan.outcomes, { retries++; it.let { category ->
             TimedCategoryOutcome<String>(category, CategoryFetchOutcome.Empty(category.categoryName), 0)
@@ -93,6 +94,24 @@ class XtreamLiveCategorySchedulingTest {
         assertThat(started).isLessThan(categories.size)
         assertThat(plan.outcomes).hasSize(started)
         assertThat(plan.warnings).containsExactly("sequential", "Live aborted")
+        assertThat(plan.stopReason).isEqualTo(CategoryExecutionStopReason.PROVIDER_STRESS)
+        val beforeContinuation = started
+        support().continueFailedCategoryOutcomes(provider, plan.outcomes, fetchSequentially = { category ->
+            started++
+            TimedCategoryOutcome(category, CategoryFetchOutcome.Empty(category.categoryName), 0)
+        }, stopReason = plan.stopReason)
+        assertThat(started).isEqualTo(beforeContinuation)
+    }
+
+    @Test
+    fun `stress on the final category remains a terminal continuation stop`() = runTest {
+        val plan = support().executeCategoryRecoveryPlan(provider, categories.take(4), 2,
+            "Live", "sequential", null, fetch = { category ->
+                TimedCategoryOutcome<String>(category,
+                    CategoryFetchOutcome.Failure(category.categoryName, java.io.IOException("timeout")), 0)
+            }, refillWorkers = true)
+        assertThat(plan.outcomes).hasSize(4)
+        assertThat(plan.stopReason).isEqualTo(CategoryExecutionStopReason.PROVIDER_STRESS)
     }
 
     @Test

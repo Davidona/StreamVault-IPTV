@@ -71,6 +71,9 @@ internal class CatalogIndexJobStore(
 
     internal fun shouldRunSummary(job: XtreamIndexJobEntity?): Boolean {
         if (job == null) return true
+        // Rejected credentials require a configuration change or explicit forced retry,
+        // rather than another launch/periodic attempt because lastSuccessAt is zero.
+        if (job.state == "FAILED_PERMANENT") return false
         if (job.state in setOf("QUEUED", "RUNNING", "PARTIAL", "STALE", "FAILED_RETRYABLE")) return true
         return ContentCachePolicy.shouldRefresh(job.lastSuccessAt, ContentCachePolicy.CATALOG_TTL_MILLIS)
     }

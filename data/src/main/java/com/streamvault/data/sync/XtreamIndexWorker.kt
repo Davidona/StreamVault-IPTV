@@ -49,6 +49,9 @@ class XtreamIndexWorker(
         val force = inputData.getBoolean(KEY_FORCE, false)
         val requestedProviderId = inputData.getLong(KEY_PROVIDER_ID, INVALID_PROVIDER_ID)
         val requestedSection = inputData.getString(KEY_SECTION)?.toContentTypeOrNull()
+        val sliceBudget = XtreamIndexSliceBudget.forTier(
+            CatalogSyncRuntimeProfile.from(applicationContext).tier
+        )
 
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
@@ -77,7 +80,9 @@ class XtreamIndexWorker(
                             providerId = provider.id,
                             section = requestedSection,
                             force = force,
-                            maxCategoriesPerSection = CATEGORY_SLICE_SIZE
+                            maxCategoriesPerSection = sliceBudget.maxCategories,
+                            maxRowsPerSection = sliceBudget.maxRows,
+                            maxDurationMillis = sliceBudget.maxDurationMillis
                         )) {
                             is com.streamvault.domain.model.Result.Error -> {
                                 Log.w(TAG, "Xtream index worker failed for provider ${provider.id}: ${result.message}")
@@ -105,11 +110,7 @@ class XtreamIndexWorker(
                     }
                 }
 
-            when {
-                sawRetryableFailure -> Result.retry()
-                sawPermanentFailure -> Result.failure()
-                else -> Result.success()
-            }
+            xtreamIndexWorkResult(requestedProviderId, sawRetryableFailure, sawPermanentFailure)
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (error: Exception) {
@@ -128,7 +129,6 @@ class XtreamIndexWorker(
         private const val KEY_SECTION = "section"
         private const val KEY_FORCE = "force"
         private const val INVALID_PROVIDER_ID = -1L
-        private const val CATEGORY_SLICE_SIZE = 2
         private const val UNIQUE_LAUNCH_WORK_NAME = "xtream-index-launch-stale-check"
         private const val UNIQUE_PERIODIC_WORK_NAME = "xtream-index-periodic-worker"
 
@@ -216,4 +216,15 @@ class XtreamIndexWorker(
             else -> ProviderWorkflowPhase.CONTENT_INDEX
         }
     }
+}
+
+/** Durable section/workflow status carries permanent failures; do not poison appended sections. */
+internal fun xtreamIndexWorkResult(
+    requestedProviderId: Long,
+    sawRetryableFailure: Boolean,
+    sawPermanentFailure: Boolean
+): androidx.work.ListenableWorker.Result = when {
+    sawRetryableFailure -> androidx.work.ListenableWorker.Result.retry()
+    sawPermanentFailure && requestedProviderId <= 0L -> androidx.work.ListenableWorker.Result.failure()
+    else -> androidx.work.ListenableWorker.Result.success()
 }

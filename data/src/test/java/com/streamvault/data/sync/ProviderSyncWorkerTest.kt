@@ -30,6 +30,13 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class ProviderSyncWorkerTest {
+    @Test
+    fun `permanent index rejection is not retried merely because success timestamp is absent`() {
+        assertThat(shouldRunPersistedIndexJob(
+            XtreamIndexJobEntity(1L, "MOVIE", state = "FAILED_PERMANENT"),
+            100_000L, 1_000L, 86_400_000L
+        )).isFalse()
+    }
     private val providerDao: ProviderDao = mock()
     private val categoryDao: CategoryDao = mock()
     private val channelDao: ChannelDao = mock()
