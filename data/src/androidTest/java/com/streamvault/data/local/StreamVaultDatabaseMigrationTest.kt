@@ -1979,8 +1979,8 @@ class StreamVaultDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate78To80_preservesSavedImportWithoutGrantingCompletionProof() {
-        val name = "streamvault-78-80-live-receipt"
+    fun migrate78To81_preservesSavedImportWithoutGrantingCompletionProof() {
+        val name = "streamvault-78-81-live-receipt"
         migrationTestHelper.createDatabase(name, 78).apply {
             execSQL("INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) " +
                 "VALUES (1,'Synthetic','XTREAM_CODES',1,'UNKNOWN',0,0)")
@@ -2009,6 +2009,62 @@ class StreamVaultDatabaseMigrationTest {
               AND sealed_session_id IS NULL AND sealed_row_count=0
               AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
         """.trimIndent()))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+
+        val current = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            81,
+            true,
+            StreamVaultDatabase.MIGRATION_80_81
+        )
+        assertEquals(1, countRows(current, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic'"))
+        assertEquals(1, countRows(current, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state WHERE provider_id=1
+              AND staged_session_id=123 AND accepted_row_count=7 AND phase='STAGED'
+              AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(1, countRows(current, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stalker_live_category_retries'"))
+        assertEquals(0, countRows(current, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        current.close()
+    }
+
+    @Test
+    fun migrate80To81_createsStalkerRetriesAndPreservesHydratedEpisodes() {
+        val name = "streamvault-80-81-stalker-retries"
+        migrationTestHelper.createDatabase(name, 80).apply {
+            insertProvider78(1, "Stalker", "STALKER_PORTAL")
+            insertSeries78(id = 30, seriesId = 3001, providerId = 1, name = "First Series", detailHydratedAt = 555)
+            insertSeries78(id = 31, seriesId = 3002, providerId = 1, name = "Second Series", detailHydratedAt = 666)
+            insertEpisode78(id = 40, episodeId = 10001, seriesId = 30, providerId = 1, title = "First S01E01")
+            insertEpisode78(id = 41, episodeId = 10001, seriesId = 31, providerId = 1, title = "Second S01E01")
+            assertEquals(0, countRows(this, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stalker_live_category_retries'"))
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            81,
+            true,
+            StreamVaultDatabase.MIGRATION_80_81
+        )
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE provider_id=1 AND episode_id=10001"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id=30 AND detail_hydrated_at=555"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id=31 AND detail_hydrated_at=666"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('stalker_live_category_retries') WHERE name='index_stalker_live_category_retries_provider_id'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_list('stalker_live_category_retries') WHERE `table`='providers' AND on_delete='CASCADE'"))
+        migrated.execSQL("""
+            INSERT INTO stalker_live_category_retries (
+                provider_id, category_id, category_name, configuration_generation,
+                attempt_count, last_attempt_at, last_error
+            ) VALUES (1, 7, 'News', 3, 2, 100, 'Retryable failure')
+        """.trimIndent())
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM stalker_live_category_retries WHERE provider_id=1 AND category_id=7"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.setForeignKeyConstraintsEnabled(true)
+        migrated.execSQL("DELETE FROM providers WHERE id=1")
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM stalker_live_category_retries"))
         assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
         migrated.close()
     }

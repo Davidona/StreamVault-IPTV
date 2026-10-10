@@ -2,12 +2,6 @@
 
 All notable product changes are recorded in this document.
 
-## [Unreleased]
-
-### Fixed
-
-- Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
-
 ## [1.2.0]
 
 ### Added
@@ -29,6 +23,8 @@ All notable product changes are recorded in this document.
 - Fixed Xtream playlist setup ignoring the requested HLS or MPEG-TS format when playback format is set to Auto.
 - Fixed matching AVC/H.264 and HEVC/H.265 movie versions failing to group together.
 - Fixed newly imported movie summaries skipping detail loading.
+- Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
+- Fixed M3U channels sharing a `tvg-id` but using different stream URLs or Acestream hashes from being incorrectly treated as the same channel (#231).
 - Fixed background movie refresh crashes when saved provider credentials cannot be decrypted.
 - Fixed cropped video during adaptive resolution changes on affected Android TV emulators.
 
