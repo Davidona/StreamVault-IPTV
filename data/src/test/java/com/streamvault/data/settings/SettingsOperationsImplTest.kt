@@ -2,6 +2,7 @@ package com.streamvault.data.settings
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.dao.ProgramDao
+import com.streamvault.data.local.dao.StalkerIndexJobDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.dao.XtreamLiveOnboardingDao
 import com.streamvault.data.local.entity.XtreamIndexJobEntity
@@ -26,11 +27,13 @@ import org.mockito.kotlin.whenever
 
 class SettingsOperationsImplTest {
     private val programDao = mock<ProgramDao>()
+    private val stalkerIndexJobDao = mock<StalkerIndexJobDao>()
     private val xtreamIndexJobDao = mock<XtreamIndexJobDao>()
     private val xtreamLiveOnboardingDao = mock<XtreamLiveOnboardingDao>()
     private val syncCommands = mock<ProviderSyncCommands>()
     private val operations = SettingsOperationsImpl(
         programDao = programDao,
+        stalkerIndexJobDao = stalkerIndexJobDao,
         xtreamIndexJobDao = xtreamIndexJobDao,
         xtreamLiveOnboardingDao = xtreamLiveOnboardingDao,
         syncCommands = syncCommands
@@ -45,6 +48,7 @@ class SettingsOperationsImplTest {
 
     @Test
     fun `observe index jobs maps every settings-facing field`() = runTest {
+        whenever(stalkerIndexJobDao.observeAll()).thenReturn(flowOf(emptyList()))
         whenever(xtreamIndexJobDao.observeAll()).thenReturn(
             flowOf(listOf(XtreamIndexJobEntity(7L, "MOVIE", "PARTIAL", indexedRows = 18, lastError = "bad row")))
         )

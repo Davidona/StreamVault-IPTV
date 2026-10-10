@@ -349,10 +349,11 @@ class SettingsViewModel @Inject constructor(
 
     private fun String.toCatalogCountStatus(): ProviderCatalogCountStatus = when (uppercase()) {
         "QUEUED", "STALE" -> ProviderCatalogCountStatus.QUEUED
+        "RETRY_WAIT" -> ProviderCatalogCountStatus.QUEUED
         "RUNNING" -> ProviderCatalogCountStatus.SYNCING
-        "PARTIAL" -> ProviderCatalogCountStatus.PARTIAL
-        "FAILED_RETRYABLE", "FAILED_PERMANENT" -> ProviderCatalogCountStatus.FAILED
-        "SUCCESS" -> ProviderCatalogCountStatus.READY
+        "PARTIAL", "TRUNCATED" -> ProviderCatalogCountStatus.PARTIAL
+        "FAILED", "FAILED_RETRYABLE", "FAILED_PERMANENT" -> ProviderCatalogCountStatus.FAILED
+        "SUCCESS", "COMPLETE" -> ProviderCatalogCountStatus.READY
         else -> ProviderCatalogCountStatus.PENDING
     }
 
@@ -384,6 +385,8 @@ class SettingsViewModel @Inject constructor(
         }
         return when (state) {
             "PARTIAL" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label partial: ${indexedRows} indexed"
+            "TRUNCATED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label truncated: ${indexedRows} indexed"
+            "FAILED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label failed${lastError?.let { ": $it" }.orEmpty()}"
             "FAILED_RETRYABLE" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label retryable failed${lastError?.let { ": $it" }.orEmpty()}"
             "FAILED_PERMANENT" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label permanently failed${lastError?.let { ": $it" }.orEmpty()}"
             else -> null

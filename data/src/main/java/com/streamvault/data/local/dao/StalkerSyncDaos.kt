@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StalkerIndexJobDao {
+    @Query("SELECT * FROM stalker_index_jobs ORDER BY provider_id ASC, section ASC")
+    fun observeAll(): Flow<List<StalkerIndexJobEntity>>
+
     @Query("SELECT * FROM stalker_index_jobs WHERE provider_id = :providerId ORDER BY updated_at ASC, section ASC")
     fun observeForProvider(providerId: Long): Flow<List<StalkerIndexJobEntity>>
 

@@ -9,6 +9,7 @@ All notable product changes are recorded in this document.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 - Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
+- Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
 
 ### Fixed
 
@@ -24,6 +25,7 @@ All notable product changes are recorded in this document.
 - Fixed Xtream playlist setup ignoring the requested HLS or MPEG-TS format when playback format is set to Auto.
 - Fixed matching AVC/H.264 and HEVC/H.265 movie versions failing to group together.
 - Fixed newly imported movie summaries skipping detail loading.
+- Fixed provider diagnostics reporting movie catalogs as stale while their background index was queued, retrying, or running, including Stalker providers.
 - Fixed Stalker add-provider security and verification dialogs stretching to near full screen; they now size to their content and use a narrower width on compact screens.
 - Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
 - Fixed M3U channels sharing a `tvg-id` but using different stream URLs or Acestream hashes from being incorrectly treated as the same channel (#231).

@@ -1,6 +1,7 @@
 package com.streamvault.data.settings
 
 import com.streamvault.data.local.dao.ProgramDao
+import com.streamvault.data.local.dao.StalkerIndexJobDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.dao.XtreamLiveOnboardingDao
 import com.streamvault.data.local.entity.XtreamIndexJobEntity
@@ -13,11 +14,13 @@ import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.settings.SettingsXtreamLiveOnboarding
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SettingsOperationsImpl @Inject constructor(
     private val programDao: ProgramDao,
+    private val stalkerIndexJobDao: StalkerIndexJobDao,
     private val xtreamIndexJobDao: XtreamIndexJobDao,
     private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
     private val syncCommands: ProviderSyncCommands
@@ -26,7 +29,9 @@ class SettingsOperationsImpl @Inject constructor(
         programDao.observeCountByProvider(providerId)
 
     override fun observeXtreamIndexJobs(): Flow<List<SettingsXtreamIndexJob>> =
-        xtreamIndexJobDao.observeAll().map { jobs -> jobs.map { it.toSettingsSnapshot() } }
+        combine(stalkerIndexJobDao.observeAll(), xtreamIndexJobDao.observeAll()) { stalkerJobs, xtreamJobs ->
+            stalkerJobs.map { it.toSettingsSnapshot() } + xtreamJobs.map { it.toSettingsSnapshot() }
+        }
 
     override fun observeIncompleteXtreamLiveOnboarding(): Flow<List<SettingsXtreamLiveOnboarding>> =
         xtreamLiveOnboardingDao.observeIncomplete().map { states ->
@@ -62,6 +67,15 @@ class SettingsOperationsImpl @Inject constructor(
         indexedRows = indexedRows,
         lastError = lastError
     )
+
+    private fun com.streamvault.data.local.entity.StalkerIndexJobEntity.toSettingsSnapshot() =
+        SettingsXtreamIndexJob(
+            providerId = providerId,
+            section = section.name,
+            state = state.name,
+            indexedRows = indexedRows,
+            lastError = lastError
+        )
 
     private fun XtreamLiveOnboardingStateEntity.toSettingsSnapshot() = SettingsXtreamLiveOnboarding(
         providerId = providerId,
