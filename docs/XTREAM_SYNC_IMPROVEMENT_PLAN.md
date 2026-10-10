@@ -12,6 +12,7 @@ Supporting evidence:
 - [Live parsing and group identity implementation](XTREAM_SYNC_PARSING_IMPLEMENTATION.md)
 - [Bounded live pipeline implementation](XTREAM_SYNC_PIPELINE_IMPLEMENTATION.md)
 - [Database write and search implementation](XTREAM_SYNC_DATABASE_IMPLEMENTATION.md)
+- [Live category scheduling implementation](XTREAM_SYNC_CATEGORY_IMPLEMENTATION.md)
 
 The reference implementation provides hypotheses to investigate, not a design
 authority or proof of correctness. Choose behavior for this app's measured
@@ -290,7 +291,8 @@ overlap and a bounded reader/writer pipeline are implemented with cancellation,
 resource-bound and real-graph setup/refresh evidence. P4 stage accounting,
 fingerprint costs, SQL live-index projection and trigger-maintained search are
 implemented with fresh/migrated Room checks and measured backend improvements.
-P5–P8 remain pending.
+P5 refilled live-category workers and adaptive pacing are implemented with
+cancellation, authentication and Retry-After coverage. P6–P8 remain pending.
 The new measurements identify writer cost, slow fallback and extra completed
 imports during some refresh intervals as remaining priorities. Earlier runs
 also showed memory-driven category fallback; the default-strategy gate has not

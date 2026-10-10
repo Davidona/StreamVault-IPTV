@@ -535,7 +535,7 @@ internal class SyncManagerXtreamLiveStrategy(
                 providerId = provider.id,
                 workloadSize = categories.size,
                 preferSequential = preferSequential,
-                stage = XtreamAdaptiveSyncPolicy.Stage.CATEGORY
+                stage = XtreamAdaptiveSyncPolicy.Stage.LIVE_CATEGORY
             )
             val concurrency = adaptiveConcurrency.coerceAtMost(runtimeProfile.maxCategoryConcurrency)
             progress(provider.id, onProgress, "Downloading Live TV by category 0/${categories.size}...")
@@ -551,6 +551,7 @@ internal class SyncManagerXtreamLiveStrategy(
                 sequentialModeWarning = liveCategorySequentialModeWarning,
                 onProgress = onProgress,
                 fetch = ::fetchCompletedCategory,
+                refillWorkers = true,
                 onCategoryCompleted = { completed, total, currentLabel ->
                     // D6 — emission structuree en parallele du callback string deja emis par
                     // `executeCategoryRecoveryPlan` via `progress(...)`. Le compteur cumulatif

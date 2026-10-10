@@ -11,7 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
-internal class XtreamAdaptiveSyncPolicy {
+internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = System::currentTimeMillis) {
     private companion object {
         const val MAX_SEGMENTED_CONCURRENCY = 4
     }
@@ -19,12 +19,14 @@ internal class XtreamAdaptiveSyncPolicy {
     enum class Stage(val timeoutMs: Long?) {
         LIGHTWEIGHT(15_000L),
         CATEGORY(35_000L),
+        LIVE_CATEGORY(35_000L),
         HEAVY(null)
     }
 
     private data class ProviderHealth(
         val stressLevel: Int = 0,
         val backoffUntilMs: Long = 0L,
+        val retryAfterUntilMs: Long = 0L,
         val successStreak: Int = 0,
         val timeoutStreak: Int = 0,
         val resetStreak: Int = 0,
@@ -49,7 +51,8 @@ internal class XtreamAdaptiveSyncPolicy {
         if ((providerHealth[providerId]?.stressLevel ?: 0) > 0) 1 else 2
 
     suspend fun awaitTurn(providerId: Long, stage: Stage) {
-        val waitMs = (providerHealth[providerId]?.backoffUntilMs ?: 0L) - System.currentTimeMillis()
+        val health = providerHealth[providerId]
+        val waitMs = maxOf(health?.backoffUntilMs ?: 0L, health?.retryAfterUntilMs ?: 0L) - nowMillis()
         if (waitMs > 0L) {
             delay(waitMs)
         }
@@ -59,12 +62,12 @@ internal class XtreamAdaptiveSyncPolicy {
         }
         val pacingState = providerPacing.computeIfAbsent(providerId) { ProviderPacingState() }
         pacingState.mutex.withLock {
-            val now = System.currentTimeMillis()
+            val now = nowMillis()
             val pacingWaitMs = (pacingState.nextSegmentedRequestStartMs - now).coerceAtLeast(0L)
             if (pacingWaitMs > 0L) {
                 delay(pacingWaitMs)
             }
-            pacingState.nextSegmentedRequestStartMs = System.currentTimeMillis() + requestSpacingMs
+            pacingState.nextSegmentedRequestStartMs = nowMillis() + requestSpacingMs
         }
     }
 
@@ -82,7 +85,7 @@ internal class XtreamAdaptiveSyncPolicy {
         val health = providerHealth[providerId] ?: ProviderHealth()
         val base = when (stage) {
             Stage.LIGHTWEIGHT -> 1
-            Stage.CATEGORY -> when {
+            Stage.CATEGORY, Stage.LIVE_CATEGORY -> when {
                 workloadSize <= 3 -> 1
                 workloadSize <= 8 -> 2
                 workloadSize <= 18 -> 2
@@ -152,9 +155,13 @@ internal class XtreamAdaptiveSyncPolicy {
                 signal == StressSignal.CONNECTION_RESET || signal == StressSignal.CONNECTION_FAILURE -> 250L * finalStress
                 else -> 0L
             }
+            val now = nowMillis()
+            val retryAfterMs = (error as? XtreamNetworkException)?.retryAfterMs ?: 0L
+            val retryAfterUntil = now + retryAfterMs.coerceIn(0L, Long.MAX_VALUE - now)
             state.copy(
                 stressLevel = finalStress,
-                backoffUntilMs = System.currentTimeMillis() + backoffMs,
+                backoffUntilMs = maxOf(state.backoffUntilMs, now + backoffMs),
+                retryAfterUntilMs = maxOf(state.retryAfterUntilMs, retryAfterUntil),
                 successStreak = 0,
                 timeoutStreak = nextTimeoutStreak,
                 resetStreak = nextResetStreak,
@@ -197,7 +204,8 @@ internal class XtreamAdaptiveSyncPolicy {
 
     private fun classify(error: Throwable): StressSignal {
         return when {
-            error is XtreamAuthenticationException -> StressSignal.THROTTLED
+            error is XtreamAuthenticationException -> StressSignal.NONE
+            error is XtreamNetworkException && error.statusCode == 429 -> StressSignal.THROTTLED
             error is XtreamRequestException && error.statusCode in setOf(403, 429) -> StressSignal.THROTTLED
             messageContains(error, "timeout") || messageContains(error, "timed out") -> StressSignal.TIMEOUT
             messageContains(error, "connection reset") || messageContains(error, "reset by peer") -> StressSignal.CONNECTION_RESET
@@ -211,12 +219,13 @@ internal class XtreamAdaptiveSyncPolicy {
     }
 
     private fun segmentedRequestSpacingFor(providerId: Long, stage: Stage): Long {
-        if (stage != Stage.CATEGORY) {
+        if (stage != Stage.CATEGORY && stage != Stage.LIVE_CATEGORY) {
             return 0L
         }
         val health = providerHealth[providerId] ?: ProviderHealth()
         val baseSpacingMs = when (stage) {
             Stage.CATEGORY -> 250L
+            Stage.LIVE_CATEGORY -> if (health.stressLevel > 0) 250L else 0L
             else -> 0L
         }
         val stressSpacingMs = when {

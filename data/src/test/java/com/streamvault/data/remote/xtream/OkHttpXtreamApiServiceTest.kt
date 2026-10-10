@@ -38,6 +38,33 @@ import org.junit.Test
 class OkHttpXtreamApiServiceTest {
 
     @Test
+    fun `bulk and metadata responses retain throttling status and retry after`() = runTest {
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                .code(429).message("Too Many Requests").header("Retry-After", "10")
+                .body("".toResponseBody("application/json".toMediaType())).build()
+        }.build()
+        val service = OkHttpXtreamApiService(client, json)
+        val metadata = runCatching { service.getLiveCategories("https://example.test/player_api.php?action=get_live_categories") }.exceptionOrNull()
+        val bulk = runCatching { service.streamLiveStreamRows("https://example.test/player_api.php?action=get_live_streams") { } }.exceptionOrNull()
+        for (failure in listOf(metadata, bulk)) {
+            assertThat(failure).isInstanceOf(XtreamNetworkException::class.java)
+            val network = failure as XtreamNetworkException
+            assertThat(network.statusCode).isEqualTo(429)
+            assertThat(network.retryAfterMs).isEqualTo(10_000L)
+        }
+    }
+
+    @Test
+    fun `retry after accepts seconds and HTTP dates without accepting malformed values`() {
+        assertThat(parseXtreamRetryAfter("3", 0)).isEqualTo(3000L)
+        assertThat(parseXtreamRetryAfter("Thu, 01 Jan 1970 00:00:10 GMT", 1000)).isEqualTo(9000L)
+        assertThat(parseXtreamRetryAfter("Thu, 01 Jan 1970 00:00:00 GMT", 1000)).isEqualTo(0L)
+        assertThat(parseXtreamRetryAfter("-1", 0)).isNull()
+        assertThat(parseXtreamRetryAfter("garbage", 0)).isNull()
+    }
+
+    @Test
     fun `pipeline writer supersession cancels a body blocked after its first row`() = runBlocking {
         withTimeout(5_000) {
             val bodyBlocked = CountDownLatch(1)

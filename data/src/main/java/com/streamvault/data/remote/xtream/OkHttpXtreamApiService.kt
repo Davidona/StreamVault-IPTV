@@ -234,7 +234,7 @@ class OkHttpXtreamApiService(
                             }
                             throw XtreamRequestException(response.code, message)
                         }
-                        in 500..599, 429 -> throw XtreamNetworkException(message)
+                        in 500..599, 429 -> throw XtreamNetworkException(message, statusCode = response.code, retryAfterMs = parseXtreamRetryAfter(response.header("Retry-After")))
                         else -> throw XtreamRequestException(response.code, message)
                     }
                 }
@@ -251,6 +251,7 @@ class OkHttpXtreamApiService(
             throw e
         } catch (e: IOException) {
             currentCoroutineContext().ensureActive()
+            if (e is XtreamNetworkException) throw e
             Log.w(
                 TAG,
                 "Xtream request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
@@ -364,7 +365,7 @@ class OkHttpXtreamApiService(
                             }
                             throw XtreamRequestException(response.code, message)
                         }
-                        in 500..599, 429 -> throw XtreamNetworkException(message)
+                        in 500..599, 429 -> throw XtreamNetworkException(message, statusCode = response.code, retryAfterMs = parseXtreamRetryAfter(response.header("Retry-After")))
                         else -> throw XtreamRequestException(response.code, message)
                     }
                 }
@@ -399,6 +400,7 @@ class OkHttpXtreamApiService(
             throw XtreamParsingException("Malformed JSON array from ${descriptor.hint}", e)
         } catch (e: IOException) {
             currentCoroutineContext().ensureActive()
+            if (e is XtreamNetworkException) throw e
             Log.w(
                 TAG,
                 "Xtream streamed request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"

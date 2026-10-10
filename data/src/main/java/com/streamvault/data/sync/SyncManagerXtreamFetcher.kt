@@ -87,7 +87,7 @@ internal class SyncManagerXtreamFetcher(
                     onAttemptReset()
                     rawCount = 0
                     mappedChannels = emptyList()
-                    xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.CATEGORY) {
+                    xtreamSupport.executeXtreamRequest(provider.id, XtreamAdaptiveSyncPolicy.Stage.LIVE_CATEGORY) {
                         val thinResult = runSuspendCatching {
                             streamThinRowsInBatches()
                         }
