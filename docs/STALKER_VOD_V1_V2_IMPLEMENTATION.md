@@ -49,6 +49,21 @@ durable progress and concurrent workers. Summary rows commit before their
 successful-page checkpoint is advanced; a crash in between replays an idempotent
 page rather than skipping uncommitted data.
 
+The interactive coordinator now compares each response fingerprint with both
+pages seen during the current COMPLETE request and the last committed page
+fingerprint. This catches a portal repeating the last page across separate
+NEXT_PAGE calls without replacing the durable successful-page checkpoint. Native
+Series-page fallback to VOD is explicitly marked `VOD_DERIVED` in both paged and
+legacy list APIs; focused tests cover split mixed-order mapping, unified mixed
+mapping, and the fallback classification.
+
+Stalker background index mutations now assert the active provider-workflow lease
+inside their Room transactions. This covers summary row/index writes, hydration
+attempt and success/failure checkpoints, job state, summary metadata, watch-progress
+restoration, and stale-row pruning. A focused test lets a page fetch finish, marks
+the lease superseded before its row transaction, and verifies that rows and the
+successful-page checkpoint remain unchanged.
+
 ## V3/V4 decisions
 
 V3 keeps the existing bounded fetch windows. `awaitAll` preserves the requested
@@ -70,18 +85,42 @@ the separate decoder work is not required for this change.
   It covers empty-first-page retry call counts, actual page provenance, no
   whole-list fallback call, and targeted protection lookup inside the commit
   transaction.
+- The focused tests also cover resume after a failed NEXT_PAGE, a repeated page
+  across calls, a changed advertised page total, successful sequential COMPLETE,
+  and the 200-page COMPLETE limit remaining `TRUNCATED` and incomplete. A failed
+  empty-first-page retry also leaves the successful checkpoint unchanged, avoids
+  movie row writes, and does not run stale-row pruning.
 - Room instrumentation run passed:
   `:data:connectedDebugAndroidTest` with
   `-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.local.StalkerVodHydrationIntegrationTest`
-  passed on the `Television_4K_2(AVD) - 16` emulator. It covers mixed
-  movie/series page order, category protection, stable movie IDs, favorites,
-  watch progress, and the completed-page checkpoint.
+  passed on the `Television_4K_2(AVD) - 16` emulator against the current database
+  schema. It covers mixed movie/series page order, category protection, stable
+  movie IDs, favorites, watch progress, updated movie FTS results, the
+  completed-page checkpoint, and transaction rollback after a simulated failure.
+- A Room lifecycle instrumentation case now closes and reopens the database,
+  verifies the committed VOD page checkpoint and partial Stalker index job are
+  still available for continuation, then deletes the provider and verifies Room
+  cascades clear its hydration, catalog entries, movie rows, and index job.
+- Focused SyncManager tests cover resuming a fresh RUNNING Stalker job from its
+  next persisted page. Shared provider workflow integration tests cover lease
+  supersession. A Stalker page test also checks lease validity at the page commit
+  boundary after the response has been fetched. There is not yet one combined
+  scenario spanning an actual configuration edit, active background write, and
+  process restart.
+- The supersession case passed with:
+  `:data:testDebugUnitTest --tests '*SyncManagerTest.superseded Stalker movie index cannot commit fetched page rows or checkpoint'`.
+  The full `*SyncManagerTest` class also passed after adding transaction fences.
+- A focused initial-sync test verifies Add Provider stores the VOD and Series
+  category shells but does not request VOD or Series item pages. Indexing remains
+  deferred.
 - App debug build and `git diff --check` passed. The diff check emitted only
   existing working-tree LF/CRLF normalization warnings.
 - Real-provider VOD browsing and representative playback: not available in this
   workspace; record as a validation gap.
-- Split/unified end-to-end behavior, retry failure after earlier committed pages,
-  rollback, search updates, safe pruning, cancellation/restart, and provider edit
-  or deletion behavior were not covered by these focused checks.
+- Background continuation, persisted restart state, stale-lease write fencing,
+  and provider deletion now have focused component/instrumentation coverage. A
+  combined provider-edit/supersession/restart scenario and real-provider behavior
+  remain unverified end to end. Unit checks verify pruning occurs after full
+  coverage and is skipped after failed first-page recovery.
 - No live playback path was changed. No before/after measurements or performance
   benchmark suite was run.

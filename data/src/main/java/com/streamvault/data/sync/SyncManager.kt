@@ -304,9 +304,15 @@ class SyncManager @Inject constructor(
                     getHydration = stalkerIndexCheckpointStore::getHydrationSnapshot,
                     currentIndexedRowCount = ::currentStalkerIndexedRowCount,
                     pruneStaleRows = { providerId, contentType ->
-                        xtreamContentIndexDao.pruneStaleLocalContentRows(providerId, contentType.name)
+                        inFencedStalkerIndexTransaction(providerId) {
+                            xtreamContentIndexDao.pruneStaleLocalContentRows(providerId, contentType.name)
+                        }
                     },
-                    updateSummaryMetadata = ::updateStalkerSummaryMetadata,
+                    updateSummaryMetadata = { providerId, contentType, indexedRows, finalState, now ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            updateStalkerSummaryMetadata(providerId, contentType, indexedRows, finalState, now)
+                        }
+                    },
                     fetchSummaryPage = { provider, api, contentType, categoryId, page ->
                         withStalkerFetchPermit(provider, contentType, categoryId, page) {
                             fetchStalkerSummaryPageWithRecovery(
@@ -323,9 +329,35 @@ class SyncManager @Inject constructor(
                             fetchStalkerWildcardSummaryPageWithRecovery(api, contentType, categoryId, page)
                         }
                     },
-                    markAttemptStarted = stalkerIndexCheckpointStore::markAttemptStarted,
-                    markAttemptSucceeded = stalkerIndexCheckpointStore::markAttemptSucceeded,
-                    markAttemptFailed = stalkerIndexCheckpointStore::markAttemptFailed,
+                    markAttemptStarted = { providerId, contentType, categoryId, hydration, attemptedPage, now ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptStarted(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now
+                            )
+                        }
+                    },
+                    markAttemptSucceeded = { providerId, contentType, categoryId, hydration, attemptedPage,
+                                             now, itemCount, totalPages, pageSize, advertisedTotalItems,
+                                             advertisedTotalPages, pageComplete, truncated,
+                                             terminationReason, pageFingerprint ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptSucceeded(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now,
+                                itemCount, totalPages, pageSize, advertisedTotalItems,
+                                advertisedTotalPages, pageComplete, truncated, terminationReason,
+                                pageFingerprint
+                            )
+                        }
+                    },
+                    markAttemptFailed = { providerId, contentType, categoryId, hydration, attemptedPage,
+                                          now, message, retryable, pageFingerprint ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptFailed(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now,
+                                message, retryable, pageFingerprint
+                            )
+                        }
+                    },
                     upsertMovieSummaryBatch = { providerId, movies, indexedAt ->
                         upsertXtreamMovieSummaryBatch(providerId, movies, indexedAt, restoreWatchProgress = false)
                     },
@@ -342,8 +374,16 @@ class SyncManager @Inject constructor(
                         StalkerIndexRecoveryPolicy.failureState(error, ::sanitizeThrowableMessage)
                     },
                     progress = ::progress,
-                    restoreMovieWatchProgress = { providerId -> movieDao.restoreWatchProgress(providerId) },
-                    upsertJob = catalogIndexJobStore::upsert,
+                    restoreMovieWatchProgress = { providerId ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            movieDao.restoreWatchProgress(providerId)
+                        }
+                    },
+                    upsertJob = { update ->
+                        inFencedStalkerIndexTransaction(update.providerId) {
+                            catalogIndexJobStore.upsert(update)
+                        }
+                    },
                     log = { message -> Log.i(TAG, message) }
                 )
             )
@@ -1847,6 +1887,19 @@ class SyncManager @Inject constructor(
         )
     }
 
+    /**
+     * Keep Stalker index writes inside the workflow generation that fetched them. The fence and
+     * mutation share one Room transaction, so a configuration supersession cannot slip between
+     * the ownership check and a checkpoint, prune, or job-state write.
+     */
+    private suspend fun <T> inFencedStalkerIndexTransaction(
+        providerId: Long,
+        block: suspend () -> T
+    ): T = transactionRunner.inTransaction {
+        providerWorkflowCommitFence.assertCanCommit(providerId)
+        block()
+    }
+
     private suspend fun upsertXtreamMovieSummaryBatch(
         providerId: Long,
         movies: List<Movie>,
@@ -1880,6 +1933,7 @@ class SyncManager @Inject constructor(
         }
         if (updatedMovies.isNotEmpty() || movieIndexChanged) {
             transactionRunner.inTransaction {
+                providerWorkflowCommitFence.assertCanCommit(providerId)
                 if (updatedMovies.isNotEmpty()) movieDao.insertAll(updatedMovies)
                 val newlyInsertedStreamIds = updatedMovies
                     .filter { existingByStreamId[it.streamId] == null }
@@ -1940,6 +1994,7 @@ class SyncManager @Inject constructor(
         }
         if (updatedSeries.isNotEmpty() || seriesIndexChanged) {
             transactionRunner.inTransaction {
+                providerWorkflowCommitFence.assertCanCommit(providerId)
                 if (updatedSeries.isNotEmpty()) seriesDao.insertAll(updatedSeries)
                 val newlyInsertedSeriesIds = updatedSeries
                     .filter { existingBySeriesId[it.seriesId] == null }
@@ -1981,6 +2036,7 @@ class SyncManager @Inject constructor(
         }
         var accepted = emptyList<SeriesEntity>()
         transactionRunner.inTransaction {
+            providerWorkflowCommitFence.assertCanCommit(providerId)
             val existing = seriesDao.getBySeriesIds(providerId, incoming.map { it.seriesId })
                 .associateBy { it.seriesId }
             accepted = incoming.mapNotNull { summary ->

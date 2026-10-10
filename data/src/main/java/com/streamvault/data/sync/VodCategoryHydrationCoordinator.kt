@@ -118,7 +118,12 @@ internal class VodCategoryHydrationCoordinator(
                         }
                         val pageFingerprint = page.items.joinToString("|") { it.rawItemId }
                             .takeIf(String::isNotEmpty)
-                        if (pageFingerprint != null && !seenPageFingerprints.add(pageFingerprint)) {
+                        if (hasRepeatedPageFingerprint(
+                                seenFingerprints = seenPageFingerprints,
+                                previousFingerprint = hydration?.lastPageFingerprint,
+                                currentFingerprint = pageFingerprint
+                            )
+                        ) {
                             val prior = hydration ?: VodCategoryHydrationEntity(providerId, categoryId)
                             hydration = prior.copy(
                                 lastAttemptedPage = page.page,
@@ -332,7 +337,12 @@ internal class VodCategoryHydrationCoordinator(
                         }
                         val pageFingerprint = page.items.joinToString("|") { it.rawItemId }
                             .takeIf(String::isNotEmpty)
-                        if (pageFingerprint != null && !seenPageFingerprints.add(pageFingerprint)) {
+                        if (hasRepeatedPageFingerprint(
+                                seenFingerprints = seenPageFingerprints,
+                                previousFingerprint = hydration?.lastPageFingerprint,
+                                currentFingerprint = pageFingerprint
+                            )
+                        ) {
                             val prior = hydration ?: MovieCategoryHydrationEntity(providerId, movieCategoryId)
                             hydration = prior.copy(
                                 lastAttemptedPage = page.page,
@@ -495,4 +505,13 @@ internal class VodCategoryHydrationCoordinator(
             ?: return Result.error("Unable to resolve VOD category for derived Series")
         return hydrateSplitVodCategory(providerId, movieCategoryId, request, ContentType.SERIES)
     }
+}
+
+private fun hasRepeatedPageFingerprint(
+    seenFingerprints: MutableSet<String>,
+    previousFingerprint: String?,
+    currentFingerprint: String?
+): Boolean {
+    if (currentFingerprint == null) return false
+    return previousFingerprint == currentFingerprint || !seenFingerprints.add(currentFingerprint)
 }

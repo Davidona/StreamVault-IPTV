@@ -8,6 +8,7 @@ All notable product changes are recorded in this document.
 
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
+- Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
 
 ### Fixed
 
@@ -23,6 +24,7 @@ All notable product changes are recorded in this document.
 - Fixed Xtream playlist setup ignoring the requested HLS or MPEG-TS format when playback format is set to Auto.
 - Fixed matching AVC/H.264 and HEVC/H.265 movie versions failing to group together.
 - Fixed newly imported movie summaries skipping detail loading.
+- Fixed Stalker add-provider security and verification dialogs stretching to near full screen; they now size to their content and use a narrower width on compact screens.
 - Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
 - Fixed M3U channels sharing a `tvg-id` but using different stream URLs or Acestream hashes from being incorrectly treated as the same channel (#231).
 - Fixed background movie refresh crashes when saved provider credentials cannot be decrypted.
@@ -33,6 +35,8 @@ All notable product changes are recorded in this document.
 - Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
 - Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.
 - Overlapped Stalker live-category and bulk requests when provider admission allows it; category fallback now streams isolated attempts, preserves failed scopes, stops bootstrap after its accepted prefix, and leaves incomplete live coverage eligible for durable refresh.
+- Improved Stalker VOD recovery and hydration: an empty first page retries through the paged API without accumulating a whole category, page provenance and durable continuation remain accurate, and category protection is read in the page commit transaction.
+- Fenced Stalker index row, checkpoint, metadata, and prune writes by the active provider-workflow lease; preserved mixed movie/native-series/VOD-derived-series classification and page ordering.
 
 - Reworked Xtream Live sync with streamed decoding and bounded staging, and made bulk-first `AUTO` the normal-build default with category fallback for safety conditions and bulk failures.
 - Applied the Xtream live strategy to Add Provider and Settings refresh, including hidden-category routing and clearer sync progress.

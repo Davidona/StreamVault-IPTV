@@ -768,7 +768,15 @@ internal companion object {
                 api.getVodStreams(session, profile, rawCategoryId)
             }
             return mapResolvedItems(ContentType.SERIES, vodResult) { item ->
-                if (item.isSeries) toSeries(item, requestedCategoryId = categoryId) else null
+                if (item.isSeries) {
+                    toSeries(
+                        item,
+                        requestedCategoryId = categoryId,
+                        origin = SeriesCatalogOrigin.VOD_DERIVED
+                    )
+                } else {
+                    null
+                }
             }
         }
         return mapped
@@ -783,7 +791,15 @@ internal companion object {
             val vodPage = mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
                 api.getVodStreamsPage(session, profile, rawCategoryId, page)
             }.let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
-                if (item.isSeries) toSeries(item, requestedCategoryId = categoryId) else null
+                if (item.isSeries) {
+                    toSeries(
+                        item,
+                        requestedCategoryId = categoryId,
+                        origin = SeriesCatalogOrigin.VOD_DERIVED
+                    )
+                } else {
+                    null
+                }
             } }
             return vodPage
         }

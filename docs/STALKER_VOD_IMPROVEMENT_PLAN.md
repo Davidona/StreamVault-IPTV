@@ -1,7 +1,8 @@
 # Stalker VOD ingestion improvement plan
 
 Status: V1 and V2 are implemented; focused unit, Room, and app-build validation
-passed. Real-provider browsing and playback remain unverified.
+passed, including page-limit and resume coverage. Real-provider browsing and
+playback remain unverified.
 Prepared: 2026-10-10 against the current working tree.
 Related: [Stalker live improvements](STALKER_SYNC_IMPROVEMENT_PLAN.md).
 Implementation evidence: [V1/V2 implementation notes](STALKER_VOD_V1_V2_IMPLEMENTATION.md).
@@ -119,14 +120,13 @@ weakening ordering, scheduling, or retry behavior.
 - [x] Document category/duplicate precedence and page transaction ownership first.
 - [x] Decide whether to retain windows or use admitted fetches feeding a single
   writer through a bounded queue. Record the decision and reason in this document.
-- [ ] If adopted, keep pages sequential within each category, preserve category
-  precedence independently of completion order, and bound any reorder buffer.
-- [ ] Include producer, queue, writer, mapped rows, and active request responses
-  in retained-memory accounting; bound row/byte payloads explicitly.
-- [ ] Release network permits before waiting on writer backpressure. Verify the
-  single-permit case, stress downgrade, cancellation, and authentication retry.
-- [ ] Advance each checkpoint only after its page commit. Respect slice deadlines,
-  interactive priority, cooldowns, and durable continuation without losing pages.
+- [x] Not applicable: a fetch/write pipeline was not adopted; the existing bounded
+  windows and deterministic category order were retained.
+- [x] Not applicable: no producer queue or reorder buffer was introduced.
+- [x] Not applicable: network-permit/backpressure behavior was unchanged.
+- [x] Summary row batches and checkpoint/job/prune writes now assert workflow
+  ownership inside their Room transactions; checkpoints still advance only after
+  durable row commits. Bounded windows retain their existing scheduling behavior.
 
 Acceptance: failure in one category cannot corrupt another; cancellation joins
 all work; committed pages resume correctly; queue pressure cannot block a portal
@@ -143,11 +143,9 @@ but the live reader is not a drop-in replacement for movie and series metadata.
 - [x] Audit all retained fields consumed by movie, native-series, and classified
   VOD mappers, including playback descriptors and mixed item classification.
 - [x] Decide whether direct decoding is warranted after V1-V3; record the decision.
-- [ ] If adopted, preserve pagination metadata, wrappers/keyed shapes, aliases,
-  coercion, duplicate keys, portal errors, malformed/truncated-document semantics,
-  and cancellation. Keep generic detail/episode/guide decoding outside this scope.
-- [ ] Retain an internal legacy comparison path until differential fixtures pass;
-  do not add a user-facing decoder switch.
+- [x] Not applicable: direct VOD decoding was deferred; the generic decoder remains
+  in use and its parsing behavior was not changed.
+- [x] Not applicable: no differential decoder path or user-facing switch was added.
 
 Acceptance: equivalent item fields, classification, ordering, and pagination
 evidence. A malformed response must never become complete coverage.
@@ -169,21 +167,44 @@ Do not use elapsed-time performance assertions.
 - [x] V2 targeted protection lookup and transaction placement verified.
 - [x] V3 decision documented; bounded windows retained, no pipeline adopted.
 - [x] V4 decision documented; direct decoder deferred.
-- [ ] Split and unified VOD, mixed movie/series, native and derived series verified.
-- [ ] Empty/repeated/changing-total/truncated pages and page limits verified.
-- [ ] Retry after committed pages resumes correctly; failed attempts do not advance
-  checkpoints or delete verified rows.
+- [x] Split and unified VOD, mixed movie/series, native and derived series verified.
+- [x] Empty, repeated, changing-total, truncated-page, and page-limit behavior
+  verified in focused provider and coordinator tests.
+- [x] Retry after committed pages resumes from the next durable page; failed page
+  attempts do not advance the successful checkpoint or write rows.
+- [x] Failed empty-first-page recovery leaves successful coverage unchanged and
+  skips stale-row pruning.
 - [x] Room verifies page ordering, stable identity, favorites, protection, watch
   progress, and successful-page coverage checkpoints.
-- [ ] Room rollback, search updates, and coverage-safe pruning verified.
-- [ ] Add Provider deferral, interactive OPEN/NEXT_PAGE/COMPLETE, background
-  continuation, edit/supersession, cancellation, restart, and deletion verified.
+- [x] Room rollback preserves the last committed rows and coverage receipt.
+- [x] Room search indexes reflect page updates, and stale-row pruning runs only
+  after complete coverage, not after a failed empty-page retry.
+- [x] Interactive OPEN/NEXT_PAGE/COMPLETE, cancellation boundaries, and durable
+  retry after a failed page verified.
+- [x] Add Provider setup creates VOD/Series category shells without requesting
+  VOD or Series item pages.
+- [x] Background index continuation resumes from persisted category checkpoints;
+  a focused test resumes a fresh RUNNING job at its next stored page. Interactive
+  next-page retry after failure is covered separately above.
+- [x] A Stalker page-fetch test invalidates the workflow lease after the response
+  arrives and verifies that neither rows nor its successful-page checkpoint commit.
+  The ownership check shares each Room write transaction with its mutation.
+- [x] Room reopen verifies durable VOD page and index continuation state, and
+  provider deletion cascades through VOD hydration, catalog entries, movies, and
+  the Stalker index job.
+- [ ] One scenario combining an actual provider edit, active page work,
+  supersession, and process restart is not covered; real-provider validation
+  remains separate below.
 - [x] Focused unit/instrumentation checks and app build pass.
 - [ ] Real-provider VOD browsing, continuation, and representative movie/series
   playback verified where changed; unavailable access recorded as a validation gap.
-- [ ] If shared live playback behavior is touched, required sustained multi-channel
-  validation from `AGENTS.md` completed; build/synthetic tests do not substitute.
+- [x] Shared live playback behavior was not touched; sustained multi-channel
+  validation from `AGENTS.md` is not applicable to this VOD work.
 - [x] Implementation notes list completed stages, evidence, and remaining gaps.
 
-Implement V1, then V2. Resolve V3/V4 decisions before expanding scope. Update
-checkboxes as work lands; preserve unrelated dirty changes and existing live work.
+V1 and V2 implementation is complete. V3/V4 were evaluated and deferred as
+conditional expansions. Focused tests cover the durable continuation pieces and
+the shared workflow supersession fence, but do not combine a background run,
+provider edit, and process restart in one scenario. Real-provider VOD browsing,
+continuation, and playback remain unverified. Preserve unrelated dirty changes
+and existing live work.

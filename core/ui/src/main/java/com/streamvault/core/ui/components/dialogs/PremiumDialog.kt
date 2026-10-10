@@ -75,6 +75,7 @@ fun PremiumDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     widthFraction: Float = 0.42f,
+    smallScreenWidthFraction: Float = 0.9f,
     heightFraction: Float? = 0.88f,
     bodyHeightFraction: Float = 0.5f,
     bodyScrollHint: String? = null,
@@ -163,7 +164,7 @@ fun PremiumDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     val resolvedWidthFraction = when {
-                        maxWidth < 700.dp -> 0.9f
+                        maxWidth < 700.dp -> smallScreenWidthFraction
                         maxWidth < 1000.dp -> maxOf(widthFraction, 0.62f)
                         else -> widthFraction
                     }

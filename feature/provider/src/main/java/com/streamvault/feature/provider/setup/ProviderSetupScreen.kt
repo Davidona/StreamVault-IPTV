@@ -628,6 +628,8 @@ uiState.stalkerTransportChallenge?.let { challenge ->
             title = title,
             subtitle = body,
             onDismissRequest = viewModel::dismissStalkerTransportChallenge,
+            smallScreenWidthFraction = 0.84f,
+            heightFraction = null,
             content = {},
             footer = {
                 PremiumDialogFooterButton(
@@ -648,6 +650,8 @@ uiState.stalkerTransportChallenge?.let { challenge ->
             title = stringResource(R.string.stalker_verification_inconclusive_title),
             subtitle = stringResource(R.string.stalker_verification_inconclusive_body),
             onDismissRequest = viewModel::dismissStalkerVerificationInconclusive,
+            smallScreenWidthFraction = 0.84f,
+            heightFraction = null,
             content = {},
             footer = {
                 PremiumDialogFooterButton(
