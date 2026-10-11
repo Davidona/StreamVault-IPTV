@@ -9,6 +9,7 @@ All notable product changes are recorded in this document.
 - Added OpenSubtitles search and subtitle downloads for VOD playback.
 - Added loading local SRT subtitle files from the device during VOD playback.
 - Added VOD subtitle settings for delay adjustment and reset, font size, and black background transparency, with an appearance preview and saved size and background preferences.
+- Added pinned subtitle languages so the pinned languages appear first, in the chosen order, in provider and OpenSubtitles subtitle lists; pinning only changes ordering, missing pinned languages are ignored, and the list is saved with settings and included in backups.
 - Added Previous and Next episode controls to the VOD overlay for series playback.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
