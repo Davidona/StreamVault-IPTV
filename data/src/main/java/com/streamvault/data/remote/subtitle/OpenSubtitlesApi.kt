@@ -128,6 +128,26 @@ class OpenSubtitlesApi @Inject constructor(
         Result.error("OpenSubtitles search failed: ${e.message}", e)
     }
 
+    suspend fun languages(
+        baseUrlHost: String = OPENSUBTITLES_DEFAULT_BASE_HOST,
+    ): Result<List<OpenSubtitlesLanguageDto>> = try {
+        val languages = withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url(buildUrl(baseUrlHost, "/infos/languages", emptyMap()))
+                .header("Accept", "application/json")
+                .header("Api-Key", requireApiKey())
+                .header("User-Agent", userAgent)
+                .get()
+                .build()
+            val body = execute(request, "OpenSubtitles languages")
+            gson.fromJson(body, OpenSubtitlesLanguagesResponseDto::class.java).data.orEmpty()
+        }
+        Result.success(languages)
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        Result.error("OpenSubtitles languages request failed: ${e.message}", e)
+    }
+
     suspend fun downloadLink(
         fileId: Long,
         token: String? = null,

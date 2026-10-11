@@ -74,6 +74,8 @@ public fun SettingsPreferenceDialogs(
     onShowSubtitleTextColorDialogChange: (Boolean) -> Unit,
     showSubtitleBackgroundDialog: Boolean,
     onShowSubtitleBackgroundDialogChange: (Boolean) -> Unit,
+    showPinnedSubtitleLanguagesDialog: Boolean,
+    onShowPinnedSubtitleLanguagesDialogChange: (Boolean) -> Unit,
     showLiveTranslationEndpointDialog: Boolean,
     onShowLiveTranslationEndpointDialogChange: (Boolean) -> Unit,
     showWifiQualityDialog: Boolean,
@@ -261,6 +263,17 @@ public fun SettingsPreferenceDialogs(
                 )
             }
         }
+    }
+
+    if (showPinnedSubtitleLanguagesDialog) {
+        PinnedSubtitleLanguagesDialog(
+            currentLanguages = uiState.pinnedSubtitleLanguages,
+            onDismiss = { onShowPinnedSubtitleLanguagesDialogChange(false) },
+            onSave = { languages ->
+                viewModel.setPinnedSubtitleLanguages(languages)
+                onShowPinnedSubtitleLanguagesDialogChange(false)
+            }
+        )
     }
 
     if (showSubtitleSizeDialog) {

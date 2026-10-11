@@ -48,6 +48,7 @@ class PlayerPreparationCoordinatorContentKindTest {
             whenever(playerMuted).thenReturn(flowOf(false))
             whenever(playerPlaybackSpeed).thenReturn(flowOf(1f))
             whenever(preferredAudioLanguage).thenReturn(flowOf(null))
+            whenever(pinnedSubtitleLanguages).thenReturn(flowOf(emptyList()))
             whenever(appLanguage).thenReturn(flowOf("en"))
             whenever(playerWifiMaxVideoHeight).thenReturn(flowOf(null))
             whenever(playerEthernetMaxVideoHeight).thenReturn(flowOf(null))

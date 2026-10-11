@@ -566,6 +566,14 @@
     <string name="settings_top_navigation_dialog_subtitle">Choose which tabs appear and arrange them in the order you want. Settings always stays available.</string>
     <string name="settings_top_navigation_landing_note">Only visible tabs can be used as the startup landing screen.</string>
     <string name="settings_top_navigation_required">Always visible</string>
+    <string name="settings_pinned_subtitle_languages">Pinned subtitle languages</string>
+    <string name="settings_pinned_subtitle_languages_subtitle">Choose which subtitle languages appear first. Nothing is hidden.</string>
+    <string name="settings_pinned_subtitle_languages_note">Pinned languages are listed before the rest in subtitle pickers. Languages without a pin still appear after them, and a missing pinned language simply adds nothing to the top.</string>
+    <string name="settings_pinned_subtitle_languages_none">None</string>
+    <string name="settings_pinned_subtitle_languages_pin">Pin</string>
+    <string name="settings_pinned_subtitle_languages_unpin">Unpin</string>
+    <string name="settings_pinned_subtitle_languages_position">Position %1$d</string>
+    <string name="settings_pinned_subtitle_languages_not_pinned">Not pinned</string>
     <string name="settings_timeout_seconds_label">Seconds</string>
     <string name="settings_timeout_seconds_placeholder">Enter 2-60</string>
     <string name="settings_timeout_apply">Apply</string>

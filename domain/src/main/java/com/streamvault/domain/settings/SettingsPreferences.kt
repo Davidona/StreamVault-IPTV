@@ -78,6 +78,8 @@ interface SettingsPreferences {
 
     val playerSubtitleBackgroundColor: Flow<Int>
 
+    val pinnedSubtitleLanguages: Flow<List<String>>
+
     val playerLiveTranslationEnabled: Flow<Boolean>
 
     val playerLiveTranslationEndpoint: Flow<String>
@@ -253,6 +255,8 @@ interface SettingsPreferences {
     suspend fun setPlayerSubtitleTextColor(colorArgb: Int)
 
     suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int)
+
+    suspend fun setPinnedSubtitleLanguages(languages: List<String>)
 
     suspend fun setPlayerLiveTranslationEnabled(enabled: Boolean)
 

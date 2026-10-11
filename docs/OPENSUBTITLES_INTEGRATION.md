@@ -5,10 +5,11 @@ The optional account, settings, search, download, and player-injection flows are
 ## User flow
 
 1. During movie or series-episode playback, open **Subtitles → Search online subtitles**.
-2. Search anonymously when allowed by the app's OpenSubtitles consumer settings, or optionally connect an OpenSubtitles.com account in **Settings → Playback → Subtitles**.
-3. Choose a result to download and add it to the current player session. Anonymous downloads may be restricted by the consumer configuration or OpenSubtitles limits.
+2. Choose a subtitle language from the OpenSubtitles language list (or **All languages** to search without a language filter), then pick a version from the results.
+3. Search anonymously when allowed by the app's OpenSubtitles consumer settings, or optionally connect an OpenSubtitles.com account in **Settings → Playback → Subtitles**.
+4. Choose a result to download and add it to the current player session. Anonymous downloads may be restricted by the consumer configuration or OpenSubtitles limits.
 
-Online search is hidden for live TV and catch-up. Search uses the movie or series TMDb ID when available, title/year fallbacks for movies, season/episode metadata for episodes, and the preferred audio language (English when the preference is automatic).
+Online search is hidden for live TV and catch-up. Search uses the movie or series TMDb ID when available, title/year fallbacks for movies, and season/episode metadata for episodes. The language list comes from `GET /infos/languages` and is cached in memory; pinned subtitle languages (Settings → Playback → Subtitles → Pinned subtitle languages) are listed first, followed by the app language, then the remaining languages alphabetically. Pinning only changes ordering; it never hides or filters other languages.
 
 ## Session, quota, and downloads
 

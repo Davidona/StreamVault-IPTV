@@ -3,11 +3,90 @@ package com.streamvault.feature.playback.player
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.ExternalSubtitleLanguage
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.settings.SubtitleLanguageOrdering
+import java.util.Locale
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+internal fun PlayerViewModel.prepareExternalSubtitleSearch() {
+    externalSubtitleSearchJob?.cancel()
+    externalSubtitleSearchStateFlow.update {
+        it.copy(
+            stage = ExternalSubtitleSearchStage.LANGUAGES,
+            selectedLanguageCode = null,
+            selectedLanguageName = null,
+            isSearching = false,
+            subtitles = emptyList(),
+            errorMessage = null,
+            appliedSubtitleName = null,
+        )
+    }
+    if (externalSubtitleSearchStateFlow.value.languages.isEmpty()) {
+        loadExternalSubtitleLanguages()
+    }
+}
+
+internal fun PlayerViewModel.loadExternalSubtitleLanguages() {
+    externalSubtitleSearchJob?.cancel()
+    externalSubtitleSearchJob = viewModelScope.launch {
+        externalSubtitleSearchStateFlow.update {
+            it.copy(isLoadingLanguages = true, errorMessage = null)
+        }
+        try {
+            when (val result = getExternalSubtitleLanguagesUseCase()) {
+                is Result.Success -> {
+                    val pinned = playerPreferencesCoordinator.pinnedSubtitleLanguages.first()
+                    val suggested = resolvePreferredAudioLanguage(
+                        preferredAudioLanguage = playerPreferencesCoordinator.preferredAudioLanguage.first(),
+                        appLanguage = playerPreferencesCoordinator.appLanguage.first(),
+                    )
+                    externalSubtitleSearchStateFlow.update {
+                        it.copy(
+                            isLoadingLanguages = false,
+                            languages = orderSubtitleLanguages(result.data, pinned, suggested),
+                        )
+                    }
+                }
+                is Result.Error -> externalSubtitleSearchStateFlow.update {
+                    it.copy(isLoadingLanguages = false, errorMessage = result.message)
+                }
+                is Result.Loading -> externalSubtitleSearchStateFlow.update {
+                    it.copy(isLoadingLanguages = false)
+                }
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            externalSubtitleSearchStateFlow.update {
+                it.copy(
+                    isLoadingLanguages = false,
+                    errorMessage = e.message ?: "Subtitle languages request failed.",
+                )
+            }
+        }
+    }
+}
+
+internal fun PlayerViewModel.selectExternalSubtitleLanguage(language: ExternalSubtitleLanguage?) {
+    externalSubtitleSearchStateFlow.update {
+        it.copy(
+            stage = ExternalSubtitleSearchStage.RESULTS,
+            selectedLanguageCode = language?.code,
+            selectedLanguageName = language?.name,
+        )
+    }
+    searchExternalSubtitles()
+}
+
+internal fun PlayerViewModel.backToExternalSubtitleLanguages() {
+    externalSubtitleSearchJob?.cancel()
+    externalSubtitleSearchStateFlow.update {
+        it.copy(stage = ExternalSubtitleSearchStage.LANGUAGES, isSearching = false)
+    }
+}
 
 internal fun PlayerViewModel.searchExternalSubtitles() {
     externalSubtitleSearchJob?.cancel()
@@ -20,6 +99,7 @@ internal fun PlayerViewModel.searchExternalSubtitles() {
         return
     }
     externalSubtitleSearchJob = viewModelScope.launch {
+        val language = externalSubtitleSearchStateFlow.value.selectedLanguageCode
         externalSubtitleSearchStateFlow.update {
             it.copy(
                 isSearching = true,
@@ -64,10 +144,6 @@ internal fun PlayerViewModel.searchExternalSubtitles() {
                 }
                 return@launch
             }
-            val preferredLanguage = playerPreferencesCoordinator.preferredAudioLanguage.first()
-                ?.trim()
-                ?.takeIf { it.isNotBlank() && !it.equals("auto", ignoreCase = true) }
-                ?: "en"
             when (val result = searchExternalSubtitlesUseCase(
                 contentType = query.contentType,
                 title = query.title,
@@ -76,7 +152,7 @@ internal fun PlayerViewModel.searchExternalSubtitles() {
                 parentTmdbId = query.parentTmdbId,
                 seasonNumber = query.seasonNumber,
                 episodeNumber = query.episodeNumber,
-                language = preferredLanguage,
+                language = language,
             )) {
                 is Result.Success -> externalSubtitleSearchStateFlow.update {
                     it.copy(isSearching = false, subtitles = result.data)
@@ -128,7 +204,31 @@ internal fun PlayerViewModel.downloadExternalSubtitle(subtitleId: String) {
 internal fun PlayerViewModel.cancelExternalSubtitleSearch() {
     externalSubtitleSearchJob?.cancel()
     externalSubtitleDownloadJob?.cancel()
-    externalSubtitleSearchStateFlow.update { it.copy(isSearching = false, downloadingSubtitleId = null) }
+    externalSubtitleSearchStateFlow.update {
+        it.copy(
+            stage = ExternalSubtitleSearchStage.LANGUAGES,
+            isSearching = false,
+            isLoadingLanguages = false,
+            downloadingSubtitleId = null,
+        )
+    }
+}
+
+private fun orderSubtitleLanguages(
+    languages: List<ExternalSubtitleLanguage>,
+    pinnedTags: List<String>,
+    suggestedTag: String?,
+): List<ExternalSubtitleLanguage> {
+    val priorityTags = buildList {
+        addAll(pinnedTags)
+        suggestedTag
+            ?.trim()
+            ?.lowercase(Locale.ROOT)
+            ?.takeIf { it.isNotBlank() && none { existing -> existing == it } }
+            ?.let(::add)
+    }
+    val alphabetical = languages.sortedBy { it.name.lowercase(Locale.ROOT) }
+    return SubtitleLanguageOrdering.sortByPinned(priorityTags, alphabetical) { it.code }
 }
 
 private data class ExternalSubtitleQuery(

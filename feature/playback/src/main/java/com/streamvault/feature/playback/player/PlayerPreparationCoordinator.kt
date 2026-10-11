@@ -161,6 +161,7 @@ class PlayerPreparationCoordinator @Inject constructor(
                 appLanguage = playerPreferencesCoordinator.appLanguage.first()
             )
         )
+        engine.setPinnedSubtitleLanguages(playerPreferencesCoordinator.pinnedSubtitleLanguages.first())
         engine.setVodTrackPreferences(vodTrackPreferences)
         engine.setNetworkQualityPreferences(
             wifiMaxHeight = playerPreferencesCoordinator.playerWifiMaxVideoHeight.first(),

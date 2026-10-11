@@ -63,6 +63,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerWifiMaxVideoHeight get() = preferencesRepository.playerWifiMaxVideoHeight
     internal val preventStandbyDuringPlayback get() = preferencesRepository.preventStandbyDuringPlayback
     internal val preferredAudioLanguage get() = preferencesRepository.preferredAudioLanguage
+    internal val pinnedSubtitleLanguages get() = preferencesRepository.pinnedSubtitleLanguages
     internal val globalVodTrackPreferences get() = preferencesRepository.globalVodTrackPreferences
     internal val remoteShortcutPreferences get() = preferencesRepository.remoteShortcutPreferences
     internal val vodVariantObservations get() = preferencesRepository.vodVariantObservations

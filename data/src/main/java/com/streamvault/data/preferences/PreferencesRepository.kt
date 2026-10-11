@@ -22,6 +22,7 @@ import com.streamvault.data.local.dao.SearchHistoryDao
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.settings.SubtitleLanguageOrdering
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -272,6 +273,7 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_SUBTITLE_TEXT_SCALE = stringPreferencesKey("player_subtitle_text_scale")
         val PLAYER_SUBTITLE_TEXT_COLOR = intPreferencesKey("player_subtitle_text_color")
         val PLAYER_SUBTITLE_BACKGROUND_COLOR = intPreferencesKey("player_subtitle_background_color")
+        val PINNED_SUBTITLE_LANGUAGES = stringPreferencesKey("pinned_subtitle_languages")
         val PLAYER_LIVE_TRANSLATION_ENABLED = booleanPreferencesKey("player_live_translation_enabled")
         val PLAYER_LIVE_TRANSLATION_ENDPOINT = stringPreferencesKey("player_live_translation_endpoint")
         val PLAYER_CONTROLS_TIMEOUT_SECONDS = intPreferencesKey("player_controls_timeout_seconds")
@@ -612,6 +614,13 @@ class PreferencesRepository @Inject constructor(
 
     override val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] ?: 0x80000000.toInt()
+    }
+
+    override val pinnedSubtitleLanguages: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES]
+            ?.split('\n')
+            .orEmpty()
+            .let(SubtitleLanguageOrdering::normalizePinned)
     }
 
     override val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -1329,6 +1338,17 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] = colorArgb
+        }
+    }
+
+    override suspend fun setPinnedSubtitleLanguages(languages: List<String>) {
+        context.dataStore.edit { preferences ->
+            val normalized = SubtitleLanguageOrdering.normalizePinned(languages)
+            if (normalized.isEmpty()) {
+                preferences.remove(PreferencesKeys.PINNED_SUBTITLE_LANGUAGES)
+            } else {
+                preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES] = normalized.joinToString("\n")
+            }
         }
     }
 

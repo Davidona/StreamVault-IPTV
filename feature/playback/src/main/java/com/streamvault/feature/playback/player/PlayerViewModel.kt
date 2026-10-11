@@ -29,6 +29,7 @@ import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.usecase.DownloadExternalSubtitle
+import com.streamvault.domain.usecase.GetExternalSubtitleLanguages
 import com.streamvault.domain.usecase.SearchExternalSubtitles
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
@@ -82,6 +83,7 @@ class PlayerViewModel @Inject constructor(
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
     internal val searchExternalSubtitlesUseCase: SearchExternalSubtitles,
     internal val downloadExternalSubtitleUseCase: DownloadExternalSubtitle,
+    internal val getExternalSubtitleLanguagesUseCase: GetExternalSubtitleLanguages,
     internal val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
     companion object {

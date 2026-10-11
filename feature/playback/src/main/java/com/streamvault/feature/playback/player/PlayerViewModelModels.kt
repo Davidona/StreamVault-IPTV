@@ -7,6 +7,7 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalSubtitle
+import com.streamvault.domain.model.ExternalSubtitleLanguage
 import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.LiveClockFont
@@ -31,8 +32,18 @@ data class NumericChannelInputState(
     val invalid: Boolean = false
 )
 
+enum class ExternalSubtitleSearchStage {
+    LANGUAGES,
+    RESULTS
+}
+
 data class ExternalSubtitleSearchUiState(
     val account: OpenSubtitlesAccount? = null,
+    val stage: ExternalSubtitleSearchStage = ExternalSubtitleSearchStage.LANGUAGES,
+    val isLoadingLanguages: Boolean = false,
+    val languages: List<ExternalSubtitleLanguage> = emptyList(),
+    val selectedLanguageCode: String? = null,
+    val selectedLanguageName: String? = null,
     val isSearching: Boolean = false,
     val subtitles: List<ExternalSubtitle> = emptyList(),
     val errorMessage: String? = null,

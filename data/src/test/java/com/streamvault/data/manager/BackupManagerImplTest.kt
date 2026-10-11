@@ -1684,6 +1684,47 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `importConfig restores pinned subtitle languages in order`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val providerDao: ProviderDao = mock()
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(contentResolver.openInputStream(Uri.parse("content://backup-pinned-subtitles"))).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(
+                    BackupData(
+                        preferences = mapOf(
+                            "pinnedSubtitleLanguages" to "ru\nen\npt-br"
+                        )
+                    )
+                ).toByteArray()
+            )
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao
+        ).importConfig(
+            uriString = "content://backup-pinned-subtitles",
+            plan = BackupImportPlan(
+                importPreferences = true,
+                importProviders = false,
+                importSavedLibrary = false,
+                importPlaybackHistory = false,
+                importMultiViewPresets = false,
+                importRecordingSchedules = false
+            )
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        verify(preferencesRepository).setPinnedSubtitleLanguages(listOf("ru", "en", "pt-br"))
+        Unit
+    }
+
+    @Test
     fun `importConfig propagates cancellation without reporting a false outcome`() = runBlocking {
         val context: Context = mock()
         val contentResolver: ContentResolver = mock()

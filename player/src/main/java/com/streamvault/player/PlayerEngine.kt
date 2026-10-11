@@ -100,6 +100,7 @@ interface PlayerEngine {
     fun pauseTimeshift()
     fun resumeTimeshift()
     fun setPreferredAudioLanguage(languageTag: String?)
+    fun setPinnedSubtitleLanguages(languages: List<String>) {}
     fun setVodTrackPreferences(preferences: VodTrackPreferences?)
     fun setSubtitleStyle(style: PlayerSubtitleStyle)
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?)

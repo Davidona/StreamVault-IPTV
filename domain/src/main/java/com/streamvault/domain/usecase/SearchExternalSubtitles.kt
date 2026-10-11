@@ -17,7 +17,7 @@ class SearchExternalSubtitles @Inject constructor(
         parentTmdbId: Long?,
         seasonNumber: Int?,
         episodeNumber: Int?,
-        language: String
+        language: String?
     ): Result<List<ExternalSubtitle>> = repository.search(
         contentType = contentType,
         title = title,

@@ -269,6 +269,7 @@ class BackupManagerImpl @Inject constructor(
                 put("playerSubtitleTextScale", preferencesRepository.playerSubtitleTextScale.first().toString())
                 put("playerSubtitleTextColor", preferencesRepository.playerSubtitleTextColor.first().toString())
                 put("playerSubtitleBackgroundColor", preferencesRepository.playerSubtitleBackgroundColor.first().toString())
+                put("pinnedSubtitleLanguages", preferencesRepository.pinnedSubtitleLanguages.first().joinToString("\n"))
                 put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
                 put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
                 put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
@@ -3337,6 +3338,7 @@ class BackupManagerImpl @Inject constructor(
             put("playerSubtitleTextScale", preferencesRepository.playerSubtitleTextScale.first().toString())
             put("playerSubtitleTextColor", preferencesRepository.playerSubtitleTextColor.first().toString())
             put("playerSubtitleBackgroundColor", preferencesRepository.playerSubtitleBackgroundColor.first().toString())
+            put("pinnedSubtitleLanguages", preferencesRepository.pinnedSubtitleLanguages.first().joinToString("\n"))
             put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
             put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
             put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
@@ -3948,6 +3950,7 @@ class BackupManagerImpl @Inject constructor(
         prefs["playerSubtitleTextScale"]?.toFloatOrNull()?.let { preferencesRepository.setPlayerSubtitleTextScale(it) }
         prefs["playerSubtitleTextColor"]?.toIntOrNull()?.let { preferencesRepository.setPlayerSubtitleTextColor(it) }
         prefs["playerSubtitleBackgroundColor"]?.toIntOrNull()?.let { preferencesRepository.setPlayerSubtitleBackgroundColor(it) }
+        prefs["pinnedSubtitleLanguages"]?.let { preferencesRepository.setPinnedSubtitleLanguages(it.split('\n')) }
         prefs["playerLiveTranslationEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerLiveTranslationEnabled(it) }
         prefs["playerLiveTranslationEndpoint"]?.let { preferencesRepository.setPlayerLiveTranslationEndpoint(it) }

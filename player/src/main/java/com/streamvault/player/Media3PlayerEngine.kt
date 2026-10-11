@@ -869,6 +869,10 @@ class Media3PlayerEngine @Inject constructor(
         trackController.setPreferredAudioLanguage(exoPlayer, languageTag)
     }
 
+    override fun setPinnedSubtitleLanguages(languages: List<String>) {
+        trackController.setPinnedSubtitleLanguages(languages)
+    }
+
     override fun setVodTrackPreferences(preferences: VodTrackPreferences?) {
         vodTrackPreferencesConfiguredForNextPrepare = true
         trackController.setVodTrackPreferences(exoPlayer, preferences)
@@ -930,6 +934,9 @@ class Media3PlayerEngine @Inject constructor(
         val merged = androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleSource)
 
         player.trackSelectionParameters = player.trackSelectionParameters.withExternalSubtitleEnabled()
+        trackController.requestExternalSubtitleAutoSelect(
+            if (label != null) SubtitleTrackSource.DEVICE else SubtitleTrackSource.ONLINE
+        )
         player.setMediaSource(withSubtitleOffset(merged), /* resetPosition= */ false)
         player.prepare()
         transition.resumePositionMs.takeIf { it > 0L }?.let(player::seekTo)
@@ -1744,6 +1751,7 @@ class Media3PlayerEngine @Inject constructor(
             override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                 trackController.onTracksChanged(tracks)
                 exoPlayer?.let(trackController::applyVodTrackPreferences)
+                exoPlayer?.let(trackController::applyPendingExternalSubtitleAutoSelect)
                 refreshChapters(tracks)
                 // Detect the silent failure: the stream contains audio groups but no track
                 // is decodable on this device (e.g. EAC3/AC3 without passthrough or a

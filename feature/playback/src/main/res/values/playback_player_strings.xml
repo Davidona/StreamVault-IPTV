@@ -20,6 +20,13 @@
     <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Searching OpenSubtitles…</string>
     <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">No subtitles found for this title and language.</string>
     <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Search again</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Choose a language, then pick a version.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">All languages</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Show every available language</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Loading languages…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Language: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Change language</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Could not load the language list.</string>
     <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s downloads</string>
     <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">General release</string>
     <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Downloading subtitle…</string>

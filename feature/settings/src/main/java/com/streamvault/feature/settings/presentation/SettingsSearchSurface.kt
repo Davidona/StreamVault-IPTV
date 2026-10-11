@@ -227,6 +227,7 @@ private fun resolvedSettingsCatalog(
         setting("playback.subtitle_size", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_size, "captions"),
         setting("playback.subtitle_text_color", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_text_color, "captions color"),
         setting("playback.subtitle_background", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_background, "captions background"),
+        setting("playback.subtitle_languages", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_pinned_subtitle_languages, "pinned", "language order", "subtitle languages"),
         setting("playback.fast_retry", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_fast_retry_on_transient_failures, "reconnect"),
         setting("playback.buffer", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_live_buffer_size, "buffering"),
         setting("playback.wifi_cap", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_wifi_quality_cap, "quality"),

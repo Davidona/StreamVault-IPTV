@@ -10,6 +10,11 @@ data class ExternalSubtitle(
     val downloadCount: Long = 0L,
 )
 
+data class ExternalSubtitleLanguage(
+    val code: String,
+    val name: String,
+)
+
 enum class ExternalSubtitleSource {
     OPENSUBTITLES
 }

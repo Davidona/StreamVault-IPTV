@@ -1020,6 +1020,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setPinnedSubtitleLanguages(languages: List<String>) {
+        viewModelScope.launch {
+            preferencesRepository.setPinnedSubtitleLanguages(languages)
+        }
+    }
+
     fun setSubtitleTextScale(scale: Float) {
         viewModelScope.launch {
             preferencesRepository.setPlayerSubtitleTextScale(scale)

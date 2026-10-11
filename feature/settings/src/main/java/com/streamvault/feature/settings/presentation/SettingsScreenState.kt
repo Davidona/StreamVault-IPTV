@@ -37,6 +37,7 @@ public data class SettingsScreenLabels(
     val subtitleSizeLabel: String,
     val subtitleTextColorLabel: String,
     val subtitleBackgroundLabel: String,
+    val pinnedSubtitleLanguagesLabel: String,
     val liveTranslationEndpointLabel: String,
     val wifiQualityLabel: String,
     val ethernetQualityLabel: String,
@@ -125,6 +126,15 @@ public fun rememberSettingsScreenLabels(
     val subtitleBackgroundLabel = remember(uiState.subtitleBackgroundColor, context) {
         formatSubtitleColorLabel(uiState.subtitleBackgroundColor, subtitleBackgroundColorOptions(context))
     }
+    val pinnedSubtitleLanguagesLabel = remember(uiState.pinnedSubtitleLanguages, context) {
+        if (uiState.pinnedSubtitleLanguages.isEmpty()) {
+            context.getString(R.string.settings_pinned_subtitle_languages_none)
+        } else {
+            val labels = uiState.pinnedSubtitleLanguages.take(3).joinToString(", ") { subtitleLanguageLabel(it) }
+            val remaining = uiState.pinnedSubtitleLanguages.size - 3
+            if (remaining > 0) "$labels +$remaining" else labels
+        }
+    }
     val liveTranslationEndpointLabel = remember(uiState.playerLiveTranslationEndpoint) {
         uiState.playerLiveTranslationEndpoint
     }
@@ -206,6 +216,7 @@ public fun rememberSettingsScreenLabels(
         subtitleSizeLabel = subtitleSizeLabel,
         subtitleTextColorLabel = subtitleTextColorLabel,
         subtitleBackgroundLabel = subtitleBackgroundLabel,
+        pinnedSubtitleLanguagesLabel = pinnedSubtitleLanguagesLabel,
         liveTranslationEndpointLabel = liveTranslationEndpointLabel,
         wifiQualityLabel = wifiQualityLabel,
         ethernetQualityLabel = ethernetQualityLabel,

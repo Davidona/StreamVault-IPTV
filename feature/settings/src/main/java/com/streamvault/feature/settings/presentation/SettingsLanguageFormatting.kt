@@ -39,6 +39,31 @@ public fun supportedAudioLanguages(autoLabel: String): List<AppLanguageOption> {
     }
 }
 
+private val subtitleLanguageTags = listOf(
+    "en", "ar", "bg", "bn", "ca", "cs", "da", "de", "el", "es", "fa", "fi", "fr", "he", "hi",
+    "hr", "hu", "id", "it", "ja", "ko", "ms", "nb", "nl", "pl", "pt", "pt-br", "ro", "ru",
+    "sk", "sl", "sr", "sv", "ta", "te", "th", "tr", "uk", "ur", "vi", "zh-cn", "zh-tw"
+)
+
+public fun subtitleLanguageOptions(): List<AppLanguageOption> = subtitleLanguageTags
+    .map { tag -> AppLanguageOption(tag = tag, label = subtitleLanguageLabel(tag)) }
+    .sortedBy { it.label.lowercase(Locale.getDefault()) }
+
+public fun subtitleLanguageLabel(languageTag: String): String {
+    if (languageTag.isBlank()) return languageTag
+    val locale = Locale.forLanguageTag(languageTag)
+    if (locale.language.isBlank()) return languageTag
+    return locale.getDisplayName(Locale.getDefault())
+        .replaceFirstChar { character ->
+            if (character.isLowerCase()) {
+                character.titlecase(Locale.getDefault())
+            } else {
+                character.toString()
+            }
+        }
+        .ifBlank { languageTag }
+}
+
 public fun displayLanguageLabel(languageTag: String, defaultLabel: String): String {
     if (languageTag.isBlank() || languageTag == "system" || languageTag == "auto") return defaultLabel
     val locale = localeForLanguageTag(languageTag)

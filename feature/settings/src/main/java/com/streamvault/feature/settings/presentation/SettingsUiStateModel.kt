@@ -113,6 +113,7 @@ data class SettingsUiState(
     val subtitleTextScale: Float = 1f,
     val subtitleTextColor: Int = 0xFFFFFFFF.toInt(),
     val subtitleBackgroundColor: Int = 0x80000000.toInt(),
+    val pinnedSubtitleLanguages: List<String> = emptyList(),
     val playerLiveTranslationEnabled: Boolean = false,
     val playerLiveTranslationEndpoint: String = "http://10.0.2.2:8765",
     val openSubtitlesAccount: OpenSubtitlesAccount? = null,

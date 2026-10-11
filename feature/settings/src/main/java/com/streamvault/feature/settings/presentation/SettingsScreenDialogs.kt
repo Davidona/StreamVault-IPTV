@@ -232,6 +232,8 @@ public fun SettingsScreenDialogs(
         onShowSubtitleTextColorDialogChange = { dialogState.showSubtitleTextColorDialog = it },
         showSubtitleBackgroundDialog = dialogState.showSubtitleBackgroundDialog,
         onShowSubtitleBackgroundDialogChange = { dialogState.showSubtitleBackgroundDialog = it },
+        showPinnedSubtitleLanguagesDialog = dialogState.showPinnedSubtitleLanguagesDialog,
+        onShowPinnedSubtitleLanguagesDialogChange = { dialogState.showPinnedSubtitleLanguagesDialog = it },
         showLiveTranslationEndpointDialog = dialogState.showLiveTranslationEndpointDialog,
         onShowLiveTranslationEndpointDialogChange = { dialogState.showLiveTranslationEndpointDialog = it },
         showWifiQualityDialog = dialogState.showWifiQualityDialog,

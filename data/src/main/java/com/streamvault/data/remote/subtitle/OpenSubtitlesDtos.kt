@@ -44,6 +44,15 @@ data class OpenSubtitlesSearchResponseDto(
     @SerializedName("data") val data: List<OpenSubtitlesSubtitleDto>? = emptyList(),
 )
 
+data class OpenSubtitlesLanguagesResponseDto(
+    @SerializedName("data") val data: List<OpenSubtitlesLanguageDto>? = emptyList(),
+)
+
+data class OpenSubtitlesLanguageDto(
+    @SerializedName("language_code") val languageCode: String? = null,
+    @SerializedName("language_name") val languageName: String? = null,
+)
+
 data class OpenSubtitlesSubtitleDto(
     @SerializedName("id") val id: String? = null,
     @SerializedName("type") val type: String? = null,

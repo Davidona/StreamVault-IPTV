@@ -12,6 +12,7 @@ import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ExternalSubtitle
+import com.streamvault.domain.model.ExternalSubtitleLanguage
 import com.streamvault.domain.model.ExternalSubtitleSource
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.repository.ExternalSubtitleRepository
@@ -34,6 +35,8 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
 ) : ExternalSubtitleRepository, OpenSubtitlesAccountManager {
 
     private val sessionMutex = Mutex()
+    private val languagesMutex = Mutex()
+    @Volatile private var cachedLanguages: List<ExternalSubtitleLanguage>? = null
 
     override val account: Flow<OpenSubtitlesAccount?> = sessionStore.session
         .map { it?.toAccount() }
@@ -82,7 +85,7 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         parentTmdbId: Long?,
         seasonNumber: Int?,
         episodeNumber: Int?,
-        language: String,
+        language: String?,
     ): Result<List<ExternalSubtitle>> = try {
         val query = buildSearchQuery(contentType, title, year, tmdbId, parentTmdbId, seasonNumber, episodeNumber, language)
         requestWithOptionalSession { session ->
@@ -96,6 +99,35 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         if (e is CancellationException) throw e
         Result.error("OpenSubtitles search failed: ${e.message}", e)
+    }
+
+    override suspend fun languages(): Result<List<ExternalSubtitleLanguage>> {
+        cachedLanguages?.let { return Result.success(it) }
+        return languagesMutex.withLock {
+            cachedLanguages?.let { return@withLock Result.success(it) }
+            try {
+                when (val result = api.languages()) {
+                    is Result.Success -> {
+                        val languages = result.data
+                            .mapNotNull { dto ->
+                                val code = dto.languageCode?.trim()?.lowercase()?.takeIf { it.isNotBlank() }
+                                    ?: return@mapNotNull null
+                                val name = dto.languageName?.trim()?.takeIf { it.isNotBlank() } ?: code
+                                ExternalSubtitleLanguage(code = code, name = name)
+                            }
+                            .distinctBy { it.code }
+                            .sortedBy { it.name }
+                        if (languages.isNotEmpty()) cachedLanguages = languages
+                        Result.success(languages)
+                    }
+                    is Result.Error -> result
+                    is Result.Loading -> Result.Loading
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                Result.error("OpenSubtitles languages request failed: ${e.message}", e)
+            }
+        }
     }
 
     override suspend fun downloadToCache(subtitle: ExternalSubtitle): Result<File> {
@@ -225,9 +257,9 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         parentTmdbId: Long?,
         seasonNumber: Int?,
         episodeNumber: Int?,
-        language: String,
+        language: String?,
     ): OpenSubtitlesApi.SearchQuery {
-        val languageCode = language.trim().lowercase().takeIf { it.isNotBlank() && it != "auto" }
+        val languageCode = language?.trim()?.lowercase()?.takeIf { it.isNotBlank() && it != "auto" && it != "all" }
         return when (contentType) {
             ContentType.MOVIE -> OpenSubtitlesApi.SearchQuery(
                 query = buildTitleQuery(title, year),
