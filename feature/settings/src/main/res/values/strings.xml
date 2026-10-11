@@ -511,6 +511,16 @@
     <string name="settings_recording_reconcile_complete">Recording schedule repaired</string>
     <string name="settings_recording_storage_update_failed">Storage update failed: %1$s</string>
     <string name="settings_recording_storage_updated">Recording storage updated</string>
+    <string name="settings_recording_smb_title">SMB Recording Folder</string>
+    <string name="settings_recording_smb_subtitle">Enter a writable SMB2 or SMB3 folder. Saving tests write access. Credentials are stored encrypted on this device.</string>
+    <string name="settings_recording_smb_url_label">SMB folder URL</string>
+    <string name="settings_recording_smb_url_hint">smb://server/share/recordings</string>
+    <string name="settings_recording_smb_username_label">Username</string>
+    <string name="settings_recording_smb_username_hint">Leave blank for guest access</string>
+    <string name="settings_recording_smb_password_label">Password</string>
+    <string name="settings_recording_smb_password_hint">Leave blank to reuse the saved password for the same URL and username</string>
+    <string name="settings_recording_smb_save">Validate and Save</string>
+    <string name="settings_recording_smb_saving">Validating…</string>
     <string name="settings_recording_pattern_failed">Filename pattern update failed: %1$s</string>
     <string name="settings_recording_pattern_saved">Filename pattern saved</string>
     <string name="settings_recording_retention_failed">Retention policy update failed: %1$s</string>
@@ -585,7 +595,7 @@
     <string name="settings_no_providers_subtitle">Add a provider to unlock playback, guide data, and the rest of the TV experience.</string>
     <string name="settings_recording_storage_title">Recording Storage</string>
     <string name="settings_recording_storage_unknown">Storage unavailable</string>
-    <string name="settings_recording_storage_ready">Storage ready for local live recording</string>
+    <string name="settings_recording_storage_ready">Storage ready for recording</string>
     <string name="settings_recording_storage_unavailable">Storage is not writable for recording</string>
     <string name="settings_recording_active_label">Active</string>
     <string name="settings_recording_scheduled_label">Scheduled</string>
@@ -600,6 +610,7 @@
     <string name="settings_recording_padding_none">None</string>
     <string name="settings_recording_padding_after">End Late</string>
     <string name="settings_recording_choose_folder">Choose Folder</string>
+    <string name="settings_recording_use_smb_storage">Use SMB Share</string>
     <string name="settings_recording_use_app_storage">Use App Storage</string>
     <string name="settings_recording_use_usb_storage">Use USB Drive</string>
     <string name="settings_recording_open_browser">Open Recordings</string>

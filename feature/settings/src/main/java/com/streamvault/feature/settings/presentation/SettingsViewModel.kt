@@ -1417,6 +1417,15 @@ class SettingsViewModel @Inject constructor(
         recordingActions.updateRecordingFolder(viewModelScope, treeUri, displayName)
     }
 
+    fun updateRecordingSmbStorage(
+        url: String,
+        username: String,
+        password: String?,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
+        recordingActions.updateRecordingSmbStorage(viewModelScope, url, username, password, onComplete)
+    }
+
     fun useUsbRecordingStorage(localDirectory: String) {
         recordingActions.updateRecordingLocalDirectory(viewModelScope, localDirectory)
     }

@@ -297,6 +297,7 @@ public fun SettingsScreen(
     val usbStorageDir: File? = remember(platformHost) { platformHost.removableBackupDirectory() }
 
     var showLocalBackupManager by remember { mutableStateOf(false) }
+    var showRecordingSmbStorageDialog by rememberSaveable { mutableStateOf(false) }
     var managedLocalBackups by remember { mutableStateOf<List<SettingsBackupFileCandidate>>(emptyList()) }
 
     fun refreshManagedLocalBackups() {
@@ -566,6 +567,7 @@ public fun SettingsScreen(
                             )
                         }
                     },
+                    onConfigureSmbRecordingStorage = { showRecordingSmbStorageDialog = true },
                     onUseUsbRecordingStorage = usbStorageDir?.let { dir ->
                         { viewModel.useUsbRecordingStorage(File(dir, "recordings").absolutePath) }
                     },
@@ -681,6 +683,14 @@ public fun SettingsScreen(
         },
         modifier = Modifier
     )
+
+    if (showRecordingSmbStorageDialog) {
+        RecordingSmbStorageDialog(
+            storageState = uiState.recordingStorageState,
+            viewModel = viewModel,
+            onDismiss = { showRecordingSmbStorageDialog = false }
+        )
+    }
 
     if (pendingImportCandidates.isNotEmpty()) {
         BackupSelectionDialog(

@@ -4,6 +4,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
+        <provider
+            android:name="com.streamvault.data.manager.recording.RecordingSmbPlaybackProvider"
+            android:authorities="${applicationId}.recordings"
+            android:exported="false" />
+
         <service
             android:name="com.streamvault.data.manager.recording.RecordingForegroundService"
             android:exported="false"

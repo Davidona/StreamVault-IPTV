@@ -92,6 +92,7 @@ data class RecordingRunEntity(
     @ColumnInfo(name = "provider_label") val providerLabel: String? = null,
     @ColumnInfo(name = "output_uri") val outputUri: String? = null,
     @ColumnInfo(name = "output_display_path") val outputDisplayPath: String? = null,
+    @ColumnInfo(name = "output_credentials_encrypted") val outputCredentialsEncrypted: String? = null,
     @ColumnInfo(name = "bytes_written") val bytesWritten: Long = 0L,
     @ColumnInfo(name = "average_throughput_bps") val averageThroughputBytesPerSecond: Long = 0L,
     @ColumnInfo(name = "retry_count") val retryCount: Int = 0,
@@ -115,6 +116,8 @@ data class RecordingStorageEntity(
     @PrimaryKey
     val id: Long = 1L,
     @ColumnInfo(name = "tree_uri") val treeUri: String? = null,
+    @ColumnInfo(name = "smb_url") val smbUrl: String? = null,
+    @ColumnInfo(name = "smb_credentials_encrypted") val smbCredentialsEncrypted: String? = null,
     @ColumnInfo(name = "display_name") val displayName: String? = null,
     @ColumnInfo(name = "output_directory") val outputDirectory: String? = null,
     @ColumnInfo(name = "available_bytes") val availableBytes: Long? = null,

@@ -1292,6 +1292,8 @@ class BackupManagerImpl @Inject constructor(
                             treeUri = current.treeUri,
                             displayName = current.displayName,
                             localDirectory = current.localDirectory,
+                            smbUrl = current.smbUrl,
+                            smbUsername = current.smbUsername,
                             fileNamePattern = storage.fileNamePattern,
                             retentionDays = storage.retentionDays,
                             maxSimultaneousRecordings = storage.maxSimultaneousRecordings

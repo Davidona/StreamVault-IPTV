@@ -241,9 +241,19 @@ public fun RecordingItemCard(
     }
 }
 
-public fun RecordingItem.playbackUrl(): String? {
+public fun RecordingItem.playbackUrl(recordingProviderAuthority: String? = null): String? {
     val persistedUri = outputUri?.trim()?.takeIf { it.isNotBlank() }
     if (persistedUri != null) {
+        if (persistedUri.startsWith("smb://", ignoreCase = true)) {
+            val authority = recordingProviderAuthority?.trim()?.takeIf { it.isNotBlank() } ?: return null
+            return android.net.Uri.Builder()
+                .scheme("content")
+                .authority(authority)
+                .appendPath("recording")
+                .appendPath("$id.ts")
+                .build()
+                .toString()
+        }
         return persistedUri
     }
     val localPath = outputPath?.trim()?.takeIf { it.isNotBlank() } ?: return null

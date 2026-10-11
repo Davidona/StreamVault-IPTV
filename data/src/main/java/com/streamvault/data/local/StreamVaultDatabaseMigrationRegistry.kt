@@ -18,7 +18,8 @@ object StreamVaultDatabaseMigrationRegistry {
     val v78To79: List<Migration> = listOf(FeatureMigrationsV78To79.MIGRATION_78_79)
     val v79To80: List<Migration> = listOf(FeatureMigrationsV79To80.MIGRATION_79_80)
     val v80To81: List<Migration> = listOf(FeatureMigrationsV80To81.MIGRATION_80_81)
-    val all: List<Migration> = (v1To24 + v24To49 + v49To75 + v75To76 + v76To77 + v77To78 + v78To79 + v79To80 + v80To81).also(::validate)
+    val v81To82: List<Migration> = listOf(FeatureMigrationsV81To82.MIGRATION_81_82)
+    val all: List<Migration> = (v1To24 + v24To49 + v49To75 + v75To76 + v76To77 + v77To78 + v78To79 + v79To80 + v80To81 + v81To82).also(::validate)
 
     private fun validate(migrations: List<Migration>) {
         require(migrations.map { it.startVersion }.distinct().size == migrations.size) {

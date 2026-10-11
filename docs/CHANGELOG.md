@@ -13,6 +13,7 @@ All notable product changes are recorded in this document.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 - Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
+- Added SMB2/SMB3 share destinations for DVR recordings, with encrypted device-side credentials and in-app playback and deletion.
 - Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
 - Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
 
