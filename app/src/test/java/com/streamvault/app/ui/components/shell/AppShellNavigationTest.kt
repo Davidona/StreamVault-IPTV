@@ -25,6 +25,7 @@ class AppShellNavigationTest {
                 Routes.EPG,
                 Routes.SEARCH,
                 Routes.PLUGINS,
+                Routes.ADDONS,
                 Routes.SETTINGS
             )
             .inOrder()

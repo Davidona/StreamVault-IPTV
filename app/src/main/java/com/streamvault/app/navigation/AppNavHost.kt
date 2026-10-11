@@ -33,6 +33,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.feature.system.navigation.SystemRoutePatterns
 import com.streamvault.feature.system.navigation.registerSystemGraph
+import com.streamvault.feature.stremio.api.StremioScaffoldContent
+import com.streamvault.feature.stremio.navigation.registerStremioGraph
 
 @Composable
 internal fun AppNavHost(
@@ -81,6 +83,7 @@ internal fun AppNavHost(
             }
         )
         registerLiveGraph(actions, onTopLevelDestinationRequested)
+        registerStremioGraph(scaffold = appStremioScaffold(onTopLevelDestinationRequested))
         registerCatalogGraph(
             actions = actions,
             platformHost = catalogPlatformHost,
@@ -174,6 +177,21 @@ internal fun AppNavHost(
 private fun appSystemScaffold(
     onTopLevelDestinationRequested: (AppDestination) -> Unit,
 ): SystemScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(destination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = AppNavigationChrome.TopBar,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content,
+    )
+}
+
+private fun appStremioScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
+): StremioScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, content ->
     AppScreenScaffold(
         currentRoute = AppRouteCodec.encode(destination),
         onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },

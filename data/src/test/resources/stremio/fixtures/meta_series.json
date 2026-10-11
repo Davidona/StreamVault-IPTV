@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "id": "tt0903747",
+    "type": "series",
+    "name": "Breaking Bad",
+    "releaseInfo": "2008-2013",
+    "genres": ["Crime", "Drama", "Thriller"],
+    "cast": ["Bryan Cranston", "Aaron Paul"],
+    "director": ["Vince Gilligan"],
+    "videos": [
+      {
+        "id": "tt0903747:1:1",
+        "name": "Pilot",
+        "season": 1,
+        "episode": 1,
+        "released": "2008-01-20T05:00:00.000Z",
+        "thumbnail": "https://images.metahub.space/still/medium/tt0959621/img",
+        "overview": "Diagnosed with terminal lung cancer, a chemistry teacher starts cooking meth."
+      },
+      {
+        "id": "tt0903747:1:2",
+        "title": "Cat's in the Bag...",
+        "season": 1,
+        "episode": 2,
+        "released": "2008-01-27T05:00:00.000Z"
+      },
+      {
+        "id": "tt0903747:2:1",
+        "name": "Seven Thirty-Seven",
+        "season": 2,
+        "episode": 1
+      },
+      {
+        "name": "Specials entry without an id",
+        "season": 0,
+        "episode": 1
+      }
+    ]
+  }
+}

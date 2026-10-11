@@ -13,6 +13,7 @@ enum class AppTopLevelDestination(
     GUIDE("guide", AppLandingDestination.GUIDE),
     SEARCH("search"),
     PLUGINS("plugins", AppLandingDestination.PLUGINS),
+    ADDONS("addons", AppLandingDestination.ADDONS),
     SETTINGS("settings", AppLandingDestination.SETTINGS, isRequired = true);
 
     companion object {
@@ -25,6 +26,7 @@ enum class AppTopLevelDestination(
             GUIDE,
             SEARCH,
             PLUGINS,
+            ADDONS,
             SETTINGS
         )
 

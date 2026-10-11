@@ -244,5 +244,6 @@ private fun AppTopLevelDestination.labelResId(): Int = when (this) {
     AppTopLevelDestination.GUIDE -> R.string.nav_epg
     AppTopLevelDestination.SEARCH -> R.string.search_title
     AppTopLevelDestination.PLUGINS -> R.string.nav_plugins
+    AppTopLevelDestination.ADDONS -> R.string.nav_addons
     AppTopLevelDestination.SETTINGS -> R.string.nav_settings
 }

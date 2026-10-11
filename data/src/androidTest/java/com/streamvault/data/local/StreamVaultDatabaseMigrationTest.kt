@@ -1978,6 +1978,52 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate78To79_createsStremioAddonsAndPreservesExistingData() {
+        val name = "streamvault-78-79-stremio-addons"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            execSQL(
+                """
+                INSERT INTO search_history (query, content_scope, provider_id, used_at, use_count)
+                VALUES ('shawshank', 'MOVIE', 0, 100, 1)
+                """.trimIndent()
+            )
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            79,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.v78To79.toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM search_history WHERE query='shawshank'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_addons'"))
+        assertEquals(
+            1,
+            countRows(
+                migrated,
+                "SELECT COUNT(*) FROM pragma_index_list('stremio_addons') " +
+                    "WHERE name='index_stremio_addons_install_url' AND `unique`=1"
+            )
+        )
+        migrated.execSQL(
+            """
+            INSERT INTO stremio_addons (
+                install_url, manifest_id, name, version, manifest_json, enabled, sort_order,
+                catalog_settings_json, created_at, updated_at
+            ) VALUES (
+                'https://v3-cinemeta.strem.io/manifest.json', 'com.linvo.cinemeta', 'Cinemeta',
+                '3.0.14', '{}', 1, 0, '', 1, 1
+            )
+            """.trimIndent()
+        )
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM stremio_addons WHERE manifest_id='com.linvo.cinemeta'"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """

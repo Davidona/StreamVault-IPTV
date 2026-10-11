@@ -13,6 +13,7 @@ internal fun AppLandingDestination.toAppRoute(): String = when (this) {
     AppLandingDestination.GUIDE -> Routes.EPG
     AppLandingDestination.DOWNLOADS -> Routes.DOWNLOADS
     AppLandingDestination.PLUGINS -> Routes.PLUGINS
+    AppLandingDestination.ADDONS -> Routes.ADDONS
     AppLandingDestination.SETTINGS -> Routes.SETTINGS
 }
 
@@ -25,5 +26,6 @@ internal fun AppTopLevelDestination.toAppRoute(): String = when (this) {
     AppTopLevelDestination.GUIDE -> Routes.EPG
     AppTopLevelDestination.SEARCH -> Routes.SEARCH
     AppTopLevelDestination.PLUGINS -> Routes.PLUGINS
+    AppTopLevelDestination.ADDONS -> Routes.ADDONS
     AppTopLevelDestination.SETTINGS -> Routes.SETTINGS
 }

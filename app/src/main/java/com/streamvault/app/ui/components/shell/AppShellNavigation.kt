@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -147,6 +148,7 @@ private fun AppTopLevelDestination.toDestinationItem(): AppDestinationItem = whe
     AppTopLevelDestination.GUIDE -> AppDestinationItem(Routes.EPG, R.string.nav_epg, Icons.Default.Info)
     AppTopLevelDestination.SEARCH -> AppDestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search)
     AppTopLevelDestination.PLUGINS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_plugins, PluginBlocksIcon)
+    AppTopLevelDestination.ADDONS -> AppDestinationItem(Routes.ADDONS, R.string.nav_addons, Icons.Default.Extension)
     AppTopLevelDestination.SETTINGS -> AppDestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)
 }
 

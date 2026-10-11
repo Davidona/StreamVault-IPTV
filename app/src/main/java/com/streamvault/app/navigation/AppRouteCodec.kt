@@ -8,6 +8,7 @@ import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import com.streamvault.feature.catalog.navigation.CatalogRoutePatterns
 import com.streamvault.feature.system.navigation.SystemRoutePatterns
+import com.streamvault.feature.stremio.navigation.StremioRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
@@ -24,6 +25,7 @@ internal object AppRoutePatterns {
     const val SETTINGS = "settings"
     const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
     const val PLUGINS = SystemRoutePatterns.PLUGINS
+    const val ADDONS = StremioRoutePatterns.ADDONS
     const val PLAYER = PlaybackRoutePatterns.PLAYER
     const val SEARCH = CatalogRoutePatterns.SEARCH
     const val SEARCH_DESTINATION = CatalogRoutePatterns.SEARCH_DESTINATION
@@ -55,6 +57,7 @@ internal object AppRouteCodec {
             "${AppRoutePatterns.SETTINGS}?backupUri=${Uri.encode(uri)}"
         } ?: AppRoutePatterns.SETTINGS
         AppDestination.Plugins -> AppRoutePatterns.PLUGINS
+        AppDestination.Addons -> AppRoutePatterns.ADDONS
         is AppDestination.Search -> destination.query?.takeIf(String::isNotBlank)?.let { query ->
             "${AppRoutePatterns.SEARCH}?query=${Uri.encode(query)}"
         } ?: AppRoutePatterns.SEARCH
@@ -103,6 +106,7 @@ internal object AppRouteCodec {
                 backupUri = query["backupUri"]?.takeIf(String::isNotBlank)
             )
             path == AppRoutePatterns.PLUGINS -> AppDestination.Plugins
+            path == AppRoutePatterns.ADDONS -> AppDestination.Addons
             path == AppRoutePatterns.PLAYER -> AppDestination.Player
             path == AppRoutePatterns.MULTI_VIEW -> AppDestination.MultiView
             path == AppRoutePatterns.SEARCH -> AppDestination.Search(
@@ -189,6 +193,7 @@ internal object Routes {
     const val SETTINGS = AppRoutePatterns.SETTINGS
     const val SETTINGS_DESTINATION = AppRoutePatterns.SETTINGS_DESTINATION
     const val PLUGINS = AppRoutePatterns.PLUGINS
+    const val ADDONS = AppRoutePatterns.ADDONS
     const val PLAYER = AppRoutePatterns.PLAYER
     const val SEARCH = AppRoutePatterns.SEARCH
     const val SEARCH_DESTINATION = AppRoutePatterns.SEARCH_DESTINATION

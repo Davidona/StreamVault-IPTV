@@ -10,6 +10,7 @@ enum class AppLandingDestination(val storageValue: String) {
     GUIDE("guide"),
     DOWNLOADS("downloads"),
     PLUGINS("plugins"),
+    ADDONS("addons"),
     SETTINGS("settings");
 
     companion object {

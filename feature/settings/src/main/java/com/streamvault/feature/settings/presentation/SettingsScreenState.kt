@@ -236,6 +236,7 @@ private fun formatAppLandingDestinationLabel(
         AppLandingDestination.GUIDE -> R.string.nav_epg
         AppLandingDestination.DOWNLOADS -> R.string.nav_downloads
         AppLandingDestination.PLUGINS -> R.string.nav_plugins
+        AppLandingDestination.ADDONS -> R.string.nav_addons
         AppLandingDestination.SETTINGS -> R.string.nav_settings
     }
 )

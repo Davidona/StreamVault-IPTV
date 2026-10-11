@@ -545,6 +545,7 @@
     <string name="nav_epg">Guide</string>
     <string name="nav_downloads">Downloads</string>
     <string name="nav_plugins">Plugins</string>
+    <string name="nav_addons">Addons</string>
     <string name="nav_settings">Settings</string>
     <string name="settings_overview_title">Control Center</string>
     <string name="settings_overview_subtitle">Review your provider, protection, and playback setup at a glance.</string>

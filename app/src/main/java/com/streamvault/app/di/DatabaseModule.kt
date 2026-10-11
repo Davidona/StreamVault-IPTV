@@ -98,4 +98,5 @@ object DatabaseModule {
     @Provides fun provideProviderWorkflowDao(db: StreamVaultDatabase): ProviderWorkflowDao = db.providerWorkflowDao()
     @Provides fun provideM3uClassificationDao(db: StreamVaultDatabase): M3uClassificationDao = db.m3uClassificationDao()
     @Provides fun providePluginProviderOwnershipDao(db: StreamVaultDatabase): PluginProviderOwnershipDao = db.pluginProviderOwnershipDao()
+    @Provides fun provideStremioAddonDao(db: StreamVaultDatabase): StremioAddonDao = db.stremioAddonDao()
 }

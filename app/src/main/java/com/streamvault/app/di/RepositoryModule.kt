@@ -95,6 +95,9 @@ abstract class RepositoryModule {
     abstract fun bindM3uClassificationRepository(impl: M3uClassificationRepositoryImpl): M3uClassificationRepository
 
     @Binds @Singleton
+    abstract fun bindStremioAddonRepository(impl: StremioAddonRepositoryImpl): StremioAddonRepository
+
+    @Binds @Singleton
     abstract fun bindExternalRatingsRepository(impl: ExternalRatingsRepositoryImpl): ExternalRatingsRepository
 
     @Binds @Singleton

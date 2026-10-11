@@ -1,0 +1,20 @@
+<resources>
+    <string name="stremio_title">Addons</string>
+    <string name="stremio_subtitle">Stremio addons</string>
+    <string name="stremio_add">Add addon</string>
+    <string name="stremio_empty">No addons installed yet. Paste a Stremio addon manifest URL to get started.</string>
+    <string name="stremio_install_title">Add Stremio addon</string>
+    <string name="stremio_install_hint">https://example.com/manifest.json</string>
+    <string name="stremio_install_confirm">Add</string>
+    <string name="stremio_installing">Adding addon…</string>
+    <string name="stremio_cancel">Cancel</string>
+    <string name="stremio_enabled">Enabled</string>
+    <string name="stremio_move_up">Move up</string>
+    <string name="stremio_move_down">Move down</string>
+    <string name="stremio_catalogs">Catalogs</string>
+    <string name="stremio_remove">Remove</string>
+    <string name="stremio_status_installed">Addon installed</string>
+    <string name="stremio_status_removed">Addon removed</string>
+    <string name="stremio_no_catalogs">This addon exposes no browsable catalogs.</string>
+    <string name="stremio_version_format">Version %1$s</string>
+</resources>
