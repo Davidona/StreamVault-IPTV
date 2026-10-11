@@ -198,7 +198,7 @@ class WatchNextManager @Inject constructor(
         if (remoteArtwork != null) {
             return Uri.parse(remoteArtwork)
         }
-        return Uri.parse("android.resource://${context.packageName}/${R.mipmap.ic_launcher_vault}")
+        return Uri.parse("android.resource://${context.packageName}/${R.mipmap.ic_launcher}")
     }
 
     private fun isEligibleForWatchNext(history: PlaybackHistory): Boolean {
