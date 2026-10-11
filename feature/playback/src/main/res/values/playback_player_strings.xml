@@ -1,4 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Search online subtitles</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Find subtitles</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Choose a subtitle to add to this video.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Results for %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Connect your OpenSubtitles account in Settings to search and download subtitles.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Open Settings</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Searching OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">No subtitles found for this title and language.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Search again</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s downloads</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">General release</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Downloading subtitle…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s added. The player is loading the subtitle.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Close</string>
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d minute</item>
             <item quantity="other">%1$d minutes</item>

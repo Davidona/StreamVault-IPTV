@@ -724,5 +724,23 @@
     <string name="settings_drive_manage_subtitle">Delete only snapshots you no longer need.</string>
     <string name="settings_drive_manage_title">Saved Drive backups</string>
     <string name="settings_providers_subtitle">Switch, sync, edit, and troubleshoot your IPTV sources.</string>
+    <string name="settings_opensubtitles_title">OpenSubtitles</string>
+    <string name="settings_opensubtitles_description">Use your OpenSubtitles account to find subtitles while watching movies and series. Downloads count toward your account’s daily allowance.</string>
+    <string name="settings_opensubtitles_connect">Connect OpenSubtitles account</string>
+    <string name="settings_opensubtitles_signed_out">Not connected</string>
+    <string name="settings_opensubtitles_sign_in_title">Connect OpenSubtitles</string>
+    <string name="settings_opensubtitles_sign_in_subtitle">Sign in with your OpenSubtitles.com account. Your password is stored encrypted on this device.</string>
+    <string name="settings_opensubtitles_username">Username</string>
+    <string name="settings_opensubtitles_password">Password</string>
+    <string name="settings_opensubtitles_sign_in">Sign in</string>
+    <string name="settings_opensubtitles_signing_in">Signing in…</string>
+    <string name="settings_opensubtitles_sign_out">Sign out</string>
+    <string name="settings_opensubtitles_sign_out_title">Sign out of OpenSubtitles?</string>
+    <string name="settings_opensubtitles_sign_out_subtitle">Saved OpenSubtitles credentials will be removed from this device.</string>
+    <string name="settings_opensubtitles_remaining">%1$d downloads remaining today</string>
+    <string name="settings_opensubtitles_remaining_one">1 download remaining today</string>
+    <string name="settings_opensubtitles_daily_allowance">%1$d downloads per day</string>
+    <string name="settings_opensubtitles_quota_unknown">Daily allowance is managed by OpenSubtitles.</string>
+    <string name="settings_opensubtitles_signing_out">Signing out…</string>
     <string name="settings_title">Settings</string>
 </resources>

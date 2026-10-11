@@ -73,6 +73,16 @@ class PlayerBackNavigationPolicyTest {
     }
 
     @Test
+    fun `subtitle search closes before returning to playback controls`() {
+        val state = PlayerBackNavigationState(
+            showSubtitleSearch = true,
+            showControls = true,
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_SUBTITLE_SEARCH)
+    }
+
+    @Test
     fun `empty player state navigates back`() {
         assertThat(playerBackAction(PlayerBackNavigationState()))
             .isEqualTo(PlayerBackAction.NAVIGATE_BACK)

@@ -55,6 +55,7 @@ internal fun PlayerControlsOverlayHost(
     contentType: String,
     modifier: Modifier = Modifier,
     isCatchUpPlayback: Boolean = false,
+    onlineSubtitleSearchAvailable: Boolean = false,
     isPlaying: Boolean,
     currentChannel: Channel?,
     currentChannelName: String?,
@@ -126,6 +127,7 @@ internal fun PlayerControlsOverlayHost(
         audioTrackCount = availableAudioTracks.size,
         videoQualityCount = availableVideoQualities.size,
         audioVideoSyncEnabled = audioVideoSyncEnabled,
+        onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
         showExternalPlayerAction = false,
         isCastConnected = isCastConnected
     )

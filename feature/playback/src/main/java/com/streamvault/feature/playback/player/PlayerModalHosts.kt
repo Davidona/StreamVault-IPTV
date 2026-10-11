@@ -51,6 +51,8 @@ internal fun PlayerControlsModalHost(
     viewModel: PlayerViewModel,
     isInPictureInPictureMode: Boolean,
     showTrackSelection: TrackType?,
+    showSubtitleSearch: Boolean,
+    onlineSubtitleSearchAvailable: Boolean,
     showVariantSelection: Boolean,
     currentChannel: Channel?,
     showSpeedSelection: Boolean,
@@ -62,6 +64,8 @@ internal fun PlayerControlsModalHost(
     fallbackTitle: String,
     fallbackEpisodeId: Long,
     fallbackSeasonNumber: Int?,
+    onOpenSubtitleSearch: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDismissModal: () -> Unit,
 ) {
     if (showAudioVideoOffsetDialog) {
@@ -105,6 +109,7 @@ internal fun PlayerControlsModalHost(
             videoTracks = availableVideoQualities,
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
             onDismiss = onDismissModal,
             onSelectAudio = viewModel::selectAudioTrack,
             onSelectVideo = viewModel::selectVideoQuality,
@@ -115,7 +120,22 @@ internal fun PlayerControlsModalHost(
             onSelectLiveTranslation = {
                 viewModel.selectSubtitleTrack(null)
                 viewModel.activateLiveTranslation()
-            }
+            },
+            onSearchOnlineSubtitles = onOpenSubtitleSearch,
+        )
+    }
+    if (!isInPictureInPictureMode && showSubtitleSearch) {
+        PlayerExternalSubtitleSearchDialog(
+            viewModel = viewModel,
+            onDismiss = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
+            },
+            onOpenSettings = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
+                onOpenSettings()
+            },
         )
     }
     if (!isInPictureInPictureMode && showVariantSelection) {

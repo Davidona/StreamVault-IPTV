@@ -16,6 +16,11 @@
 # See `docs/DEV_SEEDING.md` for the full opt-in onboarding flow.
 # -----------------------------------------------------------------------------
 
+# --- OpenSubtitles API application key (debug builds only) --------------------
+# Get a key from OpenSubtitles, then add it to your ignored `local.properties`:
+# opensubtitles.api.key=your-opensubtitles-api-key
+# Rebuild the app after changing this value.
+
 
 # === Dev onboarding seeding (optional) ========================================
 #

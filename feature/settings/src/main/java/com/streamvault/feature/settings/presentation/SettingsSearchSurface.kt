@@ -223,6 +223,7 @@ private fun resolvedSettingsCatalog(
         setting("playback.audio_language", SettingsCategory.PLAYBACK, SettingsPage.AUDIO, R.string.settings_preferred_audio_language, "language"),
         setting("playback.live_translation", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_live_translation_enabled, "translate subtitles"),
         setting("playback.translation_endpoint", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_live_translation_endpoint, "translation server"),
+        setting("playback.subtitles_provider", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_opensubtitles_title, "opensubtitles", "online subtitles", "subtitle account"),
         setting("playback.subtitle_size", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_size, "captions"),
         setting("playback.subtitle_text_color", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_text_color, "captions color"),
         setting("playback.subtitle_background", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_background, "captions background"),

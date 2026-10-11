@@ -6,6 +6,8 @@ import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.Episode
+import com.streamvault.domain.model.ExternalSubtitle
+import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
@@ -27,6 +29,15 @@ data class NumericChannelInputState(
     val input: String = "",
     val matchedChannelName: String? = null,
     val invalid: Boolean = false
+)
+
+data class ExternalSubtitleSearchUiState(
+    val account: OpenSubtitlesAccount? = null,
+    val isSearching: Boolean = false,
+    val subtitles: List<ExternalSubtitle> = emptyList(),
+    val errorMessage: String? = null,
+    val downloadingSubtitleId: String? = null,
+    val appliedSubtitleName: String? = null,
 )
 
 data class PlayerNoticeState(
