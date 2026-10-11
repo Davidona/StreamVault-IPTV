@@ -11,6 +11,9 @@ import javax.inject.Named
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -26,7 +29,11 @@ class OpenSubtitlesApi @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val gson: Gson,
     @param:Named("opensubtitlesApiKey") private val apiKey: String,
+    @param:Named("opensubtitlesUserAgent") private val userAgent: String = "StreamVault vdev",
 ) {
+    private val loginRequestMutex = Mutex()
+    private var lastLoginRequestStartedAtNanos: Long? = null
+
     data class DownloadLink(
         val url: String,
         val fileName: String,
@@ -63,7 +70,17 @@ class OpenSubtitlesApi @Inject constructor(
         password: String,
         baseUrl: String = OPENSUBTITLES_DEFAULT_BASE_URL,
     ): Result<OpenSubtitlesSession> = try {
-        val session = withContext(Dispatchers.IO) { loginSession(username, password, baseUrl) }
+        val session = loginRequestMutex.withLock {
+            val previousStart = lastLoginRequestStartedAtNanos
+            if (previousStart != null) {
+                val remainingNanos = MIN_LOGIN_INTERVAL_NANOS - (System.nanoTime() - previousStart)
+                if (remainingNanos > 0L) {
+                    delay(TimeUnit.NANOSECONDS.toMillis(remainingNanos) + 1L)
+                }
+            }
+            lastLoginRequestStartedAtNanos = System.nanoTime()
+            withContext(Dispatchers.IO) { loginSession(username, password, baseUrl) }
+        }
         Result.success(session)
     } catch (e: Exception) {
         if (e is CancellationException) throw e
@@ -77,7 +94,7 @@ class OpenSubtitlesApi @Inject constructor(
                 .header("Accept", "application/json")
                 .header("Api-Key", requireApiKey())
                 .header("Authorization", "Bearer $token")
-                .header("User-Agent", USER_AGENT)
+                .header("User-Agent", userAgent)
                 .delete()
                 .build()
             execute(request, "OpenSubtitles logout")
@@ -90,16 +107,16 @@ class OpenSubtitlesApi @Inject constructor(
 
     suspend fun search(
         query: SearchQuery,
-        token: String,
-        baseUrlHost: String,
+        token: String? = null,
+        baseUrlHost: String = OPENSUBTITLES_DEFAULT_BASE_HOST,
     ): Result<List<OpenSubtitlesSubtitleDto>> = try {
         val subtitles = withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url(buildUrl(baseUrlHost, "/subtitles", query.toQueryParams()))
                 .header("Accept", "application/json")
                 .header("Api-Key", requireApiKey())
-                .header("Authorization", "Bearer $token")
-                .header("User-Agent", USER_AGENT)
+                .header("User-Agent", userAgent)
+                .apply { token?.trim()?.takeIf { it.isNotEmpty() }?.let { header("Authorization", "Bearer $it") } }
                 .get()
                 .build()
             val body = execute(request, "OpenSubtitles search")
@@ -113,8 +130,8 @@ class OpenSubtitlesApi @Inject constructor(
 
     suspend fun downloadLink(
         fileId: Long,
-        token: String,
-        baseUrlHost: String,
+        token: String? = null,
+        baseUrlHost: String = OPENSUBTITLES_DEFAULT_BASE_HOST,
         subFormat: String = "srt",
     ): Result<DownloadLink> = try {
         val link = withContext(Dispatchers.IO) {
@@ -124,8 +141,8 @@ class OpenSubtitlesApi @Inject constructor(
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Api-Key", requireApiKey())
-                .header("Authorization", "Bearer $token")
-                .header("User-Agent", USER_AGENT)
+                .header("User-Agent", userAgent)
+                .apply { token?.trim()?.takeIf { it.isNotEmpty() }?.let { header("Authorization", "Bearer $it") } }
                 .post(payload.toRequestBody("application/json".toMediaType()))
                 .build()
             val body = execute(request, "OpenSubtitles download")
@@ -153,7 +170,7 @@ class OpenSubtitlesApi @Inject constructor(
             try {
                 val request = Request.Builder()
                     .url(link.url)
-                    .header("User-Agent", USER_AGENT)
+                    .header("User-Agent", userAgent)
                     .get()
                     .build()
                 // OpenSubtitles links contain short-lived download tokens in their URL. Keep the
@@ -206,7 +223,7 @@ class OpenSubtitlesApi @Inject constructor(
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
             .header("Api-Key", requireApiKey())
-            .header("User-Agent", USER_AGENT)
+            .header("User-Agent", userAgent)
             .post(payload.toRequestBody("application/json".toMediaType()))
             .build()
         val body = execute(request, "OpenSubtitles login")
@@ -248,7 +265,7 @@ class OpenSubtitlesApi @Inject constructor(
         } else {
             "https://$normalized"
         }
-        val qs = query.entries.joinToString("&") { (k, v) -> "${enc(k)}=${enc(v)}" }
+        val qs = query.toSortedMap().entries.joinToString("&") { (k, v) -> "${enc(k)}=${enc(v)}" }
         return "$host/api/v1$path${if (qs.isNotBlank()) "?$qs" else ""}"
     }
 
@@ -260,7 +277,7 @@ class OpenSubtitlesApi @Inject constructor(
         )
 
     private companion object {
-        const val USER_AGENT = "StreamVault v1"
         const val REQUEST_TIMEOUT_SECONDS = 30L
+        const val MIN_LOGIN_INTERVAL_NANOS = 1_000_000_000L
     }
 }

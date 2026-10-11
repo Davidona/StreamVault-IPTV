@@ -1,6 +1,8 @@
 package com.streamvault.feature.playback.player
 
 import android.view.KeyEvent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -179,6 +181,14 @@ fun PlayerScreen(
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
     val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
+    val localSubtitlePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let(viewModel::loadLocalSrtSubtitle)
+    }
+    val pickLocalSubtitle: () -> Unit = {
+        localSubtitlePicker.launch(arrayOf("application/x-subrip", "text/plain", "application/octet-stream"))
+    }
 
     DisposableEffect(viewModel) {
         onDispose { viewModel.clearSeekPreview() }
@@ -445,6 +455,7 @@ fun PlayerScreen(
                     showPlaybackSettings = modalState.showPlaybackSettings,
                     showSpeedSelection = modalState.showSpeedSelection,
                     showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+                    showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
                     showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
                     showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
                     hasTrackSelection = modalState.trackSelection != null,
@@ -471,6 +482,7 @@ fun PlayerScreen(
                     modalState = modalState.dismiss()
                     viewModel.dismissAudioVideoOffsetPreview()
                 }
+                PlayerBackAction.CLOSE_SUBTITLE_OFFSET_DIALOG -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_VARIANT_SELECTION -> modalState = modalState.dismiss()
@@ -514,6 +526,7 @@ fun PlayerScreen(
             showVariantSelection = modalState.showVariantSelection,
             showSpeedSelection = modalState.showSpeedSelection,
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+            showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
             showProgramHistory = modalState.showProgramHistory,
@@ -607,6 +620,10 @@ fun PlayerScreen(
                     PlayerInputAction.DismissAudioVideoOffset -> {
                         modalState = modalState.dismiss()
                         viewModel.dismissAudioVideoOffsetPreview()
+                        true
+                    }
+                    PlayerInputAction.DismissSubtitleOffset -> {
+                        modalState = modalState.dismiss()
                         true
                     }
                     PlayerInputAction.CloseSpeedSelection -> {
@@ -952,11 +969,14 @@ fun PlayerScreen(
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
             canSaveChannel = currentChannel != null,
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+            showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
             fallbackTitle = title,
             fallbackEpisodeId = internalChannelId,
             fallbackSeasonNumber = seasonNumber,
             onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },
+            onOpenSubtitleOffset = { modalState = modalState.open(PlayerModal.SubtitleOffset) },
+            onPickLocalSubtitle = pickLocalSubtitle,
             onOpenSettings = { onNavigate?.invoke(AppDestination.Settings()) },
             onDismissModal = { modalState = modalState.dismiss() }
         )

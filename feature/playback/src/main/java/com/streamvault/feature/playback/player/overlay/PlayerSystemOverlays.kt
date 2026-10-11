@@ -88,6 +88,9 @@ import com.streamvault.player.PlayerTrack
 import com.streamvault.player.TrackType
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
+import com.streamvault.player.SUBTITLE_OFFSET_STEP_MS
 import java.util.Locale
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
@@ -259,12 +262,15 @@ fun PlayerTrackSelectionDialog(
     liveTranslationAvailable: Boolean = false,
     liveTranslationActive: Boolean = false,
     onlineSubtitleSearchAvailable: Boolean = false,
+    subtitleOffsetMs: Int = 0,
     onDismiss: () -> Unit,
     onSelectAudio: (String) -> Unit,
     onSelectVideo: (String) -> Unit,
     onSelectSubtitle: (String?) -> Unit,
     onSelectLiveTranslation: () -> Unit = {},
     onSearchOnlineSubtitles: () -> Unit = {},
+    onOpenSubtitleOffset: () -> Unit = {},
+    onLoadLocalSubtitle: () -> Unit = {},
 ) {
     if (trackType == null) return
 
@@ -370,6 +376,23 @@ fun PlayerTrackSelectionDialog(
                                     onSelectLiveTranslation()
                                     onDismiss()
                                 }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_subtitle_delay_action, subtitleOffsetMs),
+                                isSelected = false,
+                                onClick = onOpenSubtitleOffset
+                            )
+                        }
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_subtitle_load_from_device),
+                                isSelected = false,
+                                onClick = onLoadLocalSubtitle
                             )
                         }
                     }
@@ -904,6 +927,104 @@ fun PlayerAudioVideoOffsetDialog(
                                 }
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PlayerSubtitleOffsetDialog(
+    visible: Boolean,
+    offsetMs: Int,
+    onDismiss: () -> Unit,
+    onAdjust: (Int) -> Unit,
+    onReset: () -> Unit
+) {
+    if (!visible) return
+
+    val firstItemFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(visible) {
+        firstItemFocusRequester.requestFocusSafely(
+            tag = "PlayerSubtitleOffsetDialog",
+            target = "Earlier subtitle timing option"
+        )
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(min = 340.dp, max = 460.dp)
+                    .background(SurfaceElevated, RoundedCornerShape(12.dp))
+                    .padding(24.dp)
+                    .onPreviewKeyEvent { event ->
+                        if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                        when (event.nativeKeyEvent.keyCode) {
+                            KeyEvent.KEYCODE_DPAD_UP,
+                            KeyEvent.KEYCODE_DPAD_DOWN,
+                            KeyEvent.KEYCODE_DPAD_LEFT,
+                            KeyEvent.KEYCODE_DPAD_RIGHT,
+                            KeyEvent.KEYCODE_DPAD_CENTER,
+                            KeyEvent.KEYCODE_ENTER,
+                            KeyEvent.KEYCODE_NUMPAD_ENTER,
+                            KeyEvent.KEYCODE_BACK -> false
+                            else -> true
+                        }
+                    }
+            ) {
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceDim,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_current, offsetMs),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Primary,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 16.dp)
+                )
+
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_earlier, SUBTITLE_OFFSET_STEP_MS),
+                            isSelected = false,
+                            onClick = { onAdjust(-SUBTITLE_OFFSET_STEP_MS) },
+                            enabled = offsetMs > SUBTITLE_OFFSET_MIN_MS,
+                            modifier = Modifier.focusRequester(firstItemFocusRequester)
+                        )
+                    }
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_later, SUBTITLE_OFFSET_STEP_MS),
+                            isSelected = false,
+                            onClick = { onAdjust(SUBTITLE_OFFSET_STEP_MS) },
+                            enabled = offsetMs < SUBTITLE_OFFSET_MAX_MS
+                        )
+                    }
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_reset),
+                            isSelected = offsetMs == 0,
+                            onClick = onReset
+                        )
                     }
                 }
             }

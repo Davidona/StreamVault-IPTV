@@ -10,6 +10,7 @@ import com.streamvault.data.remote.NetworkTimeoutConfig
 import com.streamvault.data.remote.http.DefaultUserAgentInterceptor
 import com.streamvault.data.remote.http.buildAppRequestProfile
 import com.streamvault.data.remote.http.buildAppUserAgent
+import com.streamvault.data.remote.http.buildOpenSubtitlesUserAgent
 import com.streamvault.data.remote.stalker.OkHttpStalkerApiService
 import com.streamvault.data.remote.stalker.StalkerApiService
 import com.streamvault.data.remote.xtream.XtreamApiService
@@ -45,6 +46,10 @@ object NetworkModule {
     @Provides
     @Named("opensubtitlesApiKey")
     fun provideOpenSubtitlesApiKey(): String = BuildConfig.OPENSUBTITLES_API_KEY
+
+    @Provides
+    @Named("opensubtitlesUserAgent")
+    fun provideOpenSubtitlesUserAgent(): String = buildOpenSubtitlesUserAgent(BuildConfig.VERSION_NAME)
 
     @Provides
     @Singleton

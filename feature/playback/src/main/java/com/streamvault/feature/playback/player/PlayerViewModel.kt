@@ -974,6 +974,7 @@ class PlayerViewModel @Inject constructor(
     val mediaTitle: StateFlow<String?> = activeEngineState<String?>(null) { it.mediaTitle }
     val playbackSpeed: StateFlow<Float> = activeEngineState(1f) { it.playbackSpeed }
     val audioVideoSyncEnabled: StateFlow<Boolean> = activeEngineState(false) { it.audioVideoSyncEnabled }
+    val subtitleOffsetMs: StateFlow<Int> = activeEngineState(0) { it.subtitleOffsetMs }
 
     val preventStandbyDuringPlayback: StateFlow<Boolean> by lazy(LazyThreadSafetyMode.NONE) {
         playerPreferencesCoordinator.preventStandbyDuringPlayback

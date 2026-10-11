@@ -97,6 +97,7 @@ fun ChannelInfoOverlay(
     onOpenSplitScreen: () -> Unit = {},
     subtitleTrackCount: Int = 0,
     liveTranslationAvailable: Boolean = false,
+    localSubtitleLoadingAvailable: Boolean = true,
     audioTrackCount: Int = 0,
     videoQualityCount: Int = 0,
     channelVariantCount: Int = 0,
@@ -434,7 +435,7 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                if (subtitleTrackCount > 0 || liveTranslationAvailable) {
+                if (subtitleTrackCount > 0 || liveTranslationAvailable || localSubtitleLoadingAvailable) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_subs),

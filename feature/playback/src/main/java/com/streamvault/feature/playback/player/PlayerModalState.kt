@@ -7,6 +7,7 @@ internal sealed interface PlayerModal {
     data object VariantSelection : PlayerModal
     data object SpeedSelection : PlayerModal
     data object AudioVideoOffset : PlayerModal
+    data object SubtitleOffset : PlayerModal
     data object StopPlaybackTimer : PlayerModal
     data object IdleStandbyTimer : PlayerModal
     data object ProgramHistory : PlayerModal
@@ -36,6 +37,9 @@ internal data class PlayerModalState(
 
     val showAudioVideoOffsetDialog: Boolean
         get() = active is PlayerModal.AudioVideoOffset
+
+    val showSubtitleOffsetDialog: Boolean
+        get() = active is PlayerModal.SubtitleOffset
 
     val showStopPlaybackTimerDialog: Boolean
         get() = active is PlayerModal.StopPlaybackTimer

@@ -43,6 +43,29 @@ class OpenSubtitlesApiDownloadTest {
     }
 
     @Test
+    fun `login requests are spaced to respect the API rate limit`() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            repeat(2) {
+                server.enqueue(MockResponse().setBody("""{"token":"test-token"}"""))
+            }
+            val api = OpenSubtitlesApi(OkHttpClient(), Gson(), "test-api-key")
+            val baseUrl = server.url("/api/v1").toString().trimEnd('/')
+
+            val firstStartedAt = System.nanoTime()
+            assertThat(api.login("test-user", "test-password", baseUrl).isSuccess).isTrue()
+            assertThat(api.login("test-user", "test-password", baseUrl).isSuccess).isTrue()
+
+            val elapsedMillis = (System.nanoTime() - firstStartedAt) / 1_000_000L
+            assertThat(elapsedMillis).isAtLeast(950L)
+            assertThat(server.requestCount).isEqualTo(2)
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
     fun `missing application key returns setup guidance without a request`() = runBlocking {
         val server = MockWebServer()
         server.start()
@@ -54,6 +77,81 @@ class OpenSubtitlesApiDownloadTest {
             assertThat(result).isInstanceOf(Result.Error::class.java)
             assertThat((result as Result.Error).message).contains("opensubtitles.api.key")
             assertThat(server.requestCount).isEqualTo(0)
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    fun `search sends the app key and only sends bearer when an account token exists`() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            server.enqueue(MockResponse().setBody("""{"data":[]}"""))
+            server.enqueue(MockResponse().setBody("""{"data":[]}"""))
+            val api = OpenSubtitlesApi(OkHttpClient(), Gson(), "test-api-key")
+            val baseUrl = server.url("/").toString().trimEnd('/')
+
+            assertThat(api.search(OpenSubtitlesApi.SearchQuery(query = "Alien"), baseUrlHost = baseUrl).isSuccess)
+                .isTrue()
+            assertThat(api.search(
+                OpenSubtitlesApi.SearchQuery(query = "Alien"),
+                token = "user-token",
+                baseUrlHost = baseUrl,
+            ).isSuccess).isTrue()
+
+            val anonymous = server.takeRequest()
+            assertThat(anonymous.getHeader("Api-Key")).isEqualTo("test-api-key")
+            assertThat(anonymous.getHeader("Authorization")).isNull()
+            assertThat(anonymous.getHeader("User-Agent")).isEqualTo("StreamVault vdev")
+            val authenticated = server.takeRequest()
+            assertThat(authenticated.getHeader("Api-Key")).isEqualTo("test-api-key")
+            assertThat(authenticated.getHeader("Authorization")).isEqualTo("Bearer user-token")
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    fun `search sorts query parameters and encodes spaces with plus`() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            server.enqueue(MockResponse().setBody("""{"data":[]}"""))
+            val api = OpenSubtitlesApi(OkHttpClient(), Gson(), "test-api-key")
+
+            val result = api.search(
+                OpenSubtitlesApi.SearchQuery(query = "Star Trek", tmdbId = 42L, languages = "en"),
+                baseUrlHost = server.url("/").toString().trimEnd('/'),
+            )
+
+            assertThat(result.isSuccess).isTrue()
+            assertThat(server.takeRequest().path)
+                .isEqualTo("/api/v1/subtitles?languages=en&query=Star+Trek&tmdb_id=42")
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    fun `anonymous download request includes the app key without a bearer token`() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            server.enqueue(MockResponse().setBody(
+                """{"link":"https://example.com/file.srt","file_name":"file.srt","remaining":4}"""
+            ))
+            val api = OpenSubtitlesApi(OkHttpClient(), Gson(), "test-api-key")
+
+            val result = api.downloadLink(
+                fileId = 42L,
+                baseUrlHost = server.url("/").toString().trimEnd('/'),
+            )
+
+            assertThat(result.isSuccess).isTrue()
+            val request = server.takeRequest()
+            assertThat(request.getHeader("Api-Key")).isEqualTo("test-api-key")
+            assertThat(request.getHeader("Authorization")).isNull()
         } finally {
             server.shutdown()
         }

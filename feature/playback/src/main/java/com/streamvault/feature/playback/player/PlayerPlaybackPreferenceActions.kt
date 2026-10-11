@@ -9,6 +9,8 @@ import com.streamvault.domain.settings.VodTrackPreference
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerError
 import kotlinx.coroutines.delay
@@ -261,6 +263,15 @@ fun PlayerViewModel.adjustAudioVideoOffset(deltaMs: Int) {
 
 fun PlayerViewModel.resetAudioVideoOffsetPreview() {
     previewAudioVideoOffset(0)
+}
+
+fun PlayerViewModel.adjustSubtitleOffset(deltaMs: Int) {
+    val current = subtitleOffsetMs.value
+    playerEngine.setSubtitleOffsetMs((current + deltaMs).coerceIn(SUBTITLE_OFFSET_MIN_MS, SUBTITLE_OFFSET_MAX_MS))
+}
+
+fun PlayerViewModel.resetSubtitleOffset() {
+    playerEngine.setSubtitleOffsetMs(0)
 }
 
 fun PlayerViewModel.dismissAudioVideoOffsetPreview() {

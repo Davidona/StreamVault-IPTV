@@ -143,7 +143,7 @@ class VodOverlayStateTest {
     }
 
     @Test
-    fun `negative capability counts are treated as unavailable`() {
+    fun `vod subtitle action remains available for local subtitle loading`() {
         val state = buildVodOverlayState(
             contentType = "MOVIE",
             isCatchUpPlayback = false,
@@ -157,7 +157,7 @@ class VodOverlayStateTest {
             isCastConnected = false
         )
 
-        assertThat(state.showSubtitleAction).isFalse()
+        assertThat(state.showSubtitleAction).isTrue()
         assertThat(state.showAudioAction).isFalse()
         assertThat(state.showVideoQualityAction).isFalse()
         assertThat(state.showExternalPlayerAction).isTrue()

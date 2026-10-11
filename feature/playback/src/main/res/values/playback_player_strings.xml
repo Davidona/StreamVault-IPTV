@@ -1,10 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Search online subtitles</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Load SRT from device</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Subtitle delay (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Subtitle delay</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Negative values show subtitles earlier; positive values show them later.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Current delay: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Show subtitles %1$d ms earlier</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Show subtitles %1$d ms later</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Reset delay</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s loaded. The player is loading the subtitle.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Choose a valid .srt subtitle file.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Subtitle files must be 20 MB or smaller.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Could not load this subtitle file.</string>
     <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Find subtitles</string>
     <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Choose a subtitle to add to this video.</string>
     <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Results for %1$s</string>
-    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Connect your OpenSubtitles account in Settings to search and download subtitles.</string>
-    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Open Settings</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">You can search without signing in if anonymous access is enabled. Sign in to use your account’s download allowance.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Connect account (optional)</string>
     <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Searching OpenSubtitles…</string>
     <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">No subtitles found for this title and language.</string>
     <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Search again</string>

@@ -283,6 +283,9 @@ class Media3PlayerEngine @Inject constructor(
     private val audioVideoOffsetUs = AtomicLong(0L)
     private val _audioVideoOffsetMs = MutableStateFlow(0)
     override val audioVideoOffsetMs: StateFlow<Int> = _audioVideoOffsetMs.asStateFlow()
+    private val subtitleOffsetUs = AtomicLong(0L)
+    private val _subtitleOffsetMs = MutableStateFlow(0)
+    override val subtitleOffsetMs: StateFlow<Int> = _subtitleOffsetMs.asStateFlow()
     private val _audioVideoSyncEnabled = MutableStateFlow(false)
     override val audioVideoSyncEnabled: StateFlow<Boolean> = _audioVideoSyncEnabled.asStateFlow()
 
@@ -517,11 +520,21 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
+        if (_subtitleOffsetMs.value != 0) {
+            _subtitleOffsetMs.value = 0
+            subtitleOffsetUs.set(0L)
+        }
         if (!vodTrackPreferencesConfiguredForNextPrepare) {
             trackController.setVodTrackPreferences(exoPlayer, null)
         }
         vodTrackPreferencesConfiguredForNextPrepare = false
         prepareInternal(streamInfo = streamInfo, preserveRetryState = false, seekPositionMs = null, autoPlay = true)
+    }
+
+    private fun withSubtitleOffset(
+        mediaSource: androidx.media3.exoplayer.source.MediaSource
+    ): androidx.media3.exoplayer.source.MediaSource = SubtitleOffsetMediaSource(mediaSource) {
+        subtitleOffsetUs.get()
     }
 
     override fun renewStreamUrl(streamInfo: StreamInfo) {
@@ -558,7 +571,7 @@ class Media3PlayerEngine @Inject constructor(
             preload = false
         ).second
 
-        player.setMediaSource(mediaSource, /* resetPosition= */ false)
+        player.setMediaSource(withSubtitleOffset(mediaSource), /* resetPosition= */ false)
         player.prepare()
 
         Log.i(
@@ -750,6 +763,14 @@ class Media3PlayerEngine @Inject constructor(
         audioVideoOffsetUs.set(effectiveOffset * 1_000L)
     }
 
+    override fun setSubtitleOffsetMs(offsetMs: Int) {
+        val clamped = offsetMs.coerceIn(SUBTITLE_OFFSET_MIN_MS, SUBTITLE_OFFSET_MAX_MS)
+        if (_subtitleOffsetMs.value == clamped) return
+        _subtitleOffsetMs.value = clamped
+        subtitleOffsetUs.set(clamped * 1_000L)
+        exoPlayer?.let { player -> player.seekTo(player.currentPosition) }
+    }
+
     override fun setAudioOutputPreference(preference: AudioOutputPreference) {
         if (audioOutputPreference == preference) return
         audioOutputPreference = preference
@@ -885,7 +906,7 @@ class Media3PlayerEngine @Inject constructor(
         liveAudioTap = tap
     }
 
-    override fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String) {
+    override fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String?) {
         val player = exoPlayer ?: return
         val streamInfo = lastStreamInfo ?: return
         val retryPolicy = currentRetryPolicy ?: return
@@ -901,7 +922,7 @@ class Media3PlayerEngine @Inject constructor(
             vodHttpProtocolMode = requestedVodHttpProtocolMode,
             preload = false
         )
-        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language)
+        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language, label)
         val subtitleSource = buildExternalSubtitleMediaSource(
             dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
             configuration = subtitleConfig
@@ -909,7 +930,7 @@ class Media3PlayerEngine @Inject constructor(
         val merged = androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleSource)
 
         player.trackSelectionParameters = player.trackSelectionParameters.withExternalSubtitleEnabled()
-        player.setMediaSource(merged, /* resetPosition= */ false)
+        player.setMediaSource(withSubtitleOffset(merged), /* resetPosition= */ false)
         player.prepare()
         transition.resumePositionMs.takeIf { it > 0L }?.let(player::seekTo)
         player.playWhenReady = transition.playWhenReady
@@ -1255,7 +1276,7 @@ class Media3PlayerEngine @Inject constructor(
             if (managedSource != null) {
                 Log.i(TAG, "preload-source reused mediaId=$mediaId source=window")
             }
-            player.setMediaSource(mediaSource)
+            player.setMediaSource(withSubtitleOffset(mediaSource))
             player.prepare()
             seekPositionMs?.takeIf { it > 0L }?.let(player::seekTo)
 

@@ -13,6 +13,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerAudioVideoOffsetDia
 import com.streamvault.feature.playback.player.overlay.PlayerEpisodeSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSpeedSelectionDialog
+import com.streamvault.feature.playback.player.overlay.PlayerSubtitleOffsetDialog
 import com.streamvault.feature.playback.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
@@ -60,11 +61,14 @@ internal fun PlayerControlsModalHost(
     showIdleStandbyTimerDialog: Boolean,
     canSaveChannel: Boolean,
     showAudioVideoOffsetDialog: Boolean,
+    showSubtitleOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
     fallbackTitle: String,
     fallbackEpisodeId: Long,
     fallbackSeasonNumber: Int?,
     onOpenSubtitleSearch: () -> Unit,
+    onOpenSubtitleOffset: () -> Unit,
+    onPickLocalSubtitle: () -> Unit,
     onOpenSettings: () -> Unit,
     onDismissModal: () -> Unit,
 ) {
@@ -102,6 +106,7 @@ internal fun PlayerControlsModalHost(
         val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
         val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
         val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
         PlayerTrackSelectionDialog(
             trackType = showTrackSelection,
             audioTracks = availableAudioTracks,
@@ -110,6 +115,7 @@ internal fun PlayerControlsModalHost(
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
             onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
+            subtitleOffsetMs = subtitleOffsetMs,
             onDismiss = onDismissModal,
             onSelectAudio = viewModel::selectAudioTrack,
             onSelectVideo = viewModel::selectVideoQuality,
@@ -122,6 +128,21 @@ internal fun PlayerControlsModalHost(
                 viewModel.activateLiveTranslation()
             },
             onSearchOnlineSubtitles = onOpenSubtitleSearch,
+            onOpenSubtitleOffset = onOpenSubtitleOffset,
+            onLoadLocalSubtitle = {
+                onDismissModal()
+                onPickLocalSubtitle()
+            },
+        )
+    }
+    if (!isInPictureInPictureMode && showSubtitleOffsetDialog) {
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
+        PlayerSubtitleOffsetDialog(
+            visible = true,
+            offsetMs = subtitleOffsetMs,
+            onDismiss = onDismissModal,
+            onAdjust = viewModel::adjustSubtitleOffset,
+            onReset = viewModel::resetSubtitleOffset
         )
     }
     if (!isInPictureInPictureMode && showSubtitleSearch) {

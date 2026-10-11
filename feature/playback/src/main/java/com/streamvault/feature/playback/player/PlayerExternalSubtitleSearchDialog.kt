@@ -61,11 +61,9 @@ internal fun PlayerExternalSubtitleSearchDialog(
         onDismiss()
     }
 
-    LaunchedEffect(state.account?.username) {
-        if (state.account != null) viewModel.searchExternalSubtitles()
-    }
+    LaunchedEffect(Unit) { viewModel.searchExternalSubtitles() }
     LaunchedEffect(state.isSearching, state.subtitles.firstOrNull()?.id, state.account?.username) {
-        if (state.account != null && !state.isSearching && state.subtitles.isNotEmpty()) {
+        if (!state.isSearching && state.subtitles.isNotEmpty()) {
             firstResultFocusRequester.requestFocusSafely(
                 tag = "PlayerExternalSubtitleSearchDialog",
                 target = "First subtitle result",
@@ -104,21 +102,22 @@ internal fun PlayerExternalSubtitleSearchDialog(
                         )
                     }
 
-                    if (state.account == null) {
-                        Column(
-                            modifier = Modifier.weight(1f).fillMaxWidth(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Button(onClick = onOpenSettings) {
-                                Text(stringResource(R.string.player_subtitle_search_open_settings))
-                            }
-                        }
-                    } else {
-                        LazyColumn(
+                    LazyColumn(
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            if (state.account == null) {
+                                item {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                                        horizontalArrangement = Arrangement.End,
+                                    ) {
+                                        Button(onClick = onOpenSettings) {
+                                            Text(stringResource(R.string.player_subtitle_search_open_settings))
+                                        }
+                                    }
+                                }
+                            }
                             if (state.isSearching) {
                                 item {
                                     Row(
@@ -240,7 +239,6 @@ internal fun PlayerExternalSubtitleSearchDialog(
                                 }
                             }
                         }
-                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),

@@ -17,6 +17,7 @@ internal enum class PlayerBackAction {
     CLOSE_PLAYBACK_SETTINGS,
     CLOSE_SPEED_SELECTION,
     CLOSE_AUDIO_VIDEO_OFFSET_DIALOG,
+    CLOSE_SUBTITLE_OFFSET_DIALOG,
     CLOSE_STOP_PLAYBACK_TIMER,
     CLOSE_IDLE_STANDBY_TIMER,
     CLOSE_VARIANT_SELECTION,
@@ -42,6 +43,7 @@ internal data class PlayerBackNavigationState(
     val showPlaybackSettings: Boolean = false,
     val showSpeedSelection: Boolean = false,
     val showAudioVideoOffsetDialog: Boolean = false,
+    val showSubtitleOffsetDialog: Boolean = false,
     val showStopPlaybackTimerDialog: Boolean = false,
     val showIdleStandbyTimerDialog: Boolean = false,
     val hasTrackSelection: Boolean = false,
@@ -67,6 +69,7 @@ internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackActio
     state.showPlaybackSettings -> PlayerBackAction.CLOSE_PLAYBACK_SETTINGS
     state.showSpeedSelection -> PlayerBackAction.CLOSE_SPEED_SELECTION
     state.showAudioVideoOffsetDialog -> PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG
+    state.showSubtitleOffsetDialog -> PlayerBackAction.CLOSE_SUBTITLE_OFFSET_DIALOG
     state.showStopPlaybackTimerDialog -> PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER
     state.showIdleStandbyTimerDialog -> PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER
     state.showVariantSelection -> PlayerBackAction.CLOSE_VARIANT_SELECTION

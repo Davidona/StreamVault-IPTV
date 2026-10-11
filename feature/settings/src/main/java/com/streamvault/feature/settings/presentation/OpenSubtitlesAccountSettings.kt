@@ -96,7 +96,7 @@ internal fun OpenSubtitlesAccountSettings(
 
     if (showSignIn) {
         var username by rememberSaveable { mutableStateOf("") }
-        var password by rememberSaveable { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
         LaunchedEffect(account) {
             if (account != null) showSignIn = false
         }

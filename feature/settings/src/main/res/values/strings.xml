@@ -725,11 +725,11 @@
     <string name="settings_drive_manage_title">Saved Drive backups</string>
     <string name="settings_providers_subtitle">Switch, sync, edit, and troubleshoot your IPTV sources.</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
-    <string name="settings_opensubtitles_description">Use your OpenSubtitles account to find subtitles while watching movies and series. Downloads count toward your account’s daily allowance.</string>
-    <string name="settings_opensubtitles_connect">Connect OpenSubtitles account</string>
+    <string name="settings_opensubtitles_description">Anonymous access depends on this app’s OpenSubtitles settings. Sign in optionally to use your account-specific download allowance.</string>
+    <string name="settings_opensubtitles_connect">Connect account (optional)</string>
     <string name="settings_opensubtitles_signed_out">Not connected</string>
     <string name="settings_opensubtitles_sign_in_title">Connect OpenSubtitles</string>
-    <string name="settings_opensubtitles_sign_in_subtitle">Sign in with your OpenSubtitles.com account. Your password is stored encrypted on this device.</string>
+    <string name="settings_opensubtitles_sign_in_subtitle">Sign in optionally to use your OpenSubtitles account. Your password is stored encrypted on this device.</string>
     <string name="settings_opensubtitles_username">Username</string>
     <string name="settings_opensubtitles_password">Password</string>
     <string name="settings_opensubtitles_sign_in">Sign in</string>

@@ -19,15 +19,6 @@ internal fun PlayerViewModel.searchExternalSubtitles() {
         )
         return
     }
-    if (externalSubtitleSearchStateFlow.value.account == null) {
-        externalSubtitleSearchStateFlow.value = externalSubtitleSearchStateFlow.value.copy(
-            isSearching = false,
-            subtitles = emptyList(),
-            errorMessage = null,
-        )
-        return
-    }
-
     externalSubtitleSearchJob = viewModelScope.launch {
         externalSubtitleSearchStateFlow.update {
             it.copy(

@@ -7,6 +7,7 @@ import com.streamvault.data.remote.subtitle.OpenSubtitlesCredentials
 import com.streamvault.data.remote.subtitle.OpenSubtitlesSession
 import com.streamvault.data.remote.subtitle.OpenSubtitlesSessionStore
 import com.streamvault.data.remote.subtitle.OpenSubtitlesSubtitleDto
+import com.streamvault.data.remote.subtitle.OPENSUBTITLES_DEFAULT_BASE_HOST
 import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.model.ContentType
@@ -84,7 +85,13 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         language: String,
     ): Result<List<ExternalSubtitle>> = try {
         val query = buildSearchQuery(contentType, title, year, tmdbId, parentTmdbId, seasonNumber, episodeNumber, language)
-        authenticatedRequest { session -> api.search(query, session.token, session.baseUrl) }
+        requestWithOptionalSession { session ->
+            api.search(
+                query = query,
+                token = session?.token,
+                baseUrlHost = session?.baseUrl ?: OPENSUBTITLES_DEFAULT_BASE_HOST,
+            )
+        }
             .map { subtitles -> subtitles.mapNotNull(::mapSubtitle) }
     } catch (e: Exception) {
         if (e is CancellationException) throw e
@@ -98,14 +105,20 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
             val destination = subtitleCacheFile(fileId)
             if (destination.isFile && destination.length() > 0L) return Result.success(destination)
 
-            authenticatedRequest { session ->
-                if (session.remainingDownloads == 0) {
-                    return@authenticatedRequest Result.error("Your OpenSubtitles download allowance is used for today.")
+            requestWithOptionalSession { session ->
+                if (session?.remainingDownloads == 0) {
+                    return@requestWithOptionalSession Result.error("Your OpenSubtitles download allowance is used for today.")
                 }
-                when (val link = api.downloadLink(fileId, session.token, session.baseUrl)) {
+                when (val link = api.downloadLink(
+                    fileId = fileId,
+                    token = session?.token,
+                    baseUrlHost = session?.baseUrl ?: OPENSUBTITLES_DEFAULT_BASE_HOST,
+                )) {
                     is Result.Success -> {
-                        link.data.remaining?.let { remaining ->
-                            sessionStore.updateRemainingDownloads(remaining, link.data.resetTimeUtc)
+                        if (session != null) {
+                            link.data.remaining?.let { remaining ->
+                                sessionStore.updateRemainingDownloads(remaining, link.data.resetTimeUtc)
+                            }
                         }
                         api.downloadSubtitleFile(link.data, destination)
                     }
@@ -119,18 +132,27 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun <T> authenticatedRequest(
-        request: suspend (OpenSubtitlesSession) -> Result<T>,
+    private suspend fun <T> requestWithOptionalSession(
+        request: suspend (OpenSubtitlesSession?) -> Result<T>,
     ): Result<T> {
-        val initial = obtainSession()
-        val session = initial.getOrNull() ?: return initial.asError("Sign in to OpenSubtitles in Settings to search for subtitles.")
+        val initial = obtainOptionalSession()
+        val session = when (initial) {
+            is Result.Success -> initial.data
+            is Result.Error -> return initial
+            is Result.Loading -> return Result.Loading
+        }
         val response = request(session)
-        if (!response.isUnauthorized()) return response
+        if (session == null || !response.isUnauthorized()) return response
 
         val refreshed = refreshSession(rejectedToken = session.token)
-        val refreshedSession = refreshed.getOrNull() ?: return refreshed.asError(
-            "Your OpenSubtitles session expired. Sign in again in Settings."
-        )
+        val refreshedSession = when (refreshed) {
+            is Result.Success -> refreshed.data
+            is Result.Error -> return Result.error(
+                "Your OpenSubtitles session expired. Sign in again in Settings.",
+                refreshed.exception,
+            )
+            is Result.Loading -> return Result.Loading
+        }
         val retry = request(refreshedSession)
         if (retry.isUnauthorized()) invalidateRejectedSession(refreshedSession.token)
         return retry
@@ -142,11 +164,11 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun obtainSession(): Result<OpenSubtitlesSession> = sessionMutex.withLock {
+    private suspend fun obtainOptionalSession(): Result<OpenSubtitlesSession?> = sessionMutex.withLock {
         sessionStore.loadSession()?.let { return@withLock Result.success(it) }
         val credentials = sessionStore.loadCredentials()
-            ?: return@withLock Result.error(NOT_SIGNED_IN_MESSAGE)
-        loginAndStore(credentials)
+            ?: return@withLock Result.success(null)
+        loginAndStore(credentials).map { it }
     }
 
     /** Reuses a token another concurrent request has already refreshed. */
@@ -260,12 +282,6 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
     private fun Throwable?.isUnauthorized(): Boolean =
         this is OpenSubtitlesApiException && isUnauthorized
 
-    private fun <T> Result<*>.asError(fallbackMessage: String): Result<T> = when (this) {
-        is Result.Error -> Result.error(message, exception)
-        is Result.Loading -> Result.error(fallbackMessage)
-        is Result.Success -> Result.error(fallbackMessage)
-    }
-
     private fun OpenSubtitlesSession.toAccount() = OpenSubtitlesAccount(
         username = username,
         allowedDownloads = allowedDownloads,
@@ -274,8 +290,4 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         vip = vip,
     )
 
-    private companion object {
-        const val NOT_SIGNED_IN_MESSAGE =
-            "OpenSubtitles is not signed in. Add your OpenSubtitles.com account in Settings."
-    }
 }
