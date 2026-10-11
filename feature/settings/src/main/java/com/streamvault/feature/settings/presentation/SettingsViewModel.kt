@@ -24,6 +24,7 @@ import com.streamvault.domain.manager.BackupPreview
 import com.streamvault.domain.manager.BackupRestoreStatusStore
 import com.streamvault.domain.manager.DriveBackupSyncManager
 import com.streamvault.domain.manager.ParentalControlManager
+import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.AppHomeDashboardShelf
@@ -116,7 +117,8 @@ class SettingsViewModel @Inject constructor(
     private val epgSourceRepository: com.streamvault.domain.repository.EpgSourceRepository,
     private val appUpdatePort: SettingsAppUpdatePort,
     private val getCustomCategories: GetCustomCategories,
-    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore
+    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
+    private val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
     private val appContext = application
     private val exportBackup = ExportBackup(backupManager)
@@ -187,6 +189,11 @@ class SettingsViewModel @Inject constructor(
 
     init {
         refreshCrashReport()
+        viewModelScope.launch {
+            openSubtitlesAccountManager.account.collect { account ->
+                _uiState.update { it.copy(openSubtitlesAccount = account) }
+            }
+        }
         registerPreferenceObservers()
         registerXtreamIndexJobObserver()
         registerXtreamLiveOnboardingObserver()
@@ -816,6 +823,34 @@ class SettingsViewModel @Inject constructor(
     fun setPlayerLiveTranslationEndpoint(endpoint: String) {
         viewModelScope.launch {
             preferencesRepository.setPlayerLiveTranslationEndpoint(endpoint)
+        }
+    }
+
+    fun signInToOpenSubtitles(username: String, password: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isOpenSubtitlesBusy = true, openSubtitlesError = null) }
+            val result = openSubtitlesAccountManager.signIn(username, password)
+            _uiState.update { state ->
+                state.copy(
+                    isOpenSubtitlesBusy = false,
+                    openSubtitlesAccount = result.getOrNull() ?: state.openSubtitlesAccount,
+                    openSubtitlesError = result.errorMessageOrNull(),
+                )
+            }
+        }
+    }
+
+    fun signOutOfOpenSubtitles() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isOpenSubtitlesBusy = true, openSubtitlesError = null) }
+            val result = openSubtitlesAccountManager.signOut()
+            _uiState.update { state ->
+                state.copy(
+                    isOpenSubtitlesBusy = false,
+                    openSubtitlesAccount = if (result.isSuccess) null else state.openSubtitlesAccount,
+                    openSubtitlesError = result.errorMessageOrNull(),
+                )
+            }
         }
     }
 

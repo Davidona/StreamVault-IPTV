@@ -41,6 +41,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -131,6 +132,8 @@ fun EpgSourceTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
 ) {
     val settingsColors = SettingsDesignTokens.colors(com.streamvault.core.ui.design.AppColors.current)
     val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
@@ -267,6 +270,7 @@ fun EpgSourceTextField(
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = settingsColors.searchText),
                 singleLine = true,
                 cursorBrush = SolidColor(settingsColors.cursor),
+                visualTransformation = visualTransformation,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(inputFocusRequester)
@@ -316,7 +320,7 @@ fun EpgSourceTextField(
                             keyboardController?.hide()
                         }
                     },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { dismissInput() }),
                 readOnly = isTelevisionDevice && !acceptsInput
             )

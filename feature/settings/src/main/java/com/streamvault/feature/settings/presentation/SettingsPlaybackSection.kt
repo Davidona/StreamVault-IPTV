@@ -369,6 +369,11 @@ public fun LazyListScope.settingsPlaybackSection(
                     modifier = if (targetItemId == "playback.ethernet_cap") targetFocusModifier else Modifier,)
             }
             if (page == null || page == SettingsPage.SUBTITLES) {
+                OpenSubtitlesAccountSettings(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    targetFocusModifier = if (targetItemId == "playback.subtitles_provider") targetFocusModifier else Modifier,
+                )
                 SwitchSettingsRow(
                     label = stringResource(R.string.settings_live_translation_enabled),
                     value = stringResource(R.string.settings_live_translation_enabled_subtitle),

@@ -258,11 +258,13 @@ fun PlayerTrackSelectionDialog(
     videoTracks: List<PlayerTrack>,
     liveTranslationAvailable: Boolean = false,
     liveTranslationActive: Boolean = false,
+    onlineSubtitleSearchAvailable: Boolean = false,
     onDismiss: () -> Unit,
     onSelectAudio: (String) -> Unit,
     onSelectVideo: (String) -> Unit,
     onSelectSubtitle: (String?) -> Unit,
-    onSelectLiveTranslation: () -> Unit = {}
+    onSelectLiveTranslation: () -> Unit = {},
+    onSearchOnlineSubtitles: () -> Unit = {},
 ) {
     if (trackType == null) return
 
@@ -368,6 +370,16 @@ fun PlayerTrackSelectionDialog(
                                     onSelectLiveTranslation()
                                     onDismiss()
                                 }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT && onlineSubtitleSearchAvailable) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_search_online_subtitles),
+                                isSelected = false,
+                                onClick = onSearchOnlineSubtitles,
                             )
                         }
                     }

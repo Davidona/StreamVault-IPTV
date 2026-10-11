@@ -15,6 +15,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 
 internal const val OPENSUBTITLES_DEFAULT_BASE_URL = "https://api.opensubtitles.com/api/v1"
 internal const val OPENSUBTITLES_DEFAULT_BASE_HOST = "api.opensubtitles.com"
@@ -27,7 +28,8 @@ class OpenSubtitlesApi @Inject constructor(
     data class DownloadLink(
         val url: String,
         val fileName: String,
-        val remaining: Int,
+        val remaining: Int?,
+        val resetTimeUtc: String?,
     )
 
     data class SearchQuery(
@@ -62,10 +64,10 @@ class OpenSubtitlesApi @Inject constructor(
         Result.error("OpenSubtitles login failed: ${e.message}", e)
     }
 
-    suspend fun logout(token: String): Result<Unit> = try {
+    suspend fun logout(token: String, baseUrlHost: String): Result<Unit> = try {
         withContext(Dispatchers.IO) {
             val request = Request.Builder()
-                .url("$OPENSUBTITLES_DEFAULT_BASE_URL/logout")
+                .url(buildUrl(baseUrlHost, "/logout", emptyMap()))
                 .header("Accept", "application/json")
                 .header("Api-Key", API_KEY)
                 .header("Authorization", "Bearer $token")
@@ -127,7 +129,8 @@ class OpenSubtitlesApi @Inject constructor(
             DownloadLink(
                 url = url,
                 fileName = response.fileName.orEmpty(),
-                remaining = response.remaining ?: 0,
+                remaining = response.remaining,
+                resetTimeUtc = response.resetTimeUtc,
             )
         }
         Result.success(link)
@@ -138,30 +141,51 @@ class OpenSubtitlesApi @Inject constructor(
 
     suspend fun downloadSubtitleFile(link: DownloadLink, destination: File): Result<File> = try {
         val file = withContext(Dispatchers.IO) {
-            val request = Request.Builder()
-                .url(link.url)
-                .header("User-Agent", USER_AGENT)
-                .get()
-                .build()
-            okHttpClient.newBuilder()
-                .callTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .build()
-                .newCall(request)
-                .execute()
-                .use { response ->
-                    if (!response.isSuccessful) {
-                        throw OpenSubtitlesApiException(
-                            message = "OpenSubtitles subtitle file download failed with HTTP ${response.code}",
-                            statusCode = response.code,
-                        )
+            destination.parentFile?.mkdirs()
+            val temporaryFile = File(destination.parentFile, "${destination.name}.part")
+            temporaryFile.delete()
+            try {
+                val request = Request.Builder()
+                    .url(link.url)
+                    .header("User-Agent", USER_AGENT)
+                    .get()
+                    .build()
+                // OpenSubtitles links contain short-lived download tokens in their URL. Keep the
+                // shared connection pool and interceptors, but never log this request line.
+                okHttpClient.newBuilder()
+                    .apply {
+                        interceptors().removeAll { it is HttpLoggingInterceptor }
+                        networkInterceptors().removeAll { it is HttpLoggingInterceptor }
                     }
-                    val body = response.body
-                        ?: throw OpenSubtitlesApiException("OpenSubtitles subtitle file download returned an empty body")
-                    destination.outputStream().use { out ->
-                        body.byteStream().use { input -> input.copyTo(out) }
+                    .callTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .build()
+                    .newCall(request)
+                    .useCancellableResponse { response ->
+                        if (!response.isSuccessful) {
+                            throw OpenSubtitlesApiException(
+                                message = "OpenSubtitles subtitle file download failed with HTTP ${response.code}",
+                                statusCode = response.code,
+                            )
+                        }
+                        val body = response.body
+                            ?: throw OpenSubtitlesApiException("OpenSubtitles subtitle file download returned an empty body")
+                        temporaryFile.outputStream().use { out ->
+                            body.byteStream().use { input -> input.copyTo(out) }
+                        }
                     }
+                if (temporaryFile.length() <= 0L) {
+                    throw OpenSubtitlesApiException("OpenSubtitles subtitle file download returned an empty file")
                 }
-            destination
+                if (destination.exists() && !destination.delete()) {
+                    throw OpenSubtitlesApiException("Could not replace the cached subtitle file")
+                }
+                if (!temporaryFile.renameTo(destination)) {
+                    throw OpenSubtitlesApiException("Could not save the downloaded subtitle file")
+                }
+                destination
+            } finally {
+                temporaryFile.delete()
+            }
         }
         Result.success(file)
     } catch (e: Exception) {

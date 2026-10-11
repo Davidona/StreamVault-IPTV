@@ -14,6 +14,7 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.Episode
+import com.streamvault.domain.model.ExternalSubtitle
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.RecordingItem
@@ -26,6 +27,9 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.manager.OpenSubtitlesAccountManager
+import com.streamvault.domain.usecase.DownloadExternalSubtitle
+import com.streamvault.domain.usecase.SearchExternalSubtitles
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
@@ -76,6 +80,9 @@ class PlayerViewModel @Inject constructor(
     internal val playerPlaybackContextCoordinator: PlayerPlaybackContextCoordinator,
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
+    internal val searchExternalSubtitlesUseCase: SearchExternalSubtitles,
+    internal val downloadExternalSubtitleUseCase: DownloadExternalSubtitle,
+    internal val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
     companion object {
         private const val MIN_WATCHED_FOR_AUTO_PLAY_MS = 5_000L
@@ -127,6 +134,12 @@ class PlayerViewModel @Inject constructor(
 
     internal val playbackTitleFlow = MutableStateFlow("")
     val playbackTitle: StateFlow<String> = playbackTitleFlow.asStateFlow()
+
+    internal val externalSubtitleSearchStateFlow = MutableStateFlow(ExternalSubtitleSearchUiState())
+    val externalSubtitleSearchState: StateFlow<ExternalSubtitleSearchUiState> =
+        externalSubtitleSearchStateFlow.asStateFlow()
+    internal var externalSubtitleSearchJob: Job? = null
+    internal var externalSubtitleDownloadJob: Job? = null
     
     internal val _resumePrompt = MutableStateFlow(ResumePromptState())
     val resumePrompt: StateFlow<ResumePromptState> = _resumePrompt.asStateFlow()
@@ -502,6 +515,11 @@ class PlayerViewModel @Inject constructor(
 
     init {
         observeCastPlaybackEvents()
+        viewModelScope.launch {
+            openSubtitlesAccountManager.account.collect { account ->
+                externalSubtitleSearchStateFlow.update { it.copy(account = account) }
+            }
+        }
         viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.error }.collect { error ->
                 if (error != null) {

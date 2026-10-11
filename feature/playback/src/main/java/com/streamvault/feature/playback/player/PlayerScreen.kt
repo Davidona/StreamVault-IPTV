@@ -164,6 +164,7 @@ fun PlayerScreen(
     val playerPreferencesUiState by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     
     val isCatchUpPlayback by viewModel.isCatchUpPlayback.collectAsStateWithLifecycle()
+    val onlineSubtitleSearchAvailable = !isCatchUpPlayback && contentType in setOf("VOD", "MOVIE", "SERIES_EPISODE")
     val showChannelListOverlay by viewModel.showChannelListOverlay.collectAsStateWithLifecycle()
     val showCategoryListOverlay by viewModel.showCategoryListOverlay.collectAsStateWithLifecycle()
     val showEpgOverlay by viewModel.showEpgOverlay.collectAsStateWithLifecycle()
@@ -421,6 +422,7 @@ fun PlayerScreen(
                     showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
                     showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
                     hasTrackSelection = modalState.trackSelection != null,
+                    showSubtitleSearch = modalState.showSubtitleSearch,
                     showVariantSelection = modalState.showVariantSelection,
                     showDiagnostics = showDiagnostics,
                     showChannelInfoOverlay = showChannelInfoOverlay,
@@ -447,6 +449,10 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_VARIANT_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_TRACK_SELECTION -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_SUBTITLE_SEARCH -> {
+                    viewModel.cancelExternalSubtitleSearch()
+                    modalState = modalState.dismiss()
+                }
                 PlayerBackAction.TOGGLE_DIAGNOSTICS -> viewModel.toggleDiagnostics()
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
@@ -779,6 +785,7 @@ fun PlayerScreen(
             title = title,
             contentType = contentType,
             isCatchUpPlayback = isCatchUpPlayback,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
             isPlaying = isPlaying,
             currentChannel = currentChannel,
             currentChannelName = currentChannel?.name,
@@ -887,6 +894,8 @@ fun PlayerScreen(
             viewModel = viewModel,
             isInPictureInPictureMode = isInPictureInPictureMode,
             showTrackSelection = modalState.trackSelection,
+            showSubtitleSearch = modalState.showSubtitleSearch,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
             showVariantSelection = modalState.showVariantSelection,
             currentChannel = currentChannel,
             showSpeedSelection = modalState.showSpeedSelection,
@@ -898,6 +907,8 @@ fun PlayerScreen(
             fallbackTitle = title,
             fallbackEpisodeId = internalChannelId,
             fallbackSeasonNumber = seasonNumber,
+            onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },
+            onOpenSettings = { onNavigate?.invoke(AppDestination.Settings()) },
             onDismissModal = { modalState = modalState.dismiss() }
         )
 
