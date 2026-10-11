@@ -1,17 +1,12 @@
 package com.streamvault.feature.playback.player
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,15 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
@@ -71,193 +61,159 @@ internal fun PlayerExternalSubtitleSearchDialog(
         }
     }
 
-    Dialog(
-        onDismissRequest = dismissSearch,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+    VodSelectionSheet(
+        title = stringResource(R.string.player_subtitle_search_title),
+        icon = androidx.compose.material.icons.Icons.Default.CloudDownload,
+        onDismiss = dismissSearch,
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.82f))
-                .clickable(onClick = dismissSearch),
-            contentAlignment = Alignment.Center,
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = AppColors.TextSecondary,
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Surface(
-                modifier = Modifier.widthIn(min = 360.dp, max = 720.dp).fillMaxHeight(0.82f),
-                shape = RoundedCornerShape(24.dp),
-                colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
-            ) {
-                Column(
-                    modifier = Modifier.padding(28.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(
-                            text = stringResource(R.string.player_subtitle_search_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = AppColors.TextPrimary,
+            if (state.account == null) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Button(onClick = onOpenSettings) {
+                            Text(stringResource(R.string.player_subtitle_search_open_settings))
+                        }
+                    }
+                }
+            }
+            if (state.isSearching) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = AppColors.Brand,
+                            strokeWidth = 2.dp,
                         )
                         Text(
-                            text = description,
+                            text = stringResource(R.string.player_subtitle_search_loading),
                             style = MaterialTheme.typography.bodyMedium,
                             color = AppColors.TextSecondary,
                         )
                     }
+                }
+            }
 
-                    LazyColumn(
-                            modifier = Modifier.weight(1f).fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            if (state.account == null) {
-                                item {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                                        horizontalArrangement = Arrangement.End,
-                                    ) {
-                                        Button(onClick = onOpenSettings) {
-                                            Text(stringResource(R.string.player_subtitle_search_open_settings))
-                                        }
-                                    }
-                                }
-                            }
-                            if (state.isSearching) {
-                                item {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        androidx.compose.material3.CircularProgressIndicator(
-                                            modifier = Modifier.size(24.dp),
-                                            color = AppColors.Brand,
-                                            strokeWidth = 2.dp,
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.player_subtitle_search_loading),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = AppColors.TextSecondary,
-                                        )
-                                    }
-                                }
-                            }
-
-                            state.errorMessage?.let { error ->
-                                item {
-                                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        Text(
-                                            text = error,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.padding(12.dp),
-                                        )
-                                        if (!state.isSearching && state.subtitles.isEmpty()) {
-                                            Button(onClick = viewModel::searchExternalSubtitles) {
-                                                Text(stringResource(R.string.player_subtitle_search_retry))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!state.isSearching && state.errorMessage == null && state.subtitles.isEmpty()) {
-                                item {
-                                    Text(
-                                        text = stringResource(R.string.player_subtitle_search_no_results),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.TextSecondary,
-                                        modifier = Modifier.padding(16.dp),
-                                    )
-                                }
-                            }
-
-                            state.appliedSubtitleName?.let { name ->
-                                item {
-                                    Text(
-                                        text = stringResource(R.string.player_subtitle_search_applied, name),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.Brand,
-                                        modifier = Modifier.padding(12.dp),
-                                    )
-                                }
-                            }
-
-                            items(state.subtitles, key = { it.id }) { subtitle ->
-                                val downloading = state.downloadingSubtitleId != null
-                                TvClickableSurface(
-                                    onClick = { viewModel.downloadExternalSubtitle(subtitle.id) },
-                                    enabled = !downloading,
-                                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                                    colors = ClickableSurfaceDefaults.colors(
-                                        containerColor = AppColors.Surface,
-                                        focusedContainerColor = AppColors.SurfaceEmphasis,
-                                    ),
-                                    modifier = if (subtitle == state.subtitles.firstOrNull()) {
-                                        Modifier.focusRequester(firstResultFocusRequester)
-                                    } else {
-                                        Modifier
-                                    },
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.weight(1f),
-                                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                                        ) {
-                                            Text(
-                                                text = subtitle.displayLanguage,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.SemiBold,
-                                                color = AppColors.TextPrimary,
-                                            )
-                                            Text(
-                                                text = subtitle.releaseName.ifBlank {
-                                                    stringResource(R.string.player_subtitle_search_release_unknown)
-                                                },
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = AppColors.TextSecondary,
-                                                maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis,
-                                            )
-                                            Text(
-                                                text = stringResource(
-                                                    R.string.player_subtitle_search_download_count,
-                                                    NumberFormat.getIntegerInstance().format(subtitle.downloadCount),
-                                                ),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = AppColors.TextSecondary,
-                                            )
-                                        }
-                                        if (state.downloadingSubtitleId == subtitle.id) {
-                                            androidx.compose.material3.CircularProgressIndicator(
-                                                modifier = Modifier.size(26.dp),
-                                                color = AppColors.Brand,
-                                                strokeWidth = 2.dp,
-                                            )
-                                        }
-                                    }
-                                }
+            state.errorMessage?.let { error ->
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(12.dp),
+                        )
+                        if (!state.isSearching && state.subtitles.isEmpty()) {
+                            Button(onClick = viewModel::searchExternalSubtitles) {
+                                Text(stringResource(R.string.player_subtitle_search_retry))
                             }
                         }
+                    }
+                }
+            }
 
+            if (!state.isSearching && state.errorMessage == null && state.subtitles.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.player_subtitle_search_no_results),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppColors.TextSecondary,
+                        modifier = Modifier.padding(16.dp),
+                    )
+                }
+            }
+
+            state.appliedSubtitleName?.let { name ->
+                item {
+                    Text(
+                        text = stringResource(R.string.player_subtitle_search_applied, name),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppColors.Brand,
+                        modifier = Modifier.padding(12.dp),
+                    )
+                }
+            }
+
+            items(state.subtitles, key = { it.id }) { subtitle ->
+                val downloading = state.downloadingSubtitleId != null
+                TvClickableSurface(
+                    onClick = { viewModel.downloadExternalSubtitle(subtitle.id) },
+                    enabled = !downloading,
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.035f),
+                        contentColor = androidx.compose.ui.graphics.Color(0xFFDCE3ED),
+                        focusedContainerColor = androidx.compose.ui.graphics.Color(0xFFDFEBFA),
+                        focusedContentColor = androidx.compose.ui.graphics.Color(0xFF10151D),
+                    ),
+                    modifier = if (subtitle == state.subtitles.firstOrNull()) {
+                        Modifier.focusRequester(firstResultFocusRequester)
+                    } else {
+                        Modifier
+                    },
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Button(
-                            onClick = {
-                                dismissSearch()
-                            },
-                            colors = ButtonDefaults.colors(
-                                containerColor = AppColors.Surface,
-                                focusedContainerColor = AppColors.SurfaceEmphasis,
-                            ),
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            Text(stringResource(R.string.player_subtitle_search_close))
+                            Text(
+                                text = subtitle.displayLanguage,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = androidx.tv.material3.LocalContentColor.current,
+                            )
+                            Text(
+                                text = subtitle.releaseName.ifBlank {
+                                    stringResource(R.string.player_subtitle_search_release_unknown)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = androidx.tv.material3.LocalContentColor.current.copy(alpha = 0.65f),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.player_subtitle_search_download_count,
+                                    NumberFormat.getIntegerInstance().format(subtitle.downloadCount),
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = androidx.tv.material3.LocalContentColor.current.copy(alpha = 0.65f),
+                            )
+                        }
+                        if (state.downloadingSubtitleId == subtitle.id) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                modifier = Modifier.size(26.dp),
+                                color = AppColors.Brand,
+                                strokeWidth = 2.dp,
+                            )
                         }
                     }
                 }
             }
         }
+
     }
 }

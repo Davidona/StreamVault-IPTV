@@ -634,7 +634,8 @@ class PlayerViewModel @Inject constructor(
                 PlayerSubtitleStyle(
                     textScale = textScale,
                     foregroundColorArgb = textColor,
-                    backgroundColorArgb = backgroundColor
+                    backgroundColorArgb = backgroundColor,
+                    useEmbeddedStyles = false
                 )
             }.combine(activePlayerEngineFlow) { style, engine -> engine to style }
                 .collect { (engine, style) -> engine.setSubtitleStyle(style) }
@@ -975,6 +976,10 @@ class PlayerViewModel @Inject constructor(
     val playbackSpeed: StateFlow<Float> = activeEngineState(1f) { it.playbackSpeed }
     val audioVideoSyncEnabled: StateFlow<Boolean> = activeEngineState(false) { it.audioVideoSyncEnabled }
     val subtitleOffsetMs: StateFlow<Int> = activeEngineState(0) { it.subtitleOffsetMs }
+    internal val subtitleTextScale = playerPreferencesCoordinator.playerSubtitleTextScale
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 1f)
+    internal val subtitleBackgroundColor = playerPreferencesCoordinator.playerSubtitleBackgroundColor
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0x80000000.toInt())
 
     val preventStandbyDuringPlayback: StateFlow<Boolean> by lazy(LazyThreadSafetyMode.NONE) {
         playerPreferencesCoordinator.preventStandbyDuringPlayback

@@ -121,6 +121,14 @@ class PlayerPreferencesCoordinator @Inject constructor(
         preferencesRepository.setPlayerPlaybackSpeed(speed)
     }
 
+    internal suspend fun setSubtitleTextScale(scale: Float) {
+        preferencesRepository.setPlayerSubtitleTextScale(scale.coerceIn(0.75f, 1.75f))
+    }
+
+    internal suspend fun setSubtitleBackgroundOpacity(opacity: Int) {
+        preferencesRepository.setPlayerSubtitleBackgroundColor((opacity.coerceIn(0, 100) * 255 / 100) shl 24)
+    }
+
     internal suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences) {
         preferencesRepository.setGlobalVodTrackPreferences(preferences)
     }

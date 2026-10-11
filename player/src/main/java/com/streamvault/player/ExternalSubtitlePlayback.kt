@@ -40,6 +40,7 @@ internal fun buildExternalSubtitleConfiguration(
     language: String,
     label: String? = null
 ): MediaItem.SubtitleConfiguration = MediaItem.SubtitleConfiguration.Builder(subtitleUri)
+    .setId(if (label != null) DEVICE_SUBTITLE_TRACK_ID else ONLINE_SUBTITLE_TRACK_ID)
     .setMimeType(MimeTypes.APPLICATION_SUBRIP)
     .setLanguage(language)
     .setLabel(label)

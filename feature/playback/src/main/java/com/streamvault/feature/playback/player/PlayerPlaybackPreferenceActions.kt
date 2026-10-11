@@ -274,6 +274,14 @@ fun PlayerViewModel.resetSubtitleOffset() {
     playerEngine.setSubtitleOffsetMs(0)
 }
 
+internal fun PlayerViewModel.setSubtitleTextScale(scale: Float) {
+    viewModelScope.launch { playerPreferencesCoordinator.setSubtitleTextScale(scale) }
+}
+
+internal fun PlayerViewModel.setSubtitleBackgroundOpacity(opacity: Int) {
+    viewModelScope.launch { playerPreferencesCoordinator.setSubtitleBackgroundOpacity(opacity) }
+}
+
 fun PlayerViewModel.dismissAudioVideoOffsetPreview() {
     audioVideoOffsetPreviewMs.value = null
 }

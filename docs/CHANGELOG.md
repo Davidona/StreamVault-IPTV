@@ -6,6 +6,9 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added OpenSubtitles search and subtitle downloads for VOD playback.
+- Added loading local SRT subtitle files from the device during VOD playback.
+- Added VOD subtitle settings for delay adjustment and reset, font size, and black background transparency, with an appearance preview and saved size and background preferences.
 - Added Previous and Next episode controls to the VOD overlay for series playback.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
@@ -40,6 +43,7 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Improved the VOD UI with consistent subtitle, audio, and OpenSubtitles side panels matching playback settings, separate Sources and Settings tabs, immediate access to provider, online, and device subtitles, and clearer remote navigation and track selection.
 - Raised M3U admission ceilings to 500,000 entries and 400,000 live channels or movies per provider.
 - Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
 - Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.

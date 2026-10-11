@@ -107,7 +107,32 @@ internal fun PlayerControlsModalHost(
         val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
         val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
         val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
-        PlayerTrackSelectionDialog(
+        if (viewModel.currentContentType != com.streamvault.domain.model.ContentType.LIVE &&
+            showTrackSelection != TrackType.VIDEO) {
+            val textScale by viewModel.subtitleTextScale.collectAsStateWithLifecycle()
+            val backgroundColor by viewModel.subtitleBackgroundColor.collectAsStateWithLifecycle()
+            VodTrackSelectionSheet(
+                trackType = showTrackSelection,
+                tracks = if (showTrackSelection == TrackType.TEXT) availableSubtitleTracks else availableAudioTracks,
+                offsetMs = subtitleOffsetMs,
+                textScale = textScale,
+                backgroundColor = backgroundColor,
+                onlineAvailable = onlineSubtitleSearchAvailable,
+                onDismiss = onDismissModal,
+                onSelectTrack = { id ->
+                    if (showTrackSelection == TrackType.TEXT) {
+                        viewModel.deactivateLiveTranslation()
+                        viewModel.selectSubtitleTrack(id)
+                    } else if (id != null) viewModel.selectAudioTrack(id)
+                },
+                onSearchOnline = onOpenSubtitleSearch,
+                onLoadLocal = { onDismissModal(); onPickLocalSubtitle() },
+                onAdjustOffset = viewModel::adjustSubtitleOffset,
+                onResetOffset = viewModel::resetSubtitleOffset,
+                onSetTextScale = viewModel::setSubtitleTextScale,
+                onSetOpacity = viewModel::setSubtitleBackgroundOpacity,
+            )
+        } else PlayerTrackSelectionDialog(
             trackType = showTrackSelection,
             audioTracks = availableAudioTracks,
             subtitleTracks = availableSubtitleTracks,

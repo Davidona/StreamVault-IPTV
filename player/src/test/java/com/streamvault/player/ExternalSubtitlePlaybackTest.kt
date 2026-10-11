@@ -53,6 +53,7 @@ class ExternalSubtitlePlaybackTest {
         assertThat(configuration.mimeType).isEqualTo(MimeTypes.APPLICATION_SUBRIP)
         assertThat(configuration.language).isEqualTo("he")
         assertThat(configuration.label).isEqualTo("episode.srt")
+        assertThat(configuration.id).isEqualTo(DEVICE_SUBTITLE_TRACK_ID)
         assertThat(configuration.selectionFlags).isEqualTo(C.SELECTION_FLAG_DEFAULT)
     }
 
@@ -63,6 +64,7 @@ class ExternalSubtitlePlaybackTest {
             language = "en"
         )
         val dataSourceFactory = DataSource.Factory { ByteArrayDataSource(byteArrayOf()) }
+        assertThat(configuration.id).isEqualTo(ONLINE_SUBTITLE_TRACK_ID)
 
         val source = buildExternalSubtitleMediaSource(dataSourceFactory, configuration)
 

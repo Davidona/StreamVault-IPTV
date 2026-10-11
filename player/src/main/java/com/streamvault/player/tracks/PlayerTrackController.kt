@@ -151,7 +151,12 @@ class PlayerTrackController(
                             isText -> TrackType.TEXT
                             else -> TrackType.VIDEO
                         },
-                        isSelected = if (isVideo) selectedVideoTrackId == id else group.isTrackSelected(index)
+                        isSelected = if (isVideo) selectedVideoTrackId == id else group.isTrackSelected(index),
+                        subtitleSource = when (format.id) {
+                            com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.ONLINE
+                            com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.DEVICE
+                            else -> com.streamvault.player.SubtitleTrackSource.PROVIDER
+                        },
                     )
                     when {
                         isAudio && group.isTrackSupported(index, false) -> audioTracks += track
