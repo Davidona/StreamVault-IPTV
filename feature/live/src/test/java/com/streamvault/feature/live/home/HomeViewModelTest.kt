@@ -175,6 +175,34 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `channel dialog exposes saved group memberships as virtual category ids`() = runTest {
+        val channel = Channel(id = 42L, name = "Grouped channel", providerId = 7L)
+        whenever(favoriteRepository.getGroupMemberships(7L, 42L, ContentType.LIVE))
+            .thenReturn(listOf(1L, 23L))
+
+        viewModel.onShowDialog(channel)
+        runCurrent()
+
+        assertThat(viewModel.uiState.value.dialogGroupMemberships)
+            .containsExactly(-1L, -23L)
+        assertThat(viewModel.uiState.value.showDialog).isTrue()
+    }
+
+    @Test
+    fun `removing a channel from a custom group uses its saved group id`() = runTest {
+        val channel = Channel(id = 42L, name = "Grouped channel", providerId = 7L)
+        val group = Category(id = -23L, name = "My channels", type = ContentType.LIVE, isVirtual = true)
+        whenever(favoriteRepository.removeFavorite(7L, 42L, ContentType.LIVE, 23L))
+            .thenReturn(Result.Success(Unit))
+
+        viewModel.removeFromGroup(channel, group)
+        runCurrent()
+
+        verify(favoriteRepository).removeFavorite(7L, 42L, ContentType.LIVE, 23L)
+        verify(favoriteRepository, never()).removeFavorite(7L, 42L, ContentType.LIVE, null)
+    }
+
+    @Test
     fun `initial state has empty categories and is loading`() = runTest {
         val state = viewModel.uiState.value
         assertThat(state.isLoading).isTrue()

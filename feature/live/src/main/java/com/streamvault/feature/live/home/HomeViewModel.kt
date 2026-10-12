@@ -1663,7 +1663,7 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(showDialog = true, selectedChannelForDialog = channel) }
         viewModelScope.launch {
             val memberships = favoriteRepository.getGroupMemberships(channel.providerId, channel.id, ContentType.LIVE)
-            _uiState.update { it.copy(dialogGroupMemberships = memberships) }
+            _uiState.update { it.copy(dialogGroupMemberships = memberships.map { groupId -> -kotlin.math.abs(groupId) }) }
         }
     }
 
