@@ -21,6 +21,9 @@ class ProviderSyncWorkScheduler @Inject constructor(
         BackgroundEpgSyncWorker.cancel(applicationContext, providerId)
     }
 
+    fun isAutomaticStalkerIndex(providerId: Long): Boolean = applicationContext
+        .getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE).getBoolean("stalker_$providerId", false)
+
     fun cancelStalkerIndex(providerId: Long) {
         StalkerIndexWorker.cancel(applicationContext, providerId)
     }
@@ -44,22 +47,32 @@ class ProviderSyncWorkScheduler @Inject constructor(
     fun scheduleXtreamIndex(
         providerId: Long,
         section: ContentType? = null,
-        force: Boolean = false
+        force: Boolean = false,
+        automatic: Boolean = (AutomaticSyncExecution.automatic.get() == true)
     ) {
+        val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
+        val replaceAutomatic = !automatic && origins.getBoolean("xtream_$providerId", false)
+        origins.edit().putBoolean("xtream_$providerId", automatic).apply()
         XtreamIndexWorker.enqueue(
             context = applicationContext,
             providerId = providerId,
             section = section?.name,
-            force = force
+            force = force,
+            automatic = automatic,
+            replaceAutomatic = replaceAutomatic
         )
     }
 
     fun scheduleStalkerIndex(
         providerId: Long,
         force: Boolean = false,
+        automatic: Boolean = (AutomaticSyncExecution.automatic.get() == true),
         initialDelaySeconds: Long = 0L,
         appendSuccessor: Boolean = false
     ) {
+        val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
+        val replaceAutomatic = !automatic && origins.getBoolean("stalker_$providerId", false)
+        origins.edit().putBoolean("stalker_$providerId", automatic).apply()
         // Stalker section requests are intentionally coalesced into the durable
         // provider job. This preserves the existing worker contract: the worker
         // selects the next pending section from its persisted job state.
@@ -68,6 +81,8 @@ class ProviderSyncWorkScheduler @Inject constructor(
             providerId = providerId,
             section = null,
             force = force,
+            automatic = automatic,
+            replaceAutomatic = replaceAutomatic,
             initialDelaySeconds = initialDelaySeconds,
             appendSuccessor = appendSuccessor
         )

@@ -611,7 +611,7 @@ class BackupManagerImplTest {
     fun `inspectBackup rejects unsupported version before reading sections`() = runBlocking {
         val error = inspectAdmissionFailure(
             "unsupported-version",
-            """{"version":15,"preferences":{"value":"${"x".repeat(8_193)}"}}"""
+            """{"version":999,"preferences":{"value":"${"x".repeat(8_193)}"}}"""
         )
 
         assertThat(error.reason).isEqualTo(BackupAdmissionReason.UNSUPPORTED_VERSION)
@@ -3692,6 +3692,24 @@ class BackupManagerImplTest {
 
     private fun Provider.backupIdentityForTest(): Triple<String, String, String> =
         Triple(serverUrl, username, stalkerMacAddress)
+
+    @Test
+    fun `automatic sync backup uses portable identities instead of local provider ids`() = runBlocking {
+        val preferences: PreferencesRepository = mock()
+        val settings = com.streamvault.domain.sync.AutomaticSyncSettings(catalogHours = 48, unmeteredOnly = true)
+        whenever(preferences.automaticSyncConfiguration).thenReturn(flowOf(
+            com.streamvault.domain.sync.AutomaticSyncConfiguration(providers = mapOf(7L to settings))))
+        val manager = backupManagerForValidation(mock(), preferencesRepository = preferences)
+        val provider = ProviderEntity(id = 7L, name = "Portal", type = ProviderType.STALKER_PORTAL,
+            serverUrl = "https://portal.example.test", stalkerMacAddress = "00:11:22:33:44:55")
+        val first = manager.automaticSyncPreferenceBackup(listOf(provider))
+        whenever(preferences.automaticSyncConfiguration).thenReturn(flowOf(
+            com.streamvault.domain.sync.AutomaticSyncConfiguration(providers = mapOf(99L to settings))))
+        val remapped = manager.automaticSyncPreferenceBackup(listOf(provider.copy(id = 99L)))
+        assertThat(first).isEqualTo(remapped)
+        assertThat(first.keys).contains("automaticSyncDefaults")
+        assertThat(first.values.any { it.contains("\"catalogHours\":48") }).isTrue()
+    }
 
     private fun backupManagerForValidation(
         context: Context,

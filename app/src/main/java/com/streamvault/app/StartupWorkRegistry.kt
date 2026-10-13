@@ -21,7 +21,8 @@ import javax.inject.Inject
  * process startup no longer knows or independently selects their identities and policies.
  */
 class StartupWorkRegistry @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val automaticSyncIdleObserver: com.streamvault.data.sync.AutomaticSyncIdleObserver
 ) {
     fun register() {
         AppUpdateCheckWorker.enqueue(context)
@@ -35,10 +36,11 @@ class StartupWorkRegistry @Inject constructor(
             dataMaintenance
         )
 
+        automaticSyncIdleObserver.start()
         ProviderSyncWorker.enqueuePeriodic(context)
         ProviderSyncWorker.enqueueLaunchStaleCheck(context)
-        XtreamIndexWorker.enqueuePeriodic(context)
-        XtreamIndexWorker.enqueueLaunchStaleCheck(context)
+        // The shared provider planner owns periodic indexing as well as catalog/guide checks.
+        XtreamIndexWorker.cancelLegacyChecks(context)
         RecordingReconcileWorker.enqueuePeriodic(context)
         RecordingReconcileWorker.enqueueOneShot(context)
         ProviderDeletionCleanupWorker.enqueue(context)

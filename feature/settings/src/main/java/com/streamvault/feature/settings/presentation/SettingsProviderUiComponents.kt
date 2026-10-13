@@ -42,6 +42,7 @@ public fun ProviderSelectorTab(
     provider: Provider,
     isSelected: Boolean,
     isActive: Boolean,
+    showType: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -80,9 +81,7 @@ public fun ProviderSelectorTab(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = provider.name,
                     style = MaterialTheme.typography.labelLarge,
@@ -90,15 +89,17 @@ public fun ProviderSelectorTab(
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
-                Text(
-                    text = provider.type.name,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = OnSurfaceDim
-                )
+                if (showType) {
+                    Text(
+                        text = provider.type.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = OnSurfaceDim
+                    )
+                }
             }
             if (isActive) {
                 Text(
-                    text = stringResource(R.string.settings_active),
+                    text = stringResource(R.string.settings_provider_in_use),
                     style = MaterialTheme.typography.labelSmall,
                     color = Primary,
                     fontWeight = FontWeight.Bold

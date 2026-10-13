@@ -5,11 +5,14 @@ import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.SyncState
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import kotlinx.coroutines.flow.Flow
 
 /** Commands needed by provider repositories and background workers. */
 interface ProviderSyncCommands {
+    fun scheduleAutomaticSyncCheck() {}
+
     fun currentSyncState(providerId: Long): SyncState
 
     /** Resume queued primary work; implementations may coalesce an already completed catalog. */
@@ -90,6 +93,19 @@ interface ProviderSyncCommands {
         onProgress: ((String) -> Unit)? = null
     ): Result<Unit>
 
+    suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<ProviderSectionSyncResult> =
+        syncSection(providerId, if (live) SyncRepairSection.LIVE else SyncRepairSection.MOVIES)
+
+    suspend fun refreshScheduledSection(providerId: Long, section: SyncRepairSection): Result<ProviderSectionSyncResult> =
+        syncSection(providerId, section)
+
+    /** Explicit refresh, distinct from the failed-category repair used by workers. */
+    suspend fun syncSection(
+        providerId: Long,
+        section: SyncRepairSection,
+        onProgress: ((String) -> Unit)? = null
+    ): Result<ProviderSectionSyncResult>
+
     suspend fun processQueuedXtreamIndexJobs(
         providerId: Long,
         section: ContentType? = null,
@@ -112,6 +128,11 @@ interface ProviderSyncCommands {
         providerId: Long,
         onProgress: ((String) -> Unit)? = null
     ): Result<Unit>
+
+    suspend fun rebuildIndex(
+        providerId: Long,
+        onProgress: ((String) -> Unit)? = null
+    ): Result<ProviderSectionSyncResult>
 
     fun scheduleProviderSyncResume(providerId: Long, configurationGeneration: Long? = null)
 

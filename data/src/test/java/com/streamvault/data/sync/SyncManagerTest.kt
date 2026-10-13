@@ -1211,6 +1211,104 @@ class SyncManagerTest {
     }
 
     @Test
+    fun `manual TV refresh returns an activated catalog receipt`() = runTest {
+        val manager = buildManager()
+        stubXtreamLiveCatalog()
+        val receipt = manager.syncSection(1L, SyncRepairSection.LIVE).getOrNull()
+        assertThat(receipt?.catalogChanged).isTrue()
+        assertThat(receipt?.partial).isFalse()
+        assertThat(receipt?.queued).isFalse()
+    }
+
+    @Test
+    fun `manual catalog refresh resumes pending indexes for both provider types without resetting checkpoints`() = runTest {
+        for (type in listOf(ProviderType.XTREAM_CODES, ProviderType.STALKER_PORTAL)) {
+            val manager = buildManager(providerType = type)
+            for ((section, contentType) in listOf(
+                SyncRepairSection.MOVIES to ContentType.MOVIE,
+                SyncRepairSection.SERIES to ContentType.SERIES
+            )) {
+                val existing = XtreamIndexJobEntity(
+                    providerId = 1L, section = contentType.name,
+                    state = if (type == ProviderType.STALKER_PORTAL) "QUEUED" else "PARTIAL",
+                    totalCategories = 12, completedCategories = 4, nextCategoryIndex = 4,
+                    failedCategories = 1, indexedRows = 800, lastError = "Interrupted"
+                )
+                org.mockito.kotlin.whenever(xtreamIndexJobDao.get(1L, contentType.name)).thenReturn(existing)
+                val receipt = manager.syncSection(1L, section).getOrNull()
+                assertThat(receipt?.queued).isTrue()
+                assertThat(receipt?.partial).isFalse()
+                assertThat(xtreamIndexJobDao.get(1L, contentType.name)).isEqualTo(existing)
+            }
+        }
+        verify(xtreamIndexJobDao, org.mockito.kotlin.never()).upsert(any())
+        verify(movieCategoryHydrationDao, org.mockito.kotlin.never()).deleteByProvider(any())
+        verify(seriesCategoryHydrationDao, org.mockito.kotlin.never()).deleteByProvider(any())
+        verify(xtreamContentIndexDao, org.mockito.kotlin.never()).markRowsStaleForProviderAndType(any(), any())
+        assertThat(xtreamBackend.requestedActions).isEmpty()
+        verify(stalkerApiService, org.mockito.kotlin.never()).getVodCategories(any(), any())
+        verify(stalkerApiService, org.mockito.kotlin.never()).getSeriesCategories(any(), any())
+    }
+
+    @Test
+    fun `manual Stalker TV refresh does not stop after repairing pending categories`() = runTest {
+        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity =
+            sampleProvider(ProviderType.STALKER_PORTAL).copy(stalkerMacAddress = "00:11:22:33:44:55")
+        )
+        org.mockito.kotlin.whenever(stalkerLiveCategoryRetryDao.getForProvider(any(), any())).thenReturn(listOf(
+            com.streamvault.data.local.entity.StalkerLiveCategoryRetryEntity(
+                providerId = 1L, categoryId = 10L, categoryName = "News",
+                configurationGeneration = 1L, lastAttemptAt = 1L
+            )
+        ))
+        org.mockito.kotlin.whenever(stalkerApiService.authenticate(any())).thenReturn(Result.success(
+            StalkerSession(
+                loadUrl = "https://test.example.com/stalker_portal/server/load.php",
+                portalReferer = "https://test.example.com/stalker_portal/c/", token = "token"
+            ) to StalkerProviderProfile(accountName = "Stalker")
+        ))
+        org.mockito.kotlin.whenever(stalkerApiService.getLiveCategories(any(), any())).thenReturn(Result.success(listOf(
+            StalkerCategoryRecord(id = "10", name = "News"),
+            StalkerCategoryRecord(id = "20", name = "Sports")
+        )))
+        stalkerApiService.stubStreamLiveStreams(listOf(
+            StalkerItemRecord(id = "100", name = "News", categoryId = "10", cmd = "http://example.com/news.ts"),
+            StalkerItemRecord(id = "200", name = "Sports", categoryId = "20", cmd = "http://example.com/sports.ts")
+        ))
+        val result = manager.syncSection(1L, SyncRepairSection.LIVE)
+        org.junit.Assert.assertTrue(result.toString(), result.isSuccess)
+        val receipt = result.getOrNull()
+        assertThat(receipt?.catalogChanged).isTrue()
+        verify(stalkerApiService).streamLiveStreams(any(), any(), any())
+        verify(stalkerApiService, org.mockito.kotlin.never()).getLiveStreams(any(), any(), any())
+    }
+
+    @Test
+    fun `manual Stalker EPG refresh carries unsupported portal guide warnings to settings`() = runTest {
+        val portalStateStore = mock<com.streamvault.data.remote.stalker.StalkerPortalStateStore>()
+        org.mockito.kotlin.whenever(portalStateStore.getValidated(eq(1L), any())).thenReturn(
+            com.streamvault.data.local.entity.StalkerPortalStateEntity(
+                providerId = 1L, epgSupported = false
+            )
+        )
+        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, portalStateStore = portalStateStore)
+        val receipt = manager.syncSection(1L, SyncRepairSection.EPG).getOrNull()
+        assertThat(receipt?.partial).isTrue()
+        assertThat(receipt?.warnings).contains("Stalker portal guide is known to be unsupported; keeping cached guide data.")
+    }
+
+    @Test
+    fun `manual EPG refresh still refreshes external sources when provider XMLTV fails`() = runTest {
+        val manager = buildManager()
+        org.mockito.kotlin.whenever(epgRepo.refreshEpg(eq(1L), any()))
+            .thenReturn(Result.error("XMLTV rejected", IllegalStateException("Rejected")))
+        val receipt = manager.syncSection(1L, SyncRepairSection.EPG).getOrNull()
+        assertThat(receipt?.partial).isTrue()
+        assertThat(receipt?.warnings).contains("EPG XMLTV sync failed.")
+        verify(epgSourceRepo).refreshAllForProvider(1L)
+    }
+
+    @Test
     fun `unsupported section retry publishes terminal error instead of remaining syncing`() = runTest {
         val mgr = buildManager(providerType = ProviderType.M3U)
 
@@ -1752,7 +1850,8 @@ class SyncManagerTest {
 
         assertThat(result.isSuccess).isTrue()
         val metadata = syncMetadataRepo.getMetadata(1L)
-        assertThat(metadata?.lastSeriesSync ?: 0L).isGreaterThan(0L)
+        assertThat(metadata?.lastSeriesSync ?: 0L).isEqualTo(0L)
+        assertThat(metadata?.lastSeriesSuccess ?: 0L).isEqualTo(0L)
         assertThat(xtreamBackend.requestedActions).contains("get_series_categories")
         assertThat(xtreamBackend.requestedActions).doesNotContain("get_series")
         val jobs = argumentCaptor<XtreamIndexJobEntity>()

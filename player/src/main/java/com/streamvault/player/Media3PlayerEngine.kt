@@ -520,6 +520,7 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
+        com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
         if (_subtitleOffsetMs.value != 0) {
             _subtitleOffsetMs.value = 0
             subtitleOffsetUs.set(0L)
@@ -581,6 +582,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun play() {
+        if (exoPlayer != null && lastStreamInfo != null) com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
         if (audioFocusController.requestAudioFocusIfNeeded()) {
             exoPlayer?.playWhenReady = true
             syncTimeshiftState()
@@ -594,6 +596,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun stop() {
+        com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         clearAdaptiveDecodePressure()
         retryJob?.cancel()
         retryJob = null
@@ -1024,6 +1027,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun release() {
+        com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         if (isDisposed) return
         isDisposed = true
         liveTimeshiftManager.detachComponentCallbacks()
@@ -1673,6 +1677,7 @@ class Media3PlayerEngine @Inject constructor(
     private fun createPlayerListener(): Player.Listener {
         return object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
                 val previousState = _playbackState.value
                 _playbackState.value = when (state) {
                     Player.STATE_IDLE -> PlaybackState.IDLE

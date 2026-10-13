@@ -19,7 +19,8 @@ internal data class SectionProviderSyncRequest(
     val snapshot: ProviderSnapshot,
     val section: SyncRepairSection,
     val syncReason: XtreamLiveSyncReason,
-    val onProgress: ((String) -> Unit)?
+    val onProgress: ((String) -> Unit)?,
+    val retryFailedCategoriesOnly: Boolean = true
 )
 
 internal data class ProviderGuideSyncRequest(

@@ -402,7 +402,8 @@ internal class StalkerCatalogSyncExecutor(
 
     suspend fun syncLive(
         provider: Provider,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        retryFailedCategoriesOnly: Boolean = true
     ): SyncOutcome {
         val now = System.currentTimeMillis()
         val warnings = mutableListOf<String>()
@@ -417,7 +418,7 @@ internal class StalkerCatalogSyncExecutor(
             hiddenLiveCategoryIds,
             requiredHiddenLiveCategoryIds,
             onProgress,
-            retryPendingCategoriesOnly = true
+            retryPendingCategoriesOnly = retryFailedCategoriesOnly
         )
         val previousMetadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
         val committedLiveCount = if (liveCatalogResult.catalogApplied) {

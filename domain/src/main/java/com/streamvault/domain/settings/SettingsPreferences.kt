@@ -32,6 +32,14 @@ import kotlinx.coroutines.flow.Flow
 
 /** Preference streams and commands consumed by settings; persistence remains in the data layer. */
 interface SettingsPreferences {
+    val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration>
+        get() = kotlinx.coroutines.flow.flowOf(com.streamvault.domain.sync.AutomaticSyncConfiguration())
+    val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>>
+        get() = kotlinx.coroutines.flow.flowOf(emptyMap())
+    suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        throw UnsupportedOperationException("Automatic sync preferences are unavailable")
+    }
+
     val isIncognitoMode: Flow<Boolean>
 
     val useXtreamTextClassification: Flow<Boolean>

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +42,7 @@ public fun ProviderSettingsCard(
     targetItemId: String? = null,
     targetFocusModifier: Modifier = Modifier,
 ) {
+    var diagnosticsExpanded by rememberSaveable(provider.id) { mutableStateOf(false) }
     val liveOnboardingIncomplete = provider.type == ProviderType.XTREAM_CODES &&
         provider.status == ProviderStatus.PARTIAL &&
         !isActive
@@ -92,7 +94,7 @@ public fun ProviderSettingsCard(
             )
             if (isActive) {
                 Text(
-                    text = stringResource(R.string.settings_active),
+                    text = stringResource(R.string.settings_provider_in_use),
                     style = MaterialTheme.typography.labelSmall,
                     color = Primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -135,6 +137,28 @@ public fun ProviderSettingsCard(
             }
         }
 
+        if (syncWarnings.isNotEmpty()) {
+            ProviderSyncWarningsPanel(
+                providerType = provider.type,
+                syncWarnings = syncWarnings,
+                isSyncing = isSyncing,
+                onRetryWarningAction = onRetryWarningAction
+            )
+        }
+
+        ProviderActionButtons(
+            isActive = isActive,
+            isSyncing = isSyncing,
+            liveOnboardingIncomplete = liveOnboardingIncomplete,
+            onConnect = onConnect,
+            onRefresh = onRefresh,
+            onEdit = onEdit,
+            onDelete = onDelete,
+            onParentalControl = onParentalControl,
+            targetItemId = targetItemId,
+            targetFocusModifier = targetFocusModifier,
+        )
+
         diagnostics?.let { model ->
             Text(
                 text = formatProviderSummary(
@@ -167,16 +191,27 @@ public fun ProviderSettingsCard(
                 )
             }
 
-            ProviderDiagnosticsPanel(
-                provider = provider,
-                diagnostics = model,
-                appTimeFormat = appTimeFormat,
-                movieIndexInProgress = xtreamIndexSectionStatuses["MOVIE"] in setOf(
+            val movieIndexInProgress = xtreamIndexSectionStatuses["MOVIE"] in setOf(
                     ProviderCatalogCountStatus.QUEUED,
                     ProviderCatalogCountStatus.SYNCING
+                )
+            ClickableSettingsRow(
+                label = stringResource(
+                    if (diagnosticsExpanded) R.string.settings_provider_diagnostics_hide
+                    else R.string.settings_provider_diagnostics_show
                 ),
-                databaseMaintenance = databaseMaintenance
+                value = model.capabilitySummary,
+                onClick = { diagnosticsExpanded = !diagnosticsExpanded },
             )
+            if (diagnosticsExpanded) {
+                ProviderDiagnosticsPanel(
+                    provider = provider,
+                    diagnostics = model,
+                    appTimeFormat = appTimeFormat,
+                    movieIndexInProgress = movieIndexInProgress,
+                    databaseMaintenance = databaseMaintenance
+                )
+            }
         }
 
         if (provider.type == ProviderType.M3U) {
@@ -190,28 +225,6 @@ public fun ProviderSettingsCard(
                 } else Modifier,
             )
         }
-
-        if (syncWarnings.isNotEmpty()) {
-            ProviderSyncWarningsPanel(
-                providerType = provider.type,
-                syncWarnings = syncWarnings,
-                isSyncing = isSyncing,
-                onRetryWarningAction = onRetryWarningAction
-            )
-        }
-
-        ProviderActionButtons(
-            isActive = isActive,
-            isSyncing = isSyncing,
-            liveOnboardingIncomplete = liveOnboardingIncomplete,
-            onConnect = onConnect,
-            onRefresh = onRefresh,
-            onEdit = onEdit,
-            onDelete = onDelete,
-            onParentalControl = onParentalControl,
-            targetItemId = targetItemId,
-            targetFocusModifier = targetFocusModifier,
-        )
 
     }
 }

@@ -192,6 +192,7 @@ private fun resolvedSettingsCatalog(
     )
     val controlEntries = listOf(
         setting("sources.add", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_add_provider, "playlist", "source"),
+        setting("sources.automatic_sync", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_auto_sync_title, "scheduled sync", "background refresh", "schedule", "automatic refresh"),
         setting("sources.active_provider", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_provider_selector_hint, "active source"),
         setting("sources.edit", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_edit, "provider details"),
         setting("sources.sync", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_sync_btn, "refresh provider"),

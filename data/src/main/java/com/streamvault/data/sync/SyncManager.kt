@@ -268,7 +268,7 @@ class SyncManager @Inject constructor(
             loadProvider = ::loadCompatibilityProvider,
             loadStalkerProviders = {
                 providerDao.getAllSync()
-                    .filter { provider -> provider.type == ProviderType.STALKER_PORTAL }
+                    .filter { provider -> provider.type == ProviderType.STALKER_PORTAL && !providerSyncWorkScheduler.isAutomaticStalkerIndex(provider.id) }
                     .map { provider -> provider.id }
             },
             deleteLegacyJobs = { providerId -> xtreamIndexJobDao.deleteByProvider(providerId) },
@@ -563,7 +563,12 @@ class SyncManager @Inject constructor(
             },
             progress = ::progress,
             sanitizeThrowableMessage = ::sanitizeThrowableMessage,
-            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) }
+            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) },
+            hasPendingIndex = { providerId, section ->
+                xtreamIndexJobDao.get(providerId, section.name)?.state in setOf(
+                    "QUEUED", "RUNNING", "PARTIAL", "STALE", "FAILED_RETRYABLE"
+                )
+            }
         )
     }
     private val stalkerCatalogSectionExecutor by lazy {
@@ -602,7 +607,14 @@ class SyncManager @Inject constructor(
                     itemsIndexed = itemsIndexed
                 )
             },
-            progress = ::progress
+            progress = ::progress,
+            hasPendingIndex = { providerId, section ->
+                stalkerIndexJobStore.get(providerId, section)?.state in setOf(
+                    com.streamvault.domain.model.StalkerIndexState.QUEUED,
+                    com.streamvault.domain.model.StalkerIndexState.RUNNING,
+                    com.streamvault.domain.model.StalkerIndexState.RETRY_WAIT
+                )
+            }
         )
     }
     private val xtreamCatalogExecutor by lazy {
@@ -884,6 +896,8 @@ class SyncManager @Inject constructor(
         StalkerProvider.clearCachesForProvider(providerId)
     }
 
+    override fun scheduleAutomaticSyncCheck() { ProviderSyncWorker.enqueueLaunchStaleCheck(applicationContext) }
+
     override fun scheduleBackgroundEpgSync(providerId: Long) {
         runCatching {
             providerSyncWorkScheduler.scheduleBackgroundEpg(providerId)
@@ -1097,10 +1111,10 @@ class SyncManager @Inject constructor(
         return Result.error(reason)
     }
 
-    private suspend fun failSectionResolution(
+    private suspend fun <T> failSectionResolution(
         providerId: Long,
         reason: String
-    ): com.streamvault.domain.model.Result<Unit> {
+    ): com.streamvault.domain.model.Result<T> {
         updateSyncStatusMetadata(providerId = providerId, status = "FAILED_PERMANENT")
         publishSyncState(providerId, SyncState.Error(reason))
         return Result.error(reason)
@@ -1351,7 +1365,12 @@ class SyncManager @Inject constructor(
     override suspend fun rebuildXtreamIndex(
         providerId: Long,
         onProgress: ((String) -> Unit)?
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): Result<Unit> = rebuildIndex(providerId, onProgress).map { Unit }
+
+    override suspend fun rebuildIndex(
+        providerId: Long,
+        onProgress: ((String) -> Unit)?
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
             ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
         if (providerEntity.type != ProviderType.XTREAM_CODES) {
@@ -1432,7 +1451,9 @@ class SyncManager @Inject constructor(
                     SyncState.Partial("Index rebuild queued with warnings", warnings)
                 }
             )
-            com.streamvault.domain.model.Result.success(Unit)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(
+                partial = warnings.isNotEmpty(), warnings = warnings, queued = true
+            ))
         } catch (e: CancellationException) {
             resetState(providerId)
             throw e
@@ -1453,7 +1474,44 @@ class SyncManager @Inject constructor(
         movieFastSyncOverride: Boolean?,
         syncReason: XtreamLiveSyncReason,
         onProgress: ((String) -> Unit)?
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): com.streamvault.domain.model.Result<Unit> = when (val result = executeSection(
+        providerId, section, movieFastSyncOverride, syncReason, onProgress, retryFailedCategoriesOnly = true
+    )) {
+        is Result.Success -> Result.success(Unit)
+        is Result.Error -> result
+        Result.Loading -> Result.Loading
+    }
+
+    override suspend fun syncSection(
+        providerId: Long,
+        section: SyncRepairSection,
+        onProgress: ((String) -> Unit)?
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = executeSection(
+        providerId, section, null, XtreamLiveSyncReason.MANUAL_SETTINGS, onProgress,
+        retryFailedCategoriesOnly = false
+    )
+
+    override suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) {
+        val provider = loadCompatibilityProvider(providerId) ?: return@withProviderLock Result.error("Provider configuration is unavailable")
+        try {
+            val outcome = m3uCatalogExecutor.refreshCatalog(provider, live, movies)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(partial = outcome.partial, warnings = outcome.warnings, catalogChanged = true))
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (error: Exception) { Result.error(syncErrorSanitizer.userMessage(error, "Playlist refresh failed"), error) }
+    }
+
+    override suspend fun refreshScheduledSection(providerId: Long, section: SyncRepairSection): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = executeSection(
+        providerId, section, null, XtreamLiveSyncReason.BACKGROUND_STALE, null, retryFailedCategoriesOnly = false
+    )
+
+    private suspend fun executeSection(
+        providerId: Long,
+        section: SyncRepairSection,
+        movieFastSyncOverride: Boolean?,
+        syncReason: XtreamLiveSyncReason,
+        onProgress: ((String) -> Unit)?,
+        retryFailedCategoriesOnly: Boolean
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
             ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
 
@@ -1479,12 +1537,28 @@ class SyncManager @Inject constructor(
                 persistedSnapshot
             }
             val sectionResult = withContext(Dispatchers.IO) {
-                syncCoordinator.syncSection(
+                if (section == SyncRepairSection.EPG && !retryFailedCategoriesOnly) {
+                    when (val guide = syncCoordinator.syncGuide(ProviderGuideSyncRequest(
+                        snapshot = snapshot,
+                        force = true,
+                        now = System.currentTimeMillis(),
+                        onProgress = onProgress
+                    ))) {
+                        is CapabilityResolution.Available -> CapabilityResolution.Available(SyncOutcome(
+                            partial = guide.capability.hasRetryableFailure || guide.capability.warnings.isNotEmpty(),
+                            warnings = guide.capability.warnings
+                        ))
+                        is CapabilityResolution.Unsupported -> guide
+                        is CapabilityResolution.Restricted -> guide
+                        is CapabilityResolution.ConfigurationError -> guide
+                    }
+                } else syncCoordinator.syncSection(
                     SectionProviderSyncRequest(
                         snapshot = snapshot,
                         section = section,
                         syncReason = syncReason,
-                        onProgress = onProgress
+                        onProgress = onProgress,
+                        retryFailedCategoriesOnly = retryFailedCategoriesOnly
                     )
                 )
             }
@@ -1508,7 +1582,12 @@ class SyncManager @Inject constructor(
                     SyncState.Success()
                 }
             )
-            com.streamvault.domain.model.Result.success(Unit)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(
+                partial = outcome.partial || outcome.activation == SyncActivation.PRESERVED_ACTIVE_CATALOG,
+                warnings = outcome.warnings,
+                queued = outcome.activation == SyncActivation.DEFERRED_TO_FOLLOW_UP,
+                catalogChanged = outcome.activation == SyncActivation.ACTIVATED_CATALOG
+            ))
         } catch (e: CancellationException) {
             resetState(providerId)
             throw e
@@ -1556,6 +1635,10 @@ class SyncManager @Inject constructor(
         val warnings = mutableListOf<String>()
         val failures = mutableListOf<Throwable>()
         sections.forEach { contentType ->
+            if ((AutomaticSyncExecution.automatic.get() == true)) {
+                val policy = preferencesRepository.automaticSyncConfiguration.first().forProvider(providerId)
+                if (!policy.enabled || (contentType == ContentType.MOVIE && !policy.movies) || (contentType == ContentType.SERIES && !policy.series) || (contentType == ContentType.LIVE && !policy.live)) return@forEach
+            }
             val job = xtreamIndexJobDao.get(providerId, contentType.name)
             if (!force && !catalogIndexJobStore.shouldRunSummary(job)) {
                 return@forEach
@@ -1644,11 +1727,15 @@ class SyncManager @Inject constructor(
 
         val provider = loadCompatibilityProvider(providerId)
             ?: return@lock Result.error("Provider $providerId has no typed configuration")
+        val automaticPolicy = if ((AutomaticSyncExecution.automatic.get() == true)) preferencesRepository.automaticSyncConfiguration.first().forProvider(providerId) else null
+        val effectiveSection = section ?: automaticPolicy?.let {
+            when { it.movies && !it.series -> ContentType.MOVIE; it.series && !it.movies -> ContentType.SERIES; else -> null }
+        }
         val api = createStalkerSyncProvider(provider)
         val decision = stalkerIndexContinuationCoordinator.chooseNextSection(
             provider = provider,
             api = api,
-            requestedSection = section,
+            requestedSection = effectiveSection,
             force = force,
             now = System.currentTimeMillis()
         )

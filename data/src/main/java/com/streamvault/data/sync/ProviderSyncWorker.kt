@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import android.content.Context
+import kotlinx.coroutines.asContextElement
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import androidx.work.BackoffPolicy
@@ -151,6 +152,7 @@ class ProviderSyncWorker(
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface ProviderSyncWorkerEntryPoint {
+        fun automaticSyncRunner(): AutomaticSyncRunner
         fun providerDao(): ProviderDao
         fun channelDao(): ChannelDao
         fun categoryDao(): CategoryDao
@@ -168,7 +170,11 @@ class ProviderSyncWorker(
         fun databaseTransactionRunner(): DatabaseTransactionRunner
     }
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = kotlinx.coroutines.withContext(
+        AutomaticSyncExecution.idleSatisfied.asContextElement(inputData.getBoolean("idle_constraint", false))
+    ) { runProviderWork() }
+
+    private suspend fun runProviderWork(): Result {
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
                 applicationContext,
@@ -211,7 +217,9 @@ class ProviderSyncWorker(
             val providers = if (requestedProviderId != INVALID_PROVIDER_ID) {
                 entryPoint.providerDao().getById(requestedProviderId)?.let(::listOf).orEmpty()
             } else {
-                entryPoint.providerDao().getAllSync()
+                val automaticProviderId = inputData.getLong("automatic_provider_id", INVALID_PROVIDER_ID)
+                if (automaticProviderId > 0L) entryPoint.providerDao().getById(automaticProviderId)?.let(::listOf).orEmpty()
+                else entryPoint.providerDao().getAllSync()
             }
             if (providers.isEmpty()) {
                 return if (sawRetryableFailure) Result.retry() else Result.success()
@@ -237,14 +245,14 @@ class ProviderSyncWorker(
                             provider.id,
                             trackInitialLiveOnboarding = trackInitialLiveOnboarding
                         )
-                    } else if (provider.type == ProviderType.XTREAM_CODES) {
-                        syncXtreamProviderIfStale(entryPoint, provider)
-                    } else if (provider.type == ProviderType.STALKER_PORTAL) {
-                        syncStalkerProviderIfStale(entryPoint, provider)
+                    } else if (trackInitialLiveOnboarding) {
+                        // Interrupted setup is recovery, independent of automatic refresh policy.
+                        entryPoint.syncCommands().resumePrimaryCatalog(provider.id, true)
                     } else {
-                        entryPoint.syncCommands().sync(provider.id, force = false)
+                        entryPoint.automaticSyncRunner().check(provider.id)
                     }
-                    if (requestedProviderId == provider.id || !provider.isActive) {
+                    if (requestedProviderId != provider.id && entryPoint.automaticSyncRunner().retryCheck(provider.id)) sawRetryableFailure = true
+                    if (requestedProviderId == provider.id || (trackInitialLiveOnboarding && !provider.isActive)) {
                         reconcileTargetedProviderStatusFenced(
                             entryPoint = entryPoint,
                             provider = provider,
@@ -541,7 +549,7 @@ class ProviderSyncWorker(
         private const val CONFIG_CHANGE_PRIORITY = 100
 
         fun enqueuePeriodic(context: Context) {
-            val request = PeriodicWorkRequestBuilder<ProviderSyncWorker>(6, TimeUnit.HOURS)
+            val request = PeriodicWorkRequestBuilder<ProviderSyncWorker>(1, TimeUnit.HOURS)
                 .setConstraints(
                     Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -557,9 +565,17 @@ class ProviderSyncWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 UNIQUE_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 request
             )
+        }
+
+        fun enqueueIdleCatchUp(context: Context) {
+            val request = OneTimeWorkRequestBuilder<ProviderSyncWorker>()
+                .setConstraints(automaticSyncConstraints(com.streamvault.domain.sync.AutomaticSyncSettings()))
+                .setInitialDelay(2, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork("provider-sync-idle-check", ExistingWorkPolicy.KEEP, request)
         }
 
         fun enqueueLaunchStaleCheck(context: Context) {
@@ -583,6 +599,15 @@ class ProviderSyncWorker(
                 ExistingWorkPolicy.KEEP,
                 request
             )
+        }
+
+        fun enqueueAutomaticCheck(context: Context, providerId: Long, policy: com.streamvault.domain.sync.AutomaticSyncSettings) {
+            val request = OneTimeWorkRequestBuilder<ProviderSyncWorker>()
+                .setInputData(workDataOf("automatic_provider_id" to providerId, "idle_constraint" to policy.deviceIdleOnly))
+                .setConstraints(automaticSyncConstraints(policy))
+                .apply { if (!policy.deviceIdleOnly) setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES) }
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork("provider-automatic-check-$providerId", ExistingWorkPolicy.KEEP, request)
         }
 
         fun enqueueProvider(context: Context, providerId: Long) {
@@ -643,134 +668,6 @@ class ProviderSyncWorker(
                 providerWorkExistingPolicy(supersede = true),
                 request
             )
-        }
-    }
-
-    private suspend fun syncXtreamProviderIfStale(
-        entryPoint: ProviderSyncWorkerEntryPoint,
-        provider: com.streamvault.data.local.entity.ProviderEntity
-    ): com.streamvault.domain.model.Result<Unit> {
-        val now = System.currentTimeMillis()
-        if (shouldTrackInitialLiveOnboarding(provider, entryPoint.xtreamLiveOnboardingDao())) {
-            return entryPoint.syncCommands().resumePrimaryCatalog(
-                provider.id,
-                trackInitialLiveOnboarding = true
-            )
-        }
-        val metadata = entryPoint.syncMetadataRepository().getMetadata(provider.id)
-        val liveStale = ContentCachePolicy.shouldRefresh(
-            metadata?.lastLiveSuccess ?: 0L,
-            ContentCachePolicy.CATALOG_TTL_MILLIS,
-            now
-        )
-        val epgStale = providerEpgSyncMode(entryPoint, provider.id) != ProviderEpgSyncMode.SKIP &&
-            ContentCachePolicy.shouldRefresh(
-                metadata?.lastEpgSuccess ?: 0L,
-                ContentCachePolicy.EPG_TTL_MILLIS,
-                now
-            )
-        val movieIndexDue = shouldRunIndexJob(entryPoint, provider.id, ContentType.MOVIE, now)
-        val seriesIndexDue = shouldRunIndexJob(entryPoint, provider.id, ContentType.SERIES, now)
-
-        if (!provider.isActive) {
-            return com.streamvault.domain.model.Result.success(Unit)
-        }
-
-        if (liveStale) {
-            when (val liveResult = entryPoint.syncCommands().retrySection(
-                provider.id,
-                SyncRepairSection.LIVE,
-                syncReason = XtreamLiveSyncReason.BACKGROUND_STALE
-            )) {
-                is com.streamvault.domain.model.Result.Error -> return liveResult
-                else -> Unit
-            }
-        }
-        if (epgStale) {
-            when (val epgResult = entryPoint.syncCommands().syncEpg(provider.id, force = false)) {
-                is com.streamvault.domain.model.Result.Error -> return epgResult
-                else -> Unit
-            }
-        }
-        if (movieIndexDue) {
-            entryPoint.syncCommands().scheduleXtreamIndexSync(provider.id, ContentType.MOVIE)
-        }
-        if (seriesIndexDue) {
-            entryPoint.syncCommands().scheduleXtreamIndexSync(provider.id, ContentType.SERIES)
-        }
-        return com.streamvault.domain.model.Result.success(Unit)
-    }
-
-    private suspend fun shouldRunIndexJob(
-        entryPoint: ProviderSyncWorkerEntryPoint,
-        providerId: Long,
-        section: ContentType,
-        now: Long
-    ): Boolean {
-        return shouldRunPersistedIndexJob(
-            job = entryPoint.xtreamIndexJobDao().get(providerId, section.name),
-            now = now,
-            staleRunningAfterMillis = STALE_RUNNING_JOB_MILLIS,
-            successTtlMillis = ContentCachePolicy.CATALOG_TTL_MILLIS
-        )
-    }
-
-    private suspend fun syncStalkerProviderIfStale(
-        entryPoint: ProviderSyncWorkerEntryPoint,
-        provider: com.streamvault.data.local.entity.ProviderEntity
-    ): com.streamvault.domain.model.Result<Unit> {
-        val now = System.currentTimeMillis()
-        val metadata = entryPoint.syncMetadataRepository().getMetadata(provider.id)
-        val liveStale = ContentCachePolicy.shouldRefresh(
-            metadata?.lastLiveSuccess ?: 0L,
-            ContentCachePolicy.CATALOG_TTL_MILLIS,
-            now
-        )
-        val epgStale = providerEpgSyncMode(entryPoint, provider.id) != ProviderEpgSyncMode.SKIP &&
-            ContentCachePolicy.shouldRefresh(
-                metadata?.lastEpgSuccess ?: 0L,
-                ContentCachePolicy.EPG_TTL_MILLIS,
-                now
-            )
-        val movieIndexDue = shouldRunIndexJob(entryPoint, provider.id, ContentType.MOVIE, now)
-        val seriesIndexDue = shouldRunIndexJob(entryPoint, provider.id, ContentType.SERIES, now)
-
-        if (!provider.isActive) {
-            return com.streamvault.domain.model.Result.success(Unit)
-        }
-
-        if (liveStale) {
-            when (val liveResult = entryPoint.syncCommands().retrySection(provider.id, SyncRepairSection.LIVE)) {
-                is com.streamvault.domain.model.Result.Error -> return liveResult
-                else -> Unit
-            }
-        }
-        if (movieIndexDue) {
-            entryPoint.syncCommands().scheduleStalkerIndexSync(provider.id, ContentType.MOVIE)
-        }
-        if (seriesIndexDue) {
-            entryPoint.syncCommands().scheduleStalkerIndexSync(provider.id, ContentType.SERIES)
-        }
-        if (epgStale) {
-            entryPoint.syncCommands().scheduleBackgroundEpgSync(provider.id)
-        }
-        return com.streamvault.domain.model.Result.success(Unit)
-    }
-
-    private suspend fun providerEpgSyncMode(
-        entryPoint: ProviderSyncWorkerEntryPoint,
-        providerId: Long
-    ): ProviderEpgSyncMode {
-        val stored = entryPoint.providerSnapshotDao().getConfig(providerId)
-            ?: return ProviderEpgSyncMode.SKIP
-        return when (val configuration = entryPoint.providerConfigurationCodec().decode(
-            stored.type,
-            stored.encryptedConfigJson
-        )) {
-            is com.streamvault.domain.model.XtreamConfig -> configuration.epgSyncMode
-            is com.streamvault.domain.model.M3uConfig -> configuration.epgSyncMode
-            is com.streamvault.domain.model.StalkerConfig -> configuration.epgSyncMode
-            is com.streamvault.domain.model.JellyfinConfig -> ProviderEpgSyncMode.SKIP
         }
     }
 

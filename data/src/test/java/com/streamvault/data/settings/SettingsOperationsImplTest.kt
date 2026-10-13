@@ -11,6 +11,7 @@ import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.SyncRepairSection
 import com.streamvault.data.sync.XtreamLiveSyncReason
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.settings.SettingsXtreamLiveOnboarding
@@ -140,14 +141,28 @@ class SettingsOperationsImplTest {
     }
 
     @Test
+    fun `manual section refresh preserves partial and queued receipts`() = runTest {
+        val receipt = ProviderSectionSyncResult(partial = true, warnings = listOf("Missing rows"), queued = true)
+        whenever(syncCommands.syncSection(eq(7L), eq(SyncRepairSection.MOVIES), any())).thenAnswer { invocation ->
+            invocation.getArgument<((String) -> Unit)?>(2)?.invoke("Resuming Movies")
+            Result.success(receipt)
+        }
+        var progress: String? = null
+        assertThat(operations.syncProviderSection(7L, SettingsSyncSection.MOVIES) { progress = it })
+            .isEqualTo(Result.success(receipt))
+        assertThat(progress).isEqualTo("Resuming Movies")
+    }
+
+    @Test
     fun `rebuild index preserves progress callback`() = runTest {
-        whenever(syncCommands.rebuildXtreamIndex(eq(7L), any())).thenAnswer { invocation ->
+        val receipt = ProviderSectionSyncResult(queued = true, partial = true, warnings = listOf("Missing categories"))
+        whenever(syncCommands.rebuildIndex(eq(7L), any())).thenAnswer { invocation ->
             invocation.getArgument<((String) -> Unit)?>(1)?.invoke("Indexing")
-            Result.success(Unit)
+            Result.success(receipt)
         }
         var progress: String? = null
 
-        assertThat(operations.rebuildXtreamIndex(7L) { progress = it }).isEqualTo(Result.success(Unit))
+        assertThat(operations.rebuildXtreamIndex(7L) { progress = it }).isEqualTo(Result.success(receipt))
         assertThat(progress).isEqualTo("Indexing")
     }
 

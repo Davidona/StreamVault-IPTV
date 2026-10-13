@@ -403,6 +403,7 @@ class ProviderRepositoryImpl @Inject constructor(
                 return Result.error("Provider is saved but no content has been committed yet. Sync will resume in background.")
             }
             providerDao.setActive(id)
+            syncManager.scheduleAutomaticSyncCheck()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.error("Failed to set active provider: ${e.message}", e)

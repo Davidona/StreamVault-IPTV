@@ -9,6 +9,7 @@ import com.streamvault.data.local.entity.XtreamLiveOnboardingStateEntity
 import com.streamvault.data.sync.ProviderSyncCommands
 import com.streamvault.data.sync.SyncRepairSection
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.settings.SettingsXtreamIndexJob
@@ -38,8 +39,18 @@ class SettingsOperationsImpl @Inject constructor(
             states.map { it.toSettingsSnapshot() }
         }
 
+    override fun requestAutomaticSyncCheck() { syncCommands.scheduleAutomaticSyncCheck() }
+
     override suspend fun syncProvider(providerId: Long, force: Boolean): Result<Unit> =
         syncCommands.sync(providerId = providerId, force = force)
+
+    override suspend fun syncProviderSection(
+        providerId: Long,
+        section: SettingsSyncSection,
+        onProgress: ((String) -> Unit)?
+    ): Result<ProviderSectionSyncResult> = syncCommands.syncSection(
+        providerId, section.toSyncRepairSection(), onProgress
+    )
 
     override suspend fun retryProviderSection(
         providerId: Long,
@@ -54,7 +65,7 @@ class SettingsOperationsImpl @Inject constructor(
     override suspend fun rebuildXtreamIndex(
         providerId: Long,
         onProgress: ((String) -> Unit)?
-    ): Result<Unit> = syncCommands.rebuildXtreamIndex(providerId, onProgress)
+    ): Result<ProviderSectionSyncResult> = syncCommands.rebuildIndex(providerId, onProgress)
 
     override fun scheduleBackgroundEpgSync(providerId: Long) {
         syncCommands.scheduleBackgroundEpgSync(providerId)

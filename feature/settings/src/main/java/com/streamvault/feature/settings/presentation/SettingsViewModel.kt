@@ -48,6 +48,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
+import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageConfig
@@ -124,6 +125,19 @@ class SettingsViewModel @Inject constructor(
     private val exportBackup = ExportBackup(backupManager)
     private val importBackup = ImportBackup(backupManager)
 
+    val automaticSyncConfiguration = preferencesRepository.automaticSyncConfiguration.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), com.streamvault.domain.sync.AutomaticSyncConfiguration())
+    val automaticSyncStatuses = preferencesRepository.automaticSyncStatuses.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+    fun observeAutomaticSyncMetadata(providerId: Long) = syncMetadataRepository.observeMetadata(providerId)
+    fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        viewModelScope.launch {
+            try { preferencesRepository.setAutomaticSyncSettings(providerId, settings) }
+            catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (error: Exception) { _uiState.update { it.copy(userMessage = appContext.getString(R.string.settings_auto_sync_save_failed)) } }
+        }
+    }
+
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
     val playerLiveStreamFormatMode: StateFlow<LiveStreamFormatMode> =
@@ -155,7 +169,7 @@ class SettingsViewModel @Inject constructor(
         recordingManager = recordingManager,
         uiState = _uiState
     )
-    private val providerActions = SettingsProviderActions(
+    private val providerActions: SettingsProviderActions = SettingsProviderActions(
         providerRepository = providerRepository,
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
@@ -163,23 +177,19 @@ class SettingsViewModel @Inject constructor(
         settingsOperations = settingsOperations,
         syncMetadataRepository = syncMetadataRepository,
         surfaceRefreshPort = surfaceRefreshPort,
-        uiState = _uiState
+        uiState = _uiState,
+        onSyncRequested = { scope, provider ->
+            syncActions.syncProviderNow(scope, provider)
+        }
     )
-    private val syncActions = SettingsSyncActions(
+    private val syncActions: SettingsSyncActions = SettingsSyncActions(
         appContext = application,
         settingsOperations = settingsOperations,
         surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState,
-        refreshProvider = { scope, providerId, syncMode, progressPrefix, startedAt, sectionLabel, isCancelable ->
-            providerActions.refreshProvider(
-                scope = scope,
-                providerId = providerId,
-                syncMode = syncMode,
-                progressPrefix = progressPrefix,
-                startedAt = startedAt,
-                sectionLabel = sectionLabel,
-                isCancelable = isCancelable
-            )
+        prepareRefresh = providerActions::prepareProviderRefresh,
+        rebuildIndex = { scope, providerId ->
+            providerActions.rebuildProviderIndex(scope, providerId)
         }
     )
     private val epgActions = SettingsEpgActions(
@@ -324,14 +334,32 @@ class SettingsViewModel @Inject constructor(
 
                 _uiState.update { state ->
                     val providerIds = state.providers.map { it.id }.toSet()
+                    val completedLabelsByProvider = jobs
+                        .filter { it.state in setOf("SUCCESS", "COMPLETE") }
+                        .groupBy { it.providerId }
+                        .mapValues { (_, providerJobs) -> providerJobs.mapNotNull { job ->
+                            when (job.section) {
+                                "MOVIE" -> ProviderSyncSelection.MOVIES
+                                "SERIES" -> ProviderSyncSelection.SERIES
+                                "EPG" -> ProviderSyncSelection.EPG
+                                else -> null
+                            }?.label(appContext)
+                        } }
                     val preservedWarnings = state.syncWarningsByProvider
                         .filterKeys { it in providerIds }
-                        .mapValues { (_, warnings) ->
-                            warnings.filterNot { warning -> warning.startsWith(BACKGROUND_INDEX_STATUS_PREFIX) }
+                        .mapValues { (providerId, warnings) ->
+                            warnings.filterNot { warning ->
+                                warning.startsWith(BACKGROUND_INDEX_STATUS_PREFIX) ||
+                                    completedLabelsByProvider[providerId].orEmpty().any { warning.startsWith("$it:") }
+                            }
                         }
                         .filterValues { it.isNotEmpty() }
                     state.copy(
-                        syncWarningsByProvider = preservedWarnings + jobWarningsByProvider,
+                        syncWarningsByProvider = (preservedWarnings.keys + jobWarningsByProvider.keys)
+                            .filter { it in providerIds }
+                            .associateWith { providerId ->
+                                (preservedWarnings[providerId].orEmpty() + jobWarningsByProvider[providerId].orEmpty()).distinct()
+                            },
                         xtreamIndexSectionStatusByProvider = jobs
                             .filter { job -> job.providerId in providerIds }
                             .mapNotNull { job ->
@@ -1210,7 +1238,10 @@ class SettingsViewModel @Inject constructor(
         providerId: Long,
         syncMode: SettingsProviderSyncMode = SettingsProviderSyncMode.SYNC_NOW
     ) {
-        providerActions.refreshProvider(viewModelScope, providerId, syncMode)
+        syncActions.syncProviderSection(viewModelScope, providerId, when (syncMode) {
+            SettingsProviderSyncMode.SYNC_NOW -> ProviderSyncSelection.SYNC_NOW
+            SettingsProviderSyncMode.REBUILD_INDEX -> ProviderSyncSelection.REBUILD_INDEX
+        })
     }
 
     fun syncProviderSection(providerId: Long, selection: ProviderSyncSelection) {

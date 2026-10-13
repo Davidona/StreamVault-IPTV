@@ -154,6 +154,11 @@ public fun SyncingOverlay(
 
                 // Cancel button — the only interactive element
                 if (onCancel != null) {
+                    Text(
+                        text = stringResource(R.string.settings_sync_background_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnSurfaceDim
+                    )
                     OutlinedButton(
                         onClick = {
                             cancelFocusRequester.requestFocus()
@@ -162,7 +167,7 @@ public fun SyncingOverlay(
                         modifier = Modifier.focusRequester(cancelFocusRequester)
                     ) {
                         Text(
-                            text = stringResource(R.string.settings_cancel),
+                            text = stringResource(R.string.settings_sync_stop_refresh),
                             color = Primary
                         )
                     }

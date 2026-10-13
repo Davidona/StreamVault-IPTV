@@ -1,13 +1,21 @@
 package com.streamvault.domain.settings
 
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsOperations {
+    fun requestAutomaticSyncCheck() {}
+
     fun observeProgramCount(providerId: Long): Flow<Int>
     fun observeXtreamIndexJobs(): Flow<List<SettingsXtreamIndexJob>>
     fun observeIncompleteXtreamLiveOnboarding(): Flow<List<SettingsXtreamLiveOnboarding>>
     suspend fun syncProvider(providerId: Long, force: Boolean): Result<Unit>
+    suspend fun syncProviderSection(
+        providerId: Long,
+        section: SettingsSyncSection,
+        onProgress: ((String) -> Unit)? = null
+    ): Result<ProviderSectionSyncResult>
     suspend fun retryProviderSection(
         providerId: Long,
         section: SettingsSyncSection,
@@ -16,7 +24,7 @@ interface SettingsOperations {
     suspend fun rebuildXtreamIndex(
         providerId: Long,
         onProgress: ((String) -> Unit)? = null
-    ): Result<Unit>
+    ): Result<ProviderSectionSyncResult>
     fun scheduleBackgroundEpgSync(providerId: Long)
 }
 

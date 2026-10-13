@@ -17,6 +17,7 @@ All notable product changes are recorded in this document.
 - Added SMB2/SMB3 share destinations for DVR recordings, with encrypted device-side credentials and in-app playback and deletion.
 - Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
 - Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
+- Added configurable automatic provider sync in Settings, with global defaults and per-provider overrides for content sections, catalog and guide intervals, network, charging, idle, and preferred run times. It is enabled by default for saved providers, with catalogs refreshed every 24 hours and guides every 6 hours, and shows refresh status and timestamps.
 
 ### Fixed
 
@@ -42,6 +43,8 @@ All notable product changes are recorded in this document.
 - Fixed cropped video during adaptive resolution changes on affected Android TV emulators.
 - Fixed backup imports rejecting internal restore checkpoints and episode conflict previews matching episodes without their parent-series identity.
 - Fixed backup export sharing to remove failed temporary files and share only completed exports.
+- Fixed Jellyfin scheduled sync repeatedly fetching movie and series catalogs without checking freshness.
+- Fixed scheduled Stalker index checks reading Xtream job state and enqueueing redundant index work.
 
 ### Changed
 
@@ -52,6 +55,7 @@ All notable product changes are recorded in this document.
 - Overlapped Stalker live-category and bulk requests when provider admission allows it; category fallback now streams isolated attempts, preserves failed scopes, stops bootstrap after its accepted prefix, and leaves incomplete live coverage eligible for durable refresh.
 - Improved Stalker VOD recovery and hydration: an empty first page retries through the paged API without accumulating a whole category, page provenance and durable continuation remain accurate, and category protection is read in the page commit transaction.
 - Fenced Stalker index row, checkpoint, metadata, and prune writes by the active provider-workflow lease; preserved mixed movie/native-series/VOD-derived-series classification and page ordering.
+- Updated scheduled sync for Xtream, Stalker, M3U, and Jellyfin to refresh stale sections for saved providers through their current sync paths, defer background work during playback or recording, and catch up when the device becomes idle.
 
 - Reworked Xtream Live sync with streamed decoding and bounded staging, and made bulk-first `AUTO` the normal-build default with category fallback for safety conditions and bulk failures.
 - Applied the Xtream live strategy to Add Provider and Settings refresh, including hidden-category routing and clearer sync progress.

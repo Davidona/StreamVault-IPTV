@@ -178,6 +178,45 @@ class PreferencesRepository @Inject constructor(
         )
     }
 
+    override val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration> = preferencesDataStore.data.map { values ->
+        val defaults = readAutomaticSyncSettings(values[stringPreferencesKey("automatic_sync_defaults")])
+        val providers = values.asMap().mapNotNull { (key, value) ->
+            key.name.removePrefix("automatic_sync_provider_").toLongOrNull()
+                ?.takeIf { key.name.startsWith("automatic_sync_provider_") }
+                ?.let { it to readAutomaticSyncSettings(value as? String) }
+        }.toMap()
+        com.streamvault.domain.sync.AutomaticSyncConfiguration(defaults, providers)
+    }
+
+    override val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>> = preferencesDataStore.data.map { values ->
+        values.asMap().mapNotNull { (key, value) ->
+            val id = key.name.takeIf { it.startsWith("automatic_sync_status_") }
+                ?.removePrefix("automatic_sync_status_")?.toLongOrNull() ?: return@mapNotNull null
+            runCatching { id to com.google.gson.Gson().fromJson(value as String, com.streamvault.domain.sync.AutomaticSyncStatus::class.java) }.getOrNull()
+        }.toMap()
+    }
+
+    private fun readAutomaticSyncSettings(json: String?): com.streamvault.domain.sync.AutomaticSyncSettings =
+        runCatching { com.google.gson.Gson().fromJson(json, com.streamvault.domain.sync.AutomaticSyncSettings::class.java)?.normalized() }.getOrNull()
+            ?: com.streamvault.domain.sync.AutomaticSyncSettings()
+
+    override suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        val key = if (providerId == null) stringPreferencesKey("automatic_sync_defaults") else stringPreferencesKey("automatic_sync_provider_$providerId")
+        preferencesDataStore.edit { values ->
+            if (settings == null) values.remove(key)
+            else values[key] = com.google.gson.Gson().toJson(settings.normalized())
+        }
+        // Update durable work immediately; the worker re-reads policy before each section.
+        com.streamvault.data.sync.ProviderSyncWorker.enqueuePeriodic(context)
+        com.streamvault.data.sync.ProviderSyncWorker.enqueueLaunchStaleCheck(context)
+    }
+
+    suspend fun recordAutomaticSyncStatus(providerId: Long, status: com.streamvault.domain.sync.AutomaticSyncStatus) {
+        preferencesDataStore.edit { values ->
+            values[stringPreferencesKey("automatic_sync_status_$providerId")] = com.google.gson.Gson().toJson(status)
+        }
+    }
+
     private val Context.dataStore: DataStore<Preferences>
         get() = preferencesDataStore
     companion object {

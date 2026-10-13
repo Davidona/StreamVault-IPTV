@@ -28,7 +28,8 @@ internal class StalkerCatalogSectionExecutor(
     private val createProvider: (Provider) -> StalkerProvider,
     private val updateIndexJob: suspend (Long, ContentType, Int, Long) -> Unit,
     private val emitSectionProgress: (Long, Section, Int, Int) -> Unit,
-    private val progress: (Long, ((String) -> Unit)?, String) -> Unit
+    private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
+    private val hasPendingIndex: suspend (Long, ContentType) -> Boolean = { _, _ -> false }
 ) {
     suspend fun queueIndexSection(
         providerId: Long,
@@ -50,12 +51,20 @@ internal class StalkerCatalogSectionExecutor(
 
     suspend fun syncMovies(
         provider: Provider,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        preservePendingIndex: Boolean = false,
+        indexCatalog: Boolean = true
     ): SyncOutcome {
+        if (indexCatalog && preservePendingIndex && hasPendingIndex(provider.id, ContentType.MOVIE)) {
+            progress(provider.id, onProgress, "Resuming Movies index...")
+            return queuedOutcome(ContentType.MOVIE)
+        }
         val now = System.currentTimeMillis()
         progress(provider.id, onProgress, "Queueing Movies index...")
         val api = createProvider(provider)
-        val categories = requireResult(api.getVodCategories(), "Failed to load movie categories")
+        val unified = provider.catalogLayout == com.streamvault.domain.model.CatalogLayout.UNIFIED_VOD
+        val categoryType = if (unified) ContentType.VOD else ContentType.MOVIE
+        val categories = requireResult(if (unified) api.getUnifiedVodCategories() else api.getVodCategories(), "Failed to load movie categories")
         emitSectionProgress(
             provider.id,
             Section.VOD,
@@ -64,22 +73,26 @@ internal class StalkerCatalogSectionExecutor(
         )
         syncCatalogStore.replaceCategories(
             providerId = provider.id,
-            type = ContentType.MOVIE.name,
+            type = categoryType.name,
             categories = categories.map { category ->
                 CategoryEntity(
                     providerId = provider.id,
                     categoryId = category.id,
                     name = category.name,
                     parentId = category.parentId,
-                    type = ContentType.MOVIE,
+                    type = categoryType,
                     isAdult = category.isAdult
                 )
             }
         )
+        if (!indexCatalog || unified) {
+            val current = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
+            syncMetadataRepository.updateMetadata(current.copy(lastMovieSync = now, lastMovieSuccess = now))
+            return SyncOutcome(activation = SyncActivation.ACTIVATED_CATALOG)
+        }
         queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
         val metadata = (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id))
             .copy(
-                lastMovieSync = now,
                 lastMovieAttempt = now,
                 movieCount = movieDao.getCount(provider.id).first(),
                 movieSyncMode = VodSyncMode.PAGED,
@@ -101,8 +114,14 @@ internal class StalkerCatalogSectionExecutor(
 
     suspend fun syncSeries(
         provider: Provider,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        preservePendingIndex: Boolean = false,
+        indexCatalog: Boolean = true
     ): SyncOutcome {
+        if (indexCatalog && preservePendingIndex && hasPendingIndex(provider.id, ContentType.SERIES)) {
+            progress(provider.id, onProgress, "Resuming Series index...")
+            return queuedOutcome(ContentType.SERIES)
+        }
         progress(provider.id, onProgress, "Queueing Series index...")
         val api = createProvider(provider)
         val categories = requireResult(api.getSeriesCategories(), "Failed to load series categories")
@@ -127,10 +146,14 @@ internal class StalkerCatalogSectionExecutor(
             }
         )
         val now = System.currentTimeMillis()
+        if (!indexCatalog) {
+            val current = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
+            syncMetadataRepository.updateMetadata(current.copy(lastSeriesSync = now, lastSeriesSuccess = now))
+            return SyncOutcome(activation = SyncActivation.ACTIVATED_CATALOG)
+        }
         queueIndexSection(provider.id, ContentType.SERIES, categories.size, now)
         val metadata = (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id))
             .copy(
-                lastSeriesSync = now,
                 seriesCount = seriesDao.getCount(provider.id).first()
             )
         syncMetadataRepository.updateMetadata(metadata)
@@ -151,4 +174,13 @@ internal class StalkerCatalogSectionExecutor(
         is Result.Error -> throw IllegalStateException(result.message.ifBlank { fallbackMessage }, result.exception)
         is Result.Loading -> throw IllegalStateException("Unexpected loading state")
     }
+
+    private fun queuedOutcome(section: ContentType) = SyncOutcome(
+        continuationWork = listOf(SyncContinuation(
+            operation = SyncContinuationOperation.INDEX_CATALOG,
+            section = section,
+            reason = "resume the existing durable index without resetting its hydration progress"
+        )),
+        activation = SyncActivation.DEFERRED_TO_FOLLOW_UP
+    )
 }

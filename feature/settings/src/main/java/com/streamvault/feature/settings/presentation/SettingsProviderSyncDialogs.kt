@@ -26,14 +26,20 @@ import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 
-private fun availableSyncSelections(provider: Provider): List<ProviderSyncSelection> = buildList {
-    add(ProviderSyncSelection.TV)
-    add(ProviderSyncSelection.MOVIES)
-    if (provider.type == ProviderType.XTREAM_CODES) {
-        add(ProviderSyncSelection.SERIES)
+internal fun availableSyncSelections(provider: Provider): List<ProviderSyncSelection> =
+    com.streamvault.domain.sync.ProviderRefreshPlanner.plan(
+        type = provider.type, metadata = null,
+        settings = com.streamvault.domain.sync.AutomaticSyncSettings(), now = 0L, force = true,
+        epgAvailable = provider.epgSyncMode != com.streamvault.domain.model.ProviderEpgSyncMode.SKIP,
+        unifiedVod = provider.catalogLayout == com.streamvault.domain.model.CatalogLayout.UNIFIED_VOD
+    ).sections.map {
+        when (it) {
+            com.streamvault.domain.sync.RefreshSection.LIVE -> ProviderSyncSelection.TV
+            com.streamvault.domain.sync.RefreshSection.MOVIES -> ProviderSyncSelection.MOVIES
+            com.streamvault.domain.sync.RefreshSection.SERIES -> ProviderSyncSelection.SERIES
+            com.streamvault.domain.sync.RefreshSection.EPG -> ProviderSyncSelection.EPG
+        }
     }
-    add(ProviderSyncSelection.EPG)
-}
 
 @Composable
 public fun ProviderSyncOptionsDialog(

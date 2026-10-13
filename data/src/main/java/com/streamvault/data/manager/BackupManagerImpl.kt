@@ -194,6 +194,17 @@ class BackupManagerImpl @Inject constructor(
     private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null
 ) : BackupManager {
 
+    internal suspend fun automaticSyncPreferenceBackup(providerEntities: List<ProviderEntity>): Map<String, String> {
+        val configuration = preferencesRepository.automaticSyncConfiguration?.first() ?: com.streamvault.domain.sync.AutomaticSyncConfiguration()
+        return buildMap {
+            put("automaticSyncDefaults", gson.toJson(configuration.defaults))
+            providerEntities.forEach { provider ->
+                val key = provider.toDomain().toBackupProviderReference().stableIdentityKey()
+                put("automaticSyncProvider_$key", configuration.providers[provider.id]?.let(gson::toJson).orEmpty())
+            }
+        }
+    }
+
     override suspend fun exportConfig(uriString: String): com.streamvault.domain.model.Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val parentalPinBackup = preferencesRepository.exportParentalPinBackup()
@@ -201,6 +212,7 @@ class BackupManagerImpl @Inject constructor(
             
             // 1. Gather Data
             val prefs = buildMap<String, String> {
+                putAll(automaticSyncPreferenceBackup(providerEntities))
                 put("parentalControlLevel", preferencesRepository.parentalControlLevel.first().toString())
                 put("parentalPinHash", parentalPinBackup?.hash ?: "")
                 put("parentalPinSalt", parentalPinBackup?.saltBase64 ?: "")
@@ -3276,6 +3288,7 @@ class BackupManagerImpl @Inject constructor(
     private suspend fun capturePreferenceSnapshot(providerEntities: List<ProviderEntity>): Map<String, String> {
         val parentalPinBackup = preferencesRepository.exportParentalPinBackup()
         return buildMap {
+            putAll(automaticSyncPreferenceBackup(providerEntities))
             put("parentalControlLevel", preferencesRepository.parentalControlLevel.first().toString())
             put("parentalPinHash", parentalPinBackup?.hash.orEmpty())
             put("parentalPinSalt", parentalPinBackup?.saltBase64.orEmpty())
@@ -3745,6 +3758,21 @@ class BackupManagerImpl @Inject constructor(
         prefs: Map<String, String>,
         skipProviderScopedReferences: Boolean = false
     ) {
+        prefs["automaticSyncDefaults"]?.let { encoded ->
+            val settings = gson.fromJson(encoded, com.streamvault.domain.sync.AutomaticSyncSettings::class.java)
+            preferencesRepository.setAutomaticSyncSettings(null, settings.normalized())
+        }
+        if (prefs.keys.any { it.startsWith("automaticSyncProvider_") }) {
+            providerDao.getAllSync().forEach { provider ->
+                val key = provider.toDomain().toBackupProviderReference().stableIdentityKey()
+                prefs["automaticSyncProvider_$key"]?.let { encoded ->
+                    val settings = encoded.takeIf { it.isNotBlank() }?.let {
+                        gson.fromJson(it, com.streamvault.domain.sync.AutomaticSyncSettings::class.java).normalized()
+                    }
+                    preferencesRepository.setAutomaticSyncSettings(provider.id, settings)
+                }
+            }
+        }
         prefs["parentalControlLevel"]?.toIntOrNull()?.let {
             preferencesRepository.setParentalControlLevel(it)
         }

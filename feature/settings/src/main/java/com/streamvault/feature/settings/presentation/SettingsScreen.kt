@@ -468,6 +468,7 @@ public fun SettingsScreen(
                         add("sources.combined.delete")
                     }
                     if (uiState.providers.isEmpty()) {
+                        add("sources.automatic_sync")
                         add("sources.active_provider")
                         add("sources.edit")
                         add("sources.sync")
