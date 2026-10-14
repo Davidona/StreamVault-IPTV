@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Anulo</string>
+    <string name="settings_syncing_title">Po sinkronizohen të dhënat...</string>
+    <string name="settings_syncing_subtitle">Ju lutem pritni ndërsa lista e luajtjes importohet.</string>
+    <string name="settings_syncing_btn">Po sinkronizohet...</string>
+    <string name="settings_backup_restore">Kopje rezervë &amp; rikthim</string>
+    <string name="settings_restore_data">Importo të dhënat</string>
+    <string name="settings_restore_subtitle">Zgjidh një skedar kopjeje rezervë ose hap një kopje me StreamVault nga një menaxher skedarësh.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Shto një ofrues</string>
+    <string name="setup_edit_provider">Redakto ofruesin</string>
+    <string name="setup_update_desc">Përditëso detajet e ofruesit të IPTV</string>
+    <string name="setup_add_desc">Shto ofruesin tënd të IPTV</string>
+    <string name="setup_shell_eyebrow">Konfigurimi i ofruesit</string>
+    <string name="setup_shell_subtitle">Përdor Xtream ose M3U. Mund ta ndryshosh më vonë.</string>
+    <string name="setup_form_subtitle">Zgjidh një burim, fut detajet dhe vazhdo. Mund ta menaxhosh më vonë nga Cilësimet.</string>
+    <string name="setup_source_type_label">Lloji i burimit</string>
+    <string name="setup_info_xtream_title">Përdor Xtream kur kredencialet janë të disponueshme</string>
+    <string name="setup_info_xtream_body">Më e mira kur ke server, përdorues dhe fjalëkalim.</string>
+    <string name="setup_info_stalker_body">URL e portalit plus një adresë MAC të miratuar nga ofruesi.</string>
+    <string name="setup_info_m3u_title">Përdor M3U për lista luajtjeje me URL ose skedar</string>
+    <string name="setup_info_m3u_body">Përdor një lidhje liste luajtjeje ose importo një skedar lokal.</string>
+    <string name="setup_info_manage_title">Mund t\'i menaxhosh ofruesit më vonë</string>
+    <string name="setup_info_manage_body">Rifresko, redakto ose zëvendëso atë më vonë nga Cilësimet.</string>
+    <string name="setup_import_backup">Importo kopjen rezervë</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">Listë luajtjeje M3U</string>
+    <string name="setup_name_hint">Emri i listës së luajtjes (opsionale)</string>
+    <string name="setup_server_hint">URL e serverit</string>
+    <string name="setup_user_hint">Emri i përdoruesit</string>
+    <string name="setup_pass_hint">Fjalëkalimi</string>
+    <string name="setup_show_password">Shfaq fjalëkalimin</string>
+    <string name="setup_hide_password">Fshih fjalëkalimin</string>
+    <string name="setup_phone_pairing_title">Shto nga telefoni</string>
+    <string name="setup_phone_pairing_body">Skano një kod QR dhe fut kredencialet e ofruesit nga një telefon në të njëjtën Wi-Fi.</string>
+    <string name="setup_phone_pairing_start">Shfaq kodin QR</string>
+    <string name="setup_phone_pairing_restart">Kod QR i ri</string>
+    <string name="setup_phone_pairing_stop">Ndalo çiftimin</string>
+    <string name="setup_phone_pairing_same_wifi">Hape këtë nga një telefon në të njëjtën Wi-Fi. Kredencialet dërgohen drejtpërdrejt në këtë TV.</string>
+    <string name="setup_phone_pairing_qr_description">Kod QR për konfigurimin e ofruesit nga telefoni</string>
+    <string name="setup_phone_pairing_idle">Vetëm lokale</string>
+    <string name="setup_phone_pairing_ready">Skano tani</string>
+    <string name="setup_phone_pairing_receiving">Po shtohet</string>
+    <string name="setup_phone_pairing_complete">U shtua</string>
+    <string name="setup_phone_pairing_error">Gabim</string>
+    <string name="setup_connecting">Po lidhet...</string>
+    <string name="setup_save">Ruaj ndryshimet</string>
+    <string name="setup_login">Hyr</string>
+    <string name="setup_advanced_options_label">Opsione të avancuara</string>
+    <string name="setup_advanced_options_helper">Kontrollo si merren të dhënat e guidës gjatë konfigurimit dhe rifreskimit të ofruesit.</string>
+    <string name="setup_advanced_options_show">Shfaq</string>
+    <string name="setup_advanced_options_hide">Fshih</string>
+    <string name="setup_m3u_vod_classification_label">Klasifikimi VOD i M3U</string>
+    <string name="setup_m3u_vod_classification_helper">Vetëm M3U. Klasifiko URL-të e dekoduara të filmave dhe sugjerimet e lokalizuara të grupeve ose titujve si Filma; URL-të e njohura të transmetimeve live mbeten në Live TV.</string>
+    <string name="setup_xtream_live_sync_mode_label">Sinkronizimi live i Xtream</string>
+    <string name="setup_xtream_live_sync_mode_helper">Zgjidh si merren kanalet e Live TV. Auto mbron pajisjet e dobëta dhe rifreskimet rutinë duke mbajtur kategoritë të mbushura.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Rekomandohet. Përdor sinkronizimin e kategorive në pajisjet me memorie të ulët, rifreskimet në sfond, rifreskimet e kategorive të fshehura dhe ofruesit e ngarkuar.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Kategori pas kategorie</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Merr gjithmonë Live TV një kategori në një kohë. Më e sigurt për ofruesit e mëdhenj dhe pajisjet e dobëta Android TV.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Transmeto të gjitha</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Provo pikën fundore Live të të gjithë ofruesit duke përdorur analizuesin e transmetimit. Kthehet te sinkronizimi i kategorive nëse është i pasigurt ose dështoi.</string>
+    <string name="setup_epg_sync_mode_label">Sinkronizimi i EPG-së</string>
+    <string name="setup_epg_sync_mode_helper">Zgjedhja e menjëhershme mban sjelljen e sotme. Në sfond përfundon fillimisht konfigurimin, ndërsa Kapërcimi e lë rifreskimin e guidës për më vonë.</string>
+    <string name="setup_epg_sync_mode_upfront_title">EPG e plotë tani</string>
+    <string name="setup_epg_sync_mode_upfront_description">Shkarko të dhënat e guidës së ofruesit dhe të jashtme gjatë konfigurimit, përpara se ai të përfundojë.</string>
+    <string name="setup_epg_sync_mode_background_title">Ngarko EPG në sfond</string>
+    <string name="setup_epg_sync_mode_background_description">Përfundo fillimisht konfigurimin, pastaj merr automatikisht të dhënat e guidës në sfond.</string>
+    <string name="setup_epg_sync_mode_skip_title">Kapërce EPG për momentin</string>
+    <string name="setup_epg_sync_mode_skip_description">Mos i merr automatikisht të dhënat e guidës. Mund ta rifreskosh EPG-në më vonë nga Cilësimet.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker mund të përdorë guidën native të portalit kur XMLTV mungon ose nuk disponohet. Zgjedhja e menjëhershme e importon gjatë konfigurimit, ajo në sfond e shtyn, ndërsa Kapërcimi e lë ngarkimin e guidës sipas kërkesës.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Shkarko kanalet live dhe importo guidën e portalit Stalker gjatë konfigurimit. Nëse XMLTV është konfiguruar dhe funksionon, përdoret së pari.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Përfundo fillimisht konfigurimin, pastaj importo guidën e portalit Stalker në sfond. Nëse XMLTV është konfiguruar dhe funksionon, përdoret së pari.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Mos importo automatikisht të dhënat e guidës në masë. Të dhënat e guidës live mund të ngarkohen ende sipas kërkesës kur shfleton kanalet.</string>
+    <string name="setup_m3u_hint">URL e M3U</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">Skedar</string>
+    <string name="setup_choose_file">Zgjidh skedarin M3U</string>
+    <string name="setup_file_replace_hint">Shtyp për të zëvendësuar skedarin</string>
+    <string name="setup_file_select_title">Zgjidh skedarin M3U</string>
+    <string name="setup_file_browse_hint">Shfleto ruajtjen lokale ose USB</string>
+    <string name="setup_file_import_failed">Skedari i listës së luajtjes nuk mund të importohej. Provo përsëri.</string>
+    <string name="setup_file_import_storage_full">Ruajtja është plot. Lirto hapësirë dhe provo përsëri importimin.</string>
+    <string name="setup_discard_draft_title">Të hidhet drafti i konfigurimit?</string>
+    <string name="setup_discard_draft_body">Ky konfigurim ofruesi është i paplotë. Të kthehesh prapa dhe të humbësh draftin aktual?</string>
+    <string name="setup_discard_draft_confirm">Hidh</string>
+    <string name="setup_discard_draft_cancel">Vazhdo redaktimin</string>
+    <string name="setup_validating">Po verifikohet...</string>
+    <string name="setup_add">Shto listë luajtjeje</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Lidhje e shpejtë</string>
+    <string name="setup_jellyfin_quick_connect_code">Kodi: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Hap serverin tënd Jellyfin në një shfletues dhe fut këtë kod, ose skano kodin QR me telefonin.</string>
+    <string name="setup_server_url">URL e serverit</string>
+    <string name="setup_username">Emri i përdoruesit</string>
+    <string name="setup_password">Fjalëkalimi</string>
+    <string name="setup_name">Emri</string>
+    <string name="setup_name_placeholder">Serveri im Jellyfin</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Importo nga Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+</resources>

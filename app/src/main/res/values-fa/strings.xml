@@ -1,0 +1,346 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+    
+    <string name="nav_home">خانه</string>
+    <string name="nav_live_tv">پخش زنده</string>
+    <string name="nav_movies">فیلم‌ها</string>
+    <string name="nav_series">سریال‌ها</string>
+    <string name="nav_epg">راهنما</string>
+    <string name="nav_settings">تنظیمات</string>
+    <string name="nav_plugins">افزونه‌ها</string>
+    <string name="nav_close_app">بستن برنامه</string>
+
+    
+    <string name="welcome_enter_app">ورود به برنامه</string>
+    <string name="welcome_manage_providers">مدیریت ارائه‌دهندگان</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">مرور سریع پخش زنده با تمرکز بر کنترل از راه دور</string>
+    <string name="welcome_feature_library">فیلم‌ها و سریال‌های کتابخانه بزرگ بدون شلوغی</string>
+    <string name="welcome_feature_player">پوسته‌های یکپارچه پخش‌کننده، دسترسی به راهنما و محتوای ذخیره‌شده</string>
+    <string name="welcome_manage_hint">ارائه‌دهنده را عوض کنید، فراداده را تازه کنید یا منبع جدیدی اضافه کنید.</string>
+
+    
+    <string name="hidden_categories_dialog_title">دسته‌های پنهان</string>
+    <string name="hidden_categories_dialog_subtitle">مواردی را که می‌خواهید بازگردانید انتخاب کنید.</string>
+    <string name="hidden_categories_dialog_unhide_all">نمایش همه</string>
+    <string name="hidden_categories_dialog_close">بستن</string>
+    <string name="home_recent_channels">اخیر</string>
+    <string name="home_last_channel">آخرین کانال</string>
+    <string name="home_last_channel_label">آخرین: %1$s</string>
+    <string name="home_last_group_label">آخرین: %1$s</string>
+    <string name="home_loading">در حال بارگذاری...</string>
+    <string name="home_locked_short">قفل</string>
+    <string name="live_shell_subtitle">دسته‌های زنده را سریع مرور کنید، ناوبری را قابل‌اعتماد نگه دارید و فقط داده‌های برنامه‌ای را که روی صفحه مهم است نمایش دهید.</string>
+    <string name="live_shell_context">%1$d دسته • %2$d کانال</string>
+    <string name="live_shell_provider">ارائه‌دهنده</string>
+    <string name="live_shell_split">نمایش چندگانه</string>
+    <string name="live_manage_groups">مدیریت جایگاه‌های نمایش چندگانه</string>
+    <string name="live_reorder_title">مرتب‌سازی %1$s</string>
+    <string name="live_empty_hint_favorites">برای پر کردن این ردیف، کانال‌هایی به علاقه‌مندی‌ها یا یک گروه ذخیره‌شده اضافه کنید.</string>
+    <string name="live_empty_hint_recent">پخش چند کانال را شروع کنید تا اینجا نمایش داده شوند.</string>
+    <string name="home_saved_subtitle">علاقه‌مندی‌ها و گروه‌های زنده سفارشی</string>
+    <string name="home_saved_empty_hint">یک کانال را به علاقه‌مندی‌ها اضافه کنید یا آن را به یک گروه زنده سفارشی بیفزایید تا اینجا سنجاق شود.</string>
+    <string name="home_delete_group_title">حذف گروه؟</string>
+    <string name="home_delete_group_body">آیا مطمئن هستید که می‌خواهید «%1$s» را حذف کنید؟ همه کانال‌ها از این گروه حذف می‌شوند.</string>
+    <string name="home_delete_group_confirm">حذف</string>
+    <string name="home_delete_group_cancel">لغو</string>
+
+    
+    <string name="dashboard_customize_home">سفارشی‌سازی خانه</string>
+    <string name="dashboard_customize_home_subtitle">انتخاب کنید کدام قفسه‌ها اینجا نمایش داده شوند، ردیف‌های بیشتری اضافه کنید و هر زمان ترتیبشان را تغییر دهید.</string>
+    <string name="dashboard_customize_home_action">سفارشی‌سازی</string>
+
+    
+
+    <string name="category_options_set_default">تعیین به‌عنوان گروه پیش‌فرض</string>
+    <string name="category_options_rename">تغییر نام گروه</string>
+    <string name="category_options_unlock">باز کردن قفل گروه</string>
+    <string name="category_options_lock">قفل کردن گروه</string>
+    <string name="category_options_delete">حذف گروه</string>
+    <string name="category_options_cancel">لغو</string>
+    <string name="category_options_reorder">تغییر ترتیب موارد</string>
+    <string name="category_options_hide">پنهان کردن دسته</string>
+    <string name="category_options_hide_from_live_tv">پنهان از پخش زنده</string>
+    <string name="category_options_clear_recent">پاک کردن همه موارد اخیر</string>
+    <string name="category_options_pin">سنجاق کردن دسته</string>
+    <string name="category_options_unpin">برداشتن سنجاق دسته</string>
+    <string name="m3u_organize_items">سازمان‌دهی موارد M3U</string>
+    <string name="m3u_move_to_movies">انتقال به فیلم‌ها</string>
+    <string name="m3u_move_to_series">انتقال به سریال‌ها</string>
+    <string name="m3u_move_back_to_live">بازگشت به پخش زنده</string>
+    <string name="m3u_series_name">نام سریال</string>
+    <string name="m3u_episode_number">شماره قسمت</string>
+    <string name="m3u_season_number">شماره فصل</string>
+    <string name="m3u_classify">دسته‌بندی</string>
+    <string name="m3u_classification_saved">دسته‌بندی M3U ذخیره شد</string>
+    <string name="m3u_category_rule_subtitle">برای این گروه M3U یک پیش‌فرض انتخاب کنید. کانال‌های تکی همچنان قابل بازنویسی هستند.</string>
+    <string name="m3u_keep_live">نگه داشتن به‌عنوان پخش زنده</string>
+    <string name="m3u_series_review_title">سازمان‌دهی سریال‌ها در %1$s</string>
+    <string name="m3u_series_review_subtitle">پیشنهادهای خودکار را بررسی کنید یا هر مورد را به یک سریال، فصل و قسمت اختصاص دهید.</string>
+    <string name="m3u_episode_unresolved">شماره قسمت مشخص نشد — برای اصلاح علامت‌گذاری‌شده باقی می‌ماند.</string>
+
+    <string name="add_group_manage_title">مدیریت: %1$s</string>
+    <string name="add_group_close_cd">بستن</string>
+    <string name="add_group_name_hint">نام گروه</string>
+    <string name="add_group_cancel">لغو</string>
+    <string name="add_group_create">ایجاد</string>
+    <string name="add_group_rename">تغییر نام</string>
+    <string name="add_group_remove_favorites">حذف از علاقه‌مندی‌ها</string>
+    <string name="add_group_add_favorites">افزودن به علاقه‌مندی‌ها</string>
+    <string name="channel_options_remove_from_recent">حذف از موارد اخیر</string>
+    <string name="add_group_reorder_title">تغییر ترتیب</string>
+    <string name="add_group_move_up">انتقال به بالا</string>
+    <string name="add_group_move_down">انتقال به پایین</string>
+    <string name="add_group_custom_groups_title">گروه‌های سفارشی</string>
+    <string name="add_group_remove_btn">حذف</string>
+    <string name="add_group_add_btn">افزودن</string>
+    <string name="add_group_create_new_btn">ایجاد گروه جدید</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">پنهان کردن این کانال</string>
+    <string name="hidden_channels_dialog_title">کانال‌های پنهان</string>
+    <string name="hidden_channels_dialog_subtitle">مواردی را که می‌خواهید بازگردانید انتخاب کنید.</string>
+    <string name="hidden_channels_dialog_unhide_all">نمایش همه</string>
+    <string name="hidden_channels_dialog_close">بستن</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">قفل‌شده</string>
+
+
+    <string name="playlist_no_provider">بدون ارائه‌دهنده</string>
+    <string name="live_source_label">منبع</string>
+    <string name="live_source_filter_label">فیلتر لیست پخش</string>
+    <string name="live_source_filter_all">همه منابع</string>
+    <string name="live_source_unavailable_short">در دسترس نیست</string>
+    <string name="live_source_empty_short">خالی</string>
+
+    
+    <string name="movies_shell_subtitle">قفسه‌های منتخب، گروه‌های ذخیره‌شده و مرور کامل کتابخانه بدون خروج از بافت ارائه‌دهنده فعلی.</string>
+    <string name="movies_all_categories">همه دسته‌ها</string>
+    <string name="movies_search_launch_title">جست‌وجو در کتابخانه فیلم</string>
+    <string name="movies_search_launch_subtitle">بدون از دست دادن وضعیت مرور فعلی وارد صفحه جست‌وجوی اختصاصی شوید.</string>
+    <string name="movies_group_created">گروه %1$s ایجاد شد</string>
+    <string name="movies_group_renamed">نام گروه به %1$s تغییر کرد</string>
+    <string name="movies_group_deleted">گروه %1$s حذف شد</string>
+    <string name="movies_group_name_invalid">نام گروه را وارد کنید</string>
+    <string name="movies_group_name_reserved">نام «علاقه‌مندی‌ها» رزرو شده است</string>
+    <string name="movies_group_name_duplicate">گروه فیلمی با این نام از قبل وجود دارد</string>
+    <string name="movies_saved_empty_hint">یک فیلم را به علاقه‌مندی‌ها اضافه کنید یا آن را به یک گروه سفارشی بیفزایید تا اینجا ببینید.</string>
+    <string name="movies_filter_subtitle">دسته فیلم انتخاب‌شده را بدون بازسازی کل کتابخانه محدود کنید.</string>
+    <string name="movies_reorder_title">مرتب‌سازی %1$s</string>
+
+    
+    <string name="series_shell_subtitle">قفسه‌های ویژه، گروه‌های ذخیره‌شده و مرور صفحه‌بندی‌شده سریال‌ها، تنظیم‌شده برای کتابخانه‌های بزرگ ارائه‌دهندگان.</string>
+    <string name="series_all_categories">همه دسته‌ها</string>
+    <string name="series_search_launch_title">جست‌وجو در کتابخانه سریال</string>
+    <string name="series_search_launch_subtitle">نمای جست‌وجوی فرمان را باز کنید تا عنوان‌ها، قسمت‌ها یا گروه‌های ذخیره‌شده را سریع‌تر پیدا کنید.</string>
+    <string name="series_group_created">گروه %1$s ایجاد شد</string>
+    <string name="series_group_renamed">نام گروه به %1$s تغییر کرد</string>
+    <string name="series_group_deleted">گروه %1$s حذف شد</string>
+    <string name="series_group_name_invalid">نام گروه را وارد کنید</string>
+    <string name="series_group_name_reserved">نام «علاقه‌مندی‌ها» رزرو شده است</string>
+    <string name="series_group_name_duplicate">گروه سریالی با این نام از قبل وجود دارد</string>
+    <string name="series_saved_empty_hint">یک سریال را به علاقه‌مندی‌ها اضافه کنید یا آن را به یک گروه سفارشی بیفزایید تا اینجا ببینید.</string>
+    <string name="series_filter_subtitle">بین سریال‌های ذخیره‌شده، در حال تماشا، به‌روزشده و با امتیاز بالا جابه‌جا شوید.</string>
+    <string name="series_reorder_title">مرتب‌سازی %1$s</string>
+
+    <string name="library_saved_title">ذخیره‌شده</string>
+    <string name="library_saved_subtitle">علاقه‌مندی‌ها و گروه‌های سفارشی</string>
+    <string name="library_saved_manage_hint">برای دیدن گزینه‌ها، روی یک گروه ذخیره‌شده نگه دارید</string>
+    <string name="library_lens_title">لنز کتابخانه</string>
+    <string name="library_filter_results">نمایش %1$d از %2$d مورد</string>
+    <string name="library_loaded_results">بارگذاری %1$d از %2$d مورد</string>
+    <string name="library_sort_library">ترتیب کتابخانه</string>
+    <string name="library_sort_az">الف-ی</string>
+    <string name="library_sort_release">جدیدترین</string>
+    <string name="library_sort_updated">اخیراً به‌روزرسانی‌شده</string>
+    <string name="library_sort_rating">امتیاز</string>
+
+    
+    <string name="settings_parental_subtitle">محتوای بزرگسال یا حساس را با کنترل‌های مناسب تلویزیون محافظت کنید.</string>
+    <string name="settings_parental_groups_title">گروه‌های محافظت‌شده</string>
+    <string name="settings_parental_groups_hint">دسته‌ها را برای ارائه‌دهنده فعال قفل یا باز کنید.</string>
+    <string name="settings_parental_groups_action">مدیریت</string>
+    <string name="settings_categories_title">ترجیحات دسته‌ها</string>
+    <string name="settings_categories_subtitle">دسته‌های ارائه‌دهنده را پنهان کنید و ترتیب مرتب‌سازی آن‌ها را دقیقاً همان‌طور که می‌خواهید نگه دارید.</string>
+    <string name="settings_category_sorting_title">مرتب‌سازی دسته‌ها</string>
+    <string name="settings_category_sorting_subtitle">دسته‌ها را برای لیست پخش فعال مرتب کنید. قفل کردن و پنهان کردن اکنون در کنترل‌های دسته قرار دارند.</string>
+    <string name="settings_hidden_categories_title">دسته‌های پنهان</string>
+    <string name="settings_hidden_categories_subtitle">هر دسته ارائه‌دهنده‌ای را که قبلاً از صفحه‌های مرور پنهان کرده‌اید بازگردانید.</string>
+    <string name="settings_hidden_categories_none">هیچ‌کدام پنهان نیست</string>
+    <string name="settings_hidden_categories_count">%1$d پنهان</string>
+    <string name="settings_hidden_categories_empty">در حال حاضر دسته پنهانی وجود ندارد.</string>
+    <string name="settings_playback_subtitle">رفتار رمزگشا و بافر را برای پخش روان‌تر تنظیم کنید.</string>
+    <string name="settings_live_timeshift_backend_value">خودکار</string>
+    <string name="vod_classic_categories_title">دسته‌ها</string>
+    <string name="settings_decoder_mode">حالت رمزگشا</string>
+    <string name="settings_select_decoder_mode">انتخاب حالت رمزگشا</string>
+    <string name="settings_buffer_duration">مدت بافر</string>
+    <string name="settings_buffer_5s">۵ ثانیه</string>
+    <string name="settings_about_subtitle">جزئیات نسخه، ساخت و پشتیبانی این نصب.</string>
+    <string name="settings_syncing">در حال همگام‌سازی داده‌ها، لطفاً صبر کنید...</string>
+    <string name="settings_cancel">لغو</string>
+    <string name="settings_sync_option_all">همگام‌سازی همه</string>
+    <string name="settings_sync_option_fast">همگام‌سازی سریع</string>
+    <string name="settings_pc_btn">کنترل والدین</string>
+    <string name="settings_language">زبان</string>
+    <string name="settings_language_subtitle">زبان برنامه را بدون خروج از رابط تلویزیون انتخاب کنید.</string>
+
+    <string name="settings_backup_share_failed">هیچ برنامه‌ای نتوانست فایل پشتیبان را دریافت کند.</string>
+    <string name="settings_crash_report_share_failed">هیچ برنامه‌ای نتوانست گزارش خرابی را دریافت کند.</string>
+    <string name="settings_crash_report_missing">گزارش خرابی‌ای در دسترس نیست.</string>
+    <string name="settings_catalog_count_pending">در انتظار</string>
+    <string name="settings_diagnostic_never">هرگز</string>
+    <string name="settings_diagnostic_items">%1$d مورد</string>
+    <string name="settings_recording_subtitle">مدیریت کارهای DVR زنده محلی، فضای ذخیره‌سازی و ضبط‌های زمان‌بندی‌شده.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+    
+    <string name="saved_preset_watch_next">تماشای بعدی</string>
+    <string name="tv_channel_continue_watching_title">ادامه تماشا</string>
+    <string name="tv_channel_continue_watching_description">از سرگیری عنوان‌هایی که اخیراً شروع کرده‌اید</string>
+    <string name="tv_channel_top_movies_title">فیلم‌های برتر</string>
+    <string name="tv_channel_top_movies_description">انتخاب‌های محبوب از %1$s</string>
+    <string name="tv_channel_recommended_movies_title">فیلم‌های پیشنهادی</string>
+    <string name="tv_channel_recommended_movies_description">متناسب با انتخاب‌های اخیر شما در %1$s</string>
+    <string name="tv_channel_fresh_series_title">سریال‌های تازه</string>
+    <string name="tv_channel_fresh_series_description">سریال‌های اخیراً به‌روزرسانی‌شده از %1$s</string>
+
+    
+    <string name="search_title">جست‌وجو</string>
+    <string name="parental_group_shell_subtitle">گروه‌های زنده، فیلم و سریال محافظت‌شده را بدون خروج از پوسته تنظیمات ویژه بررسی کنید.</string>
+    <string name="search_command_title">جست‌وجوی فرمان</string>
+    <string name="search_hint">جست‌وجو...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">برای تأیید، پین والدین خود را وارد کنید</string>
+    <string name="a11y_locked">قفل‌شده</string>
+    <string name="a11y_favorite">علاقه‌مندی</string>
+    <string name="a11y_catch_up_available">پخش تأخیری در دسترس است</string>
+    <string name="a11y_now_playing">در حال پخش %1$s</string>
+    <string name="a11y_channel_with_number">کانال %1$d، %2$s</string>
+
+    
+
+    
+
+    <string name="player_no_external_player">پخش‌کننده خارجی نصب نشده است</string>
+    <string name="player_unsafe_stream_url">این جریان را نمی‌توان در پخش‌کننده خارجی باز کرد</string>
+    <string name="player_external_launch_failed">پخش‌کننده خارجی راه‌اندازی نشد</string>
+    <string name="player_next">بعدی</string>
+    <string name="player_recording_started">ضبط %1$s شروع شد.</string>
+    <string name="player_recording_stopped">ضبط متوقف شد.</string>
+    <string name="player_recording_scheduled">ضبط %1$s زمان‌بندی شد.</string>
+    <string name="player_recording_missing_context">ضبط به بافت معتبر کانال زنده نیاز دارد.</string>
+    <string name="player_categories_label">دسته‌ها</string>
+    <string name="player_full_epg">EPG کامل</string>
+    <string name="player_action_controls">کنترل‌ها</string>
+    <string name="player_action_restart_short">شروع دوباره</string>
+    <string name="player_action_recent_short">اخیر</string>
+    <string name="player_diagnostics_decoder">رمزگشا</string>
+    <string name="player_diagnostics_policy_guard">محافظ خط‌مشی</string>
+    <string name="player_diagnostics_policy_profile">نمایه خط‌مشی</string>
+    <string name="player_diagnostics_policy_buffer">نمایه بافر</string>
+    <string name="player_diagnostics_policy_render_path">مسیر رندر</string>
+    <string name="player_diagnostics_policy_known_bad">خط‌مشی موارد معیوب شناخته‌شده</string>
+    <string name="player_diagnostics_policy_recovery">بازیابی خودکار</string>
+    <string name="player_diagnostics_policy_last_action">آخرین اقدام خط‌مشی</string>
+    <string name="epg_search_short">جست‌وجوی برنامه</string>
+    <string name="epg_show_options">نمایش گزینه‌های راهنما</string>
+    <string name="epg_hide_options">پنهان کردن گزینه‌های راهنما</string>
+    <string name="epg_showing_channels">نمایش %1$d از %2$d کانال</string>
+    <string name="epg_schedule_summary">داده‌های راهنما برای %1$d از %2$d کانال موجود است</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">خط زمانی</string>
+    <string name="epg_timeline_range_label">بازه %1$s</string>
+    <string name="epg_updated_now">همین حالا به‌روز شد</string>
+    <string name="epg_updated_minutes_ago">%1$d دقیقه پیش به‌روز شد</string>
+    <string name="epg_minutes_remaining">%1$d دقیقه باقی مانده</string>
+    <string name="epg_program_channel_label">کانال</string>
+    <string name="epg_program_provider_label">ارائه‌دهنده</string>
+    <string name="epg_program_provider_type_label">منبع</string>
+    <string name="epg_program_language_label">زبان</string>
+    <string name="epg_program_replay_label">پخش مجدد</string>
+    <string name="epg_program_progress_label">پیشرفت</string>
+    <string name="epg_program_replay_unavailable">در دسترس نیست</string>
+    <string name="epg_program_progress_value">%1$d%% کامل • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">پخش مجدد ممکن است شکست بخورد زیرا ارائه‌دهنده پشتیبانی پخش تأخیری را بدون الگوی پخش مجدد قابل‌استفاده ارائه کرده است.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">پخش مجدد ممکن است شکست بخورد زیرا ارائه‌دهنده شناسه جریان پخش مجدد را ارائه نکرده است.</string>
+
+    
+    <string name="parental_group_title">گروه‌های محافظت‌شده</string>
+    <string name="parental_group_search">جست‌وجوی دسته‌ها...</string>
+    <string name="player_live_timeshift_ready">پخش تأخیری آماده است.</string>
+    <string name="player_live_timeshift_failed">عقب‌بردن پخش زنده محلی برای این جریان در دسترس نیست.</string>
+
+    
+    <string name="multiview_add_to_split">افزودن به صفحه تقسیم‌شده</string>
+    <string name="multiview_queued">در صفحه تقسیم‌شده</string>
+
+    
+    <string name="settings_privacy_subtitle">مدیریت تاریخچه تماشا و حالت ناشناس.</string>
+
+    
+    <string name="action_done">انجام شد</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_clear">پاک کردن</string>
+    <string name="action_space">فاصله</string>
+
+    
+    <string name="label_provider">ارائه‌دهنده</string>
+    <string name="label_selected">انتخاب‌شده</string>
+    <string name="label_no_schedule">اطلاعات برنامه موجود نیست</string>
+    <string name="label_slots_count">%1$d/4 جایگاه</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">قسمت %1$d</string>
+    <string name="badge_saved">SAVED</string>
+    <string name="badge_catch_up">CATCH UP</string>
+    <string name="badge_moving">MOVING</string>
+    <string name="badge_fav">FAV</string>
+
+    
+
+    
+
+    <string name="favorites_content_type_movie">فیلم</string>
+
+    
+
+    
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">اسکن کانال‌های StreamVault</string>
+    <string name="tv_input_setup_success_title">پخش زنده آماده است</string>
+    <string name="tv_input_setup_no_provider_title">هیچ ارائه‌دهنده IPTV پیکربندی نشده است</string>
+    <string name="tv_input_setup_error_title">اسکن خودکار ناموفق بود</string>
+    <string name="tv_input_setup_idle_title">آماده‌سازی یکپارچگی پخش زنده</string>
+    <string name="tv_input_setup_scanning_body">StreamVault در حال همگام‌سازی ارائه‌دهنده فعال شما با پخش زنده Android TV است.</string>
+    <string name="tv_input_setup_success_body">کانال‌های شما با موفقیت همگام شدند.</string>
+    <string name="tv_input_setup_no_provider_body">حداقل یک ارائه‌دهنده IPTV در StreamVault اضافه کنید، سپس برای اسکن کانال‌ها به پخش زنده Android TV بازگردید.</string>
+    <string name="tv_input_setup_error_body">همگام‌سازی ورودی تلویزیون کامل نشد.</string>
+    <string name="tv_input_setup_idle_body">لطفاً صبر کنید.</string>
+    <string name="tv_input_setup_source_format">منبع: %1$s</string>
+    <string name="tv_input_setup_open_setup">باز کردن راه‌اندازی StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">تلاش دوباره برای اسکن خودکار</string>
+    <string name="tv_input_setup_retry_scan">تکرار اسکن خودکار</string>
+    <string name="tv_input_setup_success_hint">پخش زنده Android TV اکنون می‌تواند کانال‌های StreamVault شما را باز کند.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">بازگشت به اقدامات پشتیبان‌گیری Drive.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">دانلود ناموفق بود: %1$s</string>
+    <string name="download_completed">دانلود کامل شد</string>
+    <string name="download_cancelled">دانلود لغو شد</string>
+    <string name="download_notification_channel">دانلودها</string>
+    <string name="download_notification_channel_description">نمایش پیشرفت و تکمیل دانلود</string>
+    <string name="download_in_progress">در حال دانلود %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">دانلودها</string>
+    <string name="downloads_empty">هنوز دانلودی وجود ندارد</string>
+    <string name="downloads_delete_confirm">این دانلود حذف شود؟</string>
+    <string name="download_play_local">پخش</string>
+    <string name="nav_vod">VOD</string>
+</resources>

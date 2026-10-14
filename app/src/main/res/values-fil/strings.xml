@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+    
+    <string name="nav_home">Home</string>
+    <string name="nav_live_tv">Live TV</string>
+    <string name="nav_movies">Mga Pelikula</string>
+    <string name="nav_series">Mga Serye</string>
+    <string name="nav_epg">Gabay</string>
+    <string name="nav_settings">Mga Setting</string>
+    <string name="nav_plugins">Mga Plugin</string>
+    <string name="nav_close_app">Isara ang app</string>
+
+    
+    <string name="welcome_enter_app">Pumasok sa App</string>
+    <string name="welcome_manage_providers">Pamahalaan ang mga Provider</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Mabilis na live browsing na kontrolado ng remote</string>
+    <string name="welcome_feature_library">Malaking library ng mga pelikula at serye, walang kalat</string>
+    <string name="welcome_feature_player">Pinag-isang player overlay, access sa gabay, at naka-save na content</string>
+    <string name="welcome_manage_hint">Palitan ang provider, i-refresh ang metadata, o magdagdag ng bagong source.</string>
+
+    
+    <string name="hidden_categories_dialog_title">Mga nakatagong kategorya</string>
+    <string name="hidden_categories_dialog_subtitle">Piliin ang mga ibabalik.</string>
+    <string name="hidden_categories_dialog_unhide_all">Ibalik lahat</string>
+    <string name="hidden_categories_dialog_close">Isara</string>
+    <string name="home_recent_channels">Kamakailan</string>
+    <string name="home_last_channel">Huling Channel</string>
+    <string name="home_last_channel_label">Huli: %1$s</string>
+    <string name="home_last_group_label">Huli: %1$s</string>
+    <string name="home_loading">Naglo-load...</string>
+    <string name="home_locked_short">NAKA-LOCK</string>
+    <string name="live_shell_subtitle">Mabilis na i-scan ang mga live na kategorya, panatilihing pare-pareho ang navigation, at ipakita lamang ang mahalagang schedule data sa screen.</string>
+    <string name="live_shell_context">%1$d kategorya • %2$d channel</string>
+    <string name="live_shell_provider">Provider</string>
+    <string name="live_shell_split">Multiview</string>
+    <string name="live_manage_groups">Pamahalaan ang mga multiview slot</string>
+    <string name="live_reorder_title">Inaayos ang %1$s</string>
+    <string name="live_empty_hint_favorites">Magdagdag ng channel sa Favorites o sa naka-save na grupo para mapuno ang rail na ito.</string>
+    <string name="live_empty_hint_recent">I-play ang ilang channel at lalabas ang mga ito dito.</string>
+    <string name="home_saved_subtitle">Mga Favorites at custom na live group</string>
+    <string name="home_saved_empty_hint">I-favorite ang isang channel o idagdag ito sa custom na live group para ma-pin dito.</string>
+    <string name="home_delete_group_title">Burahin ang Grupo?</string>
+    <string name="home_delete_group_body">Sigurado ka bang gusto mong burahin ang \'%1$s\'? Aalisin nito ang lahat ng channel sa grupong ito.</string>
+    <string name="home_delete_group_confirm">Burahin</string>
+    <string name="home_delete_group_cancel">Kanselahin</string>
+
+    
+    <string name="dashboard_customize_home">I-customize ang Home</string>
+    <string name="dashboard_customize_home_subtitle">Piliin kung aling shelf ang lalabas dito, magdagdag ng row, at ayusin ang pagkakasunod-sunod anumang oras.</string>
+    <string name="dashboard_customize_home_action">I-customize</string>
+
+    
+
+    <string name="category_options_set_default">Itakda bilang Default na Grupo</string>
+    <string name="category_options_rename">Palitan ang Pangalan ng Grupo</string>
+    <string name="category_options_unlock">I-unlock ang Grupo</string>
+    <string name="category_options_lock">I-lock ang Grupo</string>
+    <string name="category_options_delete">Burahin ang Grupo</string>
+    <string name="category_options_cancel">Kanselahin</string>
+    <string name="category_options_reorder">Isaayos ang mga Item</string>
+    <string name="category_options_hide">Itago ang Kategorya</string>
+    <string name="category_options_hide_from_live_tv">Itago sa Live TV</string>
+    <string name="category_options_clear_recent">I-clear ang Lahat ng Kamakailan</string>
+    <string name="category_options_pin">I-pin ang Kategorya</string>
+    <string name="category_options_unpin">I-unpin ang Kategorya</string>
+    <string name="m3u_organize_items">Isaayos ang mga M3U Item</string>
+    <string name="m3u_move_to_movies">Ilipat sa Mga Pelikula</string>
+    <string name="m3u_move_to_series">Ilipat sa Mga Serye</string>
+    <string name="m3u_move_back_to_live">Ibalik sa Live TV</string>
+    <string name="m3u_series_name">Pangalan ng serye</string>
+    <string name="m3u_episode_number">Numero ng episode</string>
+    <string name="m3u_season_number">Numero ng season</string>
+    <string name="m3u_classify">I-classify</string>
+    <string name="m3u_classification_saved">Nai-save ang M3U classification</string>
+    <string name="m3u_category_rule_subtitle">Pumili ng default para sa M3U group na ito. Maaari pa ring i-override ang bawat channel.</string>
+    <string name="m3u_keep_live">Panatilihin bilang Live TV</string>
+    <string name="m3u_series_review_title">Isaayos ang serye sa %1$s</string>
+    <string name="m3u_series_review_subtitle">Suriin ang mga awtomatikong suhestiyon o italaga ang bawat entry sa serye, season, at episode.</string>
+    <string name="m3u_episode_unresolved">Hindi matukoy ang numero ng episode — mananatili itong naka-flag para sa pagwawasto.</string>
+
+    <string name="add_group_manage_title">Pamahalaan: %1$s</string>
+    <string name="add_group_close_cd">Isara</string>
+    <string name="add_group_name_hint">Pangalan ng Grupo</string>
+    <string name="add_group_cancel">Kanselahin</string>
+    <string name="add_group_create">Gumawa</string>
+    <string name="add_group_rename">Palitan ang Pangalan</string>
+    <string name="add_group_remove_favorites">Alisin sa Favorites</string>
+    <string name="add_group_add_favorites">Idagdag sa Favorites</string>
+    <string name="channel_options_remove_from_recent">Alisin sa Kamakailan</string>
+    <string name="add_group_reorder_title">Isaayos</string>
+    <string name="add_group_move_up">Ilipat Pataas</string>
+    <string name="add_group_move_down">Ilipat Pababa</string>
+    <string name="add_group_custom_groups_title">Mga Custom na Grupo</string>
+    <string name="add_group_remove_btn">Alisin</string>
+    <string name="add_group_add_btn">Idagdag</string>
+    <string name="add_group_create_new_btn">Gumawa ng Bagong Grupo</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Itago ang channel na ito</string>
+    <string name="hidden_channels_dialog_title">Mga nakatagong channel</string>
+    <string name="hidden_channels_dialog_subtitle">Piliin ang mga ibabalik.</string>
+    <string name="hidden_channels_dialog_unhide_all">Ibalik lahat</string>
+    <string name="hidden_channels_dialog_close">Isara</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">Naka-lock</string>
+
+
+    <string name="playlist_no_provider">Walang Provider</string>
+    <string name="live_source_label">PINAGMULAN</string>
+    <string name="live_source_filter_label">Filter ng Playlist</string>
+    <string name="live_source_filter_all">Lahat ng Source</string>
+    <string name="live_source_unavailable_short">Hindi Available</string>
+    <string name="live_source_empty_short">Walang Laman</string>
+
+    
+    <string name="movies_shell_subtitle">Mga curated na shelf, naka-save na grupo, at pag-browse sa buong library nang hindi umaalis sa kasalukuyang provider.</string>
+    <string name="movies_all_categories">Lahat ng Kategorya</string>
+    <string name="movies_search_launch_title">Maghanap sa library ng pelikula</string>
+    <string name="movies_search_launch_subtitle">Pumasok sa dedikadong search nang hindi nawawala ang kasalukuyang browse state.</string>
+    <string name="movies_group_created">Nagawa ang grupong %1$s</string>
+    <string name="movies_group_renamed">Pinalitan ang pangalan ng grupo sa %1$s</string>
+    <string name="movies_group_deleted">Nabura ang grupong %1$s</string>
+    <string name="movies_group_name_invalid">Maglagay ng pangalan ng grupo</string>
+    <string name="movies_group_name_reserved">Reserbado ang Favorites</string>
+    <string name="movies_group_name_duplicate">Mayroon nang movie group na may ganyang pangalan</string>
+    <string name="movies_saved_empty_hint">I-favorite ang isang pelikula o idagdag ito sa custom na grupo para makita dito.</string>
+    <string name="movies_filter_subtitle">Pinoisin ang napiling kategorya ng pelikula nang hindi binubuo muli ang buong library.</string>
+    <string name="movies_reorder_title">Inaayos ang %1$s</string>
+
+    
+    <string name="series_shell_subtitle">Mga editorial na shelf, naka-save na grupo, at paged na pag-browse ng serye para sa malalaking library ng provider.</string>
+    <string name="series_all_categories">Lahat ng Kategorya</string>
+    <string name="series_search_launch_title">Maghanap sa library ng serye</string>
+    <string name="series_search_launch_subtitle">Buksan ang command search para mas mabilis na makahanap ng title, episode, o naka-save na grupo.</string>
+    <string name="series_group_created">Nagawa ang grupong %1$s</string>
+    <string name="series_group_renamed">Pinalitan ang pangalan ng grupo sa %1$s</string>
+    <string name="series_group_deleted">Nabura ang grupong %1$s</string>
+    <string name="series_group_name_invalid">Maglagay ng pangalan ng grupo</string>
+    <string name="series_group_name_reserved">Reserbado ang Favorites</string>
+    <string name="series_group_name_duplicate">Mayroon nang series group na may ganyang pangalan</string>
+    <string name="series_saved_empty_hint">I-favorite ang isang serye o idagdag ito sa custom na grupo para makita dito.</string>
+    <string name="series_filter_subtitle">Lumipat-lipat sa pagitan ng naka-save, in-progress, updated, at mataas ang rating na serye.</string>
+    <string name="series_reorder_title">Inaayos ang %1$s</string>
+
+    <string name="library_saved_title">Naka-save</string>
+    <string name="library_saved_subtitle">Mga Favorites at custom na grupo</string>
+    <string name="library_saved_manage_hint">Pindutin nang matagal ang naka-save na grupo para sa mga opsyon</string>
+    <string name="library_lens_title">Library Lens</string>
+    <string name="library_filter_results">Ipinapakita ang %1$d sa %2$d item</string>
+    <string name="library_loaded_results">Na-load ang %1$d sa %2$d item</string>
+    <string name="library_sort_library">Ayos ng Library</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Pinakabago</string>
+    <string name="library_sort_updated">Kamakailang Na-update</string>
+    <string name="library_sort_rating">Rating</string>
+
+    
+    <string name="settings_parental_subtitle">Protektahan ang adult o sensitibong content gamit ang mga kontrol na angkop sa TV.</string>
+    <string name="settings_parental_groups_title">Mga Protektadong Grupo</string>
+    <string name="settings_parental_groups_hint">I-lock o i-unlock ang mga kategorya para sa aktibong provider.</string>
+    <string name="settings_parental_groups_action">Pamahalaan</string>
+    <string name="settings_categories_title">Mga Kagustuhan sa Kategorya</string>
+    <string name="settings_categories_subtitle">Itago ang mga kategorya ng provider at panatilihin ang pagkakasunod-sunod na gusto mo.</string>
+    <string name="settings_category_sorting_title">Pag-aayos ng Kategorya</string>
+    <string name="settings_category_sorting_subtitle">Isaayos ang mga kategorya para sa aktibong playlist. Nasa Category Controls na ang pag-lock at pagtatago.</string>
+    <string name="settings_hidden_categories_title">Mga Nakatagong Kategorya</string>
+    <string name="settings_hidden_categories_subtitle">Ibalik ang mga kategorya ng provider na itinago mo dati sa browsing.</string>
+    <string name="settings_hidden_categories_none">Walang nakatago</string>
+    <string name="settings_hidden_categories_count">%1$d nakatago</string>
+    <string name="settings_hidden_categories_empty">Walang nakatagong kategorya ngayon.</string>
+    <string name="settings_playback_subtitle">I-tune ang decoder at buffering para sa mas maayos na playback.</string>
+    <string name="settings_live_timeshift_backend_value">Awtomatiko</string>
+    <string name="vod_classic_categories_title">Mga Kategorya</string>
+    <string name="settings_decoder_mode">Mode ng Decoder</string>
+    <string name="settings_select_decoder_mode">Piliin ang Mode ng Decoder</string>
+    <string name="settings_buffer_duration">Tagal ng Buffer</string>
+    <string name="settings_buffer_5s">5 segundo</string>
+    <string name="settings_about_subtitle">Detalye ng bersyon, build, at suporta para sa installation na ito.</string>
+    <string name="settings_syncing">Nag-sy-sync ng data, mangyaring maghintay...</string>
+    <string name="settings_cancel">Kanselahin</string>
+    <string name="settings_sync_option_all">I-sync Lahat</string>
+    <string name="settings_sync_option_fast">Mabilis na Sync</string>
+    <string name="settings_pc_btn">Parental Control</string>
+    <string name="settings_language">Wika</string>
+    <string name="settings_language_subtitle">Piliin ang wika ng app nang hindi umaalis sa TV interface.</string>
+
+    <string name="settings_backup_share_failed">Walang app na makatanggap ng backup file.</string>
+    <string name="settings_crash_report_share_failed">Walang app na makatanggap ng crash report.</string>
+    <string name="settings_crash_report_missing">Walang available na crash report.</string>
+    <string name="settings_catalog_count_pending">Nakabinbin</string>
+    <string name="settings_diagnostic_never">Hindi Kailanman</string>
+    <string name="settings_diagnostic_items">%1$d item</string>
+    <string name="settings_recording_subtitle">Pamahalaan ang mga lokal na live DVR job, storage, at naka-iskedyul na pag-record.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+    
+    <string name="saved_preset_watch_next">Susunod na Panoorin</string>
+    <string name="tv_channel_continue_watching_title">Ipagpatuloy ang Panonood</string>
+    <string name="tv_channel_continue_watching_description">Ipagpatuloy ang mga title na sinimulan mo kamakailan</string>
+    <string name="tv_channel_top_movies_title">Mga Top na Pelikula</string>
+    <string name="tv_channel_top_movies_description">Mga sikat na pili mula sa %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Mga Inirerekomendang Pelikula</string>
+    <string name="tv_channel_recommended_movies_description">Inayon sa mga pinili mo kamakailan sa %1$s</string>
+    <string name="tv_channel_fresh_series_title">Mga Bagong Serye</string>
+    <string name="tv_channel_fresh_series_description">Mga kamakailang na-update na serye mula sa %1$s</string>
+
+    
+    <string name="search_title">Maghanap</string>
+    <string name="parental_group_shell_subtitle">Suriin ang mga protektadong live, pelikula, at serye na grupo nang hindi umaalis sa settings.</string>
+    <string name="search_command_title">Command Search</string>
+    <string name="search_hint">Maghanap...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Ilagay ang parental PIN mo para kumpirmahin</string>
+    <string name="a11y_locked">Naka-lock</string>
+    <string name="a11y_favorite">Paborito</string>
+    <string name="a11y_catch_up_available">May catch-up</string>
+    <string name="a11y_now_playing">Tumutugtog ngayon ang %1$s</string>
+    <string name="a11y_channel_with_number">Channel %1$d, %2$s</string>
+
+    
+
+    
+    <string name="player_no_external_player">Walang naka-install na external player</string>
+    <string name="player_unsafe_stream_url">Hindi mabubuksan ang stream na ito sa external player</string>
+    <string name="player_external_launch_failed">Hindi nag-start ang external player</string>
+    <string name="player_next">SUSUNOD</string>
+    <string name="player_recording_started">Nagsimula ang pag-record para sa %1$s.</string>
+    <string name="player_recording_stopped">Huminto ang pag-record.</string>
+    <string name="player_recording_scheduled">Naka-iskedyul ang pag-record para sa %1$s.</string>
+    <string name="player_recording_missing_context">Kailangan ng pag-record ang valid na live channel context.</string>
+    <string name="player_categories_label">Mga Kategorya</string>
+    <string name="player_full_epg">Buong EPG</string>
+    <string name="player_action_controls">Mga Kontrol</string>
+    <string name="player_action_restart_short">I-restart</string>
+    <string name="player_action_recent_short">Kamakailan</string>
+    <string name="player_diagnostics_decoder">Decoder</string>
+    <string name="player_diagnostics_policy_guard">Policy Guard</string>
+    <string name="player_diagnostics_policy_profile">Policy Profile</string>
+    <string name="player_diagnostics_policy_buffer">Buffer Profile</string>
+    <string name="player_diagnostics_policy_render_path">Render Path</string>
+    <string name="player_diagnostics_policy_known_bad">Known-Bad Policy</string>
+    <string name="player_diagnostics_policy_recovery">Auto Recovery</string>
+    <string name="player_diagnostics_policy_last_action">Huling Policy Action</string>
+    <string name="epg_search_short">Paghahanap ng Program</string>
+    <string name="epg_show_options">Ipakita ang mga opsyon ng gabay</string>
+    <string name="epg_hide_options">Itago ang mga opsyon ng gabay</string>
+    <string name="epg_showing_channels">Ipinapakita ang %1$d sa %2$d channel</string>
+    <string name="epg_schedule_summary">May guide data sa %1$d sa %2$d channel</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Timeline</string>
+    <string name="epg_timeline_range_label">%1$s na window</string>
+    <string name="epg_updated_now">Ka-update lang ngayon</string>
+    <string name="epg_updated_minutes_ago">Na-update %1$d min ang nakalipas</string>
+    <string name="epg_minutes_remaining">%1$d min ang natitira</string>
+    <string name="epg_program_channel_label">Channel</string>
+    <string name="epg_program_provider_label">Provider</string>
+    <string name="epg_program_provider_type_label">Source</string>
+    <string name="epg_program_language_label">Wika</string>
+    <string name="epg_program_replay_label">Replay</string>
+    <string name="epg_program_progress_label">Progress</string>
+    <string name="epg_program_replay_unavailable">Hindi Available</string>
+    <string name="epg_program_progress_value">%1$d%% kumpleto • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Maaaring mabigo ang replay dahil nagbigay ang provider ng catch-up support nang walang magagamit na replay template.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Maaaring mabigo ang replay dahil hindi nagbigay ang provider ng replay stream identifier.</string>
+
+    
+    <string name="parental_group_title">Mga Protektadong Grupo</string>
+    <string name="parental_group_search">Maghanap ng kategorya...</string>
+    <string name="player_live_timeshift_ready">Handa na ang timeshift.</string>
+    <string name="player_live_timeshift_failed">Walang lokal na live rewind para sa stream na ito.</string>
+
+    
+    <string name="multiview_add_to_split">Idagdag sa Split Screen</string>
+    <string name="multiview_queued">Nasa Split Screen</string>
+
+    
+    <string name="settings_privacy_subtitle">Pamahalaan ang watch history at incognito mode.</string>
+
+    
+    <string name="action_done">Tapos</string>
+    <string name="action_delete">Burahin</string>
+    <string name="action_clear">I-clear</string>
+    <string name="action_space">Space</string>
+
+    
+    <string name="label_provider">PROVIDER</string>
+    <string name="label_selected">Napili</string>
+    <string name="label_no_schedule">Walang impormasyon ng schedule</string>
+    <string name="label_slots_count">%1$d/4 slot</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Episode %1$d</string>
+    <string name="badge_saved">SAVED</string>
+    <string name="badge_catch_up">CATCH UP</string>
+    <string name="badge_moving">MOVING</string>
+    <string name="badge_fav">FAV</string>
+
+    
+
+    
+    <string name="favorites_content_type_movie">Pelikula</string>
+
+    
+
+    
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Ini-scan ang mga channel ng StreamVault</string>
+    <string name="tv_input_setup_success_title">Handa na ang Live TV</string>
+    <string name="tv_input_setup_no_provider_title">Walang naka-configure na IPTV provider</string>
+    <string name="tv_input_setup_error_title">Nabigo ang auto scan</string>
+    <string name="tv_input_setup_idle_title">Inihahanda ang Live TV integration</string>
+    <string name="tv_input_setup_scanning_body">Sina-sync ng StreamVault ang aktibong provider mo sa Android TV Live TV.</string>
+    <string name="tv_input_setup_success_body">Matagumpay na na-sync ang mga channel mo.</string>
+    <string name="tv_input_setup_no_provider_body">Magdagdag ng kahit isang IPTV provider sa StreamVault, pagkatapos ay bumalik dito para i-scan ang mga channel sa Android TV Live TV.</string>
+    <string name="tv_input_setup_error_body">Hindi natapos ang sync ng TV input.</string>
+    <string name="tv_input_setup_idle_body">Mangyaring maghintay.</string>
+    <string name="tv_input_setup_source_format">Source: %1$s</string>
+    <string name="tv_input_setup_open_setup">Buksan ang StreamVault Setup</string>
+    <string name="tv_input_setup_try_scan_again">Subukan Muli ang Auto Scan</string>
+    <string name="tv_input_setup_retry_scan">Ulitin ang Auto Scan</string>
+    <string name="tv_input_setup_success_hint">Mabubuksan na ng Android TV Live TV ang mga channel ng StreamVault mo.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Bumalik sa mga aksyon ng Drive backup.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Nabigo ang download: %1$s</string>
+    <string name="download_completed">Tapos na ang download</string>
+    <string name="download_cancelled">Kinansela ang download</string>
+    <string name="download_notification_channel">Mga Download</string>
+    <string name="download_notification_channel_description">Ipinapakita ang progress at pagkumpleto ng download</string>
+    <string name="download_in_progress">Dinodownload ang %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Mga Download</string>
+    <string name="downloads_empty">Wala pang download</string>
+    <string name="downloads_delete_confirm">Burahin ang download na ito?</string>
+    <string name="download_play_local">I-play</string>
+    <string name="nav_vod">VOD</string>
+</resources>

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">正在投放至已連接的裝置。</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">此裝置無法使用 Google Cast。</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast 不支援此串流格式。</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">投放不支援 RTSP 和 RTMP 串流。</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">此應用程式中的 Google Cast 不支援受 DRM 保護的串流。</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">此項目無法傳送至 Cast 接收器。</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">此串流使用本機或僅限裝置的 URL，Chromecast 無法直接存取。</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">此串流需要 Chromecast 無法直接使用的 HTTP 標頭或 Cookie。</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">此串流需要 Chromecast 無法直接使用的自訂 User-Agent。</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">此串流需要應用程式的代理伺服器設定，因此 Chromecast 無法直接使用。</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">此串流使用 Chromecast 無法直接採用的 SSL 處理方式。</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">無法啟動 Cast 工作階段。</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast 接收器無法載入此串流。</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">已連接的 Cast 接收器尚未準備好播放。</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">已取消選擇 Cast 裝置。</string>
+    <string name="add_group_close_cd">關閉</string>
+    <string name="player_archive_title">節目封存</string>
+    <string name="player_no_archive">找不到已封存的節目</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">封存</string>
+</resources>

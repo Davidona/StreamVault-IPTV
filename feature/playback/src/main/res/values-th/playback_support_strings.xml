@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">กำลังแคสต์ไปยังอุปกรณ์ที่เชื่อมต่อ</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast ใช้ไม่ได้บนอุปกรณ์นี้</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast ไม่รองรับรูปแบบสตรีมนี้</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">ไม่รองรับการแคสต์สตรีม RTSP และ RTMP</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">แอปนี้ไม่รองรับการแคสต์สตรีมที่ป้องกันด้วย DRM ผ่าน Google Cast</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">ไม่สามารถส่งรายการนี้ไปยังอุปกรณ์รับแคสต์ได้</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">สตรีมนี้ใช้ URL ภายในเครื่องหรือเฉพาะอุปกรณ์ที่ Chromecast เข้าถึงโดยตรงไม่ได้</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">สตรีมนี้ต้องใช้ HTTP headers หรือคุกกี้ที่ Chromecast ใช้โดยตรงไม่ได้</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">สตรีมนี้ต้องใช้ User-Agent แบบกำหนดเองที่ Chromecast ใช้โดยตรงไม่ได้</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">สตรีมนี้ต้องใช้การตั้งค่าพร็อกซีของแอป จึงไม่สามารถใช้กับ Chromecast โดยตรงได้</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">สตรีมนี้ใช้การจัดการ SSL ที่ Chromecast ใช้โดยตรงไม่ได้</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">ไม่สามารถเริ่มเซสชัน Cast ได้</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">อุปกรณ์รับแคสต์ไม่สามารถโหลดสตรีมนี้ได้</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">อุปกรณ์รับแคสต์ที่เชื่อมต่อยังไม่พร้อมสำหรับการเล่น</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">ยกเลิกการเลือกอุปกรณ์แคสต์แล้ว</string>
+    <string name="add_group_close_cd">ปิด</string>
+    <string name="player_archive_title">คลังรายการย้อนหลัง</string>
+    <string name="player_no_archive">ไม่พบรายการที่เก็บไว้ในคลังย้อนหลัง</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">ย้อนหลัง</string>
+</resources>

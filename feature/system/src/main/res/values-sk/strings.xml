@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Nastaviť poskytovateľa</string>
+  <string name="welcome_setup_later">Nastaviť neskôr</string>
+  <string name="welcome_loading_title">Pripravuje sa vaša knižnica</string>
+  <string name="welcome_loading_subtitle">Otvára sa správna obrazovka pre toto zariadenie.</string>
+  <string name="sync_section_live">Živé</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Seriály</string>
+  <string name="sync_items_indexed_format">Pripravených %1$d položiek</string>
+  <string name="welcome_tagline">Prémiové IPTV do obývačky</string>
+  <string name="welcome_subtitle">Pohodlne si vychutnajte živé kanály, spätné prehrávanie, filmy a seriály v natívnom prostredí Android TV.</string>
+  <string name="settings_cancel">Zrušiť</string>
+  <string name="nav_downloads">Sťahovania</string>
+  <string name="downloads_loading">Načítavajú sa sťahovania...</string>
+  <string name="downloads_empty_title">Zatiaľ žiadne sťahovania</string>
+  <string name="downloads_empty_hint">Stiahnite filmy alebo epizódy z obrazoviek s podrobnosťami a zobrazia sa tu.</string>
+  <string name="downloads_no_thumb">Žiadny plagát</string>
+  <string name="downloads_status_completed">Dokončené</string>
+  <string name="downloads_status_downloading">Sťahuje sa</string>
+  <string name="downloads_status_failed">Zlyhalo</string>
+  <string name="downloads_status_pending">Čaká sa</string>
+  <string name="downloads_status_paused">Pozastavené</string>
+  <string name="downloads_status_cancelled">Zrušené</string>
+  <string name="downloads_item_title">Sťahovanie bez názvu</string>
+  <string name="downloads_delete_confirm_title">Odstrániť sťahovanie</string>
+  <string name="downloads_delete_confirm_msg">Odstrániť %1$s zo sťahovaní?</string>
+  <string name="downloads_delete_confirm_delete">Odstrániť</string>
+  <string name="downloads_deleted">Sťahovanie odstránené</string>
+  <string name="download_folder_change">Zmeniť priečinok sťahovaní</string>
+  <string name="download_folder_default">Predvolený priečinok sťahovaní</string>
+  <string name="download_resume">Pokračovať</string>
+  <string name="download_delete">Odstrániť</string>
+  <string name="downloads_resumed">Sťahovanie obnovené</string>
+</resources>

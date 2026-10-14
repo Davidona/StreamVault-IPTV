@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">設定供應商</string>
+  <string name="welcome_setup_later">稍後設定</string>
+  <string name="welcome_loading_title">正在準備您的媒體庫</string>
+  <string name="welcome_loading_subtitle">正在為此裝置開啟合適的畫面。</string>
+  <string name="sync_section_live">直播</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">劇集</string>
+  <string name="sync_items_indexed_format">已準備 %1$d 個項目</string>
+  <string name="welcome_tagline">客廳裡的頂級 IPTV</string>
+  <string name="welcome_subtitle">輕鬆觀看直播頻道、回看、電影和劇集，享受原生 Android TV 體驗。</string>
+  <string name="settings_cancel">取消</string>
+  <string name="nav_downloads">下載</string>
+  <string name="downloads_loading">正在載入下載...</string>
+  <string name="downloads_empty_title">尚未下載任何內容</string>
+  <string name="downloads_empty_hint">在詳細資料頁面下載電影或劇集，它們將顯示在這裡。</string>
+  <string name="downloads_no_thumb">無海報</string>
+  <string name="downloads_status_completed">已完成</string>
+  <string name="downloads_status_downloading">正在下載</string>
+  <string name="downloads_status_failed">失敗</string>
+  <string name="downloads_status_pending">等待中</string>
+  <string name="downloads_status_paused">已暫停</string>
+  <string name="downloads_status_cancelled">已取消</string>
+  <string name="downloads_item_title">未命名下載</string>
+  <string name="downloads_delete_confirm_title">刪除下載</string>
+  <string name="downloads_delete_confirm_msg">要從下載中刪除 %1$s 嗎？</string>
+  <string name="downloads_delete_confirm_delete">刪除</string>
+  <string name="downloads_deleted">下載已刪除</string>
+  <string name="download_folder_change">變更下載資料夾</string>
+  <string name="download_folder_default">預設下載資料夾</string>
+  <string name="download_resume">繼續</string>
+  <string name="download_delete">刪除</string>
+  <string name="downloads_resumed">下載已繼續</string>
+</resources>

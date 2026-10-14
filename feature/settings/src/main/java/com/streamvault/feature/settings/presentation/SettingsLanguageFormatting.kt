@@ -19,7 +19,12 @@ public fun supportedAppLanguages(systemDefaultLabel: String): List<AppLanguageOp
                 systemDefaultLabel
             } else {
                 val locale = localeForLanguageTag(tag)
-                locale.getDisplayLanguage(locale)
+                val display = if (tag.contains('-')) {
+                    locale.getDisplayName(locale)
+                } else {
+                    locale.getDisplayLanguage(locale)
+                }
+                display
                     .replaceFirstChar { character ->
                         if (character.isLowerCase()) {
                             character.titlecase(locale)

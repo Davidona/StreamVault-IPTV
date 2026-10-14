@@ -1,0 +1,261 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">線上搜尋字幕</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">從裝置載入 SRT</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">字幕延遲（%1$+d ms）</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">字幕延遲</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">負值會提前顯示字幕；正值會延後顯示字幕。</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">目前延遲：%1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">字幕提前 %1$d ms 顯示</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">字幕延後 %1$d ms 顯示</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">重設延遲</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">已載入 %1$s。播放器正在載入字幕。</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">請選擇有效的 .srt 字幕檔案。</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">字幕檔案必須為 20 MB 或更小。</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">無法載入此字幕檔案。</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">尋找字幕</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">選擇要新增到此影片的字幕。</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">%1$s 的結果</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">如果已啟用匿名存取，你可以不需登入直接搜尋。登入後即可使用你帳號的下載額度。</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">連接帳號（選填）</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">正在搜尋 OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">找不到符合此標題與語言的字幕。</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">再次搜尋</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">選擇一種語言，然後選擇一個版本。</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">所有語言</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">顯示所有可用語言</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">正在載入語言…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">語言：%1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">變更語言</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">無法載入語言清單。</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s 次下載</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">一般發行</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">正在下載字幕…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">已新增 %1$s。播放器正在載入字幕。</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">關閉</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="other">%1$d 分鐘</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Cast 工作階段已中斷。</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">可回看（%1$d 天）</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">可回看</string>
+    <string name="epg_no_info">無 EPG 資訊</string>
+    <string name="epg_now_playing">正在播放</string>
+    <string name="epg_title">節目表</string>
+    <string name="epg_up_next">接下來</string>
+    <string name="epg_upcoming_schedule">即將播出</string>
+    <string name="home_locked_short">已鎖定</string>
+    <string name="label_categories">分類</string>
+    <string name="label_duration_min">%1$d 分鐘</string>
+    <string name="multiview_nav">分割畫面</string>
+    <string name="nav_live_tv">直播電視</string>
+    <string name="notification_permission_recording_alert_required">為 StreamVault 啟用通知，以接收錄影失敗警示。</string>
+    <string name="notification_permission_reminder_required">為 StreamVault 啟用通知，以接收節目提醒。</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">診斷</string>
+    <string name="player_action_format">格式</string>
+    <string name="player_action_group">群組</string>
+    <string name="player_action_guide">節目表</string>
+    <string name="player_action_mute">靜音</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">播放</string>
+    <string name="player_action_quality">畫質</string>
+    <string name="player_action_split">分割畫面</string>
+    <string name="player_action_variants">變體</string>
+    <string name="player_action_view">檢視</string>
+    <string name="player_archive">歸檔</string>
+    <string name="player_aspect_ratio_label">比例 %1$s</string>
+    <string name="player_audio">音訊</string>
+    <string name="player_chapters">章節</string>
+    <string name="player_chapter_count">%1$d 個章節</string>
+    <string name="player_chapter_label">第 %1$d 章</string>
+    <string name="player_chapter_selected">第 %1$d 章，已選取</string>
+    <string name="player_chapter_title">第 %1$d 章 · %2$s</string>
+    <string name="player_close_chapters">關閉章節</string>
+    <string name="player_previous_chapter">上一章</string>
+    <string name="player_next_chapter">下一章</string>
+    <string name="player_rewind_10_seconds">倒轉 10 秒</string>
+    <string name="player_forward_10_seconds">快轉 10 秒</string>
+    <string name="player_vod_timeline">VOD 時間軸</string>
+    <string name="player_close_controls">關閉控制項</string>
+    <string name="player_back_to_menu">返回選單</string>
+    <string name="player_playback_settings">播放設定</string>
+    <string name="player_close_playback_settings">關閉播放設定</string>
+    <string name="player_vod_controls">VOD 播放控制</string>
+    <string name="player_aspect_ratio">畫面比例</string>
+    <string name="player_auto_play_cancel">取消</string>
+    <string name="player_auto_play_countdown">%1$d 秒後播放</string>
+    <string name="player_auto_play_play_now">立即播放</string>
+    <string name="player_av_sync_channel">頻道</string>
+    <string name="player_av_sync_global">全域</string>
+    <string name="player_av_sync_minus_50">A/V 同步 -50 ms</string>
+    <string name="player_av_sync_plus_50">A/V 同步 +50 ms</string>
+    <string name="player_av_sync_preview">預覽</string>
+    <string name="player_av_sync_reset">重設為 0 ms</string>
+    <string name="player_av_sync_save_channel">儲存至頻道</string>
+    <string name="player_av_sync_save_global">設為全域</string>
+    <string name="player_av_sync_short">A/V 同步</string>
+    <string name="player_av_sync_title">A/V 同步</string>
+    <string name="player_av_sync_use_global">使用全域</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">瀏覽歸檔</string>
+    <string name="player_browse_guide_catchup">瀏覽節目表</string>
+    <string name="player_buffering">緩衝中...</string>
+    <string name="player_cancel_scheduled_recording">取消已排程</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">回看</string>
+    <string name="player_catchup_options">回看</string>
+    <string name="player_channel_list_hint">選擇頻道即可立即轉台。按返回鍵可關閉清單。</string>
+    <string name="player_channel_list_title">頻道 (%1$d)</string>
+    <string name="player_channel_not_found">找不到頻道</string>
+    <string name="player_channel_selected">目前</string>
+    <string name="player_channel_variants">頻道變體</string>
+    <string name="player_close">關閉</string>
+    <string name="player_diagnostics_active_decoder">使用中的解碼器</string>
+    <string name="player_diagnostics_alternates">備用串流</string>
+    <string name="player_diagnostics_archive">歸檔</string>
+    <string name="player_diagnostics_audio_codec">音訊編解碼器</string>
+    <string name="player_diagnostics_audio_decoder">音訊解碼器</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">音訊解碼器模式</string>
+    <string name="player_diagnostics_audio_output_path">音訊路徑</string>
+    <string name="player_diagnostics_av_offset">A/V 偏移</string>
+    <string name="player_diagnostics_av_sync">A/V 同步</string>
+    <string name="player_diagnostics_av_sync_custom">開啟（自訂同步路徑）</string>
+    <string name="player_diagnostics_av_sync_stock">關閉（預設音訊路徑）</string>
+    <string name="player_diagnostics_av_sync_waiting">開啟（等待播放重新啟動）</string>
+    <string name="player_diagnostics_channel_errors">頻道錯誤</string>
+    <string name="player_diagnostics_compatibility_note">相容性說明</string>
+    <string name="player_diagnostics_compatibility_note_value">此串流的播放可能使用已學習或相容性輔助的音訊路徑。</string>
+    <string name="player_diagnostics_compatibility_source">相容性來源</string>
+    <string name="player_diagnostics_dropped_frames">掉幀</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">上次失敗</string>
+    <string name="player_diagnostics_last_frame">最後視訊畫面</string>
+    <string name="player_diagnostics_playback_state">播放狀態</string>
+    <string name="player_diagnostics_provider">供應商</string>
+    <string name="player_diagnostics_recovery_actions">復原動作</string>
+    <string name="player_diagnostics_resolution">解析度</string>
+    <string name="player_diagnostics_section_audio">音訊</string>
+    <string name="player_diagnostics_section_playback">播放</string>
+    <string name="player_diagnostics_section_recovery">復原</string>
+    <string name="player_diagnostics_section_source">來源</string>
+    <string name="player_diagnostics_section_video">視訊</string>
+    <string name="player_diagnostics_source">來源</string>
+    <string name="player_diagnostics_stream_class">串流類別</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">播放診斷</string>
+    <string name="player_diagnostics_troubleshooting">疑難排解</string>
+    <string name="player_diagnostics_frame_rate">影格率</string>
+    <string name="player_diagnostics_stream_bitrate">串流位元率</string>
+    <string name="player_diagnostics_bandwidth_estimate">網路頻寬</string>
+    <string name="player_diagnostics_video_bitrate">視訊位元率</string>
+    <string name="player_diagnostics_video_codec">視訊編解碼器</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">視訊解碼器模式</string>
+    <string name="player_diagnostics_video_stalls">視訊停頓</string>
+    <string name="player_epg_overlay_hint">在此瀏覽節目表詳細資料。選擇回看按鈕以開啟歸檔記錄。</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">集數</string>
+    <string name="player_previous_episode">上一集</string>
+    <string name="player_next_episode">下一集</string>
+    <string name="player_error_back">或按返回鍵返回</string>
+    <string name="player_error_decoder">無法播放此格式 — 請在設定中變更解碼器模式</string>
+    <string name="player_error_drm">DRM 授權或裝置安全要求導致無法播放</string>
+    <string name="player_error_live_hint">請重試、跳回上一個頻道，或按返回鍵離開播放。</string>
+    <string name="player_error_network">串流無法使用 — 請檢查您的網路連線</string>
+    <string name="player_error_source">找不到串流或存取遭拒</string>
+    <string name="player_error_title">播放錯誤</string>
+    <string name="player_error_unknown">未知的播放錯誤</string>
+    <string name="player_format_short">格式</string>
+    <string name="player_forward">快轉</string>
+    <string name="player_idle_standby_after">閒置後允許待機</string>
+    <string name="player_idle_timer_status">閒置待機 %1$s</string>
+    <string name="player_jump_to_live">跳至直播</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">上一個頻道</string>
+    <string name="player_last_group_hint">跳回你上次瀏覽的直播群組。</string>
+    <string name="player_last_group_label">上次：%1$s</string>
+    <string name="player_live_buffer_depth">緩衝 %1$s</string>
+    <string name="player_live_buffer_end">直播末端</string>
+    <string name="player_live_buffer_start">緩衝起點</string>
+    <string name="player_live_channel">頻道 %1$d</string>
+    <string name="player_live_dvr_controls">播放器</string>
+    <string name="player_live_now">正在播放</string>
+    <string name="player_live_offset">落後直播 %1$s</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">直播倒轉時間軸。使用左右鍵進行定位。</string>
+    <string name="player_live_timeshift_buffering">本機直播倒轉仍在緩衝中。</string>
+    <string name="player_minutes_remaining">剩餘 %1$d 分鐘</string>
+    <string name="player_more_controls">更多控制項</string>
+    <string name="player_multiview_short">多畫面</string>
+    <string name="player_mute">靜音</string>
+    <string name="player_muted_badge">已靜音</string>
+    <string name="player_next_label">下一個：</string>
+    <string name="player_no_guide_data">沒有節目表資料</string>
+    <string name="player_open_guide_action">開啟節目表</string>
+    <string name="player_open_in_external_player">在外部播放器中開啟</string>
+    <string name="player_pause">暫停</string>
+    <string name="player_picture_in_picture">子母畫面</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">播放</string>
+    <string name="player_playback_label">播放</string>
+    <string name="player_playback_speed_title">播放速度</string>
+    <string name="player_playback_speed_value">速度 %1$s</string>
+    <string name="player_quality_short">畫質</string>
+    <string name="player_recent_channels">最近</string>
+    <string name="player_record">錄影</string>
+    <string name="player_record_now">立即錄影</string>
+    <string name="player_record_options">錄影</string>
+    <string name="player_recording_badge">錄影中</string>
+    <string name="player_recording_scheduled_badge">已排程</string>
+    <string name="player_resolution_auto_label">自動:%1$s</string>
+    <string name="player_restart">重新開始</string>
+    <string name="player_close_playback_title">關閉播放？</string>
+    <string name="player_close_playback_desc">這將停止播放並返回上一個畫面。</string>
+    <string name="player_close_playback_confirm">是</string>
+    <string name="player_close_playback_cancel">否</string>
+    <string name="player_resume">繼續</string>
+    <string name="player_resume_desc">要從上次中斷的地方繼續播放 %1$s 嗎？</string>
+    <string name="player_resume_start_over">從頭開始</string>
+    <string name="player_resume_title">繼續播放</string>
+    <string name="player_retry">重試</string>
+    <string name="player_rewind">倒轉</string>
+    <string name="player_schedule_daily_recording">每日排程</string>
+    <string name="player_schedule_recording">排程</string>
+    <string name="player_schedule_weekly_recording">每週排程</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">略過片頭</string>
+    <string name="player_skip_opening">略過開場</string>
+    <string name="player_skip_recap">略過前情提要</string>
+    <string name="player_skip_outro">略過片尾</string>
+    <string name="player_selected">已選取</string>
+    <string name="player_stats">統計</string>
+    <string name="player_stop_casting">停止投放</string>
+    <string name="player_stop_playback_after">播放後停止</string>
+    <string name="player_stop_recording">停止錄影</string>
+    <string name="player_stop_timer_status">%1$s 後停止</string>
+    <string name="player_stream_format">串流格式</string>
+    <string name="player_subs">字幕</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d 分鐘</string>
+    <string name="player_timer_disable">停用</string>
+    <string name="player_timer_extend_30">+30 分鐘</string>
+    <string name="player_timer_off">關閉</string>
+    <string name="player_timer_warning_idle">%1$s 後允許待機</string>
+    <string name="player_timer_warning_stop">播放將在 %1$s 後停止</string>
+    <string name="player_track_audio">選擇音軌</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">即時翻譯</string>
+    <string name="player_track_off">關閉</string>
+    <string name="player_track_subs">選擇字幕</string>
+    <string name="player_try_alternate_stream">嘗試其他路徑</string>
+    <string name="player_type_channel_number">輸入頻道號碼</string>
+    <string name="player_type_movie">電影</string>
+    <string name="player_type_series">影集</string>
+    <string name="player_unmute">取消靜音</string>
+    <string name="player_up_next">即將播放</string>
+    <string name="player_variants_short">變體</string>
+    <string name="player_video_quality">視訊畫質</string>
+    <string name="series_seasons">季</string>
+    <string name="settings_recording_status_recording">錄影中</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+</resources>

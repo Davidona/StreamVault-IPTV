@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+    
+    <string name="nav_home">होम</string>
+    <string name="nav_live_tv">लाइव TV</string>
+    <string name="nav_movies">फ़िल्में</string>
+    <string name="nav_series">सीरीज़</string>
+    <string name="nav_epg">गाइड</string>
+    <string name="nav_settings">सेटिंग्स</string>
+    <string name="nav_plugins">प्लगइन</string>
+    <string name="nav_close_app">ऐप बंद करें</string>
+
+    
+    <string name="welcome_enter_app">ऐप खोलें</string>
+    <string name="welcome_manage_providers">प्रदाता प्रबंधित करें</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">रिमोट-प्रथम फ़ोकस के साथ तेज़ लाइव ब्राउज़िंग</string>
+    <string name="welcome_feature_library">बिना किसी अव्यवस्था के बड़ी लाइब्रेरी की फ़िल्में और सीरीज़</string>
+    <string name="welcome_feature_player">एकीकृत प्लेयर ओवरले, गाइड एक्सेस और सहेजी गई सामग्री</string>
+    <string name="welcome_manage_hint">प्रदाता बदलें, मेटाडेटा रीफ़्रेश करें या नया स्रोत जोड़ें।</string>
+
+    
+    <string name="hidden_categories_dialog_title">छिपी श्रेणियाँ</string>
+    <string name="hidden_categories_dialog_subtitle">बहाल करने के लिए इन्हें चुनें।</string>
+    <string name="hidden_categories_dialog_unhide_all">सभी दिखाएँ</string>
+    <string name="hidden_categories_dialog_close">बंद करें</string>
+    <string name="home_recent_channels">हाल के</string>
+    <string name="home_last_channel">अंतिम चैनल</string>
+    <string name="home_last_channel_label">अंतिम: %1$s</string>
+    <string name="home_last_group_label">अंतिम: %1$s</string>
+    <string name="home_loading">लोड हो रहा है...</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="live_shell_subtitle">लाइव श्रेणियाँ तेज़ी से स्कैन करें, नेविगेशन स्थिर रखें और स्क्रीन पर केवल ज़रूरी शेड्यूल डेटा दिखाएँ।</string>
+    <string name="live_shell_context">%1$d श्रेणियाँ • %2$d चैनल</string>
+    <string name="live_shell_provider">प्रदाता</string>
+    <string name="live_shell_split">मल्टीव्यू</string>
+    <string name="live_manage_groups">मल्टीव्यू स्लॉट प्रबंधित करें</string>
+    <string name="live_reorder_title">%1$s का क्रम बदला जा रहा है</string>
+    <string name="live_empty_hint_favorites">इस पंक्ति को भरने के लिए चैनल पसंदीदा या सहेजे गए समूह में जोड़ें।</string>
+    <string name="live_empty_hint_recent">कुछ चैनल चलाएँ और वे यहाँ दिखाई देंगे।</string>
+    <string name="home_saved_subtitle">पसंदीदा और कस्टम लाइव समूह</string>
+    <string name="home_saved_empty_hint">किसी चैनल को पसंदीदा बनाएँ या कस्टम लाइव समूह में जोड़कर यहाँ पिन करें।</string>
+    <string name="home_delete_group_title">समूह हटाएँ?</string>
+    <string name="home_delete_group_body">क्या आप वाकई \'%1$s\' को हटाना चाहते हैं? इससे इस समूह के सभी चैनल हट जाएँगे।</string>
+    <string name="home_delete_group_confirm">हटाएँ</string>
+    <string name="home_delete_group_cancel">रद्द करें</string>
+
+    
+    <string name="dashboard_customize_home">होम को अनुकूलित करें</string>
+    <string name="dashboard_customize_home_subtitle">चुनें कि यहाँ कौन-सी शेल्फ़ दिखें, और पंक्तियाँ जोड़ें व कभी भी क्रम बदलें।</string>
+    <string name="dashboard_customize_home_action">अनुकूलित करें</string>
+
+    
+
+    <string name="category_options_set_default">डिफ़ॉल्ट समूह के रूप में सेट करें</string>
+    <string name="category_options_rename">समूह का नाम बदलें</string>
+    <string name="category_options_unlock">समूह अनलॉक करें</string>
+    <string name="category_options_lock">समूह लॉक करें</string>
+    <string name="category_options_delete">समूह हटाएँ</string>
+    <string name="category_options_cancel">रद्द करें</string>
+    <string name="category_options_reorder">आइटम का क्रम बदलें</string>
+    <string name="category_options_hide">श्रेणी छिपाएँ</string>
+    <string name="category_options_hide_from_live_tv">लाइव TV से छिपाएँ</string>
+    <string name="category_options_clear_recent">सभी हाल के साफ़ करें</string>
+    <string name="category_options_pin">श्रेणी पिन करें</string>
+    <string name="category_options_unpin">श्रेणी अनपिन करें</string>
+    <string name="m3u_organize_items">M3U आइटम व्यवस्थित करें</string>
+    <string name="m3u_move_to_movies">फ़िल्मों में ले जाएँ</string>
+    <string name="m3u_move_to_series">सीरीज़ में ले जाएँ</string>
+    <string name="m3u_move_back_to_live">लाइव TV पर वापस ले जाएँ</string>
+    <string name="m3u_series_name">सीरीज़ का नाम</string>
+    <string name="m3u_episode_number">एपिसोड नंबर</string>
+    <string name="m3u_season_number">सीज़न नंबर</string>
+    <string name="m3u_classify">वर्गीकृत करें</string>
+    <string name="m3u_classification_saved">M3U वर्गीकरण सहेजा गया</string>
+    <string name="m3u_category_rule_subtitle">इस M3U समूह के लिए डिफ़ॉल्ट चुनें। अलग-अलग चैनलों को अभी भी ओवरराइड किया जा सकता है।</string>
+    <string name="m3u_keep_live">लाइव TV के रूप में रखें</string>
+    <string name="m3u_series_review_title">%1$s में सीरीज़ व्यवस्थित करें</string>
+    <string name="m3u_series_review_subtitle">स्वचालित सुझावों की समीक्षा करें या प्रत्येक प्रविष्टि को सीरीज़, सीज़न और एपिसोड में असाइन करें।</string>
+    <string name="m3u_episode_unresolved">एपिसोड नंबर अनिर्धारित — यह सुधार के लिए चिह्नित रहेगा।</string>
+
+    <string name="add_group_manage_title">प्रबंधित करें: %1$s</string>
+    <string name="add_group_close_cd">बंद करें</string>
+    <string name="add_group_name_hint">समूह का नाम</string>
+    <string name="add_group_cancel">रद्द करें</string>
+    <string name="add_group_create">बनाएँ</string>
+    <string name="add_group_rename">नाम बदलें</string>
+    <string name="add_group_remove_favorites">पसंदीदा से हटाएँ</string>
+    <string name="add_group_add_favorites">पसंदीदा में जोड़ें</string>
+    <string name="channel_options_remove_from_recent">हाल से हटाएँ</string>
+    <string name="add_group_reorder_title">क्रम बदलें</string>
+    <string name="add_group_move_up">पहले ले जाएँ</string>
+    <string name="add_group_move_down">बाद में ले जाएँ</string>
+    <string name="add_group_custom_groups_title">कस्टम समूह</string>
+    <string name="add_group_remove_btn">हटाएँ</string>
+    <string name="add_group_add_btn">जोड़ें</string>
+    <string name="add_group_create_new_btn">नया समूह बनाएँ</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">यह चैनल छिपाएँ</string>
+    <string name="hidden_channels_dialog_title">छिपे चैनल</string>
+    <string name="hidden_channels_dialog_subtitle">बहाल करने के लिए इन्हें चुनें।</string>
+    <string name="hidden_channels_dialog_unhide_all">सभी दिखाएँ</string>
+    <string name="hidden_channels_dialog_close">बंद करें</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">लॉक किया गया</string>
+
+
+    <string name="playlist_no_provider">कोई प्रदाता नहीं</string>
+    <string name="live_source_label">स्रोत</string>
+    <string name="live_source_filter_label">प्लेलिस्ट फ़िल्टर</string>
+    <string name="live_source_filter_all">सभी स्रोत</string>
+    <string name="live_source_unavailable_short">अनुपलब्ध</string>
+    <string name="live_source_empty_short">खाली</string>
+
+    
+    <string name="movies_shell_subtitle">मौजूदा प्रदाता संदर्भ छोड़े बिना चुनिंदा शेल्फ़, सहेजे गए समूह और पूरी लाइब्रेरी ब्राउज़िंग।</string>
+    <string name="movies_all_categories">सभी श्रेणियाँ</string>
+    <string name="movies_search_launch_title">फ़िल्म लाइब्रेरी में खोजें</string>
+    <string name="movies_search_launch_subtitle">अपनी मौजूदा ब्राउज़ स्थिति खोए बिना समर्पित खोज स्क्रीन पर जाएँ।</string>
+    <string name="movies_group_created">समूह %1$s बनाया गया</string>
+    <string name="movies_group_renamed">समूह का नाम बदलकर %1$s किया गया</string>
+    <string name="movies_group_deleted">समूह %1$s हटाया गया</string>
+    <string name="movies_group_name_invalid">समूह का नाम दर्ज करें</string>
+    <string name="movies_group_name_reserved">पसंदीदा नाम आरक्षित है</string>
+    <string name="movies_group_name_duplicate">इस नाम का फ़िल्म समूह पहले से मौजूद है</string>
+    <string name="movies_saved_empty_hint">किसी फ़िल्म को पसंदीदा बनाएँ या कस्टम समूह में जोड़ें ताकि वह यहाँ दिखे।</string>
+    <string name="movies_filter_subtitle">पूरी लाइब्रेरी दोबारा बनाए बिना चुनी गई फ़िल्म श्रेणी को परिष्कृत करें।</string>
+    <string name="movies_reorder_title">%1$s का क्रम बदला जा रहा है</string>
+
+    
+    <string name="series_shell_subtitle">बड़ी प्रदाता लाइब्रेरी के लिए चुनिंदा शेल्फ़, सहेजे गए समूह और पेज-आधारित सीरीज़ ब्राउज़िंग।</string>
+    <string name="series_all_categories">सभी श्रेणियाँ</string>
+    <string name="series_search_launch_title">सीरीज़ लाइब्रेरी में खोजें</string>
+    <string name="series_search_launch_subtitle">टाइटल, एपिसोड या सहेजे गए समूह जल्दी खोजने के लिए कमांड खोज खोलें।</string>
+    <string name="series_group_created">समूह %1$s बनाया गया</string>
+    <string name="series_group_renamed">समूह का नाम बदलकर %1$s किया गया</string>
+    <string name="series_group_deleted">समूह %1$s हटाया गया</string>
+    <string name="series_group_name_invalid">समूह का नाम दर्ज करें</string>
+    <string name="series_group_name_reserved">पसंदीदा नाम आरक्षित है</string>
+    <string name="series_group_name_duplicate">इस नाम का सीरीज़ समूह पहले से मौजूद है</string>
+    <string name="series_saved_empty_hint">किसी सीरीज़ को पसंदीदा बनाएँ या कस्टम समूह में जोड़ें ताकि वह यहाँ दिखे।</string>
+    <string name="series_filter_subtitle">सहेजी गई, चल रही, अपडेटेड और उच्च रेटेड सीरीज़ के बीच स्विच करें।</string>
+    <string name="series_reorder_title">%1$s का क्रम बदला जा रहा है</string>
+
+    <string name="library_saved_title">सहेजे गए</string>
+    <string name="library_saved_subtitle">पसंदीदा और कस्टम समूह</string>
+    <string name="library_saved_manage_hint">विकल्पों के लिए सहेजे गए समूह को दबाए रखें</string>
+    <string name="library_lens_title">लाइब्रेरी लेंस</string>
+    <string name="library_filter_results">%2$d में से %1$d आइटम दिखाए जा रहे हैं</string>
+    <string name="library_loaded_results">%2$d में से %1$d आइटम लोड हुए</string>
+    <string name="library_sort_library">लाइब्रेरी क्रम</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">नवीनतम</string>
+    <string name="library_sort_updated">हाल ही में अपडेट</string>
+    <string name="library_sort_rating">रेटिंग</string>
+
+    
+    <string name="settings_parental_subtitle">टीवी-अनुकूल नियंत्रणों से वयस्क या संवेदनशील सामग्री की सुरक्षा करें।</string>
+    <string name="settings_parental_groups_title">संरक्षित समूह</string>
+    <string name="settings_parental_groups_hint">सक्रिय प्रदाता के लिए श्रेणियाँ लॉक या अनलॉक करें।</string>
+    <string name="settings_parental_groups_action">प्रबंधित करें</string>
+    <string name="settings_categories_title">श्रेणी प्राथमिकताएँ</string>
+    <string name="settings_categories_subtitle">प्रदाता श्रेणियाँ छिपाएँ और उनका क्रम अपनी इच्छा के अनुसार रखें।</string>
+    <string name="settings_category_sorting_title">श्रेणी क्रमबद्धता</string>
+    <string name="settings_category_sorting_subtitle">सक्रिय प्लेलिस्ट की श्रेणियाँ क्रमबद्ध करें। लॉक और छिपाना अब श्रेणी नियंत्रण में है।</string>
+    <string name="settings_hidden_categories_title">छिपी श्रेणियाँ</string>
+    <string name="settings_hidden_categories_subtitle">ब्राउज़िंग सतहों से पहले छिपाई गई प्रदाता श्रेणियाँ बहाल करें।</string>
+    <string name="settings_hidden_categories_none">कोई छिपी नहीं</string>
+    <string name="settings_hidden_categories_count">%1$d छिपी</string>
+    <string name="settings_hidden_categories_empty">अभी कोई छिपी श्रेणी नहीं है।</string>
+    <string name="settings_playback_subtitle">सहज प्लेबैक के लिए डिकोडर और बफ़रिंग व्यवहार समायोजित करें।</string>
+    <string name="settings_live_timeshift_backend_value">स्वचालित</string>
+    <string name="vod_classic_categories_title">श्रेणियाँ</string>
+    <string name="settings_decoder_mode">डिकोडर मोड</string>
+    <string name="settings_select_decoder_mode">डिकोडर मोड चुनें</string>
+    <string name="settings_buffer_duration">बफ़र अवधि</string>
+    <string name="settings_buffer_5s">5 सेकंड</string>
+    <string name="settings_about_subtitle">इस इंस्टॉलेशन के लिए वर्शन, बिल्ड और सहायता विवरण।</string>
+    <string name="settings_syncing">डेटा सिंक हो रहा है, कृपया प्रतीक्षा करें...</string>
+    <string name="settings_cancel">रद्द करें</string>
+    <string name="settings_sync_option_all">सभी सिंक करें</string>
+    <string name="settings_sync_option_fast">त्वरित सिंक</string>
+    <string name="settings_pc_btn">पैरेंटल कंट्रोल</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_subtitle">टीवी इंटरफ़ेस छोड़े बिना ऐप की भाषा चुनें।</string>
+
+    <string name="settings_backup_share_failed">बैकअप फ़ाइल प्राप्त करने वाला कोई ऐप नहीं मिला।</string>
+    <string name="settings_crash_report_share_failed">क्रैश रिपोर्ट प्राप्त करने वाला कोई ऐप नहीं मिला।</string>
+    <string name="settings_crash_report_missing">कोई क्रैश रिपोर्ट उपलब्ध नहीं है।</string>
+    <string name="settings_catalog_count_pending">लंबित</string>
+    <string name="settings_diagnostic_never">कभी नहीं</string>
+    <string name="settings_diagnostic_items">%1$d आइटम</string>
+    <string name="settings_recording_subtitle">स्थानीय लाइव DVR कार्य, स्टोरेज और शेड्यूल की गई रिकॉर्डिंग प्रबंधित करें।</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+    
+    <string name="saved_preset_watch_next">आगे देखें</string>
+    <string name="tv_channel_continue_watching_title">देखना जारी रखें</string>
+    <string name="tv_channel_continue_watching_description">हाल ही में शुरू किए टाइटल फिर से चलाएँ</string>
+    <string name="tv_channel_top_movies_title">टॉप फ़िल्में</string>
+    <string name="tv_channel_top_movies_description">%1$s से लोकप्रिय चयन</string>
+    <string name="tv_channel_recommended_movies_title">अनुशंसित फ़िल्में</string>
+    <string name="tv_channel_recommended_movies_description">%1$s पर आपके हाल के चयनों के आधार पर</string>
+    <string name="tv_channel_fresh_series_title">नई सीरीज़</string>
+    <string name="tv_channel_fresh_series_description">%1$s से हाल ही में अपडेट हुई सीरीज़</string>
+
+    
+    <string name="search_title">खोज</string>
+    <string name="parental_group_shell_subtitle">प्रीमियम सेटिंग्स शेल छोड़े बिना संरक्षित लाइव, फ़िल्म और सीरीज़ समूह देखें।</string>
+    <string name="search_command_title">कमांड खोज</string>
+    <string name="search_hint">खोजें...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">पुष्टि के लिए अपना पैरेंटल PIN दर्ज करें</string>
+    <string name="a11y_locked">लॉक किया गया</string>
+    <string name="a11y_favorite">पसंदीदा</string>
+    <string name="a11y_catch_up_available">कैच-अप उपलब्ध</string>
+    <string name="a11y_now_playing">अब चल रहा है %1$s</string>
+    <string name="a11y_channel_with_number">चैनल %1$d, %2$s</string>
+
+    
+
+    
+    <string name="player_no_external_player">कोई बाहरी प्लेयर इंस्टॉल नहीं है</string>
+    <string name="player_unsafe_stream_url">यह स्ट्रीम बाहरी प्लेयर में नहीं खोली जा सकती</string>
+    <string name="player_external_launch_failed">बाहरी प्लेयर शुरू नहीं हो सका</string>
+    <string name="player_next">अगला</string>
+    <string name="player_recording_started">%1$s की रिकॉर्डिंग शुरू हुई।</string>
+    <string name="player_recording_stopped">रिकॉर्डिंग बंद हुई।</string>
+    <string name="player_recording_scheduled">%1$s की रिकॉर्डिंग शेड्यूल की गई।</string>
+    <string name="player_recording_missing_context">रिकॉर्डिंग के लिए मान्य लाइव चैनल संदर्भ आवश्यक है।</string>
+    <string name="player_categories_label">श्रेणियाँ</string>
+    <string name="player_full_epg">पूरा EPG</string>
+    <string name="player_action_controls">नियंत्रण</string>
+    <string name="player_action_restart_short">रीस्टार्ट</string>
+    <string name="player_action_recent_short">हाल के</string>
+    <string name="player_diagnostics_decoder">डिकोडर</string>
+    <string name="player_diagnostics_policy_guard">पॉलिसी गार्ड</string>
+    <string name="player_diagnostics_policy_profile">पॉलिसी प्रोफ़ाइल</string>
+    <string name="player_diagnostics_policy_buffer">बफ़र प्रोफ़ाइल</string>
+    <string name="player_diagnostics_policy_render_path">रेंडर पथ</string>
+    <string name="player_diagnostics_policy_known_bad">ज्ञात-खराब पॉलिसी</string>
+    <string name="player_diagnostics_policy_recovery">स्वतः रिकवरी</string>
+    <string name="player_diagnostics_policy_last_action">पिछली पॉलिसी क्रिया</string>
+    <string name="epg_search_short">कार्यक्रम खोज</string>
+    <string name="epg_show_options">गाइड विकल्प दिखाएँ</string>
+    <string name="epg_hide_options">गाइड विकल्प छिपाएँ</string>
+    <string name="epg_showing_channels">%2$d में से %1$d चैनल दिखाए जा रहे हैं</string>
+    <string name="epg_schedule_summary">%2$d में से %1$d चैनलों पर गाइड डेटा उपलब्ध है</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">टाइमलाइन</string>
+    <string name="epg_timeline_range_label">%1$s विंडो</string>
+    <string name="epg_updated_now">अभी-अभी अपडेट हुआ</string>
+    <string name="epg_updated_minutes_ago">%1$d मिनट पहले अपडेट हुआ</string>
+    <string name="epg_minutes_remaining">%1$d मिनट शेष</string>
+    <string name="epg_program_channel_label">चैनल</string>
+    <string name="epg_program_provider_label">प्रदाता</string>
+    <string name="epg_program_provider_type_label">स्रोत</string>
+    <string name="epg_program_language_label">भाषा</string>
+    <string name="epg_program_replay_label">रीप्ले</string>
+    <string name="epg_program_progress_label">प्रगति</string>
+    <string name="epg_program_replay_unavailable">अनुपलब्ध</string>
+    <string name="epg_program_progress_value">%1$d%% पूर्ण • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">रीप्ले विफल हो सकता है क्योंकि प्रदाता ने उपयोग योग्य रीप्ले टेम्पलेट के बिना कैच-अप समर्थन का दावा किया है।</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">रीप्ले विफल हो सकता है क्योंकि प्रदाता ने रीप्ले स्ट्रीम पहचानकर्ता उपलब्ध नहीं कराया।</string>
+
+    
+    <string name="parental_group_title">संरक्षित समूह</string>
+    <string name="parental_group_search">श्रेणियाँ खोजें...</string>
+    <string name="player_live_timeshift_ready">टाइमशिफ़्ट तैयार।</string>
+    <string name="player_live_timeshift_failed">इस स्ट्रीम के लिए स्थानीय लाइव रिवाइंड उपलब्ध नहीं है।</string>
+
+    
+    <string name="multiview_add_to_split">स्प्लिट स्क्रीन में जोड़ें</string>
+    <string name="multiview_queued">स्प्लिट स्क्रीन में</string>
+
+    
+    <string name="settings_privacy_subtitle">वॉच इतिहास और गुप्त मोड प्रबंधित करें।</string>
+
+    
+    <string name="action_done">हो गया</string>
+    <string name="action_delete">हटाएँ</string>
+    <string name="action_clear">साफ़ करें</string>
+    <string name="action_space">स्पेस</string>
+
+    
+    <string name="label_provider">प्रदाता</string>
+    <string name="label_selected">चयनित</string>
+    <string name="label_no_schedule">कोई शेड्यूल जानकारी नहीं</string>
+    <string name="label_slots_count">%1$d/4 स्लॉट</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">एपिसोड %1$d</string>
+    <string name="badge_saved">SAVED</string>
+    <string name="badge_catch_up">CATCH UP</string>
+    <string name="badge_moving">MOVING</string>
+    <string name="badge_fav">FAV</string>
+
+    
+
+    
+    <string name="favorites_content_type_movie">फ़िल्म</string>
+
+    
+
+    
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">StreamVault चैनल स्कैन हो रहे हैं</string>
+    <string name="tv_input_setup_success_title">लाइव TV तैयार है</string>
+    <string name="tv_input_setup_no_provider_title">कोई IPTV प्रदाता कॉन्फ़िगर नहीं है</string>
+    <string name="tv_input_setup_error_title">ऑटो स्कैन विफल रहा</string>
+    <string name="tv_input_setup_idle_title">लाइव TV एकीकरण तैयार हो रहा है</string>
+    <string name="tv_input_setup_scanning_body">StreamVault आपके सक्रिय प्रदाता को Android TV Live TV में सिंक कर रहा है।</string>
+    <string name="tv_input_setup_success_body">आपके चैनल सफलतापूर्वक सिंक हो गए।</string>
+    <string name="tv_input_setup_no_provider_body">StreamVault में कम से कम एक IPTV प्रदाता जोड़ें, फिर Android TV Live TV में चैनल स्कैन करने के लिए यहाँ वापस आएँ।</string>
+    <string name="tv_input_setup_error_body">TV इनपुट सिंक पूरा नहीं हुआ।</string>
+    <string name="tv_input_setup_idle_body">कृपया प्रतीक्षा करें।</string>
+    <string name="tv_input_setup_source_format">स्रोत: %1$s</string>
+    <string name="tv_input_setup_open_setup">StreamVault सेटअप खोलें</string>
+    <string name="tv_input_setup_try_scan_again">फिर से ऑटो स्कैन आज़माएँ</string>
+    <string name="tv_input_setup_retry_scan">ऑटो स्कैन फिर से करें</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV अब आपके StreamVault चैनल खोल सकता है।</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Drive बैकअप क्रियाओं पर वापस जाएँ।</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">डाउनलोड विफल: %1$s</string>
+    <string name="download_completed">डाउनलोड पूरा हुआ</string>
+    <string name="download_cancelled">डाउनलोड रद्द किया गया</string>
+    <string name="download_notification_channel">डाउनलोड</string>
+    <string name="download_notification_channel_description">डाउनलोड प्रगति और पूर्णता दिखाता है</string>
+    <string name="download_in_progress">%s डाउनलोड हो रहा है</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">डाउनलोड</string>
+    <string name="downloads_empty">अभी कोई डाउनलोड नहीं</string>
+    <string name="downloads_delete_confirm">यह डाउनलोड हटाएँ?</string>
+    <string name="download_play_local">चलाएँ</string>
+    <string name="nav_vod">VOD</string>
+</resources>

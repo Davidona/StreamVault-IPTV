@@ -7,30 +7,42 @@ import java.util.Locale
 private val supportedLanguageTags = listOf(
     "en",
     "ar",
+    "bg",
     "cs",
     "da",
     "de",
     "el",
     "es",
+    "fa",
     "fi",
+    "fil",
     "fr",
     "he",
+    "hi",
+    "hr",
     "hu",
     "id",
     "it",
     "ja",
     "ko",
+    "mk",
+    "ms",
     "nb",
     "nl",
     "pl",
     "pt",
     "ro",
     "ru",
+    "sk",
+    "sq",
+    "sr",
     "sv",
+    "th",
     "tr",
     "uk",
     "vi",
-    "zh"
+    "zh",
+    "zh-TW"
 )
 
 fun supportedAppLanguageTags(): List<String> = supportedLanguageTags
@@ -87,6 +99,10 @@ private fun canonicalLanguageTag(languageTag: String): String {
     return when {
         normalized.startsWith("iw") || normalized.startsWith("he") -> "he"
         normalized.startsWith("in") || normalized.startsWith("id") -> "id"
+        normalized == "zh-tw" ||
+            normalized.startsWith("zh-hant") ||
+            normalized.startsWith("zh-hk") ||
+            normalized.startsWith("zh-mo") -> "zh-tw"
         else -> normalized.substringBefore('-')
     }
 }

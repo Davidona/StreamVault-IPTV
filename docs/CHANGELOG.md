@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
 - Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
 - Added configurable automatic provider sync in Settings, with global defaults and per-provider overrides for content sections, catalog and guide intervals, network, charging, idle, and preferred run times. It is enabled by default for saved providers, with catalogs refreshed every 24 hours and guides every 6 hours, and shows refresh status and timestamps.
+- Added 12 new translations: Albanian, Bulgarian, Croatian, Filipino, Hindi, Macedonian, Malay, Persian, Serbian, Slovak, Thai, and Traditional Chinese (Taiwan), complete across the app and feature modules.
 
 ### Fixed
 
@@ -67,6 +68,7 @@ All notable product changes are recorded in this document.
 - Reduced audio output buffering for more responsive playback.
 - Restored automatic live playback speed adjustments to stay near the live edge.
 - Clarified in Settings that backup files contain provider passwords in readable form.
+- Updated all missing translations across the app and feature modules.
 
 ## [1.0.19]
 

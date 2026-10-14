@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Konfiguro ofruesin</string>
+  <string name="welcome_setup_later">Konfiguro më vonë</string>
+  <string name="welcome_loading_title">Po përgatitet biblioteka jote</string>
+  <string name="welcome_loading_subtitle">Po hapet ekrani i duhur për këtë pajisje.</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Serialet</string>
+  <string name="sync_items_indexed_format">%1$d elemente të përgatitura</string>
+  <string name="welcome_tagline">IPTV premium për dhomën e ndenjes</string>
+  <string name="welcome_subtitle">Shijo kanale live, shikim me vonesë, filma dhe seriale me një përvojë origjinale Android TV.</string>
+  <string name="settings_cancel">Anulo</string>
+  <string name="nav_downloads">Shkarkimet</string>
+  <string name="downloads_loading">Po ngarkohen shkarkimet...</string>
+  <string name="downloads_empty_title">Nuk ka shkarkime ende</string>
+  <string name="downloads_empty_hint">Shkarko filma ose episode nga ekranet e detajeve dhe ato do të shfaqen këtu.</string>
+  <string name="downloads_no_thumb">Pa poster</string>
+  <string name="downloads_status_completed">Përfunduar</string>
+  <string name="downloads_status_downloading">Po shkarkohet</string>
+  <string name="downloads_status_failed">Dështoi</string>
+  <string name="downloads_status_pending">Në pritje</string>
+  <string name="downloads_status_paused">Në pauzë</string>
+  <string name="downloads_status_cancelled">Anuluar</string>
+  <string name="downloads_item_title">Shkarkim pa titull</string>
+  <string name="downloads_delete_confirm_title">Fshi shkarkimin</string>
+  <string name="downloads_delete_confirm_msg">Të fshihet %1$s nga shkarkimet?</string>
+  <string name="downloads_delete_confirm_delete">Fshi</string>
+  <string name="downloads_deleted">Shkarkimi u fshi</string>
+  <string name="download_folder_change">Ndrysho dosjen e shkarkimeve</string>
+  <string name="download_folder_default">Dosja e parazgjedhur e shkarkimeve</string>
+  <string name="download_resume">Vazhdo</string>
+  <string name="download_delete">Fshi</string>
+  <string name="downloads_resumed">Shkarkimi vazhdoi</string>
+</resources>

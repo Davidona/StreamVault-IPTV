@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Източници</string>
+    <string name="vod_subtitle_settings">Настройки</string>
+    <string name="vod_subtitle_provider">Субтитри от доставчика</string>
+    <string name="vod_subtitle_provider_hint">Изберете пътека със субтитри от това видео</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Търсене на субтитри онлайн</string>
+    <string name="vod_subtitle_online_unavailable">Онлайн търсенето не е налично за това видео</string>
+    <string name="vod_subtitle_device_hint">Изберете SRT файл</string>
+    <string name="vod_subtitle_back">Назад към източниците</string>
+    <string name="vod_tracks_empty">Няма налични пътеки в това видео</string>
+    <string name="vod_subtitle_preview">Това са субтитри.</string>
+    <string name="vod_subtitle_font_size">Размер на шрифта</string>
+    <string name="vod_subtitle_background">Прозрачност на фона</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% прозрачно · 100% плътно черно</string>
+    <string name="vod_subtitle_decrease_setting">Намаляване на %1$s</string>
+    <string name="vod_subtitle_increase_setting">Увеличаване на %1$s</string>
+</resources>

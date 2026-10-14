@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+    
+    <string name="nav_home">Kryefaqja</string>
+    <string name="nav_live_tv">Live TV</string>
+    <string name="nav_movies">Filmat</string>
+    <string name="nav_series">Serialet</string>
+    <string name="nav_epg">Guida</string>
+    <string name="nav_settings">Cilësimet</string>
+    <string name="nav_plugins">Shtojcat</string>
+    <string name="nav_close_app">Mbyll aplikacionin</string>
+
+    
+    <string name="welcome_enter_app">Hyr në aplikacion</string>
+    <string name="welcome_manage_providers">Menaxho ofruesit</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Shfletim i shpejtë i kanaleve live me fokus te telekomanda</string>
+    <string name="welcome_feature_library">Biblioteka të mëdha filmash dhe serialesh pa rrëmujë</string>
+    <string name="welcome_feature_player">Shtresa të unifikuara të luajtësit, qasje në guidë dhe përmbajtje e ruajtur</string>
+    <string name="welcome_manage_hint">Ndërro ofruesit, rifresko metadatat ose shto një burim të ri.</string>
+
+    
+    <string name="hidden_categories_dialog_title">Kategoritë e fshehura</string>
+    <string name="hidden_categories_dialog_subtitle">Zgjidh ato që do të rikthesh.</string>
+    <string name="hidden_categories_dialog_unhide_all">Shfaq të gjitha</string>
+    <string name="hidden_categories_dialog_close">Mbyll</string>
+    <string name="home_recent_channels">Të fundit</string>
+    <string name="home_last_channel">Kanali i fundit</string>
+    <string name="home_last_channel_label">I fundit: %1$s</string>
+    <string name="home_last_group_label">I fundit: %1$s</string>
+    <string name="home_loading">Po ngarkohet...</string>
+    <string name="home_locked_short">KYÇUR</string>
+    <string name="live_shell_subtitle">Skano shpejt kategoritë live, mbaj navigimin të parashikueshëm dhe shfaq në ekran vetëm të dhënat e programit që kanë rëndësi.</string>
+    <string name="live_shell_context">%1$d kategori • %2$d kanale</string>
+    <string name="live_shell_provider">Ofruesi</string>
+    <string name="live_shell_split">Multiview</string>
+    <string name="live_manage_groups">Menaxho vendet e Multiview</string>
+    <string name="live_reorder_title">Po rirenditet %1$s</string>
+    <string name="live_empty_hint_favorites">Shto kanale te të preferuarat ose në një grup të ruajtur për të mbushur këtë rresht.</string>
+    <string name="live_empty_hint_recent">Nis riprodhimin e disa kanaleve dhe ato do të shfaqen këtu.</string>
+    <string name="home_saved_subtitle">Të preferuarat dhe grupet live të personalizuara</string>
+    <string name="home_saved_empty_hint">Shto një kanal te të preferuarat ose në një grup live të personalizuar për ta fiksuar këtu.</string>
+    <string name="home_delete_group_title">Të fshihet grupi?</string>
+    <string name="home_delete_group_body">Je i sigurt që do të fshish \'%1$s\'? Kjo do të heqë të gjitha kanalet nga ky grup.</string>
+    <string name="home_delete_group_confirm">Fshi</string>
+    <string name="home_delete_group_cancel">Anulo</string>
+
+    
+    <string name="dashboard_customize_home">Personalizo kryefaqen</string>
+    <string name="dashboard_customize_home_subtitle">Zgjidh cilat rafte shfaqen këtu, shto rreshta të rinj dhe rirendit ata në çdo moment.</string>
+    <string name="dashboard_customize_home_action">Personalizo</string>
+
+    
+
+    <string name="category_options_set_default">Cakto si grup të parazgjedhur</string>
+    <string name="category_options_rename">Riemërto grupin</string>
+    <string name="category_options_unlock">Zhblloko grupin</string>
+    <string name="category_options_lock">Kyç grupin</string>
+    <string name="category_options_delete">Fshi grupin</string>
+    <string name="category_options_cancel">Anulo</string>
+    <string name="category_options_reorder">Rirendit elementet</string>
+    <string name="category_options_hide">Fshih kategorinë</string>
+    <string name="category_options_hide_from_live_tv">Fshih nga Live TV</string>
+    <string name="category_options_clear_recent">Pastro të gjitha të fundit</string>
+    <string name="category_options_pin">Fikso kategorinë</string>
+    <string name="category_options_unpin">Hiq fiksimin e kategorisë</string>
+    <string name="m3u_organize_items">Organizo elementet M3U</string>
+    <string name="m3u_move_to_movies">Zhvendos te Filmat</string>
+    <string name="m3u_move_to_series">Zhvendos te Serialet</string>
+    <string name="m3u_move_back_to_live">Kthe te Live TV</string>
+    <string name="m3u_series_name">Emri i serialit</string>
+    <string name="m3u_episode_number">Numri i episodit</string>
+    <string name="m3u_season_number">Numri i sezonit</string>
+    <string name="m3u_classify">Klasifiko</string>
+    <string name="m3u_classification_saved">Klasifikimi M3U u ruajt</string>
+    <string name="m3u_category_rule_subtitle">Zgjidh një vlerë të parazgjedhur për këtë grup M3U. Kanaleve individuale mund t\'u caktohet ende një vlerë tjetër.</string>
+    <string name="m3u_keep_live">Mbaje si Live TV</string>
+    <string name="m3u_series_review_title">Organizo serialet në %1$s</string>
+    <string name="m3u_series_review_subtitle">Shqyrto sugjerimet automatike ose cakto çdo zë në një serial, sezon dhe episod.</string>
+    <string name="m3u_episode_unresolved">Numri i episodit nuk u përcaktua — do të mbetet i shënuar për korrigjim.</string>
+
+    <string name="add_group_manage_title">Menaxho: %1$s</string>
+    <string name="add_group_close_cd">Mbyll</string>
+    <string name="add_group_name_hint">Emri i grupit</string>
+    <string name="add_group_cancel">Anulo</string>
+    <string name="add_group_create">Krijo</string>
+    <string name="add_group_rename">Riemërto</string>
+    <string name="add_group_remove_favorites">Hiq nga të preferuarat</string>
+    <string name="add_group_add_favorites">Shto te të preferuarat</string>
+    <string name="channel_options_remove_from_recent">Hiq nga të fundit</string>
+    <string name="add_group_reorder_title">Rirendit</string>
+    <string name="add_group_move_up">Lëviz lart</string>
+    <string name="add_group_move_down">Lëviz poshtë</string>
+    <string name="add_group_custom_groups_title">Grupe të personalizuara</string>
+    <string name="add_group_remove_btn">Hiq</string>
+    <string name="add_group_add_btn">Shto</string>
+    <string name="add_group_create_new_btn">Krijo grup të ri</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Fshih këtë kanal</string>
+    <string name="hidden_channels_dialog_title">Kanalet e fshehura</string>
+    <string name="hidden_channels_dialog_subtitle">Zgjidh ato që do të rikthesh.</string>
+    <string name="hidden_channels_dialog_unhide_all">Shfaq të gjitha</string>
+    <string name="hidden_channels_dialog_close">Mbyll</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">I kyçur</string>
+
+
+    <string name="playlist_no_provider">Pa ofrues</string>
+    <string name="live_source_label">BURIMI</string>
+    <string name="live_source_filter_label">Filtri i listës së luajtjes</string>
+    <string name="live_source_filter_all">Të gjitha burimet</string>
+    <string name="live_source_unavailable_short">I padisponueshëm</string>
+    <string name="live_source_empty_short">Bosh</string>
+
+    
+    <string name="movies_shell_subtitle">Rafte të përzgjedhura, grupe të ruajtura dhe shfletim i bibliotekës së plotë pa u larguar nga konteksti aktual i ofruesit.</string>
+    <string name="movies_all_categories">Të gjitha kategoritë</string>
+    <string name="movies_search_launch_title">Kërko në bibliotekën e filmave</string>
+    <string name="movies_search_launch_subtitle">Hyr në pamjen e dedikuar të kërkimit pa humbur gjendjen aktuale të shfletimit.</string>
+    <string name="movies_group_created">U krijua grupi %1$s</string>
+    <string name="movies_group_renamed">Grupi u riemërtua në %1$s</string>
+    <string name="movies_group_deleted">U fshi grupi %1$s</string>
+    <string name="movies_group_name_invalid">Fut një emër grupi</string>
+    <string name="movies_group_name_reserved">Të preferuarat është i rezervuar</string>
+    <string name="movies_group_name_duplicate">Ekziston tashmë një grup filmash me këtë emër</string>
+    <string name="movies_saved_empty_hint">Shto një film te të preferuarat ose në një grup të personalizuar për ta shfaqur këtu.</string>
+    <string name="movies_filter_subtitle">Përsos kategorinë e zgjedhur të filmave pa rindërtuar të gjithë bibliotekën.</string>
+    <string name="movies_reorder_title">Po rirenditet %1$s</string>
+
+    
+    <string name="series_shell_subtitle">Rafte editoriale, grupe të ruajtura dhe shfletim i serialeve me faqe, i përshtatur për biblioteka të mëdha ofruesish.</string>
+    <string name="series_all_categories">Të gjitha kategoritë</string>
+    <string name="series_search_launch_title">Kërko në bibliotekën e serialeve</string>
+    <string name="series_search_launch_subtitle">Hap pamjen e kërkimit me komanda për të gjetur më shpejt titujt, episodet ose grupet e ruajtura.</string>
+    <string name="series_group_created">U krijua grupi %1$s</string>
+    <string name="series_group_renamed">Grupi u riemërtua në %1$s</string>
+    <string name="series_group_deleted">U fshi grupi %1$s</string>
+    <string name="series_group_name_invalid">Fut një emër grupi</string>
+    <string name="series_group_name_reserved">Të preferuarat është i rezervuar</string>
+    <string name="series_group_name_duplicate">Ekziston tashmë një grup serialesh me këtë emër</string>
+    <string name="series_saved_empty_hint">Shto një serial te të preferuarat ose në një grup të personalizuar për ta shfaqur këtu.</string>
+    <string name="series_filter_subtitle">Kalo midis serialeve të ruajtura, në vazhdim, të përditësuara dhe shumë të vlerësuara.</string>
+    <string name="series_reorder_title">Po rirenditet %1$s</string>
+
+    <string name="library_saved_title">Të ruajtura</string>
+    <string name="library_saved_subtitle">Të preferuarat dhe grupet e personalizuara</string>
+    <string name="library_saved_manage_hint">Mban shtypur një grup të ruajtur për opsionet</string>
+    <string name="library_lens_title">Lentja e bibliotekës</string>
+    <string name="library_filter_results">Po shfaqen %1$d nga %2$d elemente</string>
+    <string name="library_loaded_results">U ngarkuan %1$d nga %2$d elemente</string>
+    <string name="library_sort_library">Rendi i bibliotekës</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Më të rejat</string>
+    <string name="library_sort_updated">Përditësuar së fundmi</string>
+    <string name="library_sort_rating">Vlerësimi</string>
+
+    
+    <string name="settings_parental_subtitle">Mbro përmbajtjen për të rritur ose të ndjeshme me kontrolle miqësore për TV.</string>
+    <string name="settings_parental_groups_title">Grupet e mbrojtura</string>
+    <string name="settings_parental_groups_hint">Kyç ose zhblloko kategoritë për ofruesin aktiv.</string>
+    <string name="settings_parental_groups_action">Menaxho</string>
+    <string name="settings_categories_title">Preferencat e kategorive</string>
+    <string name="settings_categories_subtitle">Fshih kategoritë e ofruesit dhe mbaj renditjen e tyre pikërisht siç e dëshiron.</string>
+    <string name="settings_category_sorting_title">Renditja e kategorive</string>
+    <string name="settings_category_sorting_subtitle">Rendit kategoritë për listën aktive të luajtjes. Kyçja dhe fshehja ndodhen tani te Kontrollet e kategorive.</string>
+    <string name="settings_hidden_categories_title">Kategoritë e fshehura</string>
+    <string name="settings_hidden_categories_subtitle">Rikthe çdo kategori ofruesi që fshehe më parë nga pamjet e shfletimit.</string>
+    <string name="settings_hidden_categories_none">Asnjë e fshehur</string>
+    <string name="settings_hidden_categories_count">%1$d të fshehura</string>
+    <string name="settings_hidden_categories_empty">Nuk ka kategori të fshehura për momentin.</string>
+    <string name="settings_playback_subtitle">Rregullo sjelljen e dekoduesit dhe të buferit për riprodhim më të qetë.</string>
+    <string name="settings_live_timeshift_backend_value">Automatike</string>
+    <string name="vod_classic_categories_title">Kategoritë</string>
+    <string name="settings_decoder_mode">Modaliteti i dekoduesit</string>
+    <string name="settings_select_decoder_mode">Zgjidh modalitetin e dekoduesit</string>
+    <string name="settings_buffer_duration">Kohëzgjatja e buferit</string>
+    <string name="settings_buffer_5s">5 sekonda</string>
+    <string name="settings_about_subtitle">Detajet e versionit, ndërtimit dhe mbështetjes për këtë instalim.</string>
+    <string name="settings_syncing">Po sinkronizohen të dhënat, ju lutem pritni...</string>
+    <string name="settings_cancel">Anulo</string>
+    <string name="settings_sync_option_all">Sinkronizo të gjitha</string>
+    <string name="settings_sync_option_fast">Sinkronizim i shpejtë</string>
+    <string name="settings_pc_btn">Kontrolli prindëror</string>
+    <string name="settings_language">Gjuha</string>
+    <string name="settings_language_subtitle">Zgjidh gjuhën e aplikacionit pa u larguar nga ndërfaqja e TV-së.</string>
+
+    <string name="settings_backup_share_failed">Asnjë aplikacion nuk mund të pranonte skedarin e kopjes rezervë.</string>
+    <string name="settings_crash_report_share_failed">Asnjë aplikacion nuk mund të pranonte raportin e dështimit.</string>
+    <string name="settings_crash_report_missing">Nuk ka raport dështimi të disponueshëm.</string>
+    <string name="settings_catalog_count_pending">Në pritje</string>
+    <string name="settings_diagnostic_never">Kurrë</string>
+    <string name="settings_diagnostic_items">%1$d elemente</string>
+    <string name="settings_recording_subtitle">Menaxho punët lokale të DVR-së live, hapësirën e ruajtjes dhe regjistrimet e planifikuara.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+    
+    <string name="saved_preset_watch_next">Shiko më pas</string>
+    <string name="tv_channel_continue_watching_title">Vazhdo shikimin</string>
+    <string name="tv_channel_continue_watching_description">Vazhdo titujt që nise së fundmi</string>
+    <string name="tv_channel_top_movies_title">Filmat kryesorë</string>
+    <string name="tv_channel_top_movies_description">Zgjedhje popullore nga %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Filma të rekomanduar</string>
+    <string name="tv_channel_recommended_movies_description">Përshtatur nga zgjedhjet e tua të fundit në %1$s</string>
+    <string name="tv_channel_fresh_series_title">Seriale të reja</string>
+    <string name="tv_channel_fresh_series_description">Seriale të përditësuara së fundmi nga %1$s</string>
+
+    
+    <string name="search_title">Kërko</string>
+    <string name="parental_group_shell_subtitle">Shqyrto grupet e mbrojtura live, filmash dhe serialesh pa u larguar nga cilësimet premium.</string>
+    <string name="search_command_title">Kërkim me komanda</string>
+    <string name="search_hint">Kërko...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Fut PIN-in prindëror për të konfirmuar</string>
+    <string name="a11y_locked">I kyçur</string>
+    <string name="a11y_favorite">I preferuar</string>
+    <string name="a11y_catch_up_available">Shikim me vonesë i disponueshëm</string>
+    <string name="a11y_now_playing">Tani po luhet %1$s</string>
+    <string name="a11y_channel_with_number">Kanali %1$d, %2$s</string>
+
+    
+
+    
+    <string name="player_no_external_player">Nuk ka luajtës të jashtëm të instaluar</string>
+    <string name="player_unsafe_stream_url">Ky transmetim nuk mund të hapet në një luajtës të jashtëm</string>
+    <string name="player_external_launch_failed">Luajtësi i jashtëm nuk nisi</string>
+    <string name="player_next">TJETRI</string>
+    <string name="player_recording_started">Regjistrimi nisi për %1$s.</string>
+    <string name="player_recording_stopped">Regjistrimi u ndal.</string>
+    <string name="player_recording_scheduled">Regjistrimi u planifikua për %1$s.</string>
+    <string name="player_recording_missing_context">Regjistrimi kërkon një kontekst të vlefshëm kanali live.</string>
+    <string name="player_categories_label">Kategoritë</string>
+    <string name="player_full_epg">EPG e plotë</string>
+    <string name="player_action_controls">Kontrollet</string>
+    <string name="player_action_restart_short">Rinis</string>
+    <string name="player_action_recent_short">Të fundit</string>
+    <string name="player_diagnostics_decoder">Dekoduesi</string>
+    <string name="player_diagnostics_policy_guard">Mbrojtja e politikës</string>
+    <string name="player_diagnostics_policy_profile">Profili i politikës</string>
+    <string name="player_diagnostics_policy_buffer">Profili i buferit</string>
+    <string name="player_diagnostics_policy_render_path">Rruga e renderimit</string>
+    <string name="player_diagnostics_policy_known_bad">Politika e rasteve problematike</string>
+    <string name="player_diagnostics_policy_recovery">Rikuperim automatik</string>
+    <string name="player_diagnostics_policy_last_action">Veprimi i fundit i politikës</string>
+    <string name="epg_search_short">Kërkimi i programeve</string>
+    <string name="epg_show_options">Shfaq opsionet e guidës</string>
+    <string name="epg_hide_options">Fshih opsionet e guidës</string>
+    <string name="epg_showing_channels">Po shfaqen %1$d nga %2$d kanale</string>
+    <string name="epg_schedule_summary">Të dhëna guide të disponueshme për %1$d nga %2$d kanale</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Vija kohore</string>
+    <string name="epg_timeline_range_label">Dritarja %1$s</string>
+    <string name="epg_updated_now">U përditësua tani</string>
+    <string name="epg_updated_minutes_ago">U përditësua %1$d min më parë</string>
+    <string name="epg_minutes_remaining">%1$d min të mbetura</string>
+    <string name="epg_program_channel_label">Kanali</string>
+    <string name="epg_program_provider_label">Ofruesi</string>
+    <string name="epg_program_provider_type_label">Burimi</string>
+    <string name="epg_program_language_label">Gjuha</string>
+    <string name="epg_program_replay_label">Riprodhimi</string>
+    <string name="epg_program_progress_label">Përparimi</string>
+    <string name="epg_program_replay_unavailable">I padisponueshëm</string>
+    <string name="epg_program_progress_value">%1$d%% e plotë • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Riprodhimi mund të dështojë sepse ofruesi ekspozoi mbështetjen e shikimit me vonesë pa një shabllon të përdorshëm riprodhimi.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Riprodhimi mund të dështojë sepse ofruesi nuk ekspozoi një identifikues transmetimi riprodhimi.</string>
+
+    
+    <string name="parental_group_title">Grupet e mbrojtura</string>
+    <string name="parental_group_search">Kërko kategori...</string>
+    <string name="player_live_timeshift_ready">Zhvendosja kohore gati.</string>
+    <string name="player_live_timeshift_failed">Kthimi prapa live lokal nuk disponohet për këtë transmetim.</string>
+
+    
+    <string name="multiview_add_to_split">Shto në ekran të ndarë</string>
+    <string name="multiview_queued">Në ekran të ndarë</string>
+
+    
+    <string name="settings_privacy_subtitle">Menaxho historikun e shikimit dhe modalitetin e fshehtë.</string>
+
+    
+    <string name="action_done">Gati</string>
+    <string name="action_delete">Fshi</string>
+    <string name="action_clear">Pastro</string>
+    <string name="action_space">Hapësirë</string>
+
+    
+    <string name="label_provider">OFRUESI</string>
+    <string name="label_selected">Zgjedhur</string>
+    <string name="label_no_schedule">Nuk ka informacion programi</string>
+    <string name="label_slots_count">%1$d/4 vende</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Episodi %1$d</string>
+    <string name="badge_saved">RUAJTUR</string>
+    <string name="badge_catch_up">ME VONESË</string>
+    <string name="badge_moving">NË LËVIZJE</string>
+    <string name="badge_fav">FAV</string>
+
+    
+
+    
+    <string name="favorites_content_type_movie">Film</string>
+
+    
+
+    
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Po skanohen kanalet e StreamVault</string>
+    <string name="tv_input_setup_success_title">Live TV është gati</string>
+    <string name="tv_input_setup_no_provider_title">Nuk ka ofrues IPTV të konfiguruar</string>
+    <string name="tv_input_setup_error_title">Skanimi automatik dështoi</string>
+    <string name="tv_input_setup_idle_title">Po përgatitet integrimi me Live TV</string>
+    <string name="tv_input_setup_scanning_body">StreamVault po sinkronizon ofruesin aktiv në Android TV Live TV.</string>
+    <string name="tv_input_setup_success_body">Kanalet u sinkronizuan me sukses.</string>
+    <string name="tv_input_setup_no_provider_body">Shto të paktën një ofrues IPTV në StreamVault, pastaj kthehu këtu për të skanuar kanalet në Android TV Live TV.</string>
+    <string name="tv_input_setup_error_body">Sinkronizimi i hyrjes së TV-së nuk përfundoi.</string>
+    <string name="tv_input_setup_idle_body">Ju lutem pritni.</string>
+    <string name="tv_input_setup_source_format">Burimi: %1$s</string>
+    <string name="tv_input_setup_open_setup">Hap konfigurimin e StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">Provo përsëri skanimin automatik</string>
+    <string name="tv_input_setup_retry_scan">Riprovo skanimin automatik</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV tani mund të hapë kanalet e tua të StreamVault.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Kthehu te veprimet e kopjes rezervë në Drive.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Shkarkimi dështoi: %1$s</string>
+    <string name="download_completed">Shkarkimi përfundoi</string>
+    <string name="download_cancelled">Shkarkimi u anulua</string>
+    <string name="download_notification_channel">Shkarkimet</string>
+    <string name="download_notification_channel_description">Shfaq përparimin dhe përfundimin e shkarkimeve</string>
+    <string name="download_in_progress">Po shkarkohet %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Shkarkimet</string>
+    <string name="downloads_empty">Nuk ka shkarkime ende</string>
+    <string name="downloads_delete_confirm">Të fshihet ky shkarkim?</string>
+    <string name="download_play_local">Luaj</string>
+    <string name="nav_vod">VOD</string>
+</resources>

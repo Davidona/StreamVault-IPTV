@@ -1,0 +1,262 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Kërko titra në internet</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Ngarko SRT nga pajisja</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Vonesa e titrave (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Vonesa e titrave</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Vlerat negative i shfaqin titrat më herët; vlerat pozitive i shfaqin më vonë.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Vonesa aktuale: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Shfaqi titrat %1$d ms më herët</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Shfaqi titrat %1$d ms më vonë</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Rivendos vonesën</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s u ngarkua. Luajtësi po ngarkon titrat.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Zgjidh një skedar titrash .srt të vlefshëm.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Skedarët e titrave duhet të jenë 20 MB ose më të vegjël.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Ky skedar titrash nuk mund të ngarkohej.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Gjej titra</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Zgjidh titra për t\'i shtuar në këtë video.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Rezultatet për %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Mund të kërkosh pa u identifikuar nëse qasja anonime është e aktivizuar. Identifikohu për të përdorur kuotën e shkarkimeve të llogarisë tënde.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Lidh llogarinë (opsionale)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Duke kërkuar në OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Nuk u gjetën titra për këtë titull dhe gjuhë.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Kërko përsëri</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Zgjidh një gjuhë, më pas zgjidh një version.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Të gjitha gjuhët</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Shfaq të gjitha gjuhët e disponueshme</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Duke ngarkuar gjuhët…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Gjuha: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Ndrysho gjuhën</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Lista e gjuhëve nuk mund të ngarkohej.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s shkarkime</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Version i përgjithshëm</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Duke shkarkuar titrat…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s u shtua. Luajtësi po ngarkon titrat.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Mbyll</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d minutë</item>
+            <item quantity="other">%1$d minuta</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Sesioni Cast u shkëput.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">Catch-up i disponueshëm (%1$d ditë)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Catch-up i disponueshëm</string>
+    <string name="epg_no_info">Nuk ka informacion EPG</string>
+    <string name="epg_now_playing">Po luhet tani</string>
+    <string name="epg_title">Guida TV</string>
+    <string name="epg_up_next">Në vijim</string>
+    <string name="epg_upcoming_schedule">Orari në vijim</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="label_categories">Kategoritë</string>
+    <string name="label_duration_min">%1$d min</string>
+    <string name="multiview_nav">Ekran i ndarë</string>
+    <string name="nav_live_tv">TV drejtpërdrejt</string>
+    <string name="notification_permission_recording_alert_required">Aktivizo njoftimet për StreamVault që të marrësh alarme për dështimet e regjistrimeve.</string>
+    <string name="notification_permission_reminder_required">Aktivizo njoftimet për StreamVault që të marrësh kujtues për programet.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">Diagnostifikimi</string>
+    <string name="player_action_format">Formati</string>
+    <string name="player_action_group">Grupi</string>
+    <string name="player_action_guide">Guida</string>
+    <string name="player_action_mute">Pa zë</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">Luajtja</string>
+    <string name="player_action_quality">Cilësia</string>
+    <string name="player_action_split">Ndarje</string>
+    <string name="player_action_variants">Variantet</string>
+    <string name="player_action_view">Pamja</string>
+    <string name="player_archive">Arkivi</string>
+    <string name="player_aspect_ratio_label">Raporti %1$s</string>
+    <string name="player_audio">Audio</string>
+    <string name="player_chapters">Kapitujt</string>
+    <string name="player_chapter_count">%1$d kapituj</string>
+    <string name="player_chapter_label">Kapitulli %1$d</string>
+    <string name="player_chapter_selected">Kapitulli %1$d, i zgjedhur</string>
+    <string name="player_chapter_title">Kapitulli %1$d · %2$s</string>
+    <string name="player_close_chapters">Mbyll kapitujt</string>
+    <string name="player_previous_chapter">Kapitulli i mëparshëm</string>
+    <string name="player_next_chapter">Kapitulli tjetër</string>
+    <string name="player_rewind_10_seconds">Kthe 10 sekonda pas</string>
+    <string name="player_forward_10_seconds">Kalo 10 sekonda përpara</string>
+    <string name="player_vod_timeline">Vija kohore VOD</string>
+    <string name="player_close_controls">Mbyll kontrollet</string>
+    <string name="player_back_to_menu">Kthehu në menu</string>
+    <string name="player_playback_settings">Cilësimet e luajtjes</string>
+    <string name="player_close_playback_settings">Mbyll cilësimet e luajtjes</string>
+    <string name="player_vod_controls">Kontrollet e luajtjes VOD</string>
+    <string name="player_aspect_ratio">Raporti i pamjes</string>
+    <string name="player_auto_play_cancel">Anulo</string>
+    <string name="player_auto_play_countdown">Luajtja nis në %1$d s</string>
+    <string name="player_auto_play_play_now">Luaj tani</string>
+    <string name="player_av_sync_channel">Kanali</string>
+    <string name="player_av_sync_global">Globale</string>
+    <string name="player_av_sync_minus_50">Sinkronizimi A/V -50 ms</string>
+    <string name="player_av_sync_plus_50">Sinkronizimi A/V +50 ms</string>
+    <string name="player_av_sync_preview">Parapamje</string>
+    <string name="player_av_sync_reset">Rivendos në 0 ms</string>
+    <string name="player_av_sync_save_channel">Ruaj për kanalin</string>
+    <string name="player_av_sync_save_global">Vendos si globale</string>
+    <string name="player_av_sync_short">Sinkronizimi A/V</string>
+    <string name="player_av_sync_title">Sinkronizimi A/V</string>
+    <string name="player_av_sync_use_global">Përdor globalen</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">Shfleto arkivin</string>
+    <string name="player_browse_guide_catchup">Shfleto guidën</string>
+    <string name="player_buffering">Duke u ngarkuar...</string>
+    <string name="player_cancel_scheduled_recording">Anulo të planifikuarën</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">Catch-up</string>
+    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_channel_list_hint">Zgjidh një kanal për ta hapur menjëherë. Kthehu për ta mbyllur listën.</string>
+    <string name="player_channel_list_title">Kanalet (%1$d)</string>
+    <string name="player_channel_not_found">Kanali nuk u gjet</string>
+    <string name="player_channel_selected">Tani</string>
+    <string name="player_channel_variants">Variantet e kanalit</string>
+    <string name="player_close">Mbyll</string>
+    <string name="player_diagnostics_active_decoder">Dekoderi aktiv</string>
+    <string name="player_diagnostics_alternates">Transmetime alternative</string>
+    <string name="player_diagnostics_archive">Arkivi</string>
+    <string name="player_diagnostics_audio_codec">Kodek audio</string>
+    <string name="player_diagnostics_audio_decoder">Dekoder audio</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Regjimi i dekoderit audio</string>
+    <string name="player_diagnostics_audio_output_path">Rruga e audios</string>
+    <string name="player_diagnostics_av_offset">Zhvendosja A/V</string>
+    <string name="player_diagnostics_av_sync">Sinkronizimi A/V</string>
+    <string name="player_diagnostics_av_sync_custom">Aktiv (rrugë e personalizuar sinkronizimi)</string>
+    <string name="player_diagnostics_av_sync_stock">Joaktiv (rrugë standarde audio)</string>
+    <string name="player_diagnostics_av_sync_waiting">Aktiv (në pritje të rinisjes së luajtjes)</string>
+    <string name="player_diagnostics_channel_errors">Gabimet e kanalit</string>
+    <string name="player_diagnostics_compatibility_note">Shënim mbi përputhshmërinë</string>
+    <string name="player_diagnostics_compatibility_note_value">Luajtja mund të përdorë për këtë transmetim një rrugë audio të mësuar ose të asistuar nga përputhshmëria.</string>
+    <string name="player_diagnostics_compatibility_source">Burimi i përputhshmërisë</string>
+    <string name="player_diagnostics_dropped_frames">Kuadrot e humbur</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">Dështimi i fundit</string>
+    <string name="player_diagnostics_last_frame">Kuadri i fundit i videos</string>
+    <string name="player_diagnostics_playback_state">Gjendja e luajtjes</string>
+    <string name="player_diagnostics_provider">Ofruesi</string>
+    <string name="player_diagnostics_recovery_actions">Veprimet e rikuperimit</string>
+    <string name="player_diagnostics_resolution">Rezolucioni</string>
+    <string name="player_diagnostics_section_audio">Audio</string>
+    <string name="player_diagnostics_section_playback">Luajtja</string>
+    <string name="player_diagnostics_section_recovery">Rikuperimi</string>
+    <string name="player_diagnostics_section_source">Burimi</string>
+    <string name="player_diagnostics_section_video">Video</string>
+    <string name="player_diagnostics_source">Burimi</string>
+    <string name="player_diagnostics_stream_class">Klasa e transmetimit</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">Diagnostifikimi i luajtjes</string>
+    <string name="player_diagnostics_troubleshooting">Zgjidhja e problemeve</string>
+    <string name="player_diagnostics_frame_rate">Shpejtësia e kuadrove</string>
+    <string name="player_diagnostics_stream_bitrate">Bitrate i transmetimit</string>
+    <string name="player_diagnostics_bandwidth_estimate">Gjerësia e brezit të rrjetit</string>
+    <string name="player_diagnostics_video_bitrate">Bitrate i videos</string>
+    <string name="player_diagnostics_video_codec">Kodek video</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Regjimi i dekoderit video</string>
+    <string name="player_diagnostics_video_stalls">Ndalimet e videos</string>
+    <string name="player_epg_overlay_hint">Shfleto detajet e guidës këtu. Zgjidh butonin Catch-up për të hapur historikun e arkivit.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">Episodet</string>
+    <string name="player_previous_episode">Episodi i mëparshëm</string>
+    <string name="player_next_episode">Episodi tjetër</string>
+    <string name="player_error_back">Ose shtyp Kthehu për t\'u kthyer</string>
+    <string name="player_error_decoder">Ky format nuk mund të luhet — provo të ndryshosh regjimin e dekoderit te Cilësimet</string>
+    <string name="player_error_drm">Licenca DRM ose kërkesat e sigurisë së pajisjes penguan luajtjen</string>
+    <string name="player_error_live_hint">Provo përsëri, kthehu te kanali i fundit ose shtyp Kthehu për të dalë nga luajtja.</string>
+    <string name="player_error_network">Transmetimi i padisponueshëm — kontrollo lidhjen e internetit</string>
+    <string name="player_error_source">Transmetimi nuk u gjet ose qasja u refuzua</string>
+    <string name="player_error_title">Gabim luajtjeje</string>
+    <string name="player_error_unknown">Gabim i panjohur luajtjeje</string>
+    <string name="player_format_short">Formati</string>
+    <string name="player_forward">Përpara shpejt</string>
+    <string name="player_idle_standby_after">Lejo gatishmërinë pas pasivitetit</string>
+    <string name="player_idle_timer_status">Gatishmëria pas pasivitetit %1$s</string>
+    <string name="player_jump_to_live">Kalo në drejtpërdrejt</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">Kanali i fundit</string>
+    <string name="player_last_group_hint">Kthehu te grupi i fundit i transmetimeve drejtpërdrejt që po shfletoje.</string>
+    <string name="player_last_group_label">I fundit: %1$s</string>
+    <string name="player_live_buffer_depth">Buferi %1$s</string>
+    <string name="player_live_buffer_end">Kufiri i transmetimit drejtpërdrejt</string>
+    <string name="player_live_buffer_start">Fillimi i buferit</string>
+    <string name="player_live_channel">Kanali %1$d</string>
+    <string name="player_live_dvr_controls">Luajtësi</string>
+    <string name="player_live_now">Po luhet tani</string>
+    <string name="player_live_offset">%1$s pas transmetimit drejtpërdrejt</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">Vija kohore e rikthimit në transmetimin drejtpërdrejt. Përdor majtas dhe djathtas për të lëvizur në kohë.</string>
+    <string name="player_live_timeshift_buffering">Rikthimi lokal i transmetimit drejtpërdrejt është ende duke u ngarkuar.</string>
+    <string name="player_minutes_remaining">%1$d min të mbetura</string>
+    <string name="player_more_controls">Më shumë kontrolle</string>
+    <string name="player_multiview_short">Pamje e shumëfishtë</string>
+    <string name="player_mute">Pa zë</string>
+    <string name="player_muted_badge">Muted</string>
+    <string name="player_next_label">Në vijim:</string>
+    <string name="player_no_guide_data">Nuk ka të dhëna të guidës</string>
+    <string name="player_open_guide_action">Hap guidën</string>
+    <string name="player_open_in_external_player">Hap në luajtës të jashtëm</string>
+    <string name="player_pause">Pauzë</string>
+    <string name="player_picture_in_picture">Pamje brenda pamjes</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">Luaj</string>
+    <string name="player_playback_label">Luajtja</string>
+    <string name="player_playback_speed_title">Shpejtësia e luajtjes</string>
+    <string name="player_playback_speed_value">Shpejtësia %1$s</string>
+    <string name="player_quality_short">Cilësia</string>
+    <string name="player_recent_channels">Të fundit</string>
+    <string name="player_record">Regjistro</string>
+    <string name="player_record_now">Regjistro tani</string>
+    <string name="player_record_options">Regjistrimi</string>
+    <string name="player_recording_badge">Recording</string>
+    <string name="player_recording_scheduled_badge">Scheduled</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">Rinis</string>
+    <string name="player_close_playback_title">Mbyll luajtjen?</string>
+    <string name="player_close_playback_desc">Kjo do të ndalojë luajtjen dhe do të kthejë në ekranin e mëparshëm.</string>
+    <string name="player_close_playback_confirm">Po</string>
+    <string name="player_close_playback_cancel">Jo</string>
+    <string name="player_resume">Vazhdo</string>
+    <string name="player_resume_desc">Dëshiron të vazhdosh %1$s nga aty ku e le?</string>
+    <string name="player_resume_start_over">Fillo nga e para</string>
+    <string name="player_resume_title">Vazhdo luajtjen</string>
+    <string name="player_retry">Provo përsëri</string>
+    <string name="player_rewind">Kthe pas</string>
+    <string name="player_schedule_daily_recording">Planifiko çdo ditë</string>
+    <string name="player_schedule_recording">Planifiko</string>
+    <string name="player_schedule_weekly_recording">Planifiko çdo javë</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Kalo hyrjen</string>
+    <string name="player_skip_opening">Kalo hapjen</string>
+    <string name="player_skip_recap">Kalo përmbledhjen</string>
+    <string name="player_skip_outro">Kalo fundin</string>
+    <string name="player_selected">Zgjedhur</string>
+    <string name="player_stats">Statistika</string>
+    <string name="player_stop_casting">Ndalo transmetimin Cast</string>
+    <string name="player_stop_playback_after">Ndalo luajtjen pas</string>
+    <string name="player_stop_recording">Ndalo regjistrimin</string>
+    <string name="player_stop_timer_status">Ndalon pas %1$s</string>
+    <string name="player_stream_format">Formati i transmetimit</string>
+    <string name="player_subs">Titrat</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
+    <string name="player_timer_disable">Çaktivizo</string>
+    <string name="player_timer_extend_30">+30 min</string>
+    <string name="player_timer_off">Fikur</string>
+    <string name="player_timer_warning_idle">Gatishmëria lejohet pas %1$s</string>
+    <string name="player_timer_warning_stop">Luajtja ndalon pas %1$s</string>
+    <string name="player_track_audio">Zgjidh pisten audio</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Përkthim në kohë reale</string>
+    <string name="player_track_off">Fikur</string>
+    <string name="player_track_subs">Zgjidh titrat</string>
+    <string name="player_try_alternate_stream">Provo një rrugë tjetër</string>
+    <string name="player_type_channel_number">Shkruaj numrin e kanalit</string>
+    <string name="player_type_movie">Film</string>
+    <string name="player_type_series">Serial</string>
+    <string name="player_unmute">Aktivizo zërin</string>
+    <string name="player_up_next">Në vijim</string>
+    <string name="player_variants_short">Variantet</string>
+    <string name="player_video_quality">Cilësia e videos</string>
+    <string name="series_seasons">Sezonet</string>
+    <string name="settings_recording_status_recording">Duke regjistruar</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+</resources>
