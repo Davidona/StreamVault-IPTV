@@ -1978,6 +1978,91 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate78To79_scopesEpisodeUniquenessToSeriesAndExpiresSeriesDetails() {
+        val name = "streamvault-78-79-episode-uniqueness"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            insertProvider78(1, "Xtream", "XTREAM_CODES")
+            insertSeries78(id = 30, seriesId = 3001, providerId = 1, name = "Series With Episodes", detailHydratedAt = 555)
+            insertSeries78(id = 31, seriesId = 3002, providerId = 1, name = "Stranded Series", detailHydratedAt = 666)
+            insertEpisode78(id = 40, episodeId = 10001, seriesId = 30, providerId = 1, title = "S01E01")
+            execSQL("INSERT INTO series (id, series_id, name, rating, last_modified, provider_id, is_adult, is_user_protected, sync_fingerprint, cache_state, detail_hydrated_at, remote_stale_at, catalog_origin) VALUES (32, 3003, 'Summary Series', 0.0, 0, 1, 0, 0, 'fp', 'SUMMARY_ONLY', 0, 0, 'NATIVE')")
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            79,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.all.toTypedArray()
+        )
+
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_episode_id'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_series_id_episode_id' AND `unique`=1"))
+
+        // Two series may now share a synthesized episode id.
+        migrated.insertEpisode78(id = 41, episodeId = 10001, seriesId = 31, providerId = 1, title = "S01E01")
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE provider_id = 1 AND episode_id = 10001"))
+
+        // TTL expired but still hydrated, so sync keeps preserving the detail fields.
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM series WHERE cache_state = 'DETAIL_HYDRATED' AND detail_hydrated_at = 1"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id = 32 AND cache_state = 'SUMMARY_ONLY' AND detail_hydrated_at = 0"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE id = 40 AND series_id = 30"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    private fun SupportSQLiteDatabase.insertProvider78(id: Long, name: String, type: String) {
+        execSQL(
+            "INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) VALUES (?,?,?,1,'UNKNOWN',0,0)",
+            arrayOf<Any?>(id, name, type)
+        )
+    }
+
+    private fun SupportSQLiteDatabase.insertSeries78(
+        id: Long,
+        seriesId: Long,
+        providerId: Long,
+        name: String,
+        detailHydratedAt: Long
+    ) {
+        execSQL(
+            """
+            INSERT INTO series (
+                id, series_id, provider_series_id, name, poster_url, backdrop_url, category_id,
+                category_name, plot, cast, director, genre, release_date, rating, tmdb_id,
+                youtube_trailer, episode_run_time, last_modified, provider_id, is_adult,
+                is_user_protected, sync_fingerprint, cache_state, detail_hydrated_at,
+                remote_stale_at, catalog_origin, episode_playback_template_url
+            ) VALUES (
+                ?,?,NULL,?,NULL,NULL,7,'Series',NULL,NULL,NULL,NULL,NULL,0.0,NULL,
+                NULL,NULL,0,?,0,0,'series-fp','DETAIL_HYDRATED',?,0,'NATIVE',NULL
+            )
+            """.trimIndent(),
+            arrayOf<Any?>(id, seriesId, name, providerId, detailHydratedAt)
+        )
+    }
+
+    private fun SupportSQLiteDatabase.insertEpisode78(
+        id: Long,
+        episodeId: Long,
+        seriesId: Long,
+        providerId: Long,
+        title: String
+    ) {
+        execSQL(
+            """
+            INSERT INTO episodes (
+                id, episode_id, title, episode_number, season_number, stream_url,
+                container_extension, cover_url, plot, duration, duration_seconds, rating,
+                release_date, series_id, provider_id, watch_progress, last_watched_at,
+                is_adult, is_user_protected
+            ) VALUES (?,?,?,1,1,'https://stream.test/episode',NULL,NULL,NULL,NULL,0,0.0,NULL,?,?,0,0,0,0)
+            """.trimIndent(),
+            arrayOf<Any?>(id, episodeId, title, seriesId, providerId)
+        )
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """

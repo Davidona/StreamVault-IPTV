@@ -513,7 +513,8 @@ data class SeriesFtsEntity(
     indices = [
         Index(value = ["series_id"]),
         Index(value = ["provider_id"]),
-        Index(value = ["provider_id", "episode_id"], unique = true)
+        // Scoped to the series: synthesized episode ids (season * 10000 + episode) repeat across series.
+        Index(value = ["provider_id", "series_id", "episode_id"], unique = true)
     ]
 )
 data class EpisodeEntity(
