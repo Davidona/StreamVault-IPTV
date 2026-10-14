@@ -1,5 +1,7 @@
 package com.streamvault.feature.catalog.presentation.movies
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import android.content.Intent
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,7 +25,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -64,7 +65,7 @@ import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
@@ -336,7 +337,7 @@ private fun MovieDetailContent(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(2f / 3f)
-                                            .clip(RoundedCornerShape(12.dp))
+                                            .clip(BrowseShapes.Artwork)
                                             .background(AppColors.SurfaceElevated)
                                     ) {
                                         AsyncImage(
@@ -372,7 +373,7 @@ private fun MoviePoster(
         modifier = Modifier
             .width(posterWidth)
             .aspectRatio(2f / 3f)
-            .clip(RoundedCornerShape(24.dp))
+            .clip(BrowseShapes.Panel)
             .background(AppColors.SurfaceElevated)
     ) {
         AsyncImage(
@@ -454,10 +455,7 @@ private fun MovieDetailHeroText(
             TvButton(
                 onClick = onPlay,
                 modifier = Modifier.focusRequester(playButtonFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.Brand,
-                    contentColor = Color.White
-                )
+                colors = browsePrimaryButtonColors()
             ) {
                 Text(
                     text = if (hasResume) {
@@ -514,7 +512,7 @@ private fun MovieDetailHeroText(
                 onClick = onToggleFavorite,
                 colors = ButtonDefaults.colors(
                     containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    contentColor = if (movie.isFavorite) Color.White else AppColors.TextSecondary
+                    contentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
                 )
             ) {
                 Icon(
@@ -557,7 +555,7 @@ private fun MovieVersionSelector(
                     onClick = { onSelectVariant(variant.rawMovieId) },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (selected) Color.White else AppColors.TextPrimary
+                        contentColor = if (selected) AppColors.OnPrimary else AppColors.TextPrimary
                     )
                 ) {
                     Text(

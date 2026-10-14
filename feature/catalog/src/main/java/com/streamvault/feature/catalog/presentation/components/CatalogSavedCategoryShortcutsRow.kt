@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Alignment
@@ -27,12 +27,12 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.catalog.R
-import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 import com.streamvault.core.ui.interaction.mouseClickable
 
 data class SavedCategoryShortcut(
@@ -93,7 +93,7 @@ fun SavedCategoryShortcutsRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = BrowseShapes.Control,
                 colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
             ) {
                 Text(
@@ -118,7 +118,7 @@ fun SavedCategoryShortcutsRow(
                     Surface(
                         onClick = onPrimaryShortcutClick,
                         modifier = Modifier.width(shortcutWidth).mouseClickable(onClick = onPrimaryShortcutClick),
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                         colors = ClickableSurfaceDefaults.colors(
                             containerColor = if (isPrimaryShortcutSelected) {
                                 Primary.copy(alpha = 0.18f)
@@ -132,7 +132,7 @@ fun SavedCategoryShortcutsRow(
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
                                 border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
-                                shape = RoundedCornerShape(14.dp)
+                                shape = BrowseShapes.Control
                             )
                         ),
                         scale = ClickableSurfaceDefaults.scale(focusedScale = FocusSpec.FocusedScale)
@@ -169,7 +169,7 @@ fun SavedCategoryShortcutsRow(
                         onClick = { onShortcutClick(shortcut.name) },
                         onLongClick = onShortcutLongClick?.let { handler -> { handler(shortcut.name) } }
                     ),
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                    shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = if (isSelected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
                         focusedContainerColor = Primary.copy(alpha = 0.22f),
@@ -179,7 +179,7 @@ fun SavedCategoryShortcutsRow(
                     border = ClickableSurfaceDefaults.border(
                         focusedBorder = Border(
                             border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
-                            shape = RoundedCornerShape(14.dp)
+                            shape = BrowseShapes.Control
                         )
                     ),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = FocusSpec.FocusedScale)

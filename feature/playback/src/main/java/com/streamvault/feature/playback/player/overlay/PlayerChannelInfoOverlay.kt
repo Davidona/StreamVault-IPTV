@@ -1,5 +1,6 @@
 package com.streamvault.feature.playback.player.overlay
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -50,7 +51,7 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.playback.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.domain.playback.isArchivePlayable
@@ -62,8 +63,8 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.player.timeshift.LiveTimeshiftStatus
 import java.util.Date
-import com.streamvault.core.ui.design.AppColors.Brand as Primary
-import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.BrowseColors.Brand as Primary
+import com.streamvault.core.ui.design.BrowseColors.TextTertiary as OnSurfaceDim
 
 @Composable
 fun ChannelInfoOverlay(
@@ -195,8 +196,8 @@ fun ChannelInfoOverlay(
                             Box(
                                 modifier = Modifier
                                     .size(44.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .border(1.dp, AppColors.Focus.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
+                                    .clip(BrowseShapes.Artwork)
+                                    .border(1.dp, AppColors.Focus.copy(alpha = 0.05f), BrowseShapes.Artwork)
                             ) {
                                 ChannelLogoBadge(
                                     channelName = currentChannel.name,
@@ -793,7 +794,7 @@ private fun CompactTimeshiftTransport(
     }
 
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.06f))
     ) {
         Column(
@@ -808,7 +809,7 @@ private fun CompactTimeshiftTransport(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = BrowseShapes.Control,
                     colors = SurfaceDefaults.colors(containerColor = Color.Black.copy(alpha = 0.22f))
                 ) {
                     Column(
@@ -959,7 +960,7 @@ private fun CompactTransportButton(
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (highlighted) {
                 Primary.copy(alpha = 0.18f)
@@ -1006,7 +1007,7 @@ private fun ChannelInfoActionMenuTray(
     if (actions.isEmpty()) return
 
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Color.Black.copy(alpha = 0.22f))
     ) {
         Column(
@@ -1055,7 +1056,7 @@ private fun CompactMenuActionButton(
             onInteraction()
             onClick()
         },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.White.copy(alpha = 0.08f),
             focusedContainerColor = Color.White.copy(alpha = 0.16f)

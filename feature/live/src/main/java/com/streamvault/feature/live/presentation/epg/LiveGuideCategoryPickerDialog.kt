@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,12 +40,12 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.Category
 
 data class LiveGuideCategoryPickerLabels(
@@ -94,7 +94,7 @@ fun LiveGuideCategoryPickerDialog(
                 .fillMaxHeight(0.78f)
                 .focusGroup(),
             colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-            shape = RoundedCornerShape(22.dp)
+            shape = BrowseShapes.Panel
         ) {
             Column(
                 modifier = Modifier
@@ -168,11 +168,11 @@ fun LiveGuideCategoryPickerDialog(
                                 focusedContentColor = if (isSelected) Primary else OnSurface
                             ),
                             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                            shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
                                     border = BorderStroke(2.dp, FocusBorder),
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = BrowseShapes.Control
                                 )
                             )
                         ) {

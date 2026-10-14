@@ -1,12 +1,12 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,10 +29,10 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.dialogs.rememberDialogOpenGestureBlocker
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 import com.streamvault.domain.model.Category
 import kotlinx.coroutines.delay
 
@@ -100,7 +100,7 @@ fun LiveCategoryOptionsDialog(
                 modifier = Modifier
                     .fillMaxWidth(dialogWidth)
                     .onPreviewKeyEvent(blockOpenGesture),
-                shape = RoundedCornerShape(24.dp),
+                shape = BrowseShapes.Panel,
                 colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
             ) {
                 Column(

@@ -49,6 +49,12 @@ import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.contentOnColor
+import com.streamvault.core.ui.design.AppPalette
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.BrowseFocusSpec
+import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.design.FocusSpec
 
 internal val LocalDialogCanInteract = compositionLocalOf { true }
@@ -67,6 +73,9 @@ fun rememberDialogOpenGestureBlocker(canInteract: Boolean): (KeyEvent) -> Boolea
             }
     }
 }
+
+private val dialogPalette: AppPalette
+    @Composable get() = if (LocalBrowseVisuals.current) BrowseColors.current else AppColors.current
 
 @Composable
 fun PremiumDialog(
@@ -111,17 +120,17 @@ fun PremiumDialog(
                         .onPreviewKeyEvent(blockOpenGesture)
                     Surface(
                         modifier = dialogModifier,
-                        shape = RoundedCornerShape(28.dp),
-                        colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated)
+                        shape = if (LocalBrowseVisuals.current) BrowseShapes.Hero else RoundedCornerShape(28.dp),
+                        colors = SurfaceDefaults.colors(containerColor = dialogPalette.surfaceElevated)
                     ) {
                         Column(
                             modifier = Modifier
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
-                                            AppColors.BrandMuted.copy(alpha = 0.18f),
-                                            AppColors.SurfaceElevated,
-                                            AppColors.Surface
+                                            dialogPalette.brandMuted.copy(alpha = 0.18f),
+                                            dialogPalette.surfaceElevated,
+                                            dialogPalette.surface
                                         )
                                     )
                                 )
@@ -132,13 +141,13 @@ fun PremiumDialog(
                                 Text(
                                     text = title,
                                     style = MaterialTheme.typography.headlineMedium,
-                                    color = AppColors.TextPrimary
+                                    color = dialogPalette.textPrimary
                                 )
                                 if (!subtitle.isNullOrBlank()) {
                                     Text(
                                         text = subtitle,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.TextSecondary
+                                        color = dialogPalette.textSecondary
                                     )
                                 }
                             }
@@ -178,17 +187,17 @@ fun PremiumDialog(
 
                     Surface(
                         modifier = dialogModifier,
-                        shape = RoundedCornerShape(28.dp),
-                        colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated)
+                        shape = if (LocalBrowseVisuals.current) BrowseShapes.Hero else RoundedCornerShape(28.dp),
+                        colors = SurfaceDefaults.colors(containerColor = dialogPalette.surfaceElevated)
                     ) {
                         Column(
                             modifier = Modifier
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
-                                            AppColors.BrandMuted.copy(alpha = 0.18f),
-                                            AppColors.SurfaceElevated,
-                                            AppColors.Surface
+                                            dialogPalette.brandMuted.copy(alpha = 0.18f),
+                                            dialogPalette.surfaceElevated,
+                                            dialogPalette.surface
                                         )
                                     )
                                 )
@@ -199,13 +208,13 @@ fun PremiumDialog(
                                 Text(
                                     text = title,
                                     style = MaterialTheme.typography.headlineMedium,
-                                    color = AppColors.TextPrimary
+                                    color = dialogPalette.textPrimary
                                 )
                                 if (!subtitle.isNullOrBlank()) {
                                     Text(
                                         text = subtitle,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = AppColors.TextSecondary
+                                        color = dialogPalette.textSecondary
                                     )
                                 }
                             }
@@ -294,10 +303,10 @@ private fun ColumnScope.PremiumDialogScrollableBody(
                 text = "$arrow  $scrollHint",
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .background(AppColors.Surface.copy(alpha = 0.94f), RoundedCornerShape(10.dp))
+                    .background(dialogPalette.surface.copy(alpha = 0.94f), RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 7.dp),
                 style = MaterialTheme.typography.labelSmall,
-                color = AppColors.TextSecondary,
+                color = dialogPalette.textSecondary,
             )
         }
     }
@@ -314,34 +323,37 @@ fun PremiumDialogActionButton(
 ) {
     val canInteract = LocalDialogCanInteract.current
     val containerColor = when {
-        destructive -> AppColors.Live.copy(alpha = 0.22f)
-        emphasized -> AppColors.Brand
+        destructive -> dialogPalette.live.copy(alpha = 0.22f)
+        emphasized -> dialogPalette.brand
         else -> Color.White.copy(alpha = 0.08f)
     }
     val contentColor = when {
-        destructive -> AppColors.TextPrimary
-        emphasized -> Color.Black
-        else -> AppColors.TextPrimary
+        destructive -> dialogPalette.textPrimary
+        emphasized -> if (LocalBrowseVisuals.current) dialogPalette.onPrimary else Color.Black
+        else -> dialogPalette.textPrimary
     }
 
     Button(
         onClick = { if (canInteract) onClick() },
         enabled = enabled,
         modifier = modifier.fillMaxWidth().mouseClickable(enabled = enabled, onClick = { if (canInteract) onClick() }),
+        shape = if (LocalBrowseVisuals.current) ButtonDefaults.shape(BrowseShapes.Control) else ButtonDefaults.shape(),
         colors = ButtonDefaults.colors(
             containerColor = containerColor,
             contentColor = contentColor,
-            focusedContainerColor = if (destructive) AppColors.Live else AppColors.SurfaceEmphasis,
-            focusedContentColor = AppColors.Focus,
-            disabledContainerColor = AppColors.Surface.copy(alpha = 0.85f),
-            disabledContentColor = AppColors.TextDisabled
+            focusedContainerColor = if (destructive) dialogPalette.live else dialogPalette.surfaceEmphasis,
+            focusedContentColor = if (LocalBrowseVisuals.current) {
+                if (destructive) contentOnColor(dialogPalette.live) else dialogPalette.textPrimary
+            } else dialogPalette.focus,
+            disabledContainerColor = dialogPalette.surface.copy(alpha = 0.85f),
+            disabledContentColor = dialogPalette.textDisabled
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus)
+                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.BorderWidth else FocusSpec.BorderWidth, dialogPalette.focus)
             )
         ),
-        scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale)
+        scale = ButtonDefaults.scale(focusedScale = if (LocalBrowseVisuals.current) BrowseFocusSpec.FocusedScale else FocusSpec.FocusedScale)
     ) {
         Text(
             text = label,
@@ -361,30 +373,33 @@ fun PremiumDialogFooterButton(
 ) {
     val canInteract = LocalDialogCanInteract.current
     val containerColor = when {
-        destructive -> AppColors.Live.copy(alpha = 0.18f)
-        emphasized -> AppColors.Brand
+        destructive -> dialogPalette.live.copy(alpha = 0.18f)
+        emphasized -> dialogPalette.brand
         else -> Color.White.copy(alpha = 0.08f)
     }
-    val contentColor = if (emphasized) Color.Black else AppColors.TextPrimary
+    val contentColor = if (emphasized) { if (LocalBrowseVisuals.current) dialogPalette.onPrimary else Color.Black } else dialogPalette.textPrimary
 
     Button(
         onClick = { if (canInteract) onClick() },
         enabled = enabled,
         modifier = modifier.mouseClickable(enabled = enabled, onClick = { if (canInteract) onClick() }),
+        shape = if (LocalBrowseVisuals.current) ButtonDefaults.shape(BrowseShapes.Control) else ButtonDefaults.shape(),
         colors = ButtonDefaults.colors(
             containerColor = containerColor,
             contentColor = contentColor,
-            focusedContainerColor = if (destructive) AppColors.Live else AppColors.SurfaceEmphasis,
-            focusedContentColor = AppColors.Focus,
-            disabledContainerColor = AppColors.Surface.copy(alpha = 0.85f),
-            disabledContentColor = AppColors.TextDisabled
+            focusedContainerColor = if (destructive) dialogPalette.live else dialogPalette.surfaceEmphasis,
+            focusedContentColor = if (LocalBrowseVisuals.current) {
+                if (destructive) contentOnColor(dialogPalette.live) else dialogPalette.textPrimary
+            } else dialogPalette.focus,
+            disabledContainerColor = dialogPalette.surface.copy(alpha = 0.85f),
+            disabledContentColor = dialogPalette.textDisabled
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus)
+                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.BorderWidth else FocusSpec.BorderWidth, dialogPalette.focus)
             )
         ),
-        scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale)
+        scale = ButtonDefaults.scale(focusedScale = if (LocalBrowseVisuals.current) BrowseFocusSpec.FocusedScale else FocusSpec.FocusedScale)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelLarge)
     }

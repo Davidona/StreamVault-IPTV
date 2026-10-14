@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.shell.AppMessageState
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 
@@ -33,6 +34,7 @@ fun TvEmptyState(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        val modern = LocalBrowseVisuals.current
         val contentWidthFraction = if (maxWidth < 700.dp) 0.9f else 0.62f
         AppMessageState(
             title = title,
@@ -40,11 +42,11 @@ fun TvEmptyState(
             modifier = Modifier.fillMaxWidth(contentWidthFraction),
             containerBrush = Brush.horizontalGradient(
                 listOf(
-                    Color.White.copy(alpha = 0.05f),
-                    Color.White.copy(alpha = 0.02f)
+                    if (modern) BrowseColors.SurfaceElevated else Color.White.copy(alpha = 0.05f),
+                    if (modern) BrowseColors.Surface else Color.White.copy(alpha = 0.02f)
                 )
             ),
-            borderColor = Color.White.copy(alpha = 0.08f),
+            borderColor = if (modern) BrowseColors.Outline else Color.White.copy(alpha = 0.08f),
             titleStyle = androidx.tv.material3.MaterialTheme.typography.headlineMedium,
             subtitleStyle = androidx.tv.material3.MaterialTheme.typography.bodyMedium,
             titleColor = OnSurface,

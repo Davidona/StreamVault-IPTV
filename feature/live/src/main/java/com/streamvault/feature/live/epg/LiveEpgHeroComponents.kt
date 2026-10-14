@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -39,11 +39,11 @@ import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.feature.live.presentation.model.guideLookupKey
 import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import java.util.Date
@@ -143,7 +143,7 @@ internal fun ImmersiveGuideHero(
     Surface(
         modifier = modifier.height(96.dp),
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        shape = RoundedCornerShape(20.dp)
+        shape = BrowseShapes.Panel
     ) {
         Row(
             modifier = Modifier
@@ -159,7 +159,7 @@ internal fun ImmersiveGuideHero(
                 modifier = Modifier
                     .width(54.dp)
                     .height(54.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = BrowseShapes.Artwork
             )
 
             Column(

@@ -1,5 +1,7 @@
 package com.streamvault.feature.catalog.presentation.series
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -23,7 +25,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -69,7 +70,7 @@ import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Season
@@ -266,7 +267,7 @@ private fun SeriesDetailContent(
                             modifier = Modifier
                                 .width(posterWidth)
                                 .aspectRatio(2f / 3f)
-                                .clip(RoundedCornerShape(24.dp))
+                                .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
                         ) {
                             AsyncImage(
@@ -354,7 +355,7 @@ private fun SeriesDetailContent(
                             modifier = Modifier
                                 .width(posterWidth)
                                 .aspectRatio(2f / 3f)
-                                .clip(RoundedCornerShape(24.dp))
+                                .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
                         ) {
                             AsyncImage(
@@ -532,7 +533,7 @@ private fun SeriesVersionSelector(
                     onClick = { onSelectVariant(variant.rawSeriesId) },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (selected) Color.White else AppColors.TextPrimary
+                        contentColor = if (selected) AppColors.OnPrimary else AppColors.TextPrimary
                     )
                 ) {
                     Text(
@@ -560,10 +561,7 @@ private fun SeriesDetailActions(
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
         TvButton(
             onClick = { onResumeClick(resumeEpisode) },
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.Brand,
-                contentColor = Color.White
-            )
+            colors = browsePrimaryButtonColors()
         ) {
             Text(
                 text = if (hasProgress) {
@@ -618,7 +616,7 @@ private fun SeriesDetailFavoriteAction(
         onClick = onToggleFavorite,
         colors = ButtonDefaults.colors(
             containerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-            contentColor = if (series.isFavorite) Color.White else AppColors.TextSecondary
+            contentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
         )
     ) {
         Icon(
@@ -638,7 +636,7 @@ fun SeasonChip(
 ) {
     TvClickableSurface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) AppColors.BrandMuted else AppColors.SurfaceElevated,
             contentColor = AppColors.TextPrimary,
@@ -648,11 +646,11 @@ fun SeasonChip(
         border = ClickableSurfaceDefaults.border(
             border = Border(
                 border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) AppColors.Brand else AppColors.Outline),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             ),
             focusedBorder = Border(
                 border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             )
         )
     ) {
@@ -681,7 +679,7 @@ fun EpisodeItem(
     ) {
         TvClickableSurface(
             onClick = onClick,
-            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(18.dp)),
+            shape = ClickableSurfaceDefaults.shape(shape = BrowseShapes.Panel),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = AppColors.SurfaceElevated,
                 focusedContainerColor = AppColors.SurfaceEmphasis

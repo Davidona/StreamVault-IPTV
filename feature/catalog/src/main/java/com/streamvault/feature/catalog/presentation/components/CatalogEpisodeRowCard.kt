@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
@@ -57,9 +58,9 @@ import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.accessibility.rememberReducedMotionEnabled
 import com.streamvault.feature.catalog.presentation.components.channelProgressFraction
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.AppMotion
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
@@ -72,6 +73,7 @@ import com.streamvault.domain.model.Series
 
 @Composable
 fun LiveChannelRowCard(
+    highlighted: Boolean = false,
     channel: Channel,
     nowMs: Long,
     sourceBadgeLabel: String? = null,
@@ -90,8 +92,8 @@ fun LiveChannelRowCard(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(AppColors.SurfaceElevated)
+            .clip(BrowseShapes.Panel)
+            .background(if (highlighted) AppColors.SurfaceEmphasis else AppColors.SurfaceElevated)
             .fillMaxWidth()
             .height(rowHeight)
     ) {
@@ -106,7 +108,7 @@ fun LiveChannelRowCard(
                 modifier = Modifier
                     .width(logoWidth)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(BrowseShapes.Artwork)
             ) {
                 ChannelLogoBadge(
                     channelName = channel.name,
@@ -180,7 +182,7 @@ fun LiveChannelRowCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(2.dp)
-                                .clip(RoundedCornerShape(999.dp)),
+                                .clip(BrowseShapes.Control),
                             color = AppColors.Info,
                             trackColor = AppColors.SurfaceEmphasis
                         )
@@ -277,23 +279,25 @@ fun LiveChannelRowSurface(
                 isFocused = it.isFocused
             },
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
             focusedContainerColor = AppColors.SurfaceEmphasis
         ),
         border = ClickableSurfaceDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Control),
             focusedBorder = Border(
                 border = BorderStroke(
                     width = if (isDragging) 4.dp else FocusSpec.BorderWidth,
                     color = if (isDragging) AppColors.Warning else AppColors.Focus
                 ),
-                shape = RoundedCornerShape(16.dp)
+                shape = BrowseShapes.Control
             )
         )
     ) {
         Box {
             LiveChannelRowCard(
+                highlighted = isFocused,
                 channel = channel,
                 nowMs = nowMs,
                 sourceBadgeLabel = sourceBadgeLabel,
@@ -338,7 +342,7 @@ fun LiveChannelRowSurface(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = AppColors.Warning,
+                        tint = AppColors.MediaWarning,
                         modifier = Modifier.size(11.dp)
                     )
                 }
@@ -382,7 +386,7 @@ fun EpisodeRowCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(BrowseShapes.Panel)
             .background(AppColors.SurfaceElevated)
             .padding(16.dp)
     ) {
@@ -392,7 +396,7 @@ fun EpisodeRowCard(
                     modifier = Modifier
                         .width(previewWidth)
                         .aspectRatio(16f / 9f)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(BrowseShapes.Artwork)
                         .background(AppColors.SurfaceEmphasis),
                     contentAlignment = Alignment.Center
                 ) {
@@ -454,7 +458,7 @@ private fun PosterCard(
     subtitle: String?,
     modifier: Modifier = Modifier
 ) {
-    val posterShape = RoundedCornerShape(12.dp)
+    val posterShape = BrowseShapes.Artwork
     var imageLoaded by remember(imageUrl) { mutableStateOf(false) }
     var imageFailed by remember(imageUrl) { mutableStateOf(false) }
     val showFallback = imageUrl.isNullOrBlank() || imageFailed || !imageLoaded
@@ -462,7 +466,7 @@ private fun PosterCard(
     Box(
         modifier = modifier
             .clip(posterShape)
-            .background(AppColors.SurfaceEmphasis)
+            .background(Brush.linearGradient(listOf(AppColors.SurfaceEmphasis, AppColors.Surface, AppColors.Brand.copy(alpha = 0.18f))))
     ) {
         // Fallback letter: only shown while no URL, still loading, or load failed
         if (showFallback) {
@@ -472,7 +476,7 @@ private fun PosterCard(
             ) {
                 Text(
                     text = title.take(1).uppercase(),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.displayLarge,
                     color = AppColors.TextSecondary
                 )
             }
@@ -484,7 +488,7 @@ private fun PosterCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(posterShape),
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 onSuccess = { imageLoaded = true },
                 onError = { imageFailed = true }
             )

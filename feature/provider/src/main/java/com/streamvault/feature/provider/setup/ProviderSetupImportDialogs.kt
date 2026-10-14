@@ -1,9 +1,9 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SettingsBackupRestore
@@ -32,7 +32,7 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.manager.DriveBackupSnapshot
 
 @Composable
@@ -50,7 +50,7 @@ internal fun ImportOptionsButton(
             .height(if (compact) 38.dp else 44.dp)
             .onFocusEvent { isFocused = it.hasFocus }
             .semantics { contentDescription = text },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Surface.copy(alpha = 0.9f),
             focusedContainerColor = SurfaceHighlight
@@ -221,7 +221,7 @@ internal fun FileSelectorCard(
     TvSurface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().height(80.dp).onFocusEvent { isFocused = it.hasFocus }.mouseClickable(onClick = onClick),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         border = ClickableSurfaceDefaults.border(
             border = Border(BorderStroke(1.dp, borderColor)),
             focusedBorder = Border(BorderStroke(2.dp, FocusBorder))

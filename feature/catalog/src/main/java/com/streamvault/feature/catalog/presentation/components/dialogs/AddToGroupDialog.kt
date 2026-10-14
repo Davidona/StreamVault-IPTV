@@ -1,11 +1,12 @@
 ﻿package com.streamvault.feature.catalog.presentation.components.dialogs
 
+import com.streamvault.core.ui.design.contentOnColor
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -24,7 +25,7 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Category
 import androidx.compose.ui.res.stringResource
 import com.streamvault.feature.catalog.R
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.shape.CircleShape
@@ -113,7 +114,7 @@ fun AddToGroupDialog(
 
             val dialogContent: @Composable (Modifier) -> Unit = { resolvedModifier ->
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = BrowseShapes.Control,
                     colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
                     modifier = resolvedModifier
                         .padding(16.dp)
@@ -147,6 +148,13 @@ fun AddToGroupDialog(
                         // ׳’ג€ג‚¬׳’ג€ג‚¬ Favorites ׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬׳’ג€ג‚¬
                         item {
                             var isFocused by remember { mutableStateOf(false) }
+                            val favoriteInk = contentOnColor(
+                                when {
+                                    isFocused -> AppColors.Focus
+                                    isFavorite -> AppColors.Warning
+                                    else -> AppColors.Brand
+                                }
+                            )
                             Button(
                                 onClick = safeToggleFavorite,
                                 modifier = Modifier
@@ -169,20 +177,20 @@ fun AddToGroupDialog(
                                         isFavorite -> AppColors.Warning
                                         else -> AppColors.Brand
                                     },
-                                    contentColor = Color.Black
+                                    contentColor = favoriteInk
                                 )
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = if (isFavorite) stringResource(R.string.add_group_remove_favorites)
                                         else stringResource(R.string.add_group_add_favorites),
-                                    tint = Color.Black
+                                    tint = favoriteInk
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = if (isFavorite) stringResource(R.string.add_group_remove_favorites)
                                     else stringResource(R.string.add_group_add_favorites),
-                                    color = Color.Black
+                                    color = favoriteInk
                                 )
                             }
                         }
@@ -194,7 +202,7 @@ fun AddToGroupDialog(
                                     modifier = Modifier.fillMaxWidth().mouseClickable(onClick = safeMoveToMovies),
                                     colors = ButtonDefaults.colors(
                                         containerColor = AppColors.Brand,
-                                        contentColor = Color.Black
+                                        contentColor = contentOnColor(AppColors.Brand)
                                     )
                                 ) { Text(stringResource(R.string.m3u_move_to_movies)) }
                             }
@@ -207,7 +215,7 @@ fun AddToGroupDialog(
                                     modifier = Modifier.fillMaxWidth().mouseClickable(onClick = safeMoveToSeries),
                                     colors = ButtonDefaults.colors(
                                         containerColor = AppColors.Success,
-                                        contentColor = Color.Black
+                                        contentColor = contentOnColor(AppColors.Success)
                                     )
                                 ) { Text(stringResource(R.string.m3u_move_to_series)) }
                             }
@@ -256,13 +264,13 @@ fun AddToGroupDialog(
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = stringResource(R.string.multiview_add_to_split),
-                                        tint = if (isFocused) Color.Black else Color.White
+                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else Color.White
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = if (isQueuedForSplitScreen) stringResource(R.string.multiview_queued)
                                         else stringResource(R.string.multiview_add_to_split),
-                                        color = if (isFocused) Color.Black else Color.White
+                                        color = if (isFocused) contentOnColor(AppColors.Focus) else Color.White
                                     )
                                 }
                             }
@@ -289,18 +297,18 @@ fun AddToGroupDialog(
                                         .mouseClickable(onClick = safeHideChannel),
                                     colors = ButtonDefaults.colors(
                                         containerColor = if (isFocused) AppColors.Focus else AppColors.SurfaceAccent,
-                                        contentColor = if (isFocused) Color.Black else AppColors.TextPrimary
+                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
                                     )
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Lock,
                                         contentDescription = stringResource(R.string.channel_action_hide),
-                                        tint = if (isFocused) Color.Black else AppColors.TextPrimary
+                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = stringResource(R.string.channel_action_hide),
-                                        color = if (isFocused) Color.Black else AppColors.TextPrimary
+                                        color = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
                                     )
                                 }
                             }
@@ -330,18 +338,18 @@ fun AddToGroupDialog(
                                             isFocused -> AppColors.Focus
                                             else -> MaterialTheme.colorScheme.errorContainer
                                         },
-                                        contentColor = if (isFocused) Color.Black else MaterialTheme.colorScheme.onErrorContainer
+                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = stringResource(R.string.channel_options_remove_from_recent),
-                                        tint = if (isFocused) Color.Black else MaterialTheme.colorScheme.onErrorContainer
+                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = stringResource(R.string.channel_options_remove_from_recent),
-                                        color = if (isFocused) Color.Black else MaterialTheme.colorScheme.onErrorContainer
+                                        color = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 }
                             }
@@ -404,7 +412,7 @@ fun AddToGroupDialog(
                                             isMember -> AppColors.Live.copy(alpha = 0.2f)
                                             else -> AppColors.BrandMuted.copy(alpha = 0.4f)
                                         },
-                                        contentColor = if (isFocused) Color.Black else AppColors.TextPrimary
+                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
                                     )
                                 ) {
                                     Text(
@@ -435,7 +443,7 @@ fun AddToGroupDialog(
                                 .mouseClickable(onClick = safeCreateGroup),
                             colors = ButtonDefaults.colors(
                                 containerColor = if (isFocused) AppColors.Focus else Color.Transparent,
-                                contentColor = if (isFocused) Color.Black else AppColors.TextPrimary
+                                contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
                             )
                         ) {
                             Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_group_create_new_btn))

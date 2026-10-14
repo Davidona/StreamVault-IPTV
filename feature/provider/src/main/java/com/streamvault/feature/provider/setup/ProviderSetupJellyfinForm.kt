@@ -2,11 +2,11 @@
 
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,10 +22,10 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.theme.AccentCyan
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
-import com.streamvault.core.ui.theme.TextTertiary
+import com.streamvault.core.ui.design.browse.AccentCyan
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
+import com.streamvault.core.ui.design.browse.TextTertiary
 
 @Composable
 internal fun JellyfinProviderForm(
@@ -75,7 +75,7 @@ internal fun JellyfinProviderForm(
                 Box(
                     modifier = Modifier
                         .size(240.dp)
-                        .background(Color.White, RoundedCornerShape(12.dp))
+                        .background(Color.White, BrowseShapes.Artwork)
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {

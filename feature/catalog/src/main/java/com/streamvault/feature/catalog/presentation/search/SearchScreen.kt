@@ -1,5 +1,6 @@
 package com.streamvault.feature.catalog.presentation.search
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
@@ -11,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,10 +52,10 @@ import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.CatalogCompleteness
@@ -836,7 +836,7 @@ private fun SearchHeroPanel(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated.copy(alpha = 0.92f))
     ) {
         Column(
@@ -972,7 +972,7 @@ private fun SearchPill(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Primary.copy(alpha = 0.22f) else Surface.copy(alpha = 0.72f),
             focusedContainerColor = if (selected) Primary.copy(alpha = 0.30f) else SurfaceHighlight,
-            contentColor = if (selected) Color.White else TextSecondary,
+            contentColor = if (selected) TextPrimary else TextSecondary,
             focusedContentColor = TextPrimary
         ),
         border = ClickableSurfaceDefaults.border(
@@ -1010,7 +1010,7 @@ private fun SearchStatusCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Surface.copy(alpha = 0.78f))
     ) {
         Column(
@@ -1233,7 +1233,7 @@ private fun SearchItemActionsDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = BrowseShapes.Panel,
             colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
             modifier = Modifier
                 .width(360.dp)
@@ -1338,7 +1338,7 @@ private fun SearchActionButton(
         .border(
             width = if (isFocused) 2.dp else 0.dp,
             color = if (isFocused) AppColors.Focus else Color.Transparent,
-            shape = RoundedCornerShape(12.dp)
+            shape = BrowseShapes.Artwork
         )
         .mouseClickable(onClick = onClick)
 
@@ -1357,7 +1357,7 @@ private fun SearchActionButton(
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
             disabledContentColor = AppColors.TextSecondary
         ),
-        shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp))
+        shape = ButtonDefaults.shape(shape = BrowseShapes.Artwork)
     ) {
         Icon(
             imageVector = icon,

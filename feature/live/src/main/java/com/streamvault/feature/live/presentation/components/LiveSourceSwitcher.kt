@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -36,11 +37,11 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ActiveLiveSourceOption
 
@@ -81,7 +82,7 @@ fun LiveSourceSwitcher(
                 .focusRequester(toggleRequester)
                 .mouseClickable(focusRequester = toggleRequester, onClick = { showSourceList = !showSourceList })
                 .onFocusChanged { isFocused = it.isFocused },
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+            shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = if (isFocused) Primary.copy(alpha = 0.12f) else SurfaceElevated.copy(alpha = 0.96f),
                 focusedContainerColor = Primary.copy(alpha = 0.18f)
@@ -89,11 +90,11 @@ fun LiveSourceSwitcher(
             border = ClickableSurfaceDefaults.border(
                 border = Border(
                     border = BorderStroke(1.dp, Primary.copy(alpha = 0.14f)),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = BrowseShapes.Artwork
                 ),
                 focusedBorder = Border(
                     border = BorderStroke(2.dp, FocusBorder),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = BrowseShapes.Artwork
                 )
             )
         ) {
@@ -115,7 +116,7 @@ fun LiveSourceSwitcher(
         if (showSourceList && options.isNotEmpty()) {
             Surface(
                 modifier = Modifier.padding(top = if (compact) 38.dp else 46.dp).width(dropdownWidth),
-                shape = RoundedCornerShape(12.dp),
+                shape = BrowseShapes.Artwork,
                 colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
             ) {
                 Column(modifier = Modifier.padding(8.dp)) {

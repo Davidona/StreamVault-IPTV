@@ -7,7 +7,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.theme.ErrorColor
+import com.streamvault.core.ui.design.browse.ErrorColor
 
 @Composable
 internal fun FormErrors(validationError: String?, error: String?) {

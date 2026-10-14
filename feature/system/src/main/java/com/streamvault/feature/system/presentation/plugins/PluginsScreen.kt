@@ -1,5 +1,6 @@
 package com.streamvault.feature.system.presentation.plugins
 
+import com.streamvault.core.ui.design.browsePanel
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,12 +64,12 @@ import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
 
 @Composable
 fun PluginsScreen(
@@ -258,9 +259,9 @@ private fun PluginButton(
     val colors = when (tone) {
         PluginButtonTone.Primary -> ButtonDefaults.colors(
             containerColor = Primary,
-            contentColor = Color.White,
+            contentColor = AppColors.OnPrimary,
             focusedContainerColor = Primary.copy(alpha = 0.88f),
-            focusedContentColor = Color.White,
+            focusedContentColor = AppColors.OnPrimary,
             disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
             disabledContentColor = AppColors.TextDisabled
         )
@@ -307,7 +308,7 @@ private fun PluginInstallPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.72f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -432,7 +433,7 @@ private fun PluginCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -573,7 +574,7 @@ private fun PluginConfigurationHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.72f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -638,7 +639,7 @@ private fun PluginConfigurationSectionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -718,7 +719,7 @@ private fun PluginConfigurationBooleanField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.38f), RoundedCornerShape(8.dp))
+            .browsePanel()
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -860,7 +861,7 @@ private fun PluginConfigurationActions(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {

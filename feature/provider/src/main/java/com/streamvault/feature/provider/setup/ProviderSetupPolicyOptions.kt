@@ -20,7 +20,7 @@ import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode

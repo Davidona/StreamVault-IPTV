@@ -50,6 +50,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
@@ -156,8 +160,11 @@ fun SearchInput(
         focusRequester.requestFocus()
     }
 
-    val borderColor = if (isFocused) FocusBorder else OnSurfaceDim.copy(alpha = 0.5f)
-    val backgroundColor = if (isFocused) SurfaceHighlight else SurfaceElevated
+    val modern = LocalBrowseVisuals.current
+    val palette = if (modern) BrowseColors.current else AppColors.current
+    val searchShape = if (modern) BrowseShapes.Control else RoundedCornerShape(12.dp)
+    val borderColor = if (isFocused) palette.focus else if (modern) palette.outline else OnSurfaceDim.copy(alpha = 0.5f)
+    val backgroundColor = if (isFocused) palette.surfaceEmphasis else palette.surfaceElevated
     val borderWidth = if (isFocused) 2.dp else 1.dp
 
     Box(
@@ -166,8 +173,8 @@ fun SearchInput(
             .heightIn(min = 56.dp)
             .focusRequester(focusRequester)
             .bringIntoViewRequester(bringIntoViewRequester)
-            .background(backgroundColor, RoundedCornerShape(12.dp))
-            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
+            .background(backgroundColor, searchShape)
+            .border(borderWidth, borderColor, searchShape)
             .semantics(mergeDescendants = true) {
                 contentDescription = placeholder
                 stateDescription = value.ifBlank { placeholder }

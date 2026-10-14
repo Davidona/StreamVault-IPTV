@@ -1,5 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -8,7 +10,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,13 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.*
 import com.streamvault.feature.catalog.R
-import com.streamvault.core.ui.design.FocusSpec
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -49,7 +50,7 @@ fun ReorderTopBar(
             .padding(bottom = 20.dp)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = BrowseShapes.Panel,
             colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
         ) {
             Row(
@@ -105,12 +106,7 @@ fun ReorderTopBar(
 
                     TvButton(
                         onClick = onSave,
-                        colors = ButtonDefaults.colors(
-                            containerColor = Primary,
-                            contentColor = Color.White,
-                            focusedContainerColor = Primary.copy(alpha = 0.88f),
-                            focusedContentColor = Color.White
-                        ),
+                        colors = browsePrimaryButtonColors(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = BorderStroke(FocusSpec.BorderWidth, FocusBorder)

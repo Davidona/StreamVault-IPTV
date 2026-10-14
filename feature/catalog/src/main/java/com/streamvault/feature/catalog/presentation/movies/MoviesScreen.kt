@@ -21,7 +21,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.BorderStroke
@@ -48,7 +47,7 @@ import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryContextCard
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcut
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcutsRow
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
@@ -61,7 +60,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.border
 import com.streamvault.feature.catalog.presentation.components.ReorderTopBar
 import com.streamvault.feature.catalog.presentation.components.dialogs.DeleteGroupDialog
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState

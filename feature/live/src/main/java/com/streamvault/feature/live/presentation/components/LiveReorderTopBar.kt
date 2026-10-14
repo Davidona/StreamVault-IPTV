@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,14 +24,14 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
 
 @Composable
 fun LiveReorderTopBar(
@@ -50,7 +51,7 @@ fun LiveReorderTopBar(
         exit = slideOutVertically(targetOffsetY = { -it }),
         modifier = modifier.fillMaxWidth().padding(bottom = 20.dp)
     ) {
-        Surface(shape = RoundedCornerShape(24.dp), colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)) {
+        Surface(shape = BrowseShapes.Panel, colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)) {
             Row(
                 modifier = Modifier.fillMaxWidth().background(Brush.horizontalGradient(listOf(Primary.copy(alpha = 0.08f), Color.Transparent))).padding(horizontal = 24.dp, vertical = 18.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -74,12 +75,7 @@ fun LiveReorderTopBar(
                     ) { Text(cancelLabel, modifier = Modifier.padding(horizontal = 8.dp)) }
                     TvButton(
                         onClick = onSave,
-                        colors = ButtonDefaults.colors(
-                            containerColor = Primary,
-                            contentColor = Color.White,
-                            focusedContainerColor = Primary.copy(alpha = 0.88f),
-                            focusedContentColor = Color.White
-                        ),
+                        colors = browsePrimaryButtonColors(),
                         border = ButtonDefaults.border(focusedBorder = Border(border = BorderStroke(FocusSpec.BorderWidth, FocusBorder))),
                         scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale)
                     ) { Text(saveLabel, modifier = Modifier.padding(horizontal = 8.dp)) }

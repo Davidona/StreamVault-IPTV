@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -46,8 +47,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
@@ -112,7 +113,7 @@ fun LiveChannelCard(
         if (!isLocked) {
             Box(modifier = Modifier.align(Alignment.TopEnd).padding(6.dp)) {
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    if (channel.isFavorite) Icon(imageVector = Icons.Filled.Star, contentDescription = null, tint = AppColors.Warning, modifier = Modifier.size(14.dp))
+                    if (channel.isFavorite) Icon(imageVector = Icons.Filled.Star, contentDescription = null, tint = AppColors.MediaWarning, modifier = Modifier.size(14.dp))
                     if (hasArchive) StatusPill(label = catchUpLabel, containerColor = AppColors.Brand)
                     if (isRecording) StatusPill(label = recordingLabel, containerColor = AppColors.Live)
                     else if (isScheduledRecording) StatusPill(label = scheduledLabel, containerColor = AppColors.Warning, contentColor = Color.Black)
@@ -147,9 +148,9 @@ private fun LiveFocusableCard(
             semanticsDescription?.let { contentDescription = it }
             semanticsStateDescription?.let { stateDescription = it }
         }.onFocusChanged { if (it.isFocused && !isFocused) sounds.playNavigate(); isFocused = it.isFocused },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         colors = ClickableSurfaceDefaults.colors(containerColor = AppColors.Surface, focusedContainerColor = AppColors.SurfaceEmphasis),
-        border = ClickableSurfaceDefaults.border(focusedBorder = Border(border = BorderStroke(if (isDragging) 4.dp else FocusSpec.CardBorderWidth, if (isDragging) AppColors.Warning else AppColors.Focus), shape = RoundedCornerShape(12.dp))),
+        border = ClickableSurfaceDefaults.border(border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Artwork), focusedBorder = Border(border = BorderStroke(if (isDragging) 4.dp else FocusSpec.CardBorderWidth, if (isDragging) AppColors.Warning else AppColors.Focus), shape = BrowseShapes.Artwork)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) { Box(modifier = Modifier.fillMaxSize()) { content(isFocused) } }
 }
