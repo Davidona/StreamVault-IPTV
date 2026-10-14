@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="one">%1$d gemt</item>
-        <item quantity="other">%1$d gemt</item>
-    </plurals>
 <plurals name="settings_timeout_seconds">
         <item quantity="one">%d sekund</item>
         <item quantity="other">%d sekunder</item>

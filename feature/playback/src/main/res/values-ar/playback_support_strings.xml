@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">جارٍ الإرسال إلى الجهاز المتصل.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast غير متاح على هذا الجهاز.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">تنسيق البث هذا غير مدعوم في Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">بثوث RTSP وRTMP غير مدعومة للإرسال.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">البثوث المحمية بـ DRM غير مدعومة في Google Cast داخل هذا التطبيق.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">لا يمكن إرسال هذا العنصر إلى مستقبِل Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">يستخدم هذا البث عنوان URL محليًا أو خاصًا بالجهاز يتعذّر على Chromecast الوصول إليه مباشرة.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">يحتاج هذا البث إلى رؤوس HTTP أو ملفات تعريف ارتباط لا يمكن لـ Chromecast استخدامها مباشرة.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">يحتاج هذا البث إلى User-Agent مخصص لا يمكن لـ Chromecast استخدامه مباشرة.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">يحتاج هذا البث إلى إعدادات وكيل التطبيق، لذا لا يمكن لـ Chromecast استخدامه مباشرة.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">يستخدم هذا البث معالجة SSL لا يمكن لـ Chromecast استخدامها مباشرة.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">تعذّر بدء جلسة الإرسال.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">تعذّر على مستقبِل البث تحميل هذا البث.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">مستقبِل البث المتصل غير جاهز للتشغيل.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">تم إلغاء اختيار جهاز الإرسال.</string>
+    <string name="add_group_close_cd">إغلاق</string>
+    <string name="player_archive_title">أرشيف البرامج</string>
+    <string name="player_no_archive">لم يتم العثور على برامج مؤرشفة</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">الأرشيف</string>
+</resources>

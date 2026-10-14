@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Források</string>
+    <string name="vod_subtitle_settings">Beállítások</string>
+    <string name="vod_subtitle_provider">Szolgáltatói feliratok</string>
+    <string name="vod_subtitle_provider_hint">Válasszon feliratsávot ebből a videóból</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Feliratok keresése online</string>
+    <string name="vod_subtitle_online_unavailable">Az online keresés nem érhető el ehhez a videóhoz</string>
+    <string name="vod_subtitle_device_hint">Válasszon egy SRT-fájlt</string>
+    <string name="vod_subtitle_back">Vissza a forrásokhoz</string>
+    <string name="vod_tracks_empty">Nincsenek elérhető sávok ebben a videóban</string>
+    <string name="vod_subtitle_preview">Ez egy felirat.</string>
+    <string name="vod_subtitle_font_size">Betűméret</string>
+    <string name="vod_subtitle_background">Háttér átlátszósága</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% átlátszó · 100% tömör fekete</string>
+    <string name="vod_subtitle_decrease_setting">%1$s csökkentése</string>
+    <string name="vod_subtitle_increase_setting">%1$s növelése</string>
+</resources>

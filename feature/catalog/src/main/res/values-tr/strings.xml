@@ -32,11 +32,11 @@
   <string name="badge_series">SERİ</string>
   <string name="card_live_badge">CANLI</string>
   <string name="card_locked_channel">Kilitli Kanal</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Yayınla</string>
+  <string name="cast_item_unavailable">Bu öğe bir Cast alıcısına gönderilemez.</string>
+  <string name="cast_launching">Yayınlanıyor...</string>
+  <string name="cast_started">Bağlı cihaza yayınlanıyor.</string>
+  <string name="cast_unavailable">Google Cast bu cihazda kullanılamıyor.</string>
   <string name="category_options_cancel">İptal</string>
   <string name="category_options_clear_recent">Tüm Son İzlenenleri Temizle</string>
   <string name="category_options_delete">Grubu Sil</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Varsayılan Grup Olarak Ayarla</string>
   <string name="category_options_unlock">Grubun Kilidini Aç</string>
   <string name="category_options_unpin">Kategorinin Sabitlemesini Kaldır</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Sabitle</string>
   <string name="category_see_all">Tümünü Gör</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Sabitlemeyi kaldır</string>
+  <string name="channel_action_hide">Bu kanalı gizle</string>
   <string name="channel_options_remove_from_recent">Son İzlenenlerden Kaldır</string>
   <string name="continue_watching_season_episode">S%1$d B%2$d</string>
   <string name="continue_watching_title">İzlemeye Devam Et</string>
   <string name="dashboard_channels_format">%1$d kanallar</string>
   <string name="dashboard_continue_watching">İzlemeye Devam Et</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">İzlemeye Devam Edilen Filmler</string>
+  <string name="dashboard_continue_watching_series">İzlemeye Devam Edilen Diziler</string>
   <string name="dashboard_empty_body">Önce bir oynatma listesi veya Xtream kaynağı ekleyin. Bir sağlayıcı etkinleştiğinde, Ana Sayfa favori kanalları, izlemeye devam edilenleri ve yeni kütüphane satırlarını gösterecek.</string>
   <string name="dashboard_empty_title">Ana ekranı açmak için bir sağlayıcı kurun</string>
   <string name="dashboard_favorite_channels">Favori Kanallar</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Favori Filmler</string>
+  <string name="dashboard_favorite_series">Favori Diziler</string>
   <string name="dashboard_fresh_movie_pick">Taze film seçimi</string>
   <string name="dashboard_jump_back_live">Canlı TV\'ye geri dön</string>
   <string name="dashboard_library_ready">IPTV kitaplığınız hazır</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Son Kanallar</string>
   <string name="dashboard_recent_movies">Son Eklenen Filmler</string>
   <string name="dashboard_recent_series">Son Güncellenen Diziler</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Önerilen Filmler</string>
   <string name="dashboard_resume_episode">Bölüme devam et</string>
   <string name="dashboard_resume_episode_format">S%1$d E%2$d Devam Et</string>
   <string name="dashboard_resume_live">Devam et</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d serisi</string>
   <string name="dashboard_subtitle">%1$s aktif. Canlı yayına geri dönün, ilerlemeyi takip edin veya yeni eklenenlere göz atın.</string>
   <string name="dashboard_title">Kitaplığınız Hazır</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">En Çok Oy Alan Filmler</string>
+  <string name="dashboard_update_allow_installs">Yüklemelere İzin Ver</string>
   <string name="dashboard_update_available">Daha yeni bir uygulama sürümü önbelleğe alındı ve Ayarlar\'dan incelemeye hazır.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Güncelleme indirildi. StreamVault\'tan yüklemelere izin verin, ardından yüklemeyi yeniden deneyin.</string>
   <string name="dashboard_update_install_ready">En son güncelleme zaten indirildi. Yüklemek için Ayarlar\'ı açın.</string>
   <string name="dashboard_update_open_installer">Ayarlar\'dan Yükle</string>
   <string name="dashboard_update_open_settings">Güncellemeleri Aç</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Sağlayıcı Ayrıntılarını Aç</string>
   <string name="dashboard_warning_title">Sağlayıcıya Dikkat Gerekli</string>
   <string name="dashboard_watch_live">Canlı İzle</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">İndir</string>
+  <string name="download_error_no_url">İndirme için yayın URL\'si çözümlenemedi</string>
+  <string name="download_failed">İndirme başarısız: %1$s</string>
+  <string name="download_started">İndirme başladı</string>
   <string name="favorites_add">Favorilere ekle</string>
   <string name="favorites_all_favorites">Tüm Favoriler</string>
   <string name="favorites_cancel">Geri: iptal et</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Seçenekler için kayıtlı bir grubu tutun</string>
   <string name="library_saved_primary_hint">Tam kütüphaneye dönün</string>
   <string name="library_sort_title">Sonuçları Sırala</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Canlı TV\'ye Geri Taşı</string>
+  <string name="m3u_move_to_movies">Filmlere Taşı</string>
+  <string name="m3u_move_to_series">Dizilere Taşı</string>
+  <string name="m3u_organize_items">M3U Öğelerini Düzenle</string>
   <string name="movie_detail_back">Kütüphaneye dön</string>
   <string name="movie_detail_cast">Oyuncular:</string>
   <string name="movie_detail_director">Yönetmen:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">%1$s konumundan devam et</string>
   <string name="movie_detail_trailer">Fragman</string>
   <string name="movie_detail_unknown">Bilinmiyor</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Sürümler</string>
   <string name="movie_loading_details">Ayrıntılar yükleniyor...</string>
   <string name="movie_not_found">Film bulunamadı</string>
   <string name="movie_plot_fallback">Özet mevcut değil</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmler</string>
   <string name="nav_series">Serisi</string>
   <string name="nav_settings">Ayarlar</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">İptal</string>
   <string name="pin_dialog_title">PIN\'i girin</string>
   <string name="player_resume">Devam et</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Favorilerden Kaldır</string>
   <string name="search_actions_unlock">Ebeveyn Denetimini Kaldır</string>
   <string name="search_all">Hepsi</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Arama dizinini bir kez tamamen oluştur</string>
+  <string name="search_catalog_complete">Tam katalog dizini</string>
+  <string name="search_catalog_downloaded_only">Yalnızca indirilen öğeler. Portal kataloğunun tamamında arama yapmak için tam arama dizinini oluşturun.</string>
+  <string name="search_catalog_indexing">Tam arama dizini oluşturuluyor. Sonuçlar hâlâ kısmi.</string>
+  <string name="search_catalog_truncated">Portal kataloğu kesildi. Sonuçlar eksik olabilir.</string>
   <string name="search_clear_history">Temizle</string>
   <string name="search_command_subtitle">Bir başlık, anahtar kelime, kanal adı veya dizi ile başlayın. Sonuçlar hızlı uzaktan kumanda gezinmesi için gruplandırılmış kalır.</string>
   <string name="search_error_subtitle">Bazı sonuçlar yüklenemedi. Tekrar deneyin.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Kitaplığa dön</string>
   <string name="series_detail_play_episode">Oynat · Sezon %1$d Bl %2$d</string>
   <string name="series_detail_resume">Devam Et · Sezon %1$d Bl %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Sürümler</string>
   <string name="series_episodes">Bölümler (%1$d)</string>
   <string name="series_incorrect_pin">PIN yanlış</string>
   <string name="series_library_lens_subtitle">Tüm kütüphane genelinde favorileri, izlenmekte olanları, en yüksek puanlı ve yeni serileri öne çıkarın.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Kısmi</string>
   <string name="settings_status_unknown">Bilinmiyor</string>
   <string name="settings_update_install_started">Paket yükleyici açılıyor.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Yayın URL\'si</string>
+  <string name="stream_url_copied">Yayın URL\'si kopyalandı</string>
+  <string name="stream_url_copy">URL\'yi Kopyala</string>
+  <string name="stream_url_copy_failed">Yayın URL\'si çözümlenemedi</string>
   <string name="vod_category_picker_empty">Eşleşen kategori bulunamadı.</string>
   <string name="vod_category_picker_search_placeholder">Kategorilerde ara…</string>
   <string name="vod_category_picker_subtitle">Kategori adına göre arayın, ardından eşleşen rafı açın.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Filmleri ve dizileri kitaplığa aktarmak için bu sağlayıcıyı yenileyin.</string>
   <string name="vod_sync_needed_title">Senkronizasyon gerekli</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Bu sağlayıcı ayrı Film ve Dizi katalogları sunar.</string>
+  <string name="vod_unavailable_title">VOD kullanılamıyor</string>
 </resources>

@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Nguồn</string>
+    <string name="vod_subtitle_settings">Cài đặt</string>
+    <string name="vod_subtitle_provider">Phụ đề từ nhà cung cấp</string>
+    <string name="vod_subtitle_provider_hint">Chọn bản phụ đề từ video này</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Tìm phụ đề trực tuyến</string>
+    <string name="vod_subtitle_online_unavailable">Tìm kiếm trực tuyến không khả dụng cho video này</string>
+    <string name="vod_subtitle_device_hint">Chọn tệp SRT</string>
+    <string name="vod_subtitle_back">Quay lại nguồn</string>
+    <string name="vod_tracks_empty">Không có bản phụ đề nào trong video này</string>
+    <string name="vod_subtitle_preview">Đây là phụ đề.</string>
+    <string name="vod_subtitle_font_size">Cỡ chữ</string>
+    <string name="vod_subtitle_background">Độ mờ nền</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% trong suốt · 100% đen đặc</string>
+    <string name="vod_subtitle_decrease_setting">Giảm %1$s</string>
+    <string name="vod_subtitle_increase_setting">Tăng %1$s</string>
+</resources>

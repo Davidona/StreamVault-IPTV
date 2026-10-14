@@ -26,17 +26,17 @@
   <string name="badge_error">LỖI</string>
   <string name="badge_movie">PHIM</string>
   <string name="badge_moving">ĐANG CHUYỂN</string>
-  <string name="badge_recording">REC</string>
+  <string name="badge_recording">GHI</string>
   <string name="badge_saved">ĐÃ LƯU</string>
-  <string name="badge_scheduled">SCHED</string>
+  <string name="badge_scheduled">LỊCH</string>
   <string name="badge_series">PHIM BỘ</string>
   <string name="card_live_badge">TRỰC TIẾP</string>
   <string name="card_locked_channel">Kênh bị khóa</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Truyền</string>
+  <string name="cast_item_unavailable">Không thể gửi mục này đến thiết bị nhận Cast.</string>
+  <string name="cast_launching">Đang truyền...</string>
+  <string name="cast_started">Đang truyền đến thiết bị đã kết nối.</string>
+  <string name="cast_unavailable">Google Cast không khả dụng trên thiết bị này.</string>
   <string name="category_options_cancel">Hủy</string>
   <string name="category_options_clear_recent">Xóa Tất Cả Gần Đây</string>
   <string name="category_options_delete">Xóa nhóm</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Đặt làm nhóm mặc định</string>
   <string name="category_options_unlock">Mở khóa nhóm</string>
   <string name="category_options_unpin">Bỏ ghim danh mục</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Ghim</string>
   <string name="category_see_all">Xem Tất Cả →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Bỏ ghim</string>
+  <string name="channel_action_hide">Ẩn kênh này</string>
   <string name="channel_options_remove_from_recent">Xóa khỏi Gần Đây</string>
   <string name="continue_watching_season_episode">M%1$d T%2$d</string>
   <string name="continue_watching_title">Tiếp tục xem</string>
   <string name="dashboard_channels_format">%1$d kênh</string>
   <string name="dashboard_continue_watching">Tiếp tục xem</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Phim đang xem dở</string>
+  <string name="dashboard_continue_watching_series">Series đang xem dở</string>
   <string name="dashboard_empty_body">Thêm danh sách phát hoặc nguồn Xtream trước. Khi nhà cung cấp hoạt động, Màn hình chính sẽ hiển thị kênh yêu thích, nội dung đang xem dở và các hàng thư viện mới.</string>
   <string name="dashboard_empty_title">Thiết lập nhà cung cấp để mở khóa màn hình chính</string>
   <string name="dashboard_favorite_channels">Kênh yêu thích</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Phim yêu thích</string>
+  <string name="dashboard_favorite_series">Series yêu thích</string>
   <string name="dashboard_fresh_movie_pick">Phim mới đề xuất</string>
   <string name="dashboard_jump_back_live">Quay lại TV trực tiếp</string>
   <string name="dashboard_library_ready">Thư viện IPTV của bạn đã sẵn sàng</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Kênh gần đây</string>
   <string name="dashboard_recent_movies">Phim mới thêm gần đây</string>
   <string name="dashboard_recent_series">Series cập nhật gần đây</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Phim đề xuất</string>
   <string name="dashboard_resume_episode">Tiếp tục tập</string>
   <string name="dashboard_resume_episode_format">Tiếp tục S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Tiếp tục</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d loạt</string>
   <string name="dashboard_subtitle">%1$s đang hoạt động. Quay lại xem trực tiếp, tiếp tục nội dung đang xem, hoặc duyệt các nội dung mới.</string>
   <string name="dashboard_title">Thư viện của bạn, sẵn sàng</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Phim đánh giá cao nhất</string>
+  <string name="dashboard_update_allow_installs">Cho phép cài đặt</string>
   <string name="dashboard_update_available">Một bản phát hành mới hơn đã được lưu sẵn và có thể xem lại trong Cài đặt.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Bản cập nhật đã được tải xuống. Cho phép cài đặt từ StreamVault, rồi thử cài đặt lại.</string>
   <string name="dashboard_update_install_ready">Bản cập nhật mới nhất đã được tải xuống. Mở Cài đặt để cài đặt.</string>
   <string name="dashboard_update_open_installer">Cài đặt từ Cài đặt</string>
   <string name="dashboard_update_open_settings">Mở cập nhật</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Mở chi tiết nhà cung cấp</string>
   <string name="dashboard_warning_title">Nhà cung cấp cần chú ý</string>
   <string name="dashboard_watch_live">Xem trực tiếp</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Tải xuống</string>
+  <string name="download_error_no_url">Không thể xác định URL luồng để tải xuống</string>
+  <string name="download_failed">Tải xuống thất bại: %1$s</string>
+  <string name="download_started">Đã bắt đầu tải xuống</string>
   <string name="favorites_add">Thêm vào yêu thích</string>
   <string name="favorites_all_favorites">Tất cả mục yêu thích</string>
   <string name="favorites_cancel">Back: hủy</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Nhấn giữ một nhóm đã lưu để xem tùy chọn</string>
   <string name="library_saved_primary_hint">Quay lại toàn bộ thư viện</string>
   <string name="library_sort_title">Sắp xếp kết quả</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Chuyển lại về TV trực tiếp</string>
+  <string name="m3u_move_to_movies">Chuyển vào Phim</string>
+  <string name="m3u_move_to_series">Chuyển vào Series</string>
+  <string name="m3u_organize_items">Sắp xếp mục M3U</string>
   <string name="movie_detail_back">Quay lại thư viện</string>
   <string name="movie_detail_cast">Diễn viên:</string>
   <string name="movie_detail_director">Đạo diễn:</string>
@@ -210,9 +210,9 @@
   <string name="movie_detail_related">Tương Tự Như Thế Này</string>
   <string name="movie_detail_release_date">Ngày phát hành:</string>
   <string name="movie_detail_resume_from">Tiếp tục từ %1$s</string>
-  <string name="movie_detail_trailer">Trailer</string>
+  <string name="movie_detail_trailer">Đoạn giới thiệu</string>
   <string name="movie_detail_unknown">Không rõ</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Phiên bản</string>
   <string name="movie_loading_details">Đang tải chi tiết...</string>
   <string name="movie_not_found">Không tìm thấy phim</string>
   <string name="movie_plot_fallback">Không có nội dung tóm tắt</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Phim</string>
   <string name="nav_series">loạt</string>
   <string name="nav_settings">Cài đặt</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Hủy</string>
   <string name="pin_dialog_title">Nhập mã PIN</string>
   <string name="player_resume">Tiếp tục</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Xóa khỏi Yêu Thích</string>
   <string name="search_actions_unlock">Mở Khóa Kiểm Soát Phụ Huynh</string>
   <string name="search_all">Tất cả</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Tạo chỉ mục tìm kiếm đầy đủ một lần</string>
+  <string name="search_catalog_complete">Chỉ mục danh mục đầy đủ</string>
+  <string name="search_catalog_downloaded_only">Chỉ các mục đã tải xuống. Tạo chỉ mục tìm kiếm đầy đủ để tìm trong toàn bộ danh mục portal.</string>
+  <string name="search_catalog_indexing">Chỉ mục tìm kiếm đầy đủ đang được tạo. Kết quả vẫn chưa đầy đủ.</string>
+  <string name="search_catalog_truncated">Danh mục portal đã bị cắt ngắn. Kết quả có thể chưa đầy đủ.</string>
   <string name="search_clear_history">Xóa</string>
   <string name="search_command_subtitle">Bắt đầu bằng tiêu đề, từ khóa, tên kênh hoặc series. Kết quả được nhóm lại để điều hướng nhanh bằng remote.</string>
   <string name="search_error_subtitle">Một số kết quả không thể tải. Thử lại.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Quay lại thư viện</string>
   <string name="series_detail_play_episode">Phát · Mùa %1$d Tập %2$d</string>
   <string name="series_detail_resume">Tiếp tục · Mùa %1$d Tập %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Phiên bản</string>
   <string name="series_episodes">Các tập (%1$d)</string>
   <string name="series_incorrect_pin">PIN không đúng</string>
   <string name="series_library_lens_subtitle">Hiển thị series yêu thích, đang xem dở, được đánh giá cao và mới trong toàn bộ thư viện.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Một phần</string>
   <string name="settings_status_unknown">Không rõ</string>
   <string name="settings_update_install_started">Đang mở trình cài đặt gói.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL luồng</string>
+  <string name="stream_url_copied">Đã sao chép URL luồng</string>
+  <string name="stream_url_copy">Sao chép URL</string>
+  <string name="stream_url_copy_failed">Không thể xác định URL luồng</string>
   <string name="vod_category_picker_empty">Không tìm thấy danh mục phù hợp.</string>
   <string name="vod_category_picker_search_placeholder">Tìm danh mục…</string>
   <string name="vod_category_picker_subtitle">Tìm theo tên danh mục, rồi mở kệ tương ứng.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Làm mới nhà cung cấp này để nhập phim và series vào thư viện.</string>
   <string name="vod_sync_needed_title">Cần đồng bộ</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Nhà cung cấp này có danh mục Phim và Series riêng.</string>
+  <string name="vod_unavailable_title">VOD không khả dụng</string>
 </resources>

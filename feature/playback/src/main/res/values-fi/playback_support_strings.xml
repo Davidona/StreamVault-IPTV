@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Lähetetään yhdistettyyn laitteeseen.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast ei ole käytettävissä tällä laitteella.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast ei tue tätä stream-muotoa.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP- ja RTMP-streameja ei tueta lähetyksessä.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Google Cast ei tue DRM-suojattuja streameja tässä sovelluksessa.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Tätä kohdetta ei voi lähettää Cast-vastaanottimeen.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Tämä stream käyttää paikallista tai vain laitteessa toimivaa URL-osoitetta, johon Chromecast ei pääse suoraan.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Tämä stream vaatii HTTP-otsikoita tai evästeitä, joita Chromecast ei voi käyttää suoraan.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Tämä stream vaatii mukautetun User-Agentin, jota Chromecast ei voi käyttää suoraan.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Tämä stream vaatii sovelluksen välityspalvelinasetukset, joten Chromecast ei voi käyttää sitä suoraan.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Tämä stream käyttää SSL-käsittelyä, jota Chromecast ei voi käyttää suoraan.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast-istuntoa ei voitu aloittaa.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast-vastaanotin ei voinut ladata tätä streamia.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Yhdistetty Cast-vastaanotin ei ole valmis toistoon.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Cast-laitteen valinta peruutettiin.</string>
+    <string name="add_group_close_cd">Sulje</string>
+    <string name="player_archive_title">Ohjelma-arkisto</string>
+    <string name="player_no_archive">Arkistoituja ohjelmia ei löytynyt</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkisto</string>
+</resources>

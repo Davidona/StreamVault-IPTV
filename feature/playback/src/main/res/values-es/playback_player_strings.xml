@@ -1,9 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d minuto</item>
             <item quantity="other">%1$d minutos</item>
         </plurals>
-    <string name="add_group_close_cd">Cerrar</string>
     <string name="channel_number_name_format">%1$d. %2$s</string>
     <string name="epg_catchup_available">Catch-up disponible (%1$d días)</string>
     <string name="epg_no_info">Sin información de EPG</string>
@@ -20,7 +19,7 @@
     <string name="notification_permission_reminder_required">Habilita las notificaciones de StreamVault para recibir recordatorios de programas.</string>
     <string name="player_action_cast">Elenco</string>
     <string name="player_action_diagnostics">Diagnóstico</string>
-    <string name="player_action_format">Format</string>
+    <string name="player_action_format">Formato</string>
     <string name="player_action_group">grupo</string>
     <string name="player_action_guide">Guía</string>
     <string name="player_action_mute">Silenciar</string>
@@ -31,8 +30,6 @@
     <string name="player_action_variants">Variantes</string>
     <string name="player_action_view">Ver</string>
     <string name="player_archive">Archivo</string>
-    <string name="player_archive_badge">Archivo</string>
-    <string name="player_archive_title">Archivo de programas</string>
     <string name="player_aspect_ratio_label">Aspecto %1$s</string>
     <string name="player_audio">Audio</string>
     <string name="player_auto_play_cancel">Cancelar</string>
@@ -40,14 +37,14 @@
     <string name="player_auto_play_play_now">Reproducir ahora</string>
     <string name="player_av_sync_channel">Canal</string>
     <string name="player_av_sync_global">Global</string>
-    <string name="player_av_sync_minus_50">A/V sync -50 ms</string>
-    <string name="player_av_sync_plus_50">A/V sync +50 ms</string>
+    <string name="player_av_sync_minus_50">Sincronización A/V -50 ms</string>
+    <string name="player_av_sync_plus_50">Sincronización A/V +50 ms</string>
     <string name="player_av_sync_preview">Vista previa</string>
     <string name="player_av_sync_reset">Restablecer a 0 ms</string>
     <string name="player_av_sync_save_channel">Guardar para el canal</string>
     <string name="player_av_sync_save_global">Establecer como global</string>
-    <string name="player_av_sync_short">A/V Sync</string>
-    <string name="player_av_sync_title">A/V Sync</string>
+    <string name="player_av_sync_short">Sincronización A/V</string>
+    <string name="player_av_sync_title">Sincronización A/V</string>
     <string name="player_av_sync_use_global">Usar global</string>
     <string name="player_av_sync_value">%1$s - %2$s</string>
     <string name="player_browse_archive">Ver archivo</string>
@@ -56,7 +53,7 @@
     <string name="player_cancel_scheduled_recording">Cancelar programado</string>
     <string name="player_cast">Elenco</string>
     <string name="player_catchup_badge">ponerse al día</string>
-    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_catchup_options">Ponerse al día</string>
     <string name="player_channel_list_hint">Seleccione un canal para sintonizarlo al instante. Atrás cierra la lista.</string>
     <string name="player_channel_list_title">Canales (%1$d)</string>
     <string name="player_channel_not_found">Canal no encontrado</string>
@@ -67,17 +64,17 @@
     <string name="player_diagnostics_alternates">Corrientes alternativas</string>
     <string name="player_diagnostics_archive">Archivo</string>
     <string name="player_diagnostics_audio_codec">Códec de audio</string>
-    <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
-    <string name="player_diagnostics_audio_output_path">Audio Path</string>
+    <string name="player_diagnostics_audio_decoder">Decodificador de audio</string>
+    <string name="player_diagnostics_audio_output_path">Ruta de audio</string>
     <string name="player_diagnostics_av_offset">Desplazamiento A/V</string>
-    <string name="player_diagnostics_av_sync">A/V Sync</string>
+    <string name="player_diagnostics_av_sync">Sincronización A/V</string>
     <string name="player_diagnostics_av_sync_custom">Activado (ruta de sincronización personalizada)</string>
     <string name="player_diagnostics_av_sync_stock">Desactivado (ruta de audio estándar)</string>
     <string name="player_diagnostics_av_sync_waiting">Activado (esperando reinicio de reproducción)</string>
     <string name="player_diagnostics_channel_errors">Errores de canal</string>
-    <string name="player_diagnostics_compatibility_note">Compatibility Note</string>
-    <string name="player_diagnostics_compatibility_note_value">Playback may be using a learned or compatibility-assisted audio path for this stream.</string>
-    <string name="player_diagnostics_compatibility_source">Compatibility Source</string>
+    <string name="player_diagnostics_compatibility_note">Nota de compatibilidad</string>
+    <string name="player_diagnostics_compatibility_note_value">Es posible que la reproducción use una ruta de audio aprendida o asistida por compatibilidad para esta transmisión.</string>
+    <string name="player_diagnostics_compatibility_source">Fuente de compatibilidad</string>
     <string name="player_diagnostics_dropped_frames">Marcos caídos</string>
     <string name="player_diagnostics_ffmpeg">FFmpeg</string>
     <string name="player_diagnostics_last_failure">último fracaso</string>
@@ -112,7 +109,7 @@
     <string name="player_error_source">Emisión no encontrada o acceso denegado</string>
     <string name="player_error_title">Error de reproducción</string>
     <string name="player_error_unknown">Error de reproducción desconocido</string>
-    <string name="player_format_short">Format</string>
+    <string name="player_format_short">Formato</string>
     <string name="player_forward">avance rápido</string>
     <string name="player_idle_standby_after">Permitir espera tras inactividad</string>
     <string name="player_idle_timer_status">Espera inactiva %1$s</string>
@@ -121,7 +118,7 @@
     <string name="player_last_channel_action">Último canal</string>
     <string name="player_last_group_hint">Vuelve al último grupo en vivo que estabas explorando.</string>
     <string name="player_last_group_label">Último: %1$s</string>
-    <string name="player_live_buffer_depth">Buffer %1$s</string>
+    <string name="player_live_buffer_depth">Búfer %1$s</string>
     <string name="player_live_buffer_end">Borde en vivo</string>
     <string name="player_live_buffer_start">Inicio del buffer</string>
     <string name="player_live_channel">Canal %1$d</string>
@@ -138,10 +135,9 @@
     <string name="player_mute">Silenciar</string>
     <string name="player_muted_badge">silenciado</string>
     <string name="player_next_label">Siguiente:</string>
-    <string name="player_no_archive">No se encontraron programas archivados</string>
     <string name="player_no_guide_data">Sin datos de guía</string>
     <string name="player_open_guide_action">Guía abierta</string>
-    <string name="player_open_in_external_player">Open in external player</string>
+    <string name="player_open_in_external_player">Abrir en reproductor externo</string>
     <string name="player_pause">Pausa</string>
     <string name="player_picture_in_picture">Imagen en imagen</string>
     <string name="player_pip_short">imagen</string>
@@ -175,7 +171,7 @@
     <string name="player_stop_playback_after">Detener reproducción después de</string>
     <string name="player_stop_recording">Detener grabación</string>
     <string name="player_stop_timer_status">Parar en %1$s</string>
-    <string name="player_stream_format">Stream Format</string>
+    <string name="player_stream_format">Formato de transmisión</string>
     <string name="player_subs">Subtítulos</string>
     <string name="player_time_range_minutes">%1$s - %2$s | %3$d mín.</string>
     <string name="player_timer_disable">Deshabilitar</string>
@@ -194,8 +190,73 @@
     <string name="player_up_next">A continuación</string>
     <string name="player_variants_short">Variantes</string>
     <string name="player_video_quality">Calidad de vídeo</string>
-    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Estaciones</string>
     <string name="settings_recording_status_recording">Grabando</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Buscar subtítulos en línea</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Cargar SRT desde el dispositivo</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Retardo de subtítulos (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Retardo de subtítulos</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Los valores negativos muestran los subtítulos antes; los positivos, después.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Retardo actual: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Mostrar subtítulos %1$d ms antes</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Mostrar subtítulos %1$d ms después</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Restablecer retardo</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s cargado. El reproductor está cargando el subtítulo.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Elige un archivo de subtítulos .srt válido.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Los archivos de subtítulos deben ser de 20 MB o menos.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">No se pudo cargar este archivo de subtítulos.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Buscar subtítulos</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Elige un subtítulo para añadir a este vídeo.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Resultados para %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Puedes buscar sin iniciar sesión si el acceso anónimo está habilitado. Inicia sesión para usar la cuota de descargas de tu cuenta.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Conectar cuenta (opcional)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Buscando en OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">No se encontraron subtítulos para este título e idioma.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Buscar de nuevo</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Elige un idioma y luego una versión.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Todos los idiomas</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Mostrar todos los idiomas disponibles</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Cargando idiomas…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Idioma: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Cambiar idioma</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">No se pudo cargar la lista de idiomas.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s descargas</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Versión general</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Descargando subtítulo…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s añadido. El reproductor está cargando el subtítulo.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Cerrar</string>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Sesión de Cast desconectada.</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Ponerse al día disponible</string>
+    <string name="player_chapters">Capítulos</string>
+    <string name="player_chapter_count">%1$d capítulos</string>
+    <string name="player_chapter_label">Capítulo %1$d</string>
+    <string name="player_chapter_selected">Capítulo %1$d, seleccionado</string>
+    <string name="player_chapter_title">Capítulo %1$d · %2$s</string>
+    <string name="player_close_chapters">Cerrar capítulos</string>
+    <string name="player_previous_chapter">Capítulo anterior</string>
+    <string name="player_next_chapter">Capítulo siguiente</string>
+    <string name="player_rewind_10_seconds">Retroceder 10 segundos</string>
+    <string name="player_forward_10_seconds">Avanzar 10 segundos</string>
+    <string name="player_vod_timeline">Línea de tiempo VOD</string>
+    <string name="player_close_controls">Cerrar controles</string>
+    <string name="player_back_to_menu">Volver al menú</string>
+    <string name="player_playback_settings">Ajustes de reproducción</string>
+    <string name="player_close_playback_settings">Cerrar ajustes de reproducción</string>
+    <string name="player_vod_controls">Controles de reproducción VOD</string>
+    <string name="player_aspect_ratio">Relación de aspecto</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Modo de decodificador de audio</string>
+    <string name="player_diagnostics_frame_rate">Velocidad de fotogramas</string>
+    <string name="player_diagnostics_stream_bitrate">Tasa de bits de transmisión</string>
+    <string name="player_diagnostics_bandwidth_estimate">Ancho de banda de red</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Modo de decodificador de vídeo</string>
+    <string name="player_close_playback_title">¿Cerrar la reproducción?</string>
+    <string name="player_close_playback_desc">Esto detendrá la reproducción y volverá a la pantalla anterior.</string>
+    <string name="player_close_playback_confirm">Sí</string>
+    <string name="player_close_playback_cancel">No</string>
+    <string name="player_skip_intro">Saltar introducción</string>
+    <string name="player_skip_opening">Saltar apertura</string>
+    <string name="player_skip_recap">Saltar resumen</string>
+    <string name="player_skip_outro">Saltar cierre</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Traducción en tiempo real</string>
 </resources>

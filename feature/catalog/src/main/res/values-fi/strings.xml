@@ -32,11 +32,11 @@
   <string name="badge_series">SARJA</string>
   <string name="card_live_badge">LÄHES</string>
   <string name="card_locked_channel">Lukittu kanava</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Lähetä</string>
+  <string name="cast_item_unavailable">Tätä kohdetta ei voi lähettää Cast-vastaanottimeen.</string>
+  <string name="cast_launching">Lähetetään...</string>
+  <string name="cast_started">Lähetetään yhdistettyyn laitteeseen.</string>
+  <string name="cast_unavailable">Google Cast ei ole käytettävissä tällä laitteella.</string>
   <string name="category_options_cancel">Peruuta</string>
   <string name="category_options_clear_recent">Tyhjennä kaikki viimeisimmät</string>
   <string name="category_options_delete">Poista ryhmä</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Aseta oletusryhmäksi</string>
   <string name="category_options_unlock">Avaa ryhmän lukitus</string>
   <string name="category_options_unpin">Poista kategorian kiinnitys</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Kiinnitä</string>
   <string name="category_see_all">Katso kaikki →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Poista kiinnitys</string>
+  <string name="channel_action_hide">Piilota tämä kanava</string>
   <string name="channel_options_remove_from_recent">Poista viimeisimmistä</string>
   <string name="continue_watching_season_episode">K%1$d J%2$d</string>
   <string name="continue_watching_title">Jatka katselua</string>
   <string name="dashboard_channels_format">%1$d kanavaa</string>
   <string name="dashboard_continue_watching">Jatka katselua</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Jatka elokuvien katselua</string>
+  <string name="dashboard_continue_watching_series">Jatka sarjojen katselua</string>
   <string name="dashboard_empty_body">Lisää ensin soittolista tai Xtream-lähde. Kun palveluntarjoaja on aktiivinen, Home näyttää suosikkikanavat, jatkaa katselua ja uusia kirjastorivejä.</string>
   <string name="dashboard_empty_title">Ota palveluntarjoaja käyttöön avataksesi aloitusnäytön</string>
   <string name="dashboard_favorite_channels">Suosikkikanavat</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Suosikkielokuvat</string>
+  <string name="dashboard_favorite_series">Suosikkisarjat</string>
   <string name="dashboard_fresh_movie_pick">Tuore elokuvavalinta</string>
   <string name="dashboard_jump_back_live">Hyppää takaisin live-TV:hen</string>
   <string name="dashboard_library_ready">IPTV-kirjastosi on valmis</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Viimeaikaiset kanavat</string>
   <string name="dashboard_recent_movies">Äskettäin lisätyt elokuvat</string>
   <string name="dashboard_recent_series">Äskettäin päivitetty sarja</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Suositellut elokuvat</string>
   <string name="dashboard_resume_episode">Jatka jaksoa</string>
   <string name="dashboard_resume_episode_format">Ansioluettelo S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Jatka</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d-sarja</string>
   <string name="dashboard_subtitle">%1$s on aktiivinen. Palaa livenä, seuraa edistymistä tai selaa uusia lisäyksiä.</string>
   <string name="dashboard_title">Kirjastosi, valmiina</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Parhaiten arvioidut elokuvat</string>
+  <string name="dashboard_update_allow_installs">Salli asennukset</string>
   <string name="dashboard_update_available">Uudempi sovellusversio on välimuistissa ja valmis tarkistettavaksi Asetuksista.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Päivitys on ladattu. Salli asennukset StreamVaultista ja yritä asennusta uudelleen.</string>
   <string name="dashboard_update_install_ready">Uusin päivitys on jo ladattu. Avaa Asetukset asentaaksesi sen.</string>
   <string name="dashboard_update_open_installer">Asenna asetuksista</string>
   <string name="dashboard_update_open_settings">Avaa päivitykset</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Avaa Palveluntarjoajan tiedot</string>
   <string name="dashboard_warning_title">Palveluntarjoaja tarvitsee huomiota</string>
   <string name="dashboard_watch_live">Katso suorana</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Lataa</string>
+  <string name="download_error_no_url">Streamin URL-osoitetta ei voitu selvittää latausta varten</string>
+  <string name="download_failed">Lataus epäonnistui: %1$s</string>
+  <string name="download_started">Lataus aloitettu</string>
   <string name="favorites_add">Lisää suosikkeihin</string>
   <string name="favorites_all_favorites">Kaikki suosikit</string>
   <string name="favorites_cancel">Takaisin: peruuta</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Pidä tallennettua ryhmää vaihtoehtoja varten</string>
   <string name="library_saved_primary_hint">Palaa koko kirjastoon</string>
   <string name="library_sort_title">Lajittele tulokset</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Siirrä takaisin Live-TV:hen</string>
+  <string name="m3u_move_to_movies">Siirrä elokuviin</string>
+  <string name="m3u_move_to_series">Siirrä sarjoihin</string>
+  <string name="m3u_organize_items">Järjestä M3U-kohteet</string>
   <string name="movie_detail_back">Takaisin kirjastoon</string>
   <string name="movie_detail_cast">Näyttelijät:</string>
   <string name="movie_detail_director">Ohjaaja:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Jatka kohdasta %1$s</string>
   <string name="movie_detail_trailer">Traileri</string>
   <string name="movie_detail_unknown">Tuntematon</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versiot</string>
   <string name="movie_loading_details">Ladataan tietoja...</string>
   <string name="movie_not_found">Elokuvaa ei löytynyt</string>
   <string name="movie_plot_fallback">Juonta ei ole saatavilla</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Elokuvat</string>
   <string name="nav_series">sarja</string>
   <string name="nav_settings">Asetukset</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Peruuta</string>
   <string name="pin_dialog_title">Anna PIN-koodi</string>
   <string name="player_resume">Jatka</string>
@@ -253,7 +253,7 @@
   <string name="saved_preset_home_shelf">Kotihylly</string>
   <string name="saved_preset_home_shelf_global_subtitle">Livesuosikit, jotka ovat kelvollisia etusivun hallintapaneeliin</string>
   <string name="saved_preset_home_shelf_global_title">Kotisuosikit</string>
-  <string name="saved_preset_live_recall">Live Recall</string>
+  <string name="saved_preset_live_recall">Live-palautus</string>
   <string name="saved_preset_subtitle">Hyppää katso seuraavaksi, reaaliaikaisen palautuksen, tyyppikohtaisen ja mukautetun ryhmänäkymän välillä.</string>
   <string name="saved_preset_title">Tallennetut näkymät</string>
   <string name="saved_preset_watch_next">Katso Seuraava</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Poista suosikeista</string>
   <string name="search_actions_unlock">Avaa lapsilukko</string>
   <string name="search_all">Kaikki</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Rakenna täydellinen hakemisto kerran</string>
+  <string name="search_catalog_complete">Täydellinen luettelohakemisto</string>
+  <string name="search_catalog_downloaded_only">Vain ladatut kohteet. Rakenna täydellinen hakemisto hakeaksesi koko portaaliluettelosta.</string>
+  <string name="search_catalog_indexing">Täydellistä hakemistoa rakennetaan. Tulokset ovat vielä osittaisia.</string>
+  <string name="search_catalog_truncated">Portaalin luettelo katkaistiin. Tulokset voivat olla puutteellisia.</string>
   <string name="search_clear_history">Selkeä</string>
   <string name="search_command_subtitle">Aloita otsikolla, avainsanalla, kanavan nimellä tai sarjalla. Tulokset pysyvät ryhmiteltyinä nopeaa etänavigointia varten.</string>
   <string name="search_error_subtitle">Osa tuloksista ei latautunut. Yritä uudelleen.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Takaisin kirjastoon</string>
   <string name="series_detail_play_episode">Toista · Kausi %1$d Jakso %2$d</string>
   <string name="series_detail_resume">Jatka · Kausi %1$d Jakso %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versiot</string>
   <string name="series_episodes">Jaksot (%1$d)</string>
   <string name="series_incorrect_pin">Väärä PIN-koodi</string>
   <string name="series_library_lens_subtitle">Surfacen suosikkeja, keskeneräisiä, parhaimmiksi arvioituja ja tuoreita sarjoja koko kirjastossa.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Osittainen</string>
   <string name="settings_status_unknown">Tuntematon</string>
   <string name="settings_update_install_started">Avataan paketin asennusohjelma.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Streamin URL</string>
+  <string name="stream_url_copied">Streamin URL kopioitu</string>
+  <string name="stream_url_copy">Kopioi URL</string>
+  <string name="stream_url_copy_failed">Streamin URL-osoitetta ei voitu selvittää</string>
   <string name="vod_category_picker_empty">Sopivia kategorioita ei löytynyt.</string>
   <string name="vod_category_picker_search_placeholder">Hae kategorioita…</string>
   <string name="vod_category_picker_subtitle">Hae luokan nimen mukaan ja avaa sitten vastaava hylly.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Päivitä tämä palveluntarjoaja tuodaksesi elokuvat ja sarjat kirjastoon.</string>
   <string name="vod_sync_needed_title">Synkronointi tarvitaan</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Tämä palveluntarjoaja tarjoaa erilliset elokuva- ja sarjaluettelot.</string>
+  <string name="vod_unavailable_title">VOD ei ole käytettävissä</string>
 </resources>

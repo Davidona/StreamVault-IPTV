@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Źródła</string>
+    <string name="vod_subtitle_settings">Ustawienia</string>
+    <string name="vod_subtitle_provider">Napisy dostawcy</string>
+    <string name="vod_subtitle_provider_hint">Wybierz ścieżkę napisów z tego wideo</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Znajdź napisy online</string>
+    <string name="vod_subtitle_online_unavailable">Wyszukiwanie online jest niedostępne dla tego wideo</string>
+    <string name="vod_subtitle_device_hint">Wybierz plik SRT</string>
+    <string name="vod_subtitle_back">Powrót do źródeł</string>
+    <string name="vod_tracks_empty">Brak dostępnych ścieżek w tym wideo</string>
+    <string name="vod_subtitle_preview">To jest napis.</string>
+    <string name="vod_subtitle_font_size">Rozmiar czcionki</string>
+    <string name="vod_subtitle_background">Krycie tła</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% przezroczyste · 100% jednolicie czarne</string>
+    <string name="vod_subtitle_decrease_setting">Zmniejsz %1$s</string>
+    <string name="vod_subtitle_increase_setting">Zwiększ %1$s</string>
+</resources>

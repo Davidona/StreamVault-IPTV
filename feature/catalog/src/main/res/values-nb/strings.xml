@@ -32,11 +32,11 @@
   <string name="badge_series">SERIE</string>
   <string name="card_live_badge">DIREKTE</string>
   <string name="card_locked_channel">Låst kanal</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Cast</string>
+  <string name="cast_item_unavailable">Dette elementet kan ikke sendes til en Cast-mottaker.</string>
+  <string name="cast_launching">Caster...</string>
+  <string name="cast_started">Caster til den tilkoblede enheten.</string>
+  <string name="cast_unavailable">Google Cast er utilgjengelig på denne enheten.</string>
   <string name="category_options_cancel">Avbryt</string>
   <string name="category_options_clear_recent">Fjern alle nylige</string>
   <string name="category_options_delete">Slett gruppe</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Angi som standardgruppe</string>
   <string name="category_options_unlock">Lås opp gruppe</string>
   <string name="category_options_unpin">Løsne kategori</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Fest</string>
   <string name="category_see_all">Se alle →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Løsne</string>
+  <string name="channel_action_hide">Skjul denne kanalen</string>
   <string name="channel_options_remove_from_recent">Fjern fra nylige</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Fortsett å se</string>
   <string name="dashboard_channels_format">%1$d kanaler</string>
   <string name="dashboard_continue_watching">Fortsett å se</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Fortsett å se filmer</string>
+  <string name="dashboard_continue_watching_series">Fortsett å se serier</string>
   <string name="dashboard_empty_body">Legg til en spilleliste eller Xtream-kilde først. Når en leverandør er aktiv, viser Hjem favorittkanaler, fortsett å se og nye rader i biblioteket.</string>
   <string name="dashboard_empty_title">Sett opp en leverandør for å låse opp startsiden</string>
   <string name="dashboard_favorite_channels">Favorittkanaler</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Favorittfilmer</string>
+  <string name="dashboard_favorite_series">Favorittserier</string>
   <string name="dashboard_fresh_movie_pick">Nytt filmvalg</string>
   <string name="dashboard_jump_back_live">Gå tilbake til direktesendt TV</string>
   <string name="dashboard_library_ready">IPTV-biblioteket ditt er klart</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Nylige kanaler</string>
   <string name="dashboard_recent_movies">Nylig lagt til filmer</string>
   <string name="dashboard_recent_series">Nylig oppdatert serie</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Anbefalte filmer</string>
   <string name="dashboard_resume_episode">Fortsett episoden</string>
   <string name="dashboard_resume_episode_format">CV S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Fortsett</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d serie</string>
   <string name="dashboard_subtitle">%1$s er aktiv. Gå tilbake til direktesendinger, fortsett der du slapp, eller bla gjennom nye tillegg.</string>
   <string name="dashboard_title">Ditt bibliotek, klart</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Topprangerte filmer</string>
+  <string name="dashboard_update_allow_installs">Tillat installasjoner</string>
   <string name="dashboard_update_available">En nyere appversjon er bufret og klar til å gjennomgås i Innstillinger.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Oppdateringen er lastet ned. Tillat installasjon fra StreamVault, og prøv installasjonen på nytt.</string>
   <string name="dashboard_update_install_ready">Den nyeste oppdateringen er allerede lastet ned. Åpne Innstillinger for å installere den.</string>
   <string name="dashboard_update_open_installer">Installer fra Innstillinger</string>
   <string name="dashboard_update_open_settings">Åpne oppdateringer</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Åpne leverandørdetaljer</string>
   <string name="dashboard_warning_title">Leverandøren trenger oppmerksomhet</string>
   <string name="dashboard_watch_live">Se direkte</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Last ned</string>
+  <string name="download_error_no_url">Kunne ikke finne strøm-URL for nedlasting</string>
+  <string name="download_failed">Nedlasting mislyktes: %1$s</string>
+  <string name="download_started">Nedlasting startet</string>
   <string name="favorites_add">Legg til i favoritter</string>
   <string name="favorites_all_favorites">Alle favoritter</string>
   <string name="favorites_cancel">Tilbake: avbryt</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Hold en lagret gruppe for alternativer</string>
   <string name="library_saved_primary_hint">Gå tilbake til hele biblioteket</string>
   <string name="library_sort_title">Sorter resultater</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Flytt tilbake til Live TV</string>
+  <string name="m3u_move_to_movies">Flytt til filmer</string>
+  <string name="m3u_move_to_series">Flytt til serier</string>
+  <string name="m3u_organize_items">Organiser M3U-elementer</string>
   <string name="movie_detail_back">Tilbake til biblioteket</string>
   <string name="movie_detail_cast">Medvirkende:</string>
   <string name="movie_detail_director">Regissert av:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Fortsett fra %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Ukjent</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versjoner</string>
   <string name="movie_loading_details">Laster detaljer...</string>
   <string name="movie_not_found">Film ikke funnet</string>
   <string name="movie_plot_fallback">Ingen handling tilgjengelig</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmer</string>
   <string name="nav_series">Serie</string>
   <string name="nav_settings">Innstillinger</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Avbryt</string>
   <string name="pin_dialog_title">Skriv inn PIN</string>
   <string name="player_resume">Fortsett</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Fjern fra favoritter</string>
   <string name="search_actions_unlock">Lås opp foreldrekontroll</string>
   <string name="search_all">Alle</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Bygg komplett søkeindeks én gang</string>
+  <string name="search_catalog_complete">Komplett katalogindeks</string>
+  <string name="search_catalog_downloaded_only">Bare nedlastede elementer. Bygg den komplette søkeindeksen for å søke i hele portalkatalogen.</string>
+  <string name="search_catalog_indexing">Den komplette søkeindeksen bygges. Resultatene er fortsatt ufullstendige.</string>
+  <string name="search_catalog_truncated">Portalkatalogen ble avkortet. Resultatene kan være ufullstendige.</string>
   <string name="search_clear_history">Klart</string>
   <string name="search_command_subtitle">Start med en tittel, et nøkkelord, kanalnavn eller en serie. Resultatene holdes gruppert for rask navigering med fjernkontrollen.</string>
   <string name="search_error_subtitle">Noen resultater kunne ikke lastes. Prøv igjen.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Tilbake til biblioteket</string>
   <string name="series_detail_play_episode">Spill · Sesong %1$d Ep %2$d</string>
   <string name="series_detail_resume">Fortsett · Sesong %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versjoner</string>
   <string name="series_episodes">Episoder (%1$d)</string>
   <string name="series_incorrect_pin">Feil PIN-kode</string>
   <string name="series_library_lens_subtitle">Overflatefavoritter, pågående, topprangerte og ferske serier på tvers av hele biblioteket.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Delvis</string>
   <string name="settings_status_unknown">Ukjent</string>
   <string name="settings_update_install_started">Åpner pakkeinstallasjonsprogrammet.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Stream-URL</string>
+  <string name="stream_url_copied">Stream-URL kopiert</string>
+  <string name="stream_url_copy">Kopier URL</string>
+  <string name="stream_url_copy_failed">Kunne ikke finne strøm-URL</string>
   <string name="vod_category_picker_empty">Fant ingen samsvarende kategorier.</string>
   <string name="vod_category_picker_search_placeholder">Søk i kategorier…</string>
   <string name="vod_category_picker_subtitle">Søk etter kategorinavn, og åpne deretter den samsvarende hyllen.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Oppdater denne leverandøren for å importere filmer og serier til biblioteket.</string>
   <string name="vod_sync_needed_title">Synkronisering nødvendig</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Denne leverandøren har separate film- og seriekataloger.</string>
+  <string name="vod_unavailable_title">VOD er utilgjengelig</string>
 </resources>

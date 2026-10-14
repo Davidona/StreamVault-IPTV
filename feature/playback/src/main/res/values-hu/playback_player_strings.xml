@@ -1,9 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d perc</item>
             <item quantity="other">%1$d perc</item>
         </plurals>
-    <string name="add_group_close_cd">Bezárás</string>
     <string name="channel_number_name_format">%1$d. %2$s</string>
     <string name="epg_catchup_available">Visszanézés elérhető (%1$d nap)</string>
     <string name="epg_no_info">Nincs EPG-információ</string>
@@ -20,7 +19,7 @@
     <string name="notification_permission_reminder_required">Engedélyezze az értesítéseket a StreamVault számára a műsoremlékeztetők fogadásához.</string>
     <string name="player_action_cast">Szereplők</string>
     <string name="player_action_diagnostics">Diagnosztika</string>
-    <string name="player_action_format">Format</string>
+    <string name="player_action_format">Formátum</string>
     <string name="player_action_group">Csoport</string>
     <string name="player_action_guide">Útmutató</string>
     <string name="player_action_mute">Némítás</string>
@@ -31,8 +30,6 @@
     <string name="player_action_variants">Változatok</string>
     <string name="player_action_view">Megtekintés</string>
     <string name="player_archive">Archívum</string>
-    <string name="player_archive_badge">Archívum</string>
-    <string name="player_archive_title">Programarchívum</string>
     <string name="player_aspect_ratio_label">Képarány %1$s</string>
     <string name="player_audio">Hang</string>
     <string name="player_auto_play_cancel">Mégse</string>
@@ -56,7 +53,7 @@
     <string name="player_cancel_scheduled_recording">Ütemezett felvétel törlése</string>
     <string name="player_cast">Szereplők</string>
     <string name="player_catchup_badge">Visszanézés</string>
-    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_catchup_options">Visszanézés</string>
     <string name="player_channel_list_hint">Válasszon ki egy csatornát az azonnali hangoláshoz. Vissza zárja a listát.</string>
     <string name="player_channel_list_title">Csatornák (%1$d)</string>
     <string name="player_channel_not_found">Csatorna nem található</string>
@@ -67,17 +64,17 @@
     <string name="player_diagnostics_alternates">Alternatív adatfolyamok</string>
     <string name="player_diagnostics_archive">Archívum</string>
     <string name="player_diagnostics_audio_codec">Audio kodek</string>
-    <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
-    <string name="player_diagnostics_audio_output_path">Audio Path</string>
+    <string name="player_diagnostics_audio_decoder">Audio dekóder</string>
+    <string name="player_diagnostics_audio_output_path">Audio útvonal</string>
     <string name="player_diagnostics_av_offset">A/V eltolás</string>
     <string name="player_diagnostics_av_sync">A/V szinkron</string>
     <string name="player_diagnostics_av_sync_custom">Be (egyéni szinkron útvonal)</string>
     <string name="player_diagnostics_av_sync_stock">Ki (alap hangútvonal)</string>
     <string name="player_diagnostics_av_sync_waiting">Be (lejátszás újraindítására vár)</string>
     <string name="player_diagnostics_channel_errors">Csatorna hibák</string>
-    <string name="player_diagnostics_compatibility_note">Compatibility Note</string>
-    <string name="player_diagnostics_compatibility_note_value">Playback may be using a learned or compatibility-assisted audio path for this stream.</string>
-    <string name="player_diagnostics_compatibility_source">Compatibility Source</string>
+    <string name="player_diagnostics_compatibility_note">Kompatibilitási megjegyzés</string>
+    <string name="player_diagnostics_compatibility_note_value">Előfordulhat, hogy a lejátszás tanult vagy kompatibilitást segítő hangútvonalat használ ehhez a streamhez.</string>
+    <string name="player_diagnostics_compatibility_source">Kompatibilitás forrása</string>
     <string name="player_diagnostics_dropped_frames">Eldobott keretek</string>
     <string name="player_diagnostics_ffmpeg">FFmpeg</string>
     <string name="player_diagnostics_last_failure">Utolsó hiba</string>
@@ -112,12 +109,12 @@
     <string name="player_error_source">A stream nem található vagy a hozzáférés megtagadva</string>
     <string name="player_error_title">Lejátszási hiba</string>
     <string name="player_error_unknown">Ismeretlen lejátszási hiba</string>
-    <string name="player_format_short">Format</string>
+    <string name="player_format_short">Formátum</string>
     <string name="player_forward">Gyors előre</string>
     <string name="player_idle_standby_after">Készenlét engedélyezése tétlenség után</string>
     <string name="player_idle_timer_status">Tétlen készenlét: %1$s</string>
     <string name="player_jump_to_live">Ugrás az élőhöz</string>
-    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_jump_to_live_short">ÉLŐ</string>
     <string name="player_last_channel_action">Utolsó csatorna</string>
     <string name="player_last_group_hint">Ugorjon vissza az utoljára böngészett élő csoporthoz.</string>
     <string name="player_last_group_label">Utolsó: %1$s</string>
@@ -128,8 +125,8 @@
     <string name="player_live_dvr_controls">Lejátszó</string>
     <string name="player_live_now">Most játszik</string>
     <string name="player_live_offset">%1$s az élő mögött</string>
-    <string name="player_live_ready">LIVE</string>
-    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_ready">ÉLŐ</string>
+    <string name="player_live_rewind_badge">HELYI DVR</string>
     <string name="player_live_scrubber_cd">Élő visszatekerés idővonal. A kereséshez használja a bal/jobb gombot.</string>
     <string name="player_live_timeshift_buffering">A helyi élő visszatekerés még pufferel.</string>
     <string name="player_minutes_remaining">%1$d perc van hátra</string>
@@ -138,10 +135,9 @@
     <string name="player_mute">Némítás</string>
     <string name="player_muted_badge">Elnémítva</string>
     <string name="player_next_label">Következő:</string>
-    <string name="player_no_archive">Nem található archivált műsor</string>
     <string name="player_no_guide_data">Nincs műsorújság-adat</string>
     <string name="player_open_guide_action">Útmutató megnyitása</string>
-    <string name="player_open_in_external_player">Open in external player</string>
+    <string name="player_open_in_external_player">Megnyitás külső lejátszóban</string>
     <string name="player_pause">Szünet</string>
     <string name="player_picture_in_picture">Kép a képben</string>
     <string name="player_pip_short">PiP</string>
@@ -175,7 +171,7 @@
     <string name="player_stop_playback_after">Lejátszás leállítása ekkor</string>
     <string name="player_stop_recording">Felvétel leállítása</string>
     <string name="player_stop_timer_status">Leállítás %1$s múlva</string>
-    <string name="player_stream_format">Stream Format</string>
+    <string name="player_stream_format">Stream formátum</string>
     <string name="player_subs">Feliratok</string>
     <string name="player_time_range_minutes">%1$s - %2$s | %3$d perc</string>
     <string name="player_timer_disable">Letiltás</string>
@@ -194,8 +190,73 @@
     <string name="player_up_next">Következő</string>
     <string name="player_variants_short">Változatok</string>
     <string name="player_video_quality">Videóminőség</string>
-    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Évszakok</string>
     <string name="settings_recording_status_recording">Felvétel</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Online feliratok keresése</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">SRT betöltése az eszközről</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Felirat késleltetése (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Felirat késleltetése</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">A negatív értékek korábban, a pozitív értékek később jelenítik meg a feliratokat.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Jelenlegi késleltetés: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Feliratok %1$d ms-mal korábban</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Feliratok %1$d ms-mal később</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Késleltetés visszaállítása</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s betöltve. A lejátszó betölti a feliratot.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Válasszon érvényes .srt feliratfájlt.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">A feliratfájlok legfeljebb 20 MB méretűek lehetnek.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Nem sikerült betölteni ezt a feliratfájlt.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Feliratok keresése</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Válasszon feliratot a videóhoz.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Találatok: %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Névtelen hozzáférés esetén bejelentkezés nélkül is kereshet. Jelentkezzen be, hogy használhassa fiókja letöltési keretét.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Fiók csatlakoztatása (nem kötelező)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">OpenSubtitles keresése…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Nem található felirat ehhez a címhez és nyelvhez.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Keresés újra</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Válasszon nyelvet, majd egy verziót.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Minden nyelv</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Minden elérhető nyelv megjelenítése</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Nyelvek betöltése…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Nyelv: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Nyelv módosítása</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Nem sikerült betölteni a nyelvlistát.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s letöltés</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Általános kiadás</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Felirat letöltése…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s hozzáadva. A lejátszó betölti a feliratot.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Bezárás</string>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">A Cast-munkamenet megszakadt.</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Visszanézés elérhető</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Audio dekóder mód</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Videó dekóder mód</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Valós idejű fordítás</string>
+    <string name="player_close_playback_title">Bezárja a lejátszást?</string>
+    <string name="player_close_playback_desc">Ezzel leáll a lejátszás, és visszatér az előző képernyőre.</string>
+    <string name="player_close_playback_confirm">Igen</string>
+    <string name="player_close_playback_cancel">Nem</string>
+    <string name="player_vod_controls">VOD lejátszásvezérlők</string>
+    <string name="player_chapter_selected">%1$d. fejezet, kiválasztva</string>
+    <string name="player_chapter_title">%1$d. fejezet · %2$s</string>
+    <string name="player_chapter_label">%1$d. fejezet</string>
+    <string name="player_chapter_count">%1$d fejezet</string>
+    <string name="player_chapters">Fejezetek</string>
+    <string name="player_close_chapters">Fejezetek bezárása</string>
+    <string name="player_previous_chapter">Előző fejezet</string>
+    <string name="player_next_chapter">Következő fejezet</string>
+    <string name="player_rewind_10_seconds">Visszatekerés 10 másodperccel</string>
+    <string name="player_forward_10_seconds">Előretekerés 10 másodperccel</string>
+    <string name="player_vod_timeline">VOD idővonal</string>
+    <string name="player_close_controls">Vezérlők bezárása</string>
+    <string name="player_back_to_menu">Vissza a menübe</string>
+    <string name="player_playback_settings">Lejátszási beállítások</string>
+    <string name="player_close_playback_settings">Lejátszási beállítások bezárása</string>
+    <string name="player_aspect_ratio">Képarány</string>
+    <string name="player_skip_intro">Intro átugrása</string>
+    <string name="player_skip_opening">Főcím átugrása</string>
+    <string name="player_skip_recap">Összefoglaló átugrása</string>
+    <string name="player_skip_outro">Outro átugrása</string>
+    <string name="player_diagnostics_stream_bitrate">Stream bitráta</string>
+    <string name="player_diagnostics_bandwidth_estimate">Hálózati sávszélesség</string>
+    <string name="player_diagnostics_frame_rate">Képkockasebesség</string>
 </resources>

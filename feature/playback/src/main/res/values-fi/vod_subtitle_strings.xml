@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Lähteet</string>
+    <string name="vod_subtitle_settings">Asetukset</string>
+    <string name="vod_subtitle_provider">Palveluntarjoajan tekstitykset</string>
+    <string name="vod_subtitle_provider_hint">Valitse tämän videon tekstitysraita</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Etsi tekstityksiä verkosta</string>
+    <string name="vod_subtitle_online_unavailable">Verkkohaku ei ole käytettävissä tälle videolle</string>
+    <string name="vod_subtitle_device_hint">Valitse SRT-tiedosto</string>
+    <string name="vod_subtitle_back">Takaisin lähteisiin</string>
+    <string name="vod_tracks_empty">Tässä videossa ei ole raitoja</string>
+    <string name="vod_subtitle_preview">Tämä on tekstitys.</string>
+    <string name="vod_subtitle_font_size">Fonttikoko</string>
+    <string name="vod_subtitle_background">Taustan peittävyys</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0 % läpinäkyvä · 100 % peittävä musta</string>
+    <string name="vod_subtitle_decrease_setting">Pienennä %1$s</string>
+    <string name="vod_subtitle_increase_setting">Suurenna %1$s</string>
+</resources>

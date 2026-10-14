@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Kilder</string>
+    <string name="vod_subtitle_settings">Indstillinger</string>
+    <string name="vod_subtitle_provider">Udbyders undertekster</string>
+    <string name="vod_subtitle_provider_hint">Vælg et undertekstspor fra denne video</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Find undertekster online</string>
+    <string name="vod_subtitle_online_unavailable">Onlinesøgning er ikke tilgængelig for denne video</string>
+    <string name="vod_subtitle_device_hint">Vælg en SRT-fil</string>
+    <string name="vod_subtitle_back">Tilbage til kilder</string>
+    <string name="vod_tracks_empty">Ingen spor tilgængelige i denne video</string>
+    <string name="vod_subtitle_preview">Dette er en undertekst.</string>
+    <string name="vod_subtitle_font_size">Skriftstørrelse</string>
+    <string name="vod_subtitle_background">Baggrundens uigennemsigtighed</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0 % gennemsigtig · 100 % helt sort</string>
+    <string name="vod_subtitle_decrease_setting">Reducer %1$s</string>
+    <string name="vod_subtitle_increase_setting">Øg %1$s</string>
+</resources>

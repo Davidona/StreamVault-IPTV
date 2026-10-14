@@ -32,11 +32,11 @@
   <string name="badge_series">СЕРИАЛ</string>
   <string name="card_live_badge">ЖИТЬ</string>
   <string name="card_locked_channel">Канал заблокирован</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Трансляция</string>
+  <string name="cast_item_unavailable">Этот элемент нельзя отправить на приёмник Cast.</string>
+  <string name="cast_launching">Трансляция...</string>
+  <string name="cast_started">Трансляция на подключённое устройство.</string>
+  <string name="cast_unavailable">Google Cast недоступен на этом устройстве.</string>
   <string name="category_options_cancel">Отмена</string>
   <string name="category_options_clear_recent">Очистить недавние</string>
   <string name="category_options_delete">Удалить группу</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Сделать группой по умолчанию</string>
   <string name="category_options_unlock">Разблокировать группу</string>
   <string name="category_options_unpin">Открепить категорию</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Закрепить</string>
   <string name="category_see_all">Показать все</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Открепить</string>
+  <string name="channel_action_hide">Скрыть этот канал</string>
   <string name="channel_options_remove_from_recent">Удалить из недавних</string>
   <string name="continue_watching_season_episode">С%1$d Э%2$d</string>
   <string name="continue_watching_title">Продолжить просмотр</string>
   <string name="dashboard_channels_format">%1$d каналов</string>
   <string name="dashboard_continue_watching">Продолжить просмотр</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Продолжить просмотр фильмов</string>
+  <string name="dashboard_continue_watching_series">Продолжить просмотр сериалов</string>
   <string name="dashboard_empty_body">Сначала добавьте плейлист или источник Xtream. Когда провайдер будет активен, на главном экране появятся избранные каналы, продолжение просмотра и новые разделы библиотеки.</string>
   <string name="dashboard_empty_title">Настройте провайдера, чтобы открыть главный экран</string>
   <string name="dashboard_favorite_channels">Избранные каналы</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Избранные фильмы</string>
+  <string name="dashboard_favorite_series">Избранные сериалы</string>
   <string name="dashboard_fresh_movie_pick">Свежий фильм</string>
   <string name="dashboard_jump_back_live">Вернуться к прямому эфиру</string>
   <string name="dashboard_library_ready">Ваша библиотека IPTV готова</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Недавние каналы</string>
   <string name="dashboard_recent_movies">Недавно добавленные фильмы</string>
   <string name="dashboard_recent_series">Недавно обновленные сериалы</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Рекомендуемые фильмы</string>
   <string name="dashboard_resume_episode">Продолжить эпизод</string>
   <string name="dashboard_resume_episode_format">Продолжить S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Продолжить</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d сериалов</string>
   <string name="dashboard_subtitle">%1$s активен. Вернитесь к Live, продолжите просмотр или откройте новые добавления.</string>
   <string name="dashboard_title">Ваша библиотека готова</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Лучшие по рейтингу фильмы</string>
+  <string name="dashboard_update_allow_installs">Разрешить установку</string>
   <string name="dashboard_update_available">Доступна новая версия приложения, готовая к просмотру в настройках.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Обновление загружено. Разрешите установку из StreamVault и повторите установку.</string>
   <string name="dashboard_update_install_ready">Последнее обновление уже загружено. Откройте настройки, чтобы установить его.</string>
   <string name="dashboard_update_open_installer">Установить из настроек</string>
   <string name="dashboard_update_open_settings">Открыть обновления</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Открыть сведения о провайдере</string>
   <string name="dashboard_warning_title">Провайдер требует внимания</string>
   <string name="dashboard_watch_live">Смотреть в прямом эфире</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Скачать</string>
+  <string name="download_error_no_url">Не удалось определить URL потока для загрузки</string>
+  <string name="download_failed">Ошибка загрузки: %1$s</string>
+  <string name="download_started">Загрузка начата</string>
   <string name="favorites_add">Добавить в избранное</string>
   <string name="favorites_all_favorites">Все избранное</string>
   <string name="favorites_cancel">Назад: отменить</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Удерживайте сохранённую группу для параметров</string>
   <string name="library_saved_primary_hint">Вернуться в полную библиотеку</string>
   <string name="library_sort_title">Сортировка результатов</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Вернуть в прямой эфир</string>
+  <string name="m3u_move_to_movies">Переместить в фильмы</string>
+  <string name="m3u_move_to_series">Переместить в сериалы</string>
+  <string name="m3u_organize_items">Упорядочить элементы M3U</string>
   <string name="movie_detail_back">Назад к библиотеке</string>
   <string name="movie_detail_cast">В ролях:</string>
   <string name="movie_detail_director">Режиссёр:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Продолжить с %1$s</string>
   <string name="movie_detail_trailer">Трейлер</string>
   <string name="movie_detail_unknown">Неизвестно</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Версии</string>
   <string name="movie_loading_details">Загрузка сведений...</string>
   <string name="movie_not_found">Фильм не найден</string>
   <string name="movie_plot_fallback">Описание недоступно</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Фильмы</string>
   <string name="nav_series">Сериалы</string>
   <string name="nav_settings">Настройки</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Отмена</string>
   <string name="pin_dialog_title">Введите PIN</string>
   <string name="player_resume">Продолжить</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Удалить из избранного</string>
   <string name="search_actions_unlock">Разблокировать родительский контроль</string>
   <string name="search_all">Все</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Построить полный поисковый индекс один раз</string>
+  <string name="search_catalog_complete">Полный индекс каталога</string>
+  <string name="search_catalog_downloaded_only">Только загруженные элементы. Постройте полный поисковый индекс, чтобы искать по всему каталогу портала.</string>
+  <string name="search_catalog_indexing">Полный поисковый индекс строится. Результаты пока неполные.</string>
+  <string name="search_catalog_truncated">Каталог портала был усечён. Результаты могут быть неполными.</string>
   <string name="search_clear_history">Очистить</string>
   <string name="search_command_subtitle">Начните с названия, ключевого слова, имени канала или сериала. Результаты остаются сгруппированными для быстрого управления с пульта.</string>
   <string name="search_error_subtitle">Не удалось загрузить некоторые результаты. Попробуйте снова.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Назад к библиотеке</string>
   <string name="series_detail_play_episode">Играть · Сезон %1$d Эп %2$d</string>
   <string name="series_detail_resume">Продолжить · Сезон %1$d Эп %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Версии</string>
   <string name="series_episodes">Эпизоды (%1$d)</string>
   <string name="series_incorrect_pin">Неверный PIN</string>
   <string name="series_library_lens_subtitle">Показывайте избранное, просмотренное, топовое и новые сериалы по всей библиотеке.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Частично</string>
   <string name="settings_status_unknown">Неизвестно</string>
   <string name="settings_update_install_started">Открывается установщик пакета.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL потока</string>
+  <string name="stream_url_copied">URL потока скопирован</string>
+  <string name="stream_url_copy">Копировать URL</string>
+  <string name="stream_url_copy_failed">Не удалось определить URL потока</string>
   <string name="vod_category_picker_empty">Подходящие категории не найдены.</string>
   <string name="vod_category_picker_search_placeholder">Поиск категорий…</string>
   <string name="vod_category_picker_subtitle">Ищите по названию категории, затем откройте соответствующую подборку.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Обновите провайдера для импорта фильмов и сериалов в библиотеку.</string>
   <string name="vod_sync_needed_title">Требуется синхронизация</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Этот провайдер предоставляет отдельные каталоги фильмов и сериалов.</string>
+  <string name="vod_unavailable_title">VOD недоступен</string>
 </resources>

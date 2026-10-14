@@ -11,4 +11,28 @@
   <string name="welcome_tagline">IPTV premium pour le salon</string>
   <string name="welcome_subtitle">Profitez des chaînes en direct, du visionnage de rattrapage, des films et des séries avec une expérience Android TV propriétaire.</string>
   <string name="settings_cancel">Annuler</string>
+
+  <!-- Merged from strings_missing.xml -->
+  <string name="welcome_setup_later">Configurer plus tard</string>
+  <string name="nav_downloads">Téléchargements</string>
+  <string name="downloads_loading">Chargement des téléchargements...</string>
+  <string name="downloads_empty_title">Aucun téléchargement pour le moment</string>
+  <string name="downloads_empty_hint">Téléchargez des films ou des épisodes depuis les écrans de détail et ils apparaîtront ici.</string>
+  <string name="downloads_no_thumb">Aucune affiche</string>
+  <string name="downloads_status_completed">Terminé</string>
+  <string name="downloads_status_downloading">Téléchargement en cours</string>
+  <string name="downloads_status_failed">Échoué</string>
+  <string name="downloads_status_pending">En attente</string>
+  <string name="downloads_status_paused">En pause</string>
+  <string name="downloads_status_cancelled">Annulé</string>
+  <string name="downloads_item_title">Téléchargement sans titre</string>
+  <string name="downloads_delete_confirm_title">Supprimer le téléchargement</string>
+  <string name="downloads_delete_confirm_msg">Supprimer %1$s des téléchargements ?</string>
+  <string name="downloads_delete_confirm_delete">Supprimer</string>
+  <string name="downloads_deleted">Téléchargement supprimé</string>
+  <string name="download_folder_change">Modifier le dossier de téléchargement</string>
+  <string name="download_folder_default">Dossier de téléchargement par défaut</string>
+  <string name="download_resume">Reprendre</string>
+  <string name="download_delete">Supprimer</string>
+  <string name="downloads_resumed">Téléchargement repris</string>
 </resources>

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Casten naar het verbonden apparaat.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast is niet beschikbaar op dit apparaat.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Dit streamformaat wordt niet ondersteund door Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP- en RTMP-streams worden niet ondersteund voor casten.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-beveiligde streams worden niet ondersteund door Google Cast in deze app.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Dit item kan niet naar een Cast-ontvanger worden verzonden.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Deze stream gebruikt een lokale of alleen op het apparaat beschikbare URL die Chromecast niet rechtstreeks kan bereiken.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Deze stream vereist HTTP-headers of cookies die Chromecast niet rechtstreeks kan gebruiken.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Deze stream vereist een aangepaste User-Agent die Chromecast niet rechtstreeks kan gebruiken.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Deze stream vereist de proxyinstellingen van de app, dus Chromecast kan hem niet rechtstreeks gebruiken.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Deze stream gebruikt SSL-afhandeling die Chromecast niet rechtstreeks kan gebruiken.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">De Cast-sessie kon niet worden gestart.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">De Cast-ontvanger kon deze stream niet laden.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">De verbonden Cast-ontvanger is niet klaar voor afspelen.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">De selectie van het Cast-apparaat is geannuleerd.</string>
+    <string name="add_group_close_cd">Sluiten</string>
+    <string name="player_archive_title">Programma Archief</string>
+    <string name="player_no_archive">Geen gearchiveerde programma\'s gevonden</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archief</string>
+</resources>

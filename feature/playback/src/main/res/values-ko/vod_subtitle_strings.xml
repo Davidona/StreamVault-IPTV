@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">소스</string>
+    <string name="vod_subtitle_settings">설정</string>
+    <string name="vod_subtitle_provider">제공자 자막</string>
+    <string name="vod_subtitle_provider_hint">이 동영상에서 자막 트랙을 선택하세요</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">온라인에서 자막 찾기</string>
+    <string name="vod_subtitle_online_unavailable">이 동영상은 온라인 검색을 사용할 수 없습니다</string>
+    <string name="vod_subtitle_device_hint">SRT 파일 선택</string>
+    <string name="vod_subtitle_back">소스로 돌아가기</string>
+    <string name="vod_tracks_empty">이 동영상에 사용 가능한 트랙이 없습니다</string>
+    <string name="vod_subtitle_preview">이것은 자막입니다.</string>
+    <string name="vod_subtitle_font_size">글꼴 크기</string>
+    <string name="vod_subtitle_background">배경 불투명도</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% 투명 · 100% 불투명 검정</string>
+    <string name="vod_subtitle_decrease_setting">%1$s 줄이기</string>
+    <string name="vod_subtitle_increase_setting">%1$s 늘리기</string>
+</resources>

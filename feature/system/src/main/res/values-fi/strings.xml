@@ -2,12 +2,35 @@
 <resources>
   <string name="app_name">StreamVault</string>
   <string name="welcome_setup_provider">Asennustarjoaja</string>
+  <string name="welcome_setup_later">Määritä myöhemmin</string>
   <string name="welcome_loading_title">Valmistelee kirjastoasi</string>
+  <string name="welcome_loading_subtitle">Avataan tälle laitteelle sopivaa näkymää.</string>
   <string name="sync_section_live">Live</string>
   <string name="sync_section_vod">VOD</string>
-  <string name="sync_section_series">Series</string>
-  <string name="sync_items_indexed_format">%1$d items prepared</string>
+  <string name="sync_section_series">Sarjat</string>
+  <string name="sync_items_indexed_format">%1$d kohdetta valmisteltu</string>
   <string name="welcome_tagline">Premium IPTV olohuoneeseen</string>
   <string name="welcome_subtitle">Nojaa takaisin live-kanaviin, katseluhetkiin, elokuviin ja sarjoihin ensimmäisen osapuolen Android TV -kokemuksella.</string>
   <string name="settings_cancel">Peruuta</string>
+  <string name="nav_downloads">Lataukset</string>
+  <string name="downloads_loading">Ladataan latauksia...</string>
+  <string name="downloads_empty_title">Ei vielä latauksia</string>
+  <string name="downloads_empty_hint">Lataa elokuvia tai jaksoja tietonäkymistä, niin ne ilmestyvät tänne.</string>
+  <string name="downloads_no_thumb">Ei julistetta</string>
+  <string name="downloads_status_completed">Valmis</string>
+  <string name="downloads_status_downloading">Ladataan</string>
+  <string name="downloads_status_failed">Epäonnistui</string>
+  <string name="downloads_status_pending">Odottaa</string>
+  <string name="downloads_status_paused">Keskeytetty</string>
+  <string name="downloads_status_cancelled">Peruutettu</string>
+  <string name="downloads_item_title">Nimetön lataus</string>
+  <string name="downloads_delete_confirm_title">Poista lataus</string>
+  <string name="downloads_delete_confirm_msg">Poistetaanko %1$s latauksista?</string>
+  <string name="downloads_delete_confirm_delete">Poista</string>
+  <string name="downloads_deleted">Lataus poistettu</string>
+  <string name="download_folder_change">Vaihda latauskansio</string>
+  <string name="download_folder_default">Latausten oletuskansio</string>
+  <string name="download_resume">Jatka</string>
+  <string name="download_delete">Poista</string>
+  <string name="downloads_resumed">Lataus jatkui</string>
 </resources>
