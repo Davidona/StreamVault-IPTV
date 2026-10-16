@@ -201,6 +201,13 @@ fun PlayerScreen(
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
     var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(isInPictureInPictureMode) {
+        if (isInPictureInPictureMode) {
+            modalState = modalState.dismiss()
+            showClosePlaybackConfirmation = false
+        }
+    }
     
     val focusRequester = remember { FocusRequester() }
     val channelListFocusRequester = remember { FocusRequester() }

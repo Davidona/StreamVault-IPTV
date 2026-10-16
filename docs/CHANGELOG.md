@@ -25,6 +25,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed the VOD playback settings sheet remaining visible over picture-in-picture playback.
 - Fixed live channels in custom groups showing **Add** instead of **Remove** in the channel options dialog.
 - Fixed provider observation crashes on devices where saved credentials cannot be decrypted by skipping unnecessary credential decryption in public provider projections.
 - Fixed successful new-provider setup staying on Add Provider; new providers now navigate to Home, while edits return to the previous screen.
