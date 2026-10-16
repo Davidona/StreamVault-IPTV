@@ -454,6 +454,7 @@ private fun InstallAddonDialog(
         subtitle = stringResource(R.string.stremio_install_description),
         onDismissRequest = { if (!installing) onDismiss() },
         widthFraction = 0.62f,
+        heightFraction = null,
         content = {
             OutlinedTextField(
                 value = url,
