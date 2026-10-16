@@ -7,7 +7,8 @@ All notable product changes are recorded in this document.
 ### Added
 
 - Clarified Extensions navigation and plugin installation actions, added Stremio onboarding, and replaced its blanket parental gate with an independent Hide Stremio Add-ons option under Privacy (off by default).
-- Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, and resume history. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.
+- Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, resume history, and downloads for offline playback managed from the Downloads tab. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.
+- Added Trakt account integration with secure sign-in, playback scrobbling, watched-history sync, watchlist and rating actions, custom lists, and Trending and Popular discovery matched by TMDB ID, with translated UI across supported locales.
 - Added six selectable UI themes: Forest, Sunset, Ocean, Rose, AMOLED Black, and Vintage.
 - Added OpenSubtitles search and subtitle downloads for VOD playback.
 - Added loading local SRT subtitle files from the device during VOD playback.
