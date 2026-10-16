@@ -30,7 +30,6 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.stremio.StremioPlaybackHistory
 import com.streamvault.domain.model.stremio.StremioMediaType
 import com.streamvault.domain.model.stremio.stremioPlaybackContentKey
-import com.streamvault.domain.model.stremio.stremioMediaRequestHeaders as validateStremioMediaRequestHeaders
 import com.streamvault.domain.repository.StremioAddonRepository
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VideoFormat
@@ -1591,14 +1590,17 @@ class PlayerViewModel @Inject constructor(
                 if (!isActivePlaybackSession(requestVersion, streamUrl)) return@launch
                 val resolvedStreamInfo = resolution.streamInfo
                 val scopedHeaders = if (stremioPlaybackReference != null) {
-                    validateStremioMediaRequestHeaders(streamUrl, stremioMediaRequestHeaders)
+                    when (val headerPolicy = stremioMediaHeaderPolicy(streamUrl, stremioMediaRequestHeaders)) {
+                        StremioMediaHeaderPolicy.NotApplicable -> null
+                        StremioMediaHeaderPolicy.Invalid -> {
+                            _playbackResolutionUiState.value = PlaybackResolutionUiState.Failure(
+                                "The selected addon stream supplied invalid media request headers."
+                            )
+                            return@launch
+                        }
+                        is StremioMediaHeaderPolicy.Scoped -> headerPolicy.value
+                    }
                 } else null
-                if (stremioPlaybackReference != null && scopedHeaders == null) {
-                    _playbackResolutionUiState.value = PlaybackResolutionUiState.Failure(
-                        "The selected addon stream supplied invalid media request headers."
-                    )
-                    return@launch
-                }
                 val streamInfo = resolvedStreamInfo?.let { resolved ->
                     scopedHeaders?.let { validated ->
                         resolved.copy(

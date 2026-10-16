@@ -13,12 +13,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +34,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -57,9 +66,18 @@ import com.streamvault.feature.stremio.api.StremioScaffoldContent
 internal fun StremioItemDetailScreen(
     scaffold: StremioScaffoldContent,
     onPlay: (StremioPlayerHandoff) -> Unit,
+    onManagePlugins: () -> Unit = {},
     viewModel: StremioItemDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshTorrentPlaybackAvailability()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     scaffold(
         AppDestination.Addons,
         state.displayName,
@@ -71,8 +89,11 @@ internal fun StremioItemDetailScreen(
             state = state,
             onLoadMovieStreams = { viewModel.loadStreams(state.preview.id) },
             onLoadEpisodeStreams = viewModel::loadStreams,
+            onClearSelectedEpisode = viewModel::clearSelectedEpisode,
+            onRetryAllStreams = { videoId -> viewModel.loadStreams(videoId) },
             onRetryMetadata = viewModel::retryMetadata,
             onRetryAddon = viewModel::retryStreamsForAddon,
+            onManagePlugins = onManagePlugins,
             onPlay = onPlay
         )
     }
@@ -83,10 +104,18 @@ private fun StremioItemDetailContent(
     state: StremioItemDetailState,
     onLoadMovieStreams: () -> Unit,
     onLoadEpisodeStreams: (String) -> Unit,
+    onClearSelectedEpisode: () -> Unit,
+    onRetryAllStreams: (String) -> Unit,
     onRetryMetadata: () -> Unit,
     onRetryAddon: (Long) -> Unit,
+    onManagePlugins: () -> Unit,
     onPlay: (StremioPlayerHandoff) -> Unit
 ) {
+    var selectedSeason by rememberSaveable(state.preview.id) { mutableStateOf<Int?>(null) }
+    val seasons = state.videos.mapNotNull { it.season }.distinct().sorted()
+    LaunchedEffect(seasons) {
+        if (selectedSeason !in seasons) selectedSeason = seasons.firstOrNull()
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -162,8 +191,25 @@ private fun StremioItemDetailContent(
                 item(key = "episodes-empty") {
                     StremioDetailMessage(stringResource(R.string.stremio_item_no_episode_ids))
                 }
-            } else {
-                items(state.videos, key = { "episode:${it.id}" }) { video ->
+            } else if (state.requestedVideoId == null) {
+                if (seasons.size > 1) {
+                    item(key = "season-picker") {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(seasons, key = { "season:$it" }) { season ->
+                                TvButton(onClick = { selectedSeason = season }) {
+                                    Text(
+                                        text = stringResource(R.string.stremio_item_season_number, season),
+                                        color = if (season == selectedSeason) AppColors.TextPrimary else AppColors.TextSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                items(
+                    state.videos.filter { selectedSeason == null || it.season == selectedSeason },
+                    key = { "episode:${it.id}" }
+                ) { video ->
                     TvClickableSurface(
                         onClick = { onLoadEpisodeStreams(video.id) },
                         enabled = !state.replayOriginUnavailable,
@@ -197,6 +243,28 @@ private fun StremioItemDetailContent(
                         }
                     }
                 }
+            } else {
+                item(key = "selected-episode") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Control).padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                state.selectedVideo?.let(::episodeLabel)
+                                    ?: state.selectedVideo?.title
+                                    ?: "Episode ${state.requestedVideoId}",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = AppColors.TextPrimary
+                            )
+                        }
+                        TvButton(onClick = {
+                            selectedSeason = state.selectedVideo?.season ?: selectedSeason
+                            onClearSelectedEpisode()
+                        }) { Text(stringResource(R.string.stremio_item_change_episode)) }
+                    }
+                }
             }
         }
 
@@ -214,6 +282,34 @@ private fun StremioItemDetailContent(
                 item(key = "streams-loading") {
                     Box(Modifier.fillMaxWidth().height(96.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = AppColors.Brand)
+                    }
+                }
+            }
+            if (state.streamsLoading && state.streams.isNotEmpty()) {
+                val settledProviders = (state.streams.map { it.source.addonId } + state.streamFailures.map { it.source.addonId })
+                    .distinct().size
+                val remaining = (state.streamCandidateCount - settledProviders).coerceAtLeast(0)
+                item(key = "streams-progress") {
+                    StremioDetailMessage(
+                        if (remaining > 0) {
+                            stringResource(R.string.stremio_item_sources_remaining, remaining)
+                        } else {
+                            stringResource(R.string.stremio_item_sources_loading)
+                        }
+                    )
+                }
+            }
+            state.streamError?.let { message ->
+                item(key = "streams-operation-error") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(message, modifier = Modifier.weight(1f), color = AppColors.Live)
+                        TvButton(onClick = { onRetryAllStreams(requestedVideoId) }) {
+                            Text(stringResource(R.string.stremio_retry))
+                        }
                     }
                 }
             }
@@ -241,7 +337,8 @@ private fun StremioItemDetailContent(
                 } == true
                 val canPlay = when (stream.kind) {
                     StremioStreamKind.DIRECT -> mediaHeaders != null && isHttpUrl
-                    StremioStreamKind.TORRENT -> stream.toMagnetUri() != null
+                    StremioStreamKind.TORRENT ->
+                        stream.toMagnetUri() != null && state.torrentPluginAvailable == true
                     else -> false
                 }
                 Column(
@@ -271,7 +368,10 @@ private fun StremioItemDetailContent(
                             }
                             if (!canPlay) {
                                 Text(
-                                    unsupportedStreamLabel(stream),
+                                    unsupportedStreamLabel(
+                                        stream,
+                                        checkingTorrentPlugin = state.torrentPluginCheckLoading
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = AppColors.TextSecondary
                                 )
@@ -281,6 +381,13 @@ private fun StremioItemDetailContent(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = AppColors.TextSecondary
                                 )
+                            }
+                            if (stream.kind == StremioStreamKind.TORRENT &&
+                                stream.toMagnetUri() != null && state.torrentPluginAvailable == false
+                            ) {
+                                TvButton(onClick = onManagePlugins) {
+                                    Text(stringResource(R.string.stremio_item_manage_plugins))
+                                }
                             }
                         }
                         if (canPlay) {
@@ -365,6 +472,16 @@ private fun StremioMetadataContent(
             }
         } else if (state.metadata == null) {
             StremioDetailMessage(stringResource(R.string.stremio_item_preview_only))
+            state.metadataError?.let { message ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(message, modifier = Modifier.weight(1f), color = AppColors.Live)
+                    TvButton(onClick = onRetryMetadata) { Text(stringResource(R.string.stremio_retry)) }
+                }
+            }
             state.metadataFailures.forEach { failure ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -409,15 +526,18 @@ private fun episodeLabel(video: com.streamvault.domain.model.stremio.StremioVide
 }
 
 @Composable
-private fun unsupportedStreamLabel(stream: StremioStream): String {
+private fun unsupportedStreamLabel(
+    stream: StremioStream,
+    checkingTorrentPlugin: Boolean
+): String {
     val stringRes = when {
     stream.kind == StremioStreamKind.DIRECT && stream.url?.let {
         stremioMediaRequestHeaders(it, stream.behaviorHints?.proxyHeaders?.request)
     } == null -> R.string.stremio_item_headers_unavailable
-    stream.kind == StremioStreamKind.TORRENT -> if (stream.toMagnetUri() == null) {
-        R.string.stremio_item_torrent_invalid
-    } else {
-        R.string.stremio_item_torrent_unavailable
+    stream.kind == StremioStreamKind.TORRENT -> when {
+        stream.toMagnetUri() == null -> R.string.stremio_item_torrent_invalid
+        checkingTorrentPlugin -> R.string.stremio_item_torrent_checking
+        else -> R.string.stremio_item_torrent_unavailable
     }
     stream.kind == StremioStreamKind.UNKNOWN -> R.string.stremio_item_unsupported_stream
     stream.kind == StremioStreamKind.YOUTUBE || stream.kind == StremioStreamKind.EXTERNAL ->

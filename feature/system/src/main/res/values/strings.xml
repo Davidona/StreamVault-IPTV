@@ -7,7 +7,15 @@
     <string name="plugins_refresh">Check installed plugins</string>
     <string name="plugins_install_hint">Use an APK file or a direct APK download link. For Stremio-compatible add-on manifest URLs, use the Stremio-compatible Add-ons tab.</string>
     <string name="plugins_empty_title">No plugins installed</string>
-    <string name="plugins_empty_description">Install a compatible StreamVault plugin using the buttons above. Already installed one outside the app? Choose Check installed plugins.</string>
+    <string name="plugins_empty_description">Install a compatible StreamVault companion app, or check again for a plugin you installed outside StreamVault.</string>
+    <string name="plugins_add">Add plugin</string>
+    <string name="plugins_installed_count">Plugins · %1$d installed</string>
+    <string name="plugins_provider_sources_count">%1$d provider sources available</string>
+    <string name="plugins_details">Details</string>
+    <string name="plugins_hide_details">Hide details</string>
+    <string name="plugins_back_to_plugins">Back to Plugins</string>
+    <string name="plugins_refresh_configuration">Refresh</string>
+    <string name="plugins_save_configuration">Save</string>
   <string name="app_name">StreamVault</string>
   <string name="welcome_setup_provider">Setup Provider</string>
   <string name="welcome_setup_later">Set up later</string>

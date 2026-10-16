@@ -14,14 +14,16 @@ Every schema change must satisfy this checklist before the database version is a
 
 ## Current verification requirements
 
-- Current schema: v81.
-- Exported historical origins: v1 and v3-v80; v2 has no committed Room schema export.
-- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v81 plus populated direct/multi-hop preservation fixtures.
+- Current schema: v84.
+- Exported historical origins: v1 and v3-v83; v2 has no committed Room schema export.
+- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v84 plus populated direct/multi-hop preservation fixtures and the legacy Stremio schema fixture described below.
 - Migration 78 → 79 scopes episode uniqueness to the owning series and expires hydrated series detail timestamps.
 - Migration 79 → 80 adds the four Xtream live receipt columns; migration 80 → 81 creates the durable Stalker live-category retry table and its provider index.
-- Versions 79 and 80 were reordered during branch integration. The discarded branch schemas have no upgrade users and are not supported migration origins; their episode-index repair is intentionally omitted.
+- Versions 79 and 80 were reordered during branch integration. The discarded non-Stremio branch schemas have no upgrade users and are not supported migration origins; their episode-index repair is intentionally omitted.
+- The pre-merge Stremio branch independently exported schema v80 with the same version number but no Xtream receipt columns, the old `(provider_id, episode_id)` episode index, and Stremio add-on/history tables. `FeatureMigrationsV83To84` repairs that known variant after its multi-hop path, preserving Stremio rows and invalidating affected hydrated-series cache timestamps. A populated migration fixture exercises this variant; do not treat it as one of the unsupported discarded non-Stremio schemas.
 
 ## Validation (2026-10-10)
 
-- All 45 `StreamVaultDatabaseMigrationTest` tests passed on `Television_4K_2(AVD) - 16` using `:data:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.local.StreamVaultDatabaseMigrationTest`.
+- All 45 `StreamVaultDatabaseMigrationTest` tests passed on `Television_4K_2(AVD) - 16` using `:data:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.local.StreamVaultDatabaseMigrationTest` on 2026-10-10, against schema v81.
 - Coverage includes every committed historical schema to v81, populated v78 → v80 → v81 receipt preservation, and direct v80 → v81 Stalker retry creation with episode/timestamp preservation and provider-delete cascade checks.
+- Current Stremio worktree validation on 2026-10-16: all 47 `StreamVaultDatabaseMigrationTest` tests passed on `emulator-5558` against schema v84, including a populated synthetic fixture for the pre-merge Stremio v80 schema and preservation of provider, add-on, playback-history, and episode data.

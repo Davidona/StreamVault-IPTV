@@ -84,7 +84,7 @@ fun SearchInput(
     val isTelevisionDevice = rememberIsTelevisionDevice()
     var hasContainerFocus by remember { mutableStateOf(false) }
     var hasInputFocus by remember { mutableStateOf(false) }
-    var acceptsInput by remember(isTelevisionDevice) { mutableStateOf(!isTelevisionDevice) }
+    var acceptsInput by remember { mutableStateOf(false) }
     var pendingInputActivation by remember { mutableStateOf(false) }
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
@@ -153,7 +153,7 @@ fun SearchInput(
         pendingInputActivation = false
     }
 
-    BackHandler(enabled = shouldConsumeSearchInputBack(isTelevisionDevice, acceptsInput)) {
+    BackHandler(enabled = shouldConsumeSearchInputBack(acceptsInput)) {
         pendingInputActivation = false
         acceptsInput = false
         keyboardController?.hide()
@@ -217,7 +217,7 @@ fun SearchInput(
                         .fillMaxWidth()
                         .focusRequester(inputFocusRequester)
                         .focusProperties {
-                            canFocus = enabled && (!isTelevisionDevice || acceptsInput)
+                            canFocus = enabled && acceptsInput
                             if (isTelevisionDevice && acceptsInput) {
                                 left = FocusRequester.Cancel
                                 right = FocusRequester.Cancel
@@ -228,9 +228,7 @@ fun SearchInput(
                             if (it.hasFocus) {
                                 requestBringIntoView(120)
                             } else {
-                                if (isTelevisionDevice) {
-                                    acceptsInput = false
-                                }
+                                acceptsInput = false
                                 keyboardController?.hide()
                             }
                         }
@@ -257,7 +255,7 @@ fun SearchInput(
                     singleLine = true,
                     cursorBrush = SolidColor(Primary),
                     enabled = enabled,
-                    readOnly = isTelevisionDevice && !acceptsInput,
+                    readOnly = !acceptsInput,
                     keyboardOptions = KeyboardOptions(imeAction = imeAction),
                     keyboardActions = KeyboardActions(
                         onSearch = {
@@ -293,7 +291,4 @@ fun SearchInput(
     }
 }
 
-internal fun shouldConsumeSearchInputBack(
-    isTelevisionDevice: Boolean,
-    acceptsInput: Boolean,
-): Boolean = isTelevisionDevice && acceptsInput
+internal fun shouldConsumeSearchInputBack(acceptsInput: Boolean): Boolean = acceptsInput

@@ -32,7 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -53,8 +53,6 @@ import coil3.compose.AsyncImage
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.core.ui.components.shell.AppHeroHeader
-import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.core.ui.components.shell.ExtensionsEmptyState
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.BrowseColors as AppColors
@@ -71,6 +69,7 @@ import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.components.shell.ExtensionsSectionTabs
 import com.streamvault.domain.model.stremio.StremioMetaPreview
 import com.streamvault.domain.model.stremio.StremioPlaybackHistory
+import com.streamvault.domain.model.stremio.StremioResourceKind
 import com.streamvault.domain.model.stremio.installFingerprint
 import com.streamvault.feature.stremio.R
 import com.streamvault.feature.stremio.api.StremioScaffoldContent
@@ -79,14 +78,12 @@ import kotlinx.coroutines.delay
 @Composable
 fun AddonsScreen(
     scaffold: StremioScaffoldContent,
-    showContinueWatching: Boolean = true,
     onNavigateToPlugins: () -> Unit = {},
-    onOpenItem: (Long, StremioMetaPreview) -> Unit = { _, _ -> },
-    onOpenHistory: (StremioPlaybackHistory, Long) -> Unit = { _, _ -> },
+    onOpenBrowse: () -> Unit = {},
     viewModel: AddonsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var pendingRemoval by remember { mutableStateOf<AddonsViewModel.AddonEntry?>(null) }
 
     state.statusMessageRes?.let { messageRes ->
         LaunchedEffect(messageRes) {
@@ -102,11 +99,7 @@ fun AddonsScreen(
         false,
         true
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             ExtensionsSectionTabs(
                 selectedIndex = 1,
                 pluginsLabel = stringResource(R.string.extensions_tab_plugins),
@@ -115,27 +108,18 @@ fun AddonsScreen(
                     if (selectedIndex == 0) onNavigateToPlugins()
                 }
             )
-            AppHeroHeader(
-                title = stringResource(R.string.stremio_title),
-                subtitle = stringResource(R.string.stremio_section_description),
-                eyebrow = stringResource(R.string.extensions_title),
-                modifier = Modifier.fillMaxWidth(),
-                actions = {
-                    TvPrimaryButton(onClick = viewModel::showInstallDialog) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                        Spacer(Modifier.size(8.dp))
-                        Text(stringResource(R.string.stremio_add))
-                    }
-                }
-            )
             state.errorMessage?.let { message ->
                 MessageBanner(message = message, onClick = viewModel::consumeError)
             }
             state.statusMessageRes?.let { messageRes ->
                 MessageBanner(message = stringResource(messageRes), onClick = viewModel::consumeStatusMessage)
             }
-            if (!state.loading && state.addons.isEmpty()) {
-                ExtensionsEmptyState(
+            when {
+                state.loading && state.addons.isEmpty() -> Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) { CircularProgressIndicator(color = AppColors.Brand) }
+                state.addons.isEmpty() -> ExtensionsEmptyState(
                     title = stringResource(R.string.stremio_empty_title),
                     description = stringResource(R.string.stremio_empty_description),
                     modifier = Modifier.weight(1f),
@@ -147,69 +131,50 @@ fun AddonsScreen(
                         }
                     }
                 )
-            } else {
-                StremioViewTabs(
-                    selectedIndex = selectedTab,
-                    onTabSelected = { selectedTab = it }
-                )
-                if (selectedTab == 0) {
-                    if (showContinueWatching && state.continueWatching.isNotEmpty()) {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            AppSectionHeader(title = stringResource(R.string.stremio_continue_watching))
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                items(state.continueWatching, key = { it.contentKey }) { item ->
-                                    val originAddonId = state.addons.firstOrNull {
-                                        it.addon.installFingerprint() == item.catalogOriginKey
-                                    }?.addon?.id ?: 0L
-                                    ContinueWatchingCard(
-                                        item = item,
-                                        onClick = { onOpenHistory(item, originAddonId) }
-                                    )
-                                }
-                            }
+                else -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.stremio_installed_count, state.addons.size),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = AppColors.TextPrimary
+                        )
+                        TvPrimaryButton(onClick = viewModel::showInstallDialog) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            Spacer(Modifier.size(8.dp))
+                            Text(stringResource(R.string.stremio_add))
+                        }
+                        TvButton(onClick = onOpenBrowse) {
+                            Text(stringResource(R.string.stremio_browse))
                         }
                     }
-                    StremioCatalogBrowseContent(
-                        modifier = Modifier.weight(1f),
-                        onOpenItem = onOpenItem
-                    )
-                } else {
-                    when {
-                        state.loading -> Box(
-                            modifier = Modifier.weight(1f).fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                        state.addons.isEmpty() -> Text(
-                            text = stringResource(R.string.stremio_empty),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        else -> LazyColumn(
-                            modifier = Modifier.weight(1f).fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(14.dp),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 20.dp)
-                        ) {
-                            itemsIndexed(
-                                items = state.addons,
-                                key = { _, entry -> entry.addon.id }
-                            ) { index, entry ->
-                                AddonCard(
-                                    entry = entry,
-                                    expanded = state.expandedAddonId == entry.addon.id,
-                                    canMoveUp = index > 0,
-                                    canMoveDown = index < state.addons.lastIndex,
-                                    onEnabledChange = { enabled -> viewModel.setEnabled(entry, enabled) },
-                                    onMoveUp = { viewModel.moveAddon(entry, -1) },
-                                    onMoveDown = { viewModel.moveAddon(entry, 1) },
-                                    onToggleExpanded = { viewModel.toggleExpanded(entry.addon.id) },
-                                    onCatalogEnabledChange = { catalogKey, enabled ->
-                                        viewModel.setCatalogEnabled(entry, catalogKey, enabled)
-                                    },
-                                    onRemove = { viewModel.removeAddon(entry) }
-                                )
-                            }
+                    LazyColumn(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 20.dp)
+                    ) {
+                        itemsIndexed(items = state.addons, key = { _, entry -> entry.addon.id }) { index, entry ->
+                            AddonCard(
+                                entry = entry,
+                                expanded = state.expandedAddonId == entry.addon.id,
+                                refreshing = state.refreshingAddonId == entry.addon.id,
+                                busy = entry.addon.id in state.busyAddonIds,
+                                canMoveUp = index > 0,
+                                canMoveDown = index < state.addons.lastIndex,
+                                onEnabledChange = { enabled -> viewModel.setEnabled(entry, enabled) },
+                                onMoveUp = { viewModel.moveAddon(entry, -1) },
+                                onMoveDown = { viewModel.moveAddon(entry, 1) },
+                                onToggleExpanded = { viewModel.toggleExpanded(entry.addon.id) },
+                                onCatalogEnabledChange = { catalogKey, enabled ->
+                                    viewModel.setCatalogEnabled(entry, catalogKey, enabled)
+                                },
+                                onRefresh = { viewModel.refreshAddon(entry) },
+                                onRemove = { pendingRemoval = entry }
+                            )
                         }
                     }
                 }
@@ -225,6 +190,30 @@ fun AddonsScreen(
             onUrlChange = viewModel::updateInstallUrl,
             onConfirm = viewModel::install,
             onDismiss = viewModel::dismissInstallDialog
+        )
+    }
+
+    pendingRemoval?.let { entry ->
+        PremiumDialog(
+            title = stringResource(R.string.stremio_remove_confirm_title),
+            subtitle = stringResource(R.string.stremio_remove_confirm_body, entry.addon.name),
+            onDismissRequest = { pendingRemoval = null },
+            heightFraction = null,
+            content = {},
+            footer = {
+                PremiumDialogFooterButton(
+                    label = stringResource(R.string.stremio_cancel),
+                    onClick = { pendingRemoval = null }
+                )
+                PremiumDialogFooterButton(
+                    label = stringResource(R.string.stremio_remove),
+                    onClick = {
+                        pendingRemoval = null
+                        viewModel.removeAddon(entry)
+                    },
+                    emphasized = true
+                )
+            }
         )
     }
 }
@@ -281,6 +270,8 @@ private fun ContinueWatchingCard(item: StremioPlaybackHistory, onClick: () -> Un
 private fun AddonCard(
     entry: AddonsViewModel.AddonEntry,
     expanded: Boolean,
+    refreshing: Boolean,
+    busy: Boolean,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onEnabledChange: (Boolean) -> Unit,
@@ -288,70 +279,63 @@ private fun AddonCard(
     onMoveDown: () -> Unit,
     onToggleExpanded: () -> Unit,
     onCatalogEnabledChange: (String, Boolean) -> Unit,
+    onRefresh: () -> Unit,
     onRemove: () -> Unit
 ) {
     val addon = entry.addon
+    val manifest = entry.manifest
+    val hasStreams = manifest?.resources?.any { it.kind == StremioResourceKind.STREAM } == true
+    val hasSubtitles = manifest?.resources?.any { it.kind == StremioResourceKind.SUBTITLES } == true
     Column(
-        modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Panel).padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Panel).padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-        Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = addon.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppColors.TextPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    StatusPill(
-                        label = stringResource(if (addon.enabled) R.string.stremio_enabled else R.string.stremio_disabled),
-                        containerColor = if (addon.enabled) AppColors.Success else AppColors.SurfaceEmphasis
+            Box(
+                modifier = Modifier.size(46.dp).clip(BrowseShapes.Artwork).background(AppColors.SurfaceEmphasis),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = addon.name.take(1).uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppColors.BrandStrong
+                )
+                manifest?.logo?.takeIf(String::isNotBlank)?.let { logo ->
+                    AsyncImage(
+                        model = logo,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(
-                    text = stringResource(R.string.stremio_version_format, addon.version),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = AppColors.TextSecondary
-                )
-                Text(
-                    text = stringResource(
-                        R.string.stremio_addon_server_format,
-                        stremioAddonOriginLabel(addon.installUrl)
-                            ?: stringResource(R.string.stremio_addon_server_unknown)
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = AppColors.TextTertiary,
+                    text = addon.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppColors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (entry.catalogs.isNotEmpty()) StatusPill(label = stringResource(R.string.stremio_catalogs_capability))
+                    if (hasStreams) StatusPill(label = stringResource(R.string.stremio_streams_capability))
+                    if (hasSubtitles) StatusPill(label = stringResource(R.string.stremio_subtitles_capability))
+                }
             }
             Switch(
                 checked = addon.enabled,
                 onCheckedChange = onEnabledChange,
+                enabled = !busy,
                 colors = stremioSwitchColors()
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            TvIconButton(onClick = onMoveUp, enabled = canMoveUp) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.stremio_move_up))
-            }
-            TvIconButton(onClick = onMoveDown, enabled = canMoveDown) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.stremio_move_down))
-            }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TvButton(
                 onClick = onToggleExpanded,
                 modifier = Modifier.heightIn(min = 44.dp),
@@ -362,34 +346,66 @@ private fun AddonCard(
                     focusedContentColor = AppColors.TextPrimary
                 )
             ) {
-                Text(
-                    text = stringResource(R.string.stremio_catalogs),
-                    modifier = Modifier.padding(horizontal = 6.dp)
-                )
+                Text(stringResource(if (expanded) R.string.stremio_hide_details else R.string.stremio_details))
             }
             Spacer(modifier = Modifier.weight(1f))
-            TvButton(
-                onClick = onRemove,
-                modifier = Modifier.heightIn(min = 44.dp),
-                colors = androidx.tv.material3.ButtonDefaults.colors(
-                    containerColor = AppColors.Live.copy(alpha = 0.12f),
-                    contentColor = AppColors.Live,
-                    focusedContainerColor = AppColors.Live.copy(alpha = 0.22f),
-                    focusedContentColor = AppColors.Live
-                )
-            ) {
-                Text(stringResource(R.string.stremio_remove), modifier = Modifier.padding(horizontal = 6.dp))
-            }
         }
 
         if (expanded) {
+            Text(
+                text = stringResource(R.string.stremio_version_and_server_format,
+                    addon.version,
+                    stremioAddonOriginLabel(addon.installUrl)
+                        ?: stringResource(R.string.stremio_addon_server_unknown)
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = AppColors.TextTertiary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            manifest?.description?.takeIf(String::isNotBlank)?.let { description ->
+                Text(description, style = MaterialTheme.typography.bodySmall, color = AppColors.TextSecondary)
+            }
             if (entry.catalogs.isEmpty()) {
+                val capabilityHint = when {
+                    hasStreams && hasSubtitles -> R.string.stremio_streams_and_subtitles_only_hint
+                    hasStreams -> R.string.stremio_streams_only_hint
+                    hasSubtitles -> R.string.stremio_subtitles_only_hint
+                    else -> null
+                }
+                capabilityHint?.let { hint ->
+                    Text(
+                        text = stringResource(hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = AppColors.TextSecondary
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                TvButton(onClick = onRefresh, enabled = !refreshing && !busy) {
+                    if (refreshing) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = AppColors.Brand)
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    Text(stringResource(R.string.stremio_refresh_manifest))
+                }
+                TvIconButton(onClick = onMoveUp, enabled = canMoveUp && !busy) {
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.stremio_move_up))
+                }
+                TvIconButton(onClick = onMoveDown, enabled = canMoveDown && !busy) {
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.stremio_move_down))
+                }
+                Spacer(Modifier.weight(1f))
+                TvButton(onClick = onRemove, enabled = !busy) {
+                    Text(stringResource(R.string.stremio_remove))
+                }
+            }
+            if (entry.catalogs.isNotEmpty()) {
                 Text(
-                    text = stringResource(R.string.stremio_no_catalogs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = AppColors.TextSecondary
+                    text = stringResource(R.string.stremio_catalogs_capability),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = AppColors.TextPrimary
                 )
-            } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     entry.catalogs.forEach { catalog ->
                         Row(
@@ -416,6 +432,7 @@ private fun AddonCard(
                                 onCheckedChange = { enabled ->
                                     onCatalogEnabledChange(catalog.settingsKey, enabled)
                                 },
+                                enabled = !busy,
                                 colors = stremioSwitchColors()
                             )
                         }

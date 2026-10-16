@@ -483,6 +483,20 @@ class StreamVaultPluginManager @Inject constructor(
     suspend fun preparePlaybackUrl(url: String): Result<Unit> =
         preparePlaybackStreamInfo(StreamInfo(url = url)).map { Unit }
 
+    suspend fun hasEnabledMagnetPlaybackPlugin(): Boolean = try {
+        withPluginPlaybackDeadline(PLAYBACK_TOTAL_TIMEOUT_MILLIS) {
+            playbackCandidates(
+                discoverPlugins(),
+                "magnet:?xt=urn:btih:0000000000000000000000000000000000000000",
+                StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE
+            ).isNotEmpty()
+        } ?: false
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        false
+    }
+
     suspend fun preparePlaybackStreamInfo(streamInfo: StreamInfo): Result<StreamInfo> = withContext(Dispatchers.IO) {
         val url = streamInfo.url
         if (url.isBlank()) return@withContext Result.success(streamInfo)

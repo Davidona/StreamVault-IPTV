@@ -5,6 +5,7 @@ import com.streamvault.domain.model.stremio.StremioMetaPreview
 
 object StremioRoutePatterns {
     const val ADDONS = "addons"
+    const val BROWSE = "addons/browse"
     const val ITEM = "addons/item/{originAddonId}/{type}/{exactId}?name={name}&poster={poster}&description={description}&releaseInfo={releaseInfo}&replayVideoId={replayVideoId}&replayOriginKey={replayOriginKey}&replayRequiresOrigin={replayRequiresOrigin}"
 
     fun itemRoute(

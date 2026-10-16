@@ -196,6 +196,39 @@ class StremioResourceResolverTest {
     }
 
     @Test
+    fun `fanout publishes completed providers progressively in configured order`() = runTest {
+        val candidates = (1L..3L).map { id ->
+            installed(
+                id,
+                types = listOf(StremioMediaType.MOVIE),
+                resources = listOf(StremioManifestResource(StremioResourceKind.STREAM))
+            )
+        }
+        val snapshots = mutableListOf<List<Long>>()
+        val result = resolver.resolveMany(
+            candidates,
+            request = { addon ->
+                delay(when (addon.id) {
+                    1L -> 30L
+                    2L -> 10L
+                    else -> 20L
+                })
+                Result.success(listOf(addon.id))
+            },
+            onProgress = { progress ->
+                snapshots += progress.results.map { it.resource }
+            }
+        )
+
+        assertThat(snapshots).hasSize(3)
+        assertThat(snapshots.first()).containsExactly(2L)
+        snapshots.forEach { snapshot ->
+            assertThat(snapshot).containsExactlyElementsIn(snapshot.sorted()).inOrder()
+        }
+        assertThat(result.results.map { it.resource }).containsExactly(1L, 2L, 3L).inOrder()
+    }
+
+    @Test
     fun `cancelling fanout cancels outstanding addon requests`() = runTest {
         val started = CompletableDeferred<Unit>()
         val candidate = installed(

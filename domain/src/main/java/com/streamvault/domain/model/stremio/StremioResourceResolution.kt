@@ -31,5 +31,7 @@ data class StremioMetaResolution(
 data class StremioResourceResolution<T>(
     val results: List<StremioAttributedResource<T>> = emptyList(),
     val failures: List<StremioAddonResourceFailure> = emptyList(),
-    val candidateCount: Int = 0
+    val candidateCount: Int = 0,
+    /** Completed providers in configured add-on order, including providers that returned no resources. */
+    val completedAddonIds: List<Long> = emptyList()
 )

@@ -143,6 +143,128 @@ class StremioCatalogBrowseViewModelTest {
     }
 
     @Test
+    fun `successful refresh invalidates cached catalog data when manifest is unchanged`() = runTest(dispatcher) {
+        val repository = CatalogRepositoryFake(catalogWithSkip())
+        repository.pages += StremioCatalogPage(listOf(preview("before-refresh")), rawItemCount = 1)
+        repository.pages += StremioCatalogPage(listOf(preview("after-refresh")), rawItemCount = 1)
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+
+        repository.addons.value = repository.addons.value.map { it.copy(updatedAt = 1L) }
+        advanceUntilIdle()
+
+        assertThat(repository.calls).hasSize(2)
+        assertThat(viewModel.state.value.rows.single().metas.map { it.id })
+            .containsExactly("after-refresh")
+    }
+
+    @Test
+    fun `only selected catalog loads until another catalog is selected`() = runTest(dispatcher) {
+        val firstCatalog = catalogWithSkip()
+        val secondCatalog = firstCatalog.copy(id = "recent", name = "Recently Added")
+        val repository = CatalogRepositoryFake(firstCatalog)
+        repository.manifests[1L] = manifest(firstCatalog).copy(catalogs = listOf(firstCatalog, secondCatalog))
+        repository.pages += StremioCatalogPage(listOf(preview("first")), rawItemCount = 1)
+        repository.pages += StremioCatalogPage(listOf(preview("second")), rawItemCount = 1)
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+
+        assertThat(repository.calls.map { it.addonId }).containsExactly(1L)
+        assertThat(viewModel.state.value.rows).hasSize(2)
+        val secondKey = viewModel.state.value.rows.single { it.catalog.id == "recent" }.key
+        viewModel.selectCatalog(secondKey)
+        advanceUntilIdle()
+
+        assertThat(repository.calls).hasSize(2)
+        assertThat(viewModel.state.value.rows.single { it.key == secondKey }.metas.map { it.id })
+            .containsExactly("second")
+    }
+
+    @Test
+    fun `failed pagination retries its offset without dropping prior results`() = runTest(dispatcher) {
+        val repository = CatalogRepositoryFake(catalogWithSkip())
+        val attemptsBySkip = mutableMapOf<Int?, Int>()
+        repository.fetchResponder = { call ->
+            val attempt = (attemptsBySkip[call.query.skip] ?: 0) + 1
+            attemptsBySkip[call.query.skip] = attempt
+            when (call.query.skip) {
+                0 -> Result.success(StremioCatalogPage((0 until 100).map { preview("first-$it") }, rawItemCount = 100))
+                100 -> if (attempt == 1) Result.error("temporary failure") else Result.success(
+                    StremioCatalogPage(listOf(preview("second-page")), rawItemCount = 1)
+                )
+                else -> Result.error("unexpected offset")
+            }
+        }
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val key = viewModel.state.value.rows.single().key
+
+        viewModel.loadMore(key)
+        advanceUntilIdle()
+        val failed = viewModel.state.value.rows.single()
+        assertThat(failed.metas).hasSize(100)
+        assertThat(failed.failedPageSkip).isEqualTo(100)
+
+        viewModel.retry(key)
+        advanceUntilIdle()
+
+        assertThat(repository.calls.map { it.query.skip }).containsExactly(0, 100, 100).inOrder()
+        assertThat(viewModel.state.value.rows.single().metas).hasSize(101)
+        assertThat(viewModel.state.value.rows.single().metas.last().id).isEqualTo("second-page")
+    }
+
+    @Test
+    fun `explicit refresh bypasses the page cache`() = runTest(dispatcher) {
+        val repository = CatalogRepositoryFake(catalogWithSkip())
+        repository.pages += StremioCatalogPage(listOf(preview("cached")), rawItemCount = 1)
+        repository.pages += StremioCatalogPage(listOf(preview("fresh")), rawItemCount = 1)
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val key = viewModel.state.value.rows.single().key
+
+        viewModel.refresh(key)
+        advanceUntilIdle()
+
+        assertThat(repository.calls).hasSize(2)
+        assertThat(viewModel.state.value.rows.single().metas.map { it.id }).containsExactly("fresh")
+    }
+
+    @Test
+    fun `search replacement keeps current posters visible until new results arrive`() = runTest(dispatcher) {
+        val catalog = catalogWithSkip(
+            extras = listOf(StremioCatalogExtraDef("search"), StremioCatalogExtraDef("skip"))
+        )
+        val repository = CatalogRepositoryFake(catalog)
+        val replacement = CompletableDeferred<StremioCatalogPage>()
+        val replacementStarted = CompletableDeferred<Unit>()
+        repository.fetchResponder = { call ->
+            if (call.query.search == null) {
+                Result.success(StremioCatalogPage(listOf(preview("old-result")), rawItemCount = 1))
+            } else {
+                replacementStarted.complete(Unit)
+                Result.success(replacement.await())
+            }
+        }
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val key = viewModel.state.value.rows.single().key
+
+        viewModel.setSearch(key, "new query")
+        advanceTimeBy(350)
+        runCurrent()
+        replacementStarted.await()
+
+        val loading = viewModel.state.value.rows.single()
+        assertThat(loading.loading).isTrue()
+        assertThat(loading.metas.map { it.id }).containsExactly("old-result")
+        assertThat(loading.loadedSearch).isEqualTo("")
+
+        replacement.complete(StremioCatalogPage(listOf(preview("new-result")), rawItemCount = 1))
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.rows.single().metas.map { it.id }).containsExactly("new-result")
+    }
+
+    @Test
     fun `changing search cancels the stale catalog request`() = runTest(dispatcher) {
         val catalog = catalogWithSkip(
             extras = listOf(StremioCatalogExtraDef("search"), StremioCatalogExtraDef("skip"))

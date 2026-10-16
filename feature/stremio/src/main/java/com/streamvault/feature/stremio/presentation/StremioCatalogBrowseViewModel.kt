@@ -30,12 +30,17 @@ data class StremioCatalogRowState(
     val key: StremioCatalogRowKey,
     val addonName: String,
     val addonFingerprint: String,
+    val addonUpdatedAt: Long,
     val catalog: StremioCatalogRef,
     val metas: List<StremioMetaPreview> = emptyList(),
     val search: String = "",
     val genre: String = "",
+    val loadedSearch: String? = null,
+    val loadedGenre: String? = null,
     val loading: Boolean = false,
     val loadingMore: Boolean = false,
+    val failedPageSkip: Int? = null,
+    val failedRequestBypassCache: Boolean = false,
     val nextSkip: Int = 0,
     val pageCount: Int = 0,
     val canLoadMore: Boolean = false,
@@ -61,9 +66,14 @@ data class StremioCatalogRowState(
         ?: catalog.genres
 }
 
+enum class StremioBrowseEmptyReason { NO_INSTALLED_ADDONS, NO_ENABLED_ADDONS, NO_ENABLED_CATALOGS }
+
 data class StremioCatalogBrowseState(
     val loading: Boolean = true,
-    val rows: List<StremioCatalogRowState> = emptyList()
+    val rows: List<StremioCatalogRowState> = emptyList(),
+    val selectedCatalogKey: StremioCatalogRowKey? = null,
+    val emptyReason: StremioBrowseEmptyReason? = null,
+    val loadError: String? = null
 )
 
 @HiltViewModel
@@ -91,7 +101,13 @@ class StremioCatalogBrowseViewModel @Inject constructor(
         val oldRows = _state.value.rows.associateBy { it.key }
         val rows = buildList {
             addons.asSequence().filter { it.enabled }.forEach addonLoop@{ addon ->
-                val manifest = repository.getManifest(addon.id) ?: return@addonLoop
+                val manifest = try {
+                    repository.getManifest(addon.id)
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (_: Exception) {
+                    null
+                } ?: return@addonLoop
                 manifest.catalogs.forEach catalogLoop@{ catalog ->
                     if (!addon.isCatalogEnabled(catalog.settingsKey)) return@catalogLoop
                     val key = StremioCatalogRowKey(addon.id, catalog.settingsKey)
@@ -103,16 +119,43 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                             }?.let { "Requires unsupported '${it.name}' filter" }
                         else -> "${catalog.type.typeName} catalogs are not supported yet"
                     }
+                    val old = oldRows[key]?.takeIf { it.addonFingerprint == addonFingerprint }
                     add(
-                        oldRows[key]?.takeIf { it.addonFingerprint == addonFingerprint }?.copy(
-                            addonName = addon.name,
-                            addonFingerprint = addonFingerprint,
-                            catalog = catalog,
-                            blockedReason = blockedReason
-                        ) ?: StremioCatalogRowState(
+                        old?.let { previous ->
+                            if (previous.addonUpdatedAt == addon.updatedAt) {
+                                previous.copy(
+                                    addonName = addon.name,
+                                    addonFingerprint = addonFingerprint,
+                                    addonUpdatedAt = addon.updatedAt,
+                                    catalog = catalog,
+                                    blockedReason = blockedReason
+                                )
+                            } else {
+                                previous.copy(
+                                    addonName = addon.name,
+                                    addonFingerprint = addonFingerprint,
+                                    addonUpdatedAt = addon.updatedAt,
+                                    catalog = catalog,
+                                    metas = emptyList(),
+                                    loadedSearch = null,
+                                    loadedGenre = null,
+                                    loading = false,
+                                    loadingMore = false,
+                                    failedPageSkip = null,
+                                    failedRequestBypassCache = false,
+                                    nextSkip = 0,
+                                    pageCount = 0,
+                                    canLoadMore = false,
+                                    error = null,
+                                    blockedReason = blockedReason,
+                                    waitingForInput = null
+                                )
+                            }
+                        } ?: StremioCatalogRowState(
                             key = key,
                             addonName = addon.name,
                             addonFingerprint = addonFingerprint,
+                            addonUpdatedAt = addon.updatedAt,
                             catalog = catalog,
                             blockedReason = blockedReason
                         )
@@ -129,7 +172,11 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             pageCache.removeCatalog(row.addonFingerprint, row.catalog.settingsKey)
         }
         val refreshedKeys = rows.mapNotNull { row ->
-            row.key.takeIf { oldRows[it]?.addonFingerprint?.let { old -> old != row.addonFingerprint } == true }
+            row.key.takeIf {
+                oldRows[it]?.let { old ->
+                    old.addonFingerprint != row.addonFingerprint || old.addonUpdatedAt != row.addonUpdatedAt
+                } == true
+            }
         }.toSet()
         rows.forEach { row ->
             oldRows[row.key]?.takeIf { row.key in refreshedKeys }?.let { old ->
@@ -138,12 +185,37 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                 pageCache.removeCatalog(old.addonFingerprint, old.catalog.settingsKey)
             }
         }
-        val isFirstLoad = _state.value.loading
-        _state.value = StremioCatalogBrowseState(loading = false, rows = rows)
-        rows.filter { (it.key !in oldRows || it.key in refreshedKeys) && it.blockedReason == null }.forEach { row ->
-            startRequest(row.key, reset = true, debounceMs = 0L)
+        val selectedKey = _state.value.selectedCatalogKey
+            ?.takeIf { key -> rows.any { it.key == key } }
+            ?: rows.firstOrNull { it.blockedReason == null }?.key
+        val emptyReason = when {
+            addons.isEmpty() -> StremioBrowseEmptyReason.NO_INSTALLED_ADDONS
+            addons.none { it.enabled } -> StremioBrowseEmptyReason.NO_ENABLED_ADDONS
+            rows.isEmpty() -> StremioBrowseEmptyReason.NO_ENABLED_CATALOGS
+            else -> null
         }
-        if (isFirstLoad && rows.isEmpty()) _state.update { it.copy(loading = false) }
+        _state.value = StremioCatalogBrowseState(
+            loading = false,
+            rows = rows,
+            selectedCatalogKey = selectedKey,
+            emptyReason = emptyReason
+        )
+        selectedKey?.let { key ->
+            val selected = rows.firstOrNull { it.key == key } ?: return@let
+            if (selected.blockedReason == null && selected.pageCount == 0 &&
+                !selected.loading && selected.error == null && selected.waitingForInput == null
+            ) {
+                startRequest(key, reset = true, debounceMs = 0L)
+            }
+        }
+    }
+
+    fun selectCatalog(key: StremioCatalogRowKey) {
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        _state.update { it.copy(selectedCatalogKey = key) }
+        if (row.blockedReason == null && row.pageCount == 0 && !row.loading && row.error == null) {
+            startRequest(key, reset = true, debounceMs = 0L)
+        }
     }
 
     fun setSearch(key: StremioCatalogRowKey, search: String) {
@@ -159,7 +231,18 @@ class StremioCatalogBrowseViewModel @Inject constructor(
     }
 
     fun retry(key: StremioCatalogRowKey) {
-        startRequest(key, reset = true, debounceMs = 0L)
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        val failedSkip = row.failedPageSkip
+        val bypassCache = row.failedRequestBypassCache
+        if (failedSkip != null && failedSkip > 0) {
+            startRequest(key, reset = false, debounceMs = 0L, bypassCache = bypassCache, skipOverride = failedSkip)
+        } else {
+            startRequest(key, reset = true, debounceMs = 0L, bypassCache = bypassCache)
+        }
+    }
+
+    fun refresh(key: StremioCatalogRowKey) {
+        startRequest(key, reset = true, debounceMs = 0L, bypassCache = true)
     }
 
     fun loadMore(key: StremioCatalogRowKey) {
@@ -168,7 +251,13 @@ class StremioCatalogBrowseViewModel @Inject constructor(
         startRequest(key, reset = false, debounceMs = 0L)
     }
 
-    private fun startRequest(key: StremioCatalogRowKey, reset: Boolean, debounceMs: Long) {
+    private fun startRequest(
+        key: StremioCatalogRowKey,
+        reset: Boolean,
+        debounceMs: Long,
+        bypassCache: Boolean = false,
+        skipOverride: Int? = null
+    ) {
         if (!contentAccess.canAccessContentNow()) return
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
         if (row.blockedReason != null) return
@@ -179,34 +268,38 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             seenPageFingerprints[key] = mutableSetOf()
             updateRow(key) {
                 it.copy(
-                    metas = emptyList(),
+                    metas = if (rowCanRequest(it)) it.metas else emptyList(),
                     loading = rowCanRequest(it),
                     loadingMore = false,
                     nextSkip = 0,
                     pageCount = 0,
                     canLoadMore = false,
                     error = null,
+                    failedPageSkip = null,
+                    failedRequestBypassCache = false,
                     waitingForInput = missingRequiredInput(it)
                 )
             }
         } else {
-            updateRow(key) { it.copy(loadingMore = true, error = null) }
+            updateRow(key) { it.copy(loadingMore = true, error = null, failedPageSkip = null, failedRequestBypassCache = false) }
         }
         if (!rowCanRequest(_state.value.rows.first { it.key == key })) return
         jobs[key] = viewModelScope.launch {
             if (debounceMs > 0L) delay(debounceMs)
-            requestPage(key, generation, reset)
+            requestPage(key, generation, reset, bypassCache, skipOverride)
         }
     }
 
     private suspend fun requestPage(
         key: StremioCatalogRowKey,
         generation: Long,
-        reset: Boolean
+        reset: Boolean,
+        bypassCache: Boolean,
+        skipOverride: Int?
     ) {
         if (!contentAccess.canAccessContentNow()) return
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
-        val skip = if (row.supportsSkip) row.nextSkip else null
+        val skip = if (row.supportsSkip) (skipOverride ?: row.nextSkip) else null
         val query = StremioCatalogQuery(
             search = row.search.trim().takeIf { it.isNotEmpty() },
             genre = row.genre.trim().takeIf { it.isNotEmpty() },
@@ -220,7 +313,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             skip = skip
         )
         try {
-            val cachedPage = pageCache.get(cacheKey)
+            val cachedPage = if (bypassCache) null else pageCache.get(cacheKey)
             val result = if (cachedPage != null) {
                 null
             } else {
@@ -234,7 +327,14 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             if (page == null) {
                 val error = result?.errorMessageOrNull() ?: "Catalog could not be loaded"
                 updateRow(key) {
-                    it.copy(loading = false, loadingMore = false, error = error, canLoadMore = false)
+                    it.copy(
+                        loading = false,
+                        loadingMore = false,
+                        error = error,
+                        failedPageSkip = skip ?: 0,
+                        failedRequestBypassCache = bypassCache,
+                        canLoadMore = (skip ?: 0) > 0 || it.canLoadMore
+                    )
                 }
                 return
             }
@@ -248,7 +348,9 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                         loading = false,
                         loadingMore = false,
                         error = error.message ?: "Catalog could not be loaded",
-                        canLoadMore = false
+                        failedPageSkip = skip ?: 0,
+                        failedRequestBypassCache = bypassCache,
+                        canLoadMore = (skip ?: 0) > 0 || it.canLoadMore
                     )
                 }
             }
@@ -279,11 +381,15 @@ class StremioCatalogBrowseViewModel @Inject constructor(
         updateRow(key) {
             it.copy(
                 metas = if (reset) uniqueNew else it.metas + uniqueNew,
+                loadedSearch = requestedRow.search.trim(),
+                loadedGenre = requestedRow.genre.trim(),
                 loading = false,
                 loadingMore = false,
                 nextSkip = nextSkip,
                 pageCount = if (reset) 1 else it.pageCount + 1,
                 canLoadMore = canLoadMore,
+                failedPageSkip = null,
+                failedRequestBypassCache = false,
                 error = when {
                     repeated -> "The addon repeated a page; loading stopped."
                     rawHasMore && !canLoadMore && page.rawItemCount > 0 &&

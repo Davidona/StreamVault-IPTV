@@ -4,6 +4,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.navArgument
 import androidx.compose.ui.res.stringResource
 import com.streamvault.core.navigation.AppDestination
@@ -13,6 +15,9 @@ import com.streamvault.feature.stremio.api.StremioScaffoldContent
 import com.streamvault.feature.stremio.presentation.AddonsScreen
 import com.streamvault.feature.stremio.presentation.StremioItemDetailScreen
 import com.streamvault.feature.stremio.presentation.StremioVisibilityHost
+import com.streamvault.feature.stremio.presentation.StremioBrowseScreen
+import com.streamvault.feature.stremio.presentation.AddonsViewModel
+import com.streamvault.feature.stremio.presentation.StremioCatalogBrowseViewModel
 import com.streamvault.feature.stremio.R
 
 fun NavGraphBuilder.registerStremioGraph(
@@ -28,11 +33,32 @@ fun NavGraphBuilder.registerStremioGraph(
             title = stringResource(R.string.extensions_title),
             showExtensionsTabs = true,
             onNavigateToPlugins = { onTopLevelDestinationRequested(AppDestination.Plugins) },
-            content = { accessState ->
+            content = {
                 AddonsScreen(
                     scaffold = scaffold,
-                    showContinueWatching = accessState.showContinueWatching,
                     onNavigateToPlugins = { onTopLevelDestinationRequested(AppDestination.Plugins) },
+                    onOpenBrowse = { navController.navigate(StremioRoutePatterns.BROWSE) }
+                )
+            }
+        )
+    }
+    composable(StremioRoutePatterns.BROWSE) { backStackEntry ->
+        val addonsEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(StremioRoutePatterns.ADDONS)
+        }
+        val addonsViewModel: AddonsViewModel = hiltViewModel(viewModelStoreOwner = addonsEntry)
+        val browseViewModel: StremioCatalogBrowseViewModel = hiltViewModel(viewModelStoreOwner = addonsEntry)
+        StremioVisibilityHost(
+            scaffold = scaffold,
+            onOpenSettings = { actions.navigate(AppDestination.Settings()) },
+            title = stringResource(R.string.stremio_browse_title),
+            content = { accessState ->
+                StremioBrowseScreen(
+                    scaffold = scaffold,
+                    showContinueWatching = accessState.showContinueWatching,
+                    addonsViewModel = addonsViewModel,
+                    browseViewModel = browseViewModel,
+                    onManageAddons = { navController.popBackStack(StremioRoutePatterns.ADDONS, false) },
                     onOpenItem = { addonId, preview ->
                         navController.navigate(StremioRoutePatterns.itemRoute(addonId, preview))
                     },
@@ -65,6 +91,7 @@ fun NavGraphBuilder.registerStremioGraph(
             content = {
                 StremioItemDetailScreen(
                     scaffold = scaffold,
+                    onManagePlugins = { onTopLevelDestinationRequested(AppDestination.Plugins) },
                     onPlay = { handoff ->
                         actions.openPlayer(
                             PlayerNavigationRequest(
@@ -72,7 +99,7 @@ fun NavGraphBuilder.registerStremioGraph(
                                 title = handoff.title,
                                 contentType = handoff.contentType,
                                 artworkUrl = handoff.artworkUrl,
-                                returnDestination = AppDestination.Addons,
+                                returnDestination = null,
                                 stremioPlaybackReference = handoff.reference,
                                 stremioMediaRequestHeaders = handoff.mediaRequestHeaders,
                                 stremioInlineSubtitles = handoff.inlineSubtitles

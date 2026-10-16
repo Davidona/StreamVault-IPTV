@@ -159,7 +159,9 @@ class AddonsViewModelTest {
         val entry = viewModel.state.value.addons.single()
 
         viewModel.setEnabled(entry, enabled = false)
+        advanceUntilIdle()
         viewModel.moveAddon(entry, offset = -1)
+        advanceUntilIdle()
         viewModel.setCatalogEnabled(entry, "movie:top", enabled = false)
         advanceUntilIdle()
 

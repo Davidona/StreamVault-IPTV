@@ -5,13 +5,8 @@ import org.junit.Test
 
 class SearchInputBehaviorTest {
     @Test
-    fun `TV Back is consumed only while the field is editing`() {
-        assertThat(shouldConsumeSearchInputBack(isTelevisionDevice = true, acceptsInput = true)).isTrue()
-        assertThat(shouldConsumeSearchInputBack(isTelevisionDevice = true, acceptsInput = false)).isFalse()
-    }
-
-    @Test
-    fun `touch search leaves Back ownership with the enclosing surface`() {
-        assertThat(shouldConsumeSearchInputBack(isTelevisionDevice = false, acceptsInput = true)).isFalse()
+    fun `Back is consumed only while the field is explicitly editing`() {
+        assertThat(shouldConsumeSearchInputBack(acceptsInput = true)).isTrue()
+        assertThat(shouldConsumeSearchInputBack(acceptsInput = false)).isFalse()
     }
 }

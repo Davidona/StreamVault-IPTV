@@ -102,6 +102,13 @@ class StremioAddonRepositoryImpl @Inject constructor(
         type: StremioMediaType,
         exactId: String,
         addonIds: Set<Long>?
+    ): StremioResourceResolution<StremioStream> = resolveStreamsProgressively(type, exactId, addonIds) {}
+
+    override suspend fun resolveStreamsProgressively(
+        type: StremioMediaType,
+        exactId: String,
+        addonIds: Set<Long>?,
+        onProgress: suspend (StremioResourceResolution<StremioStream>) -> Unit
     ): StremioResourceResolution<StremioStream> {
         val eligible = resourceResolver.candidates(
             addons = resourceCandidates(),
@@ -110,9 +117,9 @@ class StremioAddonRepositoryImpl @Inject constructor(
             exactId = exactId,
             addonIds = addonIds
         )
-        return resourceResolver.resolveMany(eligible) { addon ->
+        return resourceResolver.resolveMany(eligible, request = { addon ->
             client.fetchStreams(addon.installUrl, type, exactId)
-        }
+        }, onProgress = onProgress)
     }
 
     override suspend fun resolveSubtitles(
@@ -130,7 +137,7 @@ class StremioAddonRepositoryImpl @Inject constructor(
             exactId = exactVideoId,
             addonIds = addonIds
         )
-        return resourceResolver.resolveMany(eligible) { addon ->
+        return resourceResolver.resolveMany(eligible, request = { addon ->
             client.fetchSubtitles(
                 addon.installUrl,
                 type,
@@ -139,7 +146,7 @@ class StremioAddonRepositoryImpl @Inject constructor(
                 videoSize,
                 filename
             )
-        }
+        })
     }
 
     private suspend fun resourceCandidates(): List<StremioInstalledAddon> = dao.getAll().asSequence()
@@ -179,6 +186,29 @@ class StremioAddonRepositoryImpl @Inject constructor(
         )
         val id = dao.insert(entity)
         return Result.success(entity.copy(id = id).toDomain())
+    }
+
+    override suspend fun refreshAddon(id: Long): Result<StremioAddon> {
+        val existing = dao.getById(id) ?: return Result.error("Addon is not installed")
+        val snapshotResult = client.fetchManifestSnapshot(existing.installUrl)
+        val snapshot = snapshotResult.getOrNull() ?: return Result.error(
+            snapshotResult.errorMessageOrNull() ?: "Addon manifest could not be refreshed",
+            (snapshotResult as? Result.Error)?.exception
+        )
+        if (snapshot.manifest.behaviorHints.configurationRequired) {
+            return Result.error("This addon still requires configuration in its browser setup.")
+        }
+        val now = System.currentTimeMillis()
+        dao.updateManifest(
+            id = id,
+            manifestId = snapshot.manifest.id,
+            name = snapshot.manifest.name,
+            version = snapshot.manifest.version,
+            manifestJson = snapshot.manifestJson,
+            updatedAt = now
+        )
+        val refreshed = dao.getById(id) ?: return Result.error("Addon disappeared during refresh")
+        return Result.success(refreshed.toDomain())
     }
 
     override suspend fun removeAddon(id: Long): Result<Unit> {

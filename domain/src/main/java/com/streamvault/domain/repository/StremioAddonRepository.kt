@@ -49,6 +49,21 @@ interface StremioAddonRepository {
 
     suspend fun installAddon(installUrl: String): Result<StremioAddon>
 
+    suspend fun refreshAddon(id: Long): Result<StremioAddon> =
+        Result.error("Addon refresh is not supported")
+
+    /** Emits each completed provider batch while retaining deterministic install order. */
+    suspend fun resolveStreamsProgressively(
+        type: StremioMediaType,
+        exactId: String,
+        addonIds: Set<Long>? = null,
+        onProgress: suspend (StremioResourceResolution<StremioStream>) -> Unit
+    ): StremioResourceResolution<StremioStream> {
+        val result = resolveStreams(type, exactId, addonIds)
+        onProgress(result)
+        return result
+    }
+
     suspend fun removeAddon(id: Long): Result<Unit>
 
     suspend fun setAddonEnabled(id: Long, enabled: Boolean): Result<Unit>

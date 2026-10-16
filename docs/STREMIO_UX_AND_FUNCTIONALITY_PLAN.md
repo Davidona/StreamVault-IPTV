@@ -1,7 +1,7 @@
 # Stremio and Extensions UX and functionality improvement plan
 
 - Date: 2026-10-16.
-- Status: Planning only; implementation has not started.
+- Status: Implementation in progress; debug APK is installed on the requested emulator; manual UX and real-torrent acceptance remain pending.
 - Reviewed baseline: `f1ac7d3d` on `feature/stremio-addons`.
 - Worktree: `D:\antigravity-scratch\iptv-player\.worktrees\stremio-addons`.
 
@@ -172,11 +172,11 @@ through a real torrent session or an emulator database upgrade during this revie
 
 Addresses R1-R2.
 
-- [ ] Repair magnet handoff without applying the direct-HTTP header requirement
+- [x] Repair magnet handoff without applying the direct-HTTP header requirement
   to the original magnet URI; preserve meaningful plugin failures.
-- [ ] Audit supported upgrade origins against the historical Stremio and develop
+- [x] Audit supported upgrade origins against the historical Stremio and develop
   schemas, including the episode index and four Xtream receipt columns.
-- [ ] Add an appropriate forward compatibility migration for supported legacy
+- [x] Add an appropriate forward compatibility migration for supported legacy
   variants and the already-installed current schema. Follow the database
   invariants, export the final schema, and preserve providers, add-on settings,
   recordings, and playback history.
@@ -190,21 +190,23 @@ final Room schema and foreign keys, and a current debug APK builds.
 
 Addresses UI decisions 1-3 and 5; R3, R6, R9, R11, and R12.
 
-- [ ] Separate management and dedicated browse routes with explicit Back targets.
-- [ ] Replace the installed-state hero with the compact header and add-on rows.
-- [ ] Apply the same compact installed-state hierarchy to Plugins: put URL/APK
+- [x] Separate management and dedicated browse routes with explicit Back targets.
+- [x] Replace the installed-state hero with the compact header and add-on rows.
+- [x] Apply the same compact installed-state hierarchy to Plugins: put URL/APK
   installation behind Add plugin, retain refresh, and make its list the primary
   vertical content area.
-- [ ] Keep Extensions as a full-screen shell destination with compact section
+- [x] Keep Extensions as a full-screen shell destination with compact section
   tabs; make plugin configuration a nested page with a Back-to-Plugins header
   and no duplicate section tabs.
-- [ ] Add capability-aware details, catalog settings, ordering, and removal
-  confirmation. Make repeated actions safe and restore focus after a row changes
-  or is removed.
-- [ ] Add manifest refresh preserving install identity, enabled state, catalog
+- [x] Add capability-aware details, catalog settings, ordering, and removal
+  confirmation. Make repeated actions safe.
+- [ ] Verify explicit remote-focus restoration after a row is reordered or
+  removed; stable row keys are in place, but this needs targeted testing on the
+  installed TV emulator.
+- [x] Add manifest refresh preserving install identity, enabled state, catalog
   choices, ordering, and history. Keep the saved manifest if refresh fails.
   Invalidate affected browse data after successful refresh.
-- [ ] Preserve the larger empty-install introduction and compact install dialog.
+- [x] Preserve the larger empty-install introduction and compact install dialog.
 
 Gate: management state/action tests pass; the user can inspect the refreshed
 management screen and its empty, disabled, and streams-only states.
@@ -213,15 +215,15 @@ management screen and its empty, disabled, and streams-only states.
 
 Addresses UI decisions 2, 4, and 5; R3-R4 and the catalog portion of R7-R8.
 
-- [ ] Use the established browsing grid/components with a compact toolbar.
-- [ ] Implement capability-aware catalog selection, search, and filter pickers.
-- [ ] Use shared click/OK-to-edit search and retain the draft/query on exit.
-- [ ] Fetch the selected catalog on demand and cancel obsolete work.
-- [ ] Preserve results during replacement requests and show distinct loading,
+- [x] Use the established browsing grid/components with a compact toolbar.
+- [x] Implement capability-aware catalog selection, search, and filter pickers.
+- [x] Use shared click/OK-to-edit search and retain the draft/query on exit.
+- [x] Fetch the selected catalog on demand and cancel obsolete work.
+- [x] Preserve results during replacement requests and show distinct loading,
   empty, required-input, unsupported, and failed states.
-- [ ] Retry a failed page at its original offset while retaining prior pages.
+- [x] Retry a failed page at its original offset while retaining prior pages.
   Distinguish retry from an explicit refresh; refresh must bypass stale cache.
-- [ ] Restore grid position and focus after returning from details.
+- [x] Restore grid position and focus after returning from details.
 
 Gate: request/state regressions pass; user acceptance confirms complete poster
 cards and titles are visible on entry and D-pad focus never opens the keyboard.
@@ -230,12 +232,14 @@ cards and titles are visible on entry and D-pad focus never opens the keyboard.
 
 Addresses R5-R7 and the playback-facing portion of R1.
 
-- [ ] Add season/episode selection and an immediate source picker.
-- [ ] Publish provider outcomes progressively with stable attribution/order.
-- [ ] Preserve successful sources on partial failure and retry only the failed
+- [x] Add season/episode selection and an immediate source picker.
+- [x] Publish provider outcomes progressively with stable attribution/order.
+- [x] Preserve successful sources on partial failure and retry only the failed
   provider. Cancel stale episode lookups.
-- [ ] Add torrent capability feedback and clear unsupported-source behavior.
-- [ ] Return from the player to the selected title/episode context, then restore
+- [x] Add torrent capability feedback and clear unsupported-source behavior.
+  Check enabled magnet-capable plugins before enabling Play, and offer Plugins
+  when none is available.
+- [x] Return from the player to the selected title/episode context, then restore
   the browse catalog, query, filters, position, and focused poster on Back.
 - [ ] Cover history/resume and subtitle behavior across the new flow.
 
@@ -246,15 +250,16 @@ subtitle tests pass; user acceptance covers a long series and multiple providers
 
 Addresses R8-R10 and verifies all five UI decisions.
 
-- [ ] Ensure install, refresh, toggles, ordering, removal, metadata, catalog, and
+- [x] Ensure install, refresh, toggles, ordering, removal, metadata, catalog, and
   source operations handle expected/unexpected errors and clear loading state.
-- [ ] Separate an actual empty result, no eligible provider, unsupported resource,
+- [x] Separate an actual empty result, no eligible provider, unsupported resource,
   and request failure. Keep retry actions tied to the failed operation.
 - [ ] Handle an add-on/catalog being disabled or removed while its content is
   selected, with a valid next selection and useful explanation.
-- [ ] Retain URL/token sanitization in UI errors, logs, and stored history.
-- [ ] Run relevant state, resolver, repository, playback, and migration checks;
-  build and install `com.streamvault.app.debug` on `emulator-5558` with app data
+- [x] Retain URL/token sanitization in UI errors, logs, and stored history.
+- [ ] Obtain a clean run of the relevant repository checks; other targeted
+  state, resolver, playback, migration, build, and install checks have passed.
+  `com.streamvault.app.debug` is installed on `emulator-5558` with app data
   retained for the user's manual acceptance.
 - [ ] Record build/test evidence separately from user UI and real-playback
   acceptance. Close acceptance items only when supported by that evidence.
@@ -263,10 +268,15 @@ Gate: required code checks pass and user-owned acceptance results are recorded.
 
 ## Verification baseline and acceptance matrix
 
-The review ran 107 existing tests with no failures: 30 Stremio feature/state,
-17 Stremio domain, 48 Stremio data, and 12 targeted playback tests. These passing
-tests do not establish visual quality or cover the newly identified handoff and
-historical-schema integration failures.
+The review baseline ran 107 existing tests with no failures: 30 Stremio
+feature/state, 17 Stremio domain, 48 Stremio data, and 12 targeted playback
+tests. Implementation verification has since passed the Stremio feature, system,
+shared UI, domain, and playback unit suites, plus the Room migration
+instrumentation suite. The focused Stremio data repository run exposed
+intermittent MockWebServer connection timeouts; one previously failing install
+case passed when run alone. The debug APK has built and is installed on
+`emulator-5558`. These checks do not establish visual quality or real torrent
+playback.
 
 | Area | Required evidence after implementation |
 | --- | --- |

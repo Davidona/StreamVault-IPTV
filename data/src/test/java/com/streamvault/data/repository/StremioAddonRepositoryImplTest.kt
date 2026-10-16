@@ -100,6 +100,39 @@ class StremioAddonRepositoryImplTest {
     }
 
     @Test
+    fun `refresh updates manifest while preserving install choices and ordering`() = runTest {
+        server.enqueue(manifestResponse("com.one", "One"))
+        val installed = repository.installAddon("${baseUrl()}/one").getOrNull()!!
+        dao.setEnabled(installed.id, false, 250)
+        dao.setSortOrder(installed.id, 4, 250)
+        dao.setCatalogSettings(installed.id, "{\"movie:top\":false}", 250)
+        server.enqueue(manifestResponse("com.one", "Renamed One"))
+
+        val refreshed = repository.refreshAddon(installed.id).getOrNull()!!
+
+        assertThat(refreshed.id).isEqualTo(installed.id)
+        assertThat(refreshed.installUrl).isEqualTo(installed.installUrl)
+        assertThat(refreshed.name).isEqualTo("Renamed One")
+        assertThat(refreshed.enabled).isFalse()
+        assertThat(refreshed.sortOrder).isEqualTo(4)
+        assertThat(refreshed.isCatalogEnabled("movie:top")).isFalse()
+        assertThat(refreshed.createdAt).isEqualTo(installed.createdAt)
+    }
+
+    @Test
+    fun `refresh failure keeps the saved manifest`() = runTest {
+        server.enqueue(manifestResponse("com.one", "One"))
+        val installed = repository.installAddon("${baseUrl()}/one").getOrNull()!!
+        server.enqueue(MockResponse().setResponseCode(503).setBody("temporary outage"))
+
+        val refreshed = repository.refreshAddon(installed.id)
+
+        assertThat(refreshed.isError).isTrue()
+        assertThat(dao.getById(installed.id)?.manifestJson).isEqualTo(installed.manifestJson)
+        assertThat(dao.getById(installed.id)?.name).isEqualTo(installed.name)
+    }
+
+    @Test
     fun `manifest failures surface the addon error`() = runTest {
         server.enqueue(MockResponse().setResponseCode(500).setBody("boom"))
 
@@ -452,6 +485,25 @@ private class FakeStremioAddonDao : StremioAddonDao {
         val id = nextId++
         addons.value = addons.value + entity.copy(id = id)
         return id
+    }
+
+    override suspend fun updateManifest(
+        id: Long,
+        manifestId: String,
+        name: String,
+        version: String,
+        manifestJson: String,
+        updatedAt: Long
+    ) {
+        addons.value = addons.value.map { entity ->
+            if (entity.id == id) entity.copy(
+                manifestId = manifestId,
+                name = name,
+                version = version,
+                manifestJson = manifestJson,
+                updatedAt = updatedAt
+            ) else entity
+        }
     }
 
     override suspend fun setEnabled(id: Long, enabled: Boolean, updatedAt: Long) {

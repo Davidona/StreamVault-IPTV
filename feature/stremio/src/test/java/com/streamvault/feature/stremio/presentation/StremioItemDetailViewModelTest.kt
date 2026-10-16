@@ -19,6 +19,7 @@ import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.model.stremio.StremioVideo
 import com.streamvault.domain.model.stremio.installFingerprint
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.feature.stremio.api.StremioTorrentPlaybackAvailability
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,6 +79,37 @@ class StremioItemDetailViewModelTest {
     }
 
     @Test
+    fun `torrent sources check enabled plugin availability before playback`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            streamResponder = { _, _ ->
+                StremioResourceResolution(
+                    results = listOf(
+                        StremioAttributedResource(
+                            source(21L),
+                            StremioStream(title = "Torrent", infoHash = "a".repeat(40))
+                        )
+                    )
+                )
+            }
+        }
+        val viewModel = viewModel(
+            repository = repository,
+            type = "movie",
+            exactId = "tt123",
+            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability(available = false)
+        )
+        advanceUntilIdle()
+
+        viewModel.loadStreams("tt123")
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.streams.single().resource.kind)
+            .isEqualTo(com.streamvault.domain.model.stremio.StremioStreamKind.TORRENT)
+        assertThat(viewModel.state.value.torrentPluginAvailable).isFalse()
+        assertThat(viewModel.state.value.torrentPluginCheckLoading).isFalse()
+    }
+
+    @Test
     fun `history replay resolves fresh streams for the saved exact episode id`() = runTest(dispatcher) {
         val exactVideoId = "tt12345:1:2"
         val addon = addon(11L)
@@ -103,7 +135,8 @@ class StremioItemDetailViewModelTest {
                 )
             ),
             repository = repository,
-            contentAccess = FakeStremioContentAccess()
+            contentAccess = FakeStremioContentAccess(),
+            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
         )
         advanceUntilIdle()
 
@@ -129,7 +162,8 @@ class StremioItemDetailViewModelTest {
                 )
             ),
             repository = repository,
-            contentAccess = FakeStremioContentAccess()
+            contentAccess = FakeStremioContentAccess(),
+            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
         )
         advanceUntilIdle()
 
@@ -260,7 +294,8 @@ class StremioItemDetailViewModelTest {
         type: String,
         exactId: String,
         name: String = "Preview",
-        contentAccess: StremioContentAccess = FakeStremioContentAccess()
+        contentAccess: StremioContentAccess = FakeStremioContentAccess(),
+        torrentPlaybackAvailability: StremioTorrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
     ) = StremioItemDetailViewModel(
         savedStateHandle = SavedStateHandle(
             mapOf(
@@ -272,8 +307,15 @@ class StremioItemDetailViewModelTest {
             )
         ),
         repository = repository,
-        contentAccess = contentAccess
+        contentAccess = contentAccess,
+        torrentPlaybackAvailability = torrentPlaybackAvailability
     )
+
+    private class FakeTorrentPlaybackAvailability(
+        private val available: Boolean = true
+    ) : StremioTorrentPlaybackAvailability {
+        override suspend fun hasEnabledMagnetPlugin(): Boolean = available
+    }
 
     private fun addon(id: Long) = StremioAddon(
         id = id,

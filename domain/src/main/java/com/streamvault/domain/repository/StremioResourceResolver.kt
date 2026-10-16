@@ -18,6 +18,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 
 /** Selects eligible addon resources and coordinates deterministic, bounded requests. */
@@ -90,11 +92,18 @@ class StremioResourceResolver @Inject constructor() {
 
     suspend fun <T> resolveMany(
         candidates: List<StremioInstalledAddon>,
+        onProgress: suspend (StremioResourceResolution<T>) -> Unit = {},
         request: suspend (StremioAddon) -> Result<List<T>>
     ): StremioResourceResolution<T> {
-        if (candidates.isEmpty()) return StremioResourceResolution()
+        if (candidates.isEmpty()) {
+            val empty = StremioResourceResolution<T>()
+            onProgress(empty)
+            return empty
+        }
         val semaphore = Semaphore(MAX_CONCURRENT_REQUESTS)
-        val outcomes = coroutineScope {
+        val completed = linkedMapOf<Long, Result<List<T>>>()
+        val completedMutex = Mutex()
+        coroutineScope {
             candidates.map { candidate ->
                 async {
                     semaphore.withPermit {
@@ -105,14 +114,25 @@ class StremioResourceResolver @Inject constructor() {
                         } catch (_: Exception) {
                             Result.error("Addon request failed")
                         }
-                        candidate to result
+                        completedMutex.withLock {
+                            completed[candidate.addon.id] = result
+                            onProgress(buildResolution(candidates, completed))
+                        }
                     }
                 }
             }.awaitAll()
         }
+        return buildResolution(candidates, completed)
+    }
+
+    private fun <T> buildResolution(
+        candidates: List<StremioInstalledAddon>,
+        outcomes: Map<Long, Result<List<T>>>
+    ): StremioResourceResolution<T> {
         val results = mutableListOf<StremioAttributedResource<T>>()
         val failures = mutableListOf<StremioAddonResourceFailure>()
-        outcomes.forEach { (candidate, result) ->
+        candidates.forEach { candidate ->
+            val result = outcomes[candidate.addon.id] ?: return@forEach
             when (result) {
                 is Result.Success -> result.data.forEach { resource ->
                     results += StremioAttributedResource(candidate.addon.toSource(), resource)
@@ -121,7 +141,12 @@ class StremioResourceResolver @Inject constructor() {
                 Result.Loading -> failures += failure(candidate.addon, "Addon request did not complete")
             }
         }
-        return StremioResourceResolution(results, failures, candidates.size)
+        return StremioResourceResolution(
+            results = results,
+            failures = failures,
+            candidateCount = candidates.size,
+            completedAddonIds = candidates.mapNotNull { it.addon.id.takeIf(outcomes::containsKey) }
+        )
     }
 
     private fun failure(addon: StremioAddon, rawMessage: String): StremioAddonResourceFailure {

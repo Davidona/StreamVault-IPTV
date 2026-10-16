@@ -9,10 +9,12 @@ import com.streamvault.domain.model.stremio.StremioMediaType
 import com.streamvault.domain.model.stremio.StremioMetaDetail
 import com.streamvault.domain.model.stremio.StremioMetaPreview
 import com.streamvault.domain.model.stremio.StremioStream
+import com.streamvault.domain.model.stremio.StremioStreamKind
 import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.model.stremio.StremioVideo
 import com.streamvault.domain.model.stremio.installFingerprint
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.feature.stremio.api.StremioTorrentPlaybackAvailability
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -32,12 +34,17 @@ data class StremioItemDetailState(
     val metaOrigin: StremioAddonSource? = null,
     val metadataLoading: Boolean = true,
     val metadataFailures: List<StremioAddonResourceFailure> = emptyList(),
+    val metadataError: String? = null,
     val requestedVideoId: String? = null,
     val selectedVideo: StremioVideo? = null,
     val streamsLoading: Boolean = false,
+    val streamError: String? = null,
     val streams: List<com.streamvault.domain.model.stremio.StremioAttributedResource<StremioStream>> = emptyList(),
     val streamFailures: List<StremioAddonResourceFailure> = emptyList(),
     val streamCandidateCount: Int = 0,
+    val streamProviderOrder: List<Long> = emptyList(),
+    val torrentPluginAvailable: Boolean? = null,
+    val torrentPluginCheckLoading: Boolean = false,
     val subtitles: List<com.streamvault.domain.model.stremio.StremioAttributedResource<StremioSubtitle>> = emptyList(),
     val subtitleFailures: List<StremioAddonResourceFailure> = emptyList()
 ) {
@@ -52,7 +59,8 @@ data class StremioItemDetailState(
 class StremioItemDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: StremioAddonRepository,
-    private val contentAccess: StremioContentAccess
+    private val contentAccess: StremioContentAccess,
+    private val torrentPlaybackAvailability: StremioTorrentPlaybackAvailability
 ) : ViewModel() {
 
     private val originAddonId = savedStateHandle.get<Long>(ARG_ORIGIN_ADDON_ID) ?: -1L
@@ -81,7 +89,9 @@ class StremioItemDetailViewModel @Inject constructor(
 
     private var metadataJob: Job? = null
     private var streamJob: Job? = null
+    private var torrentAvailabilityJob: Job? = null
     private var streamGeneration = 0L
+    private var torrentAvailabilityGeneration = 0L
 
     init {
         loadMetadata()
@@ -104,15 +114,21 @@ class StremioItemDetailViewModel @Inject constructor(
             else -> return
         }
         streamJob?.cancel()
+        torrentAvailabilityJob?.cancel()
+        torrentAvailabilityGeneration++
         val generation = ++streamGeneration
         _state.update {
             it.copy(
                 requestedVideoId = videoId,
                 selectedVideo = selectedVideo,
                 streamsLoading = true,
+                streamError = null,
                 streams = emptyList(),
                 streamFailures = emptyList(),
                 streamCandidateCount = 0,
+                streamProviderOrder = emptyList(),
+                torrentPluginAvailable = null,
+                torrentPluginCheckLoading = false,
                 subtitles = emptyList(),
                 subtitleFailures = emptyList()
             )
@@ -120,14 +136,28 @@ class StremioItemDetailViewModel @Inject constructor(
         streamJob = viewModelScope.launch {
             try {
                 if (!contentAccess.canAccessContentNow()) return@launch
-                val result = repository.resolveStreams(type, videoId)
+                val result = repository.resolveStreamsProgressively(type, videoId) { progress ->
+                    if (generation == streamGeneration) {
+                        checkTorrentPlaybackAvailability(progress.results)
+                        _state.update {
+                            it.copy(
+                                streams = progress.results,
+                                streamFailures = progress.failures,
+                                streamCandidateCount = progress.candidateCount,
+                                streamProviderOrder = progress.completedAddonIds
+                            )
+                        }
+                    }
+                }
                 if (generation == streamGeneration) {
+                    checkTorrentPlaybackAvailability(result.results)
                     _state.update {
                         it.copy(
                             streamsLoading = false,
                             streams = result.results,
                             streamFailures = result.failures,
-                            streamCandidateCount = result.candidateCount
+                            streamCandidateCount = result.candidateCount,
+                            streamProviderOrder = result.completedAddonIds
                         )
                     }
                 }
@@ -135,9 +165,34 @@ class StremioItemDetailViewModel @Inject constructor(
                 throw cancellation
             } catch (_: Exception) {
                 if (generation == streamGeneration) {
-                    _state.update { it.copy(streamsLoading = false) }
+                    _state.update {
+                        it.copy(streamsLoading = false, streamError = "Sources could not be loaded. Try again.")
+                    }
                 }
             }
+        }
+    }
+
+    fun clearSelectedEpisode() {
+        streamJob?.cancel()
+        torrentAvailabilityJob?.cancel()
+        torrentAvailabilityGeneration++
+        streamGeneration++
+        _state.update {
+            it.copy(
+                requestedVideoId = null,
+                selectedVideo = null,
+                streamsLoading = false,
+                streamError = null,
+                streams = emptyList(),
+                streamFailures = emptyList(),
+                streamCandidateCount = 0,
+                streamProviderOrder = emptyList(),
+                torrentPluginAvailable = null,
+                torrentPluginCheckLoading = false,
+                subtitles = emptyList(),
+                subtitleFailures = emptyList()
+            )
         }
     }
 
@@ -147,18 +202,46 @@ class StremioItemDetailViewModel @Inject constructor(
         val videoId = current.requestedVideoId ?: return
         val generation = ++streamGeneration
         streamJob?.cancel()
-        _state.update { it.copy(streamsLoading = true) }
+        _state.update { it.copy(streamsLoading = true, streamError = null) }
         streamJob = viewModelScope.launch {
             try {
                 if (!contentAccess.canAccessContentNow()) return@launch
-                val result = repository.resolveStreams(type, videoId, setOf(addonId))
+                val result = repository.resolveStreamsProgressively(type, videoId, setOf(addonId)) { progress ->
+                    if (generation == streamGeneration) {
+                        checkTorrentPlaybackAvailability(progress.results)
+                        _state.update { state ->
+                            val providerOrder = state.streamProviderOrder.ifEmpty { progress.completedAddonIds }
+                            state.copy(
+                                streams = orderResourcesByProvider(
+                                    state.streams.filterNot { it.source.addonId == addonId } + progress.results,
+                                    providerOrder
+                                ),
+                                streamFailures = orderFailuresByProvider(
+                                    state.streamFailures.filterNot { it.source.addonId == addonId } + progress.failures,
+                                    providerOrder
+                                ),
+                                streamCandidateCount = maxOf(state.streamCandidateCount, progress.candidateCount),
+                                streamProviderOrder = providerOrder
+                            )
+                        }
+                    }
+                }
                 if (generation == streamGeneration) {
+                    checkTorrentPlaybackAvailability(result.results)
                     _state.update { state ->
+                        val providerOrder = state.streamProviderOrder.ifEmpty { result.completedAddonIds }
                         state.copy(
                             streamsLoading = false,
-                            streams = state.streams.filterNot { it.source.addonId == addonId } + result.results,
-                            streamFailures = state.streamFailures.filterNot { it.source.addonId == addonId } + result.failures,
-                            streamCandidateCount = maxOf(state.streamCandidateCount, result.candidateCount)
+                            streams = orderResourcesByProvider(
+                                state.streams.filterNot { it.source.addonId == addonId } + result.results,
+                                providerOrder
+                            ),
+                            streamFailures = orderFailuresByProvider(
+                                state.streamFailures.filterNot { it.source.addonId == addonId } + result.failures,
+                                providerOrder
+                            ),
+                            streamCandidateCount = maxOf(state.streamCandidateCount, result.candidateCount),
+                            streamProviderOrder = providerOrder
                         )
                     }
                 }
@@ -166,7 +249,40 @@ class StremioItemDetailViewModel @Inject constructor(
                 throw cancellation
             } catch (_: Exception) {
                 if (generation == streamGeneration) {
-                    _state.update { it.copy(streamsLoading = false) }
+                    _state.update {
+                        it.copy(streamsLoading = false, streamError = "This provider could not be retried.")
+                    }
+                }
+            }
+        }
+    }
+
+    /** Recheck when returning from Plugins so installing/enabling the torrent plugin is reflected. */
+    fun refreshTorrentPlaybackAvailability() {
+        checkTorrentPlaybackAvailability(_state.value.streams, force = true)
+    }
+
+    private fun checkTorrentPlaybackAvailability(
+        streams: List<com.streamvault.domain.model.stremio.StremioAttributedResource<StremioStream>>,
+        force: Boolean = false
+    ) {
+        if (streams.none { it.resource.kind == StremioStreamKind.TORRENT }) return
+        val current = _state.value
+        if (!force && (current.torrentPluginCheckLoading || current.torrentPluginAvailable != null)) return
+        torrentAvailabilityJob?.cancel()
+        val generation = ++torrentAvailabilityGeneration
+        _state.update { it.copy(torrentPluginAvailable = null, torrentPluginCheckLoading = true) }
+        torrentAvailabilityJob = viewModelScope.launch {
+            val available = try {
+                torrentPlaybackAvailability.hasEnabledMagnetPlugin()
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                false
+            }
+            if (generation == torrentAvailabilityGeneration) {
+                _state.update {
+                    it.copy(torrentPluginAvailable = available, torrentPluginCheckLoading = false)
                 }
             }
         }
@@ -179,12 +295,13 @@ class StremioItemDetailViewModel @Inject constructor(
             return
         }
         metadataJob?.cancel()
-        _state.update { it.copy(metadataLoading = true, metadataFailures = emptyList()) }
+        _state.update { it.copy(metadataLoading = true, metadataFailures = emptyList(), metadataError = null) }
         metadataJob = viewModelScope.launch {
             if (!contentAccess.canAccessContentNow()) {
                 _state.update { it.copy(metadataLoading = false) }
                 return@launch
             }
+            try {
             val origin = repository.getAddon(originAddonId)
             val originKey = origin?.installFingerprint()
             if (replayRequiresOrigin && (origin == null || !origin.enabled || originKey != replayOriginKey)) {
@@ -198,7 +315,6 @@ class StremioItemDetailViewModel @Inject constructor(
                 return@launch
             }
             _state.update { it.copy(catalogOriginKey = replayOriginKey ?: originKey) }
-            try {
                 val result = repository.resolveMeta(originAddonId, type, exactId)
                 _state.update {
                     it.copy(
@@ -212,10 +328,22 @@ class StremioItemDetailViewModel @Inject constructor(
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (_: Exception) {
-                _state.update { it.copy(metadataLoading = false) }
+                _state.update {
+                    it.copy(metadataLoading = false, metadataError = "Title details could not be loaded. Try again.")
+                }
             }
         }
     }
+
+    private fun <T> orderResourcesByProvider(
+        values: List<com.streamvault.domain.model.stremio.StremioAttributedResource<T>>,
+        providerOrder: List<Long>
+    ) = values.sortedBy { value -> providerOrder.indexOf(value.source.addonId).let { if (it < 0) Int.MAX_VALUE else it } }
+
+    private fun orderFailuresByProvider(
+        values: List<StremioAddonResourceFailure>,
+        providerOrder: List<Long>
+    ) = values.sortedBy { value -> providerOrder.indexOf(value.source.addonId).let { if (it < 0) Int.MAX_VALUE else it } }
 
     companion object {
         const val ARG_ORIGIN_ADDON_ID = "originAddonId"
