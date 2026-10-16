@@ -260,4 +260,5 @@
     <string name="player_skip_opening">דלג על הפתיחה</string>
     <string name="player_skip_recap">דלג על התקציר</string>
     <string name="player_skip_outro">דלג על הסיום</string>
+    <string name="player_recording_failure_output_too_slow">יעד ההקלטה לא הצליח לעמוד בקצב השידור החי.</string>
 </resources>

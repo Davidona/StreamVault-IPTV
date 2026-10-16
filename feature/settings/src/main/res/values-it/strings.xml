@@ -839,4 +839,5 @@
         <item quantity="one">Ogni %d ora</item>
         <item quantity="other">Ogni %d ore</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">La destinazione della registrazione non è riuscita a tenere il passo con la riproduzione in diretta.</string>
 </resources>

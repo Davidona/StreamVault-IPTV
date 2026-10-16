@@ -258,4 +258,5 @@
     <string name="series_seasons">季</string>
     <string name="settings_recording_status_recording">錄影中</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">錄影目的地無法跟上直播播放。</string>
 </resources>

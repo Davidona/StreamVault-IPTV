@@ -4,6 +4,7 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PlaybackContentKind
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
@@ -220,7 +221,8 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
                     expirationTime = resolved.expirationTime,
-                    playbackContentKind = contentType.toPlaybackContentKind()
+                    playbackContentKind = contentType.toPlaybackContentKind(),
+                    livePlaybackIdentity = livePlaybackIdentityOrNull(providerId, internalContentId, contentType)
                 )
             )
         }
@@ -256,10 +258,21 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 title = currentTitle,
                 streamType = StreamType.fromContainerExtension(fallbackContainerExtension),
                 containerExtension = fallbackContainerExtension,
-                playbackContentKind = contentType.toPlaybackContentKind()
+                playbackContentKind = contentType.toPlaybackContentKind(),
+                livePlaybackIdentity = livePlaybackIdentityOrNull(providerId, internalContentId, contentType)
             )
         }
     )
+}
+
+private fun livePlaybackIdentityOrNull(
+    providerId: Long,
+    channelId: Long,
+    contentType: ContentType
+): LivePlaybackIdentity? = if (contentType == ContentType.LIVE && providerId > 0L && channelId > 0L) {
+    LivePlaybackIdentity(providerId, channelId)
+} else {
+    null
 }
 
 private fun ContentType.toPlaybackContentKind(): PlaybackContentKind =

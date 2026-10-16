@@ -843,4 +843,5 @@
         <item quantity="one">Her %d saat</item>
         <item quantity="other">Her %d saat</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Kayıt hedefi canlı oynatmaya yetişemedi.</string>
 </resources>

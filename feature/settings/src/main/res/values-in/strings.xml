@@ -843,4 +843,5 @@
     <item quantity="one">Setiap %d jam</item>
     <item quantity="other">Setiap %d jam</item>
 </plurals>
+    <string name="settings_recording_failure_output_too_slow">Tujuan rekaman tidak dapat mengikuti pemutaran langsung.</string>
 </resources>

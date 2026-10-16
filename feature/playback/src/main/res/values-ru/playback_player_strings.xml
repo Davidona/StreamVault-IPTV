@@ -261,4 +261,5 @@
     <string name="player_subtitle_delay_action">Задержка субтитров (%1$+d мс)</string>
     <string name="player_subtitle_search_close">Закрыть</string>
     <string name="player_diagnostics_video_decoder_mode">Режим видеодекодера</string>
+    <string name="player_recording_failure_output_too_slow">Место сохранения записи не успевало за прямой трансляцией.</string>
 </resources>

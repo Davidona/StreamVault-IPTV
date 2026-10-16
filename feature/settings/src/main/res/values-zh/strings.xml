@@ -839,4 +839,5 @@
 <string name="settings_recording_smb_password_hint">留空以复用同一 URL 和用户名已保存的密码</string>
 <string name="settings_recording_smb_save">验证并保存</string>
 <string name="settings_recording_smb_saving">正在验证…</string>
+    <string name="settings_recording_failure_output_too_slow">录制目标无法跟上直播播放。</string>
 </resources>

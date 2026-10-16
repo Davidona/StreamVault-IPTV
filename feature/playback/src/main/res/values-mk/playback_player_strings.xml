@@ -259,4 +259,5 @@
     <string name="series_seasons">Сезони</string>
     <string name="settings_recording_status_recording">Снимање</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">Локацијата за снимање не можеше да ја следи репродукцијата во живо.</string>
 </resources>

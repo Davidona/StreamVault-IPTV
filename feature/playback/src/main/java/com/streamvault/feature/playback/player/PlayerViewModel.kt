@@ -19,6 +19,7 @@ import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingRecurrence
+import com.streamvault.domain.model.RecordingFailureReasonCodes
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
@@ -43,6 +44,7 @@ import com.streamvault.player.timeshift.LiveTimeshiftBackend
 import com.streamvault.player.timeshift.LiveTimeshiftState
 import com.streamvault.player.timeshift.LiveTimeshiftStatus
 import com.streamvault.player.timeshift.TimeshiftConfig
+import com.streamvault.feature.playback.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -948,7 +950,12 @@ class PlayerViewModel @Inject constructor(
 
         failedNow?.let { item ->
             val title = item.programTitle?.takeIf { it.isNotBlank() } ?: item.channelName
-            val detail = item.failureReason?.takeIf { it.isNotBlank() } ?: "The provider stopped serving the recording stream."
+            val detail = when (item.failureReason?.takeIf { it.isNotBlank() }) {
+                RecordingFailureReasonCodes.LIVE_CAPTURE_OUTPUT_TOO_SLOW ->
+                    appContext.getString(R.string.player_recording_failure_output_too_slow)
+                null -> "The provider stopped serving the recording stream."
+                else -> item.failureReason.orEmpty()
+            }
             showPlayerNotice(
                 message = "Recording failed for $title. $detail",
                 durationMs = maxOf(playerNoticeTimeoutMs, 8_000L)

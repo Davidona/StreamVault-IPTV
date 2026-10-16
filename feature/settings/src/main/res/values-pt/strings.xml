@@ -839,4 +839,5 @@
         <item quantity="one">A cada %d hora</item>
         <item quantity="other">A cada %d horas</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">O destino da gravação não conseguiu acompanhar a reprodução ao vivo.</string>
 </resources>

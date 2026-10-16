@@ -846,4 +846,5 @@
         <item quantity="few">Svaka %d sata</item>
         <item quantity="other">Svakih %d sati</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Odredište snimanja nije moglo pratiti reprodukciju uživo.</string>
 </resources>

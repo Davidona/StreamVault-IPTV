@@ -259,4 +259,5 @@
     <string name="player_diagnostics_frame_rate">フレームレート</string>
     <string name="player_diagnostics_stream_bitrate">ストリームビットレート</string>
     <string name="player_diagnostics_bandwidth_estimate">ネットワーク帯域</string>
+    <string name="player_recording_failure_output_too_slow">録画先がライブ再生の速度に追いつきませんでした。</string>
 </resources>

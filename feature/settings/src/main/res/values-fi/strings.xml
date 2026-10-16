@@ -843,4 +843,5 @@
         <item quantity="one">%d tallennettu palveluntarjoaja</item>
         <item quantity="other">%d tallennettua palveluntarjoajaa</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Tallennuskohde ei pysynyt suoran lähetyksen tahdissa.</string>
 </resources>

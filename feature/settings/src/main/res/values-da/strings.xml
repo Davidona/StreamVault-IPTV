@@ -843,4 +843,5 @@
 <string name="settings_opensubtitles_connect">Tilslut konto (valgfrit)</string>
 <string name="settings_live_clock_position">Urposition</string>
 <string name="settings_theme_classic_blue">Klassisk blå</string>
+    <string name="settings_recording_failure_output_too_slow">Optagelsesdestinationen kunne ikke følge med liveafspilningen.</string>
 </resources>

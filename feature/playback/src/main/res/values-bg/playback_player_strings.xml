@@ -259,4 +259,5 @@
     <string name="series_seasons">Сезони</string>
     <string name="settings_recording_status_recording">Записва се</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">Дестинацията за запис не успя да се справи с предаването на живо.</string>
 </resources>

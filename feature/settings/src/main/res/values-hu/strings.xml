@@ -843,4 +843,5 @@
         <item quantity="one">Minden %d órában</item>
         <item quantity="other">Minden %d órában</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">A felvétel célhelye nem tudta követni az élő lejátszás tempóját.</string>
 </resources>

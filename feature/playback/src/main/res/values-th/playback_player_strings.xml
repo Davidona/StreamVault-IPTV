@@ -258,4 +258,5 @@
     <string name="series_seasons">ซีซัน</string>
     <string name="settings_recording_status_recording">กำลังบันทึก</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
 </resources>

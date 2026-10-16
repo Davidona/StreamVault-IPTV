@@ -843,4 +843,5 @@
         <item quantity="one">هر %d ساعت</item>
         <item quantity="other">هر %d ساعت</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">مقصد ضبط نتوانست با پخش زنده همگام بماند.</string>
 </resources>

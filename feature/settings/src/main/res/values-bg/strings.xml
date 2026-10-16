@@ -843,4 +843,5 @@
         <item quantity="one">На всеки %d час</item>
         <item quantity="other">На всеки %d часа</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Дестинацията за запис не успя да се справи с предаването на живо.</string>
 </resources>

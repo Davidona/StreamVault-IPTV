@@ -44,6 +44,7 @@ import com.streamvault.domain.model.PlaybackCompatibilityKey
 import com.streamvault.domain.model.PlaybackCompatibilityRecord
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.util.LivePlaybackByteTap
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
@@ -136,8 +137,24 @@ class Media3PlayerEngine @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val playbackCompatibilityRepository: PlaybackCompatibilityRepository,
     private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
-    private val playbackSupportSnapshotStore: PlaybackSupportSnapshotStore
+    private val playbackSupportSnapshotStore: PlaybackSupportSnapshotStore,
+    private val livePlaybackByteTap: LivePlaybackByteTap
 ) : PlayerEngine {
+
+    constructor(
+        context: Context,
+        okHttpClient: OkHttpClient,
+        playbackCompatibilityRepository: PlaybackCompatibilityRepository,
+        audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
+        playbackSupportSnapshotStore: PlaybackSupportSnapshotStore
+    ) : this(
+        context,
+        okHttpClient,
+        playbackCompatibilityRepository,
+        audioCompatibilityMemoryStore,
+        playbackSupportSnapshotStore,
+        LivePlaybackByteTap()
+    )
 
     companion object {
         private const val TAG = "Media3PlayerEngine"
@@ -353,7 +370,8 @@ class Media3PlayerEngine @Inject constructor(
         PlayerDataSourceFactoryProvider(
             context = context,
             baseClient = okHttpClient,
-            transferListener = transferByteCounter
+            transferListener = transferByteCounter,
+            livePlaybackByteTap = livePlaybackByteTap
         )
     private val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceFactoryProvider)
     private var preloadWindowManager: Media3PreloadWindowManager? = null

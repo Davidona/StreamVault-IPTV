@@ -259,4 +259,5 @@
     <string name="player_diagnostics_frame_rate">Tốc độ khung hình</string>
     <string name="player_diagnostics_stream_bitrate">Tốc độ bit luồng</string>
     <string name="player_diagnostics_bandwidth_estimate">Băng thông mạng</string>
+    <string name="player_recording_failure_output_too_slow">Nơi lưu bản ghi không theo kịp phát trực tiếp.</string>
 </resources>

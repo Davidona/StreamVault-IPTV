@@ -261,4 +261,5 @@
     <string name="player_subtitle_delay_action">Zpoždění titulků (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Zavřít</string>
     <string name="player_diagnostics_video_decoder_mode">Režim video dekodéru</string>
+    <string name="player_recording_failure_output_too_slow">Cílové úložiště záznamu nestíhalo živé přehrávání.</string>
 </resources>

@@ -259,4 +259,5 @@
     <string name="series_seasons">فصلها</string>
     <string name="settings_recording_status_recording">در حال ضبط</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">مقصد ضبط نتوانست با پخش زنده همگام بماند.</string>
 </resources>

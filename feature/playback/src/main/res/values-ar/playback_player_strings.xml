@@ -263,4 +263,5 @@
     <string name="player_diagnostics_bandwidth_estimate">عرض النطاق للشبكة</string>
     <string name="player_diagnostics_audio_decoder_mode">وضع فك ترميز الصوت</string>
     <string name="player_diagnostics_video_decoder_mode">وضع فك ترميز الفيديو</string>
+    <string name="player_recording_failure_output_too_slow">لم يتمكن موقع حفظ التسجيل من مواكبة البث المباشر.</string>
 </resources>

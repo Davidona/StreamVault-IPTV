@@ -261,4 +261,5 @@
     <string name="player_skip_recap">Pomiń podsumowanie</string>
     <string name="player_skip_outro">Pomiń outro</string>
     <string name="player_track_live_translation">Tłumaczenie w czasie rzeczywistym</string>
+    <string name="player_recording_failure_output_too_slow">Miejsce zapisu nie nadążało za odtwarzaniem na żywo.</string>
 </resources>

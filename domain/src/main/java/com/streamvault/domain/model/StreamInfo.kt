@@ -20,7 +20,9 @@ data class StreamInfo(
     val catchUpUrl: String? = null,
     val expirationTime: Long? = null,
     val drmInfo: DrmInfo? = null,
-    val playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN
+    val playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN,
+    /** Provider/channel identity used to join a live recording to the active playback request. */
+    val livePlaybackIdentity: LivePlaybackIdentity? = null
 ) {
     init {
         require(url.isNotBlank()) { "StreamInfo url must not be blank" }

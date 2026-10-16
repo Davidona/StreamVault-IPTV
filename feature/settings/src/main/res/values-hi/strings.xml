@@ -843,4 +843,5 @@
         <item quantity="one">हर %d घंटा</item>
         <item quantity="other">हर %d घंटे</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">रिकॉर्डिंग गंतव्य लाइव प्लेबैक की गति के साथ नहीं चल सका।</string>
 </resources>

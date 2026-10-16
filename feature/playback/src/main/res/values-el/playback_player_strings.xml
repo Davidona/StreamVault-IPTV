@@ -259,4 +259,5 @@
     <string name="player_diagnostics_bandwidth_estimate">Εύρος ζώνης δικτύου</string>
     <string name="player_diagnostics_video_decoder_mode">Λειτουργία αποκωδικοποιητή βίντεο</string>
     <string name="player_track_live_translation">Μετάφραση σε πραγματικό χρόνο</string>
+    <string name="player_recording_failure_output_too_slow">Ο προορισμός εγγραφής δεν μπόρεσε να συμβαδίσει με τη ζωντανή αναπαραγωγή.</string>
 </resources>

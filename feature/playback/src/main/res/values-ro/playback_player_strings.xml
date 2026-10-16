@@ -260,4 +260,5 @@
     <string name="player_skip_recap">Săriți recapitularea</string>
     <string name="player_skip_outro">Săriți finalul</string>
     <string name="player_track_live_translation">Traducere în timp real</string>
+    <string name="player_recording_failure_output_too_slow">Destinația înregistrării nu a putut ține pasul cu redarea în direct.</string>
 </resources>

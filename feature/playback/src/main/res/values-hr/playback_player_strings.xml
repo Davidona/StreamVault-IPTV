@@ -260,4 +260,5 @@
     <string name="series_seasons">Sezone</string>
     <string name="settings_recording_status_recording">Snimanje</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">Odredište snimanja nije moglo pratiti reprodukciju uživo.</string>
 </resources>

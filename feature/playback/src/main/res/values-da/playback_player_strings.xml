@@ -259,4 +259,5 @@
     <string name="player_diagnostics_video_decoder_mode">Videodekodertilstand</string>
     <string name="cast_disconnected">Cast-sessionen er afbrudt.</string>
     <string name="epg_catchup_available_unknown">Catch-up tilgængelig</string>
+    <string name="player_recording_failure_output_too_slow">Optagelsesdestinationen kunne ikke følge med liveafspilningen.</string>
 </resources>

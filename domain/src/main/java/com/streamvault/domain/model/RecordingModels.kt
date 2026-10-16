@@ -28,6 +28,11 @@ enum class RecordingFailureCategory {
     UNKNOWN
 }
 
+/** Stable persisted code for a localized recording failure detail. */
+object RecordingFailureReasonCodes {
+    const val LIVE_CAPTURE_OUTPUT_TOO_SLOW = "streamvault:live_capture_output_too_slow"
+}
+
 enum class RecordingRecurrence {
     NONE,
     DAILY,

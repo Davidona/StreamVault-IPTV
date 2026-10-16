@@ -843,4 +843,5 @@
 <string name="settings_provider_diagnostics_show">Vis diagnostikk</string>
 <string name="settings_provider_diagnostics_hide">Skjul diagnostikk</string>
 <string name="settings_backup_credentials_notice">Sikkerhetskopifiler inneholder leverandørpassord i lesbar form, slik at gjenopprettede kontoer kan koble til på nytt. Oppbevar og del dem bare med folk du stoler på.</string>
+    <string name="settings_recording_failure_output_too_slow">Opptaksmålet klarte ikke å holde tritt med direkteavspillingen.</string>
 </resources>

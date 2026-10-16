@@ -849,4 +849,5 @@
         <item quantity="many">Каждые %d часов</item>
         <item quantity="other">Каждые %d часов</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Место сохранения записи не успевало за прямой трансляцией.</string>
 </resources>

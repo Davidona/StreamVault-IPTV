@@ -16,6 +16,7 @@ All notable product changes are recorded in this document.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 - Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
 - Added SMB2/SMB3 share destinations for DVR recordings, with encrypted device-side credentials and in-app playback and deletion.
+- Added live recording controls and HLS capture while watching through a shared connection, including byte-range and fragmented MP4 streams.
 - Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
 - Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
 - Added configurable automatic provider sync in Settings, with global defaults and per-provider overrides for content sections, catalog and guide intervals, network, charging, idle, and preferred run times. It is enabled by default for saved providers, with catalogs refreshed every 24 hours and guides every 6 hours, and shows refresh status and timestamps.

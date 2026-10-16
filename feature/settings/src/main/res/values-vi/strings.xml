@@ -840,4 +840,5 @@
 <plurals name="settings_auto_sync_hours">
         <item quantity="other">Mỗi %d giờ</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Nơi lưu bản ghi không theo kịp phát trực tiếp.</string>
 </resources>

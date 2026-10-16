@@ -9,8 +9,12 @@ import androidx.media3.datasource.TransferListener
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.PlaybackTransportPolicy
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.util.BoundedExpiringCache
+import com.streamvault.domain.util.LivePlaybackByteTap
+import com.streamvault.domain.util.effectiveHttpRequestProperties
+import com.streamvault.domain.util.livePlaybackRequestFingerprint
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.URI
@@ -24,7 +28,8 @@ class PlayerDataSourceFactoryProvider(
     private val context: Context,
     private val baseClient: OkHttpClient,
     /** Receives byte counts for foreground (non-preload) playback; used for measured bitrate stats. */
-    private val transferListener: TransferListener? = null
+    private val transferListener: TransferListener? = null,
+    private val livePlaybackByteTap: LivePlaybackByteTap? = null
 ) {
     private companion object {
         private const val TAG = "PlayerDataSource"
@@ -115,7 +120,17 @@ class PlayerDataSourceFactoryProvider(
             PlayerDataSourceReadStatsFactory(
                 upstream = defaultFactory,
                 resolvedStreamType = resolvedStreamType,
-                initialTargetUrl = streamInfo.url
+                initialTargetUrl = streamInfo.url,
+                livePlaybackByteTap = livePlaybackByteTap.takeIf {
+                    !preload && resolvedStreamType in setOf(
+                        ResolvedStreamType.MPEG_TS_LIVE,
+                        ResolvedStreamType.HLS
+                    )
+                },
+                livePlaybackIdentity = streamInfo.livePlaybackIdentity.takeIf {
+                    streamInfo.playbackContentKind == PlaybackContentKind.LIVE
+                },
+                livePlaybackRequestFingerprint = livePlaybackRequestFingerprint(streamInfo.url, headers)
             )
         } else {
             defaultFactory
@@ -166,20 +181,7 @@ class PlayerDataSourceFactoryProvider(
 internal fun effectivePlaybackRequestProperties(
     headers: Map<String, String>,
     userAgent: String?
-): Map<String, String> {
-    val normalizedUserAgent = userAgent?.trim().orEmpty()
-    if (normalizedUserAgent.isBlank()) {
-        return headers
-    }
-    return buildMap(headers.size + 1) {
-        headers.forEach { (name, value) ->
-            if (!name.equals("User-Agent", ignoreCase = true)) {
-                put(name, value)
-            }
-        }
-        put("User-Agent", normalizedUserAgent)
-    }
-}
+): Map<String, String> = effectiveHttpRequestProperties(headers, userAgent)
 
 private object StalkerPlaybackRequestLoggingInterceptor : Interceptor {
     private const val TAG = "PlayerDataSource"

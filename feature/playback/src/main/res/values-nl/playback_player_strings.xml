@@ -259,4 +259,5 @@
     <string name="player_subtitle_delay_action">Ondertitelvertraging (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Sluiten</string>
     <string name="player_diagnostics_video_decoder_mode">Videodecodermodus</string>
+    <string name="player_recording_failure_output_too_slow">De opnamelocatie kon het live afspelen niet bijhouden.</string>
 </resources>

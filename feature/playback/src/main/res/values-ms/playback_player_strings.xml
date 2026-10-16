@@ -258,4 +258,5 @@
     <string name="series_seasons">Musim</string>
     <string name="settings_recording_status_recording">Merakam</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">Destinasi rakaman tidak dapat mengikuti main balik langsung.</string>
 </resources>

@@ -843,4 +843,5 @@
         <item quantity="one">Bawat %d oras</item>
         <item quantity="other">Bawat %d oras</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Hindi nakasabay ang lokasyon ng recording sa live playback.</string>
 </resources>

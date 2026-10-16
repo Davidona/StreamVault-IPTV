@@ -259,4 +259,5 @@
     <string name="player_diagnostics_stream_bitrate">Stream bitráta</string>
     <string name="player_diagnostics_bandwidth_estimate">Hálózati sávszélesség</string>
     <string name="player_diagnostics_frame_rate">Képkockasebesség</string>
+    <string name="player_recording_failure_output_too_slow">A felvétel célhelye nem tudta követni az élő lejátszás tempóját.</string>
 </resources>

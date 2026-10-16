@@ -88,6 +88,7 @@ data class RecordingRunEntity(
     @ColumnInfo(name = "resolved_url") val resolvedUrl: String? = null,
     @ColumnInfo(name = "headers_json") val headersJson: String = "{}",
     @ColumnInfo(name = "user_agent") val userAgent: String? = null,
+    @ColumnInfo(name = "network_profile_json", defaultValue = "'{}'") val networkProfileJson: String = "{}",
     @ColumnInfo(name = "expiration_time") val expirationTime: Long? = null,
     @ColumnInfo(name = "provider_label") val providerLabel: String? = null,
     @ColumnInfo(name = "output_uri") val outputUri: String? = null,

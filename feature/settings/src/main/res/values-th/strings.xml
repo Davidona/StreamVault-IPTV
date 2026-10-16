@@ -840,4 +840,5 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">ทุก %d ชั่วโมง</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
 </resources>

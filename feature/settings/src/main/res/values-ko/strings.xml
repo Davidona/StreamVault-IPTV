@@ -839,4 +839,5 @@
         <item quantity="one">%d시간마다</item>
         <item quantity="other">%d시간마다</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">녹화 저장 위치가 실시간 재생 속도를 따라가지 못했습니다.</string>
 </resources>

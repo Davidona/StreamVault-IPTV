@@ -843,4 +843,5 @@
     <item quantity="one">Varje timme</item>
     <item quantity="other">Var %d:e timme</item>
 </plurals>
+    <string name="settings_recording_failure_output_too_slow">Inspelningsmålet kunde inte hålla jämna steg med direktsändningen.</string>
 </resources>

@@ -261,4 +261,5 @@
     <string name="player_close_playback_desc">Це зупинить відтворення та поверне до попереднього екрана.</string>
     <string name="player_close_playback_confirm">Так</string>
     <string name="player_close_playback_cancel">Ні</string>
+    <string name="player_recording_failure_output_too_slow">Місце збереження запису не встигало за прямим ефіром.</string>
 </resources>

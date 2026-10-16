@@ -259,4 +259,5 @@
     <string name="player_diagnostics_audio_decoder_mode">오디오 디코더 모드</string>
     <string name="player_diagnostics_video_decoder_mode">비디오 디코더 모드</string>
     <string name="player_track_live_translation">실시간 번역</string>
+    <string name="player_recording_failure_output_too_slow">녹화 저장 위치가 실시간 재생 속도를 따라가지 못했습니다.</string>
 </resources>

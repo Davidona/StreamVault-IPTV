@@ -843,4 +843,5 @@
         <item quantity="one">На секој %d час</item>
         <item quantity="other">На секои %d часа</item>
     </plurals>
+    <string name="settings_recording_failure_output_too_slow">Локацијата за снимање не можеше да ја следи репродукцијата во живо.</string>
 </resources>

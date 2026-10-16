@@ -849,4 +849,5 @@
     <item quantity="many">Co %d godzin</item>
     <item quantity="other">Co %d godziny</item>
 </plurals>
+    <string name="settings_recording_failure_output_too_slow">Miejsce zapisu nie nadążało za odtwarzaniem na żywo.</string>
 </resources>

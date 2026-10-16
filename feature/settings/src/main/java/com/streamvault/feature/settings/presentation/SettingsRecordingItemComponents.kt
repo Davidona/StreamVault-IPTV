@@ -132,7 +132,7 @@ public fun RecordingItemCard(
                     )
                 }
             }
-            item.failureReason?.takeIf { it.isNotBlank() }?.let { reason ->
+            localizedRecordingFailureReason(item.failureReason)?.let { reason ->
                 Text(reason, style = MaterialTheme.typography.bodySmall, color = ErrorColor)
             }
             FlowRow(

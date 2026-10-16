@@ -855,4 +855,5 @@
     <item quantity="many">كل %d ساعة</item>
     <item quantity="other">كل %d ساعة</item>
 </plurals>
+    <string name="settings_recording_failure_output_too_slow">لم يتمكن موقع حفظ التسجيل من مواكبة البث المباشر.</string>
 </resources>

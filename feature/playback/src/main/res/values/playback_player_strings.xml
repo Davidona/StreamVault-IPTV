@@ -259,4 +259,5 @@
     <string name="series_seasons">Seasons</string>
     <string name="settings_recording_status_recording">Recording</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_recording_failure_output_too_slow">The recording destination could not keep up with live playback.</string>
 </resources>
