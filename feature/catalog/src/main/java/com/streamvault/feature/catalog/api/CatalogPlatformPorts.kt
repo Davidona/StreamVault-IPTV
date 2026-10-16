@@ -43,6 +43,10 @@ enum class CatalogMessage {
     DownloadStarted,
     DownloadFailed,
     DownloadUrlUnavailable,
+    TraktWatchlistFailed,
+    TraktFavoriteSyncFailed,
+    TraktRatingSaved,
+    TraktRatingFailed,
 }
 
 sealed interface CatalogCastStartResult {

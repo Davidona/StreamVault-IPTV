@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Synchronizace potřebná</string>
   <string name="vod_unavailable_subtitle">Tento poskytovatel nabízí samostatné katalogy filmů a seriálů.</string>
   <string name="vod_unavailable_title">VOD není k dispozici</string>
+
+<string name="trakt_watchlist_add">Přidat do seznamu ke zhlédnutí Trakt</string>
+<string name="trakt_watchlist_connect">Připojte Trakt v Nastavení</string>
+<string name="trakt_watchlist_failed">Seznam ke zhlédnutí Trakt se nepodařilo aktualizovat. Zkuste to znovu.</string>
+<string name="trakt_watchlist_load">Načíst seznam ke zhlédnutí Trakt</string>
+<string name="trakt_watchlist_remove">Odebrat ze seznamu ke zhlédnutí Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filmy ve vašem seznamu sledovaných Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Televizní pořady ve vašem seznamu sledovaných Trakt</string>
+<string name="trakt_rating_action">Ohodnotit na Traktu</string>
+<string name="trakt_rating_dialog_message">Vyberte hodnocení od 1 do 10.</string>
+<string name="trakt_rating_current">Vaše hodnocení na Traktu: %1$d/10</string>
+<string name="trakt_rating_saved">Hodnocení bylo uloženo do Traktu.</string>
+<string name="trakt_rating_failed">Hodnocení se nepodařilo uložit do Traktu.</string>
+<string name="trakt_favorite_sync_failed">StreamVault změnu uložil, ale nepodařilo se aktualizovat Oblíbené na Traktu. Zkuste to znovu.</string>
 </resources>

@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Tarkkuus: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bittinopeus: %1$s Mbit/s</string>
     <string name="player_recording_failure_output_too_slow">Tallennuskohde ei pysynyt suoran lähetyksen tahdissa.</string>
+
+<string name="player_trakt_connect_required">Yhdistä Trakt Asetuksissa</string>
+<string name="player_trakt_not_supported">Trakt seuraa vain elokuvia ja jaksoja.</string>
+<string name="player_trakt_no_match">Nimikkeelle ei löytynyt tarkkaa Trakt-osumaa.</string>
+<string name="player_trakt_starting">Trakt-seuranta alkaa…</string>
+<string name="player_trakt_tracking">Trakt seuraa toistoa</string>
+<string name="player_trakt_paused">Trakt-seuranta tauolla</string>
+<string name="player_trakt_failed">Trakt-seuranta epäonnistui</string>
+<string name="player_trakt_sent">Lähetetty Traktiin</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

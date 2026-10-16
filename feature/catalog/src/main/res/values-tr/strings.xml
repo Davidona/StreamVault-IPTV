@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Senkronizasyon gerekli</string>
   <string name="vod_unavailable_subtitle">Bu sağlayıcı ayrı Film ve Dizi katalogları sunar.</string>
   <string name="vod_unavailable_title">VOD kullanılamıyor</string>
+
+<string name="trakt_watchlist_add">Trakt izleme listesine ekle</string>
+<string name="trakt_watchlist_connect">Trakt\'ı Ayarlar\'dan bağla</string>
+<string name="trakt_watchlist_failed">Trakt izleme listesi güncellenemedi. Tekrar deneyin.</string>
+<string name="trakt_watchlist_load">Trakt izleme listesini yükle</string>
+<string name="trakt_watchlist_remove">Trakt izleme listesinden kaldır</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt izleme listenizdeki filmler</string>
+<string name="dashboard_trakt_watchlist_series">Trakt izleme listenizdeki TV şovları</string>
+<string name="trakt_rating_action">Trakt\'ta puanla</string>
+<string name="trakt_rating_dialog_message">1 ile 10 arasında bir puan seçin.</string>
+<string name="trakt_rating_current">Trakt puanınız: %1$d/10</string>
+<string name="trakt_rating_saved">Puanınız Trakt üzerine kaydedildi.</string>
+<string name="trakt_rating_failed">Puanınız Trakt üzerine kaydedilemedi.</string>
+<string name="trakt_favorite_sync_failed">StreamVault değişikliği kaydetti ancak Trakt Favorilerini güncelleyemedi. Yeniden deneyin.</string>
 </resources>

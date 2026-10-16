@@ -69,6 +69,10 @@ import com.streamvault.feature.catalog.presentation.components.DetailActionButto
 import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
@@ -80,6 +84,9 @@ import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodSeriesVariant
+import com.streamvault.domain.trakt.TraktCustomListItem
+import com.streamvault.domain.trakt.TraktCustomListItemIdentity
+import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -99,6 +106,7 @@ fun SeriesDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val series = uiState.series
     val context = LocalContext.current
+    var ratingDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -148,6 +156,14 @@ fun SeriesDetailScreen(
         isCasting = uiState.isCasting,
         externalRatings = uiState.externalRatings,
         isLoadingExternalRatings = uiState.isLoadingExternalRatings,
+        traktWatchlistConnected = uiState.traktWatchlistConnected,
+        traktWatchlistLoaded = uiState.traktWatchlistLoaded,
+        traktWatchlisted = uiState.traktWatchlisted,
+        traktWatchlistBusy = uiState.traktWatchlistBusy,
+        traktUserRating = uiState.traktUserRating,
+        traktRatingBusy = uiState.traktRatingBusy,
+        onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+        onRateOnTrakt = { ratingDialogOpen = true },
         onToggleFavorite = viewModel::toggleFavorite,
         onSelectVariant = viewModel::selectSeriesVariant,
         onSeasonSelected = viewModel::selectSeason,
@@ -167,6 +183,17 @@ fun SeriesDetailScreen(
         onCastEpisode = viewModel::castEpisode,
         onBack = onBack
     )
+    if (ratingDialogOpen) {
+        TraktRatingDialog(
+            currentRating = uiState.traktUserRating,
+            busy = uiState.traktRatingBusy,
+            onDismiss = { ratingDialogOpen = false },
+            onSelect = { rating ->
+                ratingDialogOpen = false
+                viewModel.rateOnTrakt(rating)
+            },
+        )
+    }
 }
 
 @Composable
@@ -178,6 +205,14 @@ private fun SeriesDetailContent(
     isCasting: Boolean,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    onRateOnTrakt: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSelectVariant: (Long) -> Unit,
     onSeasonSelected: (Season) -> Unit,
@@ -443,6 +478,41 @@ private fun SeriesDetailContent(
                 }
             }
 
+            if (series.tmdbId?.let { it > 0L } == true) {
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        item {
+                            TraktWatchlistActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                loaded = traktWatchlistLoaded,
+                                watchlisted = traktWatchlisted,
+                                busy = traktWatchlistBusy,
+                                onClick = onToggleTraktWatchlist,
+                            )
+                        }
+                        item {
+                            TraktRatingActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                busy = traktRatingBusy,
+                                rating = traktUserRating,
+                                onClick = onRateOnTrakt,
+                            )
+                        }
+                        item {
+                            TraktCustomListActionButton(
+                                item = series.traktShowListItem(),
+                                additionalItems = series.traktNestedListItems(),
+                            )
+                        }
+                    }
+                }
+            }
+
             if (series.seasons.isNotEmpty()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -505,6 +575,50 @@ private fun SeriesDetailContent(
             }
         }
     }
+}
+
+private fun Series.traktShowListItem(): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(TraktCustomListItemType.SHOW, showTmdbId),
+        title = name,
+        year = releaseDate?.take(4)?.toIntOrNull(),
+    )
+}
+
+@Composable
+private fun Series.traktNestedListItems(): List<TraktCustomListItem> {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return emptyList()
+    val items = mutableListOf<TraktCustomListItem>()
+    seasons.forEach { season ->
+        items += TraktCustomListItem(
+            identity = TraktCustomListItemIdentity(
+                type = TraktCustomListItemType.SEASON,
+                tmdbId = showTmdbId,
+                seasonNumber = season.seasonNumber,
+            ),
+            title = "$name · ${season.name}",
+        )
+        season.episodes.forEach { episode ->
+            if (episode.episodeNumber > 0) {
+                val episodeNumber = stringResource(
+                    R.string.continue_watching_season_episode,
+                    episode.seasonNumber,
+                    episode.episodeNumber,
+                )
+                items += TraktCustomListItem(
+                    identity = TraktCustomListItemIdentity(
+                        type = TraktCustomListItemType.EPISODE,
+                        tmdbId = showTmdbId,
+                        seasonNumber = episode.seasonNumber,
+                        episodeNumber = episode.episodeNumber,
+                    ),
+                    title = "$name · $episodeNumber · ${episode.title}",
+                )
+            }
+        }
+    }
+    return items
 }
 
 @Composable

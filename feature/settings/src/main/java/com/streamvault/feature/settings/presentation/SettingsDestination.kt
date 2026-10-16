@@ -13,7 +13,8 @@ enum class SettingsCategory(val legacyId: Int, val title: Int, val description: 
     RECORDING(4, R.string.settings_recording_title, R.string.settings_recording_description),
     BACKUP(5, R.string.settings_backup_restore, R.string.settings_backup_description),
     GUIDE(6, R.string.settings_domain_guide, R.string.settings_guide_description),
-    ABOUT(7, R.string.settings_about, R.string.settings_about_description);
+    ABOUT(7, R.string.settings_about, R.string.settings_about_description),
+    TRAKT(10, R.string.settings_trakt, R.string.settings_trakt_description);
 
     val pages: List<SettingsPage> get() = SettingsPage.entries.filter { it.categoryId == legacyId }
     companion object {

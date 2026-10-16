@@ -861,4 +861,6 @@
     <string name="settings_theme_vintage">빈티지</string>
     <string name="nav_addons">Stremio 애드온</string>
     <string name="nav_extensions">확장 기능</string>
+    <string name="dashboard_trakt_watchlist_movies">Trakt 관심 목록에 있는 영화</string>
+    <string name="dashboard_trakt_watchlist_series">Trakt 관심 목록의 TV 프로그램</string>
 </resources>

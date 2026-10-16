@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Resolutie: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitsnelheid: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">De opnamelocatie kon het live afspelen niet bijhouden.</string>
+
+<string name="player_trakt_connect_required">Verbind Trakt via Instellingen</string>
+<string name="player_trakt_not_supported">Trakt volgt alleen films en afleveringen.</string>
+<string name="player_trakt_no_match">Geen exacte overeenkomst in Trakt voor deze titel.</string>
+<string name="player_trakt_starting">Trakt-tracking wordt gestart…</string>
+<string name="player_trakt_tracking">Trakt volgt de weergave</string>
+<string name="player_trakt_paused">Trakt-tracking gepauzeerd</string>
+<string name="player_trakt_failed">Trakt-tracking mislukt</string>
+<string name="player_trakt_sent">Verzonden naar Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

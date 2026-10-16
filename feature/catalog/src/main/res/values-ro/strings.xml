@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Sincronizare necesară</string>
   <string name="vod_unavailable_subtitle">Acest furnizor expune cataloage separate de Filme și Seriale.</string>
   <string name="vod_unavailable_title">VOD este indisponibil</string>
+
+<string name="trakt_watchlist_add">Adaugă în lista de vizionare Trakt</string>
+<string name="trakt_watchlist_connect">Conectează Trakt din Setări</string>
+<string name="trakt_watchlist_failed">Lista Trakt nu a putut fi actualizată. Încearcă din nou.</string>
+<string name="trakt_watchlist_load">Încarcă lista Trakt</string>
+<string name="trakt_watchlist_remove">Elimină din lista Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filme din lista dvs. de urmărire Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Emisiuni TV din lista dvs. de urmărire Trakt</string>
+<string name="trakt_rating_action">Evaluează pe Trakt</string>
+<string name="trakt_rating_dialog_message">Alege o notă de la 1 la 10.</string>
+<string name="trakt_rating_current">Nota ta pe Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Nota ta a fost salvată pe Trakt.</string>
+<string name="trakt_rating_failed">Nu s-a putut salva nota pe Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault a salvat modificarea, dar nu a putut actualiza Favoritele Trakt. Încearcă din nou.</string>
 </resources>

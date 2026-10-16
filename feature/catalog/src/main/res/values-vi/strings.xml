@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Cần đồng bộ</string>
   <string name="vod_unavailable_subtitle">Nhà cung cấp này có danh mục Phim và Series riêng.</string>
   <string name="vod_unavailable_title">VOD không khả dụng</string>
+
+<string name="trakt_watchlist_add">Thêm vào danh sách xem sau của Trakt</string>
+<string name="trakt_watchlist_connect">Kết nối Trakt trong Cài đặt</string>
+<string name="trakt_watchlist_failed">Không thể cập nhật danh sách Trakt. Hãy thử lại.</string>
+<string name="trakt_watchlist_load">Tải danh sách Trakt</string>
+<string name="trakt_watchlist_remove">Xóa khỏi danh sách Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Phim trong danh sách theo dõi Trakt của bạn</string>
+<string name="dashboard_trakt_watchlist_series">Chương trình truyền hình trong danh sách theo dõi Trakt của bạn</string>
+<string name="trakt_rating_action">Đánh giá trên Trakt</string>
+<string name="trakt_rating_dialog_message">Chọn điểm từ 1 đến 10.</string>
+<string name="trakt_rating_current">Điểm Trakt của bạn: %1$d/10</string>
+<string name="trakt_rating_saved">Đã lưu điểm của bạn vào Trakt.</string>
+<string name="trakt_rating_failed">Không thể lưu điểm của bạn vào Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault đã lưu thay đổi nhưng không thể cập nhật Mục yêu thích Trakt. Hãy thử lại.</string>
 </resources>

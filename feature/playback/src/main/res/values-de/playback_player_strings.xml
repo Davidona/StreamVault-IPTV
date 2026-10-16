@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Auflösung: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbit/s</string>
     <string name="player_recording_failure_output_too_slow">Das Aufnahmeziel konnte nicht mit der Live-Wiedergabe Schritt halten.</string>
+
+<string name="player_trakt_connect_required">Trakt in den Einstellungen verbinden</string>
+<string name="player_trakt_not_supported">Trakt verfolgt nur Filme und Episoden.</string>
+<string name="player_trakt_no_match">Kein genauer Trakt-Treffer für diesen Titel.</string>
+<string name="player_trakt_starting">Trakt-Tracking wird gestartet…</string>
+<string name="player_trakt_tracking">Trakt verfolgt die Wiedergabe</string>
+<string name="player_trakt_paused">Trakt-Tracking pausiert</string>
+<string name="player_trakt_failed">Trakt-Tracking fehlgeschlagen</string>
+<string name="player_trakt_sent">An Trakt gesendet</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

@@ -95,6 +95,7 @@ class PlayerViewModel @Inject constructor(
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
     private val stremioAddonRepository: StremioAddonRepository,
+    internal val playerTraktCoordinator: PlayerTraktCoordinator,
     internal val searchExternalSubtitlesUseCase: SearchExternalSubtitles,
     internal val downloadExternalSubtitleUseCase: DownloadExternalSubtitle,
     internal val getExternalSubtitleLanguagesUseCase: GetExternalSubtitleLanguages,
@@ -132,6 +133,8 @@ class PlayerViewModel @Inject constructor(
     val currentChannel: StateFlow<com.streamvault.domain.model.Channel?> = currentChannelFlow.asStateFlow()
 
     private val _currentSeries = MutableStateFlow<Series?>(null)
+    internal var traktMovieSession: Long? = null
+    internal var traktMovieIdentity: com.streamvault.domain.trakt.TraktMediaIdentity.MovieId? = null
     val currentSeries: StateFlow<Series?> = _currentSeries.asStateFlow()
 
     private val _currentEpisode = MutableStateFlow<Episode?>(null)
@@ -568,6 +571,12 @@ class PlayerViewModel @Inject constructor(
     init {
         observeCastPlaybackEvents()
         viewModelScope.launch {
+            while (true) {
+                reportTraktPlayback()
+                delay(500)
+            }
+        }
+        viewModelScope.launch {
             currentChannelFlow.collect { refreshCurrentPlaybackQualityPreferenceScope() }
         }
         viewModelScope.launch {
@@ -619,6 +628,7 @@ class PlayerViewModel @Inject constructor(
             activePlayerEngineFlow.flatMapLatest { it.playbackState }.collect { state ->
                 _playerDiagnostics.update { it.copy(playbackStateLabel = state.name.replace('_', ' ')) }
                 if (state == PlaybackState.ENDED && lastObservedPlaybackState != PlaybackState.ENDED) {
+                    reportTraktPlayback(state)
                     handlePlaybackEnded()
                 }
                 lastObservedPlaybackState = state
@@ -2033,6 +2043,7 @@ class PlayerViewModel @Inject constructor(
     )?.url
 
     override fun onCleared() {
+        playerTraktCoordinator.close()
         playbackSessionCoordinator.invalidate()
         playerPreparationCoordinator.stopPlayback(currentResolvedStreamInfo)
         super.onCleared()

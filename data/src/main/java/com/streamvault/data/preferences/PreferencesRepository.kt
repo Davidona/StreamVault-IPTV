@@ -69,6 +69,7 @@ import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.manager.ParentalPinVerifier
 import com.streamvault.domain.manager.ParentalControlSessionState
 import com.streamvault.domain.manager.ParentalControlSessionStore
+import com.streamvault.domain.trakt.TraktFeaturePreferences
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
@@ -179,7 +180,7 @@ class PreferencesRepository @Inject constructor(
     private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
-) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences {
+) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences, TraktFeaturePreferences {
     private val preferencesDataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { cause ->
@@ -278,6 +279,12 @@ class PreferencesRepository @Inject constructor(
         val VOD_TYPE_BADGE_AS_ICON = booleanPreferencesKey("vod_type_badge_as_icon")
         val VOD_INFINITE_SCROLL = booleanPreferencesKey("vod_infinite_scroll")
         val VOD_PORTAL_SEARCH = booleanPreferencesKey("vod_portal_search")
+        val SHOW_TRAKT_TRENDING_MOVIES = booleanPreferencesKey("show_trakt_trending_movies")
+        val SHOW_TRAKT_POPULAR_MOVIES = booleanPreferencesKey("show_trakt_popular_movies")
+        val SHOW_TRAKT_TRENDING_SERIES = booleanPreferencesKey("show_trakt_trending_series")
+        val SHOW_TRAKT_POPULAR_SERIES = booleanPreferencesKey("show_trakt_popular_series")
+        val TRAKT_SCROBBLING_ENABLED = booleanPreferencesKey("trakt_scrobbling_enabled")
+        val TRAKT_HISTORY_SYNC_ENABLED = booleanPreferencesKey("trakt_history_sync_enabled")
         val VOD_CATEGORY_LOAD_MODE = stringPreferencesKey("vod_category_load_mode")
         val VOD_DUPLICATE_HANDLING_MODE = stringPreferencesKey("vod_duplicate_handling_mode")
         val VOD_VARIANT_PREFERENCE_MODE = stringPreferencesKey("vod_variant_preference_mode")
@@ -2248,6 +2255,66 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setVodPortalSearch(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.VOD_PORTAL_SEARCH] = enabled
+        }
+    }
+
+    override val showTraktTrendingMovies: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_MOVIES] ?: true
+    }
+
+    override suspend fun setShowTraktTrendingMovies(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_MOVIES] = enabled
+        }
+    }
+
+    override val showTraktPopularMovies: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_MOVIES] ?: true
+    }
+
+    override suspend fun setShowTraktPopularMovies(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_MOVIES] = enabled
+        }
+    }
+
+    override val showTraktTrendingSeries: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_SERIES] ?: true
+    }
+
+    override suspend fun setShowTraktTrendingSeries(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_SERIES] = enabled
+        }
+    }
+
+    override val showTraktPopularSeries: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_SERIES] ?: true
+    }
+
+    override suspend fun setShowTraktPopularSeries(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_SERIES] = enabled
+        }
+    }
+
+    override val scrobblingEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.TRAKT_SCROBBLING_ENABLED] ?: true
+    }
+
+    override suspend fun setScrobblingEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.TRAKT_SCROBBLING_ENABLED] = enabled
+        }
+    }
+
+    override val historySyncEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.TRAKT_HISTORY_SYNC_ENABLED] ?: true
+    }
+
+    override suspend fun setHistorySyncEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.TRAKT_HISTORY_SYNC_ENABLED] = enabled
         }
     }
 

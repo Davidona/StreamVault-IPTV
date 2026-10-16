@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Trakt را در تنظیمات وصل کنید</string>
+    <string name="player_trakt_not_supported">Trakt فقط فیلم ها و قسمت ها را ردیابی می کند.</string>
+    <string name="player_trakt_no_match">هیچ تطابق دقیق Trakt برای این عنوان وجود ندارد.</string>
+    <string name="player_trakt_starting">شروع ردیابی Trakt…</string>
+    <string name="player_trakt_tracking">ردیابی با Trakt</string>
+    <string name="player_trakt_paused">ردیابی Trakt متوقف شد</string>
+    <string name="player_trakt_failed">ردیابی Trakt ناموفق</string>
+    <string name="player_trakt_sent">ارسال به Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
+</resources>

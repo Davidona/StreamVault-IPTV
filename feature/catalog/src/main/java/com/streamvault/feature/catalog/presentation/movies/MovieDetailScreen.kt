@@ -32,7 +32,9 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +66,10 @@ import com.streamvault.feature.catalog.presentation.components.DetailActionButto
 import com.streamvault.feature.catalog.presentation.components.DetailInfoPanel
 import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
@@ -74,6 +80,9 @@ import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.VodMovieVariant
+import com.streamvault.domain.trakt.TraktCustomListItem
+import com.streamvault.domain.trakt.TraktCustomListItemIdentity
+import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -91,6 +100,7 @@ fun MovieDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val movie = uiState.movie
     val context = LocalContext.current
+    var ratingDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -140,6 +150,14 @@ fun MovieDetailScreen(
                 externalRatings = uiState.externalRatings,
                 isLoadingExternalRatings = uiState.isLoadingExternalRatings,
                 relatedContent = uiState.relatedContent,
+                traktWatchlistConnected = uiState.traktWatchlistConnected,
+                traktWatchlistLoaded = uiState.traktWatchlistLoaded,
+                traktWatchlisted = uiState.traktWatchlisted,
+                traktWatchlistBusy = uiState.traktWatchlistBusy,
+                traktUserRating = uiState.traktUserRating,
+                traktRatingBusy = uiState.traktRatingBusy,
+                onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+                onRateOnTrakt = { ratingDialogOpen = true },
                 onPlay = { onPlay(movie) },
                 onCopyUrl = {
                     when (val result = viewModel.resolveCopyStreamUrl()) {
@@ -156,6 +174,17 @@ fun MovieDetailScreen(
                 onBack = onBack,
                 viewModel = viewModel
             )
+            if (ratingDialogOpen) {
+                TraktRatingDialog(
+                    currentRating = uiState.traktUserRating,
+                    busy = uiState.traktRatingBusy,
+                    onDismiss = { ratingDialogOpen = false },
+                    onSelect = { rating ->
+                        ratingDialogOpen = false
+                        viewModel.rateOnTrakt(rating)
+                    },
+                )
+            }
         }
     }
 }
@@ -169,6 +198,14 @@ private fun MovieDetailContent(
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
     relatedContent: List<Movie>,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    onRateOnTrakt: () -> Unit,
     onPlay: () -> Unit,
     onCopyUrl: suspend () -> String?,
     onDownload: () -> Unit,
@@ -319,6 +356,36 @@ private fun MovieDetailContent(
                 }
             }
 
+            if (movie.tmdbId?.let { it > 0L } == true) {
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        item {
+                            TraktWatchlistActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                loaded = traktWatchlistLoaded,
+                                watchlisted = traktWatchlisted,
+                                busy = traktWatchlistBusy,
+                                onClick = onToggleTraktWatchlist,
+                            )
+                        }
+                        item {
+                            TraktRatingActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                busy = traktRatingBusy,
+                                rating = traktUserRating,
+                                onClick = onRateOnTrakt,
+                            )
+                        }
+                        item { TraktCustomListActionButton(movie.traktCustomListItem()) }
+                    }
+                }
+            }
+
             if (listOf(movie.director, movie.releaseDate, movie.duration, movie.genre, movie.cast)
                     .any { !it.isNullOrBlank() }) {
                 item { MovieFactGrid(movie = movie) }
@@ -367,6 +434,15 @@ private fun MovieDetailContent(
             }
         }
     }
+}
+
+private fun Movie.traktCustomListItem(): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(TraktCustomListItemType.MOVIE, showTmdbId),
+        title = name,
+        year = releaseDate?.take(4)?.toIntOrNull(),
+    )
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.streamvault.feature.catalog.presentation.search
 
+import android.widget.Toast
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -22,6 +23,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -52,8 +54,11 @@ import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
+import com.streamvault.feature.catalog.api.CatalogMessage
+import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.manager.ParentalControlManager
@@ -70,6 +75,11 @@ import com.streamvault.domain.usecase.SearchContent
 import com.streamvault.domain.usecase.SearchContentScope
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStatus
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteFailure
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
 import com.streamvault.domain.util.AdultContentVisibilityPolicy
 import com.streamvault.core.navigation.AppDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -89,7 +99,8 @@ class SearchViewModel @Inject constructor(
     private val parentalControlManager: ParentalControlManager,
     private val favoriteRepository: FavoriteRepository,
     private val categoryRepository: CategoryRepository,
-    private val recordingManager: RecordingManager
+    private val recordingManager: RecordingManager,
+    private val traktFavorites: TraktFavorites,
 ) : ViewModel() {
     private companion object {
         const val MAX_RESULTS_PER_SECTION = 120
@@ -110,6 +121,9 @@ class SearchViewModel @Inject constructor(
 
     private val _scheduledChannelIds = MutableStateFlow<Set<Long>>(emptySet())
     val scheduledChannelIds: StateFlow<Set<Long>> = _scheduledChannelIds.asStateFlow()
+
+    private val _uiEvents = MutableSharedFlow<CatalogUiEvent>()
+    val uiEvents: SharedFlow<CatalogUiEvent> = _uiEvents.asSharedFlow()
 
     private val unlockedCategoryIds = providerRepository.getActiveProvider()
         .onEach { provider -> _activeProviderId.value = provider?.id }
@@ -280,13 +294,37 @@ class SearchViewModel @Inject constructor(
 
     // ג”€ג”€ Search item long-press actions ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
 
-    fun toggleFavorite(contentId: Long, contentType: ContentType, currentlyFavorite: Boolean) {
+    fun toggleFavorite(
+        contentId: Long,
+        contentType: ContentType,
+        currentlyFavorite: Boolean,
+        tmdbId: Long? = null,
+    ) {
         viewModelScope.launch {
             val providerId = _activeProviderId.value ?: return@launch
-            if (currentlyFavorite) {
+            val favorited = !currentlyFavorite
+            if (!favorited) {
                 favoriteRepository.removeFavorite(providerId, contentId, contentType)
             } else {
                 favoriteRepository.addFavorite(providerId, contentId, contentType)
+            }
+            val traktType = when (contentType) {
+                ContentType.MOVIE -> TraktFavoriteType.MOVIE
+                ContentType.SERIES -> TraktFavoriteType.SHOW
+                else -> null
+            }
+            tmdbId?.takeIf { it > 0L }?.let { id ->
+                traktType?.let { type ->
+                    when (val result = traktFavorites.setFavorited(TraktFavoriteIdentity(type, id), favorited)) {
+                        TraktFavoriteActionResult.Success -> Unit
+                        is TraktFavoriteActionResult.Failure -> if (
+                            result.reason != TraktFavoriteFailure.DISCONNECTED &&
+                            result.reason != TraktFavoriteFailure.INCOGNITO
+                        ) {
+                            _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktFavoriteSyncFailed))
+                        }
+                    }
+                }
             }
         }
     }
@@ -372,6 +410,7 @@ fun SearchScreen(
     scaffold: CatalogScaffoldContent,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val query by viewModel.query.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val recentQueries by viewModel.recentQueries.collectAsStateWithLifecycle()
@@ -389,6 +428,14 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     val selectedStateLabel = stringResource(R.string.a11y_selected)
     val incorrectPinMessage = stringResource(R.string.search_incorrect_pin)
+
+    LaunchedEffect(viewModel, context) {
+        viewModel.uiEvents.collect { event ->
+            if (event is CatalogUiEvent.ShowMessage) {
+                Toast.makeText(context, context.catalogMessageText(event.message), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     // ג”€ג”€ Long-press actions dialog state ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
     var showActionsDialog by remember { mutableStateOf(false) }
@@ -518,7 +565,12 @@ fun SearchScreen(
             hasCategoryId = actionsCategoryId != null,
             onDismiss = { showActionsDialog = false },
             onToggleFavorite = {
-                viewModel.toggleFavorite(actionsItemId, actionsContentType, actionsIsFavorite)
+                viewModel.toggleFavorite(
+                    actionsItemId,
+                    actionsContentType,
+                    actionsIsFavorite,
+                    actionsMovie?.tmdbId ?: actionsSeries?.tmdbId,
+                )
                 actionsIsFavorite = !actionsIsFavorite
             },
             onHide = if (actionsCategoryId != null) {

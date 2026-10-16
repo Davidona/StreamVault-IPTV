@@ -298,4 +298,14 @@
     <string name="player_diagnostics_quality_height_summary">Rozdzielczość: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Szybkość transmisji: %1$s Mb/s</string>
     <string name="player_recording_failure_output_too_slow">Miejsce zapisu nie nadążało za odtwarzaniem na żywo.</string>
+
+<string name="player_trakt_connect_required">Połącz Trakt w Ustawieniach</string>
+<string name="player_trakt_not_supported">Trakt śledzi tylko filmy i odcinki.</string>
+<string name="player_trakt_no_match">Nie znaleziono dokładnego dopasowania w Trakt dla tego tytułu.</string>
+<string name="player_trakt_starting">Uruchamianie śledzenia Trakt…</string>
+<string name="player_trakt_tracking">Trakt śledzi odtwarzanie</string>
+<string name="player_trakt_paused">Śledzenie Trakt wstrzymane</string>
+<string name="player_trakt_failed">Śledzenie Trakt nie powiodło się</string>
+<string name="player_trakt_sent">Wysłano do Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

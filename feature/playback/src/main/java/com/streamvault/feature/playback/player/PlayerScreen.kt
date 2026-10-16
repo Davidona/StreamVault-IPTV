@@ -101,6 +101,7 @@ import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 
 
 private const val CLOSE_PLAYBACK_CONFIRM_GUARD_MS = 350L
+private const val TRAKT_STATUS_BADGE_DURATION_MS = 3_000L
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -170,6 +171,7 @@ fun PlayerScreen(
     val videoFormat by viewModel.videoFormat.collectAsStateWithLifecycle()
     val playerError by viewModel.playerError.collectAsStateWithLifecycle()
     val playbackResolutionUiState by viewModel.playbackResolutionUiState.collectAsStateWithLifecycle()
+    val traktTrackingStatus by viewModel.playerTraktCoordinator.status.collectAsStateWithLifecycle()
     val currentChannel by viewModel.currentChannel.collectAsStateWithLifecycle()
     val autoPlayCountdown by viewModel.autoPlayCountdown.collectAsStateWithLifecycle()
     val skipChapter by viewModel.skipChapter.collectAsStateWithLifecycle()
@@ -206,6 +208,7 @@ fun PlayerScreen(
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
     var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
+    var showTransientTraktStatus by remember { mutableStateOf(false) }
 
     LaunchedEffect(isInPictureInPictureMode) {
         if (isInPictureInPictureMode) {
@@ -231,6 +234,16 @@ fun PlayerScreen(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(traktTrackingStatus) {
+        if (traktTrackingStatus == PlayerTraktTrackingStatus.HIDDEN) {
+            showTransientTraktStatus = false
+        } else {
+            showTransientTraktStatus = true
+            delay(TRAKT_STATUS_BADGE_DURATION_MS)
+            showTransientTraktStatus = false
+        }
     }
 
     LaunchedEffect(playbackPlatformHost, streamUrl, playbackState, isPlaying, videoFormat.width, videoFormat.height, videoFormat.pixelWidthHeightRatio) {
@@ -807,6 +820,18 @@ fun PlayerScreen(
                 .padding(start = 18.dp, top = 18.dp)
         )
 
+        AnimatedVisibility(
+            visible = traktTrackingStatus != PlayerTraktTrackingStatus.HIDDEN &&
+                (showControls || showTransientTraktStatus) && !isInPictureInPictureMode,
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(250)),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 18.dp, top = 70.dp)
+        ) {
+            PlayerTraktStatusOverlay(status = traktTrackingStatus)
+        }
+
         when (val resolutionState = playbackResolutionUiState) {
             PlaybackResolutionUiState.Resolving -> Box(
                 modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.82f)),
@@ -817,7 +842,10 @@ fun PlayerScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     CircularProgressIndicator(color = Primary)
-                    Text("Resolving playback…", color = Color.White)
+                    Text(
+                        text = stringResource(R.string.player_preparing_playback),
+                        color = Color.White,
+                    )
                 }
             }
             is PlaybackResolutionUiState.Failure -> PlayerErrorOverlay(

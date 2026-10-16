@@ -300,4 +300,14 @@
     <string name="player_diagnostics_quality_height_summary">الدقة: %1$d بكسل</string>
     <string name="player_diagnostics_quality_bitrate_summary">معدل البت: %1$s ميغابت/ث</string>
     <string name="player_recording_failure_output_too_slow">لم يتمكن موقع حفظ التسجيل من مواكبة البث المباشر.</string>
+
+<string name="player_trakt_connect_required">اتصل بـ Trakt من الإعدادات</string>
+<string name="player_trakt_not_supported">يتتبع Trakt الأفلام والحلقات فقط.</string>
+<string name="player_trakt_no_match">لم يتم العثور على تطابق دقيق لهذا العنوان في Trakt.</string>
+<string name="player_trakt_starting">جارٍ بدء التتبع في Trakt…</string>
+<string name="player_trakt_tracking">جارٍ التتبع عبر Trakt</string>
+<string name="player_trakt_paused">تم إيقاف التتبع في Trakt</string>
+<string name="player_trakt_failed">فشل التتبع في Trakt</string>
+<string name="player_trakt_sent">تم الإرسال إلى Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">解像度: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">ビットレート: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">録画先がライブ再生の速度に追いつきませんでした。</string>
+
+<string name="player_trakt_connect_required">設定で Trakt に接続</string>
+<string name="player_trakt_not_supported">Trakt が追跡するのは映画とエピソードのみです。</string>
+<string name="player_trakt_no_match">この作品に一致する Trakt タイトルが見つかりません。</string>
+<string name="player_trakt_starting">Trakt の追跡を開始中…</string>
+<string name="player_trakt_tracking">Trakt が再生を追跡中</string>
+<string name="player_trakt_paused">Trakt の追跡を一時停止中</string>
+<string name="player_trakt_failed">Trakt の追跡に失敗しました</string>
+<string name="player_trakt_sent">Trakt に送信しました</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

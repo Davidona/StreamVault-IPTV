@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Поврзете го Trakt во Поставки</string>
+    <string name="player_trakt_not_supported">Trakt следи само филмови и епизоди.</string>
+    <string name="player_trakt_no_match">Нема точна совпаѓање со Trakt за овој наслов.</string>
+    <string name="player_trakt_starting">Започнува следењето Trakt…</string>
+    <string name="player_trakt_tracking">Следење со Trakt</string>
+    <string name="player_trakt_paused">Trakt следењето е паузирано</string>
+    <string name="player_trakt_failed">Trakt следењето не успеа</string>
+    <string name="player_trakt_sent">Испратено на Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
+</resources>

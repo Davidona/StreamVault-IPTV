@@ -176,6 +176,18 @@ class MovieRepositoryImpl @Inject constructor(
             buildPresentedMovies(list.map { it.toDomain() }, settings)
         }.flowOn(Dispatchers.Default)
 
+    override suspend fun getMoviesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Movie> {
+        val ids = tmdbIds.asSequence().filter { it > 0L }.distinct().toList()
+        if (ids.isEmpty()) return emptyList()
+        val hideProtected = preferencesRepository.parentalControlLevel.first() >= 3
+        val rows = ids.chunked(400).flatMap { movieDao.getByProviderTmdbIdsSync(providerId, it) }
+            .asSequence()
+            .filterNot { hideProtected && it.isUserProtected }
+            .map { it.toDomain() }
+            .toList()
+        return buildPresentedMovies(rows, moviePresentationSettingsFlow.first())
+    }
+
     override fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>> =
         flow {
             ensureXtreamCategoryLoaded(providerId, categoryId, fetchIfMissing = true, refreshStaleInBackground = true)

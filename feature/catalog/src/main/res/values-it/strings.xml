@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Sincronizzazione necessaria</string>
   <string name="vod_unavailable_subtitle">Questo provider espone cataloghi separati per Film e Serie.</string>
   <string name="vod_unavailable_title">VOD non è disponibile</string>
+
+<string name="trakt_watchlist_add">Aggiungi alla lista dei contenuti da guardare di Trakt</string>
+<string name="trakt_watchlist_connect">Collega Trakt nelle Impostazioni</string>
+<string name="trakt_watchlist_failed">Impossibile aggiornare la lista Trakt. Riprova.</string>
+<string name="trakt_watchlist_load">Carica la lista di Trakt</string>
+<string name="trakt_watchlist_remove">Rimuovi dalla lista di Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Film nella tua lista di titoli Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Programmi TV nella tua lista di titoli Trakt</string>
+<string name="trakt_rating_action">Valuta su Trakt</string>
+<string name="trakt_rating_dialog_message">Scegli una valutazione da 1 a 10.</string>
+<string name="trakt_rating_current">La tua valutazione Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">La tua valutazione è stata salvata su Trakt.</string>
+<string name="trakt_rating_failed">Impossibile salvare la valutazione su Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault ha salvato la modifica, ma non è riuscito ad aggiornare i Preferiti di Trakt. Riprova.</string>
 </resources>

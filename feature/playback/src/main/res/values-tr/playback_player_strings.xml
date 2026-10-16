@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Çözünürlük: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bit hızı: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Kayıt hedefi canlı oynatmaya yetişemedi.</string>
+
+<string name="player_trakt_connect_required">Trakt bağlantısını Ayarlar bölümünden kurun</string>
+<string name="player_trakt_not_supported">Trakt yalnızca film ve bölümleri takip eder.</string>
+<string name="player_trakt_no_match">Bu başlık için Trakt üzerinde tam eşleşme bulunamadı.</string>
+<string name="player_trakt_starting">Trakt takibi başlatılıyor…</string>
+<string name="player_trakt_tracking">Trakt oynatmayı takip ediyor</string>
+<string name="player_trakt_paused">Trakt takibi duraklatıldı</string>
+<string name="player_trakt_failed">Trakt takibi başarısız oldu</string>
+<string name="player_trakt_sent">Trakt hizmetine gönderildi</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

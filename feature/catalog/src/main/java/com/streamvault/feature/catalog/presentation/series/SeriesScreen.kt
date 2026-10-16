@@ -374,6 +374,9 @@ private fun SeriesVodContent(
         else -> 300.dp
     }
     var showCategoryPicker by remember { mutableStateOf(false) }
+    val traktWatchlistLabel = stringResource(R.string.dashboard_trakt_watchlist_series)
+    val traktTrendingLabel = stringResource(R.string.trakt_discovery_trending_series)
+    val traktPopularLabel = stringResource(R.string.trakt_discovery_popular_series)
     val favoriteSeries = uiState.seriesByCategory[uiState.favoriteCategoryName].orEmpty()
     val continueSeries = uiState.libraryLensRows[SeriesLibraryLens.CONTINUE].orEmpty()
     val freshSeries = uiState.libraryLensRows[SeriesLibraryLens.FRESH].orEmpty()
@@ -462,21 +465,67 @@ private fun SeriesVodContent(
             ?: topRatedSeries.firstOrNull()?.id
             ?: catEntries.firstOrNull()?.value?.firstOrNull()?.id
     } else null
-    val categoryOptions = remember(visibleCategoryNames, uiState.categoryCounts, categoryByName, uiState.parentalControlLevel, uiState.unlockedCategoryIds) {
-        visibleCategoryNames.map { name ->
-            val matchedCategory = categoryByName[name]
-            val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
-            VodCategoryOption(
-                name = name,
-                count = uiState.categoryCounts[name] ?: 0,
-                onClick = {
-                    if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(name)
-                },
-                onLongClick = matchedCategory?.takeIf { lockedCategory == null }?.let { category ->
-                    { onShowCategoryOptions(category.name) }
-                },
-                isLocked = lockedCategory != null
-            )
+    val categoryOptions = remember(
+        visibleCategoryNames,
+        uiState.categoryCounts,
+        categoryByName,
+        uiState.parentalControlLevel,
+        uiState.unlockedCategoryIds,
+        uiState.traktWatchlistConnected,
+        uiState.traktWatchlistCount,
+        uiState.traktTrendingCount,
+        uiState.traktPopularCount,
+        uiState.showTraktTrendingSeries,
+        uiState.showTraktPopularSeries,
+        traktTrendingLabel,
+        traktPopularLabel,
+        traktWatchlistLabel
+    ) {
+        buildList {
+            visibleCategoryNames.forEach { name ->
+                val matchedCategory = categoryByName[name]
+                val lockedCategory = matchedCategory?.takeIf(isCategoryLocked)
+                add(
+                    VodCategoryOption(
+                        name = name,
+                        count = uiState.categoryCounts[name] ?: 0,
+                        onClick = {
+                            if (lockedCategory != null) openProtectedCategory(lockedCategory) else onSelectCategory(name)
+                        },
+                        onLongClick = matchedCategory?.takeIf { lockedCategory == null }?.let { category ->
+                            { onShowCategoryOptions(category.name) }
+                        },
+                        isLocked = lockedCategory != null
+                    )
+                )
+            }
+            if (uiState.traktWatchlistConnected) {
+                add(
+                    VodCategoryOption(
+                        name = traktWatchlistLabel,
+                        count = uiState.traktWatchlistCount,
+                        onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY) }
+                    )
+                )
+            }
+            if (uiState.showTraktTrendingSeries) {
+                add(
+                    VodCategoryOption(
+                        name = traktTrendingLabel,
+                        count = uiState.traktTrendingCount,
+                        onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY) }
+                    )
+                )
+            }
+            if (uiState.showTraktPopularSeries) {
+                add(
+                    VodCategoryOption(
+                        name = traktPopularLabel,
+                        count = uiState.traktPopularCount,
+                        onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY) }
+                    )
+                )
+            }
         }
     }
 
@@ -568,6 +617,35 @@ private fun SeriesVodContent(
                                 onClick = { showCategoryPicker = true }
                             )
                         )
+                        if (uiState.traktWatchlistConnected) {
+                            add(
+                                VodActionChip(
+                                    key = VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY,
+                                    label = traktWatchlistLabel,
+                                    onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY) }
+                                )
+                            )
+                        }
+                        if (uiState.showTraktTrendingSeries) {
+                            add(
+                                VodActionChip(
+                                    key = VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY,
+                                    label = traktTrendingLabel,
+                                    detail = uiState.traktTrendingCount.takeIf { it > 0 }?.toString(),
+                                    onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY) }
+                                )
+                            )
+                        }
+                        if (uiState.showTraktPopularSeries) {
+                            add(
+                                VodActionChip(
+                                    key = VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY,
+                                    label = traktPopularLabel,
+                                    detail = uiState.traktPopularCount.takeIf { it > 0 }?.toString(),
+                                    onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY) }
+                                )
+                            )
+                        }
                         if (favoriteSeries.isNotEmpty()) {
                             add(
                                 VodActionChip(
@@ -825,6 +903,9 @@ private fun SeriesVodContent(
             VodSectionHeader(
                 title = when (uiState.selectedCategory) {
                     uiState.fullLibraryCategoryName -> stringResource(R.string.library_full_browse_title_series)
+                    VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY -> traktWatchlistLabel
+                    VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY -> traktTrendingLabel
+                    VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> traktPopularLabel
                     else -> uiState.selectedCategory ?: stringResource(R.string.nav_series)
                 }
             )
@@ -926,7 +1007,17 @@ private fun SeriesVodContent(
                 ) {
                     AppMessageState(
                         title = stringResource(R.string.series_no_found),
-                        subtitle = stringResource(R.string.series_no_found_subtitle)
+                        subtitle = stringResource(
+                            when (uiState.selectedCategory) {
+                                VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY -> R.string.trakt_watchlist_series_no_matches
+                                VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY,
+                                VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> if (
+                                    (uiState.selectedCategory == VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY && uiState.traktTrendingFailed) ||
+                                    (uiState.selectedCategory == VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY && uiState.traktPopularFailed)
+                                ) R.string.trakt_discovery_load_failed else R.string.trakt_discovery_series_no_matches
+                                else -> R.string.series_no_found_subtitle
+                            }
+                        )
                     )
                 }
             }
@@ -1025,6 +1116,9 @@ private fun SeriesVodClassicContent(
     val allLabel = stringResource(R.string.vod_classic_all)
     val continueLabel = stringResource(R.string.vod_classic_continue_watching)
     val recentLabel = stringResource(R.string.vod_classic_recently_added)
+    val traktWatchlistLabel = stringResource(R.string.dashboard_trakt_watchlist_series)
+    val traktTrendingLabel = stringResource(R.string.trakt_discovery_trending_series)
+    val traktPopularLabel = stringResource(R.string.trakt_discovery_popular_series)
     val categoryByName = remember(uiState.providerCategories, uiState.categories, uiState.favoriteCategoryName) {
         buildMap<String, Category> {
             uiState.providerCategories.forEach { put(it.name, it) }
@@ -1115,6 +1209,9 @@ private fun SeriesVodClassicContent(
     }
 
     val selectedKey = when {
+        uiState.selectedCategory == VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY -> "trakt_watchlist"
+        uiState.selectedCategory == VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY -> "trakt_trending"
+        uiState.selectedCategory == VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> "trakt_popular"
         uiState.selectedCategory == uiState.favoriteCategoryName -> "favorites"
         uiState.selectedCategory == uiState.fullLibraryCategoryName && selectedFilterType == LibraryFilterType.IN_PROGRESS -> "continue"
         uiState.selectedCategory == uiState.fullLibraryCategoryName && selectedFilterType == LibraryFilterType.RECENTLY_UPDATED -> "recent"
@@ -1150,7 +1247,16 @@ private fun SeriesVodClassicContent(
             recentCount,
             uiState.libraryCount,
             uiState.unlockedCategoryIds,
-            uiState.parentalControlLevel
+            uiState.parentalControlLevel,
+            uiState.traktWatchlistConnected,
+            uiState.traktWatchlistCount,
+            uiState.traktTrendingCount,
+            uiState.traktPopularCount,
+            uiState.showTraktTrendingSeries,
+            uiState.showTraktPopularSeries,
+            traktTrendingLabel,
+            traktPopularLabel,
+            traktWatchlistLabel
         ) {
             buildList {
                 add(
@@ -1171,6 +1277,39 @@ private fun SeriesVodClassicContent(
                         onClick = { onSelectCategory(uiState.favoriteCategoryName) }
                     )
                 )
+                if (uiState.traktWatchlistConnected) {
+                    add(
+                        VodClassicCategoryOption(
+                            key = "trakt_watchlist",
+                            label = traktWatchlistLabel,
+                            count = uiState.traktWatchlistCount,
+                            isSelected = selectedKey == "trakt_watchlist",
+                            onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY) }
+                        )
+                    )
+                }
+                if (uiState.showTraktTrendingSeries) {
+                    add(
+                        VodClassicCategoryOption(
+                            key = "trakt_trending",
+                            label = traktTrendingLabel,
+                            count = uiState.traktTrendingCount,
+                            isSelected = selectedKey == "trakt_trending",
+                            onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY) }
+                        )
+                    )
+                }
+                if (uiState.showTraktPopularSeries) {
+                    add(
+                        VodClassicCategoryOption(
+                            key = "trakt_popular",
+                            label = traktPopularLabel,
+                            count = uiState.traktPopularCount,
+                            isSelected = selectedKey == "trakt_popular",
+                            onClick = { onSelectCategory(VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY) }
+                        )
+                    )
+                }
                 add(
                     VodClassicCategoryOption(
                         key = "continue",
@@ -1230,6 +1369,9 @@ private fun SeriesVodClassicContent(
                     selectedKey == "all" -> allLabel
                     selectedKey == "continue" -> continueLabel
                     selectedKey == "recent" -> recentLabel
+                    selectedKey == "trakt_watchlist" -> traktWatchlistLabel
+                    selectedKey == "trakt_trending" -> traktTrendingLabel
+                    selectedKey == "trakt_popular" -> traktPopularLabel
                     else -> uiState.selectedCategory ?: allLabel
                 },
                 subtitle = stringResource(
@@ -1312,7 +1454,17 @@ private fun SeriesVodClassicContent(
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         AppMessageState(
                             title = stringResource(R.string.series_no_found),
-                            subtitle = stringResource(R.string.vod_classic_empty_category)
+                            subtitle = stringResource(
+                                when (uiState.selectedCategory) {
+                                    VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY -> R.string.trakt_watchlist_series_no_matches
+                                    VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY,
+                                    VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> if (
+                                        (uiState.selectedCategory == VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY && uiState.traktTrendingFailed) ||
+                                        (uiState.selectedCategory == VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY && uiState.traktPopularFailed)
+                                    ) R.string.trakt_discovery_load_failed else R.string.trakt_discovery_series_no_matches
+                                    else -> R.string.vod_classic_empty_category
+                                }
+                            )
                         )
                     }
                 } else {

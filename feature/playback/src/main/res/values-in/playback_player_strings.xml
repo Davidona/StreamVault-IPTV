@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Resolusi: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Tujuan rekaman tidak dapat mengikuti pemutaran langsung.</string>
+
+<string name="player_trakt_connect_required">Hubungkan Trakt di Setelan</string>
+<string name="player_trakt_not_supported">Trakt hanya melacak film dan episode.</string>
+<string name="player_trakt_no_match">Judul ini tidak memiliki kecocokan tepat di Trakt.</string>
+<string name="player_trakt_starting">Memulai pelacakan Trakt…</string>
+<string name="player_trakt_tracking">Trakt sedang melacak pemutaran</string>
+<string name="player_trakt_paused">Pelacakan Trakt dijeda</string>
+<string name="player_trakt_failed">Pelacakan Trakt gagal</string>
+<string name="player_trakt_sent">Terkirim ke Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

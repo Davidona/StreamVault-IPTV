@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.flowOf
 
 interface SeriesRepository {
     fun getSeries(providerId: Long): Flow<List<Series>>
+    /** Loads only active-provider rows with the requested Trakt/TMDB identities. */
+    suspend fun getSeriesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Series> = emptyList()
     fun getSeriesByCategory(providerId: Long, categoryId: Long): Flow<List<Series>>
     fun getSeriesByCategoryPage(providerId: Long, categoryId: Long, limit: Int, offset: Int): Flow<List<Series>>
     fun getSeriesByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<Series>>

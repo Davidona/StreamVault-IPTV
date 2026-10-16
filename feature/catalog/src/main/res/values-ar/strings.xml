@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">المزامنة مطلوبة</string>
   <string name="vod_unavailable_subtitle">يعرض هذا المزوّد كتالوجات منفصلة للأفلام والمسلسلات.</string>
   <string name="vod_unavailable_title">VOD غير متاح</string>
+
+<string name="trakt_watchlist_add">إضافة إلى قائمة متابعة Trakt</string>
+<string name="trakt_watchlist_connect">اتصل بـ Trakt من الإعدادات</string>
+<string name="trakt_watchlist_failed">تعذر تحديث قائمة متابعة Trakt. حاول مرة أخرى.</string>
+<string name="trakt_watchlist_load">تحميل قائمة متابعة Trakt</string>
+<string name="trakt_watchlist_remove">إزالة من قائمة متابعة Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">الأفلام في قائمة مراقبتك Trakt</string>
+<string name="dashboard_trakt_watchlist_series">البرامج التلفزيونية في قائمة مراقبتك Trakt</string>
+<string name="trakt_rating_action">قيّم على Trakt</string>
+<string name="trakt_rating_dialog_message">اختر تقييمًا من 1 إلى 10.</string>
+<string name="trakt_rating_current">تقييمك على Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">تم حفظ تقييمك في Trakt.</string>
+<string name="trakt_rating_failed">تعذر حفظ تقييمك في Trakt.</string>
+<string name="trakt_favorite_sync_failed">حفظ StreamVault التغيير، لكن تعذر تحديث مفضلات Trakt. حاول مرة أخرى.</string>
 </resources>

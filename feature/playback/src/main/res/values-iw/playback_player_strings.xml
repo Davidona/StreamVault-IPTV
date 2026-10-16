@@ -297,4 +297,14 @@
     <string name="player_diagnostics_quality_height_summary">רזולוציה: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">קצב סיביות: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">יעד ההקלטה לא הצליח לעמוד בקצב השידור החי.</string>
+
+<string name="player_trakt_connect_required">התחברו ל‑Trakt דרך ההגדרות</string>
+<string name="player_trakt_not_supported">Trakt עוקב רק אחר סרטים ופרקים.</string>
+<string name="player_trakt_no_match">לא נמצאה התאמה מדויקת של הכותר ב‑Trakt.</string>
+<string name="player_trakt_starting">מתחיל מעקב דרך Trakt…</string>
+<string name="player_trakt_tracking">Trakt עוקב אחר ההפעלה</string>
+<string name="player_trakt_paused">המעקב דרך Trakt מושהה</string>
+<string name="player_trakt_failed">המעקב דרך Trakt נכשל</string>
+<string name="player_trakt_sent">נשלח אל Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

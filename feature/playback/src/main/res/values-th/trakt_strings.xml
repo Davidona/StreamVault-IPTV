@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">เชื่อมต่อ Trakt ในการตั้งค่า</string>
+    <string name="player_trakt_not_supported">Trakt ติดตามภาพยนตร์และตอนต่างๆ เท่านั้น</string>
+    <string name="player_trakt_no_match">ไม่มีการจับคู่ Trakt ที่ตรงทั้งหมดสำหรับชื่อนี้</string>
+    <string name="player_trakt_starting">กำลังเริ่มการติดตาม Trakt…</string>
+    <string name="player_trakt_tracking">ติดตามด้วย Trakt</string>
+    <string name="player_trakt_paused">การติดตาม Trakt หยุดชั่วคราว</string>
+    <string name="player_trakt_failed">การติดตาม Trakt ล้มเหลว</string>
+    <string name="player_trakt_sent">ส่งไปที่ Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
+</resources>

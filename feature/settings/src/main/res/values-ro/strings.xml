@@ -868,4 +868,6 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Extensii Stremio</string>
     <string name="nav_extensions">Extensii</string>
+    <string name="dashboard_trakt_watchlist_movies">Filme din lista dvs. de urmărire Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">Emisiuni TV din lista dvs. de urmărire Trakt</string>
 </resources>

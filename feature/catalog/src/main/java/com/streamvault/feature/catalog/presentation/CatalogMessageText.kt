@@ -14,4 +14,8 @@ internal fun Context.catalogMessageText(message: CatalogMessage): String = when 
     CatalogMessage.DownloadStarted -> getString(R.string.download_started)
     CatalogMessage.DownloadFailed -> getString(R.string.download_failed, "")
     CatalogMessage.DownloadUrlUnavailable -> getString(R.string.download_error_no_url)
+    CatalogMessage.TraktWatchlistFailed -> getString(R.string.trakt_watchlist_failed)
+    CatalogMessage.TraktFavoriteSyncFailed -> getString(R.string.trakt_favorite_sync_failed)
+    CatalogMessage.TraktRatingSaved -> getString(R.string.trakt_rating_saved)
+    CatalogMessage.TraktRatingFailed -> getString(R.string.trakt_rating_failed)
 }

@@ -868,4 +868,6 @@
     <string name="settings_theme_vintage">וינטג׳</string>
     <string name="nav_addons">תוספי Stremio</string>
     <string name="nav_extensions">הרחבות</string>
+    <string name="dashboard_trakt_watchlist_movies">סרטים ברשימת המעקב שלך Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">תוכניות טלוויזיה ברשימת המעקב שלך Trakt</string>
 </resources>

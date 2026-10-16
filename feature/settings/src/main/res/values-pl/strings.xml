@@ -871,4 +871,6 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Dodatki Stremio</string>
     <string name="nav_extensions">Rozszerzenia</string>
+    <string name="dashboard_trakt_watchlist_movies">Filmy na Twojej liście obserwowanych Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">Programy telewizyjne na Twojej liście obserwowanych Trakt</string>
 </resources>

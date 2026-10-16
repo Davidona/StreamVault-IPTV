@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Ανάλυση: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Ρυθμός μετάδοσης: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Ο προορισμός εγγραφής δεν μπόρεσε να συμβαδίσει με τη ζωντανή αναπαραγωγή.</string>
+
+<string name="player_trakt_connect_required">Συνδέστε το Trakt στις Ρυθμίσεις</string>
+<string name="player_trakt_not_supported">Το Trakt παρακολουθεί μόνο ταινίες και επεισόδια.</string>
+<string name="player_trakt_no_match">Δεν βρέθηκε ακριβής αντιστοιχία στο Trakt για αυτόν τον τίτλο.</string>
+<string name="player_trakt_starting">Έναρξη παρακολούθησης Trakt…</string>
+<string name="player_trakt_tracking">Το Trakt παρακολουθεί την αναπαραγωγή</string>
+<string name="player_trakt_paused">Η παρακολούθηση Trakt τέθηκε σε παύση</string>
+<string name="player_trakt_failed">Αποτυχία παρακολούθησης Trakt</string>
+<string name="player_trakt_sent">Στάλθηκε στο Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

@@ -35,6 +35,7 @@ import com.streamvault.domain.provider.ProviderSourceRegistry
 import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.trakt.TraktFeaturePreferences
 import com.streamvault.app.playback.AppPlayerPlaybackResolver
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import dagger.Binds
@@ -142,6 +143,9 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindSettingsPreferences(impl: PreferencesRepository): SettingsPreferences
+
+    @Binds @Singleton
+    abstract fun bindTraktFeaturePreferences(impl: PreferencesRepository): TraktFeaturePreferences
 
     @Binds @Singleton
     abstract fun bindPlayerPreferences(impl: PreferencesRepository): PlayerPreferences

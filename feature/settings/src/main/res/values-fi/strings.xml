@@ -865,4 +865,6 @@
     <string name="settings_hide_stremio_addons_subtitle">Piilota lisäosien selaus, asennus ja historia. Asennetut lisäosat säilytetään.</string>
     <string name="nav_addons">Stremio-lisäosat</string>
     <string name="nav_extensions">Laajennukset</string>
+    <string name="dashboard_trakt_watchlist_movies">Elokuvat Trakt-katselulistallasi</string>
+    <string name="dashboard_trakt_watchlist_series">TV-ohjelmat Trakt-katselulistallasi</string>
 </resources>

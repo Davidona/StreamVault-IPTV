@@ -21,6 +21,12 @@
 # opensubtitles.api.key=your-opensubtitles-api-key
 # Rebuild the app after changing this value.
 
+# === Trakt app configuration (public client settings) =========================
+# Environment TRAKT_CLIENT_ID / TRAKT_REDIRECT_URI take precedence.
+# Register this HTTPS URI with Trakt and publish assetlinks.json on its domain.
+# trakt.client.id=your-public-streamvault-client-id
+# trakt.redirect.uri=https://your-domain.example/oauth/trakt/callback
+
 
 # === Dev onboarding seeding (optional) ========================================
 #

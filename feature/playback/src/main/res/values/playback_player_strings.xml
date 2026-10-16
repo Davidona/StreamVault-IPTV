@@ -256,6 +256,14 @@
     <string name="player_type_channel_number">Type channel number</string>
     <string name="player_type_movie">Movie</string>
     <string name="player_type_series">Series</string>
+
+
+
+
+
+
+
+
     <string name="player_unmute">Unmute</string>
     <string name="player_up_next">Up Next</string>
     <string name="player_variants_short">Variants</string>

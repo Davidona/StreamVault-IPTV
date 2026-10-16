@@ -81,6 +81,7 @@ class FavoritesViewModelTest {
             providerRepository = providerRepository,
             preferencesRepository = preferencesRepository,
             getContinueWatching = getContinueWatching,
+            traktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
         )
     }
 
@@ -145,6 +146,7 @@ class FavoritesViewModelTest {
             providerRepository = providerRepository,
             preferencesRepository = preferencesRepository,
             getContinueWatching = getContinueWatching,
+            traktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
         )
         advanceUntilIdle()
 
@@ -209,6 +211,7 @@ class FavoritesViewModelTest {
             providerRepository = providerRepository,
             preferencesRepository = preferencesRepository,
             getContinueWatching = getContinueWatching,
+            traktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
         )
         advanceUntilIdle()
 

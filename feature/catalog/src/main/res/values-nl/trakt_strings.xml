@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Er zijn geen films op uw Trakt-kijklijst die overeenkomen met deze aanbieder of de huidige filters.</string>
+    <string name="trakt_watchlist_series_no_matches">Geen enkele serie uit uw Trakt-volglijst komt overeen met deze aanbieder of met de huidige filters.</string>
+    <string name="trakt_discovery_trending_movies">Trending op Trakt</string>
+    <string name="trakt_discovery_popular_movies">Populair op Trakt</string>
+    <string name="trakt_discovery_trending_series">Trending op Trakt</string>
+    <string name="trakt_discovery_popular_series">Populair op Trakt</string>
+    <string name="trakt_discovery_movies_no_matches">Er zijn geen trending of populaire Trakt-films die overeenkomen met deze aanbieder of de huidige filters.</string>
+    <string name="trakt_discovery_series_no_matches">Geen enkele trending of populaire Trakt-show komt overeen met deze aanbieder of de huidige filters.</string>
+    <string name="trakt_discovery_load_failed">Kan Trakt-detectietitels niet laden. Probeer het opnieuw.</string>
+    <string name="trakt_custom_lists_action">Trakt-lijsten</string>
+    <string name="trakt_custom_lists_title">Uw Trakt vermeldt</string>
+    <string name="trakt_custom_lists_for_item">Beheer %1$s in een lijst</string>
+    <string name="trakt_custom_lists_loading">Lijstinformatie laden...</string>
+    <string name="trakt_custom_lists_connect_first">Verbind Trakt in Instellingen om uw lijsten te gebruiken.</string>
+    <string name="trakt_custom_lists_empty">U heeft nog geen aangepaste Trakt-lijsten.</string>
+    <string name="trakt_custom_lists_failed">Kan deze Trakt-lijst niet laden of bijwerken. Probeer het opnieuw.</string>
+    <string name="trakt_custom_lists_incognito">Trakt-lijsten zijn niet beschikbaar als de incognitomodus is ingeschakeld.</string>
+    <string name="trakt_custom_lists_too_large">Deze lijst is te groot om volledig in StreamVault te laden.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d-artikelen</string>
+    <string name="trakt_custom_list_contains_item">%1$s staat in deze lijst.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s staat niet in deze lijst.</string>
+    <string name="trakt_custom_list_add_item">Toevoegen aan lijst</string>
+    <string name="trakt_custom_lists_create_new">Nieuwe lijst maken</string>
+    <string name="trakt_custom_lists_name">Lijstnaam</string>
+    <string name="trakt_custom_lists_optional_description">Beschrijving (optioneel)</string>
+    <string name="trakt_custom_lists_private_note">Nieuwe lijsten zijn privé op Trakt.</string>
+    <string name="trakt_custom_lists_create">Privélijst maken</string>
+    <string name="trakt_custom_list_remove_item">Verwijder</string>
+    <string name="trakt_custom_list_items_truncated">Toont de eerste 200 items.</string>
+    <string name="trakt_custom_lists_back">Terug naar lijsten</string>
+    <string name="trakt_custom_lists_choose_item">Kies wat u wilt toevoegen of verwijderen</string>
+    <string name="trakt_custom_lists_movies">Film</string>
+    <string name="trakt_custom_lists_series">Serie</string>
+    <string name="trakt_custom_lists_seasons_count">Seizoenen (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Afleveringen (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Titel wijzigen</string>
+</resources>

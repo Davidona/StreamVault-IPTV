@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">동기화 필요</string>
   <string name="vod_unavailable_subtitle">이 제공업체는 영화와 시리즈 카탈로그를 별도로 제공합니다.</string>
   <string name="vod_unavailable_title">VOD를 사용할 수 없습니다</string>
+
+<string name="trakt_watchlist_add">Trakt 관심 목록에 추가</string>
+<string name="trakt_watchlist_connect">설정에서 Trakt 연결</string>
+<string name="trakt_watchlist_failed">Trakt 관심 목록을 업데이트할 수 없습니다. 다시 시도하세요.</string>
+<string name="trakt_watchlist_load">Trakt 관심 목록 불러오기</string>
+<string name="trakt_watchlist_remove">Trakt 관심 목록에서 삭제</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt 관심 목록에 있는 영화</string>
+<string name="dashboard_trakt_watchlist_series">Trakt 관심 목록의 TV 프로그램</string>
+<string name="trakt_rating_action">Trakt에서 평가</string>
+<string name="trakt_rating_dialog_message">1에서 10까지 평가를 선택하세요.</string>
+<string name="trakt_rating_current">내 Trakt 평점: %1$d/10</string>
+<string name="trakt_rating_saved">Trakt에 평점을 저장했습니다.</string>
+<string name="trakt_rating_failed">Trakt에 평점을 저장하지 못했습니다.</string>
+<string name="trakt_favorite_sync_failed">StreamVault에서 변경 사항을 저장했지만 Trakt 즐겨찾기를 업데이트하지 못했습니다. 다시 시도하세요.</string>
 </resources>

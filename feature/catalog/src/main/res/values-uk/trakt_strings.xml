@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Жоден фільм із вашого списку перегляду Trakt не відповідає цьому провайдеру чи поточним фільтрам.</string>
+    <string name="trakt_watchlist_series_no_matches">Жодна серія з вашого списку перегляду Trakt не відповідає цьому постачальнику або поточним фільтрам.</string>
+    <string name="trakt_discovery_trending_movies">Популярні на Trakt</string>
+    <string name="trakt_discovery_popular_movies">Популярно на Trakt</string>
+    <string name="trakt_discovery_trending_series">Популярні на Trakt</string>
+    <string name="trakt_discovery_popular_series">Популярно на Trakt</string>
+    <string name="trakt_discovery_movies_no_matches">Немає популярних або популярних фільмів Trakt, які відповідають цьому постачальнику або поточним фільтрам.</string>
+    <string name="trakt_discovery_series_no_matches">Жодне трендове чи популярне шоу Trakt не відповідає цьому постачальнику чи поточним фільтрам.</string>
+    <string name="trakt_discovery_load_failed">Не вдалося завантажити заголовки відкриття Trakt. Спробуйте знову.</string>
+    <string name="trakt_custom_lists_action">Trakt Списки</string>
+    <string name="trakt_custom_lists_title">Ваші списки Trakt</string>
+    <string name="trakt_custom_lists_for_item">Керуйте %1$s у списку</string>
+    <string name="trakt_custom_lists_loading">Завантаження інформації про список…</string>
+    <string name="trakt_custom_lists_connect_first">Підключіть Trakt у налаштуваннях, щоб використовувати ваші списки.</string>
+    <string name="trakt_custom_lists_empty">У вас ще немає спеціальних списків Trakt.</string>
+    <string name="trakt_custom_lists_failed">Не вдалося завантажити або оновити цей список Trakt. Спробуйте знову.</string>
+    <string name="trakt_custom_lists_incognito">Списки Trakt недоступні, коли ввімкнено режим анонімного перегляду.</string>
+    <string name="trakt_custom_lists_too_large">Цей список завеликий для повного завантаження в StreamVault.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d елементи</string>
+    <string name="trakt_custom_list_contains_item">%1$s є в цьому списку.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s немає в цьому списку.</string>
+    <string name="trakt_custom_list_add_item">Додати до списку</string>
+    <string name="trakt_custom_lists_create_new">Створити новий список</string>
+    <string name="trakt_custom_lists_name">Назва списку</string>
+    <string name="trakt_custom_lists_optional_description">Опис (необов\'язково)</string>
+    <string name="trakt_custom_lists_private_note">Нові списки приватні на Trakt.</string>
+    <string name="trakt_custom_lists_create">Створити приватний список</string>
+    <string name="trakt_custom_list_remove_item">Видалити</string>
+    <string name="trakt_custom_list_items_truncated">Показано перші 200 елементів.</string>
+    <string name="trakt_custom_lists_back">Назад до списків</string>
+    <string name="trakt_custom_lists_choose_item">Виберіть, що додати або видалити</string>
+    <string name="trakt_custom_lists_movies">Фільм</string>
+    <string name="trakt_custom_lists_series">Серія</string>
+    <string name="trakt_custom_lists_seasons_count">Пори року (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Епізоди (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Змінити назву</string>
+</resources>

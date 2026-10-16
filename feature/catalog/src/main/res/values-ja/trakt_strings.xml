@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Trakt ウォッチリストには、このプロバイダーまたは現在のフィルターに一致する映画はありません。</string>
+    <string name="trakt_watchlist_series_no_matches">Trakt ウォッチリストには、このプロバイダーまたは現在のフィルターに一致するシリーズはありません。</string>
+    <string name="trakt_discovery_trending_movies">Trakt でトレンド</string>
+    <string name="trakt_discovery_popular_movies">Trakt で人気の</string>
+    <string name="trakt_discovery_trending_series">Trakt でトレンド</string>
+    <string name="trakt_discovery_popular_series">Trakt で人気の</string>
+    <string name="trakt_discovery_movies_no_matches">このプロバイダーまたは現在のフィルターに一致するトレンドまたは人気の Trakt 映画はありません。</string>
+    <string name="trakt_discovery_series_no_matches">このプロバイダーまたは現在のフィルターに一致するトレンドまたは人気の Trakt 番組はありません。</string>
+    <string name="trakt_discovery_load_failed">Trakt ディスカバリー タイトルをロードできませんでした。もう一度やり直してください。</string>
+    <string name="trakt_custom_lists_action">Trakt リスト</string>
+    <string name="trakt_custom_lists_title">Trakt リスト</string>
+    <string name="trakt_custom_lists_for_item">%1$s をリストで管理</string>
+    <string name="trakt_custom_lists_loading">リスト情報を読み込み中…</string>
+    <string name="trakt_custom_lists_connect_first">リストを使用するには、設定で Trakt を接続します。</string>
+    <string name="trakt_custom_lists_empty">カスタム Trakt リストはまだありません。</string>
+    <string name="trakt_custom_lists_failed">この Trakt リストをロードまたは更新できませんでした。もう一度やり直してください。</string>
+    <string name="trakt_custom_lists_incognito">Trakt リストは、シークレット モードがオンになっている間は使用できません。</string>
+    <string name="trakt_custom_lists_too_large">このリストは大きすぎて StreamVault に完全にロードできません。</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d アイテム</string>
+    <string name="trakt_custom_list_contains_item">%1$s がこのリストに含まれています。</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s はこのリストにありません。</string>
+    <string name="trakt_custom_list_add_item">リストに追加</string>
+    <string name="trakt_custom_lists_create_new">新しいリストを作成する</string>
+    <string name="trakt_custom_lists_name">リスト名</string>
+    <string name="trakt_custom_lists_optional_description">説明 (オプション)</string>
+    <string name="trakt_custom_lists_private_note">新しいリストは Trakt で非公開です。</string>
+    <string name="trakt_custom_lists_create">プライベートリストを作成する</string>
+    <string name="trakt_custom_list_remove_item">削除</string>
+    <string name="trakt_custom_list_items_truncated">最初の 200 件を表示しています。</string>
+    <string name="trakt_custom_lists_back">リストに戻る</string>
+    <string name="trakt_custom_lists_choose_item">追加または削除するものを選択してください</string>
+    <string name="trakt_custom_lists_movies">映画</string>
+    <string name="trakt_custom_lists_series">シリーズ</string>
+    <string name="trakt_custom_lists_seasons_count">シーズン (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">エピソード (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">タイトルの変更</string>
+</resources>

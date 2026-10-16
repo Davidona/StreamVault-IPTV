@@ -666,6 +666,22 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setShowTraktTrendingMovies(enabled: Boolean) {
+        viewModelScope.launch { preferencesRepository.setShowTraktTrendingMovies(enabled) }
+    }
+
+    fun setShowTraktPopularMovies(enabled: Boolean) {
+        viewModelScope.launch { preferencesRepository.setShowTraktPopularMovies(enabled) }
+    }
+
+    fun setShowTraktTrendingSeries(enabled: Boolean) {
+        viewModelScope.launch { preferencesRepository.setShowTraktTrendingSeries(enabled) }
+    }
+
+    fun setShowTraktPopularSeries(enabled: Boolean) {
+        viewModelScope.launch { preferencesRepository.setShowTraktPopularSeries(enabled) }
+    }
+
     fun setVodTypeBadgeAsIcon(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setVodTypeBadgeAsIcon(enabled)

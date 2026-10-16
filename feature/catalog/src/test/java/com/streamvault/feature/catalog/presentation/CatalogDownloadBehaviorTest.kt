@@ -163,7 +163,10 @@ class CatalogDownloadBehaviorTest {
             },
             downloadManager = downloadManager,
             downloadStarter = starter,
-            castPort = EmptyCatalogCastPort()
+            castPort = EmptyCatalogCastPort(),
+            traktWatchlist = NoopTraktWatchlist(),
+            traktFavorites = NoopTraktFavorites(),
+            traktRatings = NoopTraktRatings(),
         )
     }
 

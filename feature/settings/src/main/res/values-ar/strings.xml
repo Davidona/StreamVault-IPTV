@@ -877,4 +877,6 @@
     <string name="settings_theme_vintage">فينتاج</string>
     <string name="nav_addons">إضافات Stremio</string>
     <string name="nav_extensions">التمديدات</string>
+    <string name="dashboard_trakt_watchlist_movies">الأفلام في قائمة مراقبتك Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">البرامج التلفزيونية في قائمة مراقبتك Trakt</string>
 </resources>

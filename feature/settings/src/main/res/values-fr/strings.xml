@@ -865,4 +865,6 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Extensions Stremio</string>
     <string name="nav_extensions">Extensions</string>
+    <string name="dashboard_trakt_watchlist_movies">Films dans votre liste de surveillance Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">Émissions TV dans votre liste de surveillance Trakt</string>
 </resources>

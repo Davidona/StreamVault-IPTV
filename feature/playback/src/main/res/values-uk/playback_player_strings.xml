@@ -298,4 +298,14 @@
     <string name="player_diagnostics_quality_height_summary">Роздільна здатність: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Бітрейт: %1$s Мбіт/с</string>
     <string name="player_recording_failure_output_too_slow">Місце збереження запису не встигало за прямим ефіром.</string>
+
+<string name="player_trakt_connect_required">Підключіть Trakt у налаштуваннях</string>
+<string name="player_trakt_not_supported">Trakt відстежує лише фільми та епізоди.</string>
+<string name="player_trakt_no_match">Для цієї назви не знайдено точного збігу в Trakt.</string>
+<string name="player_trakt_starting">Початок відстеження Trakt…</string>
+<string name="player_trakt_tracking">Trakt відстежує відтворення</string>
+<string name="player_trakt_paused">Відстеження Trakt призупинено</string>
+<string name="player_trakt_failed">Не вдалося відстежити у Trakt</string>
+<string name="player_trakt_sent">Надіслано до Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

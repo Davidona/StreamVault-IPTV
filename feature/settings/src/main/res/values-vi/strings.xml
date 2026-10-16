@@ -862,4 +862,6 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Tiện ích Stremio</string>
     <string name="nav_extensions">Tiện ích mở rộng</string>
+    <string name="dashboard_trakt_watchlist_movies">Phim trong danh sách theo dõi Trakt của bạn</string>
+    <string name="dashboard_trakt_watchlist_series">Chương trình truyền hình trong danh sách theo dõi Trakt của bạn</string>
 </resources>

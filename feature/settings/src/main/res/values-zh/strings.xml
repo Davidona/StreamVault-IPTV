@@ -861,4 +861,6 @@
     <string name="settings_theme_vintage">复古</string>
     <string name="nav_addons">Stremio 扩展</string>
     <string name="nav_extensions">扩展功能</string>
+    <string name="dashboard_trakt_watchlist_movies">Trakt 观看列表中的电影</string>
+    <string name="dashboard_trakt_watchlist_series">Trakt 观看列表中的电视节目</string>
 </resources>

@@ -863,4 +863,6 @@
     <string name="settings_theme_vintage">ヴィンテージ</string>
     <string name="nav_addons">Stremioアドオン</string>
     <string name="nav_extensions">拡張機能</string>
+    <string name="dashboard_trakt_watchlist_movies">Trakt ウォッチリスト内の映画</string>
+    <string name="dashboard_trakt_watchlist_series">Trakt ウォッチリストのテレビ番組</string>
 </resources>

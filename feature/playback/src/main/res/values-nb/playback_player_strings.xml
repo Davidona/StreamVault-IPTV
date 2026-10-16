@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Oppløsning: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Opptaksmålet klarte ikke å holde tritt med direkteavspillingen.</string>
+
+<string name="player_trakt_connect_required">Koble til Trakt i Innstillinger</string>
+<string name="player_trakt_not_supported">Trakt sporer bare filmer og episoder.</string>
+<string name="player_trakt_no_match">Fant ingen nøyaktig Trakt-treff for denne tittelen.</string>
+<string name="player_trakt_starting">Starter Trakt-sporing…</string>
+<string name="player_trakt_tracking">Trakt sporer avspillingen</string>
+<string name="player_trakt_paused">Trakt-sporing er satt på pause</string>
+<string name="player_trakt_failed">Trakt-sporing mislyktes</string>
+<string name="player_trakt_sent">Sendt til Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

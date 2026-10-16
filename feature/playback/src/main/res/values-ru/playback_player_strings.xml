@@ -298,4 +298,14 @@
     <string name="player_diagnostics_quality_height_summary">Разрешение: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Битрейт: %1$s Мбит/с</string>
     <string name="player_recording_failure_output_too_slow">Место сохранения записи не успевало за прямой трансляцией.</string>
+
+<string name="player_trakt_connect_required">Подключите Trakt в настройках</string>
+<string name="player_trakt_not_supported">Trakt отслеживает только фильмы и эпизоды.</string>
+<string name="player_trakt_no_match">Для этого названия не найдено точное совпадение в Trakt.</string>
+<string name="player_trakt_starting">Запуск отслеживания Trakt…</string>
+<string name="player_trakt_tracking">Trakt отслеживает воспроизведение</string>
+<string name="player_trakt_paused">Отслеживание Trakt приостановлено</string>
+<string name="player_trakt_failed">Не удалось выполнить отслеживание Trakt</string>
+<string name="player_trakt_sent">Отправлено в Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

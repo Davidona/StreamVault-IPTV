@@ -21,6 +21,11 @@ import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SeriesRepository
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteFailure
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
 import com.streamvault.domain.usecase.ContinueWatchingResult
 import com.streamvault.domain.usecase.ContinueWatchingScope
 import com.streamvault.domain.usecase.GetContinueWatching
@@ -137,7 +142,8 @@ class FavoritesViewModel @Inject constructor(
     private val playbackHistoryRepository: PlaybackHistoryRepository,
     private val providerRepository: ProviderRepository,
     private val preferencesRepository: PreferencesRepository,
-    private val getContinueWatching: GetContinueWatching
+    private val getContinueWatching: GetContinueWatching,
+    private val traktFavorites: TraktFavorites,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FavoritesUiState())
@@ -425,13 +431,36 @@ class FavoritesViewModel @Inject constructor(
                 contentType = item.favorite.contentType,
                 groupId = item.favorite.groupId
             )
+            val traktSyncFailed = item.favorite.groupId == null && syncTraktFavoriteRemoval(item)
             _uiState.update {
                 it.copy(
                     itemDialogItem = null,
                     itemMoveTargets = emptyList(),
-                    userMessage = "Removed ${item.title} from this saved view."
+                    userMessage = if (traktSyncFailed) {
+                        appContext.getString(R.string.trakt_favorite_sync_failed)
+                    } else {
+                        "Removed ${item.title} from this saved view."
+                    }
                 )
             }
+        }
+    }
+
+    private suspend fun syncTraktFavoriteRemoval(item: FavoriteUiModel): Boolean {
+        val identity = when (item.favorite.contentType) {
+            ContentType.MOVIE -> movieRepository.getMovie(item.favorite.contentId)?.tmdbId
+                ?.takeIf { it > 0L }?.let { TraktFavoriteIdentity(TraktFavoriteType.MOVIE, it) }
+            ContentType.SERIES -> seriesRepository.getSeriesById(item.favorite.contentId)?.tmdbId
+                ?.takeIf { it > 0L }?.let { TraktFavoriteIdentity(TraktFavoriteType.SHOW, it) }
+            else -> null
+        } ?: return false
+
+        return when (val result = traktFavorites.setFavorited(identity, favorited = false)) {
+            TraktFavoriteActionResult.Success -> false
+            is TraktFavoriteActionResult.Failure -> result.reason !in setOf(
+                TraktFavoriteFailure.DISCONNECTED,
+                TraktFavoriteFailure.INCOGNITO,
+            )
         }
     }
 

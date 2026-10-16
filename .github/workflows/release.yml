@@ -9,6 +9,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+      TRAKT_REDIRECT_URI: ${{ vars.TRAKT_REDIRECT_URI }}
     outputs:
       version_name: ${{ steps.app_version.outputs.version_name }}
       version_code: ${{ steps.app_version.outputs.version_code }}

@@ -351,4 +351,18 @@
   <string name="vod_sync_needed_title">Wymagana synchronizacja</string>
   <string name="vod_unavailable_subtitle">Ten dostawca udostępnia osobne katalogi filmów i seriali.</string>
   <string name="vod_unavailable_title">VOD jest niedostępne</string>
+
+<string name="trakt_watchlist_add">Dodaj do listy do obejrzenia Trakt</string>
+<string name="trakt_watchlist_connect">Połącz Trakt w Ustawieniach</string>
+<string name="trakt_watchlist_failed">Nie udało się zaktualizować listy Trakt. Spróbuj ponownie.</string>
+<string name="trakt_watchlist_load">Wczytaj listę Trakt</string>
+<string name="trakt_watchlist_remove">Usuń z listy Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filmy na Twojej liście obserwowanych Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Programy telewizyjne na Twojej liście obserwowanych Trakt</string>
+<string name="trakt_rating_action">Oceń w Trakt</string>
+<string name="trakt_rating_dialog_message">Wybierz ocenę od 1 do 10.</string>
+<string name="trakt_rating_current">Twoja ocena w Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Twoja ocena została zapisana w Trakt.</string>
+<string name="trakt_rating_failed">Nie udało się zapisać oceny w Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
 </resources>

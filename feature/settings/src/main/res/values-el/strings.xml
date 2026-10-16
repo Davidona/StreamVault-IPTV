@@ -865,4 +865,6 @@
     <string name="settings_theme_rose">Τριαντάφυλλο</string>
     <string name="settings_theme_amoled_black">Μαύρο AMOLED</string>
     <string name="settings_theme_vintage">Βίνταζ</string>
+    <string name="dashboard_trakt_watchlist_movies">Ταινίες στη λίστα παρακολούθησης Trakt</string>
+    <string name="dashboard_trakt_watchlist_series">Τηλεοπτικές εκπομπές στη λίστα παρακολούθησης Trakt</string>
 </resources>

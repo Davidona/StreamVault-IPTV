@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.net.URI
 import java.io.FileInputStream
 import java.security.KeyStore
 import java.security.MessageDigest
@@ -41,6 +42,12 @@ val xtreamSyncBenchmark = providers.gradleProperty("xtreamSyncBenchmark").orNull
 fun localProp(key: String): String =
     if (xtreamSyncBenchmark) "" else localProperties.getProperty(key, "")
 
+// Public app configuration; OAuth user credentials are never build inputs.
+val traktClientId = providers.environmentVariable("TRAKT_CLIENT_ID").orNull ?: localProp("trakt.client.id")
+val traktRedirectUri = providers.environmentVariable("TRAKT_REDIRECT_URI").orNull ?: localProp("trakt.redirect.uri")
+val traktCallback = runCatching { URI(traktRedirectUri) }.getOrNull()
+fun buildStringLiteral(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 fun computeOfficialSigningCertSha256(): String {
     if (!keystorePropertiesFile.exists()) return ""
 
@@ -74,6 +81,10 @@ android {
         versionCode = 21
         versionName = "1.0.19"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "TRAKT_CLIENT_ID", buildStringLiteral(traktClientId))
+        buildConfigField("String", "TRAKT_REDIRECT_URI", buildStringLiteral(traktRedirectUri))
+        manifestPlaceholders["traktCallbackHost"] = traktCallback?.host ?: "trakt-unconfigured.invalid"
+        manifestPlaceholders["traktCallbackPath"] = traktCallback?.rawPath?.takeIf(String::isNotBlank) ?: "/oauth/trakt/callback"
         providers.gradleProperty("compatApi").orNull?.let { expectedApi ->
             testInstrumentationRunnerArguments["expected_api"] = expectedApi
         }
@@ -550,6 +561,7 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.robolectric)
+    testImplementation(libs.okhttp.mockwebserver)
 
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

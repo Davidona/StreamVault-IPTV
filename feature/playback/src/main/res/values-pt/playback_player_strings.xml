@@ -296,4 +296,14 @@
     <string name="player_diagnostics_quality_height_summary">Resolução: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Taxa de bits: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">O destino da gravação não conseguiu acompanhar a reprodução ao vivo.</string>
+
+<string name="player_trakt_connect_required">Conecte o Trakt nas Configurações</string>
+<string name="player_trakt_not_supported">O Trakt acompanha apenas filmes e episódios.</string>
+<string name="player_trakt_no_match">Não há correspondência exata no Trakt para este título.</string>
+<string name="player_trakt_starting">Iniciando o acompanhamento do Trakt…</string>
+<string name="player_trakt_tracking">O Trakt está acompanhando a reprodução</string>
+<string name="player_trakt_paused">Acompanhamento do Trakt pausado</string>
+<string name="player_trakt_failed">Falha no acompanhamento do Trakt</string>
+<string name="player_trakt_sent">Enviado ao Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>
