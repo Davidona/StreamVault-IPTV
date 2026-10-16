@@ -8,13 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.*
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.theme.*
+import com.streamvault.feature.settings.R
 import com.streamvault.domain.model.RecordingFailureCategory
+import com.streamvault.domain.model.RecordingFailureReasonCodes
 import com.streamvault.domain.model.RecordingSourceType
 
 @Composable
@@ -38,6 +41,16 @@ public fun summarizeRecordingOutputPath(path: String): String {
         .substringAfterLast('/')
         .substringAfterLast('\\')
         .ifBlank { decoded }
+}
+
+@Composable
+internal fun localizedRecordingFailureReason(reason: String?): String? {
+    val value = reason?.takeIf { it.isNotBlank() } ?: return null
+    return when (value) {
+        RecordingFailureReasonCodes.LIVE_CAPTURE_OUTPUT_TOO_SLOW ->
+            stringResource(R.string.settings_recording_failure_output_too_slow)
+        else -> value
+    }
 }
 
 @Composable

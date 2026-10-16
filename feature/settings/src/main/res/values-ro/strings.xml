@@ -857,4 +857,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Rată maximă de biți video prin Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Rată maximă de biți video prin Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Fără limită suplimentară</string>
+    <string name="settings_recording_failure_output_too_slow">Destinația înregistrării nu a putut ține pasul cu redarea în direct.</string>
 </resources>

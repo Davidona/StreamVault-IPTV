@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">यह वीडियो गुणवत्ता आपकी प्लेबैक सीमाओं के अनुरूप नहीं है।</string>
     <string name="player_diagnostics_quality_height_summary">रिज़ॉल्यूशन: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">बिटरेट: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">रिकॉर्डिंग गंतव्य लाइव प्लेबैक की गति के साथ नहीं चल सका।</string>
 </resources>

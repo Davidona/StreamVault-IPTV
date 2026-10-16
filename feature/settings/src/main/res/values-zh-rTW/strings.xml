@@ -851,4 +851,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Wi-Fi 最高影片位元率</string>
     <string name="settings_ethernet_quality_bitrate_cap">乙太網路最高影片位元率</string>
     <string name="settings_quality_cap_no_additional_limit">無額外限制</string>
+    <string name="settings_recording_failure_output_too_slow">錄影目的地無法跟上直播播放。</string>
 </resources>

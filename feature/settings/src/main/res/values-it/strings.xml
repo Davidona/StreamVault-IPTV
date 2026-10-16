@@ -850,4 +850,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Bitrate video massimo su Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Bitrate video massimo su Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Nessun limite aggiuntivo</string>
+    <string name="settings_recording_failure_output_too_slow">La destinazione della registrazione non è riuscita a tenere il passo con la riproduzione in diretta.</string>
 </resources>

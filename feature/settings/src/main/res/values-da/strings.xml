@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Maksimal videobithastighed via Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Maksimal videobithastighed via Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Ingen yderligere begrænsning</string>
+    <string name="settings_recording_failure_output_too_slow">Optagelsesdestinationen kunne ikke følge med liveafspilningen.</string>
 </resources>

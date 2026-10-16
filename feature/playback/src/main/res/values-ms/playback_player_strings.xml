@@ -294,4 +294,5 @@
     <string name="player_video_quality_selection_blocked">Kualiti video ini tidak memenuhi had main balik anda.</string>
     <string name="player_diagnostics_quality_height_summary">Resolusi: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Kadar bit: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Destinasi rakaman tidak dapat mengikuti main balik langsung.</string>
 </resources>

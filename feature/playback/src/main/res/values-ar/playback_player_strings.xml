@@ -299,4 +299,5 @@
     <string name="player_video_quality_selection_blocked">جودة الفيديو هذه لا تتوافق مع حدود التشغيل.</string>
     <string name="player_diagnostics_quality_height_summary">الدقة: %1$d بكسل</string>
     <string name="player_diagnostics_quality_bitrate_summary">معدل البت: %1$s ميغابت/ث</string>
+    <string name="player_recording_failure_output_too_slow">لم يتمكن موقع حفظ التسجيل من مواكبة البث المباشر.</string>
 </resources>

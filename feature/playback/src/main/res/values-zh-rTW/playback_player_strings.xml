@@ -294,4 +294,5 @@
     <string name="player_video_quality_selection_blocked">此影片畫質不符合您的播放限制。</string>
     <string name="player_diagnostics_quality_height_summary">解析度：%1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">位元率：%1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">錄影目的地無法跟上直播播放。</string>
 </resources>

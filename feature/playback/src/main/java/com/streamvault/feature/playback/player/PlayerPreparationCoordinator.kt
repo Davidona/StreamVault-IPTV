@@ -83,7 +83,8 @@ class PlayerPreparationCoordinator @Inject constructor(
 
             DomainResult.Loading -> Unit
             is DomainResult.Success -> preparedStreamInfo = pluginPrepareResult.data.copy(
-                playbackContentKind = request.streamInfo.playbackContentKind
+                playbackContentKind = request.streamInfo.playbackContentKind,
+                livePlaybackIdentity = request.streamInfo.livePlaybackIdentity
             )
         }
 
@@ -138,7 +139,8 @@ class PlayerPreparationCoordinator @Inject constructor(
             is DomainResult.Error -> return null
             DomainResult.Loading -> streamInfo
             is DomainResult.Success -> result.data.copy(
-                playbackContentKind = streamInfo.playbackContentKind
+                playbackContentKind = streamInfo.playbackContentKind,
+                livePlaybackIdentity = streamInfo.livePlaybackIdentity
             )
         }
         val preparedExpiry = prepared.expirationTime

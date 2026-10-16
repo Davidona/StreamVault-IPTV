@@ -419,7 +419,7 @@ private fun RecordingDetailPanel(
                 )
             }
 
-            item.failureReason?.takeIf { reason -> reason.isNotBlank() }?.let { reason ->
+            localizedRecordingFailureReason(item.failureReason)?.let { reason ->
                 Text(
                     text = reason,
                     style = MaterialTheme.typography.bodySmall,

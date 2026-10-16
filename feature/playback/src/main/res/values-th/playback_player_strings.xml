@@ -294,4 +294,5 @@
     <string name="player_video_quality_selection_blocked">คุณภาพวิดีโอนี้ไม่อยู่ในขีดจำกัดการเล่นของคุณ</string>
     <string name="player_diagnostics_quality_height_summary">ความละเอียด: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">บิตเรต: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
 </resources>

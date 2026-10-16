@@ -851,4 +851,5 @@
     <string name="settings_wifi_quality_bitrate_cap">บิตเรตวิดีโอสูงสุดผ่าน Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">บิตเรตวิดีโอสูงสุดผ่าน Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">ไม่มีขีดจำกัดเพิ่มเติม</string>
+    <string name="settings_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
 </resources>

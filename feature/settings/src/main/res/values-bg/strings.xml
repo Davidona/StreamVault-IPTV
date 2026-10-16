@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Максимален битрейт на видеото през Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Максимален битрейт на видеото през Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Няма допълнително ограничение</string>
+    <string name="settings_recording_failure_output_too_slow">Дестинацията за запис не успя да се справи с предаването на живо.</string>
 </resources>

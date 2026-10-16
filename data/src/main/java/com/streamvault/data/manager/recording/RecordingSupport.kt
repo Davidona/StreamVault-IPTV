@@ -14,6 +14,7 @@ import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageConfig
 import com.streamvault.domain.model.RecordingStorageState
+import com.streamvault.domain.util.LivePlaybackCaptureBackpressureException
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -112,6 +113,7 @@ internal fun headersFromJson(raw: String?): Map<String, String> {
 
 internal fun inferFailureCategory(error: Throwable?, fallback: RecordingFailureCategory = RecordingFailureCategory.UNKNOWN): RecordingFailureCategory {
     if (error is UnsupportedRecordingException) return error.category
+    if (error is LivePlaybackCaptureBackpressureException) return RecordingFailureCategory.STORAGE
     val rootCause = error?.cause ?: error
     when (rootCause) {
         is java.net.SocketTimeoutException,

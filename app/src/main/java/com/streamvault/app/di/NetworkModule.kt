@@ -7,6 +7,8 @@ import com.streamvault.app.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.streamvault.data.remote.NetworkTimeoutConfig
+import com.streamvault.data.manager.recording.RecordingHttpClientFactory
+import com.streamvault.data.manager.recording.RecordingNetworkProfile
 import com.streamvault.data.remote.http.DefaultUserAgentInterceptor
 import com.streamvault.data.remote.http.buildAppRequestProfile
 import com.streamvault.data.remote.http.buildAppUserAgent
@@ -21,8 +23,11 @@ import com.streamvault.player.AudioCompatibilityMemoryStore
 import com.streamvault.player.Media3PlayerEngine
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.PlaybackSupportSnapshotStore
+import com.streamvault.player.playback.applyPlaybackTransportPolicy
+import com.streamvault.player.playback.applyUnsafeTlsBypass
 import com.streamvault.player.di.AuxiliaryPlayerEngine
 import com.streamvault.player.di.MainPlayerEngine
+import com.streamvault.domain.util.LivePlaybackByteTap
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +36,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import java.net.InetSocketAddress
+import java.net.Proxy
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.util.concurrent.TimeUnit.SECONDS
@@ -94,6 +101,25 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideRecordingHttpClientFactory(okHttpClient: OkHttpClient): RecordingHttpClientFactory =
+        RecordingHttpClientFactory { profile: RecordingNetworkProfile ->
+            val transportPolicy = profile.playbackTransportPolicy
+            val builder = when {
+                transportPolicy != null ->
+                    okHttpClient.newBuilder().applyPlaybackTransportPolicy(transportPolicy)
+                profile.allowInvalidSsl -> okHttpClient.newBuilder().applyUnsafeTlsBypass()
+                else -> okHttpClient.newBuilder()
+            }
+            val proxyHost = profile.proxyHost.trim()
+            val proxyPort = profile.proxyPort
+            if (proxyHost.isNotEmpty() && proxyPort != null) {
+                builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxyHost, proxyPort)))
+            }
+            builder.build()
+        }
+
+    @Provides
+    @Singleton
     fun provideXtreamApiService(okHttpClient: OkHttpClient, xtreamJson: Json): XtreamApiService =
         OkHttpXtreamApiService(
             client = okHttpClient,
@@ -131,13 +157,15 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
         playbackCompatibilityRepository: com.streamvault.domain.repository.PlaybackCompatibilityRepository,
         audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
-        playbackSupportSnapshotStore: PlaybackSupportSnapshotStore
+        playbackSupportSnapshotStore: PlaybackSupportSnapshotStore,
+        livePlaybackByteTap: LivePlaybackByteTap
     ): PlayerEngine = Media3PlayerEngine(
         context,
         okHttpClient,
         playbackCompatibilityRepository,
         audioCompatibilityMemoryStore,
-        playbackSupportSnapshotStore
+        playbackSupportSnapshotStore,
+        livePlaybackByteTap
     )
 
     /**

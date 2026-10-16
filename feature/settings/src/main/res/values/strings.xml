@@ -860,4 +860,5 @@
         <item quantity="other">Every %d hours</item>
     </plurals>
     <string name="settings_quality_cap_no_additional_limit">No additional limit</string>
+    <string name="settings_recording_failure_output_too_slow">The recording destination could not keep up with live playback.</string>
 </resources>

@@ -23,6 +23,7 @@ import com.streamvault.data.manager.recording.RecordingForegroundService
 import com.streamvault.data.manager.recording.RecordingOutputTarget
 import com.streamvault.data.manager.recording.RecordingServiceLauncher
 import com.streamvault.data.manager.recording.RecordingSourceResolver
+import com.streamvault.data.manager.recording.RecordingNetworkProfile
 import com.streamvault.data.manager.recording.ResolvedRecordingSource
 import com.streamvault.data.manager.recording.SmbRecordingCredentials
 import com.streamvault.data.manager.recording.SmbRecordingStorage
@@ -58,7 +59,10 @@ import com.streamvault.domain.model.RecordingSourceType
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.RecordingStorageConfig
 import com.streamvault.domain.model.RecordingStorageState
+import com.streamvault.domain.model.RecordingFailureReasonCodes
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.util.LivePlaybackCaptureBackpressureException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileInputStream
@@ -740,6 +744,7 @@ class RecordingManagerImpl @Inject constructor(
                         resolvedUrl = source.url,
                         headersJson = headersToJson(source.headers),
                         userAgent = source.userAgent,
+                        networkProfileJson = source.networkProfile.toJson(),
                         expirationTime = source.expirationTime,
                         providerLabel = source.providerLabel,
                         outputUri = outputUri ?: run.outputUri,
@@ -782,6 +787,12 @@ class RecordingManagerImpl @Inject constructor(
             sourceType = run.sourceType,
             headers = headersFromJson(run.headersJson),
             userAgent = run.userAgent,
+            networkProfile = RecordingNetworkProfile.fromJson(run.networkProfileJson),
+            livePlaybackIdentity = if (run.providerId > 0L && run.channelId > 0L) {
+                LivePlaybackIdentity(run.providerId, run.channelId)
+            } else {
+                null
+            },
             expirationTime = run.expirationTime,
             providerLabel = run.providerLabel
         )
@@ -810,7 +821,13 @@ class RecordingManagerImpl @Inject constructor(
             } catch (unsupported: UnsupportedRecordingException) {
                 markRunFailed(run.id, unsupported.message ?: "Recording format is unsupported.", unsupported.category)
             } catch (error: Throwable) {
-                markRunFailed(run.id, error.message ?: "Recording failed.", inferFailureCategory(error))
+                val failureReason = if (error is LivePlaybackCaptureBackpressureException) {
+                    Log.w(TAG, "Live recording output could not keep up with playback.", error)
+                    RecordingFailureReasonCodes.LIVE_CAPTURE_OUTPUT_TOO_SLOW
+                } else {
+                    error.message ?: "Recording failed."
+                }
+                markRunFailed(run.id, failureReason, inferFailureCategory(error))
             } finally {
                 removeActiveJob(run.id, activeCapture)
                 onCaptureFinished(run.id)
@@ -1138,6 +1155,7 @@ class RecordingManagerImpl @Inject constructor(
             resolvedUrl = source.url,
             headersJson = headersToJson(source.headers),
             userAgent = source.userAgent,
+            networkProfileJson = source.networkProfile.toJson(),
             expirationTime = source.expirationTime,
             providerLabel = source.providerLabel,
             outputUri = outputUri,
@@ -1233,6 +1251,7 @@ class RecordingManagerImpl @Inject constructor(
                 resolvedUrl = null,
                 headersJson = "{}",
                 userAgent = null,
+                networkProfileJson = "{}",
                 expirationTime = null,
                 providerLabel = null,
                 outputUri = null,

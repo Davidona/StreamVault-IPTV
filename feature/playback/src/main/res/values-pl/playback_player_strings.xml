@@ -297,4 +297,5 @@
     <string name="player_video_quality_selection_blocked">Ta jakość wideo nie mieści się w limitach odtwarzania.</string>
     <string name="player_diagnostics_quality_height_summary">Rozdzielczość: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Szybkość transmisji: %1$s Mb/s</string>
+    <string name="player_recording_failure_output_too_slow">Miejsce zapisu nie nadążało za odtwarzaniem na żywo.</string>
 </resources>

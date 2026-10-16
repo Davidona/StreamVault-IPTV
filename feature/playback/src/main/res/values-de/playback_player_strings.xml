@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Diese Videoqualität passt nicht zu deinen Wiedergabelimits.</string>
     <string name="player_diagnostics_quality_height_summary">Auflösung: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbit/s</string>
+    <string name="player_recording_failure_output_too_slow">Das Aufnahmeziel konnte nicht mit der Live-Wiedergabe Schritt halten.</string>
 </resources>

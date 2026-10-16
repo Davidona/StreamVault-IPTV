@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Максимална бит-стапка на видеото преку Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Максимална бит-стапка на видеото преку Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Нема дополнително ограничување</string>
+    <string name="settings_recording_failure_output_too_slow">Локацијата за снимање не можеше да ја следи репродукцијата во живо.</string>
 </resources>

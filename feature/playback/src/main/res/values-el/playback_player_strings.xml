@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Αυτή η ποιότητα βίντεο δεν ταιριάζει στα όρια αναπαραγωγής σας.</string>
     <string name="player_diagnostics_quality_height_summary">Ανάλυση: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Ρυθμός μετάδοσης: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Ο προορισμός εγγραφής δεν μπόρεσε να συμβαδίσει με τη ζωντανή αναπαραγωγή.</string>
 </resources>

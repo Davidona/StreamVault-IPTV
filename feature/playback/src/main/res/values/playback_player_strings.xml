@@ -295,4 +295,5 @@
     <string name="player_quality_mode_auto">Automatic (adaptive)</string>
     <string name="player_quality_mode_fixed">Fixed track</string>
     <string name="player_diagnostics_quality_cast_unavailable">Cast receiver selects quality; these limits are not enforced.</string>
+    <string name="player_recording_failure_output_too_slow">The recording destination could not keep up with live playback.</string>
 </resources>

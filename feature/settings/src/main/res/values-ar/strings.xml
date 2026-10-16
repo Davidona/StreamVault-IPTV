@@ -866,4 +866,5 @@
     <string name="settings_wifi_quality_bitrate_cap">أقصى معدل بت للفيديو عبر Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">أقصى معدل بت للفيديو عبر Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">لا يوجد حد إضافي</string>
+    <string name="settings_recording_failure_output_too_slow">لم يتمكن موقع حفظ التسجيل من مواكبة البث المباشر.</string>
 </resources>

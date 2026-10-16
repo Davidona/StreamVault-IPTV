@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Това качество на видеото не отговаря на ограниченията ви за възпроизвеждане.</string>
     <string name="player_diagnostics_quality_height_summary">Разделителна способност: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Битрейт: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Дестинацията за запис не успя да се справи с предаването на живо.</string>
 </resources>

@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Chất lượng video này không phù hợp với giới hạn phát của bạn.</string>
     <string name="player_diagnostics_quality_height_summary">Độ phân giải: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Tốc độ bit: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Nơi lưu bản ghi không theo kịp phát trực tiếp.</string>
 </resources>

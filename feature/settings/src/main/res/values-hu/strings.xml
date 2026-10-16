@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Maximális videó bitráta Wi-Fi-hálózaton</string>
     <string name="settings_ethernet_quality_bitrate_cap">Maximális videó bitráta Ethernet-hálózaton</string>
     <string name="settings_quality_cap_no_additional_limit">Nincs további korlát</string>
+    <string name="settings_recording_failure_output_too_slow">A felvétel célhelye nem tudta követni az élő lejátszás tempóját.</string>
 </resources>

@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">이 화질은 재생 제한에 맞지 않습니다.</string>
     <string name="player_diagnostics_quality_height_summary">해상도: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">비트레이트: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">녹화 저장 위치가 실시간 재생 속도를 따라가지 못했습니다.</string>
 </resources>

@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Denne videokvalitet passer ikke til dine afspilningsgrænser.</string>
     <string name="player_diagnostics_quality_height_summary">Opløsning: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bithastighed: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Optagelsesdestinationen kunne ikke følge med liveafspilningen.</string>
 </resources>

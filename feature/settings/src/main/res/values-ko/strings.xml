@@ -850,4 +850,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Wi-Fi 최대 동영상 비트 전송률</string>
     <string name="settings_ethernet_quality_bitrate_cap">Ethernet 최대 동영상 비트 전송률</string>
     <string name="settings_quality_cap_no_additional_limit">추가 제한 없음</string>
+    <string name="settings_recording_failure_output_too_slow">녹화 저장 위치가 실시간 재생 속도를 따라가지 못했습니다.</string>
 </resources>

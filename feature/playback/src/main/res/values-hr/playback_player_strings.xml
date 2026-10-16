@@ -296,4 +296,5 @@
     <string name="player_video_quality_selection_blocked">Ova kvaliteta videozapisa ne odgovara vašim ograničenjima reprodukcije.</string>
     <string name="player_diagnostics_quality_height_summary">Razlučivost: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Brzina prijenosa: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Odredište snimanja nije moglo pratiti reprodukciju uživo.</string>
 </resources>

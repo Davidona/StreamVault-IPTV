@@ -1,12 +1,18 @@
 package com.streamvault.data.manager.recording
 
 import com.streamvault.data.local.dao.ProviderDao
+import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.remote.http.useCancellableResponse
 import com.streamvault.data.remote.xtream.ResolvedStreamUrl
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
+import com.streamvault.data.repository.withM3uPlaybackMetadata
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingSourceType
+import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.model.StreamType
+import com.streamvault.domain.util.effectiveHttpRequestProperties
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -20,6 +26,8 @@ data class ResolvedRecordingSource(
     val sourceType: RecordingSourceType,
     val headers: Map<String, String> = emptyMap(),
     val userAgent: String? = null,
+    val networkProfile: RecordingNetworkProfile = RecordingNetworkProfile(),
+    val livePlaybackIdentity: LivePlaybackIdentity? = null,
     val expirationTime: Long? = null,
     val providerLabel: String? = null,
     val failureCategory: RecordingFailureCategory = RecordingFailureCategory.NONE
@@ -27,9 +35,10 @@ data class ResolvedRecordingSource(
 
 @Singleton
 class RecordingSourceResolver @Inject constructor(
-    private val okHttpClient: OkHttpClient,
+    private val recordingHttpClientFactory: RecordingHttpClientFactory,
     private val providerDao: ProviderDao,
-    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver
+    private val xtreamStreamUrlResolver: XtreamStreamUrlResolver,
+    private val channelDao: ChannelDao
 ) {
 
     suspend fun resolveLiveSource(
@@ -57,18 +66,50 @@ class RecordingSourceResolver @Inject constructor(
                 else -> provider.name
             }
         }
-        val inferred = sniffSourceType(resolved)
+        val networkProfile = RecordingNetworkProfile(
+            playbackTransportPolicy = resolved.playbackTransportPolicy,
+            allowInvalidSsl = resolved.allowInvalidSsl,
+            proxyHost = resolved.proxyHost,
+            proxyPort = resolved.proxyPort
+        )
+        val channel = channelDao.getById(channelId)
+            ?.takeIf { it.providerId == providerId }
+            ?: channelDao.getByStreamId(providerId, channelId)
+        val playbackInfo = StreamInfo(
+            url = resolved.url,
+            headers = resolved.headers,
+            userAgent = resolved.userAgent,
+            playbackTransportPolicy = resolved.playbackTransportPolicy,
+            allowInvalidSsl = resolved.allowInvalidSsl,
+            proxyHost = resolved.proxyHost,
+            proxyPort = resolved.proxyPort,
+            streamType = StreamType.fromContainerExtension(resolved.containerExtension),
+            containerExtension = resolved.containerExtension,
+            expirationTime = resolved.expirationTime
+        ).withM3uPlaybackMetadata(channel?.playbackMetadataJson)
+        val recordingResolved = resolved.copy(
+            headers = playbackInfo.headers,
+            userAgent = playbackInfo.userAgent
+        )
+        val client = recordingHttpClientFactory.create(networkProfile)
+        val inferred = playbackInfo.streamType.toRecordingSourceType() ?: sniffSourceType(recordingResolved, client)
         return ResolvedRecordingSource(
             url = resolved.url,
             sourceType = inferred,
-            headers = resolved.headers,
-            userAgent = resolved.userAgent,
+            headers = playbackInfo.headers,
+            userAgent = playbackInfo.userAgent,
+            networkProfile = networkProfile,
+            livePlaybackIdentity = if (providerId > 0L && channelId > 0L) {
+                LivePlaybackIdentity(providerId, channelId)
+            } else {
+                null
+            },
             expirationTime = resolved.expirationTime,
             providerLabel = providerLabel
         )
     }
 
-    private suspend fun sniffSourceType(resolved: ResolvedStreamUrl): RecordingSourceType {
+    private suspend fun sniffSourceType(resolved: ResolvedStreamUrl, client: OkHttpClient): RecordingSourceType {
         // Prefer the container extension reported by the URL resolver (e.g. from the
         // Xtream internal token) — this avoids a network probe that many IPTV servers
         // reject with 404/416 when a Range header is present.
@@ -85,15 +126,15 @@ class RecordingSourceResolver @Inject constructor(
             url.contains(".mpd") || url.contains("ext=mpd") -> RecordingSourceType.DASH
             url.endsWith(".ts") || url.contains(".ts?") || url.contains("ext=ts") -> RecordingSourceType.TS
             url.endsWith(".m3u8") || url.contains(".m3u8?") || url.contains("ext=m3u8") -> RecordingSourceType.HLS
-            else -> probeAdaptiveType(resolved)
+            else -> probeAdaptiveType(resolved, client)
         }
     }
 
-    private suspend fun probeAdaptiveType(resolved: ResolvedStreamUrl): RecordingSourceType {
+    private suspend fun probeAdaptiveType(resolved: ResolvedStreamUrl, client: OkHttpClient): RecordingSourceType {
         // Try HEAD first — lighter and avoids Range-header rejections.
         val headResult = try {
             val headRequest = buildRequest(resolved, isHead = true)
-            okHttpClient.newCall(headRequest).useCancellableResponse { response ->
+            client.newCall(headRequest).useCancellableResponse { response ->
                 if (!response.isSuccessful) return@useCancellableResponse null
                 val contentType = response.header("Content-Type").orEmpty().lowercase(Locale.ROOT)
                 when {
@@ -114,7 +155,7 @@ class RecordingSourceResolver @Inject constructor(
         val request = buildRequest(resolved, isHead = false)
 
         val bodyPrefix = try {
-            okHttpClient.newCall(request).useCancellableResponse { response ->
+            client.newCall(request).useCancellableResponse { response ->
                 if (!response.isSuccessful) return@useCancellableResponse ""
                 val contentType = response.header("Content-Type").orEmpty().lowercase(Locale.ROOT)
                 when {
@@ -141,8 +182,7 @@ class RecordingSourceResolver @Inject constructor(
         return Request.Builder()
             .url(resolved.url)
             .apply {
-                resolved.userAgent?.takeIf { it.isNotBlank() }?.let { header("User-Agent", it) }
-                resolved.headers.forEach { (name, value) ->
+                effectiveHttpRequestProperties(resolved.headers, resolved.userAgent).forEach { (name, value) ->
                     header(name, value)
                 }
                 if (isHead) {
@@ -153,4 +193,11 @@ class RecordingSourceResolver @Inject constructor(
             }
             .build()
     }
+}
+
+private fun StreamType.toRecordingSourceType(): RecordingSourceType? = when (this) {
+    StreamType.HLS -> RecordingSourceType.HLS
+    StreamType.DASH -> RecordingSourceType.DASH
+    StreamType.MPEG_TS -> RecordingSourceType.TS
+    else -> null
 }

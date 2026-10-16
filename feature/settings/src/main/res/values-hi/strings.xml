@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Wi-Fi पर अधिकतम वीडियो बिटरेट</string>
     <string name="settings_ethernet_quality_bitrate_cap">Ethernet पर अधिकतम वीडियो बिटरेट</string>
     <string name="settings_quality_cap_no_additional_limit">कोई अतिरिक्त सीमा नहीं</string>
+    <string name="settings_recording_failure_output_too_slow">रिकॉर्डिंग गंतव्य लाइव प्लेबैक की गति के साथ नहीं चल सका।</string>
 </resources>

@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Wi-Fi için en yüksek video bit hızı</string>
     <string name="settings_ethernet_quality_bitrate_cap">Ethernet için en yüksek video bit hızı</string>
     <string name="settings_quality_cap_no_additional_limit">Ek sınır yok</string>
+    <string name="settings_recording_failure_output_too_slow">Kayıt hedefi canlı oynatmaya yetişemedi.</string>
 </resources>

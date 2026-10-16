@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Μέγιστος ρυθμός μετάδοσης βίντεο μέσω Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Μέγιστος ρυθμός μετάδοσης βίντεο μέσω Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Χωρίς πρόσθετο όριο</string>
+    <string name="settings_recording_failure_output_too_slow">Ο προορισμός εγγραφής δεν μπόρεσε να συμβαδίσει με τη ζωντανή αναπαραγωγή.</string>
 </resources>

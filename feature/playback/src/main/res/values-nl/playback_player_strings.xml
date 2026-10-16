@@ -295,4 +295,5 @@
     <string name="player_video_quality_selection_blocked">Deze videokwaliteit past niet binnen je afspeellimieten.</string>
     <string name="player_diagnostics_quality_height_summary">Resolutie: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Bitsnelheid: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">De opnamelocatie kon het live afspelen niet bijhouden.</string>
 </resources>

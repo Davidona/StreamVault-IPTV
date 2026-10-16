@@ -860,4 +860,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Максимальний бітрейт відео через Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Максимальний бітрейт відео через Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Без додаткового обмеження</string>
+    <string name="settings_recording_failure_output_too_slow">Місце збереження запису не встигало за прямим ефіром.</string>
 </resources>

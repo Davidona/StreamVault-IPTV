@@ -852,4 +852,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Wi-Fiの最大映像ビットレート</string>
     <string name="settings_ethernet_quality_bitrate_cap">Ethernetの最大映像ビットレート</string>
     <string name="settings_quality_cap_no_additional_limit">追加の上限なし</string>
+    <string name="settings_recording_failure_output_too_slow">録画先がライブ再生の速度に追いつきませんでした。</string>
 </resources>

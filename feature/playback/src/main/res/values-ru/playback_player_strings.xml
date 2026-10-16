@@ -297,4 +297,5 @@
     <string name="player_video_quality_selection_blocked">Это качество видео не соответствует ограничениям воспроизведения.</string>
     <string name="player_diagnostics_quality_height_summary">Разрешение: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Битрейт: %1$s Мбит/с</string>
+    <string name="player_recording_failure_output_too_slow">Место сохранения записи не успевало за прямой трансляцией.</string>
 </resources>

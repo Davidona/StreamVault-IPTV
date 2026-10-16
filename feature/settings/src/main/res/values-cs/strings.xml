@@ -860,4 +860,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Maximální datový tok videa přes Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Maximální datový tok videa přes Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Žádný další limit</string>
+    <string name="settings_recording_failure_output_too_slow">Cílové úložiště záznamu nestíhalo živé přehrávání.</string>
 </resources>

@@ -854,4 +854,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Maximale videobitsnelheid via wifi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Maximale videobitsnelheid via ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Geen extra limiet</string>
+    <string name="settings_recording_failure_output_too_slow">De opnamelocatie kon het live afspelen niet bijhouden.</string>
 </resources>

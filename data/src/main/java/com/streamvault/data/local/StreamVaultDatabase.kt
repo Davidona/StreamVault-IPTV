@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
 
-internal const val STREAM_VAULT_DATABASE_VERSION = 83
+internal const val STREAM_VAULT_DATABASE_VERSION = 84
 
 @Database(
     entities = [
@@ -215,5 +215,6 @@ abstract class StreamVaultDatabase : RoomDatabase() {
         val MIGRATION_80_81 = FeatureMigrationsV80To81.MIGRATION_80_81
         val MIGRATION_81_82 = FeatureMigrationsV81To82.MIGRATION_81_82
         val MIGRATION_82_83 = FeatureMigrationsV82To83.MIGRATION_82_83
+        val MIGRATION_83_84 = FeatureMigrationsV83To84.MIGRATION_83_84
     }
 }

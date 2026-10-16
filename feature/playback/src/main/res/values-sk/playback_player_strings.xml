@@ -297,4 +297,5 @@
     <string name="player_video_quality_selection_blocked">Táto kvalita videa nespĺňa vaše limity prehrávania.</string>
     <string name="player_diagnostics_quality_height_summary">Rozlíšenie: %1$d p</string>
     <string name="player_diagnostics_quality_bitrate_summary">Dátový tok: %1$s Mb/s</string>
+    <string name="player_recording_failure_output_too_slow">Cieľové úložisko záznamu nedokázalo držať krok so živým prehrávaním.</string>
 </resources>

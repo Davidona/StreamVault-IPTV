@@ -851,4 +851,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Tốc độ bit video tối đa qua Wi-Fi</string>
     <string name="settings_ethernet_quality_bitrate_cap">Tốc độ bit video tối đa qua Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Không có giới hạn bổ sung</string>
+    <string name="settings_recording_failure_output_too_slow">Nơi lưu bản ghi không theo kịp phát trực tiếp.</string>
 </resources>

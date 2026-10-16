@@ -857,4 +857,5 @@
     <string name="settings_wifi_quality_bitrate_cap">Maksimalna brzina prijenosa videozapisa putem Wi-Fi mreže</string>
     <string name="settings_ethernet_quality_bitrate_cap">Maksimalna brzina prijenosa videozapisa putem Ethernet mreže</string>
     <string name="settings_quality_cap_no_additional_limit">Bez dodatnog ograničenja</string>
+    <string name="settings_recording_failure_output_too_slow">Odredište snimanja nije moglo pratiti reprodukciju uživo.</string>
 </resources>
