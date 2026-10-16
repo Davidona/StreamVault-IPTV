@@ -126,7 +126,8 @@ internal fun TraktCustomListActionButton(
             listDescription = ""
             viewModel.refreshLists()
         },
-        enabled = state.connected && !operation,
+        // The custom-list state starts disconnected and is populated by this click's refresh.
+        enabled = !operation,
         compact = true,
     )
 
@@ -149,7 +150,7 @@ internal fun TraktCustomListActionButton(
                 if (state.refreshingLists || selectedListId?.let { it in state.loadingItems } == true || operation) {
                     Text(stringResource(R.string.trakt_custom_lists_loading), color = AppColors.TextSecondary)
                 }
-                if (!state.connected && !state.refreshingLists) {
+                if (!state.connected && !state.refreshingLists && !operation) {
                     Text(stringResource(R.string.trakt_custom_lists_connect_first), color = AppColors.TextSecondary)
                 } else if (choosingItem) {
                     val choices = (listOf(item) + additionalItems).distinctBy { it.identity }
