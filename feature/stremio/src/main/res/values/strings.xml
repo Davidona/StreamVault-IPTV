@@ -49,6 +49,8 @@
     <string name="stremio_browse_no_installed_addons">No Stremio add-ons are installed yet.</string>
     <string name="stremio_browse_no_enabled_addons">All Stremio add-ons are disabled. Enable one to browse its catalogs.</string>
     <string name="stremio_browse_no_enabled_catalogs">There are no enabled catalogs. Enable a catalog in add-on details to browse.</string>
+    <string name="stremio_selected_addon_unavailable">The selected add-on was disabled or removed. Choose another catalog or manage add-ons.</string>
+    <string name="stremio_selected_catalog_unavailable">The selected catalog was disabled or removed. Choose another catalog.</string>
     <string name="stremio_catalog_updating_previous_results">Updating this catalog. Showing the previous results until the new search finishes.</string>
     <string name="stremio_catalog_previous_results_label">Showing results for the previous search.</string>
     <string name="stremio_catalog_refreshing_previous_results">Refreshing this catalog. Showing the current results until refresh finishes.</string>

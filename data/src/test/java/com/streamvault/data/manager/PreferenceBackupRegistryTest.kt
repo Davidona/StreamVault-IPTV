@@ -52,5 +52,7 @@ class PreferenceBackupRegistryTest {
                 PreferenceBackupClassification.PORTABLE_PROVIDER_CONTENT
             ) && PreferenceBackupRegistry.portableCodecForStorageKey(it) == null
         }).isEmpty()
+        assertThat(PreferenceBackupRegistry.classification("hideStremioAddons"))
+            .isEqualTo(PreferenceBackupClassification.PORTABLE_GLOBAL)
     }
 }

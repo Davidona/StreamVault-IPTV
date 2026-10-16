@@ -82,6 +82,7 @@ internal fun StremioCatalogBrowseContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            StremioCatalogSelectionNoticeMessage(state.selectionNotice)
             val message = when (state.emptyReason) {
                 StremioBrowseEmptyReason.NO_INSTALLED_ADDONS -> R.string.stremio_browse_no_installed_addons
                 StremioBrowseEmptyReason.NO_ENABLED_ADDONS -> R.string.stremio_browse_no_enabled_addons
@@ -100,6 +101,7 @@ internal fun StremioCatalogBrowseContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            StremioCatalogSelectionNoticeMessage(state.selectionNotice)
             Text(stringResource(R.string.stremio_no_supported_catalogs), color = AppColors.TextSecondary)
             Spacer(Modifier.height(12.dp))
             TvButton(onClick = onManageAddons) { Text(stringResource(R.string.stremio_manage_addons)) }
@@ -147,6 +149,8 @@ internal fun StremioCatalogBrowseContent(
                 }
             }
         }
+
+        StremioCatalogSelectionNoticeMessage(state.selectionNotice)
 
         if (selected.supportsSearch) {
             SearchInput(
@@ -394,6 +398,16 @@ private fun CatalogMetaCard(
             }
         }
     }
+}
+
+@Composable
+private fun StremioCatalogSelectionNoticeMessage(notice: StremioCatalogSelectionNotice?) {
+    val message = when (notice) {
+        StremioCatalogSelectionNotice.ADDON_UNAVAILABLE -> R.string.stremio_selected_addon_unavailable
+        StremioCatalogSelectionNotice.CATALOG_UNAVAILABLE -> R.string.stremio_selected_catalog_unavailable
+        null -> null
+    }
+    message?.let { CatalogMessage(message = stringResource(it)) }
 }
 
 @Composable

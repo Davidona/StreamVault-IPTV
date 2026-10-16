@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +76,12 @@ import com.streamvault.feature.stremio.R
 import com.streamvault.feature.stremio.api.StremioScaffoldContent
 import kotlinx.coroutines.delay
 
+private data class AddonFocusRestore(
+    val actionAddonId: Long,
+    val targetAddonId: Long?,
+    val expectedAddonIds: List<Long>
+)
+
 @Composable
 fun AddonsScreen(
     scaffold: StremioScaffoldContent,
@@ -84,6 +91,39 @@ fun AddonsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var pendingRemoval by remember { mutableStateOf<AddonsViewModel.AddonEntry?>(null) }
+    var pendingFocusRestore by remember { mutableStateOf<AddonFocusRestore?>(null) }
+    val addonIds = state.addons.map { it.addon.id }
+    val addonFocusRequesters = remember(addonIds) { addonIds.associateWith { FocusRequester() } }
+    val addButtonFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(addonIds, pendingFocusRestore, state.busyAddonIds) {
+        val request = pendingFocusRestore ?: return@LaunchedEffect
+        if (addonIds != request.expectedAddonIds) {
+            if (request.actionAddonId !in state.busyAddonIds) {
+                delay(250)
+                withFrameNanos { }
+                val fallbackRequester = addonFocusRequesters[request.actionAddonId] ?: addButtonFocusRequester
+                runCatching { fallbackRequester.requestFocus() }
+                pendingFocusRestore = null
+            }
+            return@LaunchedEffect
+        }
+        withFrameNanos { }
+        val requester = request.targetAddonId?.let(addonFocusRequesters::get) ?: addButtonFocusRequester
+        runCatching { requester.requestFocus() }
+        pendingFocusRestore = null
+    }
+
+    fun moveAddonAndRestoreFocus(entry: AddonsViewModel.AddonEntry, index: Int, offset: Int) {
+        val destination = index + offset
+        if (destination !in addonIds.indices) return
+        val expectedOrder = addonIds.toMutableList().apply {
+            val movedId = removeAt(index)
+            add(destination, movedId)
+        }
+        pendingFocusRestore = AddonFocusRestore(entry.addon.id, entry.addon.id, expectedOrder)
+        viewModel.moveAddon(entry, offset)
+    }
 
     state.statusMessageRes?.let { messageRes ->
         LaunchedEffect(messageRes) {
@@ -124,7 +164,10 @@ fun AddonsScreen(
                     description = stringResource(R.string.stremio_empty_description),
                     modifier = Modifier.weight(1f),
                     action = {
-                        TvPrimaryButton(onClick = viewModel::showInstallDialog) {
+                        TvPrimaryButton(
+                            onClick = viewModel::showInstallDialog,
+                            modifier = Modifier.focusRequester(addButtonFocusRequester)
+                        ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             Spacer(Modifier.size(8.dp))
                             Text(stringResource(R.string.stremio_add))
@@ -143,7 +186,10 @@ fun AddonsScreen(
                             style = MaterialTheme.typography.titleMedium,
                             color = AppColors.TextPrimary
                         )
-                        TvPrimaryButton(onClick = viewModel::showInstallDialog) {
+                        TvPrimaryButton(
+                            onClick = viewModel::showInstallDialog,
+                            modifier = Modifier.focusRequester(addButtonFocusRequester)
+                        ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             Spacer(Modifier.size(8.dp))
                             Text(stringResource(R.string.stremio_add))
@@ -160,14 +206,15 @@ fun AddonsScreen(
                         itemsIndexed(items = state.addons, key = { _, entry -> entry.addon.id }) { index, entry ->
                             AddonCard(
                                 entry = entry,
+                                detailsFocusRequester = addonFocusRequesters.getValue(entry.addon.id),
                                 expanded = state.expandedAddonId == entry.addon.id,
                                 refreshing = state.refreshingAddonId == entry.addon.id,
                                 busy = entry.addon.id in state.busyAddonIds,
                                 canMoveUp = index > 0,
                                 canMoveDown = index < state.addons.lastIndex,
                                 onEnabledChange = { enabled -> viewModel.setEnabled(entry, enabled) },
-                                onMoveUp = { viewModel.moveAddon(entry, -1) },
-                                onMoveDown = { viewModel.moveAddon(entry, 1) },
+                                onMoveUp = { moveAddonAndRestoreFocus(entry, index, -1) },
+                                onMoveDown = { moveAddonAndRestoreFocus(entry, index, 1) },
                                 onToggleExpanded = { viewModel.toggleExpanded(entry.addon.id) },
                                 onCatalogEnabledChange = { catalogKey, enabled ->
                                     viewModel.setCatalogEnabled(entry, catalogKey, enabled)
@@ -208,6 +255,17 @@ fun AddonsScreen(
                 PremiumDialogFooterButton(
                     label = stringResource(R.string.stremio_remove),
                     onClick = {
+                        val removedIndex = addonIds.indexOf(entry.addon.id)
+                        val targetId = when {
+                            removedIndex > 0 -> addonIds[removedIndex - 1]
+                            removedIndex >= 0 -> addonIds.getOrNull(removedIndex + 1)
+                            else -> null
+                        }
+                        pendingFocusRestore = AddonFocusRestore(
+                            actionAddonId = entry.addon.id,
+                            targetAddonId = targetId,
+                            expectedAddonIds = addonIds.filterNot { it == entry.addon.id }
+                        )
                         pendingRemoval = null
                         viewModel.removeAddon(entry)
                     },
@@ -269,6 +327,7 @@ private fun ContinueWatchingCard(item: StremioPlaybackHistory, onClick: () -> Un
 @Composable
 private fun AddonCard(
     entry: AddonsViewModel.AddonEntry,
+    detailsFocusRequester: FocusRequester,
     expanded: Boolean,
     refreshing: Boolean,
     busy: Boolean,
@@ -338,7 +397,7 @@ private fun AddonCard(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TvButton(
                 onClick = onToggleExpanded,
-                modifier = Modifier.heightIn(min = 44.dp),
+                modifier = Modifier.heightIn(min = 44.dp).focusRequester(detailsFocusRequester),
                 colors = androidx.tv.material3.ButtonDefaults.colors(
                     containerColor = AppColors.Surface,
                     contentColor = AppColors.TextPrimary,

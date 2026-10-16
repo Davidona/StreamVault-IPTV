@@ -68,10 +68,13 @@ data class StremioCatalogRowState(
 
 enum class StremioBrowseEmptyReason { NO_INSTALLED_ADDONS, NO_ENABLED_ADDONS, NO_ENABLED_CATALOGS }
 
+enum class StremioCatalogSelectionNotice { ADDON_UNAVAILABLE, CATALOG_UNAVAILABLE }
+
 data class StremioCatalogBrowseState(
     val loading: Boolean = true,
     val rows: List<StremioCatalogRowState> = emptyList(),
     val selectedCatalogKey: StremioCatalogRowKey? = null,
+    val selectionNotice: StremioCatalogSelectionNotice? = null,
     val emptyReason: StremioBrowseEmptyReason? = null,
     val loadError: String? = null
 )
@@ -185,9 +188,23 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                 pageCache.removeCatalog(old.addonFingerprint, old.catalog.settingsKey)
             }
         }
-        val selectedKey = _state.value.selectedCatalogKey
-            ?.takeIf { key -> rows.any { it.key == key } }
+        val previousSelectedKey = _state.value.selectedCatalogKey
+        val previousSelectionUnavailable = previousSelectedKey != null &&
+            rows.none { it.key == previousSelectedKey && it.blockedReason == null }
+        val selectedKey = previousSelectedKey
+            ?.takeIf { key -> rows.any { it.key == key && it.blockedReason == null } }
             ?: rows.firstOrNull { it.blockedReason == null }?.key
+            ?: rows.firstOrNull()?.key
+        val selectionNotice = if (previousSelectionUnavailable) {
+            val originAddon = addons.firstOrNull { it.id == previousSelectedKey?.addonId }
+            if (originAddon == null || !originAddon.enabled) {
+                StremioCatalogSelectionNotice.ADDON_UNAVAILABLE
+            } else {
+                StremioCatalogSelectionNotice.CATALOG_UNAVAILABLE
+            }
+        } else {
+            _state.value.selectionNotice
+        }
         val emptyReason = when {
             addons.isEmpty() -> StremioBrowseEmptyReason.NO_INSTALLED_ADDONS
             addons.none { it.enabled } -> StremioBrowseEmptyReason.NO_ENABLED_ADDONS
@@ -198,6 +215,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             loading = false,
             rows = rows,
             selectedCatalogKey = selectedKey,
+            selectionNotice = selectionNotice,
             emptyReason = emptyReason
         )
         selectedKey?.let { key ->
@@ -212,7 +230,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
 
     fun selectCatalog(key: StremioCatalogRowKey) {
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
-        _state.update { it.copy(selectedCatalogKey = key) }
+        _state.update { it.copy(selectedCatalogKey = key, selectionNotice = null) }
         if (row.blockedReason == null && row.pageCount == 0 && !row.loading && row.error == null) {
             startRequest(key, reset = true, debounceMs = 0L)
         }

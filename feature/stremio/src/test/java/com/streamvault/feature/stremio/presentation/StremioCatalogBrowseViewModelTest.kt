@@ -314,6 +314,76 @@ class StremioCatalogBrowseViewModelTest {
     }
 
     @Test
+    fun `disabling the selected addon selects another catalog and explains the change`() = runTest(dispatcher) {
+        val catalog = catalogWithSkip()
+        val repository = CatalogRepositoryFake(catalog)
+        val firstAddon = addon(id = 1L, enabled = true)
+        val secondAddon = addon(id = 2L, enabled = true)
+        repository.addons.value = listOf(firstAddon, secondAddon)
+        repository.manifests[1L] = manifest(catalog).copy(name = "First")
+        repository.manifests[2L] = manifest(catalog).copy(name = "Second")
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val secondKey = viewModel.state.value.rows.single { it.key.addonId == secondAddon.id }.key
+        viewModel.selectCatalog(secondKey)
+        advanceUntilIdle()
+
+        repository.addons.value = listOf(firstAddon, secondAddon.copy(enabled = false))
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.selectedCatalogKey?.addonId).isEqualTo(firstAddon.id)
+        assertThat(viewModel.state.value.selectionNotice)
+            .isEqualTo(StremioCatalogSelectionNotice.ADDON_UNAVAILABLE)
+    }
+
+    @Test
+    fun `removing the selected addon selects another catalog and explains the change`() = runTest(dispatcher) {
+        val catalog = catalogWithSkip()
+        val repository = CatalogRepositoryFake(catalog)
+        val firstAddon = addon(id = 1L, enabled = true)
+        val secondAddon = addon(id = 2L, enabled = true)
+        repository.addons.value = listOf(firstAddon, secondAddon)
+        repository.manifests[1L] = manifest(catalog).copy(name = "First")
+        repository.manifests[2L] = manifest(catalog).copy(name = "Second")
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val secondKey = viewModel.state.value.rows.single { it.key.addonId == secondAddon.id }.key
+        viewModel.selectCatalog(secondKey)
+        advanceUntilIdle()
+
+        repository.addons.value = listOf(firstAddon)
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.selectedCatalogKey?.addonId).isEqualTo(firstAddon.id)
+        assertThat(viewModel.state.value.selectionNotice)
+            .isEqualTo(StremioCatalogSelectionNotice.ADDON_UNAVAILABLE)
+    }
+
+    @Test
+    fun `disabling selected catalog selects another catalog and explains the change`() = runTest(dispatcher) {
+        val firstCatalog = catalogWithSkip()
+        val secondCatalog = firstCatalog.copy(id = "recent", name = "Recently Added")
+        val repository = CatalogRepositoryFake(firstCatalog)
+        val catalogSettings = mapOf("movie:top" to true, "movie:recent" to true)
+        repository.addons.value = listOf(addon(1L, enabled = true).copy(catalogSettings = catalogSettings))
+        repository.manifests[1L] = manifest(firstCatalog).copy(catalogs = listOf(firstCatalog, secondCatalog))
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        advanceUntilIdle()
+        val secondKey = viewModel.state.value.rows.single { it.catalog.id == "recent" }.key
+        viewModel.selectCatalog(secondKey)
+        advanceUntilIdle()
+
+        repository.addons.value = listOf(
+            addon(1L, enabled = true).copy(catalogSettings = catalogSettings + ("movie:recent" to false))
+        )
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.selectedCatalogKey?.catalogKey).isEqualTo("movie:top")
+        assertThat(viewModel.state.value.selectionNotice)
+            .isEqualTo(StremioCatalogSelectionNotice.CATALOG_UNAVAILABLE)
+    }
+
+    @Test
     fun `hidden Stremio does not fetch addon catalog pages`() = runTest(dispatcher) {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         val access = FakeStremioContentAccess(

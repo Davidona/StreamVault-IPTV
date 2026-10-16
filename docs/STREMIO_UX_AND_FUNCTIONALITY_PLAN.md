@@ -1,7 +1,7 @@
 # Stremio and Extensions UX and functionality improvement plan
 
 - Date: 2026-10-16.
-- Status: Implementation in progress; debug APK is installed on the requested emulator; manual UX and real-torrent acceptance remain pending.
+- Status: Implementation in progress; catalog replacement, focus restoration, backup compatibility, and playback handoff regressions are covered. Debug APK is installed on the requested emulator; configured-emulator UX and real-torrent acceptance remain pending.
 - Reviewed baseline: `f1ac7d3d` on `feature/stremio-addons`.
 - Worktree: `D:\antigravity-scratch\iptv-player\.worktrees\stremio-addons`.
 
@@ -180,8 +180,12 @@ Addresses R1-R2.
   variants and the already-installed current schema. Follow the database
   invariants, export the final schema, and preserve providers, add-on settings,
   recordings, and playback history.
-- [ ] Add regression coverage for direct HTTP, invalid headers, missing/failed
-  torrent plugin, valid plugin output, and populated supported upgrade origins.
+- [x] Cover direct HTTP header scoping, invalid headers, unavailable torrent
+  capability, explicit magnet plugin routing, safe/unsafe loopback output, and
+  populated supported upgrade origins.
+- [ ] Add a plugin-manager binder-level test for handler-reported failure and
+  successful magnet handoff. Current tests cover the policy and UI availability
+  decisions without invoking the Android Messenger call path.
 
 Gate: targeted playback tests pass, supported database upgrades validate the
 final Room schema and foreign keys, and a current debug APK builds.
@@ -200,9 +204,11 @@ Addresses UI decisions 1-3 and 5; R3, R6, R9, R11, and R12.
   and no duplicate section tabs.
 - [x] Add capability-aware details, catalog settings, ordering, and removal
   confirmation. Make repeated actions safe.
-- [ ] Verify explicit remote-focus restoration after a row is reordered or
-  removed; stable row keys are in place, but this needs targeted testing on the
-  installed TV emulator.
+- [x] Implement explicit remote-focus restoration after a row is reordered or
+  removed, with a fallback target if the operation fails.
+- [ ] Verify reorder and removal focus on a configured TV emulator. The current
+  `emulator-5558` install opens first-run provider setup and has no add-ons to
+  exercise those actions.
 - [x] Add manifest refresh preserving install identity, enabled state, catalog
   choices, ordering, and history. Keep the saved manifest if refresh fails.
   Invalidate affected browse data after successful refresh.
@@ -241,7 +247,8 @@ Addresses R5-R7 and the playback-facing portion of R1.
   when none is available.
 - [x] Return from the player to the selected title/episode context, then restore
   the browse catalog, query, filters, position, and focused poster on Back.
-- [ ] Cover history/resume and subtitle behavior across the new flow.
+- [x] Cover exact history replay/resume identity, scoped playback handoff,
+  inline subtitle handoff, and inline/add-on subtitle picker behavior.
 
 Gate: exact-episode, cancellation, partial-failure, player-return, history, and
 subtitle tests pass; user acceptance covers a long series and multiple providers.
@@ -254,15 +261,18 @@ Addresses R8-R10 and verifies all five UI decisions.
   source operations handle expected/unexpected errors and clear loading state.
 - [x] Separate an actual empty result, no eligible provider, unsupported resource,
   and request failure. Keep retry actions tied to the failed operation.
-- [ ] Handle an add-on/catalog being disabled or removed while its content is
-  selected, with a valid next selection and useful explanation.
+- [x] When the selected add-on/catalog is disabled or removed, select another
+  available catalog and show a useful explanation; cover disable/removal cases
+  in browse state tests.
+- [x] Classify and back up the Hide Stremio Add-ons preference as a portable
+  global setting. The full data suite caught the missing classification and
+  import/export mapping; a restore regression now covers it.
 - [x] Retain URL/token sanitization in UI errors, logs, and stored history.
-- [ ] Obtain a clean run of the relevant repository checks; other targeted
-  state, resolver, playback, migration, build, and install checks have passed.
-  `com.streamvault.app.debug` is installed on `emulator-5558` with app data
-  retained for the user's manual acceptance.
-- [ ] Record build/test evidence separately from user UI and real-playback
-  acceptance. Close acceptance items only when supported by that evidence.
+- [x] Obtain clean runs of the relevant Stremio, playback, app, and data unit
+  suites; build and install the debug APK on the requested emulator.
+- [x] Record implementation verification separately from user UI and
+  real-playback acceptance; those acceptance items remain open until inspected
+  on a configured emulator and a real stream is exercised.
 
 Gate: required code checks pass and user-owned acceptance results are recorded.
 
@@ -270,13 +280,14 @@ Gate: required code checks pass and user-owned acceptance results are recorded.
 
 The review baseline ran 107 existing tests with no failures: 30 Stremio
 feature/state, 17 Stremio domain, 48 Stremio data, and 12 targeted playback
-tests. Implementation verification has since passed the Stremio feature, system,
-shared UI, domain, and playback unit suites, plus the Room migration
-instrumentation suite. The focused Stremio data repository run exposed
-intermittent MockWebServer connection timeouts; one previously failing install
-case passed when run alone. The debug APK has built and is installed on
-`emulator-5558`. These checks do not establish visual quality or real torrent
-playback.
+tests. Implementation verification passed `:feature:stremio:testDebugUnitTest`,
+`:feature:playback:testDebugUnitTest`, `:app:testDebugUnitTest`, and the full
+`:data:testDebugUnitTest` suite. The first full data run exposed an
+unclassified `hide_stremio_addons` preference; the registry and backup
+import/export mappings were fixed, and the full suite then passed. The debug APK
+`1.0.19-debug` built and installed on `emulator-5558`. That emulator is currently
+at first-run provider setup, so add-on management focus could not be exercised
+there. These checks do not establish visual quality or real torrent playback.
 
 | Area | Required evidence after implementation |
 | --- | --- |
@@ -287,7 +298,7 @@ playback.
 | Catalog requests | Tests cover selected-only loading, required/unsupported extras, stale-response cancellation, page retry retaining previous items, and explicit refresh/cache behavior. |
 | Sources and series | Tests cover exact episode IDs, long episode lists, progressive providers, partial failures, retry, and rapid episode changes; user verifies the source-picker flow. |
 | Navigation | User verifies player-to-title-to-browse Back behavior and retained selection, filters, scroll, and focus; automated state/navigation checks cover the same contracts where practical. |
-| Playback and subtitles | Regression tests cover HTTP headers, plugin failure/success handoff, resume identity, inline/add-on subtitles, and supported casting behavior. Real stream/torrent acceptance remains with the user. |
+| Playback and subtitles | Tests cover direct HTTP headers, invalid headers, magnet capability/routing/output policy, handoff headers, resume identity, and inline/add-on subtitles. Plugin Messenger failure/success integration and real stream/torrent acceptance remain open. |
 | Database upgrade | Migration tests use populated supported historical variants and verify final schema, episode uniqueness, Xtream columns, preserved data, and foreign keys. |
 | Visibility | Tests retain independent Hide Stremio Add-ons behavior and prevent content access through hidden Stremio routes. |
 

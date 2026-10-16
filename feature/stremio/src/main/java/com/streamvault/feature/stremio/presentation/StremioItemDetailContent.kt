@@ -547,7 +547,7 @@ private fun unsupportedStreamLabel(
     return stringResource(stringRes)
 }
 
-private fun buildHandoff(
+internal fun buildHandoff(
     state: StremioItemDetailState,
     streamOriginKey: String,
     stream: StremioStream,
