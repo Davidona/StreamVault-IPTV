@@ -843,4 +843,14 @@
         <item quantity="one">Κάθε %d ώρα</item>
         <item quantity="other">Κάθε %d ώρες</item>
 </plurals>
+    <string name="settings_hide_stremio_addons">Απόκρυψη πρόσθετων Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Απόκρυψη περιήγησης, εγκατάστασης και ιστορικού πρόσθετων. Τα εγκατεστημένα πρόσθετα διατηρούνται.</string>
+    <string name="nav_addons">Πρόσθετα Stremio</string>
+    <string name="nav_extensions">Επεκτάσεις</string>
+    <string name="settings_theme_forest">Δάσος</string>
+    <string name="settings_theme_sunset">Ηλιοβασίλεμα</string>
+    <string name="settings_theme_ocean">Ωκεανός</string>
+    <string name="settings_theme_rose">Τριαντάφυλλο</string>
+    <string name="settings_theme_amoled_black">Μαύρο AMOLED</string>
+    <string name="settings_theme_vintage">Βίνταζ</string>
 </resources>

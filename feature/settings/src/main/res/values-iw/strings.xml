@@ -846,4 +846,14 @@
 <string name="settings_live_clock_position">מיקום השעון</string>
 <string name="settings_theme_classic_blue">כחול קלאסי</string>
 <string name="settings_title">הגדרות</string>
+<string name="settings_hide_stremio_addons">הסתרת תוספי Stremio תואמים</string>
+<string name="settings_hide_stremio_addons_subtitle">הסתרת עיון, התקנה והיסטוריית תוספים. תוספים מותקנים נשמרים.</string>
+<string name="settings_theme_forest">יער</string>
+<string name="settings_theme_sunset">שקיעה</string>
+<string name="settings_theme_ocean">אוקיינוס</string>
+<string name="settings_theme_rose">ורוד</string>
+<string name="settings_theme_amoled_black">שחור AMOLED</string>
+<string name="settings_theme_vintage">וינטג׳</string>
+<string name="nav_addons">תוספי Stremio</string>
+<string name="nav_extensions">הרחבות</string>
 </resources>

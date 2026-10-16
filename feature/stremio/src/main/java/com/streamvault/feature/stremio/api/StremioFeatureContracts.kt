@@ -10,5 +10,10 @@ typealias StremioScaffoldContent = @Composable (
     subtitle: String?,
     compactHeader: Boolean,
     showScreenHeader: Boolean,
+    topBarVisible: Boolean,
     content: @Composable ColumnScope.() -> Unit,
 ) -> Unit
+
+fun interface StremioDownloadStarter {
+    fun startDownload(downloadId: String)
+}

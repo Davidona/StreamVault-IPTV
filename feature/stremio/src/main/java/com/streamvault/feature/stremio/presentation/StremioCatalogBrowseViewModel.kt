@@ -1,5 +1,6 @@
 package com.streamvault.feature.stremio.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.stremio.StremioAddon
@@ -8,7 +9,10 @@ import com.streamvault.domain.model.stremio.StremioCatalogQuery
 import com.streamvault.domain.model.stremio.StremioCatalogRef
 import com.streamvault.domain.model.stremio.StremioMediaType
 import com.streamvault.domain.model.stremio.StremioMetaPreview
+import com.streamvault.feature.stremio.presentation.normalizeCategoryName
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.feature.stremio.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -18,7 +22,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
@@ -46,7 +51,13 @@ data class StremioCatalogRowState(
     val canLoadMore: Boolean = false,
     val error: String? = null,
     val blockedReason: String? = null,
-    val waitingForInput: String? = null
+    val waitingForInput: String? = null,
+    val isLocked: Boolean = false,
+    val protectedCategoryIds: Set<Long> = emptySet(),
+    val parentalProviderId: Long? = null,
+    val hiddenGenreOptions: Set<String> = emptySet(),
+    val lockedGenreCategoryIds: Map<String, Set<Long>> = emptyMap(),
+    val selectedGenreLocked: Boolean = false
 ) {
     val supportsSearch: Boolean get() = catalog.extras.any { it.name.equals("search", ignoreCase = true) }
     val searchRequired: Boolean get() = catalog.extras.any {
@@ -82,7 +93,9 @@ data class StremioCatalogBrowseState(
 @HiltViewModel
 class StremioCatalogBrowseViewModel @Inject constructor(
     private val repository: StremioAddonRepository,
-    private val contentAccess: StremioContentAccess
+    private val contentAccess: StremioContentAccess,
+    private val parentalAccess: StremioCatalogParentalAccess = NoopStremioCatalogParentalAccess,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(StremioCatalogBrowseState())
@@ -93,15 +106,21 @@ class StremioCatalogBrowseViewModel @Inject constructor(
     private val seenPageFingerprints = mutableMapOf<StremioCatalogRowKey, MutableSet<String>>()
     private val pageCache = CatalogPageMemoryCache()
     private val requestSemaphore = Semaphore(MAX_CONCURRENT_REQUESTS)
-
+    private val unlockedCatalogKeys = mutableSetOf<StremioCatalogRowKey>()
+    private val unlockedGenreKeys = mutableSetOf<Pair<StremioCatalogRowKey, String>>()
+    private var currentParentalState = StremioCatalogParentalState()
     init {
         viewModelScope.launch {
-            repository.observeAddons().collect { addons -> refreshRows(addons) }
+            combine(repository.observeAddons(), parentalAccess.state) { addons, parental ->
+                addons to parental
+            }.collectLatest { (addons, parental) -> refreshRows(addons, parental) }
         }
     }
 
-    private suspend fun refreshRows(addons: List<StremioAddon>) {
+    private suspend fun refreshRows(addons: List<StremioAddon>, parental: StremioCatalogParentalState) {
+        currentParentalState = parental
         val oldRows = _state.value.rows.associateBy { it.key }
+        val parentalClearedKeys = mutableSetOf<StremioCatalogRowKey>()
         val rows = buildList {
             addons.asSequence().filter { it.enabled }.forEach addonLoop@{ addon ->
                 val manifest = try {
@@ -114,17 +133,19 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                 manifest.catalogs.forEach catalogLoop@{ catalog ->
                     if (!addon.isCatalogEnabled(catalog.settingsKey)) return@catalogLoop
                     val key = StremioCatalogRowKey(addon.id, catalog.settingsKey)
+                    val catalogAccess = parental.accessFor(catalog)
+                    if (catalogAccess.hidden) return@catalogLoop
+                    val isCatalogLocked = catalogAccess.locked && key !in unlockedCatalogKeys
                     val addonFingerprint = fingerprint(addon.installUrl, addon.manifestJson)
                     val blockedReason = when (catalog.type) {
                         StremioMediaType.MOVIE, StremioMediaType.SERIES ->
                             catalog.extras.firstOrNull { extra ->
                                 extra.isRequired && extra.name.lowercase() !in SUPPORTED_EXTRAS
-                            }?.let { "Requires unsupported '${it.name}' filter" }
-                        else -> "${catalog.type.typeName} catalogs are not supported yet"
+                            }?.let { context.getString(R.string.stremio_catalog_filter_unsupported, it.name) }
+                        else -> context.getString(R.string.stremio_catalog_type_unsupported, catalog.type.typeName)
                     }
                     val old = oldRows[key]?.takeIf { it.addonFingerprint == addonFingerprint }
-                    add(
-                        old?.let { previous ->
+                    val row = old?.let { previous ->
                             if (previous.addonUpdatedAt == addon.updatedAt) {
                                 previous.copy(
                                     addonName = addon.name,
@@ -162,9 +183,53 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                             catalog = catalog,
                             blockedReason = blockedReason
                         )
+                    val genreAccess = row.genreOptions.associateWith { genre ->
+                        parental.accessForGenre(catalog, genre)
+                    }
+                    val selectedGenreAccess = row.genre.takeIf(String::isNotBlank)
+                        ?.let { parental.accessForGenre(catalog, it) }
+                        ?: StremioCatalogCategoryAccess()
+                    val clearHiddenGenre = selectedGenreAccess.hidden
+                    val selectedGenreLocked = !clearHiddenGenre && selectedGenreAccess.locked &&
+                        !isGenreRuntimeUnlocked(key, row.genre)
+                    val lockedGenreAccess = genreAccess.filter { (genre, access) ->
+                        access.locked && !isGenreRuntimeUnlocked(key, genre)
+                    }
+                    val clearResults = isCatalogLocked || clearHiddenGenre || selectedGenreLocked
+                    if (clearResults) parentalClearedKeys += key
+                    val updatedGenre = if (clearHiddenGenre) "" else row.genre
+                    val updatedRow = row.copy(
+                        genre = updatedGenre,
+                        isLocked = isCatalogLocked,
+                        protectedCategoryIds = catalogAccess.protectedCategoryIds,
+                        parentalProviderId = catalogAccess.providerId,
+                        hiddenGenreOptions = genreAccess.filterValues { it.hidden }.keys,
+                        lockedGenreCategoryIds = lockedGenreAccess
+                            .mapValues { (_, access) -> access.protectedCategoryIds },
+                        selectedGenreLocked = selectedGenreLocked,
+                        metas = if (clearResults) emptyList() else row.metas,
+                        loadedSearch = if (clearResults) null else row.loadedSearch,
+                        loadedGenre = if (clearResults) null else row.loadedGenre,
+                        loading = if (clearResults) false else row.loading,
+                        loadingMore = if (clearResults) false else row.loadingMore,
+                        nextSkip = if (clearResults) 0 else row.nextSkip,
+                        pageCount = if (clearResults) 0 else row.pageCount,
+                        canLoadMore = if (clearResults) false else row.canLoadMore,
+                        error = if (clearResults) null else row.error,
+                        waitingForInput = if (clearResults) null else row.waitingForInput
+                    )
+                    add(
+                        if (clearHiddenGenre) updatedRow.copy(waitingForInput = missingRequiredInput(updatedRow))
+                        else updatedRow
                     )
                 }
             }
+        }
+        rows.filter { it.isLocked || it.selectedGenreLocked || it.key in parentalClearedKeys }.forEach { row ->
+            jobs.remove(row.key)?.cancel()
+            generations.remove(row.key)
+            seenPageFingerprints.remove(row.key)
+            pageCache.removeCatalog(row.addonFingerprint, row.catalog.settingsKey)
         }
         val activeKeys = rows.mapTo(mutableSetOf()) { it.key }
         val removedRows = oldRows.values.filter { it.key !in activeKeys }
@@ -195,7 +260,10 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             ?.takeIf { key -> rows.any { it.key == key && it.blockedReason == null } }
             ?: rows.firstOrNull { it.blockedReason == null }?.key
             ?: rows.firstOrNull()?.key
-        val selectionNotice = if (previousSelectionUnavailable) {
+        val previousSelectionWasHidden = previousSelectedKey?.let { key ->
+            _state.value.rows.firstOrNull { it.key == key }?.catalog?.let(parental::accessFor)?.hidden
+        } == true
+        val selectionNotice = if (previousSelectionUnavailable && !previousSelectionWasHidden) {
             val originAddon = addons.firstOrNull { it.id == previousSelectedKey?.addonId }
             if (originAddon == null || !originAddon.enabled) {
                 StremioCatalogSelectionNotice.ADDON_UNAVAILABLE
@@ -220,7 +288,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
         )
         selectedKey?.let { key ->
             val selected = rows.firstOrNull { it.key == key } ?: return@let
-            if (selected.blockedReason == null && selected.pageCount == 0 &&
+            if (selected.blockedReason == null && !selected.isLocked && selected.pageCount == 0 &&
                 !selected.loading && selected.error == null && selected.waitingForInput == null
             ) {
                 startRequest(key, reset = true, debounceMs = 0L)
@@ -230,21 +298,93 @@ class StremioCatalogBrowseViewModel @Inject constructor(
 
     fun selectCatalog(key: StremioCatalogRowKey) {
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        if (row.isLocked) return
         _state.update { it.copy(selectedCatalogKey = key, selectionNotice = null) }
         if (row.blockedReason == null && row.pageCount == 0 && !row.loading && row.error == null) {
             startRequest(key, reset = true, debounceMs = 0L)
         }
     }
 
+    suspend fun verifyParentalPin(pin: String): Boolean = parentalAccess.verifyPin(pin)
+
+    fun unlockCatalog(key: StremioCatalogRowKey) {
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        if (!row.isLocked) {
+            selectCatalog(key)
+            return
+        }
+        unlockedCatalogKeys += key
+        row.parentalProviderId?.takeIf { row.protectedCategoryIds.isNotEmpty() }?.let { providerId ->
+            parentalAccess.unlockCategories(providerId, row.protectedCategoryIds)
+            rememberUnlockedCategories(providerId, row.protectedCategoryIds)
+        }
+        updateRow(key) { it.copy(isLocked = false) }
+        selectCatalog(key)
+    }
+
+    fun unlockGenre(key: StremioCatalogRowKey, genre: String) {
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        val categoryIds = row.lockedGenreCategoryIds[genre].orEmpty()
+        unlockedGenreKeys += key to normalizeCategoryName(genre)
+        row.parentalProviderId?.takeIf { categoryIds.isNotEmpty() }?.let { providerId ->
+            parentalAccess.unlockCategories(providerId, categoryIds)
+            rememberUnlockedCategories(providerId, categoryIds)
+        }
+        updateRow(key) {
+            it.copy(
+                lockedGenreCategoryIds = it.lockedGenreCategoryIds - genre,
+                selectedGenreLocked = it.selectedGenreLocked && !it.genre.equals(genre, ignoreCase = true)
+            )
+        }
+    }
+
+    private fun rememberUnlockedCategories(providerId: Long, categoryIds: Set<Long>) {
+        if (currentParentalState.providerId != providerId) return
+        currentParentalState = currentParentalState.copy(
+            unlockedCategoryIds = currentParentalState.unlockedCategoryIds +
+                categoryIds.map { kotlin.math.abs(it) }
+        )
+    }
+
+    private fun isGenreRuntimeUnlocked(key: StremioCatalogRowKey, genre: String): Boolean =
+        (key to normalizeCategoryName(genre)) in unlockedGenreKeys
+
     fun setSearch(key: StremioCatalogRowKey, search: String) {
-        if (_state.value.rows.firstOrNull { it.key == key }?.supportsSearch != true) return
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        if (!row.supportsSearch || row.isLocked || row.selectedGenreLocked) return
         updateRow(key) { it.copy(search = search, error = null, waitingForInput = null) }
         startRequest(key, reset = true, debounceMs = SEARCH_DEBOUNCE_MS)
     }
 
     fun setGenre(key: StremioCatalogRowKey, genre: String) {
-        if (_state.value.rows.firstOrNull { it.key == key }?.supportsGenre != true) return
-        updateRow(key) { it.copy(genre = genre, error = null, waitingForInput = null) }
+        val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        if (!row.supportsGenre || row.isLocked || genre in row.hiddenGenreOptions) return
+        val categoryAccess = currentParentalState.accessForGenre(row.catalog, genre)
+        if (categoryAccess.hidden) return
+        if (categoryAccess.locked && !isGenreRuntimeUnlocked(key, genre)) {
+            generations[key] = (generations[key] ?: 0L) + 1L
+            jobs.remove(key)?.cancel()
+            pageCache.removeCatalog(row.addonFingerprint, row.catalog.settingsKey)
+            updateRow(key) {
+                it.copy(
+                    genre = genre,
+                    selectedGenreLocked = true,
+                    lockedGenreCategoryIds = it.lockedGenreCategoryIds + (genre to categoryAccess.protectedCategoryIds),
+                    metas = emptyList(),
+                    loadedSearch = null,
+                    loadedGenre = null,
+                    loading = false,
+                    loadingMore = false,
+                    nextSkip = 0,
+                    pageCount = 0,
+                    canLoadMore = false,
+                    error = null,
+                    waitingForInput = null
+                )
+            }
+            return
+        }
+        updateRow(key) { it.copy(genre = genre, selectedGenreLocked = false, error = null, waitingForInput = null) }
         startRequest(key, reset = true, debounceMs = 0L)
     }
 
@@ -265,7 +405,9 @@ class StremioCatalogBrowseViewModel @Inject constructor(
 
     fun loadMore(key: StremioCatalogRowKey) {
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
-        if (!row.supportsSkip || !row.canLoadMore || row.loading || row.loadingMore || row.blockedReason != null) return
+        if (!row.supportsSkip || !row.canLoadMore || row.loading || row.loadingMore || row.blockedReason != null ||
+            row.isLocked || row.selectedGenreLocked
+        ) return
         startRequest(key, reset = false, debounceMs = 0L)
     }
 
@@ -278,7 +420,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
     ) {
         if (!contentAccess.canAccessContentNow()) return
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
-        if (row.blockedReason != null) return
+        if (row.blockedReason != null || row.isLocked || row.selectedGenreLocked) return
         jobs.remove(key)?.cancel()
         val generation = (generations[key] ?: 0L) + 1L
         generations[key] = generation
@@ -317,6 +459,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
     ) {
         if (!contentAccess.canAccessContentNow()) return
         val row = _state.value.rows.firstOrNull { it.key == key } ?: return
+        if (row.isLocked || row.selectedGenreLocked) return
         val skip = if (row.supportsSkip) (skipOverride ?: row.nextSkip) else null
         val query = StremioCatalogQuery(
             search = row.search.trim().takeIf { it.isNotEmpty() },
@@ -343,7 +486,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
             val page = cachedPage ?: result?.getOrNull()
             if (generations[key] != generation) return
             if (page == null) {
-                val error = result?.errorMessageOrNull() ?: "Catalog could not be loaded"
+                val error = context.getString(R.string.stremio_error_catalog_load)
                 updateRow(key) {
                     it.copy(
                         loading = false,
@@ -365,7 +508,7 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                     it.copy(
                         loading = false,
                         loadingMore = false,
-                        error = error.message ?: "Catalog could not be loaded",
+                        error = context.getString(R.string.stremio_error_catalog_load),
                         failedPageSkip = skip ?: 0,
                         failedRequestBypassCache = bypassCache,
                         canLoadMore = (skip ?: 0) > 0 || it.canLoadMore
@@ -409,10 +552,10 @@ class StremioCatalogBrowseViewModel @Inject constructor(
                 failedPageSkip = null,
                 failedRequestBypassCache = false,
                 error = when {
-                    repeated -> "The addon repeated a page; loading stopped."
+                    repeated -> context.getString(R.string.stremio_catalog_repeated_page)
                     rawHasMore && !canLoadMore && page.rawItemCount > 0 &&
                         requestedRow.supportsSkip && current.pageCount + 1 >= MAX_PAGES_PER_QUERY ->
-                        "Catalog page limit reached."
+                        context.getString(R.string.stremio_catalog_page_limit)
                     else -> null
                 }
             )
@@ -420,8 +563,8 @@ class StremioCatalogBrowseViewModel @Inject constructor(
     }
 
     private fun missingRequiredInput(row: StremioCatalogRowState): String? = when {
-        row.searchRequired && row.search.isBlank() -> "Enter a search to load this catalog."
-        row.genreRequired && row.genre.isBlank() -> "Choose a genre to load this catalog."
+        row.searchRequired && row.search.isBlank() -> context.getString(R.string.stremio_catalog_waiting_search)
+        row.genreRequired && row.genre.isBlank() -> context.getString(R.string.stremio_catalog_waiting_genre)
         else -> null
     }
 

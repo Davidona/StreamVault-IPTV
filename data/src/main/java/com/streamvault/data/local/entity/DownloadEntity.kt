@@ -7,7 +7,9 @@ import androidx.room.PrimaryKey
 import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadRequest
+import com.streamvault.domain.model.DownloadSourceType
 import com.streamvault.domain.model.DownloadStatus
+import org.json.JSONObject
 
 @Entity(
     tableName = "downloads",
@@ -25,6 +27,8 @@ data class DownloadEntity(
     @ColumnInfo(name = "content_id") val contentId: Long,
     @ColumnInfo(name = "content_name") val contentName: String,
     @ColumnInfo(name = "stream_url") val streamUrl: String,
+    @ColumnInfo(name = "source_type", defaultValue = "'PROVIDER'") val sourceType: String = DownloadSourceType.PROVIDER.name,
+    @ColumnInfo(name = "request_headers_json", defaultValue = "'{}'") val requestHeadersJson: String = "{}",
     @ColumnInfo(name = "source_stream_url") val sourceStreamUrl: String? = null,
     @ColumnInfo(name = "source_stream_id") val sourceStreamId: Long? = null,
     @ColumnInfo(name = "container_extension") val containerExtension: String? = null,
@@ -54,6 +58,8 @@ data class DownloadEntity(
         contentId = contentId,
         contentName = contentName,
         streamUrl = streamUrl,
+        sourceType = runCatching { DownloadSourceType.valueOf(sourceType) }
+            .getOrDefault(DownloadSourceType.PROVIDER),
         sourceStreamUrl = sourceStreamUrl,
         sourceStreamId = sourceStreamId,
         containerExtension = containerExtension,
@@ -87,6 +93,10 @@ data class DownloadEntity(
                 contentId = request.contentId,
                 contentName = request.contentName,
                 streamUrl = request.streamUrl,
+                sourceType = request.sourceType.name,
+                requestHeadersJson = JSONObject().apply {
+                    request.requestHeaders.forEach { (name, value) -> put(name, value) }
+                }.toString(),
                 sourceStreamUrl = request.sourceStreamUrl,
                 sourceStreamId = request.sourceStreamId,
                 containerExtension = request.containerExtension,
@@ -105,4 +115,11 @@ data class DownloadEntity(
             )
         }
     }
+
+    fun requestHeaders(): Map<String, String> = runCatching {
+        val json = JSONObject(requestHeadersJson)
+        json.keys().asSequence().mapNotNull { name ->
+            (json.opt(name) as? String)?.let { name to it }
+        }.toMap()
+    }.getOrDefault(emptyMap())
 }

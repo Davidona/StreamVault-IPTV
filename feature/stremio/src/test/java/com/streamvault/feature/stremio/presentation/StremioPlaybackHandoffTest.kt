@@ -12,6 +12,26 @@ import org.junit.Test
 
 class StremioPlaybackHandoffTest {
     @Test
+    fun `metadata failure does not prevent a resolved torrent from reaching the player`() {
+        val state = StremioItemDetailState(
+            preview = StremioMetaPreview("catalog:item:7", StremioMediaType.SERIES, "Catalog title"),
+            catalogOriginAddonId = 11L,
+            catalogOriginKey = "catalog-origin",
+            metadataLoading = false,
+            metadataError = "Metadata request failed"
+        )
+
+        val handoff = requireNotNull(buildHandoff(
+            state, "stream-origin", StremioStream(infoHash = "a".repeat(40)), "catalog:item:7"
+        ))
+
+        assertThat(java.net.URLDecoder.decode(handoff.streamUrl, "UTF-8"))
+            .startsWith("magnet:?xt=urn:btih:" + "a".repeat(40))
+        assertThat(handoff.reference.exactVideoId).isEqualTo("catalog:item:7")
+        assertThat(handoff.reference.metaOriginKey).isNull()
+    }
+
+    @Test
     fun `player handoff retains scoped headers and inline subtitles`() {
         val subtitles = listOf(
             StremioSubtitle("https://subs.example/en.vtt", "eng", "english"),

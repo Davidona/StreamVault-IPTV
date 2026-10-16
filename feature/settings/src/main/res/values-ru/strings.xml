@@ -849,4 +849,14 @@
         <item quantity="many">Каждые %d часов</item>
         <item quantity="other">Каждые %d часов</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Скрыть дополнения Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Скрыть просмотр, установку и историю дополнений. Установленные дополнения сохранятся.</string>
+    <string name="settings_theme_forest">Лесная</string>
+    <string name="settings_theme_sunset">Закатная</string>
+    <string name="settings_theme_ocean">Океанская</string>
+    <string name="settings_theme_rose">Розовая</string>
+    <string name="settings_theme_amoled_black">AMOLED чёрная</string>
+    <string name="settings_theme_vintage">Винтажная</string>
+    <string name="nav_addons">Дополнения Stremio</string>
+    <string name="nav_extensions">Расширения</string>
 </resources>

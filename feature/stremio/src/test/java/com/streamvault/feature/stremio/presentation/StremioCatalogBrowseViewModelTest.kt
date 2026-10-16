@@ -31,6 +31,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StremioCatalogBrowseViewModelTest {
@@ -54,7 +55,7 @@ class StremioCatalogBrowseViewModelTest {
             metas = listOf(preview("tt0"), preview("tt100")),
             rawItemCount = 7
         )
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         val rowKey = viewModel.state.value.rows.single().key
@@ -75,7 +76,7 @@ class StremioCatalogBrowseViewModelTest {
     fun `short page without hasMore stops pagination`() = runTest(dispatcher) {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         repository.pages += StremioCatalogPage(listOf(preview("tt1")), rawItemCount = 99)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         val row = viewModel.state.value.rows.single()
@@ -92,7 +93,7 @@ class StremioCatalogBrowseViewModelTest {
             )
         )
         val repository = CatalogRepositoryFake(catalog)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         val row = viewModel.state.value.rows.single()
@@ -114,7 +115,7 @@ class StremioCatalogBrowseViewModelTest {
         val samePage = StremioCatalogPage(listOf(preview("tt1")), hasMore = true, rawItemCount = 1)
         repository.pages += samePage
         repository.pages += samePage
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val key = viewModel.state.value.rows.single().key
 
@@ -131,7 +132,7 @@ class StremioCatalogBrowseViewModelTest {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         repository.pages += StremioCatalogPage(listOf(preview("before-refresh")), rawItemCount = 1)
         repository.pages += StremioCatalogPage(listOf(preview("after-refresh")), rawItemCount = 1)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         repository.addons.value = repository.addons.value.map { it.copy(manifestJson = "{\"version\":2}") }
@@ -147,7 +148,7 @@ class StremioCatalogBrowseViewModelTest {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         repository.pages += StremioCatalogPage(listOf(preview("before-refresh")), rawItemCount = 1)
         repository.pages += StremioCatalogPage(listOf(preview("after-refresh")), rawItemCount = 1)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         repository.addons.value = repository.addons.value.map { it.copy(updatedAt = 1L) }
@@ -166,7 +167,7 @@ class StremioCatalogBrowseViewModelTest {
         repository.manifests[1L] = manifest(firstCatalog).copy(catalogs = listOf(firstCatalog, secondCatalog))
         repository.pages += StremioCatalogPage(listOf(preview("first")), rawItemCount = 1)
         repository.pages += StremioCatalogPage(listOf(preview("second")), rawItemCount = 1)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         assertThat(repository.calls.map { it.addonId }).containsExactly(1L)
@@ -195,7 +196,7 @@ class StremioCatalogBrowseViewModelTest {
                 else -> Result.error("unexpected offset")
             }
         }
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val key = viewModel.state.value.rows.single().key
 
@@ -218,7 +219,7 @@ class StremioCatalogBrowseViewModelTest {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         repository.pages += StremioCatalogPage(listOf(preview("cached")), rawItemCount = 1)
         repository.pages += StremioCatalogPage(listOf(preview("fresh")), rawItemCount = 1)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val key = viewModel.state.value.rows.single().key
 
@@ -245,7 +246,7 @@ class StremioCatalogBrowseViewModelTest {
                 Result.success(replacement.await())
             }
         }
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val key = viewModel.state.value.rows.single().key
 
@@ -282,7 +283,7 @@ class StremioCatalogBrowseViewModelTest {
                 Result.success(StremioCatalogPage(listOf(preview("fresh-result")), rawItemCount = 1))
             }
         }
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         runCurrent()
         val rowKey = viewModel.state.value.rows.single().key
 
@@ -306,7 +307,7 @@ class StremioCatalogBrowseViewModelTest {
         repository.manifests[1L] = manifest(catalogWithSkip())
         repository.manifests[2L] = manifest(catalogWithSkip())
         repository.manifests[3L] = manifest(catalogWithSkip())
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
 
         assertThat(viewModel.state.value.rows.map { it.key.addonId }).containsExactly(1L)
@@ -322,7 +323,7 @@ class StremioCatalogBrowseViewModelTest {
         repository.addons.value = listOf(firstAddon, secondAddon)
         repository.manifests[1L] = manifest(catalog).copy(name = "First")
         repository.manifests[2L] = manifest(catalog).copy(name = "Second")
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val secondKey = viewModel.state.value.rows.single { it.key.addonId == secondAddon.id }.key
         viewModel.selectCatalog(secondKey)
@@ -345,7 +346,7 @@ class StremioCatalogBrowseViewModelTest {
         repository.addons.value = listOf(firstAddon, secondAddon)
         repository.manifests[1L] = manifest(catalog).copy(name = "First")
         repository.manifests[2L] = manifest(catalog).copy(name = "Second")
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val secondKey = viewModel.state.value.rows.single { it.key.addonId == secondAddon.id }.key
         viewModel.selectCatalog(secondKey)
@@ -367,7 +368,7 @@ class StremioCatalogBrowseViewModelTest {
         val catalogSettings = mapOf("movie:top" to true, "movie:recent" to true)
         repository.addons.value = listOf(addon(1L, enabled = true).copy(catalogSettings = catalogSettings))
         repository.manifests[1L] = manifest(firstCatalog).copy(catalogs = listOf(firstCatalog, secondCatalog))
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
         advanceUntilIdle()
         val secondKey = viewModel.state.value.rows.single { it.catalog.id == "recent" }.key
         viewModel.selectCatalog(secondKey)
@@ -389,7 +390,7 @@ class StremioCatalogBrowseViewModelTest {
         val access = FakeStremioContentAccess(
             StremioVisibilityState(hidden = true)
         )
-        val viewModel = StremioCatalogBrowseViewModel(repository, access)
+        val viewModel = StremioCatalogBrowseViewModel(repository, access, context = mock())
         advanceUntilIdle()
 
         assertThat(viewModel.state.value.rows).hasSize(1)

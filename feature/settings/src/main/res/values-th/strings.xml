@@ -840,4 +840,14 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">ทุก %d ชั่วโมง</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">ซ่อนส่วนเสริม Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">ซ่อนการเรียกดู การติดตั้ง และประวัติของส่วนเสริม ส่วนเสริมที่ติดตั้งไว้จะยังคงอยู่</string>
+    <string name="settings_theme_forest">ป่า</string>
+    <string name="settings_theme_sunset">พระอาทิตย์ตก</string>
+    <string name="settings_theme_ocean">มหาสมุทร</string>
+    <string name="settings_theme_rose">กุหลาบ</string>
+    <string name="settings_theme_amoled_black">ดำ AMOLED</string>
+    <string name="settings_theme_vintage">วินเทจ</string>
+    <string name="nav_addons">ส่วนเสริม Stremio</string>
+    <string name="nav_extensions">ส่วนขยาย</string>
 </resources>

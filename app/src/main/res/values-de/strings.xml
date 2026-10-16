@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">Diesen Download löschen?</string>
     <string name="download_play_local">Abspielen</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Die Torrent-Wiedergabe konnte nicht gestartet werden. Bitte versuche es erneut.</string>
+    <string name="torrent_cache_capacity_reached">Die Torrent-Wiedergabe hat das Limit für temporären Speicher erreicht. Leere den Cache oder gib Speicherplatz frei und versuche es erneut.</string>
+    <string name="torrent_storage_check_failed">Der verfügbare Speicher konnte nicht geprüft werden. Die Torrent-Wiedergabe kann nicht sicher fortgesetzt werden.</string>
+    <string name="nav_addons">Stremio-Add-ons</string>
+    <string name="nav_extensions">Erweiterungen</string>
 </resources>

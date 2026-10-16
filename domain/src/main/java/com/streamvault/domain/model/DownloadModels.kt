@@ -20,6 +20,13 @@ enum class DownloadContentType {
     SERIES_EPISODE
 }
 
+/** Identifies how the download worker should resolve the persisted stream URL. */
+enum class DownloadSourceType {
+    PROVIDER,
+    DIRECT_URL,
+    TORRENT_MAGNET
+}
+
 /**
  * Represents a single download item with its current state and metadata.
  */
@@ -46,7 +53,8 @@ data class DownloadItem(
     val failureReason: String? = null,
     val seriesId: Long? = null,
     val seasonNumber: Int? = null,
-    val episodeNumber: Int? = null
+    val episodeNumber: Int? = null,
+    val sourceType: DownloadSourceType = DownloadSourceType.PROVIDER
 ) {
     init {
         require(id.isNotBlank()) { "id must not be blank" }
@@ -70,7 +78,9 @@ data class DownloadRequest(
     val posterUrl: String? = null,
     val seriesId: Long? = null,
     val seasonNumber: Int? = null,
-    val episodeNumber: Int? = null
+    val episodeNumber: Int? = null,
+    val sourceType: DownloadSourceType = DownloadSourceType.PROVIDER,
+    val requestHeaders: Map<String, String> = emptyMap()
 )
 
 /**

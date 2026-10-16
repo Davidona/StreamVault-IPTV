@@ -773,12 +773,16 @@ class PreferencesRepository @Inject constructor(
 
     override val parentalControlLevel: Flow<Int> = context.dataStore.data
         .map { preferences ->
-            val stored = preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL] ?: 2 // Default to 2 = PRIVATE
+            val stored = preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL]
             // Migration: users who had the old HIDDEN level (stored as 2) are promoted to the new
             // HIDDEN level (3). The v2-migrated flag prevents re-mapping after the user explicitly
             // sets level 2 (PRIVATE) in the new scheme.
             val migrated = preferences[PreferencesKeys.PARENTAL_V2_MIGRATED] ?: false
-            if (!migrated && stored == 2) 3 else stored
+            when {
+                stored == null -> 1 // Default to 1 = LOCKED
+                !migrated && stored == 2 -> 3
+                else -> stored
+            }
         }
 
     override val hasParentalPin: Flow<Boolean> = context.dataStore.data.map(::hasStoredParentalPin)

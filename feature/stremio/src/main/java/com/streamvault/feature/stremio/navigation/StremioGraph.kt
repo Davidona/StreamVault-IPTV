@@ -91,7 +91,7 @@ fun NavGraphBuilder.registerStremioGraph(
             content = {
                 StremioItemDetailScreen(
                     scaffold = scaffold,
-                    onManagePlugins = { onTopLevelDestinationRequested(AppDestination.Plugins) },
+                    onBack = { navController.popBackStack() },
                     onPlay = { handoff ->
                         actions.openPlayer(
                             PlayerNavigationRequest(

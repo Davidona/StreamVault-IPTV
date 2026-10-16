@@ -51,4 +51,12 @@
   <string name="download_resume">Resume</string>
   <string name="download_delete">Delete</string>
   <string name="downloads_resumed">Download resumed</string>
+  <string name="plugins_configure">Configure</string>
+    <string name="torrent_cache_title">Temporary torrent cache</string>
+    <string name="torrent_cache_description">Temporary torrent data for streaming (8 GB limit). Saved downloads are separate.</string>
+    <string name="torrent_cache_usage">Used: %1$s of %2$s · Free: %3$s</string>
+    <string name="torrent_cache_clear">Clear cache</string>
+    <string name="torrent_cache_confirm_message">Remove temporary torrent data? Saved downloads will not be deleted.</string>
+    <string name="torrent_cache_active">Stop torrent playback before clearing the cache.</string>
+    <string name="torrent_cache_clear_failed">Could not clear the temporary cache.</string>
 </resources>

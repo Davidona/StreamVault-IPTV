@@ -287,4 +287,9 @@
     <string name="download_play_local">Αναπαραγωγή</string>
     <string name="nav_vod">VOD</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">Δεν ήταν δυνατή η έναρξη αναπαραγωγής torrent. Δοκιμάστε ξανά.</string>
+    <string name="torrent_cache_capacity_reached">Η αναπαραγωγή torrent έφτασε το όριο προσωρινής αποθήκευσης. Εκκαθαρίστε την cache ή ελευθερώστε χώρο και δοκιμάστε ξανά.</string>
+    <string name="torrent_storage_check_failed">Δεν ήταν δυνατός ο έλεγχος του διαθέσιμου χώρου. Η αναπαραγωγή torrent δεν μπορεί να συνεχιστεί με ασφάλεια.</string>
+    <string name="nav_addons">Πρόσθετα Stremio</string>
+    <string name="nav_extensions">Επεκτάσεις</string>
 </resources>

@@ -340,4 +340,10 @@
     <string name="downloads_delete_confirm">Padam muat turun ini?</string>
     <string name="download_play_local">Main</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Main balik torrent tidak dapat dimulakan. Sila cuba lagi.</string>
+    <string name="torrent_cache_capacity_reached">Main balik torrent mencapai had storan sementara. Kosongkan cache atau ruang storan, kemudian cuba lagi.</string>
+    <string name="torrent_storage_check_failed">Storan yang tersedia tidak dapat diperiksa. Main balik torrent tidak dapat diteruskan dengan selamat.</string>
+
+    <string name="nav_addons">Alat tambah Stremio</string>
+    <string name="nav_extensions">Sambungan</string>
 </resources>

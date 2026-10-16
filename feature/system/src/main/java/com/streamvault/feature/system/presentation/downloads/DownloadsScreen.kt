@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,6 +50,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import com.streamvault.feature.system.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
@@ -66,8 +70,17 @@ fun DownloadsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let(viewModel::onFolderSelected)
+    }
+
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) viewModel.refreshTorrentCacheStatus()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     HandleDownloadsUserMessage(
@@ -85,7 +98,10 @@ fun DownloadsScreen(
             onResume = viewModel::resumeDownload,
             onDelete = viewModel::showDeleteConfirm,
             onConfirmDelete = viewModel::confirmDelete,
-            onDismissDelete = viewModel::dismissDeleteConfirm
+            onDismissDelete = viewModel::dismissDeleteConfirm,
+            onClearTorrentCache = viewModel::showClearTorrentCacheConfirm,
+            onConfirmClearTorrentCache = viewModel::confirmClearTorrentCache,
+            onDismissClearTorrentCache = viewModel::dismissClearTorrentCacheConfirm
         )
         SnackbarHost(
             hostState = snackbarHostState,
@@ -107,6 +123,9 @@ internal fun DownloadsContent(
     onDelete: (DownloadItem) -> Unit,
     onConfirmDelete: () -> Unit,
     onDismissDelete: () -> Unit,
+    onClearTorrentCache: () -> Unit = {},
+    onConfirmClearTorrentCache: () -> Unit = {},
+    onDismissClearTorrentCache: () -> Unit = {},
 ) {
     scaffold(
         AppDestination.Downloads,
@@ -142,14 +161,21 @@ internal fun DownloadsContent(
                 )
             }
 
+            TorrentCacheCard(
+                status = uiState.torrentCacheStatus,
+                isClearing = uiState.isClearingTorrentCache,
+                onClear = onClearTorrentCache
+            )
+
             when {
-                uiState.isLoading -> DownloadsLoadingState()
-                uiState.downloads.isEmpty() -> DownloadsEmptyState()
+                uiState.isLoading -> DownloadsLoadingState(Modifier.weight(1f))
+                uiState.downloads.isEmpty() -> DownloadsEmptyState(Modifier.weight(1f))
                 else -> DownloadsGrid(
                     downloads = uiState.downloads,
                     onOpenClick = onOpen,
                     onResumeClick = onResume,
-                    onDeleteClick = onDelete
+                    onDeleteClick = onDelete,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -162,12 +188,102 @@ internal fun DownloadsContent(
             onDismiss = onDismissDelete
         )
     }
+
+    if (uiState.showClearTorrentCacheConfirm) {
+        AlertDialog(
+            onDismissRequest = onDismissClearTorrentCache,
+            title = { Text(stringResource(R.string.torrent_cache_title)) },
+            text = { Text(stringResource(R.string.torrent_cache_confirm_message)) },
+            confirmButton = {
+                TextButton(onClick = onConfirmClearTorrentCache) {
+                    Text(stringResource(R.string.torrent_cache_clear))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissClearTorrentCache) {
+                    Text(stringResource(R.string.settings_cancel))
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun DownloadsLoadingState() {
+private fun TorrentCacheCard(
+    status: com.streamvault.domain.model.TorrentCacheStatus?,
+    isClearing: Boolean,
+    onClear: () -> Unit
+) {
+    val context = LocalContext.current
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        color = AppColors.Surface,
+        shape = BrowseShapes.Control
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.torrent_cache_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = AppColors.TextPrimary
+            )
+            Text(
+                text = stringResource(R.string.torrent_cache_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = AppColors.TextSecondary
+            )
+            if (status == null) {
+                Text(
+                    text = stringResource(R.string.downloads_loading),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppColors.TextTertiary
+                )
+            } else {
+                Text(
+                    text = stringResource(
+                        R.string.torrent_cache_usage,
+                        android.text.format.Formatter.formatShortFileSize(context, status.cachedBytes),
+                        android.text.format.Formatter.formatShortFileSize(context, status.cacheLimitBytes),
+                        status.availableStorageBytes?.let {
+                            android.text.format.Formatter.formatShortFileSize(context, it)
+                        } ?: "—"
+                    ),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = AppColors.TextPrimary
+                )
+                if (status.activeSessionCount > 0) {
+                    Text(
+                        text = stringResource(R.string.torrent_cache_active),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppColors.TextTertiary
+                    )
+                }
+            }
+            Button(
+                onClick = onClear,
+                enabled = status != null && status.activeSessionCount == 0 && !isClearing,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                if (isClearing) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+                Text(text = stringResource(R.string.torrent_cache_clear))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DownloadsLoadingState(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -188,9 +304,9 @@ private fun DownloadsLoadingState() {
 }
 
 @Composable
-private fun DownloadsEmptyState() {
+private fun DownloadsEmptyState(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -217,7 +333,8 @@ private fun DownloadsGrid(
     downloads: List<DownloadItem>,
     onOpenClick: (DownloadItem) -> Unit,
     onResumeClick: (DownloadItem) -> Unit,
-    onDeleteClick: (DownloadItem) -> Unit
+    onDeleteClick: (DownloadItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val columns = if (LocalConfiguration.current.screenWidthDp < 700) {
         GridCells.Adaptive(180.dp)
@@ -227,7 +344,7 @@ private fun DownloadsGrid(
 
     LazyVerticalGrid(
         columns = columns,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)

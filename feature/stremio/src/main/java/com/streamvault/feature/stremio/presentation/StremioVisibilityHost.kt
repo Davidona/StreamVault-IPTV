@@ -37,7 +37,7 @@ internal fun StremioVisibilityHost(
     if (state.canAccessContent) {
         content(state)
     } else {
-        scaffold(AppDestination.Addons, title, null, false, true) {
+        scaffold(AppDestination.Addons, title, null, false, true, true) {
             Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 if (showExtensionsTabs) {
                     ExtensionsSectionTabs(

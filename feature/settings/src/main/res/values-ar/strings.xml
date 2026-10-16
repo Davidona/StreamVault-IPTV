@@ -855,4 +855,14 @@
     <item quantity="many">كل %d ساعة</item>
     <item quantity="other">كل %d ساعة</item>
 </plurals>
+<string name="settings_hide_stremio_addons">إخفاء الوظائف الإضافية المتوافقة مع Stremio</string>
+<string name="settings_hide_stremio_addons_subtitle">إخفاء تصفح الوظائف الإضافية وتثبيتها وسجلها. يتم الاحتفاظ بالوظائف الإضافية المثبتة.</string>
+<string name="settings_theme_forest">غابة</string>
+<string name="settings_theme_sunset">غروب</string>
+<string name="settings_theme_ocean">محيط</string>
+<string name="settings_theme_rose">وردة</string>
+<string name="settings_theme_amoled_black">AMOLED أسود</string>
+<string name="settings_theme_vintage">فينتاج</string>
+<string name="nav_addons">إضافات Stremio</string>
+<string name="nav_extensions">التمديدات</string>
 </resources>

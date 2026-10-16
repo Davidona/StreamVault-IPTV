@@ -197,13 +197,14 @@ private fun appSystemScaffold(
 
 private fun appStremioScaffold(
     onTopLevelDestinationRequested: (AppDestination) -> Unit,
-): StremioScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, content ->
+): StremioScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, topBarVisible, content ->
     AppScreenScaffold(
         currentRoute = AppRouteCodec.encode(destination),
         onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
         title = title,
         subtitle = subtitle,
         navigationChrome = AppNavigationChrome.TopBar,
+        topBarVisible = topBarVisible,
         compactHeader = compactHeader,
         showScreenHeader = showScreenHeader,
         content = content,

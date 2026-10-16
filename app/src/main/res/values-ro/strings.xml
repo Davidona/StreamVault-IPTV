@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">Ștergeți această descărcare?</string>
     <string name="download_play_local">Redați</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Redarea torrentului nu a putut fi pornită. Încearcă din nou.</string>
+    <string name="torrent_cache_capacity_reached">Redarea torrentului a atins limita spațiului temporar. Șterge cache-ul sau eliberează spațiu, apoi încearcă din nou.</string>
+    <string name="torrent_storage_check_failed">Spațiul disponibil nu a putut fi verificat. Redarea torrentului nu poate continua în siguranță.</string>
+    <string name="nav_addons">Extensii Stremio</string>
+    <string name="nav_extensions">Extensii</string>
 </resources>

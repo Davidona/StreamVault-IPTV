@@ -843,4 +843,14 @@
         <item quantity="one">Minden %d órában</item>
         <item quantity="other">Minden %d órában</item>
     </plurals>
+<string name="settings_hide_stremio_addons">Stremio-kiegészítők elrejtése</string>
+<string name="settings_hide_stremio_addons_subtitle">A kiegészítők böngészésének, telepítésének és előzményeinek elrejtése. A telepített kiegészítők megmaradnak.</string>
+<string name="settings_theme_forest">Erdő</string>
+<string name="settings_theme_sunset">Naplemente</string>
+<string name="settings_theme_ocean">Óceán</string>
+<string name="settings_theme_rose">Rózsa</string>
+<string name="settings_theme_amoled_black">AMOLED fekete</string>
+<string name="settings_theme_vintage">Vintage</string>
+<string name="nav_addons">Stremio-kiegészítők</string>
+<string name="nav_extensions">Kiterjesztések</string>
 </resources>

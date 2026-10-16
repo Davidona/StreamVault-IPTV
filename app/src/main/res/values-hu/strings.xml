@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">Törli ezt a letöltést?</string>
     <string name="download_play_local">Lejátszás</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Nem sikerült elindítani a torrent lejátszását. Próbáld újra.</string>
+    <string name="torrent_cache_capacity_reached">A torrent lejátszása elérte az ideiglenes tárhely korlátját. Töröld a gyorsítótárat vagy szabadíts fel helyet, majd próbáld újra.</string>
+    <string name="torrent_storage_check_failed">A szabad tárhely nem ellenőrizhető. A torrent lejátszása nem folytatható biztonságosan.</string>
+    <string name="nav_addons">Stremio-kiegészítők</string>
+    <string name="nav_extensions">Kiterjesztések</string>
 </resources>

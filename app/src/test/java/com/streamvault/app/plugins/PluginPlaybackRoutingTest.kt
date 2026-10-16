@@ -38,7 +38,7 @@ class PluginPlaybackRoutingTest {
     }
 
     @Test
-    fun `magnet requests require an enabled plugin that explicitly owns magnet URLs`() {
+    fun `plugin candidates can own a custom magnet scheme`() {
         val magnet = "magnet:?xt=urn:btih:0123456789abcdef"
         val torrentPlugin = plugin("torrent", schemes = listOf("magnet"))
 
@@ -56,12 +56,15 @@ class PluginPlaybackRoutingTest {
     }
 
     @Test
-    fun `magnet preparation accepts only a safe local HTTP output with an explicit port`() {
-        assertThat(isSafeMagnetPlaybackOutputUrl("http://127.0.0.1:6878/stream/abc")).isTrue()
-        assertThat(isSafeMagnetPlaybackOutputUrl("http://localhost:6878/stream/abc")).isFalse()
-        assertThat(isSafeMagnetPlaybackOutputUrl("https://127.0.0.1:6878/stream/abc")).isFalse()
-        assertThat(isSafeMagnetPlaybackOutputUrl("http://127.0.0.1/stream/abc")).isFalse()
-        assertThat(isSafeMagnetPlaybackOutputUrl("http://user@127.0.0.1:6878/stream/abc")).isFalse()
+    fun `built in torrent output accepts only the loopback stream endpoint`() {
+        val path = "/stream/0123456789abcdef0123456789abcdef"
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878$path")).isTrue()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://localhost:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("https://127.0.0.1:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://user@127.0.0.1:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878/stream/other")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878$path?redirect=elsewhere")).isFalse()
     }
 
     @Test

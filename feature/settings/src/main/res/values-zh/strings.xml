@@ -839,4 +839,14 @@
 <string name="settings_recording_smb_password_hint">留空以复用同一 URL 和用户名已保存的密码</string>
 <string name="settings_recording_smb_save">验证并保存</string>
 <string name="settings_recording_smb_saving">正在验证…</string>
+    <string name="settings_hide_stremio_addons">隐藏 Stremio 扩展</string>
+    <string name="settings_hide_stremio_addons_subtitle">隐藏扩展浏览、安装和历史记录。已安装的扩展会保留。</string>
+    <string name="settings_theme_forest">森林</string>
+    <string name="settings_theme_sunset">日落</string>
+    <string name="settings_theme_ocean">海洋</string>
+    <string name="settings_theme_rose">玫瑰</string>
+    <string name="settings_theme_amoled_black">AMOLED 黑</string>
+    <string name="settings_theme_vintage">复古</string>
+    <string name="nav_addons">Stremio 扩展</string>
+    <string name="nav_extensions">扩展功能</string>
 </resources>

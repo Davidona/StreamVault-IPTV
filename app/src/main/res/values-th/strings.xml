@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">ลบการดาวน์โหลดนี้หรือไม่?</string>
     <string name="download_play_local">เล่น</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">ไม่สามารถเริ่มเล่นทอร์เรนต์ได้ โปรดลองอีกครั้ง</string>
+    <string name="torrent_cache_capacity_reached">การเล่นทอร์เรนต์ถึงขีดจำกัดพื้นที่จัดเก็บชั่วคราวแล้ว ล้างแคชหรือเพิ่มพื้นที่ว่างแล้วลองอีกครั้ง</string>
+    <string name="torrent_storage_check_failed">ไม่สามารถตรวจสอบพื้นที่จัดเก็บที่พร้อมใช้งานได้ จึงไม่สามารถเล่นทอร์เรนต์ต่อได้อย่างปลอดภัย</string>
+    <string name="nav_addons">ส่วนเสริม Stremio</string>
+    <string name="nav_extensions">ส่วนขยาย</string>
 </resources>

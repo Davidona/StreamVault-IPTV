@@ -843,4 +843,14 @@
     <item quantity="one">Varje timme</item>
     <item quantity="other">Var %d:e timme</item>
 </plurals>
+<string name="settings_hide_stremio_addons">Dölj Stremio-tillägg</string>
+<string name="settings_hide_stremio_addons_subtitle">Dölj bläddring, installation och historik för tillägg. Installerade tillägg finns kvar.</string>
+<string name="settings_theme_forest">Skog</string>
+<string name="settings_theme_sunset">Solnedgång</string>
+<string name="settings_theme_ocean">Hav</string>
+<string name="settings_theme_rose">Ros</string>
+<string name="settings_theme_amoled_black">AMOLED-svart</string>
+<string name="settings_theme_vintage">Vintage</string>
+<string name="nav_addons">Stremio-tillägg</string>
+<string name="nav_extensions">Tillägg</string>
 </resources>

@@ -299,4 +299,9 @@
     <string name="downloads_empty">Aucun téléchargement pour le moment</string>
     <string name="downloads_delete_confirm">Supprimer ce téléchargement ?</string>
     <string name="download_play_local">Lire</string>
+    <string name="torrent_playback_start_failed">La lecture du torrent n’a pas pu démarrer. Veuillez réessayer.</string>
+    <string name="torrent_cache_capacity_reached">La lecture du torrent a atteint la limite de stockage temporaire. Videz le cache ou libérez de la place, puis réessayez.</string>
+    <string name="torrent_storage_check_failed">Impossible de vérifier le stockage disponible. La lecture du torrent ne peut pas continuer en toute sécurité.</string>
+    <string name="nav_addons">Extensions Stremio</string>
+    <string name="nav_extensions">Extensions</string>
 </resources>

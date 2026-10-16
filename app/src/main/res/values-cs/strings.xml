@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">Smazat toto stahování?</string>
     <string name="download_play_local">Přehrát</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">Přehrávání torrentu se nepodařilo spustit. Zkuste to znovu.</string>
+    <string name="torrent_cache_capacity_reached">Přehrávání torrentu dosáhlo limitu dočasného úložiště. Vymažte mezipaměť nebo uvolněte místo a zkuste to znovu.</string>
+    <string name="torrent_storage_check_failed">Volné úložiště se nepodařilo zkontrolovat. Přehrávání torrentu nemůže bezpečně pokračovat.</string>
+    <string name="nav_addons">Doplňky Stremio</string>
+    <string name="nav_extensions">Rozšíření</string>
 </resources>

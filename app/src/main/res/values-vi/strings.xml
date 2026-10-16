@@ -287,4 +287,9 @@
     <string name="m3u_episode_unresolved">Số tập chưa xác định — mục này sẽ tiếp tục được đánh dấu để chỉnh sửa.</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Quay lại các thao tác sao lưu Drive.</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">Không thể bắt đầu phát torrent. Vui lòng thử lại.</string>
+    <string name="torrent_cache_capacity_reached">Phát torrent đã đạt giới hạn dung lượng tạm thời. Hãy xóa bộ nhớ đệm hoặc giải phóng dung lượng rồi thử lại.</string>
+    <string name="torrent_storage_check_failed">Không thể kiểm tra dung lượng lưu trữ còn trống. Không thể tiếp tục phát torrent một cách an toàn.</string>
+    <string name="nav_addons">Tiện ích Stremio</string>
+    <string name="nav_extensions">Tiện ích mở rộng</string>
 </resources>

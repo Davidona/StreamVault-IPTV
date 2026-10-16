@@ -843,4 +843,14 @@
         <item quantity="one">Çdo %d orë</item>
         <item quantity="other">Çdo %d orë</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Fshih shtesat Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Fshih shfletimin, instalimin dhe historikun e shtesave. Shtesat e instaluara ruhen.</string>
+    <string name="settings_theme_forest">Pyll</string>
+    <string name="settings_theme_sunset">Perëndim</string>
+    <string name="settings_theme_ocean">Oqean</string>
+    <string name="settings_theme_rose">Rozë</string>
+    <string name="settings_theme_amoled_black">E zezë AMOLED</string>
+    <string name="settings_theme_vintage">Vintage</string>
+    <string name="nav_addons">Shtesa Stremio</string>
+    <string name="nav_extensions">Zgjerimet</string>
 </resources>

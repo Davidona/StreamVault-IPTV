@@ -309,4 +309,9 @@
     <string name="downloads_delete_confirm">刪除此下載？</string>
     <string name="download_play_local">播放</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">無法開始播放種子。請再試一次。</string>
+    <string name="torrent_cache_capacity_reached">Torrent 播放已達暫存空間上限。請清除快取或釋出裝置空間後再試。</string>
+    <string name="torrent_storage_check_failed">無法檢查可用儲存空間，因此無法安全地繼續播放 Torrent。</string>
+    <string name="nav_addons">Stremio 擴充套件</string>
+    <string name="nav_extensions">擴充功能</string>
 </resources>

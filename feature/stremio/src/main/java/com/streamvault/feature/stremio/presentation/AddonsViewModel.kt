@@ -1,5 +1,6 @@
 package com.streamvault.feature.stremio.presentation
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import com.streamvault.domain.model.stremio.StremioResourceKind
 import com.streamvault.domain.repository.StremioAddonRepository
 import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.feature.stremio.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,8 @@ import kotlinx.coroutines.launch
 class AddonsViewModel @Inject constructor(
     private val repository: StremioAddonRepository,
     private val historyRepository: StremioPlaybackHistoryRepository,
-    private val contentAccess: StremioContentAccess
+    private val contentAccess: StremioContentAccess,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     data class AddonEntry(
@@ -56,7 +59,7 @@ class AddonsViewModel @Inject constructor(
             repository.observeAddons()
                 .catch { error ->
                     _state.update {
-                        it.copy(loading = false, errorMessage = safeAddonError(error.message ?: "Add-ons could not be loaded"))
+                        it.copy(loading = false, errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic)))
                     }
                 }
                 .collect { addons ->
@@ -66,7 +69,7 @@ class AddonsViewModel @Inject constructor(
                         } catch (cancellation: kotlinx.coroutines.CancellationException) {
                             throw cancellation
                         } catch (error: Exception) {
-                            _state.update { it.copy(errorMessage = safeAddonError(error.message ?: "Add-on details could not be loaded")) }
+                            _state.update { it.copy(errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic))) }
                             null
                         }
                         AddonEntry(addon, manifest?.catalogs.orEmpty(), manifest)
@@ -76,7 +79,7 @@ class AddonsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             historyRepository.observeContinueWatching()
-                .catch { _state.update { state -> state.copy(errorMessage = safeAddonError(it.message ?: "History could not be loaded")) } }
+                .catch { _state.update { state -> state.copy(errorMessage = safeAddonError(it.message ?: context.getString(R.string.stremio_error_generic))) } }
                 .collect { history -> _state.update { it.copy(continueWatching = history) } }
         }
     }
@@ -117,13 +120,13 @@ class AddonsViewModel @Inject constructor(
                 is Result.Error -> _state.update {
                     it.copy(installing = false, errorMessage = safeAddonError(result.message, url))
                 }
-                Result.Loading -> _state.update { it.copy(installing = false, errorMessage = "Addon installation did not complete") }
+                Result.Loading -> _state.update { it.copy(installing = false, errorMessage = context.getString(R.string.stremio_error_generic)) }
                 }
             } catch (cancellation: kotlinx.coroutines.CancellationException) {
                 throw cancellation
             } catch (error: Exception) {
                 _state.update {
-                    it.copy(installing = false, errorMessage = safeAddonError(error.message ?: "Addon could not be installed", url))
+                    it.copy(installing = false, errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic), url))
                 }
             }
         }
@@ -140,13 +143,13 @@ class AddonsViewModel @Inject constructor(
                 when (val result = repository.refreshAddon(id)) {
                     is Result.Success -> _state.update { it.copy(statusMessageRes = R.string.stremio_status_refreshed) }
                     is Result.Error -> _state.update { it.copy(errorMessage = safeAddonError(result.message, entry.addon.installUrl)) }
-                    Result.Loading -> _state.update { it.copy(errorMessage = "Add-on refresh did not complete") }
+                    Result.Loading -> _state.update { it.copy(errorMessage = context.getString(R.string.stremio_error_generic)) }
                 }
             } catch (cancellation: kotlinx.coroutines.CancellationException) {
                 throw cancellation
             } catch (error: Exception) {
                 _state.update {
-                    it.copy(errorMessage = safeAddonError(error.message ?: "Add-on manifest could not be refreshed", entry.addon.installUrl))
+                    it.copy(errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic), entry.addon.installUrl))
                 }
             } finally {
                 _state.update { it.copy(refreshingAddonId = null, busyAddonIds = it.busyAddonIds - id) }
@@ -209,13 +212,13 @@ class AddonsViewModel @Inject constructor(
                 when (val result = action()) {
                     is Result.Success -> _state.update(onSuccess)
                     is Result.Error -> _state.update { it.copy(errorMessage = safeAddonError(result.message, entry.addon.installUrl)) }
-                    Result.Loading -> _state.update { it.copy(errorMessage = "Add-on action did not complete") }
+                    Result.Loading -> _state.update { it.copy(errorMessage = context.getString(R.string.stremio_error_generic)) }
                 }
             } catch (cancellation: kotlinx.coroutines.CancellationException) {
                 throw cancellation
             } catch (error: Exception) {
                 _state.update {
-                    it.copy(errorMessage = safeAddonError(error.message ?: "Add-on action failed", entry.addon.installUrl))
+                    it.copy(errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic), entry.addon.installUrl))
                 }
             } finally {
                 _state.update { it.copy(busyAddonIds = it.busyAddonIds - id) }
@@ -231,6 +234,6 @@ class AddonsViewModel @Inject constructor(
             .replace(Regex("(?i)(?:https?://[^\\s\\\"']+|magnet:\\?[^\\s\\\"']+)"), "add-on endpoint")
             .replace(Regex("(?i)([?&](username|password|token|auth|key)=)[^&\\s]+"), "\$1<redacted>")
             .take(220)
-            .ifBlank { "Add-on action failed" }
+            .ifBlank { context.getString(R.string.stremio_error_generic) }
     }
 }

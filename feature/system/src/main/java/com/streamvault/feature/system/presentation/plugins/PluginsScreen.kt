@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +46,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -184,7 +189,7 @@ internal fun PluginsContent(
         stringResource(R.string.extensions_title),
         null,
         true,
-        true
+        false
     ) {
         Column(
             modifier = modifier.fillMaxSize(),
@@ -201,14 +206,26 @@ internal fun PluginsContent(
                     onRunAction = actions.onRunConfigurationAction
                 )
             } else {
-                ExtensionsSectionTabs(
-                    selectedIndex = 0,
-                    pluginsLabel = stringResource(R.string.extensions_tab_plugins),
-                    stremioAddonsLabel = stringResource(R.string.extensions_tab_stremio_addons),
-                    onTabSelected = { selectedIndex ->
-                        if (selectedIndex == 1) onNavigateToStremioAddons()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ExtensionsSectionTabs(
+                        selectedIndex = 0,
+                        pluginsLabel = stringResource(R.string.extensions_tab_plugins),
+                        stremioAddonsLabel = stringResource(R.string.extensions_tab_stremio_addons),
+                        onTabSelected = { if (it == 1) onNavigateToStremioAddons() }
+                    )
+                    Spacer(Modifier.weight(1f))
+                    PluginButton(onClick = onShowInstallOptionsDialog, tone = PluginButtonTone.Primary) {
+                        Text(stringResource(R.string.plugins_add))
                     }
-                )
+                    PluginButton(onClick = actions.onRefreshPlugins, enabled = !uiState.isLoading) {
+                        Text(stringResource(R.string.plugins_refresh))
+                    }
+                }
+
 
                 when {
                     uiState.isLoading && uiState.plugins.isEmpty() -> Box(
@@ -240,32 +257,13 @@ internal fun PluginsContent(
                                     }
                                 }
                             )
-                            PluginButton(
-                                onClick = actions.onRefreshPlugins,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            ) { Text(stringResource(R.string.plugins_refresh)) }
                         }
                     }
                     else -> {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.plugins_installed_count, uiState.plugins.size),
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = AppColors.TextPrimary
-                            )
-                            PluginButton(onClick = onShowInstallOptionsDialog, tone = PluginButtonTone.Primary) {
-                                Text(stringResource(R.string.plugins_add))
-                            }
-                            PluginButton(
-                                onClick = actions.onRefreshPlugins,
-                                enabled = !uiState.isLoading
-                            ) { Text(stringResource(R.string.plugins_refresh)) }
-                        }
+                        Text(
+                            stringResource(R.string.plugins_installed_count, uiState.plugins.size),
+                            style = MaterialTheme.typography.titleSmall, color = AppColors.TextSecondary
+                        )
                         uiState.providerSources.takeIf { it.isNotEmpty() }?.let { sources ->
                             Text(
                                 text = stringResource(R.string.plugins_provider_sources_count, sources.size),
@@ -276,11 +274,13 @@ internal fun PluginsContent(
                         uiState.syncProgress?.let {
                             Text(text = it, style = MaterialTheme.typography.bodySmall, color = AppColors.Brand)
                         }
-                        LazyColumn(
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(400.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            items(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
+                            gridItems(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
                                 PluginCard(
                                     plugin = plugin,
                                     busy = uiState.activePluginOwner == plugin.owner,
@@ -293,7 +293,7 @@ internal fun PluginsContent(
                                     onOpenConfiguration = { actions.onOpenPluginConfiguration(plugin) }
                                 )
                             }
-                            item { Spacer(modifier = Modifier.height(20.dp)) }
+
                         }
                     }
                 }
@@ -530,32 +530,33 @@ private fun PluginCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                PluginButton(onClick = onToggleDetails) {
-                    Text(stringResource(if (expanded) R.string.plugins_hide_details else R.string.plugins_details))
-                }
-                if (plugin.manifest.canConfigure) {
-                    PluginButton(
-                        enabled = !busy,
-                        onClick = onOpenConfiguration
-                    ) {
-                        Text("Configure")
-                    }
-                }
-                Switch(
-                    checked = plugin.enabled,
-                    enabled = !busy,
-                    onCheckedChange = onEnabledChange
-                )
-            }
+            Switch(
+                checked = plugin.enabled,
+                enabled = !busy,
+                onCheckedChange = onEnabledChange,
+                modifier = Modifier.semantics { contentDescription = plugin.displayName }
+            )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             plugin.manifest.capabilities.forEach { capability ->
                 StatusPill(
                     label = capability,
-                    containerColor = Color.White.copy(alpha = 0.08f),
+                    containerColor = AppColors.BrandMuted,
                     contentColor = AppColors.TextSecondary
                 )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            PluginButton(onClick = onToggleDetails) {
+                Text(stringResource(if (expanded) R.string.plugins_hide_details else R.string.plugins_details))
+            }
+            if (plugin.manifest.canConfigure) {
+                PluginButton(enabled = !busy, onClick = onOpenConfiguration) {
+                    Text(stringResource(R.string.plugins_configure))
+                }
             }
         }
         if (expanded) {

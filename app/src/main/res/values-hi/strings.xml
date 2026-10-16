@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">यह डाउनलोड हटाएँ?</string>
     <string name="download_play_local">चलाएँ</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">टोरेंट प्लेबैक शुरू नहीं हो सका। कृपया फिर से कोशिश करें।</string>
+    <string name="torrent_cache_capacity_reached">टोरेंट प्लेबैक अस्थायी स्टोरेज सीमा तक पहुँच गया है। कैश साफ़ करें या जगह खाली करके फिर कोशिश करें।</string>
+    <string name="torrent_storage_check_failed">उपलब्ध स्टोरेज की जाँच नहीं हो सकी। टोरेंट प्लेबैक सुरक्षित रूप से जारी नहीं रह सकता।</string>
+    <string name="nav_addons">Stremio ऐड-ऑन</string>
+    <string name="nav_extensions">एक्सटेंशन</string>
 </resources>

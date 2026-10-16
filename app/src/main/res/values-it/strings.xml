@@ -287,4 +287,9 @@
     <string name="m3u_episode_unresolved">Numero episodio non risolto — rimarrà contrassegnato per la correzione.</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Torna alle azioni di backup su Drive.</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Impossibile avviare la riproduzione del torrent. Riprova.</string>
+    <string name="torrent_cache_capacity_reached">La riproduzione del torrent ha raggiunto il limite di spazio temporaneo. Svuota la cache o libera spazio, poi riprova.</string>
+    <string name="torrent_storage_check_failed">Impossibile controllare lo spazio disponibile. La riproduzione del torrent non può continuare in sicurezza.</string>
+    <string name="nav_addons">Componenti aggiuntivi Stremio</string>
+    <string name="nav_extensions">Estensioni</string>
 </resources>

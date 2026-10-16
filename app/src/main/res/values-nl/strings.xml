@@ -287,4 +287,9 @@
     <string name="downloads_empty">Nog geen downloads</string>
     <string name="downloads_delete_confirm">Deze download verwijderen?</string>
     <string name="download_play_local">Afspelen</string>
+    <string name="torrent_playback_start_failed">Torrent afspelen kon niet worden gestart. Probeer het opnieuw.</string>
+    <string name="torrent_cache_capacity_reached">De torrentweergave heeft de limiet voor tijdelijke opslag bereikt. Wis de cache of maak ruimte vrij en probeer het opnieuw.</string>
+    <string name="torrent_storage_check_failed">De beschikbare opslagruimte kon niet worden gecontroleerd. De torrentweergave kan niet veilig doorgaan.</string>
+    <string name="nav_addons">Stremio-add-ons</string>
+    <string name="nav_extensions">Extensies</string>
 </resources>

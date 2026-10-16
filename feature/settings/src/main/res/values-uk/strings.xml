@@ -849,4 +849,14 @@
         <item quantity="many">Кожні %d годин</item>
         <item quantity="other">Кожні %d години</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Приховати доповнення Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Приховує огляд, встановлення та історію доповнень. Встановлені доповнення зберігаються.</string>
+    <string name="settings_theme_forest">Лісова</string>
+    <string name="settings_theme_sunset">Захід сонця</string>
+    <string name="settings_theme_ocean">Океанська</string>
+    <string name="settings_theme_rose">Рожева</string>
+    <string name="settings_theme_amoled_black">AMOLED чорна</string>
+    <string name="settings_theme_vintage">Вінтажна</string>
+    <string name="nav_addons">Доповнення Stremio</string>
+    <string name="nav_extensions">Розширення</string>
 </resources>

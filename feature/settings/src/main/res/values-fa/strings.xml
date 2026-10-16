@@ -839,8 +839,18 @@
     <string name="settings_auto_sync_start">شروع بازه</string>
     <string name="settings_auto_sync_end">پایان بازه</string>
     <string name="settings_auto_sync_hour">%1$02d:00 (زمان محلی)</string>
+    <string name="settings_hide_stremio_addons">پنهان کردن افزونه‌های سازگار با Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">مرور، نصب و تاریخچهٔ افزونه‌ها را پنهان می‌کند. افزونه‌های نصب‌شده حفظ می‌شوند.</string>
     <plurals name="settings_auto_sync_hours">
         <item quantity="one">هر %d ساعت</item>
         <item quantity="other">هر %d ساعت</item>
     </plurals>
+    <string name="nav_addons">افزونه‌های Stremio</string>
+    <string name="nav_extensions">افزونه‌ها</string>
+    <string name="settings_theme_forest">جنگل</string>
+    <string name="settings_theme_sunset">غروب</string>
+    <string name="settings_theme_ocean">اقیانوس</string>
+    <string name="settings_theme_rose">رز</string>
+    <string name="settings_theme_amoled_black">مشکی AMOLED</string>
+    <string name="settings_theme_vintage">وینتیج</string>
 </resources>

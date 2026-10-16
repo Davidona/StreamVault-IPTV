@@ -849,4 +849,14 @@
     <item quantity="many">Co %d godzin</item>
     <item quantity="other">Co %d godziny</item>
 </plurals>
+    <string name="settings_hide_stremio_addons">Ukryj dodatki Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Ukryj przeglądanie, instalowanie i historię dodatków. Zainstalowane dodatki zostaną zachowane.</string>
+    <string name="settings_theme_forest">Leśny</string>
+    <string name="settings_theme_sunset">Zachód słońca</string>
+    <string name="settings_theme_ocean">Oceaniczny</string>
+    <string name="settings_theme_rose">Różany</string>
+    <string name="settings_theme_amoled_black">AMOLED czarny</string>
+    <string name="settings_theme_vintage">Vintage</string>
+    <string name="nav_addons">Dodatki Stremio</string>
+    <string name="nav_extensions">Rozszerzenia</string>
 </resources>

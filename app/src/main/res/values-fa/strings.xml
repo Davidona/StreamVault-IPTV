@@ -343,4 +343,9 @@
     <string name="downloads_delete_confirm">این دانلود حذف شود؟</string>
     <string name="download_play_local">پخش</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">پخش تورنت شروع نشد. لطفاً دوباره امتحان کنید.</string>
+    <string name="torrent_cache_capacity_reached">پخش تورنت به محدودیت فضای موقت رسیده است. حافظه را پاک کنید یا فضا آزاد کنید و دوباره تلاش کنید.</string>
+    <string name="torrent_storage_check_failed">بررسی فضای ذخیره‌سازی ممکن نشد و پخش تورنت نمی‌تواند با اطمینان ادامه یابد.</string>
+    <string name="nav_addons">افزونه‌های Stremio</string>
+    <string name="nav_extensions">افزونه‌ها</string>
 </resources>

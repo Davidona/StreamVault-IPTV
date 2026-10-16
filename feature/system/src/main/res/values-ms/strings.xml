@@ -33,4 +33,31 @@
   <string name="download_resume">Sambung</string>
   <string name="download_delete">Padam</string>
   <string name="downloads_resumed">Muat turun disambung</string>
+  <string name="extensions_tab_plugins">Pemalam</string>
+  <string name="extensions_tab_stremio_addons">Alat tambah Stremio</string>
+  <string name="plugins_add">Tambah pemalam</string>
+  <string name="plugins_refresh">Semak pemalam dipasang</string>
+  <string name="plugins_installed_count">Pemalam · %1$d dipasang</string>
+  <string name="plugins_configure">Konfigurasi</string>
+    <string name="torrent_cache_title">Cache torrent sementara</string>
+    <string name="torrent_cache_description">Data sementara untuk penstriman torrent dengan had 8 GB. Muat turun tersimpan adalah berasingan.</string>
+    <string name="torrent_cache_usage">Digunakan: %1$s daripada %2$s · Kosong: %3$s</string>
+    <string name="torrent_cache_clear">Kosongkan cache</string>
+    <string name="torrent_cache_confirm_message">Buang data torrent sementara? Muat turun tersimpan tidak akan dipadamkan.</string>
+    <string name="torrent_cache_active">Hentikan main balik torrent sebelum mengosongkan cache.</string>
+    <string name="torrent_cache_clear_failed">Cache sementara tidak dapat dikosongkan.</string>
+
+    <string name="extensions_title">Sambungan</string>
+    <string name="plugins_section_description">Tambah ciri pada StreamVault dengan aplikasi pendamping Android.</string>
+    <string name="plugins_install_url">Pasang pemalam daripada URL</string>
+    <string name="plugins_install_file">Pasang APK pemalam</string>
+    <string name="plugins_install_hint">Gunakan fail APK atau pautan muat turun APK terus. Untuk URL manifes alat tambah Stremio, gunakan tab Alat tambah Stremio.</string>
+    <string name="plugins_empty_title">Tiada pemalam dipasang</string>
+    <string name="plugins_empty_description">Pasang aplikasi pendamping StreamVault yang serasi, atau semak semula untuk pemalam yang anda pasang di luar StreamVault.</string>
+    <string name="plugins_provider_sources_count">%1$d sumber penyedia tersedia</string>
+    <string name="plugins_details">Butiran</string>
+    <string name="plugins_hide_details">Sembunyikan butiran</string>
+    <string name="plugins_back_to_plugins">Kembali ke Pemalam</string>
+    <string name="plugins_refresh_configuration">Muat semula</string>
+    <string name="plugins_save_configuration">Simpan</string>
 </resources>

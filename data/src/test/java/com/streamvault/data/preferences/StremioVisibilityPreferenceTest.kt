@@ -40,6 +40,7 @@ class StremioVisibilityPreferenceTest {
         val preferences = repository()
         assertThat(preferences.hideStremioAddons.first()).isFalse()
         val globalLevel = preferences.parentalControlLevel.first()
+        assertThat(globalLevel).isEqualTo(1)
         preferences.setHideStremioAddons(true)
         assertThat(preferences.hideStremioAddons.first()).isTrue()
         assertThat(preferences.parentalControlLevel.first()).isEqualTo(globalLevel)

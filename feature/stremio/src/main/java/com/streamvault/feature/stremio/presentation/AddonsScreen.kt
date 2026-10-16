@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
@@ -136,6 +138,7 @@ fun AddonsScreen(
         AppDestination.Addons,
         stringResource(R.string.extensions_title),
         null,
+        true,
         false,
         true
     ) {
@@ -175,27 +178,44 @@ fun AddonsScreen(
                     }
                 )
                 else -> {
+                    TvClickableSurface(
+                        onClick = onOpenBrowse,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .background(Brush.horizontalGradient(listOf(AppColors.BrandMuted, AppColors.SurfaceEmphasis)))
+                                .padding(horizontal = 20.dp, vertical = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Movie, contentDescription = null, tint = AppColors.BrandStrong,
+                                modifier = Modifier.size(32.dp))
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(stringResource(R.string.stremio_browse_title),
+                                    style = MaterialTheme.typography.headlineSmall, color = AppColors.TextPrimary)
+                                Text(stringResource(R.string.stremio_browse_hint),
+                                    style = MaterialTheme.typography.bodySmall, color = AppColors.TextSecondary)
+                            }
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = AppColors.BrandStrong)
+                        }
+                    }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(R.string.stremio_installed_count, state.addons.size),
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = AppColors.TextPrimary
+                            stringResource(R.string.stremio_installed_count, state.addons.size),
+                            modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall,
+                            color = AppColors.TextSecondary
                         )
-                        TvPrimaryButton(
-                            onClick = viewModel::showInstallDialog,
-                            modifier = Modifier.focusRequester(addButtonFocusRequester)
-                        ) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                            Spacer(Modifier.size(8.dp))
-                            Text(stringResource(R.string.stremio_add))
-                        }
-                        TvButton(onClick = onOpenBrowse) {
-                            Text(stringResource(R.string.stremio_browse))
+                        TvButton(onClick = viewModel::showInstallDialog,
+                            modifier = Modifier.focusRequester(addButtonFocusRequester)) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.stremio_add), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                     LazyColumn(
@@ -386,6 +406,12 @@ private fun AddonCard(
                     if (hasSubtitles) StatusPill(label = stringResource(R.string.stremio_subtitles_capability))
                 }
             }
+            TvButton(
+                onClick = onToggleExpanded,
+                modifier = Modifier.focusRequester(detailsFocusRequester)
+            ) {
+                Text(stringResource(if (expanded) R.string.stremio_hide_details else R.string.stremio_details))
+            }
             Switch(
                 checked = addon.enabled,
                 onCheckedChange = onEnabledChange,
@@ -393,23 +419,6 @@ private fun AddonCard(
                 colors = stremioSwitchColors()
             )
         }
-
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            TvButton(
-                onClick = onToggleExpanded,
-                modifier = Modifier.heightIn(min = 44.dp).focusRequester(detailsFocusRequester),
-                colors = androidx.tv.material3.ButtonDefaults.colors(
-                    containerColor = AppColors.Surface,
-                    contentColor = AppColors.TextPrimary,
-                    focusedContainerColor = AppColors.SurfaceEmphasis,
-                    focusedContentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(if (expanded) R.string.stremio_hide_details else R.string.stremio_details))
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
         if (expanded) {
             Text(
                 text = stringResource(R.string.stremio_version_and_server_format,

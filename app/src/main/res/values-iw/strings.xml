@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">למחוק הורדה זו?</string>
     <string name="download_play_local">נגן</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">לא ניתן להתחיל את הפעלת הטורנט. נסה שוב.</string>
+    <string name="torrent_cache_capacity_reached">ניגון הטורנט הגיע למגבלת האחסון הזמני. יש לנקות את המטמון או לפנות מקום ולנסות שוב.</string>
+    <string name="torrent_storage_check_failed">לא ניתן לבדוק את נפח האחסון הזמין. אי אפשר להמשיך לנגן את הטורנט בבטחה.</string>
+    <string name="nav_addons">תוספי Stremio</string>
+    <string name="nav_extensions">הרחבות</string>
 </resources>

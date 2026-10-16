@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Odstrániť toto sťahovanie?</string>
     <string name="download_play_local">Prehrať</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Prehrávanie torrentu sa nepodarilo spustiť. Skúste to znova.</string>
+    <string name="torrent_cache_capacity_reached">Prehrávanie torrentu dosiahlo limit dočasného úložiska. Vymažte vyrovnávaciu pamäť alebo uvoľnite miesto a skúste to znova.</string>
+    <string name="torrent_storage_check_failed">Voľné úložisko sa nepodarilo skontrolovať. Prehrávanie torrentu nemôže bezpečne pokračovať.</string>
+    <string name="nav_addons">Doplnky Stremio</string>
+    <string name="nav_extensions">Rozšírenia</string>
 </resources>

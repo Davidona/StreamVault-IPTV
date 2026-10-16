@@ -840,4 +840,14 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">每 %d 小時</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">隱藏 Stremio 擴充套件</string>
+    <string name="settings_hide_stremio_addons_subtitle">隱藏擴充套件瀏覽、安裝與記錄。已安裝的擴充套件會保留。</string>
+    <string name="settings_theme_forest">森林</string>
+    <string name="settings_theme_sunset">日落</string>
+    <string name="settings_theme_ocean">海洋</string>
+    <string name="settings_theme_rose">玫瑰</string>
+    <string name="settings_theme_amoled_black">AMOLED 黑</string>
+    <string name="settings_theme_vintage">復古</string>
+    <string name="nav_addons">Stremio 擴充套件</string>
+    <string name="nav_extensions">擴充功能</string>
 </resources>

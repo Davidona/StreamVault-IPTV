@@ -1,5 +1,9 @@
 package com.streamvault.feature.stremio.presentation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import com.streamvault.core.ui.interaction.TvIconButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -19,7 +23,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,9 +37,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -66,25 +66,29 @@ import com.streamvault.feature.stremio.api.StremioScaffoldContent
 internal fun StremioItemDetailScreen(
     scaffold: StremioScaffoldContent,
     onPlay: (StremioPlayerHandoff) -> Unit,
-    onManagePlugins: () -> Unit = {},
+    onBack: () -> Unit,
     viewModel: StremioItemDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, viewModel) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshTorrentPlaybackAvailability()
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
     scaffold(
         AppDestination.Addons,
         state.displayName,
         state.displayReleaseInfo,
+        true,
         false,
-        true
+        false
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(40.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TvIconButton(onClick = onBack, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.stremio_browse))
+            }
+            Text(stringResource(R.string.stremio_browse), style = MaterialTheme.typography.titleSmall,
+                color = AppColors.TextSecondary)
+        }
         StremioItemDetailContent(
             state = state,
             onLoadMovieStreams = { viewModel.loadStreams(state.preview.id) },
@@ -93,7 +97,7 @@ internal fun StremioItemDetailScreen(
             onRetryAllStreams = { videoId -> viewModel.loadStreams(videoId) },
             onRetryMetadata = viewModel::retryMetadata,
             onRetryAddon = viewModel::retryStreamsForAddon,
-            onManagePlugins = onManagePlugins,
+            onDownload = viewModel::enqueueDownload,
             onPlay = onPlay
         )
     }
@@ -108,7 +112,7 @@ private fun StremioItemDetailContent(
     onRetryAllStreams: (String) -> Unit,
     onRetryMetadata: () -> Unit,
     onRetryAddon: (Long) -> Unit,
-    onManagePlugins: () -> Unit,
+    onDownload: (com.streamvault.domain.model.stremio.StremioAddonSource, StremioStream, String) -> Unit,
     onPlay: (StremioPlayerHandoff) -> Unit
 ) {
     var selectedSeason by rememberSaveable(state.preview.id) { mutableStateOf<Int?>(null) }
@@ -117,7 +121,7 @@ private fun StremioItemDetailContent(
         if (selectedSeason !in seasons) selectedSeason = seasons.firstOrNull()
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxSize().padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)
     ) {
@@ -131,8 +135,17 @@ private fun StremioItemDetailContent(
         }
         item(key = "meta") {
             BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Hero).padding(20.dp)
+                modifier = Modifier.fillMaxWidth().clip(BrowseShapes.Hero).background(AppColors.Surface)
             ) {
+                AsyncImage(
+                    model = state.metadata?.background ?: state.displayPoster,
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(), contentScale = ContentScale.Crop
+                )
+                Box(Modifier.matchParentSize().background(Brush.horizontalGradient(listOf(
+                    AppColors.Canvas.copy(alpha = 0.96f), AppColors.Canvas.copy(alpha = 0.80f),
+                    AppColors.Canvas.copy(alpha = 0.45f)
+                ))))
                 val poster = @Composable {
                     Box(
                         modifier = Modifier.width(160.dp).height(230.dp).clip(BrowseShapes.Artwork)
@@ -153,12 +166,12 @@ private fun StremioItemDetailContent(
                     }
                 }
                 if (maxWidth < 620.dp) {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { poster() }
                         StremioMetadataContent(state, onRetryMetadata)
                     }
                 } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(22.dp), verticalAlignment = Alignment.Top) {
+                    Row(Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
                         poster()
                         StremioMetadataContent(state, onRetryMetadata, Modifier.weight(1f))
                     }
@@ -166,7 +179,9 @@ private fun StremioItemDetailContent(
             }
         }
 
-        if (state.preview.type == StremioMediaType.MOVIE) {
+        if (state.preview.type == StremioMediaType.MOVIE ||
+            (state.preview.type == StremioMediaType.SERIES && state.videos.isEmpty())
+        ) {
             item(key = "movie-streams") {
                 TvPrimaryButton(onClick = onLoadMovieStreams, enabled = !state.replayOriginUnavailable) {
                     Text(stringResource(R.string.stremio_item_find_streams))
@@ -191,7 +206,9 @@ private fun StremioItemDetailContent(
                 item(key = "episodes-empty") {
                     StremioDetailMessage(stringResource(R.string.stremio_item_no_episode_ids))
                 }
-            } else if (state.requestedVideoId == null) {
+            } else if (state.requestedVideoId == null ||
+                (state.requestedVideoId == state.preview.id && state.selectedVideo == null)
+            ) {
                 if (seasons.size > 1) {
                     item(key = "season-picker") {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -254,7 +271,7 @@ private fun StremioItemDetailContent(
                             Text(
                                 state.selectedVideo?.let(::episodeLabel)
                                     ?: state.selectedVideo?.title
-                                    ?: "Episode ${state.requestedVideoId}",
+                                    ?: stringResource(R.string.stremio_item_episode_id_fallback, state.requestedVideoId.orEmpty()),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = AppColors.TextPrimary
                             )
@@ -277,6 +294,20 @@ private fun StremioItemDetailContent(
                     ),
                     subtitle = state.selectedVideo?.let(::episodeLabel)
                 )
+            }
+            state.downloadMessage?.let { message ->
+                item(key = "download-message") {
+                    StremioDetailMessage(
+                        message = stringResource(
+                            if (message == StremioDownloadMessage.QUEUED) {
+                                R.string.stremio_download_queued
+                            } else {
+                                R.string.stremio_download_failed
+                            }
+                        ),
+                        error = message == StremioDownloadMessage.FAILED
+                    )
+                }
             }
             if (state.streamsLoading && state.streams.isEmpty()) {
                 item(key = "streams-loading") {
@@ -329,6 +360,7 @@ private fun StremioItemDetailContent(
                 key = { index, item -> "stream:${item.source.addonId}:$index" }
             ) { _, attributed ->
                 val stream = attributed.resource
+                val streamKindLabel = stringResource(stream.kind.labelResource())
                 val mediaHeaders = stream.url?.let {
                     stremioMediaRequestHeaders(it, stream.behaviorHints?.proxyHeaders?.request)
                 }
@@ -337,10 +369,10 @@ private fun StremioItemDetailContent(
                 } == true
                 val canPlay = when (stream.kind) {
                     StremioStreamKind.DIRECT -> mediaHeaders != null && isHttpUrl
-                    StremioStreamKind.TORRENT ->
-                        stream.toMagnetUri() != null && state.torrentPluginAvailable == true
+                    StremioStreamKind.TORRENT -> stream.toMagnetUri() != null
                     else -> false
                 }
+                val canDownload = canPlay && stream.canDownloadAsSingleFile()
                 Column(
                     modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Panel).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -352,12 +384,12 @@ private fun StremioItemDetailContent(
                     ) {
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                stream.title ?: stream.name ?: stream.description ?: stream.kind.name,
+                                stream.title ?: stream.name ?: stream.description ?: streamKindLabel,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = AppColors.TextPrimary
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                StatusPill(label = stream.kind.name.lowercase(), containerColor = AppColors.BrandMuted)
+                                StatusPill(label = streamKindLabel, containerColor = AppColors.BrandMuted)
                                 Text(
                                     attributed.source.addonName,
                                     style = MaterialTheme.typography.bodySmall,
@@ -368,36 +400,37 @@ private fun StremioItemDetailContent(
                             }
                             if (!canPlay) {
                                 Text(
-                                    unsupportedStreamLabel(
-                                        stream,
-                                        checkingTorrentPlugin = state.torrentPluginCheckLoading
-                                    ),
+                                    unsupportedStreamLabel(stream),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = AppColors.TextSecondary
                                 )
-                            } else if (stream.kind == StremioStreamKind.TORRENT) {
-                                Text(
-                                    stringResource(R.string.stremio_item_torrent_plugin_hint),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = AppColors.TextSecondary
-                                )
-                            }
-                            if (stream.kind == StremioStreamKind.TORRENT &&
-                                stream.toMagnetUri() != null && state.torrentPluginAvailable == false
-                            ) {
-                                TvButton(onClick = onManagePlugins) {
-                                    Text(stringResource(R.string.stremio_item_manage_plugins))
-                                }
                             }
                         }
                         if (canPlay) {
-                            TvPrimaryButton(
-                                onClick = {
-                                    buildHandoff(state, attributed.source.installFingerprint, stream, requestedVideoId)
-                                        ?.let(onPlay)
-                                },
-                                enabled = state.catalogOriginKey != null && requestedVideoId.isNotBlank()
-                            ) { Text(stringResource(R.string.stremio_item_play)) }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TvPrimaryButton(
+                                    onClick = {
+                                        buildHandoff(state, attributed.source.installFingerprint, stream, requestedVideoId)
+                                            ?.let(onPlay)
+                                    },
+                                    enabled = state.catalogOriginKey != null && requestedVideoId.isNotBlank()
+                                ) { Text(stringResource(R.string.stremio_item_play)) }
+                                TvButton(
+                                    onClick = { onDownload(attributed.source, stream, requestedVideoId) },
+                                    enabled = canDownload && requestedVideoId.isNotBlank() && !state.isEnqueueingDownload
+                                ) {
+                                    if (state.isEnqueueingDownload) {
+                                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                    } else {
+                                        Text(
+                                            stringResource(
+                                                if (canDownload) R.string.stremio_item_download
+                                                else R.string.stremio_item_download_unavailable
+                                            )
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -433,13 +466,14 @@ private fun StremioMetadataContent(
     onRetryMetadata: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val titleLabel = androidx.compose.runtime.remember(state.displayName) { stremioTitleLabel(state.displayName) }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            state.displayName,
-            style = MaterialTheme.typography.headlineSmall,
+            titleLabel.title,
+            style = MaterialTheme.typography.headlineLarge,
             color = AppColors.TextPrimary
         )
-        state.displayReleaseInfo?.let { releaseInfo ->
+        (state.displayReleaseInfo?.takeIf(String::isNotBlank) ?: titleLabel.year)?.let { releaseInfo ->
             StatusPill(label = releaseInfo, containerColor = AppColors.BrandMuted)
         }
         state.metadata?.genres?.takeIf { it.isNotEmpty() }?.let { genres ->
@@ -451,7 +485,7 @@ private fun StremioMetadataContent(
         }
         state.displayDescription?.let { description ->
             Text(
-                description,
+                description.lineSequence().map(String::trim).filter(String::isNotBlank).joinToString("\n"),
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 8,
                 overflow = TextOverflow.Ellipsis,
@@ -460,7 +494,7 @@ private fun StremioMetadataContent(
         }
         state.metaOrigin?.let { origin ->
             StatusPill(
-                label = "Metadata from ${origin.addonName}",
+                label = origin.addonName,
                 containerColor = AppColors.SurfaceEmphasis,
                 contentColor = AppColors.TextSecondary
             )
@@ -526,19 +560,12 @@ private fun episodeLabel(video: com.streamvault.domain.model.stremio.StremioVide
 }
 
 @Composable
-private fun unsupportedStreamLabel(
-    stream: StremioStream,
-    checkingTorrentPlugin: Boolean
-): String {
+private fun unsupportedStreamLabel(stream: StremioStream): String {
     val stringRes = when {
     stream.kind == StremioStreamKind.DIRECT && stream.url?.let {
         stremioMediaRequestHeaders(it, stream.behaviorHints?.proxyHeaders?.request)
     } == null -> R.string.stremio_item_headers_unavailable
-    stream.kind == StremioStreamKind.TORRENT -> when {
-        stream.toMagnetUri() == null -> R.string.stremio_item_torrent_invalid
-        checkingTorrentPlugin -> R.string.stremio_item_torrent_checking
-        else -> R.string.stremio_item_torrent_unavailable
-    }
+    stream.kind == StremioStreamKind.TORRENT -> R.string.stremio_item_torrent_invalid
     stream.kind == StremioStreamKind.UNKNOWN -> R.string.stremio_item_unsupported_stream
     stream.kind == StremioStreamKind.YOUTUBE || stream.kind == StremioStreamKind.EXTERNAL ->
         R.string.stremio_item_external_unavailable
@@ -596,4 +623,12 @@ internal fun buildHandoff(
             )
         }
     )
+}
+
+private fun StremioStreamKind.labelResource(): Int = when (this) {
+    StremioStreamKind.DIRECT -> R.string.stremio_stream_kind_direct
+    StremioStreamKind.TORRENT -> R.string.stremio_stream_kind_torrent
+    StremioStreamKind.YOUTUBE -> R.string.stremio_stream_kind_youtube
+    StremioStreamKind.EXTERNAL -> R.string.stremio_stream_kind_external
+    StremioStreamKind.UNKNOWN -> R.string.stremio_stream_kind_unknown
 }

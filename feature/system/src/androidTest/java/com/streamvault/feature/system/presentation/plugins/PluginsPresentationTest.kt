@@ -2,6 +2,8 @@ package com.streamvault.feature.system.presentation.plugins
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.hasClickAction
@@ -89,12 +91,13 @@ class PluginsPresentationTest {
         }
 
         composeRule.onNodeWithText("Example plugin").assertIsDisplayed()
-        composeRule.onNodeWithText("Disabled").assertIsDisplayed()
+        composeRule.onNode(isToggleable()).assertIsOff()
+            .performSemanticsAction(SemanticsActions.OnClick)
         composeRule.onNode(hasText("Configure") and hasClickAction())
             .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(configured).isTrue()
-        assertThat(enabled).isNull()
+        assertThat(enabled).isTrue()
     }
 
     @Test

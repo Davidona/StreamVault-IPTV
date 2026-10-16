@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddonsViewModelTest {
@@ -193,7 +194,7 @@ class AddonsViewModelTest {
 private fun createViewModel(
     repository: StremioAddonRepository,
     contentAccess: StremioContentAccess = FakeStremioContentAccess()
-) = AddonsViewModel(repository, FakeStremioPlaybackHistoryRepository(), contentAccess)
+) = AddonsViewModel(repository, FakeStremioPlaybackHistoryRepository(), contentAccess, mock())
 
 private class FakeStremioPlaybackHistoryRepository : StremioPlaybackHistoryRepository {
     override fun observeContinueWatching(limit: Int): Flow<List<StremioPlaybackHistory>> =

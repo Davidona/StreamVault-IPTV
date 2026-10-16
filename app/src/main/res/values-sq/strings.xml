@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Të fshihet ky shkarkim?</string>
     <string name="download_play_local">Luaj</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Riprodhimi i torrentit nuk mund të nisej. Provo sërish.</string>
+    <string name="torrent_cache_capacity_reached">Luajtja e torrentit arriti kufirin e hapësirës së përkohshme. Pastro memorien ose liro hapësirë dhe provo përsëri.</string>
+    <string name="torrent_storage_check_failed">Nuk mund të kontrollohej hapësira e disponueshme. Luajtja e torrentit nuk mund të vazhdojë në mënyrë të sigurt.</string>
+    <string name="nav_addons">Shtesa Stremio</string>
+    <string name="nav_extensions">Zgjerimet</string>
 </resources>

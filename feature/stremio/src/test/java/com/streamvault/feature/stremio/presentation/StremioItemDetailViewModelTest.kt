@@ -1,5 +1,6 @@
 package com.streamvault.feature.stremio.presentation
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Result
@@ -18,8 +19,9 @@ import com.streamvault.domain.model.stremio.StremioStream
 import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.model.stremio.StremioVideo
 import com.streamvault.domain.model.stremio.installFingerprint
+import com.streamvault.domain.repository.DownloadManager
 import com.streamvault.domain.repository.StremioAddonRepository
-import com.streamvault.feature.stremio.api.StremioTorrentPlaybackAvailability
+import com.streamvault.feature.stremio.api.StremioDownloadStarter
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,6 +37,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StremioItemDetailViewModelTest {
@@ -79,7 +82,7 @@ class StremioItemDetailViewModelTest {
     }
 
     @Test
-    fun `torrent sources check enabled plugin availability before playback`() = runTest(dispatcher) {
+    fun `torrent sources load without checking for an external playback plugin`() = runTest(dispatcher) {
         val repository = ItemRepositoryFake(addon(11L)).apply {
             streamResponder = { _, _ ->
                 StremioResourceResolution(
@@ -95,8 +98,7 @@ class StremioItemDetailViewModelTest {
         val viewModel = viewModel(
             repository = repository,
             type = "movie",
-            exactId = "tt123",
-            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability(available = false)
+            exactId = "tt123"
         )
         advanceUntilIdle()
 
@@ -105,8 +107,6 @@ class StremioItemDetailViewModelTest {
 
         assertThat(viewModel.state.value.streams.single().resource.kind)
             .isEqualTo(com.streamvault.domain.model.stremio.StremioStreamKind.TORRENT)
-        assertThat(viewModel.state.value.torrentPluginAvailable).isFalse()
-        assertThat(viewModel.state.value.torrentPluginCheckLoading).isFalse()
     }
 
     @Test
@@ -136,7 +136,9 @@ class StremioItemDetailViewModelTest {
             ),
             repository = repository,
             contentAccess = FakeStremioContentAccess(),
-            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
+            downloadManager = mock<DownloadManager>(),
+            downloadStarter = StremioDownloadStarter { },
+            context = mock<Context>()
         )
         advanceUntilIdle()
 
@@ -163,7 +165,9 @@ class StremioItemDetailViewModelTest {
             ),
             repository = repository,
             contentAccess = FakeStremioContentAccess(),
-            torrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
+            downloadManager = mock<DownloadManager>(),
+            downloadStarter = StremioDownloadStarter { },
+            context = mock<Context>()
         )
         advanceUntilIdle()
 
@@ -253,7 +257,7 @@ class StremioItemDetailViewModelTest {
     }
 
     @Test
-    fun `series without exact episode ids cannot request parent streams`() = runTest(dispatcher) {
+    fun `series without episode ids can check sources using the exact catalog id`() = runTest(dispatcher) {
         val repository = ItemRepositoryFake(addon(11L)).apply {
             meta = StremioMetaDetail(
                 id = "series-custom",
@@ -268,8 +272,131 @@ class StremioItemDetailViewModelTest {
         advanceUntilIdle()
 
         assertThat(viewModel.state.value.videos).isEmpty()
-        assertThat(viewModel.state.value.requestedVideoId).isNull()
+        assertThat(viewModel.state.value.requestedVideoId).isEqualTo("series-custom")
+        assertThat(viewModel.state.value.selectedVideo).isNull()
+        assertThat(repository.streamCalls.single().exactId).isEqualTo("series-custom")
+        assertThat(viewModel.state.value.streams).hasSize(1)
+    }
+
+    @Test
+    fun `catalog source lookup completes while metadata hangs and survives its 504 failure`() = runTest(dispatcher) {
+        val metadataResult = CompletableDeferred<StremioMetaResolution>()
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            metaResponder = { metadataResult.await() }
+            streamResponder = { _, _ ->
+                StremioResourceResolution(results = listOf(
+                    StremioAttributedResource(source(21L), StremioStream(infoHash = "a".repeat(40)))
+                ))
+            }
+        }
+        val viewModel = viewModel(repository, "series", "catalog:item:7")
+        runCurrent()
+
+        viewModel.loadStreams("catalog:item:7")
+        runCurrent()
+
+        assertThat(viewModel.state.value.metadataLoading).isTrue()
+        assertThat(viewModel.state.value.streamsLoading).isFalse()
+        assertThat(viewModel.state.value.streams).hasSize(1)
+        assertThat(repository.streamCalls.single().exactId).isEqualTo("catalog:item:7")
+
+        metadataResult.complete(StremioMetaResolution(
+            failures = listOf(com.streamvault.domain.model.stremio.StremioAddonResourceFailure(
+                source(31L), "Addon request failed with HTTP 504"
+            )), candidateCount = 1
+        ))
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.metadataLoading).isFalse()
+        assertThat(viewModel.state.value.metadata).isNull()
+        assertThat(viewModel.state.value.metadataFailures.single().message).contains("504")
+        assertThat(viewModel.state.value.streams).hasSize(1)
+    }
+
+    @Test
+    fun `movie sources remain available after metadata throws`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            metaResponder = { throw java.io.IOException("metadata unavailable") }
+        }
+        val viewModel = viewModel(repository, "movie", "tt123")
+        advanceUntilIdle()
+
+        viewModel.loadStreams("tt123")
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.metadataError).isNotNull()
+        assertThat(viewModel.state.value.catalogOriginKey).isEqualTo(addon(11L).installFingerprint())
+        assertThat(viewModel.state.value.streams).hasSize(1)
+    }
+
+    @Test
+    fun `series with known episodes rejects invented ids and parent lookups`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail("series-id", StremioMediaType.SERIES, "Series",
+                videos = listOf(StremioVideo("episode-one")))
+        }
+        val viewModel = viewModel(repository, "series", "series-id")
+        advanceUntilIdle()
+
+        viewModel.loadStreams("series-id")
+        viewModel.loadStreams("invented-episode")
+        advanceUntilIdle()
+
         assertThat(repository.streamCalls).isEmpty()
+        viewModel.loadStreams("episode-one")
+        advanceUntilIdle()
+        assertThat(repository.streamCalls.single().exactId).isEqualTo("episode-one")
+    }
+
+    @Test
+    fun `failed metadata retry retains known episode ids and available streams`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail("series-id", StremioMediaType.SERIES, "Series",
+                videos = listOf(StremioVideo("episode-one")))
+        }
+        val viewModel = viewModel(repository, "series", "series-id")
+        advanceUntilIdle()
+        viewModel.loadStreams("episode-one")
+        advanceUntilIdle()
+
+        repository.metaResolution = StremioMetaResolution(failures = listOf(failure(31L)), candidateCount = 1)
+        viewModel.retryMetadata()
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.videos.single().id).isEqualTo("episode-one")
+        assertThat(viewModel.state.value.streams).hasSize(1)
+        viewModel.loadStreams("episode-one")
+        advanceUntilIdle()
+        assertThat(repository.streamCalls).hasSize(2)
+    }
+
+    @Test
+    fun `history starts exact episode sources before metadata completes and survives its exception`() = runTest(dispatcher) {
+        val metadataResult = CompletableDeferred<StremioMetaResolution>()
+        val origin = addon(11L)
+        val repository = ItemRepositoryFake(origin).apply { metaResponder = { metadataResult.await() } }
+        val viewModel = StremioItemDetailViewModel(
+            SavedStateHandle(mapOf(
+                StremioItemDetailViewModel.ARG_ORIGIN_ADDON_ID to origin.id,
+                StremioItemDetailViewModel.ARG_TYPE to "series",
+                StremioItemDetailViewModel.ARG_EXACT_ID to "series-id",
+                StremioItemDetailViewModel.ARG_REPLAY_VIDEO_ID to "exact:saved:episode",
+                StremioItemDetailViewModel.ARG_REPLAY_ORIGIN_KEY to origin.installFingerprint(),
+                StremioItemDetailViewModel.ARG_REPLAY_REQUIRES_ORIGIN to true
+            )), repository, FakeStremioContentAccess(), mock<DownloadManager>(), StremioDownloadStarter { }, mock<Context>()
+        )
+        runCurrent()
+
+        assertThat(viewModel.state.value.metadataLoading).isTrue()
+        assertThat(repository.streamCalls.single().exactId).isEqualTo("exact:saved:episode")
+        assertThat(viewModel.state.value.streams).hasSize(1)
+
+        metadataResult.completeExceptionally(java.io.IOException("metadata unavailable"))
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.metadataError).isNotNull()
+        assertThat(viewModel.state.value.streams).hasSize(1)
+        assertThat(repository.streamCalls).hasSize(1)
     }
 
     @Test
@@ -294,8 +421,7 @@ class StremioItemDetailViewModelTest {
         type: String,
         exactId: String,
         name: String = "Preview",
-        contentAccess: StremioContentAccess = FakeStremioContentAccess(),
-        torrentPlaybackAvailability: StremioTorrentPlaybackAvailability = FakeTorrentPlaybackAvailability()
+        contentAccess: StremioContentAccess = FakeStremioContentAccess()
     ) = StremioItemDetailViewModel(
         savedStateHandle = SavedStateHandle(
             mapOf(
@@ -308,14 +434,10 @@ class StremioItemDetailViewModelTest {
         ),
         repository = repository,
         contentAccess = contentAccess,
-        torrentPlaybackAvailability = torrentPlaybackAvailability
+        downloadManager = mock<DownloadManager>(),
+        downloadStarter = StremioDownloadStarter { },
+            context = mock<Context>()
     )
-
-    private class FakeTorrentPlaybackAvailability(
-        private val available: Boolean = true
-    ) : StremioTorrentPlaybackAvailability {
-        override suspend fun hasEnabledMagnetPlugin(): Boolean = available
-    }
 
     private fun addon(id: Long) = StremioAddon(
         id = id,
@@ -352,6 +474,7 @@ class StremioItemDetailViewModelTest {
             name = "Resolved"
         )
         var metaResolution: StremioMetaResolution? = null
+        var metaResponder: (suspend () -> StremioMetaResolution)? = null
         var streamResponder: suspend (String, Set<Long>?) -> StremioResourceResolution<StremioStream> =
             { exactId, _ -> StremioResourceResolution(results = listOf(attributedStream(21L, exactId))) }
 
@@ -369,6 +492,7 @@ class StremioItemDetailViewModelTest {
             exactId: String
         ): StremioMetaResolution {
             metaCalls += catalogOriginAddonId to exactId
+            metaResponder?.let { return it() }
             return metaResolution ?: meta?.let {
                 StremioMetaResolution(
                     result = StremioAttributedResource(source(31L), it),

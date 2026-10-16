@@ -849,4 +849,14 @@
         <item quantity="many">Každých %d hodín</item>
         <item quantity="other">Každých %d hodiny</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Skryť doplnky Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Skryte prehliadanie, inštaláciu a históriu doplnkov. Nainštalované doplnky zostanú zachované.</string>
+    <string name="settings_theme_forest">Lesná</string>
+    <string name="settings_theme_sunset">Západ slnka</string>
+    <string name="settings_theme_ocean">Oceánska</string>
+    <string name="settings_theme_rose">Ružová</string>
+    <string name="settings_theme_amoled_black">AMOLED čierna</string>
+    <string name="settings_theme_vintage">Vintage</string>
+    <string name="nav_addons">Doplnky Stremio</string>
+    <string name="nav_extensions">Rozšírenia</string>
 </resources>

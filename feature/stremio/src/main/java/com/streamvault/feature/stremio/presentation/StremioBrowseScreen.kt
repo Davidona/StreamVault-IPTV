@@ -1,9 +1,6 @@
 package com.streamvault.feature.stremio.presentation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,31 +41,18 @@ internal fun StremioBrowseScreen(
         AppDestination.Addons,
         stringResource(R.string.stremio_browse_title),
         null,
+        true,
         false,
-        true
+        false
     ) {
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            androidx.compose.foundation.layout.Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-            ) {
-                if (showContinueWatching && addonsState.continueWatching.isNotEmpty()) {
-                    TvButton(onClick = { showContinueWatchingDialog = true }) {
-                        Text(stringResource(R.string.stremio_continue_watching))
-                    }
-                }
-                TvButton(onClick = onManageAddons) {
-                    Text(stringResource(R.string.stremio_manage_addons))
-                }
-            }
-            StremioCatalogBrowseContent(
-                modifier = Modifier.weight(1f),
-                viewModel = browseViewModel,
-                onOpenItem = onOpenItem,
-                onManageAddons = onManageAddons
-            )
-        }
+        StremioCatalogBrowseContent(
+            viewModel = browseViewModel,
+            onOpenItem = onOpenItem,
+            onManageAddons = onManageAddons,
+            onContinueWatching = if (showContinueWatching && addonsState.continueWatching.isNotEmpty()) {
+                { showContinueWatchingDialog = true }
+            } else null
+        )
     }
 
     if (showContinueWatchingDialog && addonsState.continueWatching.isNotEmpty()) {

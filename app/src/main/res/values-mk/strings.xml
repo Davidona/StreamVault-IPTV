@@ -339,4 +339,9 @@
     <string name="downloads_delete_confirm">Да се избрише ова преземање?</string>
     <string name="download_play_local">Репродуцирај</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Репродукцијата на торентот не може да започне. Обидете се повторно.</string>
+    <string name="torrent_cache_capacity_reached">Репродукцијата на торент го достигна лимитот за привремено складирање. Исчистете го кешот или ослободете простор и обидете се повторно.</string>
+    <string name="torrent_storage_check_failed">Не може да се провери достапниот простор. Репродукцијата на торент не може безбедно да продолжи.</string>
+    <string name="nav_addons">Додатоци за Stremio</string>
+    <string name="nav_extensions">Проширувања</string>
 </resources>

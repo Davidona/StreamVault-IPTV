@@ -841,4 +841,14 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">%d 時間ごと</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Stremioアドオンを非表示</string>
+    <string name="settings_hide_stremio_addons_subtitle">アドオンの閲覧、インストール、履歴を非表示にします。インストール済みのアドオンは保持されます。</string>
+    <string name="settings_theme_forest">フォレスト</string>
+    <string name="settings_theme_sunset">サンセット</string>
+    <string name="settings_theme_ocean">オーシャン</string>
+    <string name="settings_theme_rose">ローズ</string>
+    <string name="settings_theme_amoled_black">AMOLED ブラック</string>
+    <string name="settings_theme_vintage">ヴィンテージ</string>
+    <string name="nav_addons">Stremioアドオン</string>
+    <string name="nav_extensions">拡張機能</string>
 </resources>

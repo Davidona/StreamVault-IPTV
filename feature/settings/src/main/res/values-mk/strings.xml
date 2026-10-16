@@ -843,4 +843,14 @@
         <item quantity="one">На секој %d час</item>
         <item quantity="other">На секои %d часа</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Скриј додатоци за Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Скриј го прелистувањето, инсталирањето и историјата на додатоците. Инсталираните додатоци се задржуваат.</string>
+    <string name="settings_theme_forest">Шума</string>
+    <string name="settings_theme_sunset">Залез</string>
+    <string name="settings_theme_ocean">Океан</string>
+    <string name="settings_theme_rose">Ружа</string>
+    <string name="settings_theme_amoled_black">AMOLED црна</string>
+    <string name="settings_theme_vintage">Винтиџ</string>
+    <string name="nav_addons">Додатоци за Stremio</string>
+    <string name="nav_extensions">Проширувања</string>
 </resources>

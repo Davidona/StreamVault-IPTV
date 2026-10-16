@@ -287,4 +287,9 @@
     <string name="downloads_delete_confirm">Удалить эту загрузку?</string>
     <string name="download_play_local">Воспроизвести</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Не удалось начать воспроизведение торрента. Попробуйте ещё раз.</string>
+    <string name="torrent_cache_capacity_reached">Воспроизведение торрента достигло лимита временного хранилища. Очистите кэш или освободите место и повторите попытку.</string>
+    <string name="torrent_storage_check_failed">Не удалось проверить доступное место. Воспроизведение торрента нельзя безопасно продолжить.</string>
+    <string name="nav_addons">Дополнения Stremio</string>
+    <string name="nav_extensions">Расширения</string>
 </resources>

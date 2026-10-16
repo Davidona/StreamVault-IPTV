@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Izbrisati ovo preuzimanje?</string>
     <string name="download_play_local">Reproduciraj</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Reprodukciju torrenta nije moguće pokrenuti. Pokušajte ponovno.</string>
+    <string name="torrent_cache_capacity_reached">Reprodukcija torrenta dosegla je ograničenje privremene pohrane. Očistite predmemoriju ili oslobodite prostor pa pokušajte ponovno.</string>
+    <string name="torrent_storage_check_failed">Nije moguće provjeriti dostupnu pohranu. Reprodukcija torrenta ne može se sigurno nastaviti.</string>
+    <string name="nav_addons">Stremio dodaci</string>
+    <string name="nav_extensions">Proširenja</string>
 </resources>

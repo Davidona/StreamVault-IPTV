@@ -839,4 +839,14 @@
         <item quantity="one">%d시간마다</item>
         <item quantity="other">%d시간마다</item>
     </plurals>
+    <string name="settings_hide_stremio_addons">Stremio 애드온 숨기기</string>
+    <string name="settings_hide_stremio_addons_subtitle">애드온 탐색, 설치, 기록을 숨깁니다. 설치된 애드온은 유지됩니다.</string>
+    <string name="settings_theme_forest">포레스트</string>
+    <string name="settings_theme_sunset">선셋</string>
+    <string name="settings_theme_ocean">오션</string>
+    <string name="settings_theme_rose">로즈</string>
+    <string name="settings_theme_amoled_black">AMOLED 블랙</string>
+    <string name="settings_theme_vintage">빈티지</string>
+    <string name="nav_addons">Stremio 애드온</string>
+    <string name="nav_extensions">확장 기능</string>
 </resources>
