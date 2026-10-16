@@ -33,7 +33,6 @@ import com.streamvault.domain.trakt.TraktWatchlist
 import com.streamvault.domain.trakt.TraktWatchlistActionResult
 import com.streamvault.domain.trakt.TraktWatchlistFailure
 import com.streamvault.domain.trakt.TraktWatchlistIdentity
-import com.streamvault.domain.trakt.TraktWatchlistRefreshResult
 import com.streamvault.domain.trakt.TraktWatchlistType
 import com.streamvault.domain.trakt.TraktFavorites
 import com.streamvault.domain.trakt.TraktFavoriteActionResult
@@ -166,12 +165,8 @@ class SeriesDetailViewModel @Inject constructor(
         val tmdbId = series.tmdbId?.takeIf { it > 0L } ?: return
         val identity = TraktWatchlistIdentity(TraktWatchlistType.SHOW, tmdbId)
         viewModelScope.launch {
-            val result = if (!_uiState.value.traktWatchlistLoaded) {
-                traktWatchlist.refresh(force = true)
-            } else {
-                traktWatchlist.setWatchlisted(identity, !_uiState.value.traktWatchlisted)
-            }
-            if (result is TraktWatchlistRefreshResult.Failure || result is TraktWatchlistActionResult.Failure) {
+            val result = traktWatchlist.setWatchlisted(identity, !_uiState.value.traktWatchlisted)
+            if (result is TraktWatchlistActionResult.Failure) {
                 _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktWatchlistFailed))
             }
         }

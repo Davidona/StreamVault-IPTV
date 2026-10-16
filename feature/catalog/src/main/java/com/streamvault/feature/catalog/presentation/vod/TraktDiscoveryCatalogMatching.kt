@@ -55,7 +55,7 @@ private fun <T> findTraktTitleMatch(
     val targetTitle = normalizeTraktTitle(entry.title)
     if (targetTitle.isBlank()) return null
     val titleMatches = candidates.filter { normalizeTraktTitle(titleOf(it)) == targetTitle }
-    if (entry.year == null) return titleMatches.firstOrNull()
+    if (entry.year == null) return titleMatches.singleOrNull()
 
     val matchingYear = titleMatches.firstOrNull { yearOf(it) == entry.year }
     if (matchingYear != null) return matchingYear
@@ -70,7 +70,7 @@ private fun normalizeTraktTitle(value: String): String {
     while (prefixesRemoved < MAX_PROVIDER_PREFIXES) {
         val prefix = PROVIDER_PREFIX_REGEX.find(title) ?: break
         val label = prefix.groupValues[1].lowercase(Locale.ROOT)
-        if (label !in PROVIDER_PREFIXES && !label.matches(SHORT_LANGUAGE_CODE_REGEX)) break
+        if (label !in PROVIDER_PREFIXES) break
         title = prefix.groupValues[2]
         prefixesRemoved++
     }
@@ -84,11 +84,12 @@ private fun normalizeTraktTitle(value: String): String {
 
 private const val MAX_PROVIDER_PREFIXES = 3
 private val PROVIDER_PREFIX_REGEX = Regex("""^([\p{L}]{2,12})\s+-\s+(.+)$""")
-private val SHORT_LANGUAGE_CODE_REGEX = Regex("""[a-z]{2,3}""")
 private val PROVIDER_PREFIXES = setOf(
     "arabic", "bengali", "chinese", "english", "french", "german", "hindi", "indonesian",
     "italian", "japanese", "kannada", "korean", "malayalam", "marathi", "multi", "portuguese",
     "russian", "spanish", "tamil", "telugu", "thai", "turkish", "urdu",
+    "ar", "bn", "zh", "en", "fr", "de", "hi", "id", "in", "it", "ja", "kn", "ko", "ml",
+    "mr", "pt", "ru", "es", "ta", "te", "th", "tr", "ur",
 )
 private val TRAILING_YEAR_REGEX = Regex("""\s*(?:[-–—|·]\s*|\()((?:19|20)\d{2})\)?\s*$""")
 private val TRAILING_YEAR_VALUE_REGEX = Regex("""(?:[-–—|·(]\s*)((?:19|20)\d{2})\)?\s*$""")
