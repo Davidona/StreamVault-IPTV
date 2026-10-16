@@ -25,6 +25,7 @@ import com.streamvault.domain.trakt.TraktCustomListItemIdentity
 import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.domain.trakt.TraktCustomListItemsPage
 import com.streamvault.domain.trakt.TraktDiscoveryCategory
+import com.streamvault.domain.trakt.TraktDiscoveryItem
 import com.streamvault.domain.trakt.TraktDiscoveryPage
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -35,6 +36,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -111,17 +113,23 @@ class TraktApiClient(
         val response = request("${category.media.apiPath}/${category.kind.apiPath}?page=$page&limit=$DISCOVERY_PAGE_SIZE")
         val rows = gson.fromJson(response, JsonArray::class.java)
         var skipped = 0
-        val tmdbIds = rows.mapNotNull { row ->
+        val entries = rows.mapNotNull { row ->
             runCatching {
                 val entry = row.asJsonObject
                 // Trending wraps media with watcher metadata; popular returns the media object directly.
                 val mediaKey = if (category.media == com.streamvault.domain.trakt.TraktDiscoveryMedia.MOVIE) "movie" else "show"
                 val media = entry.getAsJsonObject(mediaKey) ?: entry
-                media.getAsJsonObject("ids")?.get("tmdb")?.takeUnless { it.isJsonNull }
-                    ?.asString?.toLongOrNull()?.takeIf { it > 0L } ?: error("Missing TMDB id")
+                val tmdbId = media.getAsJsonObject("ids")?.get("tmdb")?.takeUnless { it.isJsonNull }
+                    ?.asString?.toLongOrNull()?.takeIf { it > 0L }
+                val title = media.get("title")?.takeUnless { it.isJsonNull }?.asString.orEmpty()
+                val year = media.get("year")?.takeUnless { it.isJsonNull }?.asInt
+                if (tmdbId == null && title.isBlank()) error("Missing discovery identity")
+                TraktDiscoveryItem(tmdbId = tmdbId, title = title, year = year)
             }.getOrElse { skipped++; null }
-        }.distinct().take(DISCOVERY_PAGE_SIZE)
-        return TraktDiscoveryPage(tmdbIds, skipped)
+        }.distinctBy { item ->
+            item.tmdbId?.let { "tmdb:$it" } ?: "title:${item.title.lowercase(Locale.ROOT)}:${item.year}"
+        }.take(DISCOVERY_PAGE_SIZE)
+        return TraktDiscoveryPage(entries.mapNotNull(TraktDiscoveryItem::tmdbId), skipped, entries)
     }
 
     override suspend fun setWatchlisted(

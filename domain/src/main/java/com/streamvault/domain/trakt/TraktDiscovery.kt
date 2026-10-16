@@ -17,18 +17,29 @@ data class TraktDiscoveryCategory(
     val kind: TraktDiscoveryKind,
 )
 
+data class TraktDiscoveryItem(
+    val tmdbId: Long?,
+    val title: String,
+    val year: Int? = null,
+)
+
 data class TraktDiscoveryPage(
     val tmdbIds: List<Long>,
     val skippedItems: Int = 0,
+    val entries: List<TraktDiscoveryItem> = emptyList(),
 )
 
 data class TraktDiscoveryState(
     val itemsByCategory: Map<TraktDiscoveryCategory, List<Long>> = emptyMap(),
+    val entriesByCategory: Map<TraktDiscoveryCategory, List<TraktDiscoveryItem>> = emptyMap(),
     val loadedAtByCategory: Map<TraktDiscoveryCategory, Long> = emptyMap(),
     val refreshing: Set<TraktDiscoveryCategory> = emptySet(),
     val failed: Set<TraktDiscoveryCategory> = emptySet(),
 ) {
     fun items(category: TraktDiscoveryCategory): List<Long> = itemsByCategory[category].orEmpty()
+    fun entries(category: TraktDiscoveryCategory): List<TraktDiscoveryItem> =
+        entriesByCategory[category]?.takeIf { it.isNotEmpty() }
+            ?: items(category).map { TraktDiscoveryItem(tmdbId = it, title = "") }
     fun isLoaded(category: TraktDiscoveryCategory): Boolean = category in loadedAtByCategory
 }
 

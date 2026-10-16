@@ -59,8 +59,9 @@ import com.streamvault.feature.catalog.presentation.vod.setVodSearchQuery
 import com.streamvault.feature.catalog.presentation.vod.setVodFavorite
 import com.streamvault.feature.catalog.presentation.vod.updateVodGroupMembership
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
+import com.streamvault.feature.catalog.presentation.vod.orderedTraktDiscoveryItems
+import com.streamvault.feature.catalog.presentation.vod.traktDiscoveryCatalogYear
 import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistItems
-import com.streamvault.feature.catalog.presentation.dashboard.orderedDiscoveryItems
 import com.streamvault.domain.playback.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.streamvault.feature.catalog.R
@@ -200,8 +201,6 @@ class MoviesViewModel @Inject constructor(
             traktDiscovery.state.collect { discovery ->
                 _uiState.update {
                     it.copy(
-                        traktTrendingCount = discovery.items(VodBrowseDefaults.TRAKT_TRENDING_MOVIES).size,
-                        traktPopularCount = discovery.items(VodBrowseDefaults.TRAKT_POPULAR_MOVIES).size,
                         traktTrendingFailed = VodBrowseDefaults.TRAKT_TRENDING_MOVIES in discovery.failed,
                         traktPopularFailed = VodBrowseDefaults.TRAKT_POPULAR_MOVIES in discovery.failed,
                     )
@@ -539,6 +538,12 @@ class MoviesViewModel @Inject constructor(
                             selectedCategoryItems = snapshot.items,
                             selectedCategoryLoadedCount = snapshot.loadedCount,
                             selectedCategoryTotalCount = snapshot.totalCount,
+                            traktTrendingCount = if (it.selectedCategory == VodBrowseDefaults.TRAKT_TRENDING_MOVIES_CATEGORY) {
+                                snapshot.totalCount
+                            } else it.traktTrendingCount,
+                            traktPopularCount = if (it.selectedCategory == VodBrowseDefaults.TRAKT_POPULAR_MOVIES_CATEGORY) {
+                                snapshot.totalCount
+                            } else it.traktPopularCount,
                             canLoadMoreSelectedCategory = snapshot.canLoadMore,
                             isLoadingSelectedCategory = snapshot.isLoading ||
                                 (initialRemoteRequestInFlight && snapshot.items.isEmpty())
@@ -1374,18 +1379,20 @@ class MoviesViewModel @Inject constructor(
             VodBrowseDefaults.TRAKT_TRENDING_MOVIES_CATEGORY,
             VodBrowseDefaults.TRAKT_POPULAR_MOVIES_CATEGORY -> {
                 val discoveryCategory = requireNotNull(VodBrowseDefaults.traktDiscoveryCategory(request.selectedCategory))
-                val tmdbIds = request.traktDiscoveryState.items(discoveryCategory)
-                val catalogItems = movieRepository.getMoviesByTmdbIds(request.providerId, tmdbIds)
-                    .filterNot { movie -> movie.categoryId in request.hiddenCategoryIds }
-                val discoveryMovies = orderedDiscoveryItems(
-                    tmdbIds = tmdbIds,
-                    catalogItems = catalogItems,
+                val discoveryItems = orderedTraktDiscoveryItems(
+                    entries = request.traktDiscoveryState.entries(discoveryCategory),
+                    tmdbIds = request.traktDiscoveryState.items(discoveryCategory),
+                    loadByTmdbIds = { ids -> movieRepository.getMoviesByTmdbIds(request.providerId, ids) },
+                    searchByTitle = { title -> movieRepository.searchMovies(request.providerId, title).first() },
                     tmdbIdOf = Movie::tmdbId,
+                    titleOf = Movie::name,
+                    yearOf = { movie -> traktDiscoveryCatalogYear(movie.year, movie.releaseDate, movie.name) },
                     idOf = Movie::id,
-                    limit = Int.MAX_VALUE
                 )
+                val filteredCatalogItems = discoveryItems
+                    .filterNot { movie -> movie.categoryId in request.hiddenCategoryIds }
                 val filteredItems = applyLocalBrowseToMovies(
-                    discoveryMovies,
+                    filteredCatalogItems,
                     request.filterType,
                     request.sortBy,
                     effectiveQuery

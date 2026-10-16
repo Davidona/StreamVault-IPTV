@@ -4,6 +4,7 @@ import com.streamvault.domain.trakt.TraktDiscovery
 import com.streamvault.domain.trakt.TraktDiscoveryCategory
 import com.streamvault.domain.trakt.TraktDiscoveryRefreshResult
 import com.streamvault.domain.trakt.TraktDiscoverySource
+import com.streamvault.domain.trakt.TraktDiscoveryItem
 import com.streamvault.domain.trakt.TraktDiscoveryState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -42,15 +43,30 @@ class TraktDiscoveryService @Inject constructor(
             )
             try {
                 val page = source.discover(category, page = 1)
-                val items = page.tmdbIds.asSequence().filter { it > 0L }.distinct().take(PAGE_SIZE).toList()
+                val entries = if (page.entries.isEmpty()) {
+                    page.tmdbIds.asSequence()
+                        .filter { it > 0L }
+                        .distinct()
+                        .take(PAGE_SIZE)
+                        .map { TraktDiscoveryItem(tmdbId = it, title = "") }
+                        .toList()
+                } else {
+                    page.entries.asSequence()
+                        .filter { (it.tmdbId?.let { id -> id > 0L } == true) || it.title.isNotBlank() }
+                        .distinctBy { it.tmdbId ?: "${it.title.lowercase()}|${it.year}" }
+                        .take(PAGE_SIZE)
+                        .toList()
+                }
+                val items = entries.mapNotNull { it.tmdbId?.takeIf { id -> id > 0L } }.distinct().take(PAGE_SIZE)
                 val latest = mutableState.value
                 mutableState.value = latest.copy(
                     itemsByCategory = latest.itemsByCategory + (category to items),
+                    entriesByCategory = latest.entriesByCategory + (category to entries),
                     loadedAtByCategory = latest.loadedAtByCategory + (category to System.currentTimeMillis()),
                     refreshing = latest.refreshing - category,
                     failed = latest.failed - category,
                 )
-                TraktDiscoveryRefreshResult.Success(items.size, page.skippedItems)
+                TraktDiscoveryRefreshResult.Success(entries.size, page.skippedItems)
             } catch (failure: CancellationException) {
                 mutableState.value = mutableState.value.copy(refreshing = mutableState.value.refreshing - category)
                 throw failure
