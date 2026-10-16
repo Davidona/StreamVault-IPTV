@@ -32,11 +32,11 @@
   <string name="badge_series">シリーズ</string>
   <string name="card_live_badge">ライブ</string>
   <string name="card_locked_channel">チャンネルはロックされています</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">キャスト</string>
+  <string name="cast_item_unavailable">この項目は Cast レシーバーに送信できません。</string>
+  <string name="cast_launching">キャスト中...</string>
+  <string name="cast_started">接続中のデバイスにキャストしています。</string>
+  <string name="cast_unavailable">このデバイスでは Google Cast を利用できません。</string>
   <string name="category_options_cancel">キャンセル</string>
   <string name="category_options_clear_recent">最近をすべてクリア</string>
   <string name="category_options_delete">グループを削除</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">デフォルトグループに設定</string>
   <string name="category_options_unlock">グループのロックを解除</string>
   <string name="category_options_unpin">カテゴリの固定を解除</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">ピン留め</string>
   <string name="category_see_all">すべて表示</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">ピン留め解除</string>
+  <string name="channel_action_hide">このチャンネルを非表示</string>
   <string name="channel_options_remove_from_recent">最近から削除</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">視聴を続ける</string>
   <string name="dashboard_channels_format">%1$dチャンネル</string>
   <string name="dashboard_continue_watching">視聴を続ける</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">視聴中の映画</string>
+  <string name="dashboard_continue_watching_series">視聴中のシリーズ</string>
   <string name="dashboard_empty_body">まずプレイリストまたは Xtream ソースを追加してください。プロバイダーが有効になると、ホームにお気に入りチャンネル、視聴再開、最新のライブラリ行が表示されます。</string>
   <string name="dashboard_empty_title">ホーム画面を使うにはプロバイダーを設定してください</string>
   <string name="dashboard_favorite_channels">お気に入りチャンネル</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">お気に入りの映画</string>
+  <string name="dashboard_favorite_series">お気に入りのシリーズ</string>
   <string name="dashboard_fresh_movie_pick">おすすめ映画</string>
   <string name="dashboard_jump_back_live">ライブTVに戻る</string>
   <string name="dashboard_library_ready">IPTVライブラリの準備ができました</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">最近のチャンネル</string>
   <string name="dashboard_recent_movies">最近追加された映画</string>
   <string name="dashboard_recent_series">最近更新されたシリーズ</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">おすすめ映画</string>
   <string name="dashboard_resume_episode">エピソードを再開</string>
   <string name="dashboard_resume_episode_format">S%1$d E%2$d から再開</string>
   <string name="dashboard_resume_live">再開</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d 件のシリーズ</string>
   <string name="dashboard_subtitle">%1$s が有効です。ライブに戻る、進行状況を確認する、新着を探すことができます。</string>
   <string name="dashboard_title">ライブラリの準備ができました</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">高評価の映画</string>
+  <string name="dashboard_update_allow_installs">インストールを許可</string>
   <string name="dashboard_update_available">新しいアプリ版がキャッシュされ、設定から確認できます。</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">更新はダウンロード済みです。StreamVault からのインストールを許可して、再試行してください。</string>
   <string name="dashboard_update_install_ready">最新の更新はすでにダウンロード済みです。設定を開いてインストールしてください。</string>
   <string name="dashboard_update_open_installer">設定からインストール</string>
   <string name="dashboard_update_open_settings">更新を開く</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">プロバイダー詳細を開く</string>
   <string name="dashboard_warning_title">プロバイダーの確認が必要です</string>
   <string name="dashboard_watch_live">ライブ視聴</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">ダウンロード</string>
+  <string name="download_error_no_url">ダウンロード用のストリーム URL を解決できませんでした</string>
+  <string name="download_failed">ダウンロードに失敗しました: %1$s</string>
+  <string name="download_started">ダウンロードを開始しました</string>
   <string name="favorites_add">お気に入りに追加</string>
   <string name="favorites_all_favorites">すべてのお気に入り</string>
   <string name="favorites_cancel">戻る: キャンセル</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">保存済みグループを長押しするとオプションが表示されます</string>
   <string name="library_saved_primary_hint">完全なライブラリに戻る</string>
   <string name="library_sort_title">結果を並べ替え</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">ライブテレビに戻す</string>
+  <string name="m3u_move_to_movies">映画へ移動</string>
+  <string name="m3u_move_to_series">シリーズへ移動</string>
+  <string name="m3u_organize_items">M3U 項目を整理</string>
   <string name="movie_detail_back">ライブラリに戻る</string>
   <string name="movie_detail_cast">出演:</string>
   <string name="movie_detail_director">監督:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">%1$s から再開</string>
   <string name="movie_detail_trailer">予告編</string>
   <string name="movie_detail_unknown">不明</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">バージョン</string>
   <string name="movie_loading_details">詳細を読み込み中...</string>
   <string name="movie_not_found">映画が見つかりません</string>
   <string name="movie_plot_fallback">あらすじはありません</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">映画</string>
   <string name="nav_series">シリーズ</string>
   <string name="nav_settings">設定</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">キャンセル</string>
   <string name="pin_dialog_title">PIN を入力</string>
   <string name="player_resume">再開</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">お気に入りから削除</string>
   <string name="search_actions_unlock">ペアレンタルコントロールのロック解除</string>
   <string name="search_all">すべて</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">完全な検索インデックスを一度構築</string>
+  <string name="search_catalog_complete">完全なカタログインデックス</string>
+  <string name="search_catalog_downloaded_only">ダウンロード済みの項目のみ。完全な検索インデックスを構築すると、ポータルカタログ全体を検索できます。</string>
+  <string name="search_catalog_indexing">完全な検索インデックスを構築中です。結果はまだ一部のみです。</string>
+  <string name="search_catalog_truncated">ポータルカタログが切り詰められました。結果が不完全な場合があります。</string>
   <string name="search_clear_history">クリア</string>
   <string name="search_command_subtitle">タイトル、キーワード、チャンネル名、シリーズから開始できます。結果はグループ化され、リモコンで素早く操作できます。</string>
   <string name="search_error_subtitle">一部の結果を読み込めませんでした。もう一度お試しください。</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">ライブラリに戻る</string>
   <string name="series_detail_play_episode">再生 · シーズン %1$d エピソード %2$d</string>
   <string name="series_detail_resume">再開 · シーズン %1$d エピソード %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">バージョン</string>
   <string name="series_episodes">エピソード (%1$d)</string>
   <string name="series_incorrect_pin">PINが違います</string>
   <string name="series_library_lens_subtitle">ライブラリ全体から、お気に入り、視聴中、高評価、新着のシリーズを表示します。</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">一部</string>
   <string name="settings_status_unknown">不明</string>
   <string name="settings_update_install_started">パッケージインストーラーを開いています。</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">ストリーム URL</string>
+  <string name="stream_url_copied">ストリーム URL をコピーしました</string>
+  <string name="stream_url_copy">URL をコピー</string>
+  <string name="stream_url_copy_failed">ストリーム URL を解決できませんでした</string>
   <string name="vod_category_picker_empty">一致するカテゴリが見つかりません。</string>
   <string name="vod_category_picker_search_placeholder">カテゴリを検索…</string>
   <string name="vod_category_picker_subtitle">カテゴリ名で検索して、該当する棚を開きます。</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">このプロバイダーを更新して映画とシリーズをライブラリに取り込みます。</string>
   <string name="vod_sync_needed_title">同期が必要</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Trakt のウォッチリストに追加</string>
-  <string name="trakt_watchlist_connect">設定で Trakt に接続</string>
-  <string name="trakt_watchlist_failed">Trakt のウォッチリストを更新できませんでした。もう一度お試しください。</string>
-  <string name="trakt_watchlist_load">Trakt のウォッチリストを読み込む</string>
-  <string name="trakt_watchlist_remove">Trakt のウォッチリストから削除</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Traktで評価</string>
-  <string name="trakt_rating_dialog_message">1～10の評価を選択してください。</string>
-  <string name="trakt_rating_current">Traktでの評価: %1$d/10</string>
-  <string name="trakt_rating_saved">評価をTraktに保存しました。</string>
-  <string name="trakt_rating_failed">評価をTraktに保存できませんでした。</string>
-  <string name="trakt_favorite_sync_failed">StreamVaultで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
+  <string name="vod_unavailable_subtitle">このプロバイダーは映画とシリーズのカタログを別々に提供しています。</string>
+  <string name="vod_unavailable_title">VOD は利用できません</string>
+
+<string name="trakt_watchlist_add">Trakt のウォッチリストに追加</string>
+<string name="trakt_watchlist_connect">設定で Trakt に接続</string>
+<string name="trakt_watchlist_failed">Trakt のウォッチリストを更新できませんでした。もう一度お試しください。</string>
+<string name="trakt_watchlist_load">Trakt のウォッチリストを読み込む</string>
+<string name="trakt_watchlist_remove">Trakt のウォッチリストから削除</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt ウォッチリスト内の映画</string>
+<string name="dashboard_trakt_watchlist_series">Trakt ウォッチリストのテレビ番組</string>
+<string name="trakt_rating_action">Traktで評価</string>
+<string name="trakt_rating_dialog_message">1～10の評価を選択してください。</string>
+<string name="trakt_rating_current">Traktでの評価: %1$d/10</string>
+<string name="trakt_rating_saved">評価をTraktに保存しました。</string>
+<string name="trakt_rating_failed">評価をTraktに保存できませんでした。</string>
+<string name="trakt_favorite_sync_failed">StreamVaultで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
 </resources>

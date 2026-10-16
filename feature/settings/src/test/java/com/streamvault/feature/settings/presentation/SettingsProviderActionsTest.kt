@@ -7,6 +7,7 @@ import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
@@ -37,6 +38,7 @@ class SettingsProviderActionsTest {
     private val syncMetadataRepository: SyncMetadataRepository = mock()
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort = mock()
     private val uiState = MutableStateFlow(SettingsUiState())
+    private val requestedSyncs = mutableListOf<Long>()
 
     private val actions = SettingsProviderActions(
         providerRepository = providerRepository,
@@ -46,8 +48,61 @@ class SettingsProviderActionsTest {
         settingsOperations = settingsOperations,
         syncMetadataRepository = syncMetadataRepository,
         surfaceRefreshPort = surfaceRefreshPort,
-        uiState = uiState
+        uiState = uiState,
+        onSyncRequested = { _, provider -> requestedSyncs += provider.id }
     )
+
+    @Test
+    fun successfulManualLiveRefreshPreventsRepeatedSyncOnProviderSwitch() = runTest {
+        whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+            id = 7L, name = "Portal", type = ProviderType.STALKER_PORTAL, serverUrl = "https://example.com"
+        ))
+        whenever(syncMetadataRepository.getMetadata(7L)).thenReturn(com.streamvault.domain.model.SyncMetadata(
+            providerId = 7L, lastLiveSuccess = System.currentTimeMillis()
+        ))
+        actions.setActiveProvider(this, 7L)
+        advanceUntilIdle()
+        assertThat(requestedSyncs).isEmpty()
+    }
+
+    @Test
+    fun staleProviderActivationRequestsPolicyAwareAutomaticCheck() = runTest {
+        whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+            id = 7L, name = "Portal", type = ProviderType.STALKER_PORTAL, serverUrl = "https://example.com"
+        ))
+        actions.setActiveProvider(this, 7L)
+        advanceUntilIdle()
+        assertThat(requestedSyncs).isEmpty()
+        verify(settingsOperations).requestAutomaticSyncCheck()
+    }
+
+    @Test
+    fun changedTextDecodingRebuildsXtreamIndexBeforeOrdinaryRefresh() = runTest {
+        whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+            id = 7L, name = "Xtream", type = ProviderType.XTREAM_CODES, serverUrl = "https://example.com"
+        ))
+        whenever(preferencesRepository.getXtreamTextImportGeneration()).thenReturn(2L)
+        whenever(preferencesRepository.getXtreamTextImportAppliedGeneration(7L)).thenReturn(1L)
+        val receipt = ProviderSectionSyncResult(queued = true)
+        whenever(settingsOperations.rebuildXtreamIndex(eq(7L), any())).thenReturn(Result.success(receipt))
+
+        assertThat(actions.prepareProviderRefresh(7L)).isEqualTo(Result.success(receipt))
+        verify(preferencesRepository).markXtreamTextImportApplied(7L, 2L)
+    }
+
+    @Test
+    fun incompleteTextDecodingRebuildRemainsPendingAndPreservesWarnings() = runTest {
+        whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+            id = 7L, name = "Xtream", type = ProviderType.XTREAM_CODES, serverUrl = "https://example.com"
+        ))
+        whenever(preferencesRepository.getXtreamTextImportGeneration()).thenReturn(2L)
+        whenever(preferencesRepository.getXtreamTextImportAppliedGeneration(7L)).thenReturn(1L)
+        val receipt = ProviderSectionSyncResult(queued = true, partial = true, warnings = listOf("Movies unavailable"))
+        whenever(settingsOperations.rebuildXtreamIndex(eq(7L), any())).thenReturn(Result.success(receipt))
+
+        assertThat(actions.prepareProviderRefresh(7L)).isEqualTo(Result.success(receipt))
+        verify(preferencesRepository, never()).markXtreamTextImportApplied(any(), any())
+    }
 
     @Test
     fun providerWithFutureSyncTimestampIsStaleAfterBackwardClockJump() {

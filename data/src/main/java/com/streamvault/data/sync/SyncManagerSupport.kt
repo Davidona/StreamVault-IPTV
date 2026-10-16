@@ -145,8 +145,14 @@ internal data class TimedCategoryOutcome<T>(
 
 internal data class CategoryExecutionPlan<T>(
     val outcomes: List<TimedCategoryOutcome<T>>,
-    val warnings: List<String> = emptyList()
+    val warnings: List<String> = emptyList(),
+    val stopReason: CategoryExecutionStopReason? = null
 )
+
+internal enum class CategoryExecutionStopReason {
+    AUTHENTICATION,
+    PROVIDER_STRESS
+}
 
 internal data class M3uImportStats(
     val header: M3uParser.M3uHeader,
@@ -173,6 +179,13 @@ internal class FallbackCategoryCollector(
         val resolvedCategoryId = categoryId ?: return
         val resolvedCategoryName = categoryName?.trim().takeUnless { it.isNullOrEmpty() }
             ?: "Category $resolvedCategoryId"
+        val existing = categories[resolvedCategoryId]
+        if (existing != null && existing.name == resolvedCategoryName) {
+            // This name was classified when first admitted. Explicit adult flags
+            // can still strengthen it on a later row.
+            if (isAdult && !existing.isAdult) categories[resolvedCategoryId] = existing.copy(isAdult = true)
+            return
+        }
         val candidate = CategoryEntity(
             categoryId = resolvedCategoryId,
             name = resolvedCategoryName,
@@ -181,7 +194,6 @@ internal class FallbackCategoryCollector(
             providerId = providerId,
             isAdult = isAdult || AdultContentClassifier.isAdultCategoryName(resolvedCategoryName)
         )
-        val existing = categories[resolvedCategoryId]
         categories[resolvedCategoryId] = if (existing == null) {
             candidate
         } else {

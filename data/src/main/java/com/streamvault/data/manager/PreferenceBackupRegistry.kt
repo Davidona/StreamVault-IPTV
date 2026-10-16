@@ -35,19 +35,22 @@ internal object PreferenceBackupRegistry {
         "player_playback_speed", "player_external_playback_mode", "player_av_sync_enabled",
         "player_av_offset_ms", "preferred_audio_language", "player_vod_track_global_preferences",
         "player_vod_track_preferences", "player_subtitle_text_scale",
-        "player_subtitle_text_color", "player_subtitle_background_color", "player_live_translation_enabled",
+        "player_subtitle_text_color", "player_subtitle_background_color", "pinned_subtitle_languages",
+        "player_live_translation_enabled",
         "player_live_translation_endpoint", "player_controls_timeout_seconds",
         "player_live_overlay_timeout_seconds", "player_notice_timeout_seconds",
         "player_live_clock_enabled", "player_live_clock_position", "player_live_clock_size",
         "player_live_clock_font",
         "player_diagnostics_timeout_seconds", "player_wifi_max_video_height",
-        "player_ethernet_max_video_height", "player_timeshift_enabled", "player_timeshift_depth_minutes",
+        "player_ethernet_max_video_height", "player_quality_profile", "player_quality_custom_max_video_height",
+        "player_quality_custom_max_video_bitrate_bps", "player_wifi_max_video_bitrate_bps",
+        "player_ethernet_max_video_bitrate_bps", "player_timeshift_enabled", "player_timeshift_depth_minutes",
         "player_timeshift_backend", "default_stop_playback_timer_minutes",
         "default_idle_standby_timer_minutes", "guide_scheduled_only", "xtream_text_classification",
         "xtream_base64_text_compatibility", "zap_auto_revert", "prevent_standby_during_playback",
         "auto_play_next_episode", "auto_check_app_updates", "auto_download_app_updates",
         "recording_wifi_only", "recording_padding_before_minutes", "recording_padding_after_minutes",
-        "max_concurrent_streams"
+        "max_concurrent_streams", "automatic_sync_defaults"
     )
     private val deviceBoundStorageKeys = setOf("download_tree_uri")
     private val runtimeStorageKeys = setOf(
@@ -70,12 +73,12 @@ internal object PreferenceBackupRegistry {
         "last_maintenance_playback_history_rows", "last_maintenance_favorite_rows"
     )
     private val providerStoragePrefixes = setOf(
-        "hidden_channels_", "hidden_categories_", "pinned_categories_", "category_sort_"
+        "hidden_channels_", "hidden_categories_", "pinned_categories_", "category_sort_", "automatic_sync_provider_"
     )
     private val globalStoragePrefixes = setOf("remote_shortcut_")
     private val runtimeStoragePrefixes = setOf(
         "xtream_text_import_applied_generation_", "last_live_category_id_",
-        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_"
+        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_", "automatic_sync_status_"
     )
 
     private val providerKeys = setOf(
@@ -90,10 +93,10 @@ internal object PreferenceBackupRegistry {
         "categorySortMode_",
         "epgTimeShift_",
         "liveVariantSelections_",
-        "vodVariantSelections_"
+        "vodVariantSelections_", "automaticSyncProvider_"
     )
     private val globalKeys = setOf(
-        "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat", "appTheme",
+        "automaticSyncDefaults", "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat", "appTheme",
         "defaultViewMode", "appLandingDestination", "appTopLevelDestinations", "appHomeDashboardShelves",
         "remoteShortcutPreferences", "liveTvCategoryFilters", "liveTvQuickFilterVisibility", "liveTvChannelMode",
         "liveTvAutoHideCategories",
@@ -110,11 +113,13 @@ internal object PreferenceBackupRegistry {
         "playerSurfaceMode", "playerLiveStreamFormatMode", "playerVodHttpProtocolMode", "playerPlaybackSpeed",
         "playerExternalPlaybackMode", "playerAudioVideoSyncEnabled", "playerAudioVideoOffsetMs", "playerMuted",
         "multiViewPerformanceMode", "multiViewCenterTwoSlotLayout", "multiViewRespectProviderConnectionLimit",
-        "preferredAudioLanguage", "playerSubtitleTextScale", "playerSubtitleTextColor",
-        "playerSubtitleBackgroundColor", "playerLiveTranslationEnabled", "playerLiveTranslationEndpoint",
+        "preferredAudioLanguage", "playerVodTrackPreferences", "playerSubtitleTextScale", "playerSubtitleTextColor",
+        "playerSubtitleBackgroundColor", "pinnedSubtitleLanguages", "playerLiveTranslationEnabled",
+        "playerLiveTranslationEndpoint",
         "playerControlsTimeoutSeconds", "playerLiveOverlayTimeoutSeconds", "playerNoticeTimeoutSeconds",
         "playerLiveClockEnabled", "playerLiveClockPosition", "playerLiveClockSize", "playerLiveClockFont",
         "playerDiagnosticsTimeoutSeconds", "playerWifiMaxVideoHeight", "playerEthernetMaxVideoHeight",
+        "playbackQualityPreferences",
         "playerTimeshiftEnabled", "playerTimeshiftDepthMinutes", "playerTimeshiftBackend",
         "defaultStopPlaybackTimerMinutes", "defaultIdleStandbyTimerMinutes", "preventStandbyDuringPlayback",
         "zapAutoRevert", "autoPlayNextEpisode", "autoCheckAppUpdates", "autoDownloadAppUpdates",
@@ -150,6 +155,7 @@ internal object PreferenceBackupRegistry {
     }
 
     fun portableCodecForStorageKey(key: String): String? = when {
+        key.startsWith("automatic_sync_provider_") -> "preferences"
         storageClassification(key) == PreferenceBackupClassification.PORTABLE_GLOBAL -> "preferences"
         storageClassification(key) == PreferenceBackupClassification.PORTABLE_PROVIDER_CONTENT -> when (key) {
             "active_live_source_type", "active_live_source_id" -> "activeLiveSource"

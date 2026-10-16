@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">在設定</string>
+    <string name="player_trakt_not_supported">中連接Trakt Trakt 僅追蹤電影和劇集。</string>
+    <string name="player_trakt_no_match">沒有與此標題完全匹配的 Trakt。</string>
+    <string name="player_trakt_starting">開始Trakt追蹤...</string>
+    <string name="player_trakt_tracking">使用 Trakt 進行追蹤</string>
+    <string name="player_trakt_paused">Trakt 追蹤暫停</string>
+    <string name="player_trakt_failed">Trakt追蹤失敗</string>
+    <string name="player_trakt_sent">發送至Trakt</string>
+</resources>

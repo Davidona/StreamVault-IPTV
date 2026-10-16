@@ -10,10 +10,22 @@ class AppThemeTest {
         assertThat(AppTheme.CLASSIC_BLUE.storageValue).isEqualTo("classic_blue")
         assertThat(AppTheme.M3_PURPLE.storageValue).isEqualTo("m3_purple")
         assertThat(AppTheme.LIGHT.storageValue).isEqualTo("light")
+        assertThat(AppTheme.FOREST.storageValue).isEqualTo("forest")
+        assertThat(AppTheme.SUNSET.storageValue).isEqualTo("sunset")
+        assertThat(AppTheme.OCEAN.storageValue).isEqualTo("ocean")
+        assertThat(AppTheme.ROSE.storageValue).isEqualTo("rose")
+        assertThat(AppTheme.AMOLED_BLACK.storageValue).isEqualTo("amoled_black")
+        assertThat(AppTheme.VINTAGE.storageValue).isEqualTo("vintage")
         assertThat(AppTheme.entries.map(AppTheme::storageValue)).containsExactly(
             "classic_blue",
             "m3_purple",
-            "light"
+            "light",
+            "forest",
+            "sunset",
+            "ocean",
+            "rose",
+            "amoled_black",
+            "vintage"
         ).inOrder()
     }
 

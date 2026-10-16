@@ -32,11 +32,11 @@
   <string name="badge_series">SERIE</string>
   <string name="card_live_badge">EN VIVO</string>
   <string name="card_locked_channel">Canal bloqueado</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Transmitir</string>
+  <string name="cast_item_unavailable">Este elemento no se puede enviar a un receptor Cast.</string>
+  <string name="cast_launching">Transmitiendo...</string>
+  <string name="cast_started">Transmitiendo al dispositivo conectado.</string>
+  <string name="cast_unavailable">Google Cast no está disponible en este dispositivo.</string>
   <string name="category_options_cancel">Cancelar</string>
   <string name="category_options_clear_recent">Borrar todo el historial</string>
   <string name="category_options_delete">Eliminar grupo</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Establecer como grupo predeterminado</string>
   <string name="category_options_unlock">Desbloquear grupo</string>
   <string name="category_options_unpin">Desfijar categoría</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Fijar</string>
   <string name="category_see_all">Ver todo →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Desfijar</string>
+  <string name="channel_action_hide">Ocultar este canal</string>
   <string name="channel_options_remove_from_recent">Quitar de recientes</string>
   <string name="continue_watching_season_episode">T%1$d E%2$d</string>
   <string name="continue_watching_title">Continuar viendo</string>
   <string name="dashboard_channels_format">%1$d canales</string>
   <string name="dashboard_continue_watching">Continuar viendo</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Continuar viendo películas</string>
+  <string name="dashboard_continue_watching_series">Continuar viendo series</string>
   <string name="dashboard_empty_body">Añade primero una lista o una fuente Xtream. Cuando haya un proveedor activo, Inicio mostrará canales favoritos, continuar viendo y nuevas filas de la biblioteca.</string>
   <string name="dashboard_empty_title">Configurar un proveedor para desbloquear la pantalla de inicio</string>
   <string name="dashboard_favorite_channels">Canales favoritos</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Películas favoritas</string>
+  <string name="dashboard_favorite_series">Series favoritas</string>
   <string name="dashboard_fresh_movie_pick">Película destacada</string>
   <string name="dashboard_jump_back_live">Vuelve a la TV en directo</string>
   <string name="dashboard_library_ready">Tu biblioteca de IPTV está lista</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Canales recientes</string>
   <string name="dashboard_recent_movies">Películas agregadas recientemente</string>
   <string name="dashboard_recent_series">Serie recientemente actualizada</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Películas recomendadas</string>
   <string name="dashboard_resume_episode">Reanudar episodio</string>
   <string name="dashboard_resume_episode_format">Reanudar S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Currículum</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">Serie %1$d</string>
   <string name="dashboard_subtitle">%1$s está activo. Vuelve a ver en directo, retoma lo pendiente o explora las novedades.</string>
   <string name="dashboard_title">Tu biblioteca, lista</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Películas mejor valoradas</string>
+  <string name="dashboard_update_allow_installs">Permitir instalaciones</string>
   <string name="dashboard_update_available">Hay una versión más reciente de la app en caché y lista para revisar en Ajustes.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">La actualización se ha descargado. Permite las instalaciones desde StreamVault y reintenta la instalación.</string>
   <string name="dashboard_update_install_ready">La última actualización ya se ha descargado. Abre Ajustes para instalarla.</string>
   <string name="dashboard_update_open_installer">Instalar desde Ajustes</string>
   <string name="dashboard_update_open_settings">Abrir actualizaciones</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Abrir detalles del proveedor</string>
   <string name="dashboard_warning_title">El proveedor necesita atención</string>
   <string name="dashboard_watch_live">Ver en vivo</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Descargar</string>
+  <string name="download_error_no_url">No se pudo resolver la URL de transmisión para la descarga</string>
+  <string name="download_failed">Error de descarga: %1$s</string>
+  <string name="download_started">Descarga iniciada</string>
   <string name="favorites_add">Agregar a favoritos</string>
   <string name="favorites_all_favorites">Todos los favoritos</string>
   <string name="favorites_cancel">Atrás: cancelar</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Mantenga un grupo guardado para ver opciones</string>
   <string name="library_saved_primary_hint">Volver a la biblioteca completa</string>
   <string name="library_sort_title">Ordenar resultados</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Mover de vuelta a TV en vivo</string>
+  <string name="m3u_move_to_movies">Mover a Películas</string>
+  <string name="m3u_move_to_series">Mover a Series</string>
+  <string name="m3u_organize_items">Organizar elementos M3U</string>
   <string name="movie_detail_back">Volver a la biblioteca</string>
   <string name="movie_detail_cast">Reparto:</string>
   <string name="movie_detail_director">Dirigida por:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Continuar desde %1$s</string>
   <string name="movie_detail_trailer">Tráiler</string>
   <string name="movie_detail_unknown">Desconocido</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versiones</string>
   <string name="movie_loading_details">Cargando detalles...</string>
   <string name="movie_not_found">Película no encontrada</string>
   <string name="movie_plot_fallback">No hay sinopsis disponible</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Películas</string>
   <string name="nav_series">Serie</string>
   <string name="nav_settings">Ajustes</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">Vídeo bajo demanda</string>
   <string name="pin_dialog_cancel">Cancelar</string>
   <string name="pin_dialog_title">Introducir PIN</string>
   <string name="player_resume">Currículum</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Quitar de favoritos</string>
   <string name="search_actions_unlock">Desbloquear control parental</string>
   <string name="search_all">Todos</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Generar el índice de búsqueda completo una vez</string>
+  <string name="search_catalog_complete">Índice completo del catálogo</string>
+  <string name="search_catalog_downloaded_only">Solo elementos descargados. Genera el índice de búsqueda completo para buscar en todo el catálogo del portal.</string>
+  <string name="search_catalog_indexing">Se está generando el índice de búsqueda completo. Los resultados aún son parciales.</string>
+  <string name="search_catalog_truncated">El catálogo del portal se ha truncado. Los resultados pueden estar incompletos.</string>
   <string name="search_clear_history">Borrar</string>
   <string name="search_command_subtitle">Empieza con un título, palabra clave, nombre de canal o serie. Los resultados se mantienen agrupados para una navegación rápida con el mando.</string>
   <string name="search_error_subtitle">Algunos resultados no pudieron cargarse. Inténtalo de nuevo.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">volver a la biblioteca</string>
   <string name="series_detail_play_episode">Reproducir · Temporada %1$d Ep %2$d</string>
   <string name="series_detail_resume">Continuar · Temporada %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versiones</string>
   <string name="series_episodes">Episodios (%1$d)</string>
   <string name="series_incorrect_pin">PIN incorrecto</string>
   <string name="series_library_lens_subtitle">Muestra las series favoritas, en progreso, mejor calificadas y nuevas en toda la biblioteca.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Parcial</string>
   <string name="settings_status_unknown">Desconocido</string>
   <string name="settings_update_install_started">Abriendo el instalador del paquete.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL de transmisión</string>
+  <string name="stream_url_copied">URL de transmisión copiada</string>
+  <string name="stream_url_copy">Copiar URL</string>
+  <string name="stream_url_copy_failed">No se pudo resolver la URL de transmisión</string>
   <string name="vod_category_picker_empty">No se encontraron categorías coincidentes.</string>
   <string name="vod_category_picker_search_placeholder">Buscar categorías…</string>
   <string name="vod_category_picker_subtitle">Busque por nombre de categoría y luego abra el estante correspondiente.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Actualiza este proveedor para importar películas y series en la biblioteca.</string>
   <string name="vod_sync_needed_title">Sincronización necesaria</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Añadir a la lista de seguimiento de Trakt</string>
-  <string name="trakt_watchlist_connect">Conecta Trakt en Ajustes</string>
-  <string name="trakt_watchlist_failed">No se pudo actualizar la lista de Trakt. Inténtalo de nuevo.</string>
-  <string name="trakt_watchlist_load">Cargar la lista de seguimiento de Trakt</string>
-  <string name="trakt_watchlist_remove">Quitar de la lista de seguimiento de Trakt</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Calificar en Trakt</string>
-  <string name="trakt_rating_dialog_message">Elige una puntuación del 1 al 10.</string>
-  <string name="trakt_rating_current">Tu puntuación en Trakt: %1$d/10</string>
-  <string name="trakt_rating_saved">Tu puntuación se guardó en Trakt.</string>
-  <string name="trakt_rating_failed">No se pudo guardar tu puntuación en Trakt.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault guardó el cambio, pero no pudo actualizar tus favoritos de Trakt. Inténtalo de nuevo.</string>
+  <string name="vod_unavailable_subtitle">Este proveedor ofrece catálogos separados de Películas y Series.</string>
+  <string name="vod_unavailable_title">El vídeo bajo demanda no está disponible</string>
+
+<string name="trakt_watchlist_add">Añadir a la lista de seguimiento de Trakt</string>
+<string name="trakt_watchlist_connect">Conecta Trakt en Ajustes</string>
+<string name="trakt_watchlist_failed">No se pudo actualizar la lista de Trakt. Inténtalo de nuevo.</string>
+<string name="trakt_watchlist_load">Cargar la lista de seguimiento de Trakt</string>
+<string name="trakt_watchlist_remove">Quitar de la lista de seguimiento de Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Películas en tu lista de seguimiento Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Programas de TV en tu lista de seguimiento Trakt</string>
+<string name="trakt_rating_action">Calificar en Trakt</string>
+<string name="trakt_rating_dialog_message">Elige una puntuación del 1 al 10.</string>
+<string name="trakt_rating_current">Tu puntuación en Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Tu puntuación se guardó en Trakt.</string>
+<string name="trakt_rating_failed">No se pudo guardar tu puntuación en Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault guardó el cambio, pero no pudo actualizar tus favoritos de Trakt. Inténtalo de nuevo.</string>
 </resources>

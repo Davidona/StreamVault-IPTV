@@ -32,11 +32,11 @@
   <string name="badge_series">SERIE</string>
   <string name="card_live_badge">LIVE</string>
   <string name="card_locked_channel">Låst kanal</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Casta</string>
+  <string name="cast_item_unavailable">Det här objektet kan inte skickas till en Cast-mottagare.</string>
+  <string name="cast_launching">Castar...</string>
+  <string name="cast_started">Castar till den anslutna enheten.</string>
+  <string name="cast_unavailable">Google Cast är inte tillgängligt på den här enheten.</string>
   <string name="category_options_cancel">Avbryt</string>
   <string name="category_options_clear_recent">Rensa alla senaste</string>
   <string name="category_options_delete">Ta bort grupp</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Ställ in som standardgrupp</string>
   <string name="category_options_unlock">Lås upp grupp</string>
   <string name="category_options_unpin">Lossa kategori</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Fäst</string>
   <string name="category_see_all">Se alla →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Lossa</string>
+  <string name="channel_action_hide">Dölj denna kanal</string>
   <string name="channel_options_remove_from_recent">Ta bort från senaste</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Fortsätt titta</string>
   <string name="dashboard_channels_format">%1$d kanaler</string>
   <string name="dashboard_continue_watching">Fortsätt titta</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Fortsätt titta på filmer</string>
+  <string name="dashboard_continue_watching_series">Fortsätt titta på serier</string>
   <string name="dashboard_empty_body">Lägg först till en spellista eller Xtream-källa. När en leverantör är aktiv visar Hem favoritkanaler, fortsätt titta och nya biblioteksrader.</string>
   <string name="dashboard_empty_title">Ställ in en leverantör för att låsa upp hemskärmen</string>
   <string name="dashboard_favorite_channels">Favoritkanaler</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Favoritfilmer</string>
+  <string name="dashboard_favorite_series">Favoritserier</string>
   <string name="dashboard_fresh_movie_pick">Fräscht filmval</string>
   <string name="dashboard_jump_back_live">Hoppa tillbaka till live-TV</string>
   <string name="dashboard_library_ready">Ditt IPTV-bibliotek är klart</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Senaste kanaler</string>
   <string name="dashboard_recent_movies">Nyligen tillagda filmer</string>
   <string name="dashboard_recent_series">Nyligen uppdaterad serie</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Rekommenderade filmer</string>
   <string name="dashboard_resume_episode">Återuppta avsnitt</string>
   <string name="dashboard_resume_episode_format">CV S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Återuppta</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d serie</string>
   <string name="dashboard_subtitle">%1$s är aktiv. Hoppa tillbaka till live, få koll på framstegen eller bläddra bland nya tillägg.</string>
   <string name="dashboard_title">Ditt bibliotek, redo</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Topprankade filmer</string>
+  <string name="dashboard_update_allow_installs">Tillåt installationer</string>
   <string name="dashboard_update_available">En nyare appversion är cachad och redo att granskas i Inställningar.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Uppdateringen har laddats ner. Tillåt installationer från StreamVault och försök sedan installera igen.</string>
   <string name="dashboard_update_install_ready">Den senaste uppdateringen har redan laddats ner. Öppna Inställningar för att installera den.</string>
   <string name="dashboard_update_open_installer">Installera från Inställningar</string>
   <string name="dashboard_update_open_settings">Öppna uppdateringar</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Öppna leverantörsdetaljer</string>
   <string name="dashboard_warning_title">Leverantören behöver uppmärksamhet</string>
   <string name="dashboard_watch_live">Se live</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Ladda ner</string>
+  <string name="download_error_no_url">Det gick inte att hämta stream-URL:en för nedladdning</string>
+  <string name="download_failed">Nedladdning misslyckades: %1$s</string>
+  <string name="download_started">Nedladdning startad</string>
   <string name="favorites_add">Lägg till i favoriter</string>
   <string name="favorites_all_favorites">Alla favoriter</string>
   <string name="favorites_cancel">Tillbaka: avbryt</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Håll ned en sparad grupp för alternativ</string>
   <string name="library_saved_primary_hint">Gå tillbaka till hela biblioteket</string>
   <string name="library_sort_title">Sortera resultat</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Flytta tillbaka till Live-TV</string>
+  <string name="m3u_move_to_movies">Flytta till filmer</string>
+  <string name="m3u_move_to_series">Flytta till serier</string>
+  <string name="m3u_organize_items">Organisera M3U-objekt</string>
   <string name="movie_detail_back">Tillbaka till biblioteket</string>
   <string name="movie_detail_cast">Rollista:</string>
   <string name="movie_detail_director">Regisserad av:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Fortsätt från %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Okänd</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versioner</string>
   <string name="movie_loading_details">Laddar detaljer...</string>
   <string name="movie_not_found">Film hittades inte</string>
   <string name="movie_plot_fallback">Ingen handling tillgänglig</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmer</string>
   <string name="nav_series">Serie</string>
   <string name="nav_settings">Inställningar</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Avbryt</string>
   <string name="pin_dialog_title">Ange PIN-kod</string>
   <string name="player_resume">Återuppta</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Ta bort från favoriter</string>
   <string name="search_actions_unlock">Lås upp föräldrakontroll</string>
   <string name="search_all">Alla</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Bygg ett komplett sökindex en gång</string>
+  <string name="search_catalog_complete">Komplett katalogindex</string>
+  <string name="search_catalog_downloaded_only">Endast nedladdade objekt. Bygg det kompletta sökindexet för att söka i hela portalkatalogen.</string>
+  <string name="search_catalog_indexing">Det kompletta sökindexet byggs. Resultaten är fortfarande partiella.</string>
+  <string name="search_catalog_truncated">Portalkatalogen trunkerades. Resultaten kan vara ofullständiga.</string>
   <string name="search_clear_history">Rensa</string>
   <string name="search_command_subtitle">Börja med en titel, ett nyckelord, ett kanalnamn eller en serie. Resultaten hålls grupperade för snabb navigering med fjärrkontrollen.</string>
   <string name="search_error_subtitle">Vissa resultat kunde inte laddas. Försök igen.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Tillbaka till biblioteket</string>
   <string name="series_detail_play_episode">Spela · Säsong %1$d Avs %2$d</string>
   <string name="series_detail_resume">Fortsätt · Säsong %1$d Avs %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versioner</string>
   <string name="series_episodes">Avsnitt (%1$d)</string>
   <string name="series_incorrect_pin">Felaktig PIN-kod</string>
   <string name="series_library_lens_subtitle">Visa favoriter, pågående, topprankade och nya serier i hela biblioteket.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Partiell</string>
   <string name="settings_status_unknown">Okänd</string>
   <string name="settings_update_install_started">Öppnar paketinstallationsprogrammet.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Stream-URL</string>
+  <string name="stream_url_copied">Stream-URL kopierad</string>
+  <string name="stream_url_copy">Kopiera URL</string>
+  <string name="stream_url_copy_failed">Det gick inte att hämta stream-URL:en</string>
   <string name="vod_category_picker_empty">Inga matchande kategorier hittades.</string>
   <string name="vod_category_picker_search_placeholder">Sök kategorier…</string>
   <string name="vod_category_picker_subtitle">Sök efter kategorinamn och öppna sedan rätt hylla.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Uppdatera leverantören för att importera filmer och serier till biblioteket.</string>
   <string name="vod_sync_needed_title">Synkronisering krävs</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Lägg till i Trakts bevakningslista</string>
-  <string name="trakt_watchlist_connect">Anslut Trakt i Inställningar</string>
-  <string name="trakt_watchlist_failed">Det gick inte att uppdatera Trakts bevakningslista. Försök igen.</string>
-  <string name="trakt_watchlist_load">Läs in Trakts bevakningslista</string>
-  <string name="trakt_watchlist_remove">Ta bort från Trakts bevakningslista</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Betygsätt på Trakt</string>
-  <string name="trakt_rating_dialog_message">Välj ett betyg från 1 till 10.</string>
-  <string name="trakt_rating_current">Ditt Trakt-betyg: %1$d/10</string>
-  <string name="trakt_rating_saved">Ditt betyg har sparats på Trakt.</string>
-  <string name="trakt_rating_failed">Det gick inte att spara ditt betyg på Trakt.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault sparade ändringen men kunde inte uppdatera dina Trakt-favoriter. Försök igen.</string>
+  <string name="vod_unavailable_subtitle">Den här leverantören har separata kataloger för filmer och serier.</string>
+  <string name="vod_unavailable_title">VOD är inte tillgängligt</string>
+
+<string name="trakt_watchlist_add">Lägg till i Trakts bevakningslista</string>
+<string name="trakt_watchlist_connect">Anslut Trakt i Inställningar</string>
+<string name="trakt_watchlist_failed">Det gick inte att uppdatera Trakts bevakningslista. Försök igen.</string>
+<string name="trakt_watchlist_load">Läs in Trakts bevakningslista</string>
+<string name="trakt_watchlist_remove">Ta bort från Trakts bevakningslista</string>
+<string name="dashboard_trakt_watchlist_movies">Filmer i din Trakt bevakningslista</string>
+<string name="dashboard_trakt_watchlist_series">TV-program i din Trakt bevakningslista</string>
+<string name="trakt_rating_action">Betygsätt på Trakt</string>
+<string name="trakt_rating_dialog_message">Välj ett betyg från 1 till 10.</string>
+<string name="trakt_rating_current">Ditt Trakt-betyg: %1$d/10</string>
+<string name="trakt_rating_saved">Ditt betyg har sparats på Trakt.</string>
+<string name="trakt_rating_failed">Det gick inte att spara ditt betyg på Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault sparade ändringen men kunde inte uppdatera dina Trakt-favoriter. Försök igen.</string>
 </resources>

@@ -752,6 +752,7 @@ private fun PlayerLiveInfo(
     aspectRatioLabel: String,
     subtitleTrackCount: Int,
     liveTranslationAvailable: Boolean,
+    localSubtitleLoadingAvailable: Boolean = true,
     audioTrackCount: Int,
     videoQualityCount: Int,
     currentRecordingStatus: RecordingStatus?,
@@ -855,7 +856,7 @@ private fun PlayerLiveInfo(
     }
     val secondaryActions = buildList {
         add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
-        if (subtitleTrackCount > 0 || liveTranslationAvailable) {
+        if (subtitleTrackCount > 0 || liveTranslationAvailable || localSubtitleLoadingAvailable) {
             add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         }
         if (audioTrackCount > 0) {
@@ -1085,9 +1086,7 @@ private fun PlayerVodInfo(
             stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
             onToggleMute
         ))
-        if (subtitleTrackCount > 0) {
-            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
-        }
+        add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         if (videoQualityCount > 0) {
             add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
         }

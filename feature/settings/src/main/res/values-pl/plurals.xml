@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="one">%1$d zapisany</item>
-        <item quantity="other">%1$d zapisanych</item>
-    </plurals>
-<plurals name="settings_timeout_seconds">
+<resources>
+    <plurals name="settings_timeout_seconds">
         <item quantity="one">%d sekunda</item>
-        <item quantity="other">%d sekund</item>
+        <item quantity="few">%d sekundy</item>
+        <item quantity="many">%d sekund</item>
+        <item quantity="other">%d sekundy</item>
     </plurals>
-<plurals name="settings_timer_minutes">
+    <plurals name="settings_timer_minutes">
         <item quantity="one">%1$d minuta</item>
-        <item quantity="other">%1$d minut</item>
+        <item quantity="few">%1$d minuty</item>
+        <item quantity="many">%1$d minut</item>
+        <item quantity="other">%1$d minuty</item>
     </plurals>
-<plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d zakładka</item>
+        <item quantity="few">%d zakładki</item>
+        <item quantity="many">%d zakładek</item>
+        <item quantity="other">%d zakładki</item>
     </plurals>
-<plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d półka</item>
+        <item quantity="few">%d półki</item>
+        <item quantity="many">%d półek</item>
+        <item quantity="other">%d półki</item>
     </plurals>
 </resources>

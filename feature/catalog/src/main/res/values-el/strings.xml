@@ -32,11 +32,11 @@
   <string name="badge_series">ΣΕΙΡΑ</string>
   <string name="card_live_badge">ΖΩΝΤΑΝΑ</string>
   <string name="card_locked_channel">Κλειδωμένο κανάλι</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Μετάδοση</string>
+  <string name="cast_item_unavailable">Αυτό το στοιχείο δεν μπορεί να σταλεί σε δέκτη Cast.</string>
+  <string name="cast_launching">Γίνεται μετάδοση...</string>
+  <string name="cast_started">Μετάδοση στη συνδεδεμένη συσκευή.</string>
+  <string name="cast_unavailable">Το Google Cast δεν είναι διαθέσιμο σε αυτήν τη συσκευή.</string>
   <string name="category_options_cancel">Ακύρωση</string>
   <string name="category_options_clear_recent">Εκκαθάριση Πρόσφατων</string>
   <string name="category_options_delete">Διαγραφή ομάδας</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Ορισμός ως προεπιλεγμένη ομάδα</string>
   <string name="category_options_unlock">Ξεκλείδωμα ομάδας</string>
   <string name="category_options_unpin">Ξεκαρφίτσωμα κατηγορίας</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Καρφίτσωμα</string>
   <string name="category_see_all">Προβολή όλων</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Ξεκαρφίτσωμα</string>
+  <string name="channel_action_hide">Απόκρυψη αυτού του καναλιού</string>
   <string name="channel_options_remove_from_recent">Αφαίρεση από Πρόσφατα</string>
-  <string name="continue_watching_season_episode">S%1$d E%2$d</string>
+  <string name="continue_watching_season_episode">Σ%1$d Ε%2$d</string>
   <string name="continue_watching_title">Συνέχεια παρακολούθησης</string>
   <string name="dashboard_channels_format">%1$d κανάλια</string>
   <string name="dashboard_continue_watching">Συνέχιση παρακολούθησης</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Συνέχεια παρακολούθησης ταινιών</string>
+  <string name="dashboard_continue_watching_series">Συνέχεια παρακολούθησης σειρών</string>
   <string name="dashboard_empty_body">Προσθέστε πρώτα μια λίστα αναπαραγωγής ή πηγή Xtream. Μόλις ενεργοποιηθεί ένας πάροχος, η Αρχική θα εμφανίσει αγαπημένα κανάλια, συνέχεια προβολής και νέες σειρές βιβλιοθήκης.</string>
   <string name="dashboard_empty_title">Ρυθμίστε έναν πάροχο για να ξεκλειδώσετε την αρχική οθόνη</string>
   <string name="dashboard_favorite_channels">Αγαπημένα κανάλια</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Αγαπημένες ταινίες</string>
+  <string name="dashboard_favorite_series">Αγαπημένες σειρές</string>
   <string name="dashboard_fresh_movie_pick">Νέα ταινία</string>
   <string name="dashboard_jump_back_live">Επιστροφή στο ζωντανό TV</string>
   <string name="dashboard_library_ready">Η βιβλιοθήκη IPTV σας είναι έτοιμη</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Πρόσφατα κανάλια</string>
   <string name="dashboard_recent_movies">Ταινίες που προστέθηκαν πρόσφατα</string>
   <string name="dashboard_recent_series">Σειρές που ενημερώθηκαν πρόσφατα</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Προτεινόμενες ταινίες</string>
   <string name="dashboard_resume_episode">Συνέχιση επεισοδίου</string>
   <string name="dashboard_resume_episode_format">Συνέχιση S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Συνέχιση</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d σειρές</string>
   <string name="dashboard_subtitle">Το %1$s είναι ενεργό. Επιστρέψτε στο live, δείτε την πρόοδό σας ή περιηγηθείτε σε νέες προσθήκες.</string>
   <string name="dashboard_title">Η βιβλιοθήκη σας, έτοιμη</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Ταινίες με κορυφαία βαθμολογία</string>
+  <string name="dashboard_update_allow_installs">Να επιτρέπονται οι εγκαταστάσεις</string>
   <string name="dashboard_update_available">Μια νεότερη έκδοση της εφαρμογής είναι αποθηκευμένη και έτοιμη για έλεγχο από τις Ρυθμίσεις.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Η ενημέρωση έχει ληφθεί. Επιτρέψτε τις εγκαταστάσεις από το StreamVault και, στη συνέχεια, δοκιμάστε ξανά την εγκατάσταση.</string>
   <string name="dashboard_update_install_ready">Η τελευταία ενημέρωση έχει ήδη ληφθεί. Ανοίξτε τις Ρυθμίσεις για να την εγκαταστήσετε.</string>
   <string name="dashboard_update_open_installer">Εγκατάσταση από τις Ρυθμίσεις</string>
   <string name="dashboard_update_open_settings">Άνοιγμα ενημερώσεων</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Άνοιγμα λεπτομερειών παρόχου</string>
   <string name="dashboard_warning_title">Ο πάροχος χρειάζεται προσοχή</string>
   <string name="dashboard_watch_live">Παρακολούθηση ζωντανά</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Λήψη</string>
+  <string name="download_error_no_url">Δεν ήταν δυνατή η ανάκτηση του URL ροής για λήψη</string>
+  <string name="download_failed">Η λήψη απέτυχε: %1$s</string>
+  <string name="download_started">Η λήψη ξεκίνησε</string>
   <string name="favorites_add">Προσθήκη στα αγαπημένα</string>
   <string name="favorites_all_favorites">Όλα τα αγαπημένα</string>
   <string name="favorites_cancel">Πίσω: ακύρωση</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Κρατήστε πατημένη μια αποθηκευμένη ομάδα για επιλογές</string>
   <string name="library_saved_primary_hint">Επιστροφή στην πλήρη βιβλιοθήκη</string>
   <string name="library_sort_title">Ταξινόμηση αποτελεσμάτων</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Επιστροφή στη ζωντανή TV</string>
+  <string name="m3u_move_to_movies">Μετακίνηση στις Ταινίες</string>
+  <string name="m3u_move_to_series">Μετακίνηση στις Σειρές</string>
+  <string name="m3u_organize_items">Οργάνωση στοιχείων M3U</string>
   <string name="movie_detail_back">Πίσω στη βιβλιοθήκη</string>
   <string name="movie_detail_cast">Πρωταγωνιστές:</string>
   <string name="movie_detail_director">Σκηνοθεσία:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Συνέχεια από %1$s</string>
   <string name="movie_detail_trailer">Τρέιλερ</string>
   <string name="movie_detail_unknown">Άγνωστο</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Εκδόσεις</string>
   <string name="movie_loading_details">Φόρτωση λεπτομερειών...</string>
   <string name="movie_not_found">Η ταινία δεν βρέθηκε</string>
   <string name="movie_plot_fallback">Δεν υπάρχει διαθέσιμη πλοκή</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Ταινίες</string>
   <string name="nav_series">Σειρές</string>
   <string name="nav_settings">Ρυθμίσεις</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Ακύρωση</string>
   <string name="pin_dialog_title">Εισαγάγετε PIN</string>
   <string name="player_resume">Συνέχιση</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Αφαίρεση από Αγαπημένα</string>
   <string name="search_actions_unlock">Ξεκλείδωμα Γονικού Ελέγχου</string>
   <string name="search_all">Όλα</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Δημιουργία πλήρους ευρετηρίου αναζήτησης μία φορά</string>
+  <string name="search_catalog_complete">Πλήρες ευρετήριο καταλόγου</string>
+  <string name="search_catalog_downloaded_only">Μόνο ληφθέντα στοιχεία. Δημιουργήστε το πλήρες ευρετήριο αναζήτησης για αναζήτηση σε ολόκληρο τον κατάλογο του portal.</string>
+  <string name="search_catalog_indexing">Το πλήρες ευρετήριο αναζήτησης δημιουργείται. Τα αποτελέσματα είναι ακόμη μερικά.</string>
+  <string name="search_catalog_truncated">Ο κατάλογος του portal περικόπηκε. Τα αποτελέσματα ενδέχεται να είναι ελλιπή.</string>
   <string name="search_clear_history">Εκκαθάριση</string>
   <string name="search_command_subtitle">Ξεκινήστε με τίτλο, λέξη-κλειδί, όνομα καναλιού ή σειρά. Τα αποτελέσματα παραμένουν ομαδοποιημένα για γρήγορη πλοήγηση με το τηλεχειριστήριο.</string>
   <string name="search_error_subtitle">Ορισμένα αποτελέσματα δεν φορτώθηκαν. Δοκιμάστε ξανά.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Πίσω στη βιβλιοθήκη</string>
   <string name="series_detail_play_episode">Αναπαραγωγή · Σεζόν %1$d Επ. %2$d</string>
   <string name="series_detail_resume">Συνέχεια · Σεζόν %1$d Επ. %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Εκδόσεις</string>
   <string name="series_episodes">Επεισόδια (%1$d)</string>
   <string name="series_incorrect_pin">Λανθασμένο PIN</string>
   <string name="series_library_lens_subtitle">Προβολή αγαπημένων, σε εξέλιξη, κορυφαίων και νέων σειρών σε όλη τη βιβλιοθήκη.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Μερικό</string>
   <string name="settings_status_unknown">Άγνωστο</string>
   <string name="settings_update_install_started">Άνοιγμα του εγκαταστάτη πακέτου.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL ροής</string>
+  <string name="stream_url_copied">Το URL ροής αντιγράφηκε</string>
+  <string name="stream_url_copy">Αντιγραφή URL</string>
+  <string name="stream_url_copy_failed">Δεν ήταν δυνατή η ανάκτηση του URL ροής</string>
   <string name="vod_category_picker_empty">Δεν βρέθηκαν κατηγορίες που να ταιριάζουν.</string>
   <string name="vod_category_picker_search_placeholder">Αναζήτηση κατηγοριών…</string>
   <string name="vod_category_picker_subtitle">Αναζήτηση με βάση το όνομα κατηγορίας και μετά άνοιγμα του αντίστοιχου ραφιού.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Ανανεώστε αυτόν τον πάροχο για εισαγωγή ταινιών και σειρών στη βιβλιοθήκη.</string>
   <string name="vod_sync_needed_title">Απαιτείται συγχρονισμός</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Προσθήκη στη λίστα παρακολούθησης Trakt</string>
-  <string name="trakt_watchlist_connect">Συνδέστε το Trakt από τις Ρυθμίσεις</string>
-  <string name="trakt_watchlist_failed">Δεν ήταν δυνατή η ενημέρωση της λίστας Trakt. Δοκιμάστε ξανά.</string>
-  <string name="trakt_watchlist_load">Φόρτωση λίστας Trakt</string>
-  <string name="trakt_watchlist_remove">Αφαίρεση από τη λίστα Trakt</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Βαθμολόγηση στο Trakt</string>
-  <string name="trakt_rating_dialog_message">Επιλέξτε βαθμολογία από 1 έως 10.</string>
-  <string name="trakt_rating_current">Η βαθμολογία σας στο Trakt: %1$d/10</string>
-  <string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
-  <string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
-  <string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
+  <string name="vod_unavailable_subtitle">Αυτός ο πάροχος εκθέτει ξεχωριστούς καταλόγους Ταινιών και Σειρών.</string>
+  <string name="vod_unavailable_title">Το VOD δεν είναι διαθέσιμο</string>
+
+<string name="trakt_watchlist_add">Προσθήκη στη λίστα παρακολούθησης Trakt</string>
+<string name="trakt_watchlist_connect">Συνδέστε το Trakt από τις Ρυθμίσεις</string>
+<string name="trakt_watchlist_failed">Δεν ήταν δυνατή η ενημέρωση της λίστας Trakt. Δοκιμάστε ξανά.</string>
+<string name="trakt_watchlist_load">Φόρτωση λίστας Trakt</string>
+<string name="trakt_watchlist_remove">Αφαίρεση από τη λίστα Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Ταινίες στη λίστα παρακολούθησης Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Τηλεοπτικές εκπομπές στη λίστα παρακολούθησης Trakt</string>
+<string name="trakt_rating_action">Βαθμολόγηση στο Trakt</string>
+<string name="trakt_rating_dialog_message">Επιλέξτε βαθμολογία από 1 έως 10.</string>
+<string name="trakt_rating_current">Η βαθμολογία σας στο Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
+<string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
+<string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
 </resources>

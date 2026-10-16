@@ -17,15 +17,18 @@ internal enum class PlayerBackAction {
     CLOSE_PLAYBACK_SETTINGS,
     CLOSE_SPEED_SELECTION,
     CLOSE_AUDIO_VIDEO_OFFSET_DIALOG,
+    CLOSE_SUBTITLE_OFFSET_DIALOG,
     CLOSE_STOP_PLAYBACK_TIMER,
     CLOSE_IDLE_STANDBY_TIMER,
     CLOSE_VARIANT_SELECTION,
     CLOSE_TRACK_SELECTION,
+    CLOSE_SUBTITLE_SEARCH,
     TOGGLE_DIAGNOSTICS,
     CLOSE_CHANNEL_INFO,
     CLOSE_LIVE_OVERLAYS,
     TOGGLE_CONTROLS,
     CANCEL_CLOSE_PLAYBACK,
+    QUALITY_GATE_ACTIVE,
     NAVIGATE_BACK
 }
 
@@ -34,6 +37,7 @@ internal data class PlayerBackNavigationState(
     val hasPendingNumericChannelInput: Boolean = false,
     val hasAutoPlayCountdown: Boolean = false,
     val hasPlayerNotice: Boolean = false,
+    val hasPlaybackQualityGate: Boolean = false,
     val showProgramHistory: Boolean = false,
     val showSplitDialog: Boolean = false,
     val showEpisodePicker: Boolean = false,
@@ -41,9 +45,11 @@ internal data class PlayerBackNavigationState(
     val showPlaybackSettings: Boolean = false,
     val showSpeedSelection: Boolean = false,
     val showAudioVideoOffsetDialog: Boolean = false,
+    val showSubtitleOffsetDialog: Boolean = false,
     val showStopPlaybackTimerDialog: Boolean = false,
     val showIdleStandbyTimerDialog: Boolean = false,
     val hasTrackSelection: Boolean = false,
+    val showSubtitleSearch: Boolean = false,
     val showVariantSelection: Boolean = false,
     val showDiagnostics: Boolean = false,
     val showChannelInfoOverlay: Boolean = false,
@@ -55,6 +61,7 @@ internal data class PlayerBackNavigationState(
 
 internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackAction = when {
     state.showClosePlaybackConfirmation -> PlayerBackAction.CANCEL_CLOSE_PLAYBACK
+    state.hasPlaybackQualityGate -> PlayerBackAction.QUALITY_GATE_ACTIVE
     state.hasPendingNumericChannelInput -> PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT
     state.hasAutoPlayCountdown -> PlayerBackAction.CANCEL_AUTO_PLAY
     state.hasPlayerNotice -> PlayerBackAction.DISMISS_PLAYER_NOTICE
@@ -65,9 +72,11 @@ internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackActio
     state.showPlaybackSettings -> PlayerBackAction.CLOSE_PLAYBACK_SETTINGS
     state.showSpeedSelection -> PlayerBackAction.CLOSE_SPEED_SELECTION
     state.showAudioVideoOffsetDialog -> PlayerBackAction.CLOSE_AUDIO_VIDEO_OFFSET_DIALOG
+    state.showSubtitleOffsetDialog -> PlayerBackAction.CLOSE_SUBTITLE_OFFSET_DIALOG
     state.showStopPlaybackTimerDialog -> PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER
     state.showIdleStandbyTimerDialog -> PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER
     state.showVariantSelection -> PlayerBackAction.CLOSE_VARIANT_SELECTION
+    state.showSubtitleSearch -> PlayerBackAction.CLOSE_SUBTITLE_SEARCH
     state.hasTrackSelection -> PlayerBackAction.CLOSE_TRACK_SELECTION
     state.showDiagnostics -> PlayerBackAction.TOGGLE_DIAGNOSTICS
     state.showChannelInfoOverlay -> PlayerBackAction.CLOSE_CHANNEL_INFO

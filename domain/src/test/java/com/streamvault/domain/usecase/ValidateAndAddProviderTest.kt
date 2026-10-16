@@ -12,6 +12,7 @@ import com.streamvault.domain.manager.ValidatedXtreamProviderInput
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.JellyfinConfig
+import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.M3uConfig
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.LegacyProvider as Provider
@@ -338,7 +339,7 @@ class ValidateAndAddProviderTest {
             providerSetupInputValidator = FakeProviderSetupInputValidator(
                 m3uResult = Result.success(
                     ValidatedM3uProviderInput(
-                        url = "http://extapk2302.shop:8080/get.php?username=Hakan1605&password=wg9daUwzfV&type=m3u_plus",
+                        url = "http://extapk2302.shop:8080/get.php?username=Hakan1605&password=wg9daUwzfV&type=m3u_plus&output=ts",
                         name = "Imported Playlist",
                         httpUserAgent = "PlaylistAgent/2.0",
                         httpHeaders = "Referer: https://example.com"
@@ -350,7 +351,7 @@ class ValidateAndAddProviderTest {
 
         val result = useCase.addM3u(
             M3uProviderSetupCommand(
-                url = "http://extapk2302.shop:8080/get.php?username=Hakan1605&password=wg9daUwzfV&type=m3u_plus",
+                url = "http://extapk2302.shop:8080/get.php?username=Hakan1605&password=wg9daUwzfV&type=m3u_plus&output=ts",
                 name = "Imported Playlist",
                 epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
                 existingProviderId = 19L
@@ -373,6 +374,8 @@ class ValidateAndAddProviderTest {
                 id = 19L
             )
         )
+        assertThat(repository.lastXtreamConfig?.preferredLiveStreamFormat)
+            .isEqualTo(LiveStreamFormatMode.MPEG_TS)
     }
 
     @Test
@@ -741,6 +744,7 @@ private data class StalkerCall(
 
 private class FakeProviderRepository : ProviderRepository {
     var lastXtreamCall: XtreamCall? = null
+    var lastXtreamConfig: XtreamConfig? = null
     var lastM3uCall: M3uCall? = null
     var lastStalkerCall: StalkerCall? = null
     var xtreamResult: Result<Provider>? = null
@@ -778,12 +782,15 @@ private class FakeProviderRepository : ProviderRepository {
         onCode: ((String) -> Unit)?
     ): Result<Provider> = when (request) {
         is ProviderSetupRequest.Configured -> when (val config = request.configuration) {
-            is XtreamConfig -> loginXtream(
-                config.serverUrl, config.username, config.password, request.name,
-                config.httpUserAgent, config.httpHeaders, config.fastSyncEnabled,
-                config.epgSyncMode, config.liveSyncMode, config.guideSourcePolicy,
-                config.channelLogoSourcePolicy, onProgress, request.existingProviderId
-            )
+            is XtreamConfig -> {
+                lastXtreamConfig = config
+                loginXtream(
+                    config.serverUrl, config.username, config.password, request.name,
+                    config.httpUserAgent, config.httpHeaders, config.fastSyncEnabled,
+                    config.epgSyncMode, config.liveSyncMode, config.guideSourcePolicy,
+                    config.channelLogoSourcePolicy, onProgress, request.existingProviderId
+                )
+            }
             is M3uConfig -> validateM3u(
                 config.playlistUrl, request.name, config.httpUserAgent, config.httpHeaders,
                 config.epgSyncMode, config.vodClassificationEnabled, config.guideSourcePolicy,

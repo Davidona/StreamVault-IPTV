@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Πηγές</string>
+    <string name="vod_subtitle_settings">Ρυθμίσεις</string>
+    <string name="vod_subtitle_provider">Υπότιτλοι παρόχου</string>
+    <string name="vod_subtitle_provider_hint">Επιλέξτε κομμάτι υποτίτλων από αυτό το βίντεο</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Εύρεση υποτίτλων στο διαδίκτυο</string>
+    <string name="vod_subtitle_online_unavailable">Η διαδικτυακή αναζήτηση δεν είναι διαθέσιμη για αυτό το βίντεο</string>
+    <string name="vod_subtitle_device_hint">Επιλέξτε αρχείο SRT</string>
+    <string name="vod_subtitle_back">Επιστροφή στις πηγές</string>
+    <string name="vod_tracks_empty">Δεν υπάρχουν διαθέσιμα κομμάτια σε αυτό το βίντεο</string>
+    <string name="vod_subtitle_preview">Αυτός είναι ένας υπότιτλος.</string>
+    <string name="vod_subtitle_font_size">Μέγεθος γραμματοσειράς</string>
+    <string name="vod_subtitle_background">Αδιαφάνεια φόντου</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% διαφανές · 100% συμπαγές μαύρο</string>
+    <string name="vod_subtitle_decrease_setting">Μείωση %1$s</string>
+    <string name="vod_subtitle_increase_setting">Αύξηση %1$s</string>
+</resources>

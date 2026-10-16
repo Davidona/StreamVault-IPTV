@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Sambungkan Trakt dalam Tetapan</string>
+    <string name="player_trakt_not_supported">Trakt menjejaki filem dan episod sahaja.</string>
+    <string name="player_trakt_no_match">Tiada padanan tepat Trakt untuk tajuk ini.</string>
+    <string name="player_trakt_starting">Memulakan penjejakan Trakt…</string>
+    <string name="player_trakt_tracking">Penjejakan dengan Trakt</string>
+    <string name="player_trakt_paused">Penjejakan Trakt dijeda</string>
+    <string name="player_trakt_failed">Penjejakan Trakt gagal</string>
+    <string name="player_trakt_sent">Dihantar ke Trakt</string>
+</resources>

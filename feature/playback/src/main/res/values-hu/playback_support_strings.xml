@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Közvetítés a csatlakoztatott eszközre.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">A Google Cast nem érhető el ezen az eszközön.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Ezt a streamformátumot nem támogatja a Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Az RTSP és RTMP streamek közvetítése nem támogatott.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">A DRM-védett streameket a Google Cast nem támogatja ebben az alkalmazásban.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Ez az elem nem küldhető Cast-eszközre.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Ez a stream helyi vagy csak az eszközön elérhető URL-t használ, amelyet a Chromecast nem tud közvetlenül elérni.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Ehhez a streamhez olyan HTTP-fejlécek vagy cookie-k szükségesek, amelyeket a Chromecast nem tud közvetlenül használni.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Ehhez a streamhez egyéni User-Agent szükséges, amelyet a Chromecast nem tud közvetlenül használni.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Ehhez a streamhez az alkalmazás proxybeállításai szükségesek, ezért a Chromecast nem tudja közvetlenül használni.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Ez a stream olyan SSL-kezelést használ, amelyet a Chromecast nem tud közvetlenül használni.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">A Cast-munkamenetet nem sikerült elindítani.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">A Cast-fogadó nem tudta betölteni ezt a streamet.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">A csatlakoztatott Cast-fogadó nem áll készen a lejátszásra.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">A Cast-eszköz kiválasztása megszakadt.</string>
+    <string name="add_group_close_cd">Bezárás</string>
+    <string name="player_archive_title">Programarchívum</string>
+    <string name="player_no_archive">Nem található archivált műsor</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archívum</string>
+</resources>

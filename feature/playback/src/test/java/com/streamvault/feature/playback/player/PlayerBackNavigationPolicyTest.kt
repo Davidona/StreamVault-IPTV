@@ -43,6 +43,12 @@ class PlayerBackNavigationPolicyTest {
     }
 
     @Test
+    fun `subtitle delay dialog closes before returning to playback`() {
+        assertThat(playerBackAction(PlayerBackNavigationState(showSubtitleOffsetDialog = true)))
+            .isEqualTo(PlayerBackAction.CLOSE_SUBTITLE_OFFSET_DIALOG)
+    }
+
+    @Test
     fun `live overlays close before controls`() {
         val state = PlayerBackNavigationState(
             showChannelListOverlay = true,
@@ -70,6 +76,16 @@ class PlayerBackNavigationPolicyTest {
         )
 
         assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_PLAYBACK_SETTINGS)
+    }
+
+    @Test
+    fun `subtitle search closes before returning to playback controls`() {
+        val state = PlayerBackNavigationState(
+            showSubtitleSearch = true,
+            showControls = true,
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_SUBTITLE_SEARCH)
     }
 
     @Test

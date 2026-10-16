@@ -184,7 +184,7 @@ class LauncherProviderInstrumentationTest {
     }
 
     private fun resourceArtworkUri(): Uri =
-        Uri.parse("android.resource://${context.packageName}/${com.streamvault.app.R.mipmap.ic_launcher_vault}")
+        Uri.parse("android.resource://${context.packageName}/${com.streamvault.app.R.mipmap.ic_launcher}")
 
     private fun mainActivityIntentUri(): String =
         Intent(context, com.streamvault.app.MainActivity::class.java)

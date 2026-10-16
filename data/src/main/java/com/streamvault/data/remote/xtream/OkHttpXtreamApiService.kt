@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
+import com.google.gson.stream.MalformedJsonException
 import com.streamvault.data.remote.dto.XtreamAuthResponse
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamEpgResponse
@@ -17,10 +18,17 @@ import com.streamvault.data.remote.http.HttpRequestProfile
 import com.streamvault.data.remote.http.safeRequestIdentitySummary
 import com.streamvault.data.remote.http.withRequestProfile
 import java.io.IOException
+import java.io.EOFException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.PushbackInputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.DeserializationStrategy
@@ -149,6 +157,7 @@ class OkHttpXtreamApiService(
             profile = RequestProfile.HEAVY_CATALOG,
             requestProfile = requestProfile,
             deserializer = XtreamLiveStreamRow.serializer(),
+            readItem = { XtreamLiveRowReader.read(it, json.configuration.ignoreUnknownKeys) },
             onItem = onItem
         )
 
@@ -210,7 +219,7 @@ class OkHttpXtreamApiService(
             .withRequestProfile(effectiveRequestProfile)
         try {
             val call = clientFor(effectiveProfile).newCall(request)
-            executeCancellable(call).use { response ->
+            withCancellableResponse(call) { response ->
                 if (!response.isSuccessful) {
                     val message = "HTTP ${response.code}"
                     Log.w(
@@ -225,7 +234,7 @@ class OkHttpXtreamApiService(
                             }
                             throw XtreamRequestException(response.code, message)
                         }
-                        in 500..599, 429 -> throw XtreamNetworkException(message)
+                        in 500..599, 429 -> throw XtreamNetworkException(message, statusCode = response.code, retryAfterMs = parseXtreamRetryAfter(response.header("Retry-After")))
                         else -> throw XtreamRequestException(response.code, message)
                     }
                 }
@@ -241,6 +250,8 @@ class OkHttpXtreamApiService(
         } catch (e: XtreamApiException) {
             throw e
         } catch (e: IOException) {
+            currentCoroutineContext().ensureActive()
+            if (e is XtreamNetworkException) throw e
             Log.w(
                 TAG,
                 "Xtream request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
@@ -321,9 +332,15 @@ class OkHttpXtreamApiService(
         profile: RequestProfile,
         requestProfile: HttpRequestProfile,
         deserializer: DeserializationStrategy<T>,
+        readItem: ((JsonReader) -> T)? = null,
         onItem: suspend (T) -> Unit
     ): Int = withContext(Dispatchers.IO) {
         val descriptor = describeEndpoint(endpoint)
+        val timingEnabled = descriptor.action == "get_live_streams"
+        val startedNanos = if (timingEnabled) System.nanoTime() else 0L
+        var callbackNanos = 0L
+        var emittedRows = 0
+        var completed = false
         val effectiveProfile = requestProfileFor(descriptor, profile)
         val effectiveRequestProfile = requestProfile.mergedWithDefaults(defaultRequestProfile)
         val request = Request.Builder()
@@ -333,7 +350,7 @@ class OkHttpXtreamApiService(
             .withRequestProfile(effectiveRequestProfile)
         try {
             val call = clientFor(effectiveProfile).newCall(request)
-            executeCancellable(call).use { response ->
+            withCancellableResponse(call) { response ->
                 if (!response.isSuccessful) {
                     val message = "HTTP ${response.code}"
                     Log.w(
@@ -348,7 +365,7 @@ class OkHttpXtreamApiService(
                             }
                             throw XtreamRequestException(response.code, message)
                         }
-                        in 500..599, 429 -> throw XtreamNetworkException(message)
+                        in 500..599, 429 -> throw XtreamNetworkException(message, statusCode = response.code, retryAfterMs = parseXtreamRetryAfter(response.header("Retry-After")))
                         else -> throw XtreamRequestException(response.code, message)
                     }
                 }
@@ -360,17 +377,53 @@ class OkHttpXtreamApiService(
                     contentType = response.header("Content-Type"),
                     maxBytes = responseBudgetFor(descriptor),
                     deserializer = deserializer,
-                    onItem = onItem
-                )
+                    readItem = readItem,
+                    onItem = if (timingEnabled) { item ->
+                        val callbackStart = System.nanoTime()
+                        try {
+                            onItem(item)
+                            emittedRows++
+                            Unit
+                        } finally {
+                            callbackNanos += System.nanoTime() - callbackStart
+                        }
+                    } else onItem
+                ).also { completed = true }
             }
         } catch (e: XtreamApiException) {
             throw e
+        } catch (e: EOFException) {
+            currentCoroutineContext().ensureActive()
+            throw XtreamParsingException("Incomplete JSON array from ${descriptor.hint}", e)
+        } catch (e: MalformedJsonException) {
+            currentCoroutineContext().ensureActive()
+            throw XtreamParsingException("Malformed JSON array from ${descriptor.hint}", e)
         } catch (e: IOException) {
+            currentCoroutineContext().ensureActive()
+            if (e is XtreamNetworkException) throw e
             Log.w(
                 TAG,
                 "Xtream streamed request network failure for ${descriptor.hint} (${request.safeRequestIdentitySummary(effectiveRequestProfile)}): ${XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed")}"
             )
             throw XtreamNetworkException(XtreamUrlFactory.sanitizeLogMessage(e.message ?: "Network request failed"), e)
+        } finally {
+            if (timingEnabled) {
+                // Wall time includes network waits and decoding; callback time
+                // includes downstream mapping/staging. Neither is CPU time.
+                Log.i("XtreamSyncTiming", "phase=live-response elapsed_ms=${(System.nanoTime() - startedNanos) / 1_000_000} callback_ms=${callbackNanos / 1_000_000} rows=$emittedRows completed=$completed")
+            }
+        }
+    }
+
+    private suspend fun <T> withCancellableResponse(call: Call, block: suspend (Response) -> T): T = coroutineScope {
+        // Cancellation stays connected while a response body is being read.
+        val watcher = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+            try { awaitCancellation() } finally { call.cancel() }
+        }
+        try {
+            executeCancellable(call).use { block(it) }
+        } finally {
+            watcher.cancel()
         }
     }
 
@@ -387,7 +440,7 @@ class OkHttpXtreamApiService(
 
             override fun onResponse(call: Call, response: Response) {
                 if (continuation.isActive) {
-                    continuation.resume(response)
+                    continuation.resume(response) { _, deliveredResponse, _ -> deliveredResponse.close() }
                 } else {
                     response.close()
                 }
@@ -451,6 +504,7 @@ class OkHttpXtreamApiService(
         contentType: String?,
         maxBytes: Long?,
         deserializer: DeserializationStrategy<T>,
+        readItem: ((JsonReader) -> T)?,
         onItem: suspend (T) -> Unit
     ): Int {
         val effectiveMaxBytes = maxBytes?.plus(RESPONSE_BUDGET_HEADROOM_BYTES)
@@ -485,37 +539,47 @@ class OkHttpXtreamApiService(
             )?.let { throw it }
             stream.unread(previewBytes)
 
-            val reader = JsonReader(InputStreamReader(stream, charset))
+            val rowBudget = if (descriptor.action == "get_live_streams") {
+                XtreamLiveRowBudgetReader(InputStreamReader(stream, charset))
+            } else null
+            val reader = JsonReader(rowBudget ?: InputStreamReader(stream, charset))
             reader.isLenient = true
             return when (reader.peek()) {
                 JsonToken.BEGIN_ARRAY -> {
                     var emittedCount = 0
                     reader.beginArray()
                     while (reader.hasNext()) {
-                        val element = try {
-                            JsonParser.parseReader(reader)
+                        currentCoroutineContext().ensureActive()
+                        rowBudget?.beginRow()
+                        val item = try {
+                            if (readItem != null) readItem(reader) else {
+                                val element = JsonParser.parseReader(reader)
+                                json.decodeFromString(deserializer, element.toString())
+                            }
+                        } catch (e: XtreamLiveRowTooLargeException) {
+                            throw e
                         } catch (e: RuntimeException) {
                             throw XtreamParsingException(
                                 "Malformed JSON from ${descriptor.hint}${sanitizedPreview(preview)?.let { " (preview=$it)" } ?: ""}",
                                 e
                             )
-                        }
-                        val item = try {
-                            json.decodeFromString(deserializer, element.toString())
-                        } catch (e: SerializationException) {
-                            throw XtreamParsingException(
-                                "Malformed JSON from ${descriptor.hint}${sanitizedPreview(preview)?.let { " (preview=$it)" } ?: ""}",
-                                e
-                            )
+                        } finally {
+                            rowBudget?.endRow()
                         }
                         onItem(item)
                         emittedCount++
                     }
                     reader.endArray()
+                    if (reader.peek() != JsonToken.END_DOCUMENT) {
+                        throw XtreamParsingException("Trailing data after JSON array from ${descriptor.hint}")
+                    }
                     emittedCount
                 }
                 JsonToken.NULL -> {
                     reader.nextNull()
+                    if (reader.peek() != JsonToken.END_DOCUMENT) {
+                        throw XtreamParsingException("Trailing data after JSON null from ${descriptor.hint}")
+                    }
                     0
                 }
                 else -> throw XtreamParsingException(

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Vysílání do připojeného zařízení.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast není na tomto zařízení k dispozici.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Tento formát streamu není podporován službou Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Streamy RTSP a RTMP nejsou pro vysílání podporovány.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Streamy chráněné DRM nejsou v této aplikaci službou Google Cast podporovány.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Tuto položku nelze odeslat do přijímače Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Tento stream používá místní URL nebo URL pouze pro toto zařízení, na kterou Chromecast nemůže přímo dosáhnout.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Tento stream vyžaduje hlavičky HTTP nebo soubory cookie, které Chromecast nemůže přímo použít.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Tento stream vyžaduje vlastní User-Agent, který Chromecast nemůže přímo použít.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Tento stream vyžaduje nastavení proxy aplikace, takže jej Chromecast nemůže přímo použít.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Tento stream používá zpracování SSL, které Chromecast nemůže přímo použít.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Relaci Cast se nepodařilo spustit.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Přijímač Cast nemohl tento stream načíst.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Připojený přijímač Cast není připraven k přehrávání.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Výběr zařízení Cast byl zrušen.</string>
+    <string name="add_group_close_cd">Zavřít</string>
+    <string name="player_archive_title">Archiv programu</string>
+    <string name="player_no_archive">Nebyly nalezeny žádné archivované pořady</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archiv</string>
+</resources>

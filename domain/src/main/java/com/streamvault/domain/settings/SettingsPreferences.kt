@@ -32,6 +32,14 @@ import kotlinx.coroutines.flow.Flow
 
 /** Preference streams and commands consumed by settings; persistence remains in the data layer. */
 interface SettingsPreferences {
+    val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration>
+        get() = kotlinx.coroutines.flow.flowOf(com.streamvault.domain.sync.AutomaticSyncConfiguration())
+    val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>>
+        get() = kotlinx.coroutines.flow.flowOf(emptyMap())
+    suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        throw UnsupportedOperationException("Automatic sync preferences are unavailable")
+    }
+
     val isIncognitoMode: Flow<Boolean>
 
     val useXtreamTextClassification: Flow<Boolean>
@@ -78,6 +86,8 @@ interface SettingsPreferences {
 
     val playerSubtitleBackgroundColor: Flow<Int>
 
+    val pinnedSubtitleLanguages: Flow<List<String>>
+
     val playerLiveTranslationEnabled: Flow<Boolean>
 
     val playerLiveTranslationEndpoint: Flow<String>
@@ -97,6 +107,23 @@ interface SettingsPreferences {
     val playerNoticeTimeoutSeconds: Flow<Int>
 
     val playerDiagnosticsTimeoutSeconds: Flow<Int>
+
+    val playbackQualityPreferences: Flow<PlaybackQualityPreferences>
+
+    fun getPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope
+    ): Flow<ScopedPlaybackQualityPreference?> = kotlinx.coroutines.flow.flowOf(null)
+
+    suspend fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        throw UnsupportedOperationException("Scoped playback quality preferences are unavailable")
+    }
+
+    suspend fun clearPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) {
+        throw UnsupportedOperationException("Scoped playback quality preferences are unavailable")
+    }
 
     val playerWifiMaxVideoHeight: Flow<Int?>
 
@@ -254,6 +281,8 @@ interface SettingsPreferences {
 
     suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int)
 
+    suspend fun setPinnedSubtitleLanguages(languages: List<String>)
+
     suspend fun setPlayerLiveTranslationEnabled(enabled: Boolean)
 
     suspend fun setPlayerLiveTranslationEndpoint(endpoint: String)
@@ -273,6 +302,8 @@ interface SettingsPreferences {
     suspend fun setPlayerNoticeTimeoutSeconds(seconds: Int)
 
     suspend fun setPlayerDiagnosticsTimeoutSeconds(seconds: Int)
+
+    suspend fun setPlaybackQualityPreferences(preferences: PlaybackQualityPreferences)
 
     suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?)
 

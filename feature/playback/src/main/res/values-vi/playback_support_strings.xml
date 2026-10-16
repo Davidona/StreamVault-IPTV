@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Đang truyền đến thiết bị đã kết nối.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast không khả dụng trên thiết bị này.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Định dạng luồng này không được Google Cast hỗ trợ.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Luồng RTSP và RTMP không được hỗ trợ để truyền.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Luồng được bảo vệ bằng DRM không được Google Cast hỗ trợ trong ứng dụng này.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Không thể gửi mục này đến thiết bị nhận Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Luồng này dùng URL cục bộ hoặc chỉ dành cho thiết bị mà Chromecast không thể truy cập trực tiếp.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Luồng này cần tiêu đề HTTP hoặc cookie mà Chromecast không thể dùng trực tiếp.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Luồng này cần User-Agent tùy chỉnh mà Chromecast không thể dùng trực tiếp.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Luồng này cần cài đặt proxy của ứng dụng, nên Chromecast không thể dùng trực tiếp.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Luồng này dùng cách xử lý SSL mà Chromecast không thể dùng trực tiếp.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Không thể bắt đầu phiên Cast.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Thiết bị nhận Cast không thể tải luồng này.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Thiết bị nhận Cast đã kết nối chưa sẵn sàng để phát.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Đã hủy chọn thiết bị Cast.</string>
+    <string name="add_group_close_cd">Đóng</string>
+    <string name="player_archive_title">Kho chương trình</string>
+    <string name="player_no_archive">Không tìm thấy chương trình đã lưu trữ</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Lưu trữ</string>
+</resources>

@@ -1,0 +1,299 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">ऑनलाइन सबटाइटल खोजें</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">डिवाइस से SRT लोड करें</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">सबटाइटल देरी (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">सबटाइटल देरी</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">ऋणात्मक मान सबटाइटल पहले दिखाते हैं; धनात्मक मान उन्हें बाद में दिखाते हैं।</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">वर्तमान देरी: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">सबटाइटल %1$d ms पहले दिखाएँ</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">सबटाइटल %1$d ms बाद में दिखाएँ</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">देरी रीसेट करें</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s लोड हो गया। प्लेयर सबटाइटल लोड कर रहा है।</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">मान्य .srt सबटाइटल फ़ाइल चुनें।</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">सबटाइटल फ़ाइलें 20 MB या उससे छोटी होनी चाहिए।</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">यह सबटाइटल फ़ाइल लोड नहीं हो सकी।</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">सबटाइटल खोजें</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">इस वीडियो में जोड़ने के लिए सबटाइटल चुनें।</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">%1$s के परिणाम</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">अनाम पहुँच सक्षम होने पर आप साइन इन किए बिना खोज सकते हैं। अपने खाते की डाउनलोड सीमा उपयोग करने के लिए साइन इन करें।</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">खाता कनेक्ट करें (वैकल्पिक)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">OpenSubtitles में खोज रहे हैं…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">इस शीर्षक और भाषा के लिए कोई सबटाइटल नहीं मिला।</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">फिर से खोजें</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">भाषा चुनें, फिर संस्करण चुनें।</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">सभी भाषाएँ</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">सभी उपलब्ध भाषाएँ दिखाएँ</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">भाषाएँ लोड हो रही हैं…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">भाषा: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">भाषा बदलें</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">भाषा सूची लोड नहीं हो सकी।</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s डाउनलोड</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">सामान्य रिलीज़</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">सबटाइटल डाउनलोड हो रहा है…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s जोड़ा गया। प्लेयर सबटाइटल लोड कर रहा है।</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">बंद करें</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d मिनट</item>
+            <item quantity="other">%1$d मिनट</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Cast सत्र डिस्कनेक्ट हो गया।</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">कैच-अप उपलब्ध (%1$d दिन)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">कैच-अप उपलब्ध</string>
+    <string name="epg_no_info">कोई EPG जानकारी नहीं</string>
+    <string name="epg_now_playing">अभी चल रहा है</string>
+    <string name="epg_title">TV गाइड</string>
+    <string name="epg_up_next">आगे</string>
+    <string name="epg_upcoming_schedule">आगामी कार्यक्रम</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="label_categories">श्रेणियाँ</string>
+    <string name="label_duration_min">%1$d मिनट</string>
+    <string name="multiview_nav">स्प्लिट स्क्रीन</string>
+    <string name="nav_live_tv">लाइव TV</string>
+    <string name="notification_permission_recording_alert_required">रिकॉर्डिंग विफलता अलर्ट पाने के लिए StreamVault की सूचनाएँ सक्षम करें।</string>
+    <string name="notification_permission_reminder_required">कार्यक्रम रिमाइंडर पाने के लिए StreamVault की सूचनाएँ सक्षम करें।</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">डायग्नोस्टिक्स</string>
+    <string name="player_action_format">फ़ॉर्मेट</string>
+    <string name="player_action_group">समूह</string>
+    <string name="player_action_guide">गाइड</string>
+    <string name="player_action_mute">म्यूट</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">प्लेबैक</string>
+    <string name="player_action_quality">क्वालिटी</string>
+    <string name="player_action_split">स्प्लिट</string>
+    <string name="player_action_variants">वेरिएंट</string>
+    <string name="player_action_view">व्यू</string>
+    <string name="player_archive">आर्काइव</string>
+    <string name="player_aspect_ratio_label">आस्पेक्ट %1$s</string>
+    <string name="player_audio">ऑडियो</string>
+    <string name="player_chapters">अध्याय</string>
+    <string name="player_chapter_count">%1$d अध्याय</string>
+    <string name="player_chapter_label">अध्याय %1$d</string>
+    <string name="player_chapter_selected">अध्याय %1$d, चयनित</string>
+    <string name="player_chapter_title">अध्याय %1$d · %2$s</string>
+    <string name="player_close_chapters">अध्याय बंद करें</string>
+    <string name="player_previous_chapter">पिछला अध्याय</string>
+    <string name="player_next_chapter">अगला अध्याय</string>
+    <string name="player_rewind_10_seconds">10 सेकंड पीछे</string>
+    <string name="player_forward_10_seconds">10 सेकंड आगे</string>
+    <string name="player_vod_timeline">VOD टाइमलाइन</string>
+    <string name="player_close_controls">कंट्रोल बंद करें</string>
+    <string name="player_back_to_menu">मेन्यू पर वापस</string>
+    <string name="player_playback_settings">प्लेबैक सेटिंग्स</string>
+    <string name="player_close_playback_settings">प्लेबैक सेटिंग्स बंद करें</string>
+    <string name="player_vod_controls">VOD प्लेबैक कंट्रोल</string>
+    <string name="player_aspect_ratio">आस्पेक्ट अनुपात</string>
+    <string name="player_auto_play_cancel">रद्द करें</string>
+    <string name="player_auto_play_countdown">%1$d सेकंड में शुरू होगा</string>
+    <string name="player_auto_play_play_now">अभी चलाएँ</string>
+    <string name="player_av_sync_channel">चैनल</string>
+    <string name="player_av_sync_global">ग्लोबल</string>
+    <string name="player_av_sync_minus_50">A/V सिंक -50 ms</string>
+    <string name="player_av_sync_plus_50">A/V सिंक +50 ms</string>
+    <string name="player_av_sync_preview">प्रीव्यू</string>
+    <string name="player_av_sync_reset">0 ms पर रीसेट करें</string>
+    <string name="player_av_sync_save_channel">चैनल के लिए सहेजें</string>
+    <string name="player_av_sync_save_global">ग्लोबल के रूप में सेट करें</string>
+    <string name="player_av_sync_short">A/V सिंक</string>
+    <string name="player_av_sync_title">A/V सिंक</string>
+    <string name="player_av_sync_use_global">ग्लोबल उपयोग करें</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">आर्काइव ब्राउज़ करें</string>
+    <string name="player_browse_guide_catchup">गाइड ब्राउज़ करें</string>
+    <string name="player_buffering">बफ़र हो रहा है...</string>
+    <string name="player_cancel_scheduled_recording">शेड्यूल रद्द करें</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">कैच-अप</string>
+    <string name="player_catchup_options">कैच-अप</string>
+    <string name="player_channel_list_hint">तुरंत ट्यून करने के लिए चैनल चुनें। बैक दबाने पर सूची बंद हो जाती है।</string>
+    <string name="player_channel_list_title">चैनल (%1$d)</string>
+    <string name="player_channel_not_found">चैनल नहीं मिला</string>
+    <string name="player_channel_selected">अभी</string>
+    <string name="player_channel_variants">चैनल वेरिएंट</string>
+    <string name="player_close">बंद करें</string>
+    <string name="player_diagnostics_active_decoder">सक्रिय डिकोडर</string>
+    <string name="player_diagnostics_alternates">वैकल्पिक स्ट्रीम</string>
+    <string name="player_diagnostics_archive">आर्काइव</string>
+    <string name="player_diagnostics_audio_codec">ऑडियो कोडेक</string>
+    <string name="player_diagnostics_audio_decoder">ऑडियो डिकोडर</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">ऑडियो डिकोडर मोड</string>
+    <string name="player_diagnostics_audio_output_path">ऑडियो पथ</string>
+    <string name="player_diagnostics_av_offset">A/V ऑफ़सेट</string>
+    <string name="player_diagnostics_av_sync">A/V सिंक</string>
+    <string name="player_diagnostics_av_sync_custom">चालू (कस्टम सिंक पथ)</string>
+    <string name="player_diagnostics_av_sync_stock">बंद (स्टॉक ऑडियो पथ)</string>
+    <string name="player_diagnostics_av_sync_waiting">चालू (प्लेबैक रीस्टार्ट की प्रतीक्षा)</string>
+    <string name="player_diagnostics_channel_errors">चैनल त्रुटियाँ</string>
+    <string name="player_diagnostics_compatibility_note">संगतता नोट</string>
+    <string name="player_diagnostics_compatibility_note_value">हो सकता है कि प्लेबैक इस स्ट्रीम के लिए सीखा हुआ या संगतता-सहायता वाला ऑडियो पथ उपयोग कर रहा हो।</string>
+    <string name="player_diagnostics_compatibility_source">संगतता स्रोत</string>
+    <string name="player_diagnostics_dropped_frames">छूटे फ़्रेम</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">अंतिम विफलता</string>
+    <string name="player_diagnostics_last_frame">अंतिम वीडियो फ़्रेम</string>
+    <string name="player_diagnostics_playback_state">प्लेबैक स्थिति</string>
+    <string name="player_diagnostics_provider">प्रोवाइडर</string>
+    <string name="player_diagnostics_recovery_actions">रिकवरी क्रियाएँ</string>
+    <string name="player_diagnostics_resolution">रिज़ॉल्यूशन</string>
+    <string name="player_diagnostics_section_audio">ऑडियो</string>
+    <string name="player_diagnostics_section_playback">प्लेबैक</string>
+    <string name="player_diagnostics_section_recovery">रिकवरी</string>
+    <string name="player_diagnostics_section_source">स्रोत</string>
+    <string name="player_diagnostics_section_video">वीडियो</string>
+    <string name="player_diagnostics_source">स्रोत</string>
+    <string name="player_diagnostics_stream_class">स्ट्रीम वर्ग</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">प्लेबैक डायग्नोस्टिक्स</string>
+    <string name="player_diagnostics_troubleshooting">समस्या निवारण</string>
+    <string name="player_diagnostics_frame_rate">फ़्रेम दर</string>
+    <string name="player_diagnostics_stream_bitrate">स्ट्रीम बिटरेट</string>
+    <string name="player_diagnostics_bandwidth_estimate">नेटवर्क बैंडविड्थ</string>
+    <string name="player_diagnostics_video_bitrate">वीडियो बिटरेट</string>
+    <string name="player_diagnostics_video_codec">वीडियो कोडेक</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">वीडियो डिकोडर मोड</string>
+    <string name="player_diagnostics_video_stalls">वीडियो रुकावटें</string>
+    <string name="player_epg_overlay_hint">गाइड विवरण यहाँ ब्राउज़ करें। आर्काइव इतिहास खोलने के लिए कैच-अप पिल चुनें।</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">एपिसोड</string>
+    <string name="player_previous_episode">पिछला एपिसोड</string>
+    <string name="player_next_episode">अगला एपिसोड</string>
+    <string name="player_error_back">या वापस जाने के लिए बैक दबाएँ</string>
+    <string name="player_error_decoder">यह फ़ॉर्मेट चलाया नहीं जा सकता — सेटिंग्स में डिकोडर मोड बदलकर देखें</string>
+    <string name="player_error_drm">DRM लाइसेंस या डिवाइस सुरक्षा आवश्यकताओं ने प्लेबैक रोक दिया</string>
+    <string name="player_error_live_hint">फिर से प्रयास करें, अंतिम चैनल पर वापस जाएँ, या प्लेबैक छोड़ने के लिए बैक दबाएँ।</string>
+    <string name="player_error_network">स्ट्रीम उपलब्ध नहीं — अपना इंटरनेट कनेक्शन जाँचें</string>
+    <string name="player_error_source">स्ट्रीम नहीं मिला या पहुँच अस्वीकृत</string>
+    <string name="player_error_title">प्लेबैक त्रुटि</string>
+    <string name="player_error_unknown">अज्ञात प्लेबैक त्रुटि</string>
+    <string name="player_format_short">फ़ॉर्मेट</string>
+    <string name="player_forward">फ़ास्ट फ़ॉरवर्ड</string>
+    <string name="player_idle_standby_after">निष्क्रियता के बाद स्टैंडबाय की अनुमति दें</string>
+    <string name="player_idle_timer_status">निष्क्रिय स्टैंडबाय %1$s</string>
+    <string name="player_jump_to_live">लाइव पर जाएँ</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">अंतिम चैनल</string>
+    <string name="player_last_group_hint">आप जिस अंतिम लाइव समूह को ब्राउज़ कर रहे थे, उस पर वापस जाएँ।</string>
+    <string name="player_last_group_label">अंतिम: %1$s</string>
+    <string name="player_live_buffer_depth">बफ़र %1$s</string>
+    <string name="player_live_buffer_end">लाइव एज</string>
+    <string name="player_live_buffer_start">बफ़र प्रारंभ</string>
+    <string name="player_live_channel">चैनल %1$d</string>
+    <string name="player_live_dvr_controls">प्लेयर</string>
+    <string name="player_live_now">अभी चल रहा है</string>
+    <string name="player_live_offset">%1$s लाइव से पीछे</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">लाइव रिवाइंड टाइमलाइन। सीक करने के लिए बाएँ और दाएँ का उपयोग करें।</string>
+    <string name="player_live_timeshift_buffering">स्थानीय लाइव रिवाइंड अभी भी बफ़र हो रहा है।</string>
+    <string name="player_minutes_remaining">%1$d मिनट शेष</string>
+    <string name="player_more_controls">और कंट्रोल</string>
+    <string name="player_multiview_short">मल्टीव्यू</string>
+    <string name="player_mute">म्यूट</string>
+    <string name="player_muted_badge">म्यूट</string>
+    <string name="player_next_label">अगला:</string>
+    <string name="player_no_guide_data">कोई गाइड डेटा नहीं</string>
+    <string name="player_open_guide_action">गाइड खोलें</string>
+    <string name="player_open_in_external_player">बाहरी प्लेयर में खोलें</string>
+    <string name="player_pause">पॉज़</string>
+    <string name="player_picture_in_picture">पिक्चर इन पिक्चर</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">चलाएँ</string>
+    <string name="player_playback_label">प्लेबैक</string>
+    <string name="player_playback_speed_title">प्लेबैक गति</string>
+    <string name="player_playback_speed_value">गति %1$s</string>
+    <string name="player_quality_short">क्वालिटी</string>
+    <string name="player_recent_channels">हाल के</string>
+    <string name="player_record">रिकॉर्ड</string>
+    <string name="player_record_now">अभी रिकॉर्ड करें</string>
+    <string name="player_record_options">रिकॉर्डिंग</string>
+    <string name="player_recording_badge">रिकॉर्डिंग</string>
+    <string name="player_recording_scheduled_badge">शेड्यूल्ड</string>
+    <string name="player_resolution_auto_label">ऑटो:%1$s</string>
+    <string name="player_restart">रीस्टार्ट</string>
+    <string name="player_close_playback_title">प्लेबैक बंद करें?</string>
+    <string name="player_close_playback_desc">इससे प्लेबैक रुक जाएगा और आप पिछली स्क्रीन पर लौट जाएँगे।</string>
+    <string name="player_close_playback_confirm">हाँ</string>
+    <string name="player_close_playback_cancel">नहीं</string>
+    <string name="player_resume">जारी रखें</string>
+    <string name="player_resume_desc">क्या आप %1$s को वहीं से जारी रखना चाहते हैं जहाँ छोड़ा था?</string>
+    <string name="player_resume_start_over">शुरू से चलाएँ</string>
+    <string name="player_resume_title">प्लेबैक जारी रखें</string>
+    <string name="player_retry">फिर से प्रयास करें</string>
+    <string name="player_rewind">रिवाइंड</string>
+    <string name="player_schedule_daily_recording">रोज़ाना शेड्यूल करें</string>
+    <string name="player_schedule_recording">शेड्यूल करें</string>
+    <string name="player_schedule_weekly_recording">साप्ताहिक शेड्यूल करें</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">इंट्रो छोड़ें</string>
+    <string name="player_skip_opening">ओपनिंग छोड़ें</string>
+    <string name="player_skip_recap">रीकैप छोड़ें</string>
+    <string name="player_skip_outro">आउट्रो छोड़ें</string>
+    <string name="player_selected">चयनित</string>
+    <string name="player_stats">आंकड़े</string>
+    <string name="player_stop_casting">Cast बंद करें</string>
+    <string name="player_stop_playback_after">इसके बाद प्लेबैक बंद करें</string>
+    <string name="player_stop_recording">रिकॉर्डिंग बंद करें</string>
+    <string name="player_stop_timer_status">%1$s में बंद होगा</string>
+    <string name="player_stream_format">स्ट्रीम फ़ॉर्मेट</string>
+    <string name="player_subs">सबटाइटल</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d मिनट</string>
+    <string name="player_timer_disable">अक्षम करें</string>
+    <string name="player_timer_extend_30">+30 मिनट</string>
+    <string name="player_timer_off">बंद</string>
+    <string name="player_timer_warning_idle">%1$s में स्टैंडबाय की अनुमति</string>
+    <string name="player_timer_warning_stop">%1$s में प्लेबैक बंद हो जाएगा</string>
+    <string name="player_track_audio">ऑडियो ट्रैक चुनें</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">रीयल-टाइम अनुवाद</string>
+    <string name="player_track_off">बंद</string>
+    <string name="player_track_subs">सबटाइटल चुनें</string>
+    <string name="player_try_alternate_stream">दूसरा पथ आज़माएँ</string>
+    <string name="player_type_channel_number">चैनल नंबर टाइप करें</string>
+    <string name="player_type_movie">फ़िल्म</string>
+    <string name="player_type_series">सीरीज़</string>
+    <string name="player_unmute">अनम्यूट</string>
+    <string name="player_up_next">आगे</string>
+    <string name="player_variants_short">वेरिएंट</string>
+    <string name="player_video_quality">वीडियो क्वालिटी</string>
+    <string name="series_seasons">सीज़न</string>
+    <string name="settings_recording_status_recording">रिकॉर्डिंग</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">मौजूदा रिज़ॉल्यूशन को अनुकूली सीमा के रूप में सहेजें</string>
+    <string name="player_quality_remove_saved_limit">सहेजी गई रिज़ॉल्यूशन सीमा हटाएँ</string>
+    <string name="player_quality_use_session_limit">इस प्लेबैक को मौजूदा रिज़ॉल्यूशन तक सीमित करें</string>
+    <string name="player_quality_clear_session_limit">अस्थायी गुणवत्ता सीमा हटाएँ</string>
+
+    <string name="player_quality_gate_title">गुणवत्ता सीमाओं के कारण प्लेबैक रुका हुआ है</string>
+    <string name="player_quality_gate_message">कोई भी उपलब्ध वीडियो गुणवत्ता आपकी सीमाओं में फिट नहीं होती। जारी रखने से पहले दी गई गुणवत्ता और विवरण देखें।</string>
+    <string name="player_quality_gate_offer">प्रस्तावित वीडियो गुणवत्ता: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">%1$d p की ऊँचाई आपकी %2$d p सीमा से अधिक है।</string>
+    <string name="player_quality_gate_height_unknown">वीडियो की ऊँचाई अज्ञात है; आपकी सीमा %1$d p है।</string>
+    <string name="player_quality_gate_bitrate_exceeded">%1$s Mbps की बिटरेट आपकी %2$s Mbps सीमा से अधिक है।</string>
+    <string name="player_quality_gate_bitrate_unknown">वीडियो की बिटरेट अज्ञात है; आपकी सीमा %1$s Mbps है।</string>
+    <string name="player_quality_gate_continue_once">एक बार जारी रखें</string>
+
+    <string name="player_diagnostics_quality_limits">गुणवत्ता सीमाएँ</string>
+    <string name="player_diagnostics_quality_reasons">सीमित करने वाले कारक</string>
+    <string name="player_diagnostics_quality_source_preferences">प्लेबैक प्राथमिकताएँ</string>
+    <string name="player_diagnostics_quality_source_device">डिवाइस संगतता</string>
+    <string name="player_diagnostics_quality_decoder_pressure">डिकोडर पर दबाव</string>
+
+    <string name="player_diagnostics_quality_capability">वीडियो स्रोत की क्षमता</string>
+    <string name="player_diagnostics_quality_capability_adaptive">अनुकूली गुणवत्ता</string>
+    <string name="player_diagnostics_quality_capability_single">एकल या निश्चित गुणवत्ता</string>
+    <string name="player_diagnostics_quality_capability_unknown">अज्ञात</string>
+    <string name="player_diagnostics_quality_capability_timeshift">टाइमशिफ्ट स्रोत</string>
+    <string name="player_quality_save_bitrate_as_limit">मौजूदा वीडियो बिटरेट को अधिकतम सीमा के रूप में सहेजें</string>
+    <string name="player_quality_inherit_height_limit">विरासत में मिली ऊँचाई सीमा इस्तेमाल करें</string>
+    <string name="player_quality_inherit_bitrate_limit">विरासत में मिली बिटरेट सीमा इस्तेमाल करें</string>
+    <string name="player_quality_no_additional_height_limit">इस सामग्री के लिए ऊँचाई की कोई अतिरिक्त सीमा नहीं</string>
+    <string name="player_quality_no_additional_bitrate_limit">इस सामग्री के लिए बिटरेट की कोई अतिरिक्त सीमा नहीं</string>
+    <string name="player_quality_mode_auto">स्वचालित (अनुकूली)</string>
+    <string name="player_quality_mode_fixed">निश्चित ट्रैक</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast रिसीवर गुणवत्ता चुनता है; ये सीमाएँ लागू नहीं होतीं।</string>
+    <string name="player_video_quality_selection_blocked">यह वीडियो गुणवत्ता आपकी प्लेबैक सीमाओं के अनुरूप नहीं है।</string>
+    <string name="player_diagnostics_quality_height_summary">रिज़ॉल्यूशन: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">बिटरेट: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">रिकॉर्डिंग गंतव्य लाइव प्लेबैक की गति के साथ नहीं चल सका।</string>
+</resources>

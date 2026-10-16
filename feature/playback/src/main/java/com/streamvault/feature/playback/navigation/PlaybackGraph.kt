@@ -62,6 +62,8 @@ fun NavGraphBuilder.registerPlaybackGraph(
                 seasonNumber = safePlayerRequest.seasonNumber,
                 episodeNumber = safePlayerRequest.episodeNumber,
                 episodeId = safePlayerRequest.episodeId,
+                remoteContentId = safePlayerRequest.remoteContentId,
+                remoteSeriesId = safePlayerRequest.remoteSeriesId,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
                 playbackPlatformHost = platformHost,
                 splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->

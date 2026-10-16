@@ -3,6 +3,7 @@ package com.streamvault.domain.usecase
 import com.streamvault.domain.manager.ProviderSetupInputValidator
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
+import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
@@ -118,6 +119,9 @@ class ValidateAndAddProvider @Inject constructor(
     companion object {
         private const val MAX_XTREAM_PLAYLIST_USERNAME_LENGTH = 128
         private const val MAX_XTREAM_PLAYLIST_PASSWORD_LENGTH = 256
+        private val STALKER_MAC_ADDRESS = Regex("^[0-9a-f]{2}(?::[0-9a-f]{2}){5}$", RegexOption.IGNORE_CASE)
+        private val STALKER_MAC_IN_PLAYBACK_ROUTE =
+            Regex("live\\.php\\?mac=([0-9a-f]{2}(?::[0-9a-f]{2}){5})", RegexOption.IGNORE_CASE)
     }
 
     /**
@@ -247,6 +251,28 @@ class ValidateAndAddProvider @Inject constructor(
         ) {
             is Result.Success -> {
                 val validatedInput = validated.data
+                when (val parsedStalker = parseStalkerPlaylistUrl(validatedInput.url)) {
+                    is ParsedStalkerUrlResult.ValidationError ->
+                        return ValidateAndAddProviderResult.ValidationError(parsedStalker.message)
+
+                    is ParsedStalkerUrlResult.Success -> return loginStalker(
+                        StalkerProviderSetupCommand(
+                            portalUrl = parsedStalker.portalUrl,
+                            macAddress = parsedStalker.macAddress,
+                            name = validatedInput.name,
+                            authMode = StalkerAuthMode.AUTO,
+                            httpUserAgent = validatedInput.httpUserAgent,
+                            httpHeaders = validatedInput.httpHeaders,
+                            epgSyncMode = command.epgSyncMode,
+                            guideSourcePolicy = command.guideSourcePolicy,
+                            channelLogoSourcePolicy = command.channelLogoSourcePolicy,
+                            existingProviderId = command.existingProviderId
+                        ),
+                        onProgress = onProgress
+                    )
+
+                    ParsedStalkerUrlResult.NotStalkerUrl -> Unit
+                }
                 when (val parsedXtream = parseXtreamPlaylistUrl(validatedInput.url)) {
                     is ParsedXtreamPlaylistUrlResult.ValidationError ->
                         ValidateAndAddProviderResult.ValidationError(parsedXtream.message)
@@ -265,7 +291,8 @@ class ValidateAndAddProvider @Inject constructor(
                                     epgSyncMode = command.epgSyncMode,
                                     liveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
                                     guideSourcePolicy = command.guideSourcePolicy,
-                                    channelLogoSourcePolicy = command.channelLogoSourcePolicy
+                                    channelLogoSourcePolicy = command.channelLogoSourcePolicy,
+                                    preferredLiveStreamFormat = parsedXtream.preferredLiveStreamFormat
                                 ),
                                 existingProviderId = command.existingProviderId
                             ),
@@ -463,8 +490,71 @@ class ValidateAndAddProvider @Inject constructor(
         data class Success(
             val serverUrl: String,
             val username: String,
-            val password: String
+            val password: String,
+            val preferredLiveStreamFormat: LiveStreamFormatMode?
         ) : ParsedXtreamPlaylistUrlResult
+    }
+
+    private sealed interface ParsedStalkerUrlResult {
+        data object NotStalkerUrl : ParsedStalkerUrlResult
+        data class ValidationError(val message: String) : ParsedStalkerUrlResult
+        data class Success(val portalUrl: String, val macAddress: String) : ParsedStalkerUrlResult
+    }
+
+    /**
+     * Some Stalker portals publish an Xtream-shaped get.php URL whose password contains the
+     * actual Stalker live.php?mac=... identity. Detect that signature before the Xtream parser
+     * sees it, then set up the portal with the MAC instead of treating the playback route as a
+     * Xtream password.
+     */
+    private fun parseStalkerPlaylistUrl(url: String): ParsedStalkerUrlResult {
+        val uri = runCatching { URI(url) }.getOrNull()
+            ?: return ParsedStalkerUrlResult.NotStalkerUrl
+        val scheme = uri.scheme?.lowercase()
+            ?.takeIf { it == "http" || it == "https" }
+            ?: return ParsedStalkerUrlResult.NotStalkerUrl
+
+        val path = uri.path.orEmpty().lowercase()
+        val query = parseQueryParameters(uri.rawQuery)
+        val password = query["password"].orEmpty()
+        val nestedPlaybackQuery = password.substringAfter('?', missingDelimiterValue = "")
+        val nestedQuery = parseQueryParameters(nestedPlaybackQuery)
+        val macAddress = query["mac"] ?: nestedQuery["mac"]
+            ?: STALKER_MAC_IN_PLAYBACK_ROUTE.find(password)?.groupValues?.getOrNull(1)
+        val hasStreamRoute = (!query["stream"].isNullOrBlank() || !nestedQuery["stream"].isNullOrBlank()) &&
+            (!query["extension"].isNullOrBlank() || !nestedQuery["extension"].isNullOrBlank())
+        val isStalkerGetPhpExport = path.endsWith("/get.php") &&
+            query["username"].isNullOrBlank().not() &&
+            query["type"]?.lowercase() in setOf("m3u", "m3u_plus") &&
+            password.startsWith("live.php?", ignoreCase = true) &&
+            hasStreamRoute
+        val isStalkerPlaybackUrl = path.endsWith("/play/live.php") && hasStreamRoute
+        if (!isStalkerGetPhpExport && !isStalkerPlaybackUrl) {
+            return ParsedStalkerUrlResult.NotStalkerUrl
+        }
+
+        val validatedMacAddress = macAddress?.takeIf(STALKER_MAC_ADDRESS::matches)
+            ?: return ParsedStalkerUrlResult.ValidationError(
+                "Stalker URL must include a valid MAC address."
+            )
+        val host = uri.host?.takeIf { it.isNotBlank() }
+            ?: return ParsedStalkerUrlResult.ValidationError("Stalker URL must include a host.")
+        val portalPath = when {
+            path.endsWith("/get.php") -> uri.path.orEmpty().dropLast("/get.php".length).trimEnd('/')
+            path.endsWith("/play/live.php") -> uri.path.orEmpty().dropLast("/play/live.php".length).trimEnd('/')
+            else -> ""
+        }
+        val portalUrl = buildString {
+            append(scheme)
+            append("://")
+            append(host)
+            if (uri.port != -1) {
+                append(":")
+                append(uri.port)
+            }
+            append(portalPath)
+        }
+        return ParsedStalkerUrlResult.Success(portalUrl, validatedMacAddress)
     }
 
     private fun parseXtreamPlaylistUrl(url: String): ParsedXtreamPlaylistUrlResult {
@@ -509,7 +599,12 @@ class ValidateAndAddProvider @Inject constructor(
         return ParsedXtreamPlaylistUrlResult.Success(
             serverUrl = "$scheme://$authority",
             username = username,
-            password = password
+            password = password,
+            preferredLiveStreamFormat = when (query["output"]?.lowercase()) {
+                "ts" -> LiveStreamFormatMode.MPEG_TS
+                "m3u8" -> LiveStreamFormatMode.HLS
+                else -> null
+            }
         )
     }
 

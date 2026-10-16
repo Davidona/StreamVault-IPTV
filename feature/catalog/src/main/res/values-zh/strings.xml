@@ -32,11 +32,11 @@
   <string name="badge_series">剧集</string>
   <string name="card_live_badge">直播</string>
   <string name="card_locked_channel">锁定频道</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">投屏</string>
+  <string name="cast_item_unavailable">此项目无法发送到 Cast 接收器。</string>
+  <string name="cast_launching">正在投屏...</string>
+  <string name="cast_started">正在投屏到已连接的设备。</string>
+  <string name="cast_unavailable">此设备上无法使用 Google Cast。</string>
   <string name="category_options_cancel">取消</string>
   <string name="category_options_clear_recent">清除所有最近记录</string>
   <string name="category_options_delete">删除组</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">设为默认组</string>
   <string name="category_options_unlock">解锁组</string>
   <string name="category_options_unpin">取消固定分类</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">固定</string>
   <string name="category_see_all">查看全部</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">取消固定</string>
+  <string name="channel_action_hide">隐藏此频道</string>
   <string name="channel_options_remove_from_recent">从最近记录中移除</string>
   <string name="continue_watching_season_episode">第%1$d季 第%2$d集</string>
   <string name="continue_watching_title">继续观看</string>
   <string name="dashboard_channels_format">%1$d 个频道</string>
   <string name="dashboard_continue_watching">继续观看</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">继续观看电影</string>
+  <string name="dashboard_continue_watching_series">继续观看剧集</string>
   <string name="dashboard_empty_body">请先添加播放列表或 Xtream 来源。启用提供商后，首页将显示收藏频道、继续观看和新的媒体库内容。</string>
   <string name="dashboard_empty_title">设置提供商以解锁主屏幕</string>
   <string name="dashboard_favorite_channels">收藏频道</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">收藏电影</string>
+  <string name="dashboard_favorite_series">收藏剧集</string>
   <string name="dashboard_fresh_movie_pick">精选新片</string>
   <string name="dashboard_jump_back_live">返回直播电视</string>
   <string name="dashboard_library_ready">您的 IPTV 资料库已就绪</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">最近频道</string>
   <string name="dashboard_recent_movies">最近添加的电影</string>
   <string name="dashboard_recent_series">最近更新的剧集</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">推荐电影</string>
   <string name="dashboard_resume_episode">继续观看本集</string>
   <string name="dashboard_resume_episode_format">继续观看 S%1$d E%2$d</string>
   <string name="dashboard_resume_live">继续观看</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d 部剧集</string>
   <string name="dashboard_subtitle">%1$s 已激活。返回直播、继续观看进度，或浏览新内容。</string>
   <string name="dashboard_title">您的媒体库，已就绪</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">热门电影</string>
+  <string name="dashboard_update_allow_installs">允许安装</string>
   <string name="dashboard_update_available">有更新版本已缓存，可在设置中查看。</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">更新已下载。请允许来自 StreamVault 的安装，然后重试安装。</string>
   <string name="dashboard_update_install_ready">最新更新已下载。打开设置即可安装。</string>
   <string name="dashboard_update_open_installer">从设置安装</string>
   <string name="dashboard_update_open_settings">打开更新</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">打开提供商详情</string>
   <string name="dashboard_warning_title">提供商需要注意</string>
   <string name="dashboard_watch_live">观看直播</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">下载</string>
+  <string name="download_error_no_url">无法解析用于下载的流 URL</string>
+  <string name="download_failed">下载失败：%1$s</string>
+  <string name="download_started">已开始下载</string>
   <string name="favorites_add">添加到收藏</string>
   <string name="favorites_all_favorites">全部收藏</string>
   <string name="favorites_cancel">返回：取消</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">长按已保存分组可查看选项</string>
   <string name="library_saved_primary_hint">返回完整库</string>
   <string name="library_sort_title">排序结果</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">移回直播电视</string>
+  <string name="m3u_move_to_movies">移至电影</string>
+  <string name="m3u_move_to_series">移至剧集</string>
+  <string name="m3u_organize_items">整理 M3U 项目</string>
   <string name="movie_detail_back">返回媒体库</string>
   <string name="movie_detail_cast">主演：</string>
   <string name="movie_detail_director">导演：</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">从 %1$s 继续</string>
   <string name="movie_detail_trailer">预告片</string>
   <string name="movie_detail_unknown">未知</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">版本</string>
   <string name="movie_loading_details">正在加载详情...</string>
   <string name="movie_not_found">未找到电影</string>
   <string name="movie_plot_fallback">暂无剧情简介</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">电影</string>
   <string name="nav_series">剧集</string>
   <string name="nav_settings">设置</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">取消</string>
   <string name="pin_dialog_title">输入 PIN</string>
   <string name="player_resume">继续</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">从收藏中移除</string>
   <string name="search_actions_unlock">解锁家长控制</string>
   <string name="search_all">全部</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">构建一次完整搜索索引</string>
+  <string name="search_catalog_complete">完整目录索引</string>
+  <string name="search_catalog_downloaded_only">仅已下载项目。构建完整搜索索引以搜索整个门户目录。</string>
+  <string name="search_catalog_indexing">正在构建完整搜索索引。结果仍不完整。</string>
+  <string name="search_catalog_truncated">门户目录已被截断。结果可能不完整。</string>
   <string name="search_clear_history">清除</string>
   <string name="search_command_subtitle">输入标题、关键词、频道名或剧集即可开始。结果会分组显示，方便用遥控器快速浏览。</string>
   <string name="search_error_subtitle">部分结果无法加载。请重试。</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">返回媒体库</string>
   <string name="series_detail_play_episode">播放 · 第 %1$d 季第 %2$d 集</string>
   <string name="series_detail_resume">继续 · 第 %1$d 季第 %2$d 集 · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">版本</string>
   <string name="series_episodes">集数 (%1$d)</string>
   <string name="series_incorrect_pin">PIN 错误</string>
   <string name="series_library_lens_subtitle">在整个库中展示收藏、观看中、高评分和最新剧集。</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">部分</string>
   <string name="settings_status_unknown">未知</string>
   <string name="settings_update_install_started">正在打开安装程序。</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">流媒体 URL</string>
+  <string name="stream_url_copied">已复制流媒体 URL</string>
+  <string name="stream_url_copy">复制 URL</string>
+  <string name="stream_url_copy_failed">无法解析流 URL</string>
   <string name="vod_category_picker_empty">未找到匹配的分类。</string>
   <string name="vod_category_picker_search_placeholder">搜索分类…</string>
   <string name="vod_category_picker_subtitle">按分类名称搜索，然后打开匹配的栏。</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">刷新此提供商以将电影和剧集导入库。</string>
   <string name="vod_sync_needed_title">需要同步</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">添加到 Trakt 稍后观看列表</string>
-  <string name="trakt_watchlist_connect">在设置中连接 Trakt</string>
-  <string name="trakt_watchlist_failed">无法更新 Trakt 列表，请重试。</string>
-  <string name="trakt_watchlist_load">加载 Trakt 稍后观看列表</string>
-  <string name="trakt_watchlist_remove">从 Trakt 列表中移除</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">在 Trakt 上评分</string>
-  <string name="trakt_rating_dialog_message">选择 1 到 10 之间的评分。</string>
-  <string name="trakt_rating_current">你的 Trakt 评分：%1$d/10</string>
-  <string name="trakt_rating_saved">评分已保存到 Trakt。</string>
-  <string name="trakt_rating_failed">无法将评分保存到 Trakt。</string>
-  <string name="trakt_favorite_sync_failed">StreamVault 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
+  <string name="vod_unavailable_subtitle">此提供商分别提供电影和剧集目录。</string>
+  <string name="vod_unavailable_title">VOD 不可用</string>
+
+<string name="trakt_watchlist_add">添加到 Trakt 稍后观看列表</string>
+<string name="trakt_watchlist_connect">在设置中连接 Trakt</string>
+<string name="trakt_watchlist_failed">无法更新 Trakt 列表，请重试。</string>
+<string name="trakt_watchlist_load">加载 Trakt 稍后观看列表</string>
+<string name="trakt_watchlist_remove">从 Trakt 列表中移除</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt 观看列表中的电影</string>
+<string name="dashboard_trakt_watchlist_series">Trakt 观看列表中的电视节目</string>
+<string name="trakt_rating_action">在 Trakt 上评分</string>
+<string name="trakt_rating_dialog_message">选择 1 到 10 之间的评分。</string>
+<string name="trakt_rating_current">你的 Trakt 评分：%1$d/10</string>
+<string name="trakt_rating_saved">评分已保存到 Trakt。</string>
+<string name="trakt_rating_failed">无法将评分保存到 Trakt。</string>
+<string name="trakt_favorite_sync_failed">StreamVault 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
 </resources>

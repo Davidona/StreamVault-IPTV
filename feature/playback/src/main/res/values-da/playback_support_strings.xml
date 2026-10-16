@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Caster til den tilsluttede enhed.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast er ikke tilgængelig på denne enhed.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Dette streamformat understøttes ikke af Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP- og RTMP-streams understøttes ikke til casting.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-beskyttede streams understøttes ikke af Google Cast i denne app.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Dette element kan ikke sendes til en Cast-modtager.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Denne stream bruger en lokal eller enhedsspecifik URL, som Chromecast ikke kan nå direkte.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Denne stream kræver HTTP-headere eller cookies, som Chromecast ikke kan bruge direkte.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Denne stream kræver et brugerdefineret User-Agent, som Chromecast ikke kan bruge direkte.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Denne stream kræver appens proxyindstillinger, så Chromecast kan ikke bruge den direkte.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Denne stream bruger SSL-håndtering, som Chromecast ikke kan bruge direkte.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast-sessionen kunne ikke startes.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast-modtageren kunne ikke indlæse denne stream.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Den tilsluttede Cast-modtager er ikke klar til afspilning.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Valg af Cast-enhed blev annulleret.</string>
+    <string name="add_group_close_cd">Luk</string>
+    <string name="player_archive_title">Programarkiv</string>
+    <string name="player_no_archive">Ingen arkiverede programmer fundet</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkiv</string>
+</resources>

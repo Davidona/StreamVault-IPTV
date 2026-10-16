@@ -138,7 +138,8 @@ fun ProviderConfiguration.toLegacyProvider(
             guideSourcePolicy = guideSourcePolicy,
             channelLogoSourcePolicy = channelLogoSourcePolicy,
             xtreamFastSyncEnabled = fastSyncEnabled,
-            xtreamLiveSyncMode = liveSyncMode
+            xtreamLiveSyncMode = liveSyncMode,
+            preferredLiveStreamFormat = preferredLiveStreamFormat
         )
         is M3uConfig -> common.copy(
             m3uUrl = playlistUrl,

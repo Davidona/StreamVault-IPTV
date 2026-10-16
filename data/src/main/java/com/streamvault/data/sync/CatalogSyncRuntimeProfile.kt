@@ -56,10 +56,22 @@ internal data class CatalogSyncRuntimeProfile(
     val maxCategoryConcurrency: Int,
     val preferSegmentedLiveOnboarding: Boolean,
     val deferBackgroundWorkOnLowMemory: Boolean,
-    val snapshot: SyncDeviceSnapshot
+    val snapshot: SyncDeviceSnapshot,
+    /** Production AUTO uses bulk-first; the isolated benchmark package can opt out for comparison. */
+    val bulkFirstAutoEnabled: Boolean = true
 ) {
+    // Preserve existing row counts until on-device tuning. Wide rows flush by
+    // estimated retained bytes first; LOW keeps only one queued batch.
+    val liveQueuedBatches: Int get() = if (tier == DeviceSyncTier.LOW) 1 else 2
+    val liveBatchBytes: Long get() = when (tier) {
+        DeviceSyncTier.LOW -> 256L * 1024
+        DeviceSyncTier.MID -> 512L * 1024
+        DeviceSyncTier.HIGH -> 1024L * 1024
+    }
+
     val diagnosticsLabel: String
-        get() = "${tier.name.lowercase()} batch=$stageBatchSize memory=${snapshot.memoryClassMb}MB"
+        get() = "${tier.name.lowercase()} batch=$stageBatchSize memory=${snapshot.memoryClassMb}MB" +
+            if (bulkFirstAutoEnabled) " auto=bulk-first" else ""
 
     @Suppress("UNUSED_PARAMETER")
     fun shouldAttemptFullLiveCatalog(isInitialLiveOnboarding: Boolean): Boolean =
@@ -68,39 +80,63 @@ internal data class CatalogSyncRuntimeProfile(
     companion object {
         fun from(context: Context): CatalogSyncRuntimeProfile {
             val snapshot = SyncDeviceSnapshot.from(context)
-            val tier = when {
+            val detectedTier = when {
                 snapshot.isLowRamDevice || snapshot.memoryClassMb <= LOW_MEMORY_CLASS_MB -> DeviceSyncTier.LOW
                 snapshot.memoryClassMb <= MID_MEMORY_CLASS_MB -> DeviceSyncTier.MID
                 else -> DeviceSyncTier.HIGH
             }
+            val benchmarkOverrides = if (context.packageName == BENCHMARK_APPLICATION_ID) {
+                context.getSharedPreferences(BENCHMARK_PROFILE_PREFERENCES, Context.MODE_PRIVATE)
+            } else {
+                null
+            }
+            val tier = benchmarkOverrides?.getString(KEY_TIER, null)
+                ?.let { value -> runCatching { DeviceSyncTier.valueOf(value) }.getOrNull() }
+                ?: detectedTier
+            val batchOverride = benchmarkOverrides?.getInt(KEY_BATCH_SIZE, 0)?.takeIf { it > 0 }
+                ?.also { require(it in MIN_BENCHMARK_BATCH_SIZE..MAX_BENCHMARK_BATCH_SIZE) }
+            // Use the new AUTO policy in normal app builds. The isolated benchmark package can
+            // still turn it off to compare against the previous AUTO behavior.
+            val bulkFirstAutoEnabled =
+                benchmarkOverrides?.getBoolean(KEY_EXPERIMENTAL_AUTO_BULK, true) ?: true
             return when (tier) {
                 DeviceSyncTier.LOW -> CatalogSyncRuntimeProfile(
                     tier = tier,
-                    stageBatchSize = LOW_STAGE_BATCH_SIZE,
+                    stageBatchSize = batchOverride ?: LOW_STAGE_BATCH_SIZE,
                     maxCategoryConcurrency = 1,
                     preferSegmentedLiveOnboarding = false,
                     deferBackgroundWorkOnLowMemory = true,
-                    snapshot = snapshot
+                    snapshot = snapshot,
+                    bulkFirstAutoEnabled = bulkFirstAutoEnabled
                 )
                 DeviceSyncTier.MID -> CatalogSyncRuntimeProfile(
                     tier = tier,
-                    stageBatchSize = MID_STAGE_BATCH_SIZE,
+                    stageBatchSize = batchOverride ?: MID_STAGE_BATCH_SIZE,
                     maxCategoryConcurrency = 2,
                     preferSegmentedLiveOnboarding = true,
                     deferBackgroundWorkOnLowMemory = snapshot.isCurrentlyLowOnMemory,
-                    snapshot = snapshot
+                    snapshot = snapshot,
+                    bulkFirstAutoEnabled = bulkFirstAutoEnabled
                 )
                 DeviceSyncTier.HIGH -> CatalogSyncRuntimeProfile(
                     tier = tier,
-                    stageBatchSize = HIGH_STAGE_BATCH_SIZE,
+                    stageBatchSize = batchOverride ?: HIGH_STAGE_BATCH_SIZE,
                     maxCategoryConcurrency = Int.MAX_VALUE,
                     preferSegmentedLiveOnboarding = false,
                     deferBackgroundWorkOnLowMemory = false,
-                    snapshot = snapshot
+                    snapshot = snapshot,
+                    bulkFirstAutoEnabled = bulkFirstAutoEnabled
                 )
             }
         }
 
+        private const val BENCHMARK_APPLICATION_ID = "com.streamvault.app.syncbenchmark"
+        private const val BENCHMARK_PROFILE_PREFERENCES = "xtream_sync_benchmark_profile"
+        private const val KEY_TIER = "tier"
+        private const val KEY_BATCH_SIZE = "batch_size"
+        private const val KEY_EXPERIMENTAL_AUTO_BULK = "experimental_auto_bulk"
+        private const val MIN_BENCHMARK_BATCH_SIZE = 100
+        private const val MAX_BENCHMARK_BATCH_SIZE = 1024
         private const val LOW_MEMORY_CLASS_MB = 192
         private const val MID_MEMORY_CLASS_MB = 320
         private const val LOW_STAGE_BATCH_SIZE = 100

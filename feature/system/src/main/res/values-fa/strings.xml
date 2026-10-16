@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">راه‌اندازی ارائه‌دهنده</string>
+  <string name="welcome_setup_later">راه‌اندازی بعداً</string>
+  <string name="welcome_loading_title">آماده‌سازی کتابخانه شما</string>
+  <string name="welcome_loading_subtitle">باز کردن صفحه مناسب برای این دستگاه.</string>
+  <string name="sync_section_live">زنده</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">سریال‌ها</string>
+  <string name="sync_items_indexed_format">%1$d مورد آماده شد</string>
+  <string name="welcome_tagline">IPTV ویژه برای اتاق نشیمن</string>
+  <string name="welcome_subtitle">با یک تجربه بومی Android TV به کانال‌های زنده، تماشای تأخیری، فیلم‌ها و سریال‌ها تکیه دهید.</string>
+  <string name="settings_cancel">لغو</string>
+  <string name="nav_downloads">دانلودها</string>
+  <string name="downloads_loading">در حال بارگذاری دانلودها...</string>
+  <string name="downloads_empty_title">هنوز دانلودی وجود ندارد</string>
+  <string name="downloads_empty_hint">فیلم‌ها یا قسمت‌ها را از صفحه‌های جزئیات دانلود کنید تا اینجا نمایش داده شوند.</string>
+  <string name="downloads_no_thumb">بدون پوستر</string>
+  <string name="downloads_status_completed">کامل‌شده</string>
+  <string name="downloads_status_downloading">در حال دانلود</string>
+  <string name="downloads_status_failed">ناموفق</string>
+  <string name="downloads_status_pending">در انتظار</string>
+  <string name="downloads_status_paused">متوقف‌شده</string>
+  <string name="downloads_status_cancelled">لغو‌شده</string>
+  <string name="downloads_item_title">دانلود بدون عنوان</string>
+  <string name="downloads_delete_confirm_title">حذف دانلود</string>
+  <string name="downloads_delete_confirm_msg">%1$s از دانلودها حذف شود؟</string>
+  <string name="downloads_delete_confirm_delete">حذف</string>
+  <string name="downloads_deleted">دانلود حذف شد</string>
+  <string name="download_folder_change">تغییر پوشه دانلود</string>
+  <string name="download_folder_default">پوشه پیش‌فرض دانلود</string>
+  <string name="download_resume">ادامه</string>
+  <string name="download_delete">حذف</string>
+  <string name="downloads_resumed">دانلود ادامه یافت</string>
+</resources>

@@ -712,6 +712,27 @@ class OkHttpStalkerApiService @Inject constructor(
         )
     }
 
+    override suspend fun streamLiveStreamsByCategory(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String,
+        onItem: suspend (StalkerItemRecord) -> Unit
+    ): Result<Int> = runApiCall("Failed to load live channels", maxAttempts = 1) {
+        streamPagedItems(
+            session = session,
+            profile = profile,
+            baseQuery = mapOf(
+                "type" to "itv",
+                "action" to "get_ordered_list",
+                "JsHttpRequest" to "1-xml",
+                "force_ch_link_check" to "0",
+                "fav" to "0",
+                "genre" to categoryId
+            ),
+            onItem = onItem
+        )
+    }
+
     override suspend fun getVodCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile
@@ -1415,6 +1436,74 @@ class OkHttpStalkerApiService @Inject constructor(
         return items
     }
 
+    /** Streams one category with the same page validation used by complete catalog reads. */
+    private suspend fun streamPagedItems(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        baseQuery: Map<String, String>,
+        onItem: suspend (StalkerItemRecord) -> Unit
+    ): Int {
+        val zoneId = profile.timezone.toPortalZoneId()
+        val fingerprints = mutableSetOf<String>()
+        var page = 1
+        var advertisedTotalPages: Int? = null
+        var reachedEnd = false
+        var itemCount = 0
+
+        while (page <= MAX_PAGE_COUNT) {
+            val payload = requestJson(
+                url = session.loadUrl,
+                profile = profile,
+                referer = session.portalReferer,
+                token = session.token,
+                query = baseQuery + ("p" to page.toString())
+            )
+            val entries = payload.extractItemEntries()
+            val fingerprint = entries.joinToString("|") { entry ->
+                listOf(
+                    entry.findString("id").orEmpty(),
+                    entry.findString("ch_id").orEmpty(),
+                    entry.findString("video_id").orEmpty(),
+                    entry.findString("name").orEmpty()
+                ).joinToString(":")
+            }
+            if (page > 1 && fingerprint.isNotEmpty() && !fingerprints.add(fingerprint)) {
+                throw StalkerApiError.Malformed("Portal repeated a catalog page while loading page $page.")
+            }
+            if (fingerprint.isNotEmpty()) fingerprints += fingerprint
+
+            val reportedTotalPages = payload.advertisedTotalPages()
+            if (advertisedTotalPages != null && reportedTotalPages != null &&
+                advertisedTotalPages != reportedTotalPages
+            ) {
+                throw StalkerApiError.Malformed("Portal changed its advertised catalog page count while loading page $page.")
+            }
+            advertisedTotalPages = advertisedTotalPages ?: reportedTotalPages
+            if (entries.isEmpty() && reportedTotalPages != null && page < reportedTotalPages) {
+                throw StalkerApiError.Malformed("Portal returned an empty catalog page before its advertised end.")
+            }
+
+            entries.mapNotNull { it.toItemRecord(zoneId) }.forEach { item ->
+                onItem(item)
+                itemCount++
+            }
+            reachedEnd = when {
+                entries.isEmpty() -> true
+                reportedTotalPages != null -> page >= reportedTotalPages
+                else -> false
+            }
+            if (reachedEnd) break
+            page++
+        }
+        if (!reachedEnd) {
+            throw StalkerApiError.CatalogTruncated(
+                advertisedTotalPages = (advertisedTotalPages ?: page).coerceAtLeast(page),
+                pageLimit = MAX_PAGE_COUNT
+            )
+        }
+        return itemCount
+    }
+
     private suspend fun fetchPagedItemPage(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
@@ -1811,6 +1900,9 @@ class OkHttpStalkerApiService @Inject constructor(
             reader.isLenient = true
             try {
                 streamStalkerItems(reader, profile.timezone.toPortalZoneId(), onItem).also { itemCount ->
+                    if (reader.peek() != JsonToken.END_DOCUMENT) {
+                        throw StalkerApiError.Malformed("Portal returned trailing live catalog data.")
+                    }
                     recordResolvedLoadUrl(request, response, profile)
                     captureResponseCookies(response, profile)
                     StalkerTelemetry.httpResponse(
@@ -1874,8 +1966,7 @@ class OkHttpStalkerApiService @Inject constructor(
                     // an item record before falling back to skip, so these catalogs are not
                     // silently dropped on the streaming path.
                     if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                        val element = JsonParser.parseReader(reader)
-                        val item = element.asJsonObjectOrNull()?.toItemRecord(zoneId)
+                        val item = readLiveItem(reader, zoneId)
                         if (item != null) {
                             onItem(item)
                             count++
@@ -1899,8 +1990,7 @@ class OkHttpStalkerApiService @Inject constructor(
         reader.beginArray()
         while (reader.hasNext()) {
             if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                val element = JsonParser.parseReader(reader)
-                val item = element.asJsonObjectOrNull()?.toItemRecord(zoneId)
+                val item = readLiveItem(reader, zoneId)
                 if (item != null) {
                     onItem(item)
                     count++
@@ -2496,6 +2586,7 @@ class OkHttpStalkerApiService @Inject constructor(
 
     private suspend inline fun <T> runApiCall(
         message: String,
+        maxAttempts: Int = MAX_OPERATION_ATTEMPTS,
         crossinline block: suspend () -> T
     ): Result<T> {
         var attempt = 0
@@ -2515,7 +2606,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 // individual API operation would defeat that cooldown.
                 val retryable = typed is StalkerApiError.Transport ||
                     (typed is StalkerApiError.Server && (typed.httpStatus ?: 500) >= 500)
-                if (!retryable || attempt >= MAX_OPERATION_ATTEMPTS) {
+                if (!retryable || attempt >= maxAttempts) {
                     return Result.error(typed.message ?: message, typed)
                 }
                 val exponential = 250L shl (attempt - 1)
@@ -3324,7 +3415,21 @@ class OkHttpStalkerApiService @Inject constructor(
         )
     }
 
-    private fun GsonJsonObject.toItemRecord(zoneId: ZoneId): StalkerItemRecord? {
+    internal fun readLiveItem(reader: JsonReader, zoneId: ZoneId, direct: Boolean = true): StalkerItemRecord? {
+        if (!direct) return JsonParser.parseReader(reader).asJsonObjectOrNull()?.toItemRecord(zoneId)
+        val fields = StalkerLiveRowReader.read(reader)
+        return toLiveItemRecord(zoneId, fields::string, fields::boolean, fields::alternateCommands)
+    }
+
+    private fun GsonJsonObject.toItemRecord(zoneId: ZoneId): StalkerItemRecord? =
+        toLiveItemRecord(zoneId, { findString(it) }, { findBoolean(it) }, { extractAlternateCommands() })
+
+    private fun toLiveItemRecord(
+        zoneId: ZoneId,
+        findString: (String) -> String?,
+        findBoolean: (String) -> Boolean?,
+        alternateCommands: () -> List<Pair<String, String>>
+    ): StalkerItemRecord? {
         val id = findString("id")
             ?: findString("ch_id")
             ?: findString("video_id")
@@ -3344,10 +3449,9 @@ class OkHttpStalkerApiService @Inject constructor(
             allowRemotePvr = findBoolean("allow_remote_pvr") == true || findString("allow_remote_pvr") == "1",
             archiveAvailable = findBoolean("archive") == true || findString("archive") == "1"
         )
-        val alternateCommands = extractAlternateCommands()
         val descriptor = buildStalkerPlaybackDescriptor(
             primaryCmd = findString("cmd"),
-            alternateCommands = alternateCommands,
+            alternateCommands = alternateCommands(),
             capabilities = capabilities
         )
         return StalkerItemRecord(

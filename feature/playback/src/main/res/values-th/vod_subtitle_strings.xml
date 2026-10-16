@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">แหล่งที่มา</string>
+    <string name="vod_subtitle_settings">ตั้งค่า</string>
+    <string name="vod_subtitle_provider">คำบรรยายจากผู้ให้บริการ</string>
+    <string name="vod_subtitle_provider_hint">เลือกแทร็กคำบรรยายจากวิดีโอนี้</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">ค้นหาคำบรรยายออนไลน์</string>
+    <string name="vod_subtitle_online_unavailable">การค้นหาออนไลน์ใช้ไม่ได้กับวิดีโอนี้</string>
+    <string name="vod_subtitle_device_hint">เลือกไฟล์ SRT</string>
+    <string name="vod_subtitle_back">กลับไปที่แหล่งที่มา</string>
+    <string name="vod_tracks_empty">ไม่มีแทร็กในวิดีโอนี้</string>
+    <string name="vod_subtitle_preview">นี่คือตัวอย่างคำบรรยาย</string>
+    <string name="vod_subtitle_font_size">ขนาดตัวอักษร</string>
+    <string name="vod_subtitle_background">ความทึบของพื้นหลัง</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% โปร่งใส · 100% ดำทึบ</string>
+    <string name="vod_subtitle_decrease_setting">ลด %1$s</string>
+    <string name="vod_subtitle_increase_setting">เพิ่ม %1$s</string>
+</resources>

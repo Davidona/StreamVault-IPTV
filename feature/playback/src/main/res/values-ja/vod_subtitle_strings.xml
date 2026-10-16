@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">ソース</string>
+    <string name="vod_subtitle_settings">設定</string>
+    <string name="vod_subtitle_provider">プロバイダーの字幕</string>
+    <string name="vod_subtitle_provider_hint">この動画から字幕トラックを選択</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">オンラインで字幕を検索</string>
+    <string name="vod_subtitle_online_unavailable">この動画ではオンライン検索を利用できません</string>
+    <string name="vod_subtitle_device_hint">SRT ファイルを選択</string>
+    <string name="vod_subtitle_back">ソースに戻る</string>
+    <string name="vod_tracks_empty">この動画に利用可能なトラックがありません</string>
+    <string name="vod_subtitle_preview">これは字幕です。</string>
+    <string name="vod_subtitle_font_size">フォントサイズ</string>
+    <string name="vod_subtitle_background">背景の不透明度</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% 透明 · 100% 漆黒</string>
+    <string name="vod_subtitle_decrease_setting">%1$s を減らす</string>
+    <string name="vod_subtitle_increase_setting">%1$s を増やす</string>
+</resources>

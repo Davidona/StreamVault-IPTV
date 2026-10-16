@@ -16,9 +16,14 @@
 # See `docs/DEV_SEEDING.md` for the full opt-in onboarding flow.
 # -----------------------------------------------------------------------------
 
-# === Trakt app configuration (all build types; public, not user credentials) ===
+# --- OpenSubtitles API application key (debug builds only) --------------------
+# Get a key from OpenSubtitles, then add it to your ignored `local.properties`:
+# opensubtitles.api.key=your-opensubtitles-api-key
+# Rebuild the app after changing this value.
+
+# === Trakt app configuration (public client settings) =========================
 # Environment TRAKT_CLIENT_ID / TRAKT_REDIRECT_URI take precedence.
-# Register this exact HTTPS URI with Trakt and publish assetlinks.json on its domain.
+# Register this HTTPS URI with Trakt and publish assetlinks.json on its domain.
 # trakt.client.id=your-public-streamvault-client-id
 # trakt.redirect.uri=https://your-domain.example/oauth/trakt/callback
 

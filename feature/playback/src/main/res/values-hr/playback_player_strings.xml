@@ -1,0 +1,300 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Pretraži online titlove</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Učitaj SRT s uređaja</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Kašnjenje titlova (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Kašnjenje titlova</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Negativne vrijednosti prikazuju titlove ranije; pozitivne ih prikazuju kasnije.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Trenutačno kašnjenje: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Prikaži titlove %1$d ms ranije</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Prikaži titlove %1$d ms kasnije</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Poništi kašnjenje</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s je učitano. Player učitava titl.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Odaberite valjanu .srt datoteku titlova.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Datoteke titlova moraju imati 20 MB ili manje.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Nije moguće učitati ovu datoteku titlova.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Pronađi titlove</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Odaberite titl koji želite dodati ovom videu.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Rezultati za %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Možete pretraživati bez prijave ako je omogućen anonimni pristup. Prijavite se da biste iskoristili dopuštenje za preuzimanje na svom računu.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Poveži račun (neobavezno)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Pretraživanje OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Nema pronađenih titlova za ovaj naslov i jezik.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Pretraži ponovno</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Odaberite jezik, a zatim verziju.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Svi jezici</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Prikaži sve dostupne jezike</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Učitavanje jezika…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Jezik: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Promijeni jezik</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Nije moguće učitati popis jezika.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s preuzimanja</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Opće izdanje</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Preuzimanje titla…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s dodano. Player učitava titl.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Zatvori</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d minuta</item>
+            <item quantity="few">%1$d minute</item>
+            <item quantity="other">%1$d minuta</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Cast sesija je prekinuta.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">Dostupan Catch-up (%1$d dana)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Dostupan Catch-up</string>
+    <string name="epg_no_info">Nema EPG informacija</string>
+    <string name="epg_now_playing">Sada se reproducira</string>
+    <string name="epg_title">TV vodič</string>
+    <string name="epg_up_next">Slijedi</string>
+    <string name="epg_upcoming_schedule">Nadolazeći raspored</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="label_categories">Kategorije</string>
+    <string name="label_duration_min">%1$d min</string>
+    <string name="multiview_nav">Podijeljeni zaslon</string>
+    <string name="nav_live_tv">TV uživo</string>
+    <string name="notification_permission_recording_alert_required">Omogućite obavijesti za StreamVault da biste primali upozorenja o neuspješnim snimanjima.</string>
+    <string name="notification_permission_reminder_required">Omogućite obavijesti za StreamVault da biste primali podsjetnike za emisije.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">Dijagnostika</string>
+    <string name="player_action_format">Format</string>
+    <string name="player_action_group">Grupa</string>
+    <string name="player_action_guide">Vodič</string>
+    <string name="player_action_mute">Isključi zvuk</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">Reprodukcija</string>
+    <string name="player_action_quality">Kvaliteta</string>
+    <string name="player_action_split">Podijeli</string>
+    <string name="player_action_variants">Varijante</string>
+    <string name="player_action_view">Prikaz</string>
+    <string name="player_archive">Arhiva</string>
+    <string name="player_aspect_ratio_label">Omjer %1$s</string>
+    <string name="player_audio">Zvuk</string>
+    <string name="player_chapters">Poglavlja</string>
+    <string name="player_chapter_count">%1$d poglavlja</string>
+    <string name="player_chapter_label">Poglavlje %1$d</string>
+    <string name="player_chapter_selected">Poglavlje %1$d, odabrano</string>
+    <string name="player_chapter_title">Poglavlje %1$d · %2$s</string>
+    <string name="player_close_chapters">Zatvori poglavlja</string>
+    <string name="player_previous_chapter">Prethodno poglavlje</string>
+    <string name="player_next_chapter">Sljedeće poglavlje</string>
+    <string name="player_rewind_10_seconds">Premotaj 10 sekundi unatrag</string>
+    <string name="player_forward_10_seconds">Premotaj 10 sekundi naprijed</string>
+    <string name="player_vod_timeline">VOD vremenska crta</string>
+    <string name="player_close_controls">Zatvori kontrole</string>
+    <string name="player_back_to_menu">Natrag na izbornik</string>
+    <string name="player_playback_settings">Postavke reprodukcije</string>
+    <string name="player_close_playback_settings">Zatvori postavke reprodukcije</string>
+    <string name="player_vod_controls">VOD kontrole reprodukcije</string>
+    <string name="player_aspect_ratio">Omjer slike</string>
+    <string name="player_auto_play_cancel">Odustani</string>
+    <string name="player_auto_play_countdown">Počinje za %1$d s</string>
+    <string name="player_auto_play_play_now">Reproduciraj sada</string>
+    <string name="player_av_sync_channel">Kanal</string>
+    <string name="player_av_sync_global">Globalno</string>
+    <string name="player_av_sync_minus_50">A/V sinkronizacija -50 ms</string>
+    <string name="player_av_sync_plus_50">A/V sinkronizacija +50 ms</string>
+    <string name="player_av_sync_preview">Pretpregled</string>
+    <string name="player_av_sync_reset">Vrati na 0 ms</string>
+    <string name="player_av_sync_save_channel">Spremi za kanal</string>
+    <string name="player_av_sync_save_global">Postavi kao globalno</string>
+    <string name="player_av_sync_short">A/V sinkronizacija</string>
+    <string name="player_av_sync_title">A/V sinkronizacija</string>
+    <string name="player_av_sync_use_global">Koristi globalno</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">Pregledaj arhivu</string>
+    <string name="player_browse_guide_catchup">Pregledaj vodič</string>
+    <string name="player_buffering">Međuspremanje...</string>
+    <string name="player_cancel_scheduled_recording">Otkaži zakazano</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">Catch-up</string>
+    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_channel_list_hint">Odaberite kanal za trenutačno prebacivanje. Tipka Natrag zatvara popis.</string>
+    <string name="player_channel_list_title">Kanali (%1$d)</string>
+    <string name="player_channel_not_found">Kanal nije pronađen</string>
+    <string name="player_channel_selected">Sada</string>
+    <string name="player_channel_variants">Varijante kanala</string>
+    <string name="player_close">Zatvori</string>
+    <string name="player_diagnostics_active_decoder">Aktivni dekoder</string>
+    <string name="player_diagnostics_alternates">Alternativni tokovi</string>
+    <string name="player_diagnostics_archive">Arhiva</string>
+    <string name="player_diagnostics_audio_codec">Audio kodek</string>
+    <string name="player_diagnostics_audio_decoder">Audio dekoder</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Način rada audio dekodera</string>
+    <string name="player_diagnostics_audio_output_path">Audio putanja</string>
+    <string name="player_diagnostics_av_offset">A/V pomak</string>
+    <string name="player_diagnostics_av_sync">A/V sinkronizacija</string>
+    <string name="player_diagnostics_av_sync_custom">Uključeno (prilagođena putanja sinkronizacije)</string>
+    <string name="player_diagnostics_av_sync_stock">Isključeno (standardna audio putanja)</string>
+    <string name="player_diagnostics_av_sync_waiting">Uključeno (čeka se ponovni početak reprodukcije)</string>
+    <string name="player_diagnostics_channel_errors">Greške kanala</string>
+    <string name="player_diagnostics_compatibility_note">Napomena o kompatibilnosti</string>
+    <string name="player_diagnostics_compatibility_note_value">Reprodukcija za ovaj tok možda koristi naučenu audio putanju ili putanju prilagođenu radi kompatibilnosti.</string>
+    <string name="player_diagnostics_compatibility_source">Izvor kompatibilnosti</string>
+    <string name="player_diagnostics_dropped_frames">Izgubljeni kadrovi</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">Posljednja greška</string>
+    <string name="player_diagnostics_last_frame">Posljednji video kadar</string>
+    <string name="player_diagnostics_playback_state">Stanje reprodukcije</string>
+    <string name="player_diagnostics_provider">Pružatelj</string>
+    <string name="player_diagnostics_recovery_actions">Radnje oporavka</string>
+    <string name="player_diagnostics_resolution">Razlučivost</string>
+    <string name="player_diagnostics_section_audio">Zvuk</string>
+    <string name="player_diagnostics_section_playback">Reprodukcija</string>
+    <string name="player_diagnostics_section_recovery">Oporavak</string>
+    <string name="player_diagnostics_section_source">Izvor</string>
+    <string name="player_diagnostics_section_video">Video</string>
+    <string name="player_diagnostics_source">Izvor</string>
+    <string name="player_diagnostics_stream_class">Klasa toka</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">Dijagnostika reprodukcije</string>
+    <string name="player_diagnostics_troubleshooting">Rješavanje problema</string>
+    <string name="player_diagnostics_frame_rate">Brzina kadrova</string>
+    <string name="player_diagnostics_stream_bitrate">Bitrate toka</string>
+    <string name="player_diagnostics_bandwidth_estimate">Mrežna propusnost</string>
+    <string name="player_diagnostics_video_bitrate">Video bitrate</string>
+    <string name="player_diagnostics_video_codec">Video kodek</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Način rada video dekodera</string>
+    <string name="player_diagnostics_video_stalls">Zastoji videa</string>
+    <string name="player_epg_overlay_hint">Ovdje pregledajte pojedinosti vodiča. Odaberite Catch-up za otvaranje povijesti arhive.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">Epizode</string>
+    <string name="player_previous_episode">Prethodna epizoda</string>
+    <string name="player_next_episode">Sljedeća epizoda</string>
+    <string name="player_error_back">Ili pritisnite Natrag za povratak</string>
+    <string name="player_error_decoder">Nije moguće reproducirati ovaj format — pokušajte promijeniti način rada dekodera u postavkama</string>
+    <string name="player_error_drm">DRM licenca ili sigurnosni zahtjevi uređaja spriječili su reprodukciju</string>
+    <string name="player_error_live_hint">Pokušajte ponovno, vratite se na posljednji kanal ili pritisnite Natrag za izlaz iz reprodukcije.</string>
+    <string name="player_error_network">Tok nije dostupan — provjerite internetsku vezu</string>
+    <string name="player_error_source">Tok nije pronađen ili je pristup odbijen</string>
+    <string name="player_error_title">Greška reprodukcije</string>
+    <string name="player_error_unknown">Nepoznata greška reprodukcije</string>
+    <string name="player_format_short">Format</string>
+    <string name="player_forward">Premotaj naprijed</string>
+    <string name="player_idle_standby_after">Dopusti pripravnost nakon mirovanja</string>
+    <string name="player_idle_timer_status">Pripravnost nakon mirovanja %1$s</string>
+    <string name="player_jump_to_live">Skoči na uživo</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">Posljednji kanal</string>
+    <string name="player_last_group_hint">Vratite se na posljednju skupinu uživo koju ste pregledavali.</string>
+    <string name="player_last_group_label">Posljednje: %1$s</string>
+    <string name="player_live_buffer_depth">Međuspremnik %1$s</string>
+    <string name="player_live_buffer_end">Rub uživo</string>
+    <string name="player_live_buffer_start">Početak međuspremnika</string>
+    <string name="player_live_channel">Kanal %1$d</string>
+    <string name="player_live_dvr_controls">Player</string>
+    <string name="player_live_now">Sada se reproducira</string>
+    <string name="player_live_offset">%1$s iza prijenosa uživo</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">Vremenska crta premotavanja uživo. Za traženje koristite lijevo i desno.</string>
+    <string name="player_live_timeshift_buffering">Lokalno premotavanje uživo još se učitava.</string>
+    <string name="player_minutes_remaining">Još %1$d min</string>
+    <string name="player_more_controls">Više kontrola</string>
+    <string name="player_multiview_short">Višestruki prikaz</string>
+    <string name="player_mute">Isključi zvuk</string>
+    <string name="player_muted_badge">Muted</string>
+    <string name="player_next_label">Sljedeće:</string>
+    <string name="player_no_guide_data">Nema podataka vodiča</string>
+    <string name="player_open_guide_action">Otvori vodič</string>
+    <string name="player_open_in_external_player">Otvori u vanjskom playeru</string>
+    <string name="player_pause">Pauza</string>
+    <string name="player_picture_in_picture">Slika u slici</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">Reproduciraj</string>
+    <string name="player_playback_label">Reprodukcija</string>
+    <string name="player_playback_speed_title">Brzina reprodukcije</string>
+    <string name="player_playback_speed_value">Brzina %1$s</string>
+    <string name="player_quality_short">Kvaliteta</string>
+    <string name="player_recent_channels">Nedavno</string>
+    <string name="player_record">Snimi</string>
+    <string name="player_record_now">Snimi sada</string>
+    <string name="player_record_options">Snimanje</string>
+    <string name="player_recording_badge">Recording</string>
+    <string name="player_recording_scheduled_badge">Scheduled</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">Ponovno pokreni</string>
+    <string name="player_close_playback_title">Zatvoriti reprodukciju?</string>
+    <string name="player_close_playback_desc">Time će se zaustaviti reprodukcija i vratiti na prethodni zaslon.</string>
+    <string name="player_close_playback_confirm">Da</string>
+    <string name="player_close_playback_cancel">Ne</string>
+    <string name="player_resume">Nastavi</string>
+    <string name="player_resume_desc">Želite li nastaviti %1$s od mjesta na kojem ste stali?</string>
+    <string name="player_resume_start_over">Kreni ispočetka</string>
+    <string name="player_resume_title">Nastavi reprodukciju</string>
+    <string name="player_retry">Pokušaj ponovno</string>
+    <string name="player_rewind">Premotaj unatrag</string>
+    <string name="player_schedule_daily_recording">Zakaži dnevno</string>
+    <string name="player_schedule_recording">Zakaži</string>
+    <string name="player_schedule_weekly_recording">Zakaži tjedno</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Preskoči uvod</string>
+    <string name="player_skip_opening">Preskoči uvodnu špicu</string>
+    <string name="player_skip_recap">Preskoči sažetak</string>
+    <string name="player_skip_outro">Preskoči odjavnu špicu</string>
+    <string name="player_selected">Odabrano</string>
+    <string name="player_stats">Statistika</string>
+    <string name="player_stop_casting">Zaustavi Cast</string>
+    <string name="player_stop_playback_after">Zaustavi reprodukciju nakon</string>
+    <string name="player_stop_recording">Zaustavi snimanje</string>
+    <string name="player_stop_timer_status">Zaustavljanje za %1$s</string>
+    <string name="player_stream_format">Format toka</string>
+    <string name="player_subs">Titlovi</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
+    <string name="player_timer_disable">Isključi</string>
+    <string name="player_timer_extend_30">+30 min</string>
+    <string name="player_timer_off">Isključeno</string>
+    <string name="player_timer_warning_idle">Pripravnost dopuštena za %1$s</string>
+    <string name="player_timer_warning_stop">Reprodukcija se zaustavlja za %1$s</string>
+    <string name="player_track_audio">Odaberi audio zapis</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Prevođenje u stvarnom vremenu</string>
+    <string name="player_track_off">Isključeno</string>
+    <string name="player_track_subs">Odaberi titlove</string>
+    <string name="player_try_alternate_stream">Pokušaj drugu putanju</string>
+    <string name="player_type_channel_number">Upišite broj kanala</string>
+    <string name="player_type_movie">Film</string>
+    <string name="player_type_series">Serija</string>
+    <string name="player_unmute">Uključi zvuk</string>
+    <string name="player_up_next">Slijedi</string>
+    <string name="player_variants_short">Varijante</string>
+    <string name="player_video_quality">Kvaliteta videa</string>
+    <string name="series_seasons">Sezone</string>
+    <string name="settings_recording_status_recording">Snimanje</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Spremi trenutačnu razlučivost kao prilagodljivo ograničenje</string>
+    <string name="player_quality_remove_saved_limit">Ukloni spremljeno ograničenje razlučivosti</string>
+    <string name="player_quality_use_session_limit">Ograniči ovu reprodukciju na trenutačnu razlučivost</string>
+    <string name="player_quality_clear_session_limit">Ukloni privremeno ograničenje kvalitete</string>
+
+    <string name="player_quality_gate_title">Reprodukcija je pauzirana zbog ograničenja kvalitete</string>
+    <string name="player_quality_gate_message">Nijedna dostupna kvaliteta videozapisa ne odgovara vašim ograničenjima. Prije nastavka provjerite ponuđenu kvalitetu i pojedinosti.</string>
+    <string name="player_quality_gate_offer">Ponuđena kvaliteta videozapisa: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Visina od %1$d p prelazi vaše ograničenje od %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Visina videozapisa nije poznata; vaše je ograničenje %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Brzina prijenosa od %1$s Mbps prelazi vaše ograničenje od %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Brzina prijenosa videozapisa nije poznata; vaše je ograničenje %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Nastavi jednom</string>
+
+    <string name="player_diagnostics_quality_limits">Ograničenja kvalitete</string>
+    <string name="player_diagnostics_quality_reasons">Čimbenici ograničenja</string>
+    <string name="player_diagnostics_quality_source_preferences">Postavke reprodukcije</string>
+    <string name="player_diagnostics_quality_source_device">Kompatibilnost uređaja</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Opterećenje dekodera</string>
+
+    <string name="player_diagnostics_quality_capability">Mogućnosti videoizvora</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Prilagodljive kvalitete</string>
+    <string name="player_diagnostics_quality_capability_single">Jedna ili fiksna kvaliteta</string>
+    <string name="player_diagnostics_quality_capability_unknown">Nepoznato</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Vremenski pomaknut izvor</string>
+    <string name="player_quality_save_bitrate_as_limit">Spremi trenutačnu brzinu prijenosa videozapisa kao maksimum</string>
+    <string name="player_quality_inherit_height_limit">Koristi naslijeđeno ograničenje visine</string>
+    <string name="player_quality_inherit_bitrate_limit">Koristi naslijeđeno ograničenje brzine prijenosa</string>
+    <string name="player_quality_no_additional_height_limit">Bez dodatnog ograničenja visine za ovaj sadržaj</string>
+    <string name="player_quality_no_additional_bitrate_limit">Bez dodatnog ograničenja brzine prijenosa za ovaj sadržaj</string>
+    <string name="player_quality_mode_auto">Automatski (prilagodljivi) odabir</string>
+    <string name="player_quality_mode_fixed">Fiksna kvaliteta</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast prijamnik odabire kvalitetu; ova se ograničenja ne primjenjuju.</string>
+    <string name="player_video_quality_selection_blocked">Ova kvaliteta videozapisa ne odgovara vašim ograničenjima reprodukcije.</string>
+    <string name="player_diagnostics_quality_height_summary">Razlučivost: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Brzina prijenosa: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Odredište snimanja nije moglo pratiti reprodukciju uživo.</string>
+</resources>

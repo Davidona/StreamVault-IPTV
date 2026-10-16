@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Ikonekta ang Trakt sa Mga Setting</string>
+    <string name="player_trakt_not_supported">Sinusubaybayan ng Trakt ang mga pelikula at episode lamang.</string>
+    <string name="player_trakt_no_match">Walang eksaktong Trakt na tugma para sa pamagat na ito.</string>
+    <string name="player_trakt_starting">Sinisimulan ang pagsubaybay sa Trakt…</string>
+    <string name="player_trakt_tracking">Pagsubaybay gamit ang Trakt</string>
+    <string name="player_trakt_paused">Naka-pause ang pagsubaybay sa Trakt</string>
+    <string name="player_trakt_failed">Nabigo ang pagsubaybay sa Trakt</string>
+    <string name="player_trakt_sent">Ipinadala sa Trakt</string>
+</resources>

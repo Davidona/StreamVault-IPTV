@@ -8,6 +8,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.SeriesDetailPresentationHint
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.model.VodCategoryHydration
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,8 @@ interface SeriesRepository {
     ): Result<Unit> = Result.success(Unit)
     fun searchSeries(providerId: Long, query: String): Flow<List<Series>>
     suspend fun getSeriesById(seriesId: Long): Series?
+    suspend fun getSeriesVariants(seriesId: Long): List<VodSeriesVariant> = emptyList()
+    suspend fun hasExplicitSeriesVariantSelection(seriesId: Long): Boolean = true
     suspend fun getEpisodeById(episodeId: Long): Episode?
     suspend fun getSeriesDetails(
         providerId: Long,

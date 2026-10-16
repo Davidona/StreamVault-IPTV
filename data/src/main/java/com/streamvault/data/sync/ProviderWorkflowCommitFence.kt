@@ -7,6 +7,7 @@ import javax.inject.Singleton
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CancellationException
 
 /**
  * Lease propagated through the sync coroutine so catalog commits can prove they still belong to
@@ -21,7 +22,7 @@ class ProviderWorkflowExecutionContext(
 class ProviderWorkflowSupersededException(
     providerId: Long,
     generation: Long
-) : IllegalStateException(
+) : CancellationException(
     "Provider $providerId workflow generation $generation was superseded before catalog commit."
 )
 

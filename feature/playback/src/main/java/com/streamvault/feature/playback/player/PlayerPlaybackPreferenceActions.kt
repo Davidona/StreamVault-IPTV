@@ -7,65 +7,21 @@ import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreference
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.QualityLimitOverride
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
+import com.streamvault.player.PLAYER_TRACK_AUTO_ID
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerError
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
-import kotlin.collections.LinkedHashSet
-
-private const val THUMBNAIL_PRELOAD_BUCKET_MS = 10_000L
-private const val THUMBNAIL_PRELOAD_FRAME_BUDGET = 6
-
-internal fun buildThumbnailPreloadPositions(
-    durationMs: Long,
-    currentPositionMs: Long,
-    bucketMs: Long = THUMBNAIL_PRELOAD_BUCKET_MS,
-    frameBudget: Int = THUMBNAIL_PRELOAD_FRAME_BUDGET
-): List<Long> {
-    if (durationMs <= 0L || bucketMs <= 0L || frameBudget <= 0) return emptyList()
-
-    val maxPositionMs = durationMs.coerceAtLeast(0L)
-    val anchorPositionMs = (currentPositionMs.coerceIn(0L, maxPositionMs) / bucketMs) * bucketMs
-    val plannedPositions = LinkedHashSet<Long>()
-    var offsetMs = 0L
-
-    while (plannedPositions.size < frameBudget) {
-        val forwardPositionMs = anchorPositionMs + offsetMs
-        if (forwardPositionMs <= maxPositionMs) {
-            plannedPositions += forwardPositionMs
-        }
-        if (plannedPositions.size >= frameBudget) break
-
-        if (offsetMs > 0L) {
-            val backwardPositionMs = anchorPositionMs - offsetMs
-            if (backwardPositionMs >= 0L) {
-                plannedPositions += backwardPositionMs
-            }
-        }
-
-        if (forwardPositionMs > maxPositionMs && anchorPositionMs - offsetMs < 0L) {
-            break
-        }
-        offsetMs += bucketMs
-    }
-
-    return plannedPositions.toList()
-}
-
-internal fun shouldStartThumbnailPreload(
-    preloadKey: String,
-    lastCompletedPreloadKey: String?,
-    inFlightPreloadKey: String?
-): Boolean = preloadKey.isNotBlank() &&
-    preloadKey != lastCompletedPreloadKey &&
-    preloadKey != inFlightPreloadKey
 
 fun PlayerViewModel.selectAudioTrack(trackId: String) {
     val selectedTrack = playerEngine.availableAudioTracks.value.firstOrNull { it.id == trackId }
@@ -119,8 +75,204 @@ private fun PlayerViewModel.persistVodTrackPreferences(
     }
 }
 
-fun PlayerViewModel.selectVideoQuality(trackId: String) {
-    playerEngine.selectVideoTrack(trackId)
+fun PlayerViewModel.selectVideoQuality(trackId: String): Boolean {
+    if (trackId == PLAYER_TRACK_AUTO_ID && temporaryPlaybackQualityPreferenceFlow.value != null) {
+        episodeSourceState.onVideoSelection()
+        clearTemporaryQualityLimit()
+        return true
+    }
+    val selected = playerEngine.trySelectVideoTrack(trackId)
+    if (selected) episodeSourceState.onVideoSelection()
+    return selected
+}
+
+fun PlayerViewModel.saveCurrentQualityAsAdaptiveLimit() {
+    val scope = playbackQualityPreferenceScope.value ?: return
+    val height = currentObservedVideoHeight() ?: return
+    updatePlaybackQualityPreference(scope) { current ->
+        current.copy(maxVideoHeight = QualityLimitOverride.Maximum(height))
+    }
+}
+
+fun PlayerViewModel.saveCurrentQualityAsProviderDefaultLimit() {
+    val providerId = currentProviderId.takeIf { it > 0L } ?: return
+    val height = currentObservedVideoHeight() ?: return
+    val scope = PlaybackQualityPreferenceScope.providerDefault(providerId)
+    updatePlaybackQualityPreference(scope) { current ->
+        current.copy(maxVideoHeight = QualityLimitOverride.Maximum(height))
+    }
+}
+
+fun PlayerViewModel.saveCurrentVideoBitrateAsAdaptiveLimit() {
+    val scope = playbackQualityPreferenceScope.value ?: return
+    val bitrate = currentObservedVideoBitrate() ?: return
+    updatePlaybackQualityPreference(scope) { current ->
+        current.copy(maxVideoBitrateBps = QualityLimitOverride.Maximum(bitrate))
+    }
+}
+
+fun PlayerViewModel.saveCurrentVideoBitrateAsProviderDefaultLimit() {
+    val providerId = currentProviderId.takeIf { it > 0L } ?: return
+    val bitrate = currentObservedVideoBitrate() ?: return
+    updatePlaybackQualityPreference(PlaybackQualityPreferenceScope.providerDefault(providerId)) { current ->
+        current.copy(maxVideoBitrateBps = QualityLimitOverride.Maximum(bitrate))
+    }
+}
+
+fun PlayerViewModel.useInheritedPlaybackHeightLimit() = updateCurrentContentQualityPreference { current ->
+    current.copy(maxVideoHeight = QualityLimitOverride.Inherit)
+}
+
+fun PlayerViewModel.useInheritedPlaybackBitrateLimit() = updateCurrentContentQualityPreference { current ->
+    current.copy(maxVideoBitrateBps = QualityLimitOverride.Inherit)
+}
+
+fun PlayerViewModel.useNoAdditionalPlaybackHeightLimit() = updateCurrentContentQualityPreference { current ->
+    current.copy(maxVideoHeight = QualityLimitOverride.NoAdditionalLimit)
+}
+
+fun PlayerViewModel.useNoAdditionalPlaybackBitrateLimit() = updateCurrentContentQualityPreference { current ->
+    current.copy(maxVideoBitrateBps = QualityLimitOverride.NoAdditionalLimit)
+}
+
+fun PlayerViewModel.useInheritedProviderHeightLimit() {
+    val providerId = currentProviderId.takeIf { it > 0L } ?: return
+    updatePlaybackQualityPreference(PlaybackQualityPreferenceScope.providerDefault(providerId)) { current ->
+        current.copy(maxVideoHeight = QualityLimitOverride.Inherit)
+    }
+}
+
+fun PlayerViewModel.useInheritedProviderBitrateLimit() {
+    val providerId = currentProviderId.takeIf { it > 0L } ?: return
+    updatePlaybackQualityPreference(PlaybackQualityPreferenceScope.providerDefault(providerId)) { current ->
+        current.copy(maxVideoBitrateBps = QualityLimitOverride.Inherit)
+    }
+}
+
+private fun PlayerViewModel.updateCurrentContentQualityPreference(
+    update: (ScopedPlaybackQualityPreference) -> ScopedPlaybackQualityPreference
+) {
+    playbackQualityPreferenceScope.value?.let { scope -> updatePlaybackQualityPreference(scope, update) }
+}
+
+private fun PlayerViewModel.updatePlaybackQualityPreference(
+    scope: PlaybackQualityPreferenceScope,
+    update: (ScopedPlaybackQualityPreference) -> ScopedPlaybackQualityPreference
+) {
+    viewModelScope.launch {
+        playbackQualityPreferenceSaveMutex.withLock {
+            if (!isPlaybackQualityPreferenceScopeActive(scope)) return@withLock
+            val current = playerPreferencesCoordinator.getPlaybackQualityPreference(scope).first()
+                ?: ScopedPlaybackQualityPreference()
+            val updated = update(current)
+            if (updated != current) {
+                playerPreferencesCoordinator.setPlaybackQualityPreference(scope, updated)
+            }
+            if (isPlaybackQualityPreferenceScopeActive(scope)) {
+                playerEngine.selectVideoTrack(PLAYER_TRACK_AUTO_ID)
+            }
+        }
+    }
+}
+
+private fun PlayerViewModel.isPlaybackQualityPreferenceScopeActive(
+    scope: PlaybackQualityPreferenceScope
+): Boolean = when (scope.type) {
+    com.streamvault.domain.settings.PlaybackQualityPreferenceScopeType.PROVIDER_DEFAULT ->
+        currentProviderId == scope.providerId
+    else -> playbackQualityPreferenceScope.value == scope
+}
+
+private fun PlayerViewModel.currentObservedVideoHeight(): Int? =
+    videoFormat.value.height.takeIf { it > 0 }
+        ?: playerEngine.availableVideoTracks.value.firstOrNull { it.isSelected }
+            ?.videoHeight?.takeIf { it > 0 }
+
+private fun PlayerViewModel.currentObservedVideoBitrate(): Long? =
+    playerEngine.availableVideoTracks.value.firstOrNull { it.isSelected }
+        ?.videoBitrateBps?.takeIf { it > 0L }
+        ?: videoFormat.value.bitrate.takeIf { it > 0 }?.toLong()
+
+fun PlayerViewModel.removeProviderQualityLimit() {
+    val providerId = currentProviderId.takeIf { it > 0L } ?: return
+    val scope = PlaybackQualityPreferenceScope.providerDefault(providerId)
+    viewModelScope.launch {
+        playerPreferencesCoordinator.clearPlaybackQualityPreference(scope)
+        if (currentProviderId != providerId) return@launch
+        val contentScope = playbackQualityPreferenceScope.value
+            ?.takeIf { it.providerId == providerId }
+        val contentPreference = contentScope
+            ?.let { playerPreferencesCoordinator.getPlaybackQualityPreference(it).first() }
+        if (currentProviderId != providerId || playbackQualityPreferenceScope.value != contentScope) return@launch
+        playerEngine.setScopedPlaybackQualityPreferences(
+            providerDefault = null,
+            contentPreference = contentPreference,
+            temporarySelection = temporaryPlaybackQualityPreferenceFlow.value
+        )
+    }
+}
+
+fun PlayerViewModel.setTemporaryQualityLimitAtCurrentResolution() {
+    val height = videoFormat.value.height.takeIf { it > 0 }
+        ?: playerEngine.availableVideoTracks.value.firstOrNull { it.isSelected }
+            ?.videoHeight?.takeIf { it > 0 }
+        ?: return
+    val temporary = ScopedPlaybackQualityPreference(
+        maxVideoHeight = QualityLimitOverride.Maximum(height)
+    )
+    temporaryPlaybackQualityPreferenceFlow.value = temporary
+    val requestVersion = prepareRequestVersion
+    val preferenceScope = playbackQualityPreferenceScope.value
+    val providerId = currentProviderId
+    viewModelScope.launch {
+        val providerDefault = providerId.takeIf { it > 0L }
+            ?.let(PlaybackQualityPreferenceScope::providerDefault)
+            ?.let { playerPreferencesCoordinator.getPlaybackQualityPreference(it).first() }
+        val contentPreference = preferenceScope
+            ?.takeIf { it.providerId == providerId }
+            ?.let { playerPreferencesCoordinator.getPlaybackQualityPreference(it).first() }
+        if (!isActivePlaybackSession(requestVersion) ||
+            temporaryPlaybackQualityPreferenceFlow.value != temporary) return@launch
+        playerEngine.setScopedPlaybackQualityPreferences(providerDefault, contentPreference, temporary)
+        playerEngine.selectVideoTrack(PLAYER_TRACK_AUTO_ID)
+    }
+}
+
+fun PlayerViewModel.clearTemporaryQualityLimit() {
+    if (temporaryPlaybackQualityPreferenceFlow.value == null) return
+    temporaryPlaybackQualityPreferenceFlow.value = null
+    val requestVersion = prepareRequestVersion
+    val preferenceScope = playbackQualityPreferenceScope.value
+    val providerId = currentProviderId
+    viewModelScope.launch {
+        val providerDefault = providerId.takeIf { it > 0L }
+            ?.let(PlaybackQualityPreferenceScope::providerDefault)
+            ?.let { playerPreferencesCoordinator.getPlaybackQualityPreference(it).first() }
+        val contentPreference = preferenceScope
+            ?.takeIf { it.providerId == providerId }
+            ?.let { playerPreferencesCoordinator.getPlaybackQualityPreference(it).first() }
+        if (!isActivePlaybackSession(requestVersion) ||
+            temporaryPlaybackQualityPreferenceFlow.value != null) return@launch
+        playerEngine.setScopedPlaybackQualityPreferences(providerDefault, contentPreference, null)
+        playerEngine.selectVideoTrack(PLAYER_TRACK_AUTO_ID)
+    }
+}
+
+fun PlayerViewModel.removeSavedQualityLimit() {
+    val scope = playbackQualityPreferenceScope.value ?: return
+    viewModelScope.launch {
+        playerPreferencesCoordinator.clearPlaybackQualityPreference(scope)
+        if (playbackQualityPreferenceScope.value != scope) return@launch
+        val providerDefault = playerPreferencesCoordinator.getPlaybackQualityPreference(
+            PlaybackQualityPreferenceScope.providerDefault(scope.providerId)
+        ).first()
+        if (playbackQualityPreferenceScope.value != scope) return@launch
+        playerEngine.setScopedPlaybackQualityPreferences(
+            providerDefault,
+            null,
+            temporaryPlaybackQualityPreferenceFlow.value
+        )
+    }
 }
 
 fun PlayerViewModel.selectLiveVariant(rawChannelId: Long) {
@@ -312,6 +464,23 @@ fun PlayerViewModel.resetAudioVideoOffsetPreview() {
     previewAudioVideoOffset(0)
 }
 
+fun PlayerViewModel.adjustSubtitleOffset(deltaMs: Int) {
+    val current = subtitleOffsetMs.value
+    playerEngine.setSubtitleOffsetMs((current + deltaMs).coerceIn(SUBTITLE_OFFSET_MIN_MS, SUBTITLE_OFFSET_MAX_MS))
+}
+
+fun PlayerViewModel.resetSubtitleOffset() {
+    playerEngine.setSubtitleOffsetMs(0)
+}
+
+internal fun PlayerViewModel.setSubtitleTextScale(scale: Float) {
+    viewModelScope.launch { playerPreferencesCoordinator.setSubtitleTextScale(scale) }
+}
+
+internal fun PlayerViewModel.setSubtitleBackgroundOpacity(opacity: Int) {
+    viewModelScope.launch { playerPreferencesCoordinator.setSubtitleBackgroundOpacity(opacity) }
+}
+
 fun PlayerViewModel.dismissAudioVideoOffsetPreview() {
     audioVideoOffsetPreviewMs.value = null
 }
@@ -411,42 +580,6 @@ fun PlayerViewModel.updateSeekPreview(positionMs: Long?) {
                     title = currentTitle,
                     isLoading = false
                 )
-            }
-        }
-    }
-}
-
-internal fun PlayerViewModel.startThumbnailPreload() {
-    val url = currentResolvedPlaybackUrl.ifBlank { currentStreamUrl }
-    val streamInfo = currentResolvedStreamInfo
-    val isLive = currentContentType == ContentType.LIVE
-    if (url.isBlank() || !playerThumbnailCoordinator.supportsFrameExtraction(url, streamInfo, isLive)) return
-    if (!shouldStartThumbnailPreload(url, lastCompletedThumbnailPreloadKey, inFlightThumbnailPreloadKey)) return
-    val durationMs = playerEngine.duration.value
-    if (durationMs <= 0L) return
-    val preloadPositions = buildThumbnailPreloadPositions(
-        durationMs = durationMs,
-        currentPositionMs = playerEngine.currentPosition.value
-    )
-    if (preloadPositions.isEmpty()) return
-
-    thumbnailPreloadJob?.cancel()
-    inFlightThumbnailPreloadKey = url
-    thumbnailPreloadJob = viewModelScope.launch(Dispatchers.Default) {
-        try {
-            preloadPositions.forEach { positionMs ->
-                ensureActive()
-                playerThumbnailCoordinator.loadFrame(
-                    streamUrl = url,
-                    streamInfo = streamInfo,
-                    isLive = isLive,
-                    positionMs = positionMs
-                )
-            }
-            lastCompletedThumbnailPreloadKey = url
-        } finally {
-            if (inFlightThumbnailPreloadKey == url) {
-                inFlightThumbnailPreloadKey = null
             }
         }
     }

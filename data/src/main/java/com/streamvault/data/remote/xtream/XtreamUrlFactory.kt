@@ -267,6 +267,42 @@ object XtreamUrlFactory {
         }.distinct()
     }
 
+    /** Matches only archive URLs generated for this provider and channel, retaining their time range. */
+    fun isGeneratedCatchUpUrl(
+        url: String,
+        serverUrl: String,
+        username: String,
+        password: String,
+        streamId: Long
+    ): Boolean = runCatching {
+        val prefix = serverUrl.trimEnd('/') + "/"
+        if (!url.startsWith(prefix) || !StreamEntryUrlPolicy.isAllowed(url)) return@runCatching false
+        val relative = URI(url.removePrefix(prefix))
+        val segments = relative.rawPath.split('/')
+        val duration: Long
+        val start: String
+        val extension: String
+        when (segments.firstOrNull()) {
+            "timeshift", "timeshifts" -> {
+                if (segments.size != 6) return@runCatching false
+                duration = segments[3].toLongOrNull() ?: return@runCatching false
+                val file = XtreamUrlCodec.decode(segments[5])
+                extension = normalizeContainerExtension(file.substringAfterLast('.', "")) ?: return@runCatching false
+                start = if (segments[0] == "timeshift") XtreamUrlCodec.decode(segments[4]) else file.substringBeforeLast('.')
+            }
+            "timeshift.php", "streaming" -> {
+                if (relative.rawPath !in listOf("timeshift.php", "streaming/timeshift.php")) return@runCatching false
+                val query = parseQuery(relative.rawQuery)
+                duration = query["duration"]?.toLongOrNull() ?: return@runCatching false
+                start = query["start"] ?: return@runCatching false
+                extension = query["extension"]?.let(::normalizeContainerExtension) ?: "ts"
+            }
+            else -> return@runCatching false
+        }
+        if (duration <= 0 || !start.matches(Regex("\\d{4}-\\d{2}-\\d{2}:\\d{2}-\\d{2}"))) return@runCatching false
+        url in buildCatchUpUrls(serverUrl, username, password, duration, start, streamId, listOf(extension))
+    }.getOrDefault(false)
+
     fun buildInternalStreamUrl(
         providerId: Long,
         kind: XtreamStreamKind,

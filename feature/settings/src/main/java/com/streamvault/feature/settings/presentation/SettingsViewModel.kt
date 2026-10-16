@@ -14,6 +14,9 @@ import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.settings.PlaybackQualityProfile
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -24,6 +27,7 @@ import com.streamvault.domain.manager.BackupPreview
 import com.streamvault.domain.manager.BackupRestoreStatusStore
 import com.streamvault.domain.manager.DriveBackupSyncManager
 import com.streamvault.domain.manager.ParentalControlManager
+import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.AppHomeDashboardShelf
@@ -47,6 +51,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.PlaybackBufferMode
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
+import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageConfig
@@ -116,11 +121,25 @@ class SettingsViewModel @Inject constructor(
     private val epgSourceRepository: com.streamvault.domain.repository.EpgSourceRepository,
     private val appUpdatePort: SettingsAppUpdatePort,
     private val getCustomCategories: GetCustomCategories,
-    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore
+    private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
+    private val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
     private val appContext = application
     private val exportBackup = ExportBackup(backupManager)
     private val importBackup = ImportBackup(backupManager)
+
+    val automaticSyncConfiguration = preferencesRepository.automaticSyncConfiguration.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), com.streamvault.domain.sync.AutomaticSyncConfiguration())
+    val automaticSyncStatuses = preferencesRepository.automaticSyncStatuses.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+    fun observeAutomaticSyncMetadata(providerId: Long) = syncMetadataRepository.observeMetadata(providerId)
+    fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        viewModelScope.launch {
+            try { preferencesRepository.setAutomaticSyncSettings(providerId, settings) }
+            catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (error: Exception) { _uiState.update { it.copy(userMessage = appContext.getString(R.string.settings_auto_sync_save_failed)) } }
+        }
+    }
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
@@ -153,7 +172,7 @@ class SettingsViewModel @Inject constructor(
         recordingManager = recordingManager,
         uiState = _uiState
     )
-    private val providerActions = SettingsProviderActions(
+    private val providerActions: SettingsProviderActions = SettingsProviderActions(
         providerRepository = providerRepository,
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
@@ -161,23 +180,19 @@ class SettingsViewModel @Inject constructor(
         settingsOperations = settingsOperations,
         syncMetadataRepository = syncMetadataRepository,
         surfaceRefreshPort = surfaceRefreshPort,
-        uiState = _uiState
+        uiState = _uiState,
+        onSyncRequested = { scope, provider ->
+            syncActions.syncProviderNow(scope, provider)
+        }
     )
-    private val syncActions = SettingsSyncActions(
+    private val syncActions: SettingsSyncActions = SettingsSyncActions(
         appContext = application,
         settingsOperations = settingsOperations,
         surfaceRefreshPort = surfaceRefreshPort,
         uiState = _uiState,
-        refreshProvider = { scope, providerId, syncMode, progressPrefix, startedAt, sectionLabel, isCancelable ->
-            providerActions.refreshProvider(
-                scope = scope,
-                providerId = providerId,
-                syncMode = syncMode,
-                progressPrefix = progressPrefix,
-                startedAt = startedAt,
-                sectionLabel = sectionLabel,
-                isCancelable = isCancelable
-            )
+        prepareRefresh = providerActions::prepareProviderRefresh,
+        rebuildIndex = { scope, providerId ->
+            providerActions.rebuildProviderIndex(scope, providerId)
         }
     )
     private val epgActions = SettingsEpgActions(
@@ -187,6 +202,11 @@ class SettingsViewModel @Inject constructor(
 
     init {
         refreshCrashReport()
+        viewModelScope.launch {
+            openSubtitlesAccountManager.account.collect { account ->
+                _uiState.update { it.copy(openSubtitlesAccount = account) }
+            }
+        }
         registerPreferenceObservers()
         registerXtreamIndexJobObserver()
         registerXtreamLiveOnboardingObserver()
@@ -317,14 +337,32 @@ class SettingsViewModel @Inject constructor(
 
                 _uiState.update { state ->
                     val providerIds = state.providers.map { it.id }.toSet()
+                    val completedLabelsByProvider = jobs
+                        .filter { it.state in setOf("SUCCESS", "COMPLETE") }
+                        .groupBy { it.providerId }
+                        .mapValues { (_, providerJobs) -> providerJobs.mapNotNull { job ->
+                            when (job.section) {
+                                "MOVIE" -> ProviderSyncSelection.MOVIES
+                                "SERIES" -> ProviderSyncSelection.SERIES
+                                "EPG" -> ProviderSyncSelection.EPG
+                                else -> null
+                            }?.label(appContext)
+                        } }
                     val preservedWarnings = state.syncWarningsByProvider
                         .filterKeys { it in providerIds }
-                        .mapValues { (_, warnings) ->
-                            warnings.filterNot { warning -> warning.startsWith(BACKGROUND_INDEX_STATUS_PREFIX) }
+                        .mapValues { (providerId, warnings) ->
+                            warnings.filterNot { warning ->
+                                warning.startsWith(BACKGROUND_INDEX_STATUS_PREFIX) ||
+                                    completedLabelsByProvider[providerId].orEmpty().any { warning.startsWith("$it:") }
+                            }
                         }
                         .filterValues { it.isNotEmpty() }
                     state.copy(
-                        syncWarningsByProvider = preservedWarnings + jobWarningsByProvider,
+                        syncWarningsByProvider = (preservedWarnings.keys + jobWarningsByProvider.keys)
+                            .filter { it in providerIds }
+                            .associateWith { providerId ->
+                                (preservedWarnings[providerId].orEmpty() + jobWarningsByProvider[providerId].orEmpty()).distinct()
+                            },
                         xtreamIndexSectionStatusByProvider = jobs
                             .filter { job -> job.providerId in providerIds }
                             .mapNotNull { job ->
@@ -349,10 +387,11 @@ class SettingsViewModel @Inject constructor(
 
     private fun String.toCatalogCountStatus(): ProviderCatalogCountStatus = when (uppercase()) {
         "QUEUED", "STALE" -> ProviderCatalogCountStatus.QUEUED
+        "RETRY_WAIT" -> ProviderCatalogCountStatus.QUEUED
         "RUNNING" -> ProviderCatalogCountStatus.SYNCING
-        "PARTIAL" -> ProviderCatalogCountStatus.PARTIAL
-        "FAILED_RETRYABLE", "FAILED_PERMANENT" -> ProviderCatalogCountStatus.FAILED
-        "SUCCESS" -> ProviderCatalogCountStatus.READY
+        "PARTIAL", "TRUNCATED" -> ProviderCatalogCountStatus.PARTIAL
+        "FAILED", "FAILED_RETRYABLE", "FAILED_PERMANENT" -> ProviderCatalogCountStatus.FAILED
+        "SUCCESS", "COMPLETE" -> ProviderCatalogCountStatus.READY
         else -> ProviderCatalogCountStatus.PENDING
     }
 
@@ -384,6 +423,8 @@ class SettingsViewModel @Inject constructor(
         }
         return when (state) {
             "PARTIAL" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label partial: ${indexedRows} indexed"
+            "TRUNCATED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label truncated: ${indexedRows} indexed"
+            "FAILED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label failed${lastError?.let { ": $it" }.orEmpty()}"
             "FAILED_RETRYABLE" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label retryable failed${lastError?.let { ": $it" }.orEmpty()}"
             "FAILED_PERMANENT" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label permanently failed${lastError?.let { ": $it" }.orEmpty()}"
             else -> null
@@ -841,6 +882,34 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun signInToOpenSubtitles(username: String, password: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isOpenSubtitlesBusy = true, openSubtitlesError = null) }
+            val result = openSubtitlesAccountManager.signIn(username, password)
+            _uiState.update { state ->
+                state.copy(
+                    isOpenSubtitlesBusy = false,
+                    openSubtitlesAccount = result.getOrNull() ?: state.openSubtitlesAccount,
+                    openSubtitlesError = result.errorMessageOrNull(),
+                )
+            }
+        }
+    }
+
+    fun signOutOfOpenSubtitles() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isOpenSubtitlesBusy = true, openSubtitlesError = null) }
+            val result = openSubtitlesAccountManager.signOut()
+            _uiState.update { state ->
+                state.copy(
+                    isOpenSubtitlesBusy = false,
+                    openSubtitlesAccount = if (result.isSuccess) null else state.openSubtitlesAccount,
+                    openSubtitlesError = result.errorMessageOrNull(),
+                )
+            }
+        }
+    }
+
     fun setPlayerTimeshiftDepthMinutes(minutes: Int) {
         viewModelScope.launch {
             preferencesRepository.setPlayerTimeshiftDepthMinutes(minutes)
@@ -998,6 +1067,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setPinnedSubtitleLanguages(languages: List<String>) {
+        viewModelScope.launch {
+            preferencesRepository.setPinnedSubtitleLanguages(languages)
+        }
+    }
+
     fun setSubtitleTextScale(scale: Float) {
         viewModelScope.launch {
             preferencesRepository.setPlayerSubtitleTextScale(scale)
@@ -1025,6 +1100,70 @@ class SettingsViewModel @Inject constructor(
     fun setEthernetQualityCap(maxHeight: Int?) {
         viewModelScope.launch {
             preferencesRepository.setPlayerEthernetMaxVideoHeight(maxHeight)
+        }
+    }
+
+    fun setPlaybackQualityProfile(profile: PlaybackQualityProfile) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            val customLimit = if (
+                profile == PlaybackQualityProfile.CUSTOM && current.profile != PlaybackQualityProfile.CUSTOM
+            ) current.profileLimit() else current.customLimit
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(profile = profile, customLimit = customLimit)
+            )
+        }
+    }
+
+    fun setCustomPlaybackMaxVideoHeight(maxHeight: Int?) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(customLimit = current.customLimit.copy(maxVideoHeight = maxHeight?.takeIf { it > 0 }))
+            )
+        }
+    }
+
+    fun setCustomPlaybackMaxVideoBitrate(maxBitrateBps: Long?) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(customLimit = current.customLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+            )
+        }
+    }
+
+    fun setWifiQualityBitrateCap(maxBitrateBps: Long?) {
+        updatePlaybackQualityPreferences { current ->
+            current.copy(wifiLimit = current.wifiLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+        }
+    }
+
+    fun setEthernetQualityBitrateCap(maxBitrateBps: Long?) {
+        updatePlaybackQualityPreferences { current ->
+            current.copy(ethernetLimit = current.ethernetLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+        }
+    }
+
+    fun playbackQualityPreference(scope: PlaybackQualityPreferenceScope): Flow<ScopedPlaybackQualityPreference?> =
+        preferencesRepository.getPlaybackQualityPreference(scope)
+
+    fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        viewModelScope.launch {
+            preferencesRepository.setPlaybackQualityPreference(scope, preference)
+        }
+    }
+
+    private fun updatePlaybackQualityPreferences(
+        transform: (com.streamvault.domain.settings.PlaybackQualityPreferences) -> com.streamvault.domain.settings.PlaybackQualityPreferences
+    ) {
+        viewModelScope.launch {
+            preferencesRepository.setPlaybackQualityPreferences(
+                transform(preferencesRepository.playbackQualityPreferences.first())
+            )
         }
     }
 
@@ -1182,7 +1321,10 @@ class SettingsViewModel @Inject constructor(
         providerId: Long,
         syncMode: SettingsProviderSyncMode = SettingsProviderSyncMode.SYNC_NOW
     ) {
-        providerActions.refreshProvider(viewModelScope, providerId, syncMode)
+        syncActions.syncProviderSection(viewModelScope, providerId, when (syncMode) {
+            SettingsProviderSyncMode.SYNC_NOW -> ProviderSyncSelection.SYNC_NOW
+            SettingsProviderSyncMode.REBUILD_INDEX -> ProviderSyncSelection.REBUILD_INDEX
+        })
     }
 
     fun syncProviderSection(providerId: Long, selection: ProviderSyncSelection) {
@@ -1393,6 +1535,15 @@ class SettingsViewModel @Inject constructor(
 
     fun updateRecordingFolder(treeUri: String?, displayName: String?) {
         recordingActions.updateRecordingFolder(viewModelScope, treeUri, displayName)
+    }
+
+    fun updateRecordingSmbStorage(
+        url: String,
+        username: String,
+        password: String?,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
+        recordingActions.updateRecordingSmbStorage(viewModelScope, url, username, password, onComplete)
     }
 
     fun useUsbRecordingStorage(localDirectory: String) {

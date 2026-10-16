@@ -1,0 +1,346 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+
+    <string name="nav_home">Начало</string>
+    <string name="nav_live_tv">ТВ на живо</string>
+    <string name="nav_movies">Филми</string>
+    <string name="nav_series">Сериали</string>
+    <string name="nav_epg">Програма</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_plugins">Приставки</string>
+    <string name="nav_close_app">Затвори приложението</string>
+
+
+    <string name="welcome_enter_app">Влезте в приложението</string>
+    <string name="welcome_manage_providers">Управление на доставчици</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Бързо разглеждане на живо с фокус върху дистанционното</string>
+    <string name="welcome_feature_library">Голяма библиотека с филми и сериали без излишна претрупаност</string>
+    <string name="welcome_feature_player">Единен плейър с наслагвания, достъп до програмата и запазено съдържание</string>
+    <string name="welcome_manage_hint">Сменете доставчик, обновете метаданните или добавете нов източник.</string>
+
+
+    <string name="hidden_categories_dialog_title">Скрити категории</string>
+    <string name="hidden_categories_dialog_subtitle">Изберете кои да възстановите.</string>
+    <string name="hidden_categories_dialog_unhide_all">Покажи всички</string>
+    <string name="hidden_categories_dialog_close">Затвори</string>
+    <string name="home_recent_channels">Скорошни</string>
+    <string name="home_last_channel">Последен канал</string>
+    <string name="home_last_channel_label">Последен: %1$s</string>
+    <string name="home_last_group_label">Последна: %1$s</string>
+    <string name="home_loading">Зареждане...</string>
+    <string name="home_locked_short">ЗАКЛЮЧЕНО</string>
+    <string name="live_shell_subtitle">Разглеждайте категориите на живо бързо, поддържайте последователна навигация и показвайте само данните от програмата, които имат значение на екрана.</string>
+    <string name="live_shell_context">%1$d категории • %2$d канала</string>
+    <string name="live_shell_provider">Доставчик</string>
+    <string name="live_shell_split">Мултиизглед</string>
+    <string name="live_manage_groups">Управление на слотовете за мултиизглед</string>
+    <string name="live_reorder_title">Пренареждане на %1$s</string>
+    <string name="live_empty_hint_favorites">Добавете канали в Любими или в запазена група, за да попълните този ред.</string>
+    <string name="live_empty_hint_recent">Стартирайте възпроизвеждане на няколко канала и те ще се появят тук.</string>
+    <string name="home_saved_subtitle">Любими и персонализирани групи на живо</string>
+    <string name="home_saved_empty_hint">Добавете канал в Любими или в персонализирана група на живо, за да го закачите тук.</string>
+    <string name="home_delete_group_title">Изтриване на група?</string>
+    <string name="home_delete_group_body">Сигурни ли сте, че искате да изтриете \'%1$s\'? Така ще премахнете всички канали от тази група.</string>
+    <string name="home_delete_group_confirm">Изтрий</string>
+    <string name="home_delete_group_cancel">Отказ</string>
+
+
+    <string name="dashboard_customize_home">Персонализиране на началото</string>
+    <string name="dashboard_customize_home_subtitle">Изберете кои рафтове да се показват тук, добавете още редове и ги пренаредете по всяко време.</string>
+    <string name="dashboard_customize_home_action">Персонализирай</string>
+
+
+
+    <string name="category_options_set_default">Задай като група по подразбиране</string>
+    <string name="category_options_rename">Преименувай група</string>
+    <string name="category_options_unlock">Отключи група</string>
+    <string name="category_options_lock">Заключи група</string>
+    <string name="category_options_delete">Изтрий група</string>
+    <string name="category_options_cancel">Отказ</string>
+    <string name="category_options_reorder">Пренареди елементи</string>
+    <string name="category_options_hide">Скрий категория</string>
+    <string name="category_options_hide_from_live_tv">Скрий от ТВ на живо</string>
+    <string name="category_options_clear_recent">Изчисти всички скорошни</string>
+    <string name="category_options_pin">Закачи категория</string>
+    <string name="category_options_unpin">Откачи категория</string>
+    <string name="m3u_organize_items">Организирай M3U елементи</string>
+    <string name="m3u_move_to_movies">Премести във Филми</string>
+    <string name="m3u_move_to_series">Премести в Сериали</string>
+    <string name="m3u_move_back_to_live">Върни в ТВ на живо</string>
+    <string name="m3u_series_name">Име на сериал</string>
+    <string name="m3u_episode_number">Номер на епизод</string>
+    <string name="m3u_season_number">Номер на сезон</string>
+    <string name="m3u_classify">Класифицирай</string>
+    <string name="m3u_classification_saved">M3U класификацията е запазена</string>
+    <string name="m3u_category_rule_subtitle">Изберете стойност по подразбиране за тази M3U група. Отделните канали все още могат да бъдат променяни.</string>
+    <string name="m3u_keep_live">Запази като ТВ на живо</string>
+    <string name="m3u_series_review_title">Организирай сериали в %1$s</string>
+    <string name="m3u_series_review_subtitle">Прегледайте автоматичните предложения или задайте сериал, сезон и епизод за всеки запис.</string>
+    <string name="m3u_episode_unresolved">Номерът на епизода е неопределен — ще остане маркиран за корекция.</string>
+
+    <string name="add_group_manage_title">Управление: %1$s</string>
+    <string name="add_group_close_cd">Затвори</string>
+    <string name="add_group_name_hint">Име на група</string>
+    <string name="add_group_cancel">Отказ</string>
+    <string name="add_group_create">Създай</string>
+    <string name="add_group_rename">Преименувай</string>
+    <string name="add_group_remove_favorites">Премахни от Любими</string>
+    <string name="add_group_add_favorites">Добави в Любими</string>
+    <string name="channel_options_remove_from_recent">Премахни от скорошни</string>
+    <string name="add_group_reorder_title">Пренареди</string>
+    <string name="add_group_move_up">Премести нагоре</string>
+    <string name="add_group_move_down">Премести надолу</string>
+    <string name="add_group_custom_groups_title">Персонализирани групи</string>
+    <string name="add_group_remove_btn">Премахни</string>
+    <string name="add_group_add_btn">Добави</string>
+    <string name="add_group_create_new_btn">Създай нова група</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Скрий този канал</string>
+    <string name="hidden_channels_dialog_title">Скрити канали</string>
+    <string name="hidden_channels_dialog_subtitle">Изберете кои да възстановите.</string>
+    <string name="hidden_channels_dialog_unhide_all">Покажи всички</string>
+    <string name="hidden_channels_dialog_close">Затвори</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">Заключено</string>
+
+
+    <string name="playlist_no_provider">Няма доставчик</string>
+    <string name="live_source_label">ИЗТОЧНИК</string>
+    <string name="live_source_filter_label">Филтър за плейлиста</string>
+    <string name="live_source_filter_all">Всички източници</string>
+    <string name="live_source_unavailable_short">Недостъпен</string>
+    <string name="live_source_empty_short">Празен</string>
+
+
+    <string name="movies_shell_subtitle">Подбрани рафтове, запазени групи и разглеждане на цялата библиотека, без да напускате контекста на текущия доставчик.</string>
+    <string name="movies_all_categories">Всички категории</string>
+    <string name="movies_search_launch_title">Търсене във филмовата библиотека</string>
+    <string name="movies_search_launch_subtitle">Отворете специалния екран за търсене, без да губите текущото разглеждане.</string>
+    <string name="movies_group_created">Създадена е група %1$s</string>
+    <string name="movies_group_renamed">Групата е преименувана на %1$s</string>
+    <string name="movies_group_deleted">Групата %1$s е изтрита</string>
+    <string name="movies_group_name_invalid">Въведете име на група</string>
+    <string name="movies_group_name_reserved">„Любими“ е запазено име</string>
+    <string name="movies_group_name_duplicate">Вече съществува филмова група с това име</string>
+    <string name="movies_saved_empty_hint">Добавете филм в Любими или в персонализирана група, за да го видите тук.</string>
+    <string name="movies_filter_subtitle">Филтрирайте избраната филмова категория, без да пресъздавате цялата библиотека.</string>
+    <string name="movies_reorder_title">Пренареждане на %1$s</string>
+
+
+    <string name="series_shell_subtitle">Подбрани рафтове, запазени групи и разглеждане на сериали на страници, оптимизирано за големи библиотеки на доставчици.</string>
+    <string name="series_all_categories">Всички категории</string>
+    <string name="series_search_launch_title">Търсене в библиотеката със сериали</string>
+    <string name="series_search_launch_subtitle">Отворете екрана за командно търсене, за да намерите заглавия, епизоди или запазени групи по-бързо.</string>
+    <string name="series_group_created">Създадена е група %1$s</string>
+    <string name="series_group_renamed">Групата е преименувана на %1$s</string>
+    <string name="series_group_deleted">Групата %1$s е изтрита</string>
+    <string name="series_group_name_invalid">Въведете име на група</string>
+    <string name="series_group_name_reserved">„Любими“ е запазено име</string>
+    <string name="series_group_name_duplicate">Вече съществува група със сериали с това име</string>
+    <string name="series_saved_empty_hint">Добавете сериал в Любими или в персонализирана група, за да го видите тук.</string>
+    <string name="series_filter_subtitle">Превключвайте между запазени, текущи, обновени и високо оценени сериали.</string>
+    <string name="series_reorder_title">Пренареждане на %1$s</string>
+
+    <string name="library_saved_title">Запазени</string>
+    <string name="library_saved_subtitle">Любими и персонализирани групи</string>
+    <string name="library_saved_manage_hint">Задръжте запазена група за опции</string>
+    <string name="library_lens_title">Изглед на библиотеката</string>
+    <string name="library_filter_results">Показани %1$d от %2$d елемента</string>
+    <string name="library_loaded_results">Заредени %1$d от %2$d елемента</string>
+    <string name="library_sort_library">Ред на библиотеката</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Най-нови</string>
+    <string name="library_sort_updated">Скорошни промени</string>
+    <string name="library_sort_rating">Оценка</string>
+
+
+    <string name="settings_parental_subtitle">Защитете съдържание за възрастни или чувствително съдържание с удобни за телевизор контроли.</string>
+    <string name="settings_parental_groups_title">Защитени групи</string>
+    <string name="settings_parental_groups_hint">Заключете или отключете категории за активния доставчик.</string>
+    <string name="settings_parental_groups_action">Управление</string>
+    <string name="settings_categories_title">Предпочитания за категории</string>
+    <string name="settings_categories_subtitle">Скрийте категории на доставчика и запазете реда им точно както желаете.</string>
+    <string name="settings_category_sorting_title">Сортиране на категории</string>
+    <string name="settings_category_sorting_subtitle">Сортирайте категориите за активния плейлист. Заключването и скриването вече са в „Контроли на категориите“.</string>
+    <string name="settings_hidden_categories_title">Скрити категории</string>
+    <string name="settings_hidden_categories_subtitle">Възстановете категории на доставчика, които преди сте скрили от екраните за разглеждане.</string>
+    <string name="settings_hidden_categories_none">Няма скрити</string>
+    <string name="settings_hidden_categories_count">%1$d скрити</string>
+    <string name="settings_hidden_categories_empty">Няма скрити категории в момента.</string>
+    <string name="settings_playback_subtitle">Настройте декодера и буферирането за по-гладко възпроизвеждане.</string>
+    <string name="settings_live_timeshift_backend_value">Автоматично</string>
+    <string name="vod_classic_categories_title">Категории</string>
+    <string name="settings_decoder_mode">Режим на декодера</string>
+    <string name="settings_select_decoder_mode">Изберете режим на декодера</string>
+    <string name="settings_buffer_duration">Продължителност на буфера</string>
+    <string name="settings_buffer_5s">5 секунди</string>
+    <string name="settings_about_subtitle">Данни за версията, компилацията и поддръжката на тази инсталация.</string>
+    <string name="settings_syncing">Синхронизиране на данни, моля изчакайте...</string>
+    <string name="settings_cancel">Отказ</string>
+    <string name="settings_sync_option_all">Синхронизирай всичко</string>
+    <string name="settings_sync_option_fast">Бърза синхронизация</string>
+    <string name="settings_pc_btn">Родителски контрол</string>
+    <string name="settings_language">Език</string>
+    <string name="settings_language_subtitle">Изберете езика на приложението, без да напускате телевизионния интерфейс.</string>
+
+    <string name="settings_backup_share_failed">Никое приложение не можа да получи файла с резервно копие.</string>
+    <string name="settings_crash_report_share_failed">Никое приложение не можа да получи доклада за срив.</string>
+    <string name="settings_crash_report_missing">Няма наличен доклад за срив.</string>
+    <string name="settings_catalog_count_pending">Изчаква</string>
+    <string name="settings_diagnostic_never">Никога</string>
+    <string name="settings_diagnostic_items">%1$d елемента</string>
+    <string name="settings_recording_subtitle">Управлявайте локални DVR записи на живо, хранилище и планирани записвания.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+
+    <string name="saved_preset_watch_next">Следващи за гледане</string>
+    <string name="tv_channel_continue_watching_title">Продължи гледането</string>
+    <string name="tv_channel_continue_watching_description">Продължете заглавия, които сте започнали наскоро</string>
+    <string name="tv_channel_top_movies_title">Топ филми</string>
+    <string name="tv_channel_top_movies_description">Популярни предложения от %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Препоръчани филми</string>
+    <string name="tv_channel_recommended_movies_description">Съобразени с последните ви избори в %1$s</string>
+    <string name="tv_channel_fresh_series_title">Нови сериали</string>
+    <string name="tv_channel_fresh_series_description">Скорошно обновени сериали от %1$s</string>
+
+
+    <string name="search_title">Търсене</string>
+    <string name="parental_group_shell_subtitle">Прегледайте защитените групи за канали на живо, филми и сериали, без да напускате екрана с настройки.</string>
+    <string name="search_command_title">Командно търсене</string>
+    <string name="search_hint">Търсене...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Въведете родителския си PIN за потвърждение</string>
+    <string name="a11y_locked">Заключено</string>
+    <string name="a11y_favorite">Любимо</string>
+    <string name="a11y_catch_up_available">Достъпен архив</string>
+    <string name="a11y_now_playing">Възпроизвежда се %1$s</string>
+    <string name="a11y_channel_with_number">Канал %1$d, %2$s</string>
+
+
+
+
+
+    <string name="player_no_external_player">Няма инсталиран външен плейър</string>
+    <string name="player_unsafe_stream_url">Този поток не може да се отвори във външен плейър</string>
+    <string name="player_external_launch_failed">Външният плейър не стартира</string>
+    <string name="player_next">СЛЕДВАЩ</string>
+    <string name="player_recording_started">Записът започна за %1$s.</string>
+    <string name="player_recording_stopped">Записът е спрян.</string>
+    <string name="player_recording_scheduled">Записът е планиран за %1$s.</string>
+    <string name="player_recording_missing_context">За записа е необходим валиден контекст на канал на живо.</string>
+    <string name="player_categories_label">Категории</string>
+    <string name="player_full_epg">Пълна EPG</string>
+    <string name="player_action_controls">Контроли</string>
+    <string name="player_action_restart_short">Рестарт</string>
+    <string name="player_action_recent_short">Скорошни</string>
+    <string name="player_diagnostics_decoder">Декодер</string>
+    <string name="player_diagnostics_policy_guard">Защита на политиката</string>
+    <string name="player_diagnostics_policy_profile">Профил на политиката</string>
+    <string name="player_diagnostics_policy_buffer">Профил на буфера</string>
+    <string name="player_diagnostics_policy_render_path">Път на изобразяване</string>
+    <string name="player_diagnostics_policy_known_bad">Политика за проблемни потоци</string>
+    <string name="player_diagnostics_policy_recovery">Автоматично възстановяване</string>
+    <string name="player_diagnostics_policy_last_action">Последно действие на политиката</string>
+    <string name="epg_search_short">Търсене на предавания</string>
+    <string name="epg_show_options">Покажи опциите на програмата</string>
+    <string name="epg_hide_options">Скрий опциите на програмата</string>
+    <string name="epg_showing_channels">Показани %1$d от %2$d канала</string>
+    <string name="epg_schedule_summary">Данни за програмата за %1$d от %2$d канала</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Времева линия</string>
+    <string name="epg_timeline_range_label">Прозорец %1$s</string>
+    <string name="epg_updated_now">Обновено току-що</string>
+    <string name="epg_updated_minutes_ago">Обновено преди %1$d мин</string>
+    <string name="epg_minutes_remaining">Остават %1$d мин</string>
+    <string name="epg_program_channel_label">Канал</string>
+    <string name="epg_program_provider_label">Доставчик</string>
+    <string name="epg_program_provider_type_label">Източник</string>
+    <string name="epg_program_language_label">Език</string>
+    <string name="epg_program_replay_label">Повторение</string>
+    <string name="epg_program_progress_label">Напредък</string>
+    <string name="epg_program_replay_unavailable">Недостъпно</string>
+    <string name="epg_program_progress_value">%1$d%% завършено • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Повторението може да се провали, защото доставчикът предоставя поддръжка на архив без използваем шаблон за повторение.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Повторението може да се провали, защото доставчикът не предостави идентификатор на потока за повторение.</string>
+
+
+    <string name="parental_group_title">Защитени групи</string>
+    <string name="parental_group_search">Търсене на категории...</string>
+    <string name="player_live_timeshift_ready">Отложеното гледане е готово.</string>
+    <string name="player_live_timeshift_failed">Локалното превъртане назад е недостъпно за този поток.</string>
+
+
+    <string name="multiview_add_to_split">Добави в разделен екран</string>
+    <string name="multiview_queued">В разделен екран</string>
+
+
+    <string name="settings_privacy_subtitle">Управлявайте историята на гледане и инкогнито режима.</string>
+
+
+    <string name="action_done">Готово</string>
+    <string name="action_delete">Изтрий</string>
+    <string name="action_clear">Изчисти</string>
+    <string name="action_space">Интервал</string>
+
+
+    <string name="label_provider">ДОСТАВЧИК</string>
+    <string name="label_selected">Избрано</string>
+    <string name="label_no_schedule">Няма информация за програмата</string>
+    <string name="label_slots_count">%1$d/4 слота</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Епизод %1$d</string>
+    <string name="badge_saved">ЗАПАЗЕНО</string>
+    <string name="badge_catch_up">АРХИВ</string>
+    <string name="badge_moving">ПРЕМЕСТВАНЕ</string>
+    <string name="badge_fav">FAV</string>
+
+
+
+
+
+    <string name="favorites_content_type_movie">Филм</string>
+
+
+
+
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Сканиране на каналите на StreamVault</string>
+    <string name="tv_input_setup_success_title">ТВ на живо е готово</string>
+    <string name="tv_input_setup_no_provider_title">Няма конфигуриран IPTV доставчик</string>
+    <string name="tv_input_setup_error_title">Автоматичното сканиране се провали</string>
+    <string name="tv_input_setup_idle_title">Подготовка на интеграцията с ТВ на живо</string>
+    <string name="tv_input_setup_scanning_body">StreamVault синхронизира активния ви доставчик с ТВ на живо на Android TV.</string>
+    <string name="tv_input_setup_success_body">Каналите ви бяха синхронизирани успешно.</string>
+    <string name="tv_input_setup_no_provider_body">Добавете поне един IPTV доставчик в StreamVault, след което се върнете тук, за да сканирате канали в ТВ на живо на Android TV.</string>
+    <string name="tv_input_setup_error_body">Синхронизирането на ТВ входа не завърши.</string>
+    <string name="tv_input_setup_idle_body">Моля, изчакайте.</string>
+    <string name="tv_input_setup_source_format">Източник: %1$s</string>
+    <string name="tv_input_setup_open_setup">Отвори настройката на StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">Опитайте сканиране отново</string>
+    <string name="tv_input_setup_retry_scan">Повтори автоматичното сканиране</string>
+    <string name="tv_input_setup_success_hint">ТВ на живо на Android TV вече може да отваря каналите ви в StreamVault.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Върнете се към действията за резервно копие в Drive.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Изтеглянето се провали: %1$s</string>
+    <string name="download_completed">Изтеглянето завърши</string>
+    <string name="download_cancelled">Изтеглянето е отменено</string>
+    <string name="download_notification_channel">Изтегляния</string>
+    <string name="download_notification_channel_description">Показва напредъка и завършването на изтеглянията</string>
+    <string name="download_in_progress">Изтегляне на %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Изтегляния</string>
+    <string name="downloads_empty">Още няма изтегляния</string>
+    <string name="downloads_delete_confirm">Да се изтрие ли това изтегляне?</string>
+    <string name="download_play_local">Възпроизведи</string>
+    <string name="nav_vod">VOD</string>
+</resources>

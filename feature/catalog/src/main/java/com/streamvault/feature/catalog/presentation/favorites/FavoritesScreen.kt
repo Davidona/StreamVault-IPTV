@@ -1,5 +1,6 @@
 package com.streamvault.feature.catalog.presentation.favorites
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -69,14 +70,14 @@ import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnPrimary
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.Surface
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.OnPrimary
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.Surface
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.ContentType
 import kotlinx.coroutines.launch
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -701,7 +702,7 @@ private fun SavedLibrarySummaryCard(
     currentFilter: SavedLibraryFilter
 ) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
     ) {
         Column(
@@ -750,7 +751,7 @@ private fun SavedLibraryStatPill(
     highlighted: Boolean
 ) {
     Surface(
-        shape = RoundedCornerShape(999.dp),
+        shape = BrowseShapes.Control,
         colors = SurfaceDefaults.colors(
             containerColor = if (highlighted) Primary.copy(alpha = 0.18f) else SurfaceHighlight
         )
@@ -810,7 +811,7 @@ private fun SavedHistoryRow(
             items(items, key = { "${it.history.contentType}:${it.history.contentId}" }) { item ->
                 TvClickableSurface(
                     onClick = { onItemClick(item) },
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                    shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = Surface,
                         focusedContainerColor = SurfaceHighlight,
@@ -875,7 +876,7 @@ private fun SavedGroupManagementRow(
                 TvClickableSurface(
                     onClick = { onGroupClick(group) },
                     onLongClick = { onGroupLongClick(group) },
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                    shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = Surface,
                         focusedContainerColor = SurfaceHighlight

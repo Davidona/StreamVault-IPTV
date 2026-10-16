@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Transmitiendo al dispositivo conectado.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast no está disponible en este dispositivo.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast no admite este formato de transmisión.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Las transmisiones RTSP y RTMP no se pueden transmitir por Cast.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Google Cast no admite transmisiones protegidas con DRM en esta app.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Este elemento no se puede enviar a un receptor Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Esta transmisión usa una URL local o solo del dispositivo a la que Chromecast no puede acceder directamente.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Esta transmisión necesita encabezados HTTP o cookies que Chromecast no puede usar directamente.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Esta transmisión necesita un User-Agent personalizado que Chromecast no puede usar directamente.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Esta transmisión necesita la configuración de proxy de la app, por lo que Chromecast no puede usarla directamente.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Esta transmisión usa un manejo de SSL que Chromecast no puede usar directamente.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">No se pudo iniciar la sesión de Cast.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">El receptor Cast no pudo cargar esta transmisión.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">El receptor Cast conectado no está listo para la reproducción.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Se canceló la selección del dispositivo Cast.</string>
+    <string name="add_group_close_cd">Cerrar</string>
+    <string name="player_archive_title">Archivo de programas</string>
+    <string name="player_no_archive">No se encontraron programas archivados</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archivo</string>
+</resources>

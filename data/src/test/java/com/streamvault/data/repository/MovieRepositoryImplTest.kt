@@ -20,10 +20,12 @@ import com.streamvault.data.local.entity.PlaybackHistoryLiteEntity
 import com.streamvault.data.local.entity.ProviderEntity
 import com.streamvault.data.local.entity.XtreamIndexJobEntity
 import com.streamvault.data.mapper.toEntity
+import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.provider.ProviderCapabilityResolver
 import com.streamvault.data.provider.TypedProviderClientFactory
 import com.streamvault.data.provider.toProviderSnapshot
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.util.movieLogicalGroupId
 import com.streamvault.data.remote.stalker.StalkerDeviceProfile
 import com.streamvault.data.remote.stalker.StalkerProviderProfile
 import com.streamvault.data.remote.stalker.StalkerProvider
@@ -39,6 +41,7 @@ import com.streamvault.data.remote.stalker.StalkerApiService
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.security.CredentialCrypto
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryBrowseQuery
@@ -80,6 +83,8 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class MovieRepositoryImplTest {
 
@@ -107,6 +112,81 @@ class MovieRepositoryImplTest {
     }
     private val transactionRunner = object : DatabaseTransactionRunner {
         override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+    }
+
+    @Test
+    fun `explicit provider variant preference is reported for its movie group`() = runTest {
+        val movie = movieRecord(
+            id = 10L,
+            name = "Space Run (2024) 4K HEVC",
+            genre = "Action",
+            categoryId = 3L,
+            rating = 8f
+        )
+        whenever(movieDao.getById(movie.id)).thenReturn(movie)
+        val logicalGroupId = movieLogicalGroupId(movie.toDomain())
+        val repository = createRepository(
+            duplicateHandlingMode = VodDuplicateHandlingMode.SMART,
+            preferredVariants = mapOf("${movie.providerId}|$logicalGroupId" to 11L)
+        )
+
+        assertThat(repository.hasExplicitMovieVariantSelection(movie.id)).isTrue()
+    }
+
+    @Test
+    fun `missing provider variant preference is not treated as a manual choice`() = runTest {
+        val movie = movieRecord(
+            id = 10L,
+            name = "Space Run (2024) 4K HEVC",
+            genre = "Action",
+            categoryId = 3L,
+            rating = 8f
+        )
+        whenever(movieDao.getById(movie.id)).thenReturn(movie)
+        val repository = createRepository(duplicateHandlingMode = VodDuplicateHandlingMode.SMART)
+
+        assertThat(repository.hasExplicitMovieVariantSelection(movie.id)).isFalse()
+    }
+
+    @Test
+    fun `movie preview contains background credential decryption failure`() = runTest {
+        val uncaughtExceptionLatch = CountDownLatch(1)
+        var uncaughtException: Throwable? = null
+        val previousUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { _, error ->
+            uncaughtException = error
+            uncaughtExceptionLatch.countDown()
+        }
+
+        try {
+            whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+            whenever(categoryDao.getByProviderAndType(7L, ContentType.MOVIE.name)).thenReturn(
+                flowOf(listOf(CategoryEntity(providerId = 7L, categoryId = 42L, name = "Action", type = ContentType.MOVIE)))
+            )
+            whenever(movieDao.getByCategoryPreview(7L, 42L, 18)).thenReturn(flowOf(emptyList()))
+
+            val provider = Provider(
+                id = 7L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "https://example.com",
+                username = "user",
+                password = "pass",
+                status = ProviderStatus.ACTIVE
+            )
+            whenever(providerCapabilityResolver.snapshot(7L))
+                .thenReturn(provider.toProviderSnapshot())
+                .thenThrow(CredentialDecryptionException())
+
+            val result = createRepository().getCategoryPreviewRows(7L, listOf(42L), 18).first()
+
+            assertThat(result).containsKey(42L)
+            verify(providerCapabilityResolver, timeout(1_000).times(2)).snapshot(7L)
+            assertThat(uncaughtExceptionLatch.await(300, TimeUnit.MILLISECONDS)).isFalse()
+            assertThat(uncaughtException).isNull()
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(previousUncaughtExceptionHandler)
+        }
     }
 
     @Test

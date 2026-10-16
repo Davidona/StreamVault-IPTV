@@ -43,7 +43,7 @@ class StalkerRemoteIdentityResolver private constructor(
         val key = "$providerId/${contentType.name}"
         return locks.withLock(key) {
             transactionRunner.inTransaction {
-                normalizedIds.associateWith { rawId -> resolveLocked(providerId, contentType, rawId) }
+                resolveBatchLocked(providerId, contentType, normalizedIds)
             }
         }
     }
@@ -72,11 +72,75 @@ class StalkerRemoteIdentityResolver private constructor(
         val key = "$providerId/${contentType.name}"
         return locks.withLock(key) {
             transactionRunner.inTransaction {
-                normalized.associate { (rawId, _) ->
-                    rawId to resolveLocked(providerId, contentType, rawId, preferred[rawId])
+                resolveBatchLocked(providerId, contentType, normalized.map { it.first }, preferred)
+            }
+        }
+    }
+
+    private suspend fun resolveBatchLocked(
+        providerId: Long,
+        contentType: ContentType,
+        rawIds: List<String>,
+        preferred: Map<String, Long?> = emptyMap()
+    ): Map<String, Long> {
+        val resolved = LinkedHashMap<String, Long>(rawIds.size)
+        rawIds.chunked(SQL_BATCH_SIZE).forEach { chunk ->
+            dao.getByRawIds(providerId, contentType.name, chunk).forEach {
+                resolved[it.rawId] = it.surrogateId
+            }
+        }
+        // Chunk candidates and pending inserts as well as SQL parameters. The caller's input
+        // remains the identity batch; no provider-wide identity snapshot is retained.
+        var highestAllocated: Long? = null
+        rawIds.filterNot(resolved::containsKey).chunked(SQL_BATCH_SIZE).forEach { chunk ->
+            val candidates = chunk.associateWith { rawId ->
+                listOfNotNull(
+                    preferred[rawId]?.takeIf { it > 0L },
+                    rawId.toLongOrNull()?.takeIf { it > 0L },
+                    legacyId(providerId, contentType, rawId)
+                )
+            }
+            val occupied = HashSet<Long>()
+            candidates.values.flatten().distinct().chunked(SQL_BATCH_SIZE).forEach { ids ->
+                dao.getBySurrogateIds(providerId, contentType.name, ids).forEach {
+                    occupied += it.surrogateId
+                }
+            }
+            val pending = chunk.map { rawId ->
+                val candidate = candidates.getValue(rawId).firstOrNull { it !in occupied }
+                    ?: run {
+                        if (highestAllocated == null) {
+                            highestAllocated = dao.maxAllocatedSurrogate(
+                                providerId, contentType.name, HIGH_SURROGATE_FLOOR
+                            ) ?: (HIGH_SURROGATE_FLOOR - 1L)
+                        }
+                        (requireNotNull(highestAllocated) + 1L).coerceAtMost(Long.MAX_VALUE - 1L)
+                    }
+                occupied += candidate
+                if (candidate >= HIGH_SURROGATE_FLOOR) {
+                    // Include identities assigned earlier in this pending batch, just as the
+                    // previous sequential INSERT path did when allocating its next high ID.
+                    if (highestAllocated == null) {
+                        highestAllocated = dao.maxAllocatedSurrogate(
+                            providerId, contentType.name, HIGH_SURROGATE_FLOOR
+                        ) ?: (HIGH_SURROGATE_FLOOR - 1L)
+                    }
+                    highestAllocated = maxOf(requireNotNull(highestAllocated), candidate)
+                }
+                val now = System.currentTimeMillis()
+                StalkerRemoteIdentityEntity(providerId, contentType, rawId, candidate, now, now)
+            }
+            val inserted = dao.insertAll(pending)
+            pending.zip(inserted).forEach { (entity, rowId) ->
+                resolved[entity.rawId] = if (rowId != -1L) entity.surrogateId else {
+                    // A competing mapping must never be overwritten. Resolve ignored rows
+                    // through the established collision recovery logic.
+                    highestAllocated = null
+                    resolveLocked(providerId, contentType, entity.rawId, preferred[entity.rawId])
                 }
             }
         }
+        return rawIds.associateWith { resolved.getValue(it) }
     }
 
     private suspend fun resolveLocked(
@@ -123,6 +187,7 @@ class StalkerRemoteIdentityResolver private constructor(
     }
 
     private companion object {
+        const val SQL_BATCH_SIZE = 400
         const val HIGH_SURROGATE_FLOOR = 4_000_000_000L
     }
 }

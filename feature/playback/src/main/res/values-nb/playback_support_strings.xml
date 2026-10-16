@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Caster til den tilkoblede enheten.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast er utilgjengelig på denne enheten.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Dette strømformatet støttes ikke av Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP- og RTMP-strømmer støttes ikke for casting.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-beskyttede strømmer støttes ikke av Google Cast i denne appen.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Dette elementet kan ikke sendes til en Cast-mottaker.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Denne strømmen bruker en lokal URL eller en enhets-URL som Chromecast ikke kan nå direkte.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Denne strømmen trenger HTTP-hoder eller informasjonskapsler som Chromecast ikke kan bruke direkte.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Denne strømmen trenger et egendefinert User-Agent som Chromecast ikke kan bruke direkte.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Denne strømmen trenger appens proxyinnstillinger, så Chromecast kan ikke bruke den direkte.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Denne strømmen bruker SSL-håndtering som Chromecast ikke kan bruke direkte.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast-økten kunne ikke startes.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast-mottakeren kunne ikke laste inn denne strømmen.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Den tilkoblede Cast-mottakeren er ikke klar for avspilling.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Valg av Cast-enhet ble avbrutt.</string>
+    <string name="add_group_close_cd">Lukk</string>
+    <string name="player_archive_title">Programarkiv</string>
+    <string name="player_no_archive">Ingen arkiverte programmer funnet</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkiv</string>
+</resources>

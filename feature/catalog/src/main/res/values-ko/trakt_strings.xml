@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Trakt 관심목록에는 이 공급자 또는 현재 필터와 일치하는 영화가 없습니다.</string>
+    <string name="trakt_watchlist_series_no_matches">귀하의 Trakt 관심 목록에는 이 공급자 또는 현재 필터와 일치하는 시리즈가 없습니다.</string>
+    <string name="trakt_discovery_trending_movies">Trakt 인기 급상승</string>
+    <string name="trakt_discovery_popular_movies">Trakt에서 인기</string>
+    <string name="trakt_discovery_trending_series">Trakt 인기 급상승</string>
+    <string name="trakt_discovery_popular_series">Trakt에서 인기</string>
+    <string name="trakt_discovery_movies_no_matches">이 공급자 또는 현재 필터와 일치하는 인기 급상승 또는 인기 Trakt 영화가 없습니다.</string>
+    <string name="trakt_discovery_series_no_matches">이 공급자 또는 현재 필터와 일치하는 인기 있는 Trakt 쇼가 없습니다.</string>
+    <string name="trakt_discovery_load_failed">Trakt 검색 타이틀을 로드할 수 없습니다. 다시 시도해 보세요.</string>
+    <string name="trakt_custom_lists_action">Trakt 목록</string>
+    <string name="trakt_custom_lists_title">귀하의 Trakt 목록</string>
+    <string name="trakt_custom_lists_for_item">목록에서 %1$s를 관리하세요</string>
+    <string name="trakt_custom_lists_loading">목록 정보 로드 중...</string>
+    <string name="trakt_custom_lists_connect_first">목록을 사용하려면 설정에서 Trakt를 연결하세요.</string>
+    <string name="trakt_custom_lists_empty">아직 맞춤 Trakt 목록이 없습니다.</string>
+    <string name="trakt_custom_lists_failed">이 Trakt 목록을 로드하거나 업데이트할 수 없습니다. 다시 시도해 보세요.</string>
+    <string name="trakt_custom_lists_incognito">시크릿 모드가 켜져 있으면 Trakt 목록을 사용할 수 없습니다.</string>
+    <string name="trakt_custom_lists_too_large">이 목록은 너무 커서 StreamVault에 완전히 로드할 수 없습니다.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d 항목</string>
+    <string name="trakt_custom_list_contains_item">%1$s가 이 목록에 있습니다.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s는 이 목록에 없습니다.</string>
+    <string name="trakt_custom_list_add_item">목록에 추가</string>
+    <string name="trakt_custom_lists_create_new">새 목록 만들기</string>
+    <string name="trakt_custom_lists_name">목록 이름</string>
+    <string name="trakt_custom_lists_optional_description">설명(선택 사항)</string>
+    <string name="trakt_custom_lists_private_note">새로운 목록은 Trakt에서 비공개입니다.</string>
+    <string name="trakt_custom_lists_create">비공개 목록 생성</string>
+    <string name="trakt_custom_list_remove_item">제거</string>
+    <string name="trakt_custom_list_items_truncated">처음 200개 항목을 표시합니다.</string>
+    <string name="trakt_custom_lists_back">목록으로 돌아가기</string>
+    <string name="trakt_custom_lists_choose_item">추가하거나 제거할 항목을 선택하세요</string>
+    <string name="trakt_custom_lists_movies">영화</string>
+    <string name="trakt_custom_lists_series">시리즈</string>
+    <string name="trakt_custom_lists_seasons_count">시즌스 (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">에피소드(%1$d)</string>
+    <string name="trakt_custom_lists_change_item">제목 변경</string>
+</resources>

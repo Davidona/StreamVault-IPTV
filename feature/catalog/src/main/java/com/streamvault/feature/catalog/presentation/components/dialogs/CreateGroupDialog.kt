@@ -1,5 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components.dialogs
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -40,10 +41,10 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 
 @Composable
 fun CreateGroupDialog(
@@ -73,7 +74,7 @@ fun CreateGroupDialog(
         val dialogContent: @Composable (Modifier) -> Unit = { resolvedModifier ->
             Surface(
                 modifier = resolvedModifier,
-                shape = RoundedCornerShape(24.dp),
+                shape = BrowseShapes.Panel,
                 colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
             ) {
                 Column(
@@ -163,10 +164,7 @@ fun CreateGroupDialog(
                             enabled = canInteract && value.trim().isNotEmpty(),
                             onClick = createHandler
                         ),
-                        colors = ButtonDefaults.colors(
-                            containerColor = Primary,
-                            contentColor = Color.White
-                        )
+                        colors = browsePrimaryButtonColors()
                     ) {
                         Text(stringResource(R.string.add_group_create))
                     }

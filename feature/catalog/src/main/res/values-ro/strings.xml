@@ -32,11 +32,11 @@
   <string name="badge_series">SERIA</string>
   <string name="card_live_badge">LIVE</string>
   <string name="card_locked_channel">Canal blocat</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Transmite</string>
+  <string name="cast_item_unavailable">Acest element nu poate fi trimis către un receptor Cast.</string>
+  <string name="cast_launching">Se transmite...</string>
+  <string name="cast_started">Se transmite către dispozitivul conectat.</string>
+  <string name="cast_unavailable">Google Cast nu este disponibil pe acest dispozitiv.</string>
   <string name="category_options_cancel">Anulează</string>
   <string name="category_options_clear_recent">Șterge tot istoricul recent</string>
   <string name="category_options_delete">Șterge grupul</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Setați ca grup implicit</string>
   <string name="category_options_unlock">Deblocați grupul</string>
   <string name="category_options_unpin">Anulează fixarea categoriei</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Fixați</string>
   <string name="category_see_all">Vezi toate →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Anulați fixarea</string>
+  <string name="channel_action_hide">Ascundeți acest canal</string>
   <string name="channel_options_remove_from_recent">Elimină din Recent</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Continuați vizionarea</string>
   <string name="dashboard_channels_format">%1$d canale</string>
   <string name="dashboard_continue_watching">Continuați vizionarea</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Continuați vizionarea filmelor</string>
+  <string name="dashboard_continue_watching_series">Continuați vizionarea serialelor</string>
   <string name="dashboard_empty_body">Adăugați mai întâi o listă de redare sau o sursă Xtream. Odată ce un furnizor este activ, Home va afișa canalele favorite, va continua vizionarea și va avea rânduri noi din bibliotecă.</string>
   <string name="dashboard_empty_title">Configurați un furnizor pentru a debloca ecranul de pornire</string>
   <string name="dashboard_favorite_channels">Canalele preferate</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Filme preferate</string>
+  <string name="dashboard_favorite_series">Seriale preferate</string>
   <string name="dashboard_fresh_movie_pick">O alegere proaspătă de film</string>
   <string name="dashboard_jump_back_live">Reveniți la TV în direct</string>
   <string name="dashboard_library_ready">Biblioteca dvs. IPTV este gata</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Canale recente</string>
   <string name="dashboard_recent_movies">Filme adăugate recent</string>
   <string name="dashboard_recent_series">Seria actualizată recent</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Filme recomandate</string>
   <string name="dashboard_resume_episode">Reluați episodul</string>
   <string name="dashboard_resume_episode_format">Reluați S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Reluați</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">seria %1$d.</string>
   <string name="dashboard_subtitle">%1$s este activ. Reveniți la live, prindeți pasul cu progresul sau răsfoiți noi adăugări.</string>
   <string name="dashboard_title">Biblioteca ta, gata</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Cele mai bine evaluate filme</string>
+  <string name="dashboard_update_allow_installs">Permiteți instalările</string>
   <string name="dashboard_update_available">O versiune mai nouă a aplicației este memorată în cache și gata de verificat din Setări.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Actualizarea a fost descărcată. Permiteți instalările din StreamVault, apoi reîncercați instalarea.</string>
   <string name="dashboard_update_install_ready">Cea mai recentă actualizare a fost deja descărcată. Deschide Setări pentru a o instala.</string>
   <string name="dashboard_update_open_installer">Instalează din Setări</string>
   <string name="dashboard_update_open_settings">Deschide actualizările</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Deschideți detaliile furnizorului</string>
   <string name="dashboard_warning_title">Furnizorul are nevoie de atenție</string>
   <string name="dashboard_watch_live">Urmărește în direct</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Descărcați</string>
+  <string name="download_error_no_url">Nu s-a putut rezolva URL-ul fluxului pentru descărcare</string>
+  <string name="download_failed">Descărcare eșuată: %1$s</string>
+  <string name="download_started">Descărcare pornită</string>
   <string name="favorites_add">Adaugă la favorite</string>
   <string name="favorites_all_favorites">Toate Favoritele</string>
   <string name="favorites_cancel">Înapoi: anulează</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Ține apăsat pe un grup salvat pentru opțiuni</string>
   <string name="library_saved_primary_hint">Reveniți la biblioteca completă</string>
   <string name="library_sort_title">Sortare rezultate</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Mutați înapoi la TV în direct</string>
+  <string name="m3u_move_to_movies">Mutați la Filme</string>
+  <string name="m3u_move_to_series">Mutați la Seriale</string>
+  <string name="m3u_organize_items">Organizați elementele M3U</string>
   <string name="movie_detail_back">Înapoi la bibliotecă</string>
   <string name="movie_detail_cast">Distribuție:</string>
   <string name="movie_detail_director">Regizat de:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Continuă din %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Necunoscut</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versiuni</string>
   <string name="movie_loading_details">Se încarcă detaliile...</string>
   <string name="movie_not_found">Film negăsit</string>
   <string name="movie_plot_fallback">Nu există sinopsis disponibil</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filme</string>
   <string name="nav_series">Seria</string>
   <string name="nav_settings">Setări</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Anulează</string>
   <string name="pin_dialog_title">Introduceți codul PIN</string>
   <string name="player_resume">Reluați</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Elimină din Favorite</string>
   <string name="search_actions_unlock">Deblochează Control Parental</string>
   <string name="search_all">Toate</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Construiți o dată indexul complet de căutare</string>
+  <string name="search_catalog_complete">Index complet al catalogului</string>
+  <string name="search_catalog_downloaded_only">Doar elementele descărcate. Construiți indexul complet de căutare pentru a căuta în întregul catalog al portalului.</string>
+  <string name="search_catalog_indexing">Indexul complet de căutare este în curs de construire. Rezultatele sunt încă parțiale.</string>
+  <string name="search_catalog_truncated">Catalogul portalului a fost trunchiat. Rezultatele pot fi incomplete.</string>
   <string name="search_clear_history">Clar</string>
   <string name="search_command_subtitle">Începe cu un titlu, cuvânt-cheie, nume de canal sau serie. Rezultatele rămân grupate pentru navigare rapidă cu telecomanda.</string>
   <string name="search_error_subtitle">Unele rezultate nu au putut fi încărcate. Încearcă din nou.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Înapoi la bibliotecă</string>
   <string name="series_detail_play_episode">Redă · Sezon %1$d Ep %2$d</string>
   <string name="series_detail_resume">Continuă · Sezon %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versiuni</string>
   <string name="series_episodes">Episoade (%1$d)</string>
   <string name="series_incorrect_pin">PIN incorect</string>
   <string name="series_library_lens_subtitle">Serii preferate de suprafață, în curs de desfășurare, cele mai apreciate și noi din întreaga bibliotecă.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Parțial</string>
   <string name="settings_status_unknown">Necunoscut</string>
   <string name="settings_update_install_started">Se deschide instalatorul pachetului.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL flux</string>
+  <string name="stream_url_copied">URL-ul fluxului a fost copiat</string>
+  <string name="stream_url_copy">Copiați URL-ul</string>
+  <string name="stream_url_copy_failed">Nu s-a putut rezolva URL-ul fluxului</string>
   <string name="vod_category_picker_empty">Nu s-au găsit categorii care se potrivesc.</string>
   <string name="vod_category_picker_search_placeholder">Caută categorii...</string>
   <string name="vod_category_picker_subtitle">Căutați după numele categoriei, apoi deschideți raftul potrivit.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Reîmprospătează furnizorul pentru a importa filme și seriale în bibliotecă.</string>
   <string name="vod_sync_needed_title">Sincronizare necesară</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Adaugă în lista de vizionare Trakt</string>
-  <string name="trakt_watchlist_connect">Conectează Trakt din Setări</string>
-  <string name="trakt_watchlist_failed">Lista Trakt nu a putut fi actualizată. Încearcă din nou.</string>
-  <string name="trakt_watchlist_load">Încarcă lista Trakt</string>
-  <string name="trakt_watchlist_remove">Elimină din lista Trakt</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Evaluează pe Trakt</string>
-  <string name="trakt_rating_dialog_message">Alege o notă de la 1 la 10.</string>
-  <string name="trakt_rating_current">Nota ta pe Trakt: %1$d/10</string>
-  <string name="trakt_rating_saved">Nota ta a fost salvată pe Trakt.</string>
-  <string name="trakt_rating_failed">Nu s-a putut salva nota pe Trakt.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault a salvat modificarea, dar nu a putut actualiza Favoritele Trakt. Încearcă din nou.</string>
+  <string name="vod_unavailable_subtitle">Acest furnizor expune cataloage separate de Filme și Seriale.</string>
+  <string name="vod_unavailable_title">VOD este indisponibil</string>
+
+<string name="trakt_watchlist_add">Adaugă în lista de vizionare Trakt</string>
+<string name="trakt_watchlist_connect">Conectează Trakt din Setări</string>
+<string name="trakt_watchlist_failed">Lista Trakt nu a putut fi actualizată. Încearcă din nou.</string>
+<string name="trakt_watchlist_load">Încarcă lista Trakt</string>
+<string name="trakt_watchlist_remove">Elimină din lista Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filme din lista dvs. de urmărire Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Emisiuni TV din lista dvs. de urmărire Trakt</string>
+<string name="trakt_rating_action">Evaluează pe Trakt</string>
+<string name="trakt_rating_dialog_message">Alege o notă de la 1 la 10.</string>
+<string name="trakt_rating_current">Nota ta pe Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Nota ta a fost salvată pe Trakt.</string>
+<string name="trakt_rating_failed">Nu s-a putut salva nota pe Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault a salvat modificarea, dar nu a putut actualiza Favoritele Trakt. Încearcă din nou.</string>
 </resources>

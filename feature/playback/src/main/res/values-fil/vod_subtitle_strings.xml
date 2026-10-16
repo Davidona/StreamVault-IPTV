@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Mga Pinagmulan</string>
+    <string name="vod_subtitle_settings">Mga Setting</string>
+    <string name="vod_subtitle_provider">Mga subtitle mula sa provider</string>
+    <string name="vod_subtitle_provider_hint">Pumili ng subtitle track mula sa video na ito</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Maghanap ng mga subtitle online</string>
+    <string name="vod_subtitle_online_unavailable">Hindi available ang online search para sa video na ito</string>
+    <string name="vod_subtitle_device_hint">Pumili ng SRT file</string>
+    <string name="vod_subtitle_back">Bumalik sa mga pinagmulan</string>
+    <string name="vod_tracks_empty">Walang available na track sa video na ito</string>
+    <string name="vod_subtitle_preview">Ito ay isang subtitle.</string>
+    <string name="vod_subtitle_font_size">Laki ng font</string>
+    <string name="vod_subtitle_background">Opacity ng background</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparente · 100% solid na itim</string>
+    <string name="vod_subtitle_decrease_setting">Bawasan ang %1$s</string>
+    <string name="vod_subtitle_increase_setting">Dagdagan ang %1$s</string>
+</resources>

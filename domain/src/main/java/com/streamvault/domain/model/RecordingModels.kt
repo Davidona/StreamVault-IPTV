@@ -28,6 +28,11 @@ enum class RecordingFailureCategory {
     UNKNOWN
 }
 
+/** Stable persisted code for a localized recording failure detail. */
+object RecordingFailureReasonCodes {
+    const val LIVE_CAPTURE_OUTPUT_TOO_SLOW = "streamvault:live_capture_output_too_slow"
+}
+
 enum class RecordingRecurrence {
     NONE,
     DAILY,
@@ -134,6 +139,10 @@ data class RecordingStorageConfig(
     // folder on a USB drive (`/storage/<id>/Android/data/<pkg>/files/...`). Null falls back to the
     // default internal recordings directory.
     val localDirectory: String? = null,
+    /** SMB destination without credentials, for settings updates that preserve the active target. */
+    val smbUrl: String? = null,
+    /** SMB account name shown in settings. The password is never included in storage state. */
+    val smbUsername: String? = null,
     val fileNamePattern: String = "ChannelName_yyyy-MM-dd_HH-mm_ProgramTitle.ts",
     val retentionDays: Int? = null,
     val maxSimultaneousRecordings: Int = 2
@@ -145,12 +154,25 @@ data class RecordingStorageConfig(
     }
 }
 
+data class RecordingSmbStorageConfig(
+    val url: String,
+    val username: String = "",
+    /** Null keeps the saved password only when the SMB destination URL is unchanged. */
+    val password: String? = null
+) {
+    init {
+        require(url.isNotBlank()) { "SMB storage URL must not be blank" }
+    }
+}
+
 data class RecordingStorageState(
     val treeUri: String? = null,
     val displayName: String? = null,
     // The explicit local path currently in effect (null when using a SAF tree). Lets the UI tell
     // whether recordings are going to internal storage vs. a USB drive without re-deriving it.
     val localDirectory: String? = null,
+    val smbUrl: String? = null,
+    val smbUsername: String? = null,
     val outputDirectory: String? = null,
     val availableBytes: Long? = null,
     val isWritable: Boolean = false,

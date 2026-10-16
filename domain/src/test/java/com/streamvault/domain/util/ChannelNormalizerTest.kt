@@ -6,6 +6,18 @@ import org.junit.Test
 class ChannelNormalizerTest {
 
     @Test
+    fun `import group ids remain identical to full playback classification`() {
+        val names = listOf("", "   ", "BBC One", "Téléfilm", "שלום חדשות", "العربية", "😀", "+++", "1080p", "US: HBO Max",
+            "CNN (US)", "|UK| Sky Sports 1", "Canal+", "[HD] News", "News &amp; Movies", "CHANNEL 60fps")
+        val variants = listOf("", " HD", " FHD HEVC", " 4K HDR10 50fps", " [EN] Backup", " |FR| HLS VIP", " (8K Dolby Vision)")
+        names.forEach { name -> variants.forEach { variant -> listOf(0L, 1L, 42L, Long.MAX_VALUE).forEach { provider ->
+            val value = name + variant
+            assertThat(ChannelNormalizer.getLogicalGroupId(value, provider))
+                .isEqualTo(ChannelNormalizer.classify(value, provider, "https://stream.invalid/hls/1080.m3u8").logicalGroupId)
+        } } }
+    }
+
+    @Test
     fun `strips HD quality tag`() {
         val id = ChannelNormalizer.getLogicalGroupId("BBC One HD", 1L)
         assertThat(id).isEqualTo("1_bbcone")

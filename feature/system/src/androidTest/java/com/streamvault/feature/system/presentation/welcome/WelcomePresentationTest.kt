@@ -91,6 +91,6 @@ class WelcomePresentationTest {
 
         composeRule.onNodeWithText("VOD").assertIsDisplayed()
         composeRule.onNodeWithText("Movies").assertIsDisplayed()
-        composeRule.onNodeWithText("44 items indexed").assertIsDisplayed()
+        composeRule.onNodeWithText("44 items prepared").assertIsDisplayed()
     }
 }

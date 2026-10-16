@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Bağlı cihaza yayınlanıyor.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast bu cihazda kullanılamıyor.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Bu yayın formatı Google Cast tarafından desteklenmiyor.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP ve RTMP yayınları yayınlama için desteklenmiyor.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM korumalı yayınlar bu uygulamada Google Cast tarafından desteklenmiyor.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Bu öğe bir Cast alıcısına gönderilemez.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Bu yayın, Chromecast\'in doğrudan erişemeyeceği yerel veya yalnızca cihaza özel bir URL kullanıyor.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Bu yayın, Chromecast\'in doğrudan kullanamayacağı HTTP başlıkları veya çerezler gerektiriyor.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Bu yayın, Chromecast\'in doğrudan kullanamayacağı özel bir User-Agent gerektiriyor.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Bu yayın uygulama proxy ayarlarını gerektirdiğinden Chromecast bunu doğrudan kullanamaz.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Bu yayın, Chromecast\'in doğrudan kullanamayacağı bir SSL işleme yöntemi kullanıyor.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast oturumu başlatılamadı.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast alıcısı bu yayını yükleyemedi.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Bağlı Cast alıcısı oynatma için hazır değil.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Cast cihazı seçimi iptal edildi.</string>
+    <string name="add_group_close_cd">Kapat</string>
+    <string name="player_archive_title">Program Arşivi</string>
+    <string name="player_no_archive">Arşivlenmiş program bulunamadı</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arşiv</string>
+</resources>

@@ -34,7 +34,7 @@ internal class DefaultProviderPublicProjection(
 ) : ProviderPublicProjection {
 
     override fun decode(entity: ProviderConfigEntity): RedactedProviderConfigurationProjection {
-        val configuration = codec.decode(entity.type, entity.encryptedConfigJson)
+        val configuration = codec.decodeForPublicProjection(entity.type, entity.encryptedConfigJson)
         val templateIdentity = StableProvider(
             id = entity.providerId,
             name = PROJECTION_TEMPLATE_NAME,

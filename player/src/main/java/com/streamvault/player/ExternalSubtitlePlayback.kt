@@ -37,10 +37,13 @@ internal fun TrackSelectionParameters.withExternalSubtitleEnabled(): TrackSelect
 
 internal fun buildExternalSubtitleConfiguration(
     subtitleUri: Uri,
-    language: String
+    language: String,
+    label: String? = null
 ): MediaItem.SubtitleConfiguration = MediaItem.SubtitleConfiguration.Builder(subtitleUri)
+    .setId(if (label != null) DEVICE_SUBTITLE_TRACK_ID else ONLINE_SUBTITLE_TRACK_ID)
     .setMimeType(MimeTypes.APPLICATION_SUBRIP)
     .setLanguage(language)
+    .setLabel(label)
     .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
     .build()
 

@@ -320,6 +320,21 @@ interface StalkerApiService {
         onItem: suspend (StalkerItemRecord) -> Unit
     ): Result<Int>
 
+    /** Streams one live category a page at a time; the default keeps older test transports compatible. */
+    suspend fun streamLiveStreamsByCategory(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String,
+        onItem: suspend (StalkerItemRecord) -> Unit
+    ): Result<Int> = when (val result = getLiveStreams(session, profile, categoryId)) {
+        is Result.Success -> {
+            result.data.forEach { onItem(it) }
+            Result.success(result.data.size)
+        }
+        is Result.Error -> Result.error(result.message, result.exception)
+        is Result.Loading -> Result.error("Unexpected loading state")
+    }
+
     suspend fun getVodCategories(
         session: StalkerSession,
         profile: StalkerDeviceProfile

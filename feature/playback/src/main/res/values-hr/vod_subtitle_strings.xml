@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Izvori</string>
+    <string name="vod_subtitle_settings">Postavke</string>
+    <string name="vod_subtitle_provider">Titlovi davatelja</string>
+    <string name="vod_subtitle_provider_hint">Odaberite stazu titlova iz ovog videa</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Pronađite titlove na internetu</string>
+    <string name="vod_subtitle_online_unavailable">Mrežna pretraga nije dostupna za ovaj video</string>
+    <string name="vod_subtitle_device_hint">Odaberite SRT datoteku</string>
+    <string name="vod_subtitle_back">Natrag na izvore</string>
+    <string name="vod_tracks_empty">U ovom videu nema dostupnih staza</string>
+    <string name="vod_subtitle_preview">Ovo je titl.</string>
+    <string name="vod_subtitle_font_size">Veličina fonta</string>
+    <string name="vod_subtitle_background">Neprozirnost pozadine</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% prozirno · 100% potpuno crno</string>
+    <string name="vod_subtitle_decrease_setting">Smanji %1$s</string>
+    <string name="vod_subtitle_increase_setting">Povećaj %1$s</string>
+</resources>

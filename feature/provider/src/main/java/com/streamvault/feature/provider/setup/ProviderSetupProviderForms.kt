@@ -1,5 +1,6 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -20,8 +20,8 @@ import androidx.tv.material3.SurfaceDefaults
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.provider.pairing.ProviderQrPairingState
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode
@@ -168,10 +168,10 @@ internal fun ProviderFormContent(
 
     TvSurface(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = BrowseShapes.Panel,
         border = Border(
             border = BorderStroke(1.dp, SurfaceHighlight),
-            shape = RoundedCornerShape(20.dp)
+            shape = BrowseShapes.Panel
         ),
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated.copy(alpha = 0.95f))
     ) {

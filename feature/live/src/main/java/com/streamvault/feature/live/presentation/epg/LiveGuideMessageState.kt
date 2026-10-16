@@ -14,9 +14,9 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
 
 @Composable
 fun LiveGuideMessageState(

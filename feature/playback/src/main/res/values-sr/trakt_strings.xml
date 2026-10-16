@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Повежите Trakt у подешавањима</string>
+    <string name="player_trakt_not_supported">Trakt прати само филмове и епизоде.</string>
+    <string name="player_trakt_no_match">Нема тачног Trakt подударања за овај наслов.</string>
+    <string name="player_trakt_starting">Покретање Trakt праћења…</string>
+    <string name="player_trakt_tracking">Праћење са Trakt</string>
+    <string name="player_trakt_paused">Trakt праћење паузирано</string>
+    <string name="player_trakt_failed">Trakt праћење није успело</string>
+    <string name="player_trakt_sent">Послато на Trakt</string>
+</resources>

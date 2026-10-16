@@ -26,7 +26,9 @@ internal fun playerNavigationRequest(
     seriesId: Long? = null,
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
-    episodeId: Long? = null
+    episodeId: Long? = null,
+    remoteContentId: String? = null,
+    remoteSeriesId: String? = null
 ): PlayerNavigationRequest = PlayerNavigationRequest(
     streamUrl = streamUrl,
     title = title,
@@ -46,7 +48,9 @@ internal fun playerNavigationRequest(
     seriesId = seriesId,
     seasonNumber = seasonNumber,
     episodeNumber = episodeNumber,
-    episodeId = episodeId
+    episodeId = episodeId,
+    remoteContentId = remoteContentId,
+    remoteSeriesId = remoteSeriesId
 )
 
 internal fun Channel.toLivePlayerRequest(
@@ -67,6 +71,7 @@ internal fun Channel.toLivePlayerRequest(
     combinedProfileId = combinedProfileId,
     combinedSourceFilterProviderId = combinedSourceFilterProviderId,
     contentType = "LIVE",
+    remoteContentId = streamId.takeIf { it > 0L }?.toString(),
     returnDestination = returnDestination
 )
 
@@ -79,12 +84,14 @@ internal fun Movie.toPlayerNavigationRequest(
     categoryId = categoryId,
     providerId = providerId,
     contentType = "MOVIE",
+    remoteContentId = streamId.takeIf { it > 0L }?.toString(),
     artworkUrl = posterUrl ?: backdropUrl,
     returnDestination = returnDestination
 )
 
 internal fun Episode.toPlayerNavigationRequest(
-    returnDestination: AppDestination? = null
+    returnDestination: AppDestination? = null,
+    remoteSeriesId: String? = null,
 ): PlayerNavigationRequest = playerNavigationRequest(
     streamUrl = streamUrl,
     title = "$title - S${seasonNumber}E${episodeNumber}",
@@ -96,5 +103,7 @@ internal fun Episode.toPlayerNavigationRequest(
     seriesId = seriesId.takeIf { it > 0L },
     seasonNumber = seasonNumber,
     episodeNumber = episodeNumber,
-    episodeId = episodeId.takeIf { it > 0L }
+    episodeId = episodeId.takeIf { it > 0L },
+    remoteContentId = episodeId.takeIf { it > 0L }?.toString(),
+    remoteSeriesId = remoteSeriesId?.trim()?.takeIf(String::isNotBlank)
 )

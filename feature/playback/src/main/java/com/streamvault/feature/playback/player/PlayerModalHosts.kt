@@ -13,10 +13,12 @@ import com.streamvault.feature.playback.player.overlay.PlayerAudioVideoOffsetDia
 import com.streamvault.feature.playback.player.overlay.PlayerEpisodeSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSpeedSelectionDialog
+import com.streamvault.feature.playback.player.overlay.PlayerSubtitleOffsetDialog
 import com.streamvault.feature.playback.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Program
+import com.streamvault.domain.settings.QualityLimitOverride
 import com.streamvault.player.TrackType
 
 @Composable
@@ -51,6 +53,8 @@ internal fun PlayerControlsModalHost(
     viewModel: PlayerViewModel,
     isInPictureInPictureMode: Boolean,
     showTrackSelection: TrackType?,
+    showSubtitleSearch: Boolean,
+    onlineSubtitleSearchAvailable: Boolean,
     showVariantSelection: Boolean,
     currentChannel: Channel?,
     showSpeedSelection: Boolean,
@@ -58,16 +62,23 @@ internal fun PlayerControlsModalHost(
     showIdleStandbyTimerDialog: Boolean,
     canSaveChannel: Boolean,
     showAudioVideoOffsetDialog: Boolean,
+    showSubtitleOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
     fallbackTitle: String,
     fallbackEpisodeId: Long,
     fallbackSeasonNumber: Int?,
+    onOpenSubtitleSearch: () -> Unit,
+    onOpenSubtitleOffset: () -> Unit,
+    onPickLocalSubtitle: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDismissModal: () -> Unit,
 ) {
+    val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
+    val isCastConnected = castConnectionState == com.streamvault.feature.playback.cast.CastConnectionState.CONNECTED
+
     if (showAudioVideoOffsetDialog) {
         val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
         val audioVideoOffsetState by viewModel.audioVideoOffsetUiState.collectAsStateWithLifecycle()
-        val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
         LaunchedEffect(audioVideoSyncEnabled) {
             if (!audioVideoSyncEnabled) {
                 onDismissModal()
@@ -96,18 +107,101 @@ internal fun PlayerControlsModalHost(
         val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
         val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
         val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
+        val qualityPreferenceScope by viewModel.playbackQualityPreferenceScope.collectAsStateWithLifecycle()
+        val savedQualityPreference by viewModel.savedPlaybackQualityPreference.collectAsStateWithLifecycle()
+        val savedProviderQualityPreference by viewModel.savedProviderPlaybackQualityPreference.collectAsStateWithLifecycle()
+        val temporaryQualityPreference by viewModel.temporaryPlaybackQualityPreference.collectAsStateWithLifecycle()
+        val videoFormat by viewModel.videoFormat.collectAsStateWithLifecycle()
         val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
         val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
-        PlayerTrackSelectionDialog(
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
+        if (viewModel.currentContentType != com.streamvault.domain.model.ContentType.LIVE &&
+            showTrackSelection != TrackType.VIDEO) {
+            val textScale by viewModel.subtitleTextScale.collectAsStateWithLifecycle()
+            val backgroundColor by viewModel.subtitleBackgroundColor.collectAsStateWithLifecycle()
+            VodTrackSelectionSheet(
+                trackType = showTrackSelection,
+                tracks = if (showTrackSelection == TrackType.TEXT) availableSubtitleTracks else availableAudioTracks,
+                offsetMs = subtitleOffsetMs,
+                textScale = textScale,
+                backgroundColor = backgroundColor,
+                onlineAvailable = onlineSubtitleSearchAvailable,
+                onDismiss = onDismissModal,
+                onSelectTrack = { id ->
+                    if (showTrackSelection == TrackType.TEXT) {
+                        viewModel.deactivateLiveTranslation()
+                        viewModel.selectSubtitleTrack(id)
+                    } else if (id != null) viewModel.selectAudioTrack(id)
+                },
+                onSearchOnline = onOpenSubtitleSearch,
+                onLoadLocal = { onDismissModal(); onPickLocalSubtitle() },
+                onAdjustOffset = viewModel::adjustSubtitleOffset,
+                onResetOffset = viewModel::resetSubtitleOffset,
+                onSetTextScale = viewModel::setSubtitleTextScale,
+                onSetOpacity = viewModel::setSubtitleBackgroundOpacity,
+            )
+        } else PlayerTrackSelectionDialog(
             trackType = showTrackSelection,
             audioTracks = availableAudioTracks,
             subtitleTracks = availableSubtitleTracks,
             videoTracks = availableVideoQualities,
+            isCastConnected = isCastConnected,
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
+            subtitleOffsetMs = subtitleOffsetMs,
+            canSavePlaybackQuality = qualityPreferenceScope != null &&
+                !isCastConnected &&
+                (availableVideoQualities.any { it.videoHeight != null && it.isSelected } || videoFormat.height > 0),
+            canSaveProviderPlaybackQuality = viewModel.currentProviderId > 0L &&
+                !isCastConnected &&
+                (availableVideoQualities.any { it.videoHeight != null && it.isSelected } || videoFormat.height > 0),
+            canSavePlaybackBitrate = qualityPreferenceScope != null &&
+                !isCastConnected &&
+                (availableVideoQualities.any { it.videoBitrateBps != null && it.isSelected } || videoFormat.bitrate > 0),
+            canSaveProviderPlaybackBitrate = viewModel.currentProviderId > 0L &&
+                !isCastConnected &&
+                (availableVideoQualities.any { it.videoBitrateBps != null && it.isSelected } || videoFormat.bitrate > 0),
+            canSetTemporaryPlaybackQuality = !isCastConnected &&
+                (availableVideoQualities.any { it.videoHeight != null && it.isSelected } || videoFormat.height > 0),
+            hasSavedPlaybackQuality = savedQualityPreference != null,
+            hasSavedProviderPlaybackQuality = savedProviderQualityPreference != null,
+            canEditPlaybackQuality = qualityPreferenceScope != null,
+            hasSavedPlaybackHeight = savedQualityPreference?.let {
+                it.maxVideoHeight != QualityLimitOverride.Inherit
+            } == true,
+            hasSavedPlaybackBitrate = savedQualityPreference?.let {
+                it.maxVideoBitrateBps != QualityLimitOverride.Inherit
+            } == true,
+            hasSavedProviderHeight = savedProviderQualityPreference?.let {
+                it.maxVideoHeight != QualityLimitOverride.Inherit
+            } == true,
+            hasSavedProviderBitrate = savedProviderQualityPreference?.let {
+                it.maxVideoBitrateBps != QualityLimitOverride.Inherit
+            } == true,
+            playbackHeightHasNoAdditionalLimit = savedQualityPreference?.maxVideoHeight ==
+                QualityLimitOverride.NoAdditionalLimit,
+            playbackBitrateHasNoAdditionalLimit = savedQualityPreference?.maxVideoBitrateBps ==
+                QualityLimitOverride.NoAdditionalLimit,
+            hasTemporaryPlaybackQuality = temporaryQualityPreference != null,
+            onSavePlaybackQuality = viewModel::saveCurrentQualityAsAdaptiveLimit,
+            onSavePlaybackBitrate = viewModel::saveCurrentVideoBitrateAsAdaptiveLimit,
+            onRemovePlaybackQuality = viewModel::removeSavedQualityLimit,
+            onSaveProviderPlaybackQuality = viewModel::saveCurrentQualityAsProviderDefaultLimit,
+            onSaveProviderPlaybackBitrate = viewModel::saveCurrentVideoBitrateAsProviderDefaultLimit,
+            onRemoveProviderPlaybackQuality = viewModel::removeProviderQualityLimit,
+            onInheritPlaybackHeight = viewModel::useInheritedPlaybackHeightLimit,
+            onInheritPlaybackBitrate = viewModel::useInheritedPlaybackBitrateLimit,
+            onNoAdditionalPlaybackHeight = viewModel::useNoAdditionalPlaybackHeightLimit,
+            onNoAdditionalPlaybackBitrate = viewModel::useNoAdditionalPlaybackBitrateLimit,
+            onInheritProviderHeight = viewModel::useInheritedProviderHeightLimit,
+            onInheritProviderBitrate = viewModel::useInheritedProviderBitrateLimit,
+            onSetTemporaryPlaybackQuality = viewModel::setTemporaryQualityLimitAtCurrentResolution,
+            onClearTemporaryPlaybackQuality = viewModel::clearTemporaryQualityLimit,
             onDismiss = onDismissModal,
             onSelectAudio = viewModel::selectAudioTrack,
-            onSelectVideo = viewModel::selectVideoQuality,
+            onSelectVideo = { viewModel.selectVideoQuality(it) },
+            onTrySelectVideo = viewModel::selectVideoQuality,
             onSelectSubtitle = { trackId ->
                 viewModel.deactivateLiveTranslation()
                 viewModel.selectSubtitleTrack(trackId)
@@ -115,7 +209,37 @@ internal fun PlayerControlsModalHost(
             onSelectLiveTranslation = {
                 viewModel.selectSubtitleTrack(null)
                 viewModel.activateLiveTranslation()
-            }
+            },
+            onSearchOnlineSubtitles = onOpenSubtitleSearch,
+            onOpenSubtitleOffset = onOpenSubtitleOffset,
+            onLoadLocalSubtitle = {
+                onDismissModal()
+                onPickLocalSubtitle()
+            },
+        )
+    }
+    if (!isInPictureInPictureMode && showSubtitleOffsetDialog) {
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
+        PlayerSubtitleOffsetDialog(
+            visible = true,
+            offsetMs = subtitleOffsetMs,
+            onDismiss = onDismissModal,
+            onAdjust = viewModel::adjustSubtitleOffset,
+            onReset = viewModel::resetSubtitleOffset
+        )
+    }
+    if (!isInPictureInPictureMode && showSubtitleSearch) {
+        PlayerExternalSubtitleSearchDialog(
+            viewModel = viewModel,
+            onDismiss = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
+            },
+            onOpenSettings = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
+                onOpenSettings()
+            },
         )
     }
     if (!isInPictureInPictureMode && showVariantSelection) {

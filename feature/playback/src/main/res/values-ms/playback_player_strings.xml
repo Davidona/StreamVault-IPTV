@@ -1,0 +1,298 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Cari sari kata dalam talian</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Muatkan SRT dari peranti</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Kelewatan sari kata (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Kelewatan sari kata</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Nilai negatif memaparkan sari kata lebih awal; nilai positif memaparkannya lebih lewat.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Kelewatan semasa: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Papar sari kata %1$d ms lebih awal</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Papar sari kata %1$d ms lebih lewat</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Set semula kelewatan</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s dimuatkan. Pemain sedang memuatkan sari kata.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Pilih fail sari kata .srt yang sah.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Fail sari kata mestilah 20 MB atau lebih kecil.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Fail sari kata ini tidak dapat dimuatkan.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Cari sari kata</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Pilih sari kata untuk ditambahkan pada video ini.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Hasil carian untuk %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Anda boleh mencari tanpa mendaftar masuk jika akses tanpa nama diaktifkan. Daftar masuk untuk menggunakan kuota muat turun akaun anda.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Sambungkan akaun (pilihan)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Mencari OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Tiada sari kata ditemui untuk tajuk dan bahasa ini.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Cari lagi</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Pilih bahasa, kemudian pilih versi.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Semua bahasa</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Tunjukkan semua bahasa yang tersedia</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Memuatkan bahasa…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Bahasa: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Tukar bahasa</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Senarai bahasa tidak dapat dimuatkan.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s muat turun</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Keluaran umum</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Memuat turun sari kata…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s ditambahkan. Pemain sedang memuatkan sari kata.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Tutup</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="other">%1$d minit</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Sesi Cast terputus.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">Catch-up tersedia (%1$d hari)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Catch-up tersedia</string>
+    <string name="epg_no_info">Tiada maklumat EPG</string>
+    <string name="epg_now_playing">Sedang Dimainkan</string>
+    <string name="epg_title">Panduan TV</string>
+    <string name="epg_up_next">Seterusnya</string>
+    <string name="epg_upcoming_schedule">Jadual Akan Datang</string>
+    <string name="home_locked_short">BERKUNCI</string>
+    <string name="label_categories">Kategori</string>
+    <string name="label_duration_min">%1$d min</string>
+    <string name="multiview_nav">Skrin Pisah</string>
+    <string name="nav_live_tv">TV Langsung</string>
+    <string name="notification_permission_recording_alert_required">Dayakan pemberitahuan untuk StreamVault untuk menerima makluman kegagalan rakaman.</string>
+    <string name="notification_permission_reminder_required">Dayakan pemberitahuan untuk StreamVault untuk menerima peringatan program.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">Diagnostik</string>
+    <string name="player_action_format">Format</string>
+    <string name="player_action_group">Kumpulan</string>
+    <string name="player_action_guide">Panduan</string>
+    <string name="player_action_mute">Bisukan</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">Main Balik</string>
+    <string name="player_action_quality">Kualiti</string>
+    <string name="player_action_split">Pisah</string>
+    <string name="player_action_variants">Varian</string>
+    <string name="player_action_view">Paparan</string>
+    <string name="player_archive">Arkib</string>
+    <string name="player_aspect_ratio_label">Aspek %1$s</string>
+    <string name="player_audio">Audio</string>
+    <string name="player_chapters">Bab</string>
+    <string name="player_chapter_count">%1$d bab</string>
+    <string name="player_chapter_label">Bab %1$d</string>
+    <string name="player_chapter_selected">Bab %1$d, dipilih</string>
+    <string name="player_chapter_title">Bab %1$d · %2$s</string>
+    <string name="player_close_chapters">Tutup bab</string>
+    <string name="player_previous_chapter">Bab sebelumnya</string>
+    <string name="player_next_chapter">Bab seterusnya</string>
+    <string name="player_rewind_10_seconds">Putar balik 10 saat</string>
+    <string name="player_forward_10_seconds">Mara 10 saat</string>
+    <string name="player_vod_timeline">Garis masa VOD</string>
+    <string name="player_close_controls">Tutup kawalan</string>
+    <string name="player_back_to_menu">Kembali ke menu</string>
+    <string name="player_playback_settings">Tetapan main balik</string>
+    <string name="player_close_playback_settings">Tutup tetapan main balik</string>
+    <string name="player_vod_controls">Kawalan main balik VOD</string>
+    <string name="player_aspect_ratio">Nisbah aspek</string>
+    <string name="player_auto_play_cancel">Batal</string>
+    <string name="player_auto_play_countdown">Main dalam %1$d s</string>
+    <string name="player_auto_play_play_now">Main Sekarang</string>
+    <string name="player_av_sync_channel">Saluran</string>
+    <string name="player_av_sync_global">Global</string>
+    <string name="player_av_sync_minus_50">Segerak A/V -50 ms</string>
+    <string name="player_av_sync_plus_50">Segerak A/V +50 ms</string>
+    <string name="player_av_sync_preview">Pratonton</string>
+    <string name="player_av_sync_reset">Set semula kepada 0 ms</string>
+    <string name="player_av_sync_save_channel">Simpan untuk saluran</string>
+    <string name="player_av_sync_save_global">Tetapkan sebagai global</string>
+    <string name="player_av_sync_short">Segerak A/V</string>
+    <string name="player_av_sync_title">Segerak A/V</string>
+    <string name="player_av_sync_use_global">Guna global</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">Layari Arkib</string>
+    <string name="player_browse_guide_catchup">Layari Panduan</string>
+    <string name="player_buffering">Penimbalan...</string>
+    <string name="player_cancel_scheduled_recording">Batal Dijadualkan</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">Catch-up</string>
+    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_channel_list_hint">Pilih saluran untuk menala serta-merta. Kembali menutup senarai.</string>
+    <string name="player_channel_list_title">Saluran (%1$d)</string>
+    <string name="player_channel_not_found">Saluran tidak ditemui</string>
+    <string name="player_channel_selected">Kini</string>
+    <string name="player_channel_variants">Varian Saluran</string>
+    <string name="player_close">Tutup</string>
+    <string name="player_diagnostics_active_decoder">Penyahkod Aktif</string>
+    <string name="player_diagnostics_alternates">Strim Alternatif</string>
+    <string name="player_diagnostics_archive">Arkib</string>
+    <string name="player_diagnostics_audio_codec">Kodek Audio</string>
+    <string name="player_diagnostics_audio_decoder">Penyahkod Audio</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Mod Penyahkod Audio</string>
+    <string name="player_diagnostics_audio_output_path">Laluan Audio</string>
+    <string name="player_diagnostics_av_offset">Ofset A/V</string>
+    <string name="player_diagnostics_av_sync">Segerak A/V</string>
+    <string name="player_diagnostics_av_sync_custom">Hidup (laluan segerak tersuai)</string>
+    <string name="player_diagnostics_av_sync_stock">Mati (laluan audio asal)</string>
+    <string name="player_diagnostics_av_sync_waiting">Hidup (menunggu main balik dimulakan semula)</string>
+    <string name="player_diagnostics_channel_errors">Ralat Saluran</string>
+    <string name="player_diagnostics_compatibility_note">Nota Keserasian</string>
+    <string name="player_diagnostics_compatibility_note_value">Main balik mungkin menggunakan laluan audio yang dipelajari atau dibantu keserasian untuk strim ini.</string>
+    <string name="player_diagnostics_compatibility_source">Sumber Keserasian</string>
+    <string name="player_diagnostics_dropped_frames">Bingkai Tercicir</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">Kegagalan Terakhir</string>
+    <string name="player_diagnostics_last_frame">Bingkai Video Terakhir</string>
+    <string name="player_diagnostics_playback_state">Keadaan Main Balik</string>
+    <string name="player_diagnostics_provider">Penyedia</string>
+    <string name="player_diagnostics_recovery_actions">Tindakan Pemulihan</string>
+    <string name="player_diagnostics_resolution">Resolusi</string>
+    <string name="player_diagnostics_section_audio">Audio</string>
+    <string name="player_diagnostics_section_playback">Main Balik</string>
+    <string name="player_diagnostics_section_recovery">Pemulihan</string>
+    <string name="player_diagnostics_section_source">Sumber</string>
+    <string name="player_diagnostics_section_video">Video</string>
+    <string name="player_diagnostics_source">Sumber</string>
+    <string name="player_diagnostics_stream_class">Kelas Strim</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">Diagnostik Main Balik</string>
+    <string name="player_diagnostics_troubleshooting">Penyelesaian Masalah</string>
+    <string name="player_diagnostics_frame_rate">Kadar Bingkai</string>
+    <string name="player_diagnostics_stream_bitrate">Kadar Bit Strim</string>
+    <string name="player_diagnostics_bandwidth_estimate">Lebar Jalur Rangkaian</string>
+    <string name="player_diagnostics_video_bitrate">Kadar Bit Video</string>
+    <string name="player_diagnostics_video_codec">Kodek Video</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Mod Penyahkod Video</string>
+    <string name="player_diagnostics_video_stalls">Kesekatan Video</string>
+    <string name="player_epg_overlay_hint">Layari butiran panduan di sini. Pilih butang catch-up untuk membuka sejarah arkib.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">Episod</string>
+    <string name="player_previous_episode">Episod sebelumnya</string>
+    <string name="player_next_episode">Episod seterusnya</string>
+    <string name="player_error_back">Atau tekan Kembali untuk pulang</string>
+    <string name="player_error_decoder">Tidak dapat memainkan format ini — cuba tukar mod penyahkod dalam Tetapan</string>
+    <string name="player_error_drm">Lesen DRM atau keperluan keselamatan peranti menghalang main balik</string>
+    <string name="player_error_live_hint">Cuba lagi, lompat kembali ke saluran terakhir, atau tekan Kembali untuk keluar daripada main balik.</string>
+    <string name="player_error_network">Strim tidak tersedia — semak sambungan internet anda</string>
+    <string name="player_error_source">Strim tidak ditemui atau akses dinafikan</string>
+    <string name="player_error_title">Ralat Main Balik</string>
+    <string name="player_error_unknown">Ralat main balik tidak diketahui</string>
+    <string name="player_format_short">Format</string>
+    <string name="player_forward">Mara laju</string>
+    <string name="player_idle_standby_after">Benarkan Sedia Tunggu Selepas Melahu</string>
+    <string name="player_idle_timer_status">Sedia tunggu melahu %1$s</string>
+    <string name="player_jump_to_live">Lompat ke Langsung</string>
+    <string name="player_jump_to_live_short">LANGSUNG</string>
+    <string name="player_last_channel_action">Saluran Terakhir</string>
+    <string name="player_last_group_hint">Lompat kembali ke kumpulan langsung terakhir yang anda layari.</string>
+    <string name="player_last_group_label">Terakhir: %1$s</string>
+    <string name="player_live_buffer_depth">Penimbal %1$s</string>
+    <string name="player_live_buffer_end">Tepi langsung</string>
+    <string name="player_live_buffer_start">Permulaan penimbal</string>
+    <string name="player_live_channel">Saluran %1$d</string>
+    <string name="player_live_dvr_controls">Pemain</string>
+    <string name="player_live_now">Sedang Dimainkan</string>
+    <string name="player_live_offset">%1$s di belakang langsung</string>
+    <string name="player_live_ready">LANGSUNG</string>
+    <string name="player_live_rewind_badge">DVR TEMPATAN</string>
+    <string name="player_live_scrubber_cd">Garis masa putar balik langsung. Guna kiri dan kanan untuk mencari.</string>
+    <string name="player_live_timeshift_buffering">Putar balik langsung tempatan masih dalam penimbalan.</string>
+    <string name="player_minutes_remaining">%1$d min lagi</string>
+    <string name="player_more_controls">Lebih banyak kawalan</string>
+    <string name="player_multiview_short">Paparan Berbilang</string>
+    <string name="player_mute">Bisukan</string>
+    <string name="player_muted_badge">Dibisukan</string>
+    <string name="player_next_label">Seterusnya:</string>
+    <string name="player_no_guide_data">Tiada data panduan</string>
+    <string name="player_open_guide_action">Buka Panduan</string>
+    <string name="player_open_in_external_player">Buka dalam pemain luaran</string>
+    <string name="player_pause">Jeda</string>
+    <string name="player_picture_in_picture">Gambar dalam gambar</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">Main</string>
+    <string name="player_playback_label">Main Balik</string>
+    <string name="player_playback_speed_title">Kelajuan Main Balik</string>
+    <string name="player_playback_speed_value">Kelajuan %1$s</string>
+    <string name="player_quality_short">Kualiti</string>
+    <string name="player_recent_channels">Terkini</string>
+    <string name="player_record">Rakam</string>
+    <string name="player_record_now">Rakam sekarang</string>
+    <string name="player_record_options">Rakaman</string>
+    <string name="player_recording_badge">Merakam</string>
+    <string name="player_recording_scheduled_badge">Dijadualkan</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">Mula semula</string>
+    <string name="player_close_playback_title">Tutup main balik?</string>
+    <string name="player_close_playback_desc">Ini akan menghentikan main balik dan kembali ke skrin sebelumnya.</string>
+    <string name="player_close_playback_confirm">Ya</string>
+    <string name="player_close_playback_cancel">Tidak</string>
+    <string name="player_resume">Sambung</string>
+    <string name="player_resume_desc">Adakah anda mahu menyambung %1$s dari tempat anda berhenti?</string>
+    <string name="player_resume_start_over">Mula Semula</string>
+    <string name="player_resume_title">Sambung Main Balik</string>
+    <string name="player_retry">Cuba lagi</string>
+    <string name="player_rewind">Putar balik</string>
+    <string name="player_schedule_daily_recording">Jadual Harian</string>
+    <string name="player_schedule_recording">Jadual</string>
+    <string name="player_schedule_weekly_recording">Jadual Mingguan</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Langkau Intro</string>
+    <string name="player_skip_opening">Langkau Pembukaan</string>
+    <string name="player_skip_recap">Langkau Ringkasan</string>
+    <string name="player_skip_outro">Langkau Outro</string>
+    <string name="player_selected">Dipilih</string>
+    <string name="player_stats">Statistik</string>
+    <string name="player_stop_casting">Hentikan Cast</string>
+    <string name="player_stop_playback_after">Hentikan Main Balik Selepas</string>
+    <string name="player_stop_recording">Hentikan Rakaman</string>
+    <string name="player_stop_timer_status">Berhenti dalam %1$s</string>
+    <string name="player_stream_format">Format Strim</string>
+    <string name="player_subs">Sari kata</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
+    <string name="player_timer_disable">Nyahdayakan</string>
+    <string name="player_timer_extend_30">+30 min</string>
+    <string name="player_timer_off">Mati</string>
+    <string name="player_timer_warning_idle">Sedia tunggu dibenarkan dalam %1$s</string>
+    <string name="player_timer_warning_stop">Main balik berhenti dalam %1$s</string>
+    <string name="player_track_audio">Pilih Trek Audio</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Terjemahan masa nyata</string>
+    <string name="player_track_off">Mati</string>
+    <string name="player_track_subs">Pilih Sari Kata</string>
+    <string name="player_try_alternate_stream">Cuba laluan lain</string>
+    <string name="player_type_channel_number">Taip nombor saluran</string>
+    <string name="player_type_movie">Filem</string>
+    <string name="player_type_series">Siri</string>
+    <string name="player_unmute">Nyahbisukan</string>
+    <string name="player_up_next">Seterusnya</string>
+    <string name="player_variants_short">Varian</string>
+    <string name="player_video_quality">Kualiti Video</string>
+    <string name="series_seasons">Musim</string>
+    <string name="settings_recording_status_recording">Merakam</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Simpan resolusi semasa sebagai had adaptif</string>
+    <string name="player_quality_remove_saved_limit">Alih keluar had resolusi yang disimpan</string>
+    <string name="player_quality_use_session_limit">Hadkan main balik ini kepada resolusi semasa</string>
+    <string name="player_quality_clear_session_limit">Kosongkan had kualiti sementara</string>
+
+    <string name="player_quality_gate_title">Main balik dijeda kerana had kualiti</string>
+    <string name="player_quality_gate_message">Tiada kualiti video tersedia yang memenuhi had anda. Semak kualiti yang ditawarkan dan butiran sebelum meneruskan.</string>
+    <string name="player_quality_gate_offer">Kualiti video yang ditawarkan: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Ketinggian %1$d p melebihi had %2$d p anda.</string>
+    <string name="player_quality_gate_height_unknown">Ketinggian video tidak diketahui; had anda ialah %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Kadar bit %1$s Mbps melebihi had %2$s Mbps anda.</string>
+    <string name="player_quality_gate_bitrate_unknown">Kadar bit video tidak diketahui; had anda ialah %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Teruskan sekali</string>
+
+    <string name="player_diagnostics_quality_limits">Had kualiti</string>
+    <string name="player_diagnostics_quality_reasons">Faktor yang mengehadkan</string>
+    <string name="player_diagnostics_quality_source_preferences">Keutamaan main balik</string>
+    <string name="player_diagnostics_quality_source_device">Keserasian peranti</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Beban penyahkod</string>
+
+    <string name="player_diagnostics_quality_capability">Keupayaan sumber video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Kualiti adaptif</string>
+    <string name="player_diagnostics_quality_capability_single">Kualiti tunggal atau tetap</string>
+    <string name="player_diagnostics_quality_capability_unknown">Tidak diketahui</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Sumber timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">Simpan kadar bit video semasa sebagai maksimum</string>
+    <string name="player_quality_inherit_height_limit">Gunakan had ketinggian yang diwarisi</string>
+    <string name="player_quality_inherit_bitrate_limit">Gunakan had kadar bit yang diwarisi</string>
+    <string name="player_quality_no_additional_height_limit">Tiada had ketinggian tambahan untuk kandungan ini</string>
+    <string name="player_quality_no_additional_bitrate_limit">Tiada had kadar bit tambahan untuk kandungan ini</string>
+    <string name="player_quality_mode_auto">Automatik (adaptif)</string>
+    <string name="player_quality_mode_fixed">Trek tetap</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Penerima Cast memilih kualiti; had ini tidak dikuatkuasakan.</string>
+    <string name="player_video_quality_selection_blocked">Kualiti video ini tidak memenuhi had main balik anda.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolusi: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Kadar bit: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Destinasi rakaman tidak dapat mengikuti main balik langsung.</string>
+</resources>

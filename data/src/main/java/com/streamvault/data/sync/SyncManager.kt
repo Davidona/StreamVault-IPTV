@@ -15,6 +15,7 @@ import com.streamvault.data.local.dao.ProviderDao
 import com.streamvault.data.local.dao.ProviderWorkflowDao
 import com.streamvault.data.local.dao.SeriesCategoryHydrationDao
 import com.streamvault.data.local.dao.SeriesDao
+import com.streamvault.data.local.dao.StalkerLiveCategoryRetryDao
 import com.streamvault.data.local.dao.TmdbIdentityDao
 import com.streamvault.data.local.dao.VodCategoryHydrationDao
 import com.streamvault.data.local.dao.VodCatalogEntryDao
@@ -194,6 +195,7 @@ class SyncManager @Inject constructor(
     private val tmdbIdentityDao: TmdbIdentityDao,
     private val xtreamContentIndexDao: XtreamContentIndexDao,
     private val xtreamIndexJobDao: XtreamIndexJobDao,
+    private val stalkerLiveCategoryRetryDao: StalkerLiveCategoryRetryDao,
     private val stalkerIndexJobStore: StalkerIndexJobStore,
     private val xtreamLiveOnboardingDao: XtreamLiveOnboardingDao,
     private val episodeDao: EpisodeDao,
@@ -266,7 +268,7 @@ class SyncManager @Inject constructor(
             loadProvider = ::loadCompatibilityProvider,
             loadStalkerProviders = {
                 providerDao.getAllSync()
-                    .filter { provider -> provider.type == ProviderType.STALKER_PORTAL }
+                    .filter { provider -> provider.type == ProviderType.STALKER_PORTAL && !providerSyncWorkScheduler.isAutomaticStalkerIndex(provider.id) }
                     .map { provider -> provider.id }
             },
             deleteLegacyJobs = { providerId -> xtreamIndexJobDao.deleteByProvider(providerId) },
@@ -302,9 +304,15 @@ class SyncManager @Inject constructor(
                     getHydration = stalkerIndexCheckpointStore::getHydrationSnapshot,
                     currentIndexedRowCount = ::currentStalkerIndexedRowCount,
                     pruneStaleRows = { providerId, contentType ->
-                        xtreamContentIndexDao.pruneStaleLocalContentRows(providerId, contentType.name)
+                        inFencedStalkerIndexTransaction(providerId) {
+                            xtreamContentIndexDao.pruneStaleLocalContentRows(providerId, contentType.name)
+                        }
                     },
-                    updateSummaryMetadata = ::updateStalkerSummaryMetadata,
+                    updateSummaryMetadata = { providerId, contentType, indexedRows, finalState, now ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            updateStalkerSummaryMetadata(providerId, contentType, indexedRows, finalState, now)
+                        }
+                    },
                     fetchSummaryPage = { provider, api, contentType, categoryId, page ->
                         withStalkerFetchPermit(provider, contentType, categoryId, page) {
                             fetchStalkerSummaryPageWithRecovery(
@@ -321,9 +329,35 @@ class SyncManager @Inject constructor(
                             fetchStalkerWildcardSummaryPageWithRecovery(api, contentType, categoryId, page)
                         }
                     },
-                    markAttemptStarted = stalkerIndexCheckpointStore::markAttemptStarted,
-                    markAttemptSucceeded = stalkerIndexCheckpointStore::markAttemptSucceeded,
-                    markAttemptFailed = stalkerIndexCheckpointStore::markAttemptFailed,
+                    markAttemptStarted = { providerId, contentType, categoryId, hydration, attemptedPage, now ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptStarted(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now
+                            )
+                        }
+                    },
+                    markAttemptSucceeded = { providerId, contentType, categoryId, hydration, attemptedPage,
+                                             now, itemCount, totalPages, pageSize, advertisedTotalItems,
+                                             advertisedTotalPages, pageComplete, truncated,
+                                             terminationReason, pageFingerprint ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptSucceeded(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now,
+                                itemCount, totalPages, pageSize, advertisedTotalItems,
+                                advertisedTotalPages, pageComplete, truncated, terminationReason,
+                                pageFingerprint
+                            )
+                        }
+                    },
+                    markAttemptFailed = { providerId, contentType, categoryId, hydration, attemptedPage,
+                                          now, message, retryable, pageFingerprint ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            stalkerIndexCheckpointStore.markAttemptFailed(
+                                providerId, contentType, categoryId, hydration, attemptedPage, now,
+                                message, retryable, pageFingerprint
+                            )
+                        }
+                    },
                     upsertMovieSummaryBatch = { providerId, movies, indexedAt ->
                         upsertXtreamMovieSummaryBatch(providerId, movies, indexedAt, restoreWatchProgress = false)
                     },
@@ -340,8 +374,16 @@ class SyncManager @Inject constructor(
                         StalkerIndexRecoveryPolicy.failureState(error, ::sanitizeThrowableMessage)
                     },
                     progress = ::progress,
-                    restoreMovieWatchProgress = { providerId -> movieDao.restoreWatchProgress(providerId) },
-                    upsertJob = catalogIndexJobStore::upsert,
+                    restoreMovieWatchProgress = { providerId ->
+                        inFencedStalkerIndexTransaction(providerId) {
+                            movieDao.restoreWatchProgress(providerId)
+                        }
+                    },
+                    upsertJob = { update ->
+                        inFencedStalkerIndexTransaction(update.providerId) {
+                            catalogIndexJobStore.upsert(update)
+                        }
+                    },
                     log = { message -> Log.i(TAG, message) }
                 )
             )
@@ -521,7 +563,12 @@ class SyncManager @Inject constructor(
             },
             progress = ::progress,
             sanitizeThrowableMessage = ::sanitizeThrowableMessage,
-            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) }
+            userMessage = { error, fallback -> syncErrorSanitizer.userMessage(error, fallback) },
+            hasPendingIndex = { providerId, section ->
+                xtreamIndexJobDao.get(providerId, section.name)?.state in setOf(
+                    "QUEUED", "RUNNING", "PARTIAL", "STALE", "FAILED_RETRYABLE"
+                )
+            }
         )
     }
     private val stalkerCatalogSectionExecutor by lazy {
@@ -560,7 +607,14 @@ class SyncManager @Inject constructor(
                     itemsIndexed = itemsIndexed
                 )
             },
-            progress = ::progress
+            progress = ::progress,
+            hasPendingIndex = { providerId, section ->
+                stalkerIndexJobStore.get(providerId, section)?.state in setOf(
+                    com.streamvault.domain.model.StalkerIndexState.QUEUED,
+                    com.streamvault.domain.model.StalkerIndexState.RUNNING,
+                    com.streamvault.domain.model.StalkerIndexState.RETRY_WAIT
+                )
+            }
         )
     }
     private val xtreamCatalogExecutor by lazy {
@@ -571,6 +625,11 @@ class SyncManager @Inject constructor(
             channelDao = channelDao,
             categoryDao = categoryDao,
             xtreamLiveOnboardingDao = xtreamLiveOnboardingDao,
+            configurationGeneration = { provider ->
+                syncProviderSnapshotAdapter.getSnapshot(provider.id)
+                    ?.takeIf { it.configuration == syncProviderSnapshotAdapter.toSnapshot(provider).configuration }
+                    ?.configurationGeneration
+            },
             syncCatalogStore = syncCatalogStore,
             sectionExecutor = xtreamCatalogSectionExecutor,
             liveStrategy = xtreamLiveStrategy,
@@ -621,6 +680,8 @@ class SyncManager @Inject constructor(
             categoryRecoverySupport = xtreamSupport,
             sectionExecutor = stalkerCatalogSectionExecutor,
             readinessTracker = stalkerReadinessTracker,
+            stalkerRequestCoordinator = stalkerRequestCoordinator,
+            liveCategoryRetryDao = stalkerLiveCategoryRetryDao,
             createProvider = ::createStalkerSyncProvider,
             syncProviderEpg = providerEpgExecutor::syncStalkerProviderEpg,
             progress = ::progress,
@@ -751,7 +812,9 @@ class SyncManager @Inject constructor(
             categoryFailureWarning = ::categoryFailureWarning,
             liveCategorySequentialModeWarning = LIVE_CATEGORY_SEQUENTIAL_MODE_WARNING,
             isCurrentlyLowOnMemory = applicationContext::isCurrentlyLowOnMemoryForSync,
-            stageChannelItems = catalogStager::stageChannelItems,
+            stageChannelItems = { id, items, seen, categories, session ->
+                catalogStager.stageChannelItems(id, items, seen, categories, session, useLiveAdmissionCount = true)
+            },
             emitProgress = ::emitProviderProgress
         )
     }
@@ -832,6 +895,8 @@ class SyncManager @Inject constructor(
         StalkerTrafficCoordinator.forgetProvider(providerId)
         StalkerProvider.clearCachesForProvider(providerId)
     }
+
+    override fun scheduleAutomaticSyncCheck() { ProviderSyncWorker.enqueueLaunchStaleCheck(applicationContext) }
 
     override fun scheduleBackgroundEpgSync(providerId: Long) {
         runCatching {
@@ -1046,10 +1111,10 @@ class SyncManager @Inject constructor(
         return Result.error(reason)
     }
 
-    private suspend fun failSectionResolution(
+    private suspend fun <T> failSectionResolution(
         providerId: Long,
         reason: String
-    ): com.streamvault.domain.model.Result<Unit> {
+    ): com.streamvault.domain.model.Result<T> {
         updateSyncStatusMetadata(providerId = providerId, status = "FAILED_PERMANENT")
         publishSyncState(providerId, SyncState.Error(reason))
         return Result.error(reason)
@@ -1155,11 +1220,60 @@ class SyncManager @Inject constructor(
         providerOverride: Provider?,
         afterCatalogApply: (suspend () -> Unit)?,
         bootstrap: Boolean
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): com.streamvault.domain.model.Result<Unit> = syncProviderInternal(
+        providerId, force, movieFastSyncOverride, epgSyncModeOverride, onProgress,
+        trackInitialLiveOnboarding, providerOverride, afterCatalogApply, bootstrap
+    )
+
+    override suspend fun resumePrimaryCatalog(providerId: Long, trackInitialLiveOnboarding: Boolean): Result<Unit> =
+        syncProviderInternal(providerId, false, null, null, null, trackInitialLiveOnboarding, null, null, false, resumeOnly = true)
+
+    private suspend fun syncProviderInternal(
+        providerId: Long,
+        force: Boolean,
+        movieFastSyncOverride: Boolean?,
+        epgSyncModeOverride: ProviderEpgSyncMode?,
+        onProgress: ((String) -> Unit)?,
+        trackInitialLiveOnboarding: Boolean,
+        providerOverride: Provider?,
+        afterCatalogApply: (suspend () -> Unit)?,
+        bootstrap: Boolean,
+        resumeOnly: Boolean = false
+    ): Result<Unit> = withProviderLock(providerId) lock@{
         var progressSession: SyncProgressSession? = null
         try {
             val providerEntity = providerDao.getById(providerId)
                 ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
+
+            if (resumeOnly) Log.i(TAG, "Primary resume provider=$providerId active=${providerEntity.isActive} status=${providerEntity.status}")
+            if (resumeOnly && providerEntity.type == ProviderType.XTREAM_CODES &&
+                providerEntity.status in setOf(com.streamvault.domain.model.ProviderStatus.ACTIVE, com.streamvault.domain.model.ProviderStatus.PARTIAL) &&
+                xtreamLiveOnboardingDao.getIncompleteByProvider(providerId) == null
+            ) {
+                val metadata = syncMetadataRepository.getMetadata(providerId)
+                // A launch recovery worker can observe onboarding mid-sync and then wait on
+                // this provider lock. If the foreground import completes while it waits, a
+                // category fallback may leave the overall sync PARTIAL even though it committed
+                // the full live catalog. Treat that completed onboarding as a reason to
+                // coalesce the queued resume, provided the durable live snapshot is complete.
+                val onboardingCompletedWhileQueued = trackInitialLiveOnboarding
+                if (metadata != null &&
+                    (metadata.lastSyncStatus == "SUCCESS" || onboardingCompletedWhileQueued) &&
+                    !ContentCachePolicy.shouldRefresh(metadata.lastLiveSuccess, ContentCachePolicy.CATALOG_TTL_MILLIS, System.currentTimeMillis()) &&
+                    metadata.lastLiveSync <= metadata.lastLiveSuccess &&
+                    channelDao.countByProvider(providerId) == metadata.liveCount
+                ) {
+                    Log.i(
+                        TAG,
+                        if (onboardingCompletedWhileQueued) {
+                            "Xtream primary resume coalesced provider=$providerId; onboarding completed while queued."
+                        } else {
+                            "Xtream primary resume coalesced provider=$providerId."
+                        }
+                    )
+                    return@lock Result.success(Unit)
+                }
+            }
 
             require(providerOverride == null || providerOverride.id == providerId) {
                 "Provider override must match the requested provider ID."
@@ -1251,7 +1365,12 @@ class SyncManager @Inject constructor(
     override suspend fun rebuildXtreamIndex(
         providerId: Long,
         onProgress: ((String) -> Unit)?
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): Result<Unit> = rebuildIndex(providerId, onProgress).map { Unit }
+
+    override suspend fun rebuildIndex(
+        providerId: Long,
+        onProgress: ((String) -> Unit)?
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
             ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
         if (providerEntity.type != ProviderType.XTREAM_CODES) {
@@ -1332,7 +1451,9 @@ class SyncManager @Inject constructor(
                     SyncState.Partial("Index rebuild queued with warnings", warnings)
                 }
             )
-            com.streamvault.domain.model.Result.success(Unit)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(
+                partial = warnings.isNotEmpty(), warnings = warnings, queued = true
+            ))
         } catch (e: CancellationException) {
             resetState(providerId)
             throw e
@@ -1353,7 +1474,44 @@ class SyncManager @Inject constructor(
         movieFastSyncOverride: Boolean?,
         syncReason: XtreamLiveSyncReason,
         onProgress: ((String) -> Unit)?
-    ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
+    ): com.streamvault.domain.model.Result<Unit> = when (val result = executeSection(
+        providerId, section, movieFastSyncOverride, syncReason, onProgress, retryFailedCategoriesOnly = true
+    )) {
+        is Result.Success -> Result.success(Unit)
+        is Result.Error -> result
+        Result.Loading -> Result.Loading
+    }
+
+    override suspend fun syncSection(
+        providerId: Long,
+        section: SyncRepairSection,
+        onProgress: ((String) -> Unit)?
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = executeSection(
+        providerId, section, null, XtreamLiveSyncReason.MANUAL_SETTINGS, onProgress,
+        retryFailedCategoriesOnly = false
+    )
+
+    override suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) {
+        val provider = loadCompatibilityProvider(providerId) ?: return@withProviderLock Result.error("Provider configuration is unavailable")
+        try {
+            val outcome = m3uCatalogExecutor.refreshCatalog(provider, live, movies)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(partial = outcome.partial, warnings = outcome.warnings, catalogChanged = true))
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (error: Exception) { Result.error(syncErrorSanitizer.userMessage(error, "Playlist refresh failed"), error) }
+    }
+
+    override suspend fun refreshScheduledSection(providerId: Long, section: SyncRepairSection): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = executeSection(
+        providerId, section, null, XtreamLiveSyncReason.BACKGROUND_STALE, null, retryFailedCategoriesOnly = false
+    )
+
+    private suspend fun executeSection(
+        providerId: Long,
+        section: SyncRepairSection,
+        movieFastSyncOverride: Boolean?,
+        syncReason: XtreamLiveSyncReason,
+        onProgress: ((String) -> Unit)?,
+        retryFailedCategoriesOnly: Boolean
+    ): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
             ?: return@lock com.streamvault.domain.model.Result.error("Provider $providerId not found")
 
@@ -1379,12 +1537,28 @@ class SyncManager @Inject constructor(
                 persistedSnapshot
             }
             val sectionResult = withContext(Dispatchers.IO) {
-                syncCoordinator.syncSection(
+                if (section == SyncRepairSection.EPG && !retryFailedCategoriesOnly) {
+                    when (val guide = syncCoordinator.syncGuide(ProviderGuideSyncRequest(
+                        snapshot = snapshot,
+                        force = true,
+                        now = System.currentTimeMillis(),
+                        onProgress = onProgress
+                    ))) {
+                        is CapabilityResolution.Available -> CapabilityResolution.Available(SyncOutcome(
+                            partial = guide.capability.hasRetryableFailure || guide.capability.warnings.isNotEmpty(),
+                            warnings = guide.capability.warnings
+                        ))
+                        is CapabilityResolution.Unsupported -> guide
+                        is CapabilityResolution.Restricted -> guide
+                        is CapabilityResolution.ConfigurationError -> guide
+                    }
+                } else syncCoordinator.syncSection(
                     SectionProviderSyncRequest(
                         snapshot = snapshot,
                         section = section,
                         syncReason = syncReason,
-                        onProgress = onProgress
+                        onProgress = onProgress,
+                        retryFailedCategoriesOnly = retryFailedCategoriesOnly
                     )
                 )
             }
@@ -1408,7 +1582,12 @@ class SyncManager @Inject constructor(
                     SyncState.Success()
                 }
             )
-            com.streamvault.domain.model.Result.success(Unit)
+            Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(
+                partial = outcome.partial || outcome.activation == SyncActivation.PRESERVED_ACTIVE_CATALOG,
+                warnings = outcome.warnings,
+                queued = outcome.activation == SyncActivation.DEFERRED_TO_FOLLOW_UP,
+                catalogChanged = outcome.activation == SyncActivation.ACTIVATED_CATALOG
+            ))
         } catch (e: CancellationException) {
             resetState(providerId)
             throw e
@@ -1428,6 +1607,8 @@ class SyncManager @Inject constructor(
         section: ContentType?,
         force: Boolean,
         maxCategoriesPerSection: Int?,
+        maxRowsPerSection: Int?,
+        maxDurationMillis: Long?,
         onProgress: ((String) -> Unit)?
     ): com.streamvault.domain.model.Result<Unit> = withProviderLock(providerId) lock@{
         val providerEntity = providerDao.getById(providerId)
@@ -1454,6 +1635,10 @@ class SyncManager @Inject constructor(
         val warnings = mutableListOf<String>()
         val failures = mutableListOf<Throwable>()
         sections.forEach { contentType ->
+            if ((AutomaticSyncExecution.automatic.get() == true)) {
+                val policy = preferencesRepository.automaticSyncConfiguration.first().forProvider(providerId)
+                if (!policy.enabled || (contentType == ContentType.MOVIE && !policy.movies) || (contentType == ContentType.SERIES && !policy.series) || (contentType == ContentType.LIVE && !policy.live)) return@forEach
+            }
             val job = xtreamIndexJobDao.get(providerId, contentType.name)
             if (!force && !catalogIndexJobStore.shouldRunSummary(job)) {
                 return@forEach
@@ -1467,6 +1652,8 @@ class SyncManager @Inject constructor(
                         api,
                         contentType,
                         maxCategoriesPerSection,
+                        maxRowsPerSection,
+                        maxDurationMillis,
                         onProgress
                     )
                     ContentType.VOD,
@@ -1476,7 +1663,7 @@ class SyncManager @Inject constructor(
             if (failure != null) {
                 val state = XtreamIndexRecoveryPolicy.failureState(failure)
                 val currentJob = xtreamIndexJobDao.get(providerId, contentType.name)
-                if (currentJob?.state != "PARTIAL") {
+                if (currentJob?.state != "PARTIAL" || state == "FAILED_PERMANENT") {
                     val failureAt = System.currentTimeMillis()
                     upsertXtreamIndexJob(
                         providerId = providerId,
@@ -1540,11 +1727,15 @@ class SyncManager @Inject constructor(
 
         val provider = loadCompatibilityProvider(providerId)
             ?: return@lock Result.error("Provider $providerId has no typed configuration")
+        val automaticPolicy = if ((AutomaticSyncExecution.automatic.get() == true)) preferencesRepository.automaticSyncConfiguration.first().forProvider(providerId) else null
+        val effectiveSection = section ?: automaticPolicy?.let {
+            when { it.movies && !it.series -> ContentType.MOVIE; it.series && !it.movies -> ContentType.SERIES; else -> null }
+        }
         val api = createStalkerSyncProvider(provider)
         val decision = stalkerIndexContinuationCoordinator.chooseNextSection(
             provider = provider,
             api = api,
-            requestedSection = section,
+            requestedSection = effectiveSection,
             force = force,
             now = System.currentTimeMillis()
         )
@@ -1638,62 +1829,25 @@ class SyncManager @Inject constructor(
         if (page != 1 || recovered !is Result.Success || recovered.data.items.isNotEmpty()) {
             return recovered
         }
-        val fallback = fetchStalkerSummaryFirstPageFallback(api, contentType, categoryId)
-        return if (fallback is Result.Success && fallback.data.items.isNotEmpty()) {
-            Log.i(
-                TAG,
-                "Recovered empty paged Stalker ${contentType.name} first page with non-paged fallback for category $categoryId"
-            )
-            fallback
-        } else if (fallback is Result.Error && fallback.exception is StalkerApiError.CatalogTruncated) {
-            val truncation = fallback.exception as StalkerApiError.CatalogTruncated
-            Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = emptyList(),
-                    page = 1,
-                    totalPages = truncation.pageLimit,
-                    pageSize = 0,
-                    hasAdvertisedTotal = true,
-                    advertisedTotalPages = truncation.advertisedTotalPages,
-                    isTruncated = true,
-                    terminationReason = "page_limit"
-                )
-            )
-        } else {
-            recovered
+        // Some portals return an empty first response transiently. Keep the historical
+        // second-request recovery, but retry only this page: getVodStreams/getSeriesList
+        // use the same ordered-list route and otherwise accumulate the whole category,
+        // losing the real page and coverage receipt. getSeriesListPage retains its native
+        // series -> VOD is_series compatibility fallback on each bounded attempt.
+        val retry = fetch()
+        return when (retry) {
+            is Result.Success -> {
+                if (retry.data.items.isNotEmpty()) {
+                    Log.i(
+                        TAG,
+                        "Recovered empty paged Stalker ${contentType.name} first page with a bounded page retry for category $categoryId"
+                    )
+                }
+                retry
+            }
+            is Result.Error -> retry
+            is Result.Loading -> Result.error("Unexpected loading state from Stalker first-page retry")
         }
-    }
-
-    private suspend fun fetchStalkerSummaryFirstPageFallback(
-        api: StalkerProvider,
-        contentType: ContentType,
-        categoryId: Long
-    ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> = when (contentType) {
-        ContentType.MOVIE -> when (val result = api.getVodStreams(categoryId)) {
-            is Result.Success -> Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = result.data,
-                    page = 1,
-                    totalPages = 1,
-                    pageSize = result.data.size
-                )
-            )
-            is Result.Error -> Result.error(result.message, result.exception)
-            is Result.Loading -> Result.error("Unexpected loading state from Stalker movie first-page fallback")
-        }
-        ContentType.SERIES -> when (val result = api.getSeriesList(categoryId)) {
-            is Result.Success -> Result.success(
-                com.streamvault.data.remote.stalker.StalkerPagedResult(
-                    items = result.data,
-                    page = 1,
-                    totalPages = 1,
-                    pageSize = result.data.size
-                )
-            )
-            is Result.Error -> Result.error(result.message, result.exception)
-            is Result.Loading -> Result.error("Unexpected loading state from Stalker series first-page fallback")
-        }
-        else -> Result.error("Unsupported Stalker summary first-page fallback section: $contentType")
     }
 
     private suspend fun fetchStalkerWildcardSummaryPageWithRecovery(
@@ -1820,6 +1974,19 @@ class SyncManager @Inject constructor(
         )
     }
 
+    /**
+     * Keep Stalker index writes inside the workflow generation that fetched them. The fence and
+     * mutation share one Room transaction, so a configuration supersession cannot slip between
+     * the ownership check and a checkpoint, prune, or job-state write.
+     */
+    private suspend fun <T> inFencedStalkerIndexTransaction(
+        providerId: Long,
+        block: suspend () -> T
+    ): T = transactionRunner.inTransaction {
+        providerWorkflowCommitFence.assertCanCommit(providerId)
+        block()
+    }
+
     private suspend fun upsertXtreamMovieSummaryBatch(
         providerId: Long,
         movies: List<Movie>,
@@ -1827,26 +1994,59 @@ class SyncManager @Inject constructor(
         restoreWatchProgress: Boolean = true
     ): Int {
         if (movies.isEmpty()) return 0
-        val incoming = movies.map { movie -> movie.toEntity().copy(cacheState = "SUMMARY_ONLY", detailHydratedAt = 0L, remoteStaleAt = 0L) }
+        val incoming = movies.map { movie ->
+            movie.toEntity().copy(
+                cacheState = "SUMMARY_ONLY",
+                detailHydratedAt = 0L,
+                remoteStaleAt = 0L
+            ).let { summary -> summary.copy(syncFingerprint = XtreamSummaryFingerprint.movie(summary)) }
+        }
         val existingByStreamId = loadMoviesByStreamIds(providerId, incoming.map { it.streamId })
         val merged = incoming.map { summary ->
             val existing = existingByStreamId[summary.streamId]
             mergeMovieSummary(existing, summary)
         }
-        transactionRunner.inTransaction {
-            movieDao.insertAll(merged)
-            val persistedByStreamId = loadMoviesByStreamIds(providerId, merged.map { it.streamId })
-            xtreamContentIndexDao.upsertAll(
-                merged.map { movie ->
-                    val persisted = persistedByStreamId[movie.streamId] ?: movie
-                    movie.toXtreamIndexRow(providerId, persisted.id, indexedAt)
+        val updatedMovies = merged.filter { movie -> existingByStreamId[movie.streamId] != movie }
+        val indexRowsBefore = loadXtreamIndexRows(
+            providerId,
+            ContentType.MOVIE,
+            merged.map { it.streamId.toString() }
+        )
+        val movieIndexChanged = merged.any { movie ->
+            val localId = existingByStreamId[movie.streamId]?.id ?: movie.id
+            val row = movie.toXtreamIndexRow(providerId, localId, indexedAt)
+            val existing = indexRowsBefore[row.remoteId]
+            existing == null || existing.copy(indexedAt = row.indexedAt) != row
+        }
+        if (updatedMovies.isNotEmpty() || movieIndexChanged) {
+            transactionRunner.inTransaction {
+                providerWorkflowCommitFence.assertCanCommit(providerId)
+                if (updatedMovies.isNotEmpty()) movieDao.insertAll(updatedMovies)
+                val newlyInsertedStreamIds = updatedMovies
+                    .filter { existingByStreamId[it.streamId] == null }
+                    .map { it.streamId }
+                val insertedByStreamId = if (newlyInsertedStreamIds.isEmpty()) {
+                    emptyMap()
+                } else {
+                    loadMoviesByStreamIds(providerId, newlyInsertedStreamIds)
                 }
-            )
+                val indexRows = merged.distinctBy { it.streamId }.mapNotNull { movie ->
+                    val localId = existingByStreamId[movie.streamId]?.id?.takeIf { it > 0L }
+                        ?: insertedByStreamId[movie.streamId]?.id?.takeIf { it > 0L }
+                        ?: movie.id
+                    movie.toXtreamIndexRow(providerId, localId, indexedAt)
+                }
+                val indexUpdates = indexRows.filter { row ->
+                    val existing = indexRowsBefore[row.remoteId]
+                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                }
+                if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
+            }
         }
         if (restoreWatchProgress) {
             movieDao.restoreWatchProgress(providerId)
         }
-        return merged.size
+        return incoming.size
     }
 
     private suspend fun upsertXtreamSeriesSummaryBatch(
@@ -1855,23 +2055,56 @@ class SyncManager @Inject constructor(
         indexedAt: Long
     ): Int {
         if (series.isEmpty()) return 0
-        val incoming = series.map { item -> item.toEntity().copy(cacheState = "SUMMARY_ONLY", detailHydratedAt = 0L, remoteStaleAt = 0L) }
+        val incoming = series.map { item ->
+            item.toEntity().copy(
+                cacheState = "SUMMARY_ONLY",
+                detailHydratedAt = 0L,
+                remoteStaleAt = 0L
+            ).let { summary -> summary.copy(syncFingerprint = XtreamSummaryFingerprint.series(summary)) }
+        }
         val existingBySeriesId = loadSeriesByIds(providerId, incoming.map { it.seriesId })
         val merged = incoming.map { summary ->
             val existing = existingBySeriesId[summary.seriesId]
             mergeSeriesSummary(existing, summary)
         }
-        transactionRunner.inTransaction {
-            seriesDao.insertAll(merged)
-            val persistedBySeriesId = loadSeriesByIds(providerId, merged.map { it.seriesId })
-            xtreamContentIndexDao.upsertAll(
-                merged.map { item ->
-                    val persisted = persistedBySeriesId[item.seriesId] ?: item
-                    item.toXtreamIndexRow(providerId, persisted.id, indexedAt)
-                }
-            )
+        val updatedSeries = merged.filter { item -> existingBySeriesId[item.seriesId] != item }
+        val indexRowsBefore = loadXtreamIndexRows(
+            providerId,
+            ContentType.SERIES,
+            merged.map { it.providerSeriesId?.takeIf(String::isNotBlank) ?: it.seriesId.toString() }
+        )
+        val seriesIndexChanged = merged.any { item ->
+            val localId = existingBySeriesId[item.seriesId]?.id ?: item.id
+            val row = item.toXtreamIndexRow(providerId, localId, indexedAt)
+            val existing = indexRowsBefore[row.remoteId]
+            existing == null || existing.copy(indexedAt = row.indexedAt) != row
         }
-        return merged.size
+        if (updatedSeries.isNotEmpty() || seriesIndexChanged) {
+            transactionRunner.inTransaction {
+                providerWorkflowCommitFence.assertCanCommit(providerId)
+                if (updatedSeries.isNotEmpty()) seriesDao.insertAll(updatedSeries)
+                val newlyInsertedSeriesIds = updatedSeries
+                    .filter { existingBySeriesId[it.seriesId] == null }
+                    .map { it.seriesId }
+                val insertedBySeriesId = if (newlyInsertedSeriesIds.isEmpty()) {
+                    emptyMap()
+                } else {
+                    loadSeriesByIds(providerId, newlyInsertedSeriesIds)
+                }
+                val indexRows = merged.distinctBy { it.seriesId }.mapNotNull { item ->
+                    val localId = existingBySeriesId[item.seriesId]?.id?.takeIf { it > 0L }
+                        ?: insertedBySeriesId[item.seriesId]?.id?.takeIf { it > 0L }
+                        ?: item.id
+                    item.toXtreamIndexRow(providerId, localId, indexedAt)
+                }
+                val indexUpdates = indexRows.filter { row ->
+                    val existing = indexRowsBefore[row.remoteId]
+                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                }
+                if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
+            }
+        }
+        return incoming.size
     }
 
     private suspend fun upsertVodDerivedSeriesSummaryBatch(
@@ -1890,6 +2123,7 @@ class SyncManager @Inject constructor(
         }
         var accepted = emptyList<SeriesEntity>()
         transactionRunner.inTransaction {
+            providerWorkflowCommitFence.assertCanCommit(providerId)
             val existing = seriesDao.getBySeriesIds(providerId, incoming.map { it.seriesId })
                 .associateBy { it.seriesId }
             accepted = incoming.mapNotNull { summary ->
@@ -1950,6 +2184,20 @@ class SyncManager @Inject constructor(
         )
     }
 
+    private suspend fun loadXtreamIndexRows(
+        providerId: Long,
+        contentType: ContentType,
+        remoteIds: List<String>
+    ): Map<String, XtreamContentIndexEntity> {
+        val distinctIds = remoteIds.distinct()
+        if (distinctIds.isEmpty()) return emptyMap()
+        return distinctIds.chunked(XTREAM_SQLITE_LOOKUP_CHUNK_SIZE)
+            .flatMap { chunk ->
+                xtreamContentIndexDao.getByRemoteIds(providerId, contentType.name, chunk)
+            }
+            .associateBy { it.remoteId }
+    }
+
     private fun mergeMovieSummary(existing: MovieEntity?, summary: MovieEntity): MovieEntity {
         if (existing == null) return summary
         val preserveDetails = existing.cacheState == "DETAIL_HYDRATED" && existing.detailHydratedAt > 0L
@@ -1967,12 +2215,14 @@ class SyncManager @Inject constructor(
             year = if (preserveDetails) existing.year else summary.year,
             tmdbId = summary.tmdbId ?: existing.tmdbId,
             youtubeTrailer = summary.youtubeTrailer ?: existing.youtubeTrailer,
+            syncFingerprint = summary.syncFingerprint.ifBlank { existing.syncFingerprint },
             watchProgress = existing.watchProgress,
             watchCount = existing.watchCount,
             lastWatchedAt = existing.lastWatchedAt,
             isUserProtected = existing.isUserProtected,
             cacheState = if (preserveDetails) existing.cacheState else "SUMMARY_ONLY",
             detailHydratedAt = if (preserveDetails) existing.detailHydratedAt else 0L,
+            playbackMetadataJson = if (preserveDetails) existing.playbackMetadataJson else summary.playbackMetadataJson,
             remoteStaleAt = 0L
         )
     }
@@ -1993,6 +2243,7 @@ class SyncManager @Inject constructor(
             tmdbId = summary.tmdbId ?: existing.tmdbId,
             youtubeTrailer = summary.youtubeTrailer ?: existing.youtubeTrailer,
             episodeRunTime = if (preserveDetails) existing.episodeRunTime else summary.episodeRunTime,
+            syncFingerprint = summary.syncFingerprint.ifBlank { existing.syncFingerprint },
             isUserProtected = existing.isUserProtected,
             cacheState = if (preserveDetails) existing.cacheState else "SUMMARY_ONLY",
             detailHydratedAt = if (preserveDetails) existing.detailHydratedAt else 0L,
@@ -2113,29 +2364,9 @@ class SyncManager @Inject constructor(
     }
 
     private suspend fun backfillXtreamLiveIndex(providerId: Long, indexedAt: Long): Int {
-        val channels = channelDao.getByProviderSync(providerId)
-        if (channels.isEmpty()) return 0
-        val indexRows = channels.map { channel ->
-            XtreamContentIndexEntity(
-                providerId = providerId,
-                contentType = ContentType.LIVE,
-                remoteId = channel.streamId.toString(),
-                localContentId = channel.id.takeIf { it > 0 },
-                name = channel.name,
-                categoryId = channel.categoryId,
-                categoryName = channel.categoryName ?: channel.groupTitle,
-                imageUrl = channel.logoUrl,
-                isAdult = channel.isAdult,
-                indexedAt = indexedAt,
-                detailHydratedAt = indexedAt,
-                syncFingerprint = channel.syncFingerprint
-            )
+        return syncCatalogStore.withLiveCatalogFence(providerId) {
+            xtreamContentIndexDao.replaceLiveIndexFromChannels(providerId, indexedAt)
         }
-        transactionRunner.inTransaction {
-            xtreamContentIndexDao.deleteByProviderAndType(providerId, ContentType.LIVE.name)
-            xtreamContentIndexDao.upsertAll(indexRows)
-        }
-        return channels.size
     }
 
     private suspend fun upsertXtreamIndexJob(

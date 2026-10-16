@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Diffusion vers l’appareil connecté.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast n’est pas disponible sur cet appareil.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Ce format de flux n’est pas pris en charge par Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Les flux RTSP et RTMP ne sont pas pris en charge pour la diffusion.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Les flux protégés par DRM ne sont pas pris en charge par Google Cast dans cette application.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Cet élément ne peut pas être envoyé à un récepteur Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Ce flux utilise une URL locale ou propre à l’appareil que Chromecast ne peut pas atteindre directement.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Ce flux nécessite des en-têtes HTTP ou des cookies que Chromecast ne peut pas utiliser directement.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Ce flux nécessite un User-Agent personnalisé que Chromecast ne peut pas utiliser directement.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Ce flux nécessite les paramètres de proxy de l’application, Chromecast ne peut donc pas l’utiliser directement.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Ce flux utilise une gestion SSL que Chromecast ne peut pas utiliser directement.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">La session Cast n’a pas pu démarrer.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Le récepteur Cast n’a pas pu charger ce flux.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Le récepteur Cast connecté n’est pas prêt pour la lecture.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">La sélection de l’appareil Cast a été annulée.</string>
+    <string name="add_group_close_cd">Fermer</string>
+    <string name="player_archive_title">Archives du programme</string>
+    <string name="player_no_archive">Aucun programme archivé trouvé</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archiver</string>
+</resources>

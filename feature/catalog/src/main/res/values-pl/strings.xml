@@ -32,11 +32,11 @@
   <string name="badge_series">SERIA</string>
   <string name="card_live_badge">NA ŻYWO</string>
   <string name="card_locked_channel">Zablokowany kanał</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Przesyłaj</string>
+  <string name="cast_item_unavailable">Tego elementu nie można wysłać do odbiornika Cast.</string>
+  <string name="cast_launching">Przesyłanie...</string>
+  <string name="cast_started">Przesyłanie na podłączone urządzenie.</string>
+  <string name="cast_unavailable">Google Cast jest niedostępny na tym urządzeniu.</string>
   <string name="category_options_cancel">Anuluj</string>
   <string name="category_options_clear_recent">Wyczyść wszystkie ostatnie</string>
   <string name="category_options_delete">Usuń grupę</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Ustaw jako grupę domyślną</string>
   <string name="category_options_unlock">Odblokuj grupę</string>
   <string name="category_options_unpin">Odepnij kategorię</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Przypnij</string>
   <string name="category_see_all">Zobacz wszystko →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Odepnij</string>
+  <string name="channel_action_hide">Ukryj ten kanał</string>
   <string name="channel_options_remove_from_recent">Usuń z ostatnich</string>
   <string name="continue_watching_season_episode">S%1$dE%2$d</string>
   <string name="continue_watching_title">Kontynuuj oglądanie</string>
   <string name="dashboard_channels_format">%1$d kanałów</string>
   <string name="dashboard_continue_watching">Kontynuuj oglądanie</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Kontynuuj oglądanie filmów</string>
+  <string name="dashboard_continue_watching_series">Kontynuuj oglądanie seriali</string>
   <string name="dashboard_empty_body">Najpierw dodaj playlistę lub źródło Xtream. Gdy dostawca będzie aktywny, ekran Główny pokaże ulubione kanały, kontynuowane oglądanie i nowe wiersze biblioteki.</string>
   <string name="dashboard_empty_title">Skonfiguruj dostawcę, aby odblokować ekran główny</string>
   <string name="dashboard_favorite_channels">Ulubione kanały</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Ulubione filmy</string>
+  <string name="dashboard_favorite_series">Ulubione seriale</string>
   <string name="dashboard_fresh_movie_pick">Nowy wybór filmu</string>
   <string name="dashboard_jump_back_live">Wróć do telewizji na żywo</string>
   <string name="dashboard_library_ready">Twoja biblioteka IPTV jest gotowa</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Najnowsze kanały</string>
   <string name="dashboard_recent_movies">Ostatnio dodane filmy</string>
   <string name="dashboard_recent_series">Niedawno zaktualizowana seria</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Polecane filmy</string>
   <string name="dashboard_resume_episode">Wznów odcinek</string>
   <string name="dashboard_resume_episode_format">Wznów S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Wznów</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">Seria %1$d.</string>
   <string name="dashboard_subtitle">%1$s jest aktywne. Wróć do live, sprawdź postęp lub przeglądaj nowe pozycje.</string>
   <string name="dashboard_title">Twoja biblioteka, gotowa</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Najwyżej oceniane filmy</string>
+  <string name="dashboard_update_allow_installs">Zezwól na instalacje</string>
   <string name="dashboard_update_available">Nowsza wersja aplikacji jest zapisana i gotowa do sprawdzenia w Ustawieniach.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Aktualizacja została pobrana. Zezwól StreamVault na instalacje, a następnie ponów instalację.</string>
   <string name="dashboard_update_install_ready">Najnowsza aktualizacja została już pobrana. Otwórz Ustawienia, aby ją zainstalować.</string>
   <string name="dashboard_update_open_installer">Zainstaluj z Ustawień</string>
   <string name="dashboard_update_open_settings">Otwórz aktualizacje</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Otwórz szczegóły dostawcy</string>
   <string name="dashboard_warning_title">Dostawca wymaga uwagi</string>
   <string name="dashboard_watch_live">Oglądaj na żywo</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Pobierz</string>
+  <string name="download_error_no_url">Nie udało się ustalić adresu URL strumienia do pobrania</string>
+  <string name="download_failed">Pobieranie nie powiodło się: %1$s</string>
+  <string name="download_started">Pobieranie rozpoczęte</string>
   <string name="favorites_add">Dodaj do ulubionych</string>
   <string name="favorites_all_favorites">Wszystkie ulubione</string>
   <string name="favorites_cancel">Wstecz: anuluj</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Przytrzymaj zapisaną grupę, aby wyświetlić opcje</string>
   <string name="library_saved_primary_hint">Wróć do pełnej biblioteki</string>
   <string name="library_sort_title">Sortuj wyniki</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Przenieś z powrotem do telewizji na żywo</string>
+  <string name="m3u_move_to_movies">Przenieś do filmów</string>
+  <string name="m3u_move_to_series">Przenieś do seriali</string>
+  <string name="m3u_organize_items">Organizuj elementy M3U</string>
   <string name="movie_detail_back">Wstecz do biblioteki</string>
   <string name="movie_detail_cast">Obsada:</string>
   <string name="movie_detail_director">Reżyser:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Wznów od %1$s</string>
   <string name="movie_detail_trailer">Zwiastun</string>
   <string name="movie_detail_unknown">Nieznane</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Wersje</string>
   <string name="movie_loading_details">Ładowanie szczegółów...</string>
   <string name="movie_not_found">Nie znaleziono filmu</string>
   <string name="movie_plot_fallback">Brak dostępnego opisu fabuły</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmy</string>
   <string name="nav_series">Seria</string>
   <string name="nav_settings">Ustawienia</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Anuluj</string>
   <string name="pin_dialog_title">Wprowadź PIN</string>
   <string name="player_resume">Wznów</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Usuń z ulubionych</string>
   <string name="search_actions_unlock">Odblokuj kontrolę rodzicielską</string>
   <string name="search_all">Wszystko</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Zbuduj pełny indeks wyszukiwania raz</string>
+  <string name="search_catalog_complete">Pełny indeks katalogu</string>
+  <string name="search_catalog_downloaded_only">Tylko pobrane elementy. Zbuduj pełny indeks wyszukiwania, aby przeszukać cały katalog portalu.</string>
+  <string name="search_catalog_indexing">Trwa budowanie pełnego indeksu wyszukiwania. Wyniki są nadal częściowe.</string>
+  <string name="search_catalog_truncated">Katalog portalu został obcięty. Wyniki mogą być niepełne.</string>
   <string name="search_clear_history">Jasne</string>
   <string name="search_command_subtitle">Zacznij od tytułu, słowa kluczowego, nazwy kanału lub serialu. Wyniki pozostają pogrupowane, aby szybko nawigować pilotem.</string>
   <string name="search_error_subtitle">Niektóre wyniki nie mogły zostać załadowane. Spróbuj ponownie.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Wstecz do biblioteki</string>
   <string name="series_detail_play_episode">Odtwórz · Sezon %1$d Odc %2$d</string>
   <string name="series_detail_resume">Wznów · Sezon %1$d Odc %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Wersje</string>
   <string name="series_episodes">Odcinki (%1$d)</string>
   <string name="series_incorrect_pin">Nieprawidłowy PIN</string>
   <string name="series_library_lens_subtitle">Wyświetlaj ulubione, w trakcie oglądania, najwyżej oceniane i nowe seriale w całej bibliotece.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Częściowe</string>
   <string name="settings_status_unknown">Nieznany</string>
   <string name="settings_update_install_started">Otwieranie instalatora pakietu.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Adres URL strumienia</string>
+  <string name="stream_url_copied">Skopiowano adres URL strumienia</string>
+  <string name="stream_url_copy">Kopiuj adres URL</string>
+  <string name="stream_url_copy_failed">Nie udało się ustalić adresu URL strumienia</string>
   <string name="vod_category_picker_empty">Nie znaleziono pasujących kategorii.</string>
   <string name="vod_category_picker_search_placeholder">Szukaj kategorii…</string>
   <string name="vod_category_picker_subtitle">Wyszukaj po nazwie kategorii, a potem otwórz pasującą sekcję.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Odśwież tego dostawcę, aby zaimportować filmy i seriale do biblioteki.</string>
   <string name="vod_sync_needed_title">Wymagana synchronizacja</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Dodaj do listy do obejrzenia Trakt</string>
-  <string name="trakt_watchlist_connect">Połącz Trakt w Ustawieniach</string>
-  <string name="trakt_watchlist_failed">Nie udało się zaktualizować listy Trakt. Spróbuj ponownie.</string>
-  <string name="trakt_watchlist_load">Wczytaj listę Trakt</string>
-  <string name="trakt_watchlist_remove">Usuń z listy Trakt</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Oceń w Trakt</string>
-  <string name="trakt_rating_dialog_message">Wybierz ocenę od 1 do 10.</string>
-  <string name="trakt_rating_current">Twoja ocena w Trakt: %1$d/10</string>
-  <string name="trakt_rating_saved">Twoja ocena została zapisana w Trakt.</string>
-  <string name="trakt_rating_failed">Nie udało się zapisać oceny w Trakt.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
+  <string name="vod_unavailable_subtitle">Ten dostawca udostępnia osobne katalogi filmów i seriali.</string>
+  <string name="vod_unavailable_title">VOD jest niedostępne</string>
+
+<string name="trakt_watchlist_add">Dodaj do listy do obejrzenia Trakt</string>
+<string name="trakt_watchlist_connect">Połącz Trakt w Ustawieniach</string>
+<string name="trakt_watchlist_failed">Nie udało się zaktualizować listy Trakt. Spróbuj ponownie.</string>
+<string name="trakt_watchlist_load">Wczytaj listę Trakt</string>
+<string name="trakt_watchlist_remove">Usuń z listy Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filmy na Twojej liście obserwowanych Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Programy telewizyjne na Twojej liście obserwowanych Trakt</string>
+<string name="trakt_rating_action">Oceń w Trakt</string>
+<string name="trakt_rating_dialog_message">Wybierz ocenę od 1 do 10.</string>
+<string name="trakt_rating_current">Twoja ocena w Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">Twoja ocena została zapisana w Trakt.</string>
+<string name="trakt_rating_failed">Nie udało się zapisać oceny w Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
 </resources>

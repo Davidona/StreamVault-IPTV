@@ -241,7 +241,7 @@
     <string name="settings_catalog_count_pending">In attesa</string>
     <string name="settings_live_timeshift_backend_value">Automatico</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Plugins</string>
+    <string name="nav_plugins">Plugin</string>
     <string name="hidden_categories_dialog_title">Categorie nascoste</string>
     <string name="hidden_categories_dialog_subtitle">Scegli quelle da ripristinare.</string>
     <string name="hidden_categories_dialog_unhide_all">Mostra tutte</string>
@@ -270,4 +270,21 @@
     <string name="downloads_empty">Nessun download presente</string>
     <string name="downloads_delete_confirm">Eliminare questo download?</string>
     <string name="download_play_local">Riproduci</string>
+    <string name="nav_close_app">Chiudi app</string>
+    <string name="m3u_organize_items">Organizza elementi M3U</string>
+    <string name="m3u_move_to_movies">Sposta in Film</string>
+    <string name="m3u_move_to_series">Sposta in Serie</string>
+    <string name="m3u_move_back_to_live">Riporta a TV in diretta</string>
+    <string name="m3u_series_name">Nome serie</string>
+    <string name="m3u_episode_number">Numero episodio</string>
+    <string name="m3u_season_number">Numero stagione</string>
+    <string name="m3u_classify">Classifica</string>
+    <string name="m3u_classification_saved">Classificazione M3U salvata</string>
+    <string name="m3u_category_rule_subtitle">Scegli un valore predefinito per questo gruppo M3U. I singoli canali possono comunque essere sovrascritti.</string>
+    <string name="m3u_keep_live">Mantieni come TV in diretta</string>
+    <string name="m3u_series_review_title">Organizza le serie in %1$s</string>
+    <string name="m3u_series_review_subtitle">Esamina i suggerimenti automatici o assegna ogni voce a una serie, stagione ed episodio.</string>
+    <string name="m3u_episode_unresolved">Numero episodio non risolto — rimarrà contrassegnato per la correzione.</string>
+    <string name="settings_drive_cancel_backup_choice_subtitle">Torna alle azioni di backup su Drive.</string>
+    <string name="nav_vod">VOD</string>
 </resources>

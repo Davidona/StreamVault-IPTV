@@ -151,6 +151,11 @@ public fun SettingsScreen(
             viewModel.exportConfig(
                 uriString = it.toString(),
                 onSuccess = { platformHost.backupFiles.rememberManagedExport(it) },
+                onFinished = { success ->
+                    if (!success) {
+                        DocumentFile.fromSingleUri(context, it)?.delete()
+                    }
+                },
             )
         }
     }
@@ -207,6 +212,9 @@ public fun SettingsScreen(
         viewModel.exportConfig(
             uriString = newFile.uri.toString(),
             onSuccess = { platformHost.backupFiles.rememberManagedExport(newFile.uri) },
+            onFinished = { success ->
+                if (!success) newFile.delete()
+            },
         )
     }
 
@@ -253,11 +261,17 @@ public fun SettingsScreen(
             return
         }
         val uri = platformHost.backupFiles.providerUri(file)
-        viewModel.exportConfig(uri.toString()) {
-            if (platformHost.shareBackup(uri) is Result.Error) {
-                viewModel.showUserMessage(shareFailedMessage)
-            }
-        }
+        viewModel.exportConfig(
+            uriString = uri.toString(),
+            onFinished = { exported ->
+                if (!exported) {
+                    file.delete()
+                } else if (platformHost.shareBackup(uri) is Result.Error) {
+                    file.delete()
+                    viewModel.showUserMessage(shareFailedMessage)
+                }
+            },
+        )
     }
 
     fun exportBackupWithoutPicker() {
@@ -283,6 +297,7 @@ public fun SettingsScreen(
     val usbStorageDir: File? = remember(platformHost) { platformHost.removableBackupDirectory() }
 
     var showLocalBackupManager by remember { mutableStateOf(false) }
+    var showRecordingSmbStorageDialog by rememberSaveable { mutableStateOf(false) }
     var managedLocalBackups by remember { mutableStateOf<List<SettingsBackupFileCandidate>>(emptyList()) }
 
     fun refreshManagedLocalBackups() {
@@ -318,7 +333,21 @@ public fun SettingsScreen(
             viewModel.showUserMessage(usbBackupFailedMessage)
             return
         }
-        viewModel.exportConfig(Uri.fromFile(file).toString())
+        val candidate = SettingsBackupFileCandidate(
+            displayName = file.name,
+            uri = Uri.fromFile(file),
+            lastModifiedMs = file.lastModified(),
+            sizeBytes = file.length(),
+        )
+        viewModel.exportConfig(
+            uriString = candidate.uri.toString(),
+            onFinished = { success ->
+                if (!success) {
+                    platformHost.backupFiles.delete(candidate)
+                }
+                refreshManagedLocalBackups()
+            }
+        )
     }
 
     fun restoreBackupFromUsb() {
@@ -439,6 +468,7 @@ public fun SettingsScreen(
                         add("sources.combined.delete")
                     }
                     if (uiState.providers.isEmpty()) {
+                        add("sources.automatic_sync")
                         add("sources.active_provider")
                         add("sources.edit")
                         add("sources.sync")
@@ -538,6 +568,7 @@ public fun SettingsScreen(
                             )
                         }
                     },
+                    onConfigureSmbRecordingStorage = { showRecordingSmbStorageDialog = true },
                     onUseUsbRecordingStorage = usbStorageDir?.let { dir ->
                         { viewModel.useUsbRecordingStorage(File(dir, "recordings").absolutePath) }
                     },
@@ -653,6 +684,14 @@ public fun SettingsScreen(
         },
         modifier = Modifier
     )
+
+    if (showRecordingSmbStorageDialog) {
+        RecordingSmbStorageDialog(
+            storageState = uiState.recordingStorageState,
+            viewModel = viewModel,
+            onDismiss = { showRecordingSmbStorageDialog = false }
+        )
+    }
 
     if (pendingImportCandidates.isNotEmpty()) {
         BackupSelectionDialog(

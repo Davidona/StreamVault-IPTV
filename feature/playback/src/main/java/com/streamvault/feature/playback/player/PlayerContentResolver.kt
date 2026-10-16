@@ -3,11 +3,14 @@ package com.streamvault.feature.playback.player
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.PlaybackContentKind
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.model.VodMovieVariant
+import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.provider.PlayerCredentialFailure
 import com.streamvault.domain.provider.PlayerPlaybackResolutionFailure
 import com.streamvault.domain.provider.PlayerPlaybackResolver
@@ -57,11 +60,38 @@ class PlayerContentResolver @Inject constructor(
     internal suspend fun getMovieVariants(movieId: Long): List<VodMovieVariant> =
         movieRepository.getMovieVariants(movieId)
 
+    internal suspend fun hasExplicitMovieVariantSelection(movieId: Long): Boolean =
+        movieRepository.hasExplicitMovieVariantSelection(movieId)
+
     internal suspend fun getMovieStreamInfo(movie: Movie): Result<StreamInfo> =
         movieRepository.getStreamInfo(movie)
 
     internal suspend fun getSeriesDetails(providerId: Long, seriesId: Long): Result<Series> =
         seriesRepository.getSeriesDetails(providerId, seriesId)
+
+    internal suspend fun getRawSeries(seriesId: Long): Series? = seriesRepository.getSeriesById(seriesId)
+
+    internal suspend fun getSeriesVariants(seriesId: Long): List<VodSeriesVariant> =
+        seriesRepository.getSeriesVariants(seriesId)
+
+    internal suspend fun hasExplicitSeriesVariantSelection(seriesId: Long): Boolean =
+        seriesRepository.hasExplicitSeriesVariantSelection(seriesId)
+
+    internal suspend fun getEpisodeStreamInfo(episode: Episode): Result<StreamInfo> =
+        seriesRepository.getEpisodeStreamInfo(episode)
+
+    internal suspend fun resolvePhysicalEpisodeStream(
+        source: PhysicalEpisodeSource,
+        logicalTitle: String
+    ): PlayerPlaybackStreamResolution = resolvePlaybackStream(
+        logicalUrl = source.episode.streamUrl,
+        internalContentId = source.episode.id,
+        providerId = source.episode.providerId,
+        contentType = ContentType.SERIES_EPISODE,
+        currentTitle = logicalTitle,
+        currentSeries = source.series,
+        currentEpisode = source.episode
+    ).let { resolution -> resolution.copy(streamInfo = resolution.streamInfo?.copy(title = logicalTitle)) }
 
     internal suspend fun getEpisodeById(episodeId: Long): Episode? =
         seriesRepository.getEpisodeById(episodeId)
@@ -92,7 +122,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (shouldUseStoredLiveStreamInfo(logicalUrl, channel.streamUrl)) {
                         channelRepository.getStreamInfo(channel).getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.LIVE
+                                )
                             )
                         }
                     }
@@ -108,7 +141,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (streamInfoResult.isSuccess) {
                         streamInfoResult.getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.ON_DEMAND
+                                )
                             )
                         }
                     } else {
@@ -144,7 +180,10 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     if (streamInfoResult.isSuccess) {
                         streamInfoResult.getOrNull()?.let { resolved ->
                             return PlayerPlaybackStreamResolution(
-                                streamInfo = resolved.copy(title = resolved.title ?: currentTitle)
+                                streamInfo = resolved.copy(
+                                    title = resolved.title ?: currentTitle,
+                                    playbackContentKind = PlaybackContentKind.ON_DEMAND
+                                )
                             )
                         }
                     } else {
@@ -181,7 +220,9 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                     proxyPort = resolved.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolved.expirationTime
+                    expirationTime = resolved.expirationTime,
+                    playbackContentKind = contentType.toPlaybackContentKind(),
+                    livePlaybackIdentity = livePlaybackIdentityOrNull(providerId, internalContentId, contentType)
                 )
             )
         }
@@ -216,8 +257,23 @@ internal suspend fun resolvePlayerPlaybackStreamInfo(
                 url = it,
                 title = currentTitle,
                 streamType = StreamType.fromContainerExtension(fallbackContainerExtension),
-                containerExtension = fallbackContainerExtension
+                containerExtension = fallbackContainerExtension,
+                playbackContentKind = contentType.toPlaybackContentKind(),
+                livePlaybackIdentity = livePlaybackIdentityOrNull(providerId, internalContentId, contentType)
             )
         }
     )
 }
+
+private fun livePlaybackIdentityOrNull(
+    providerId: Long,
+    channelId: Long,
+    contentType: ContentType
+): LivePlaybackIdentity? = if (contentType == ContentType.LIVE && providerId > 0L && channelId > 0L) {
+    LivePlaybackIdentity(providerId, channelId)
+} else {
+    null
+}
+
+private fun ContentType.toPlaybackContentKind(): PlaybackContentKind =
+    if (this == ContentType.LIVE) PlaybackContentKind.LIVE else PlaybackContentKind.ON_DEMAND

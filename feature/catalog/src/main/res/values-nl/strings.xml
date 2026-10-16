@@ -32,11 +32,11 @@
   <string name="badge_series">SERIE</string>
   <string name="card_live_badge">LEEF</string>
   <string name="card_locked_channel">Vergrendeld kanaal</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Casten</string>
+  <string name="cast_item_unavailable">Dit item kan niet naar een Cast-ontvanger worden verzonden.</string>
+  <string name="cast_launching">Bezig met casten...</string>
+  <string name="cast_started">Casten naar het verbonden apparaat.</string>
+  <string name="cast_unavailable">Google Cast is niet beschikbaar op dit apparaat.</string>
   <string name="category_options_cancel">Annuleer</string>
   <string name="category_options_clear_recent">Alles wissen uit Recent</string>
   <string name="category_options_delete">Groep verwijderen</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Instellen als standaardgroep</string>
   <string name="category_options_unlock">Ontgrendel groep</string>
   <string name="category_options_unpin">Categorie losmaken</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Vastzetten</string>
   <string name="category_see_all">Zie alles →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Losmaken</string>
+  <string name="channel_action_hide">Dit kanaal verbergen</string>
   <string name="channel_options_remove_from_recent">Verwijderen uit Recent</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Ga door met kijken</string>
   <string name="dashboard_channels_format">%1$d kanalen</string>
   <string name="dashboard_continue_watching">Ga door met kijken</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Ga door met films kijken</string>
+  <string name="dashboard_continue_watching_series">Ga door met series kijken</string>
   <string name="dashboard_empty_body">Voeg eerst een afspeellijst of Xtream-bron toe. Zodra een provider actief is, zal Home favoriete kanalen weergeven, doorgaan met kijken en nieuwe bibliotheekrijen.</string>
   <string name="dashboard_empty_title">Stel een provider in om het startscherm te ontgrendelen</string>
   <string name="dashboard_favorite_channels">Favoriete kanalen</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Favoriete films</string>
+  <string name="dashboard_favorite_series">Favoriete series</string>
   <string name="dashboard_fresh_movie_pick">Nieuwe filmkeuze</string>
   <string name="dashboard_jump_back_live">Spring terug naar live-tv</string>
   <string name="dashboard_library_ready">Uw IPTV-bibliotheek is klaar</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Recente kanalen</string>
   <string name="dashboard_recent_movies">Recent toegevoegde films</string>
   <string name="dashboard_recent_series">Onlangs bijgewerkte serie</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Aanbevolen films</string>
   <string name="dashboard_resume_episode">Aflevering hervatten</string>
   <string name="dashboard_resume_episode_format">CV S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Hervatten</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d-serie</string>
   <string name="dashboard_subtitle">%1$s is actief. Ga terug naar live, volg de voortgang of blader door nieuwe toevoegingen.</string>
   <string name="dashboard_title">Uw bibliotheek, klaar</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Hoogst gewaardeerde films</string>
+  <string name="dashboard_update_allow_installs">Installaties toestaan</string>
   <string name="dashboard_update_available">Een nieuwere appversie is in de cache opgeslagen en klaar om te bekijken via Instellingen.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">De update is gedownload. Sta installaties van StreamVault toe en probeer de installatie opnieuw.</string>
   <string name="dashboard_update_install_ready">De nieuwste update is al gedownload. Open Instellingen om deze te installeren.</string>
   <string name="dashboard_update_open_installer">Installeren via Instellingen</string>
   <string name="dashboard_update_open_settings">Updates openen</string>
@@ -118,9 +118,9 @@
   <string name="dashboard_warning_title">Aanbieder heeft aandacht nodig</string>
   <string name="dashboard_watch_live">Kijk live</string>
   <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_error_no_url">Stream-URL voor download kon niet worden gevonden</string>
+  <string name="download_failed">Download mislukt: %1$s</string>
+  <string name="download_started">Download gestart</string>
   <string name="favorites_add">Toevoegen aan favorieten</string>
   <string name="favorites_all_favorites">Alle favorieten</string>
   <string name="favorites_cancel">Terug: annuleren</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Houd een opgeslagen groep vast voor opties</string>
   <string name="library_saved_primary_hint">Keer terug naar de volledige bibliotheek</string>
   <string name="library_sort_title">Resultaten sorteren</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Verplaatsen naar Live TV</string>
+  <string name="m3u_move_to_movies">Verplaatsen naar Films</string>
+  <string name="m3u_move_to_series">Verplaatsen naar Series</string>
+  <string name="m3u_organize_items">M3U-items ordenen</string>
   <string name="movie_detail_back">Terug naar bibliotheek</string>
   <string name="movie_detail_cast">Cast:</string>
   <string name="movie_detail_director">Geregisseerd door:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Hervatten vanaf %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Onbekend</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versies</string>
   <string name="movie_loading_details">Details laden...</string>
   <string name="movie_not_found">Film niet gevonden</string>
   <string name="movie_plot_fallback">Geen plot beschikbaar</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Films</string>
   <string name="nav_series">Serie</string>
   <string name="nav_settings">Instellingen</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Annuleer</string>
   <string name="pin_dialog_title">Voer pincode in</string>
   <string name="player_resume">Hervatten</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Verwijderen uit favorieten</string>
   <string name="search_actions_unlock">Ouderlijk toezicht ontgrendelen</string>
   <string name="search_all">Allemaal</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Volledige zoekindex eenmalig opbouwen</string>
+  <string name="search_catalog_complete">Volledige catalogusindex</string>
+  <string name="search_catalog_downloaded_only">Alleen gedownloade items. Bouw de volledige zoekindex om de volledige portaalcatalogus te doorzoeken.</string>
+  <string name="search_catalog_indexing">De volledige zoekindex wordt opgebouwd. Resultaten zijn nog gedeeltelijk.</string>
+  <string name="search_catalog_truncated">De portaalcatalogus was afgekapt. Resultaten kunnen onvolledig zijn.</string>
   <string name="search_clear_history">Duidelijk</string>
   <string name="search_command_subtitle">Begin met een titel, trefwoord, kanaalnaam of serie. Resultaten blijven gegroepeerd voor snelle navigatie op afstand.</string>
   <string name="search_error_subtitle">Sommige resultaten konden niet worden geladen. Probeer opnieuw.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Terug naar bibliotheek</string>
   <string name="series_detail_play_episode">Afspelen · Seizoen %1$d Afl. %2$d</string>
   <string name="series_detail_resume">Hervatten · Seizoen %1$d Afl. %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versies</string>
   <string name="series_episodes">Afleveringen (%1$d)</string>
   <string name="series_incorrect_pin">Onjuiste pincode</string>
   <string name="series_library_lens_subtitle">Ontdek favorieten, lopende, best beoordeelde en nieuwe series in de hele bibliotheek.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Gedeeltelijk</string>
   <string name="settings_status_unknown">Onbekend</string>
   <string name="settings_update_install_started">Het pakketinstallatieprogramma wordt geopend.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">Stream-URL</string>
+  <string name="stream_url_copied">Stream-URL gekopieerd</string>
+  <string name="stream_url_copy">URL kopiëren</string>
+  <string name="stream_url_copy_failed">Stream-URL kon niet worden gevonden</string>
   <string name="vod_category_picker_empty">Geen overeenkomende categorieën gevonden.</string>
   <string name="vod_category_picker_search_placeholder">Categorieën zoeken…</string>
   <string name="vod_category_picker_subtitle">Zoek op categorienaam en open vervolgens de bijpassende plank.</string>
@@ -349,19 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Vernieuw deze provider om films en series in de bibliotheek te importeren.</string>
   <string name="vod_sync_needed_title">Synchronisatie vereist</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
-  <string name="trakt_watchlist_add">Toevoegen aan Trakt-volglijst</string>
-  <string name="trakt_watchlist_connect">Verbind Trakt via Instellingen</string>
-  <string name="trakt_watchlist_failed">De Trakt-volglijst kon niet worden bijgewerkt. Probeer het opnieuw.</string>
-  <string name="trakt_watchlist_load">Trakt-volglijst laden</string>
-  <string name="trakt_watchlist_remove">Verwijderen van Trakt-volglijst</string>
-  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
-  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
-  <string name="trakt_rating_action">Beoordeel op Trakt</string>
-  <string name="trakt_rating_dialog_message">Kies een beoordeling van 1 tot 10.</string>
-  <string name="trakt_rating_current">Je Trakt-beoordeling: %1$d/10</string>
-  <string name="trakt_rating_saved">Je beoordeling is opgeslagen op Trakt.</string>
-  <string name="trakt_rating_failed">Je beoordeling kon niet op Trakt worden opgeslagen.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
+  <string name="vod_unavailable_subtitle">Deze aanbieder biedt aparte catalogi voor films en series.</string>
+  <string name="vod_unavailable_title">VOD is niet beschikbaar</string>
+
+<string name="trakt_watchlist_add">Toevoegen aan Trakt-volglijst</string>
+<string name="trakt_watchlist_connect">Verbind Trakt via Instellingen</string>
+<string name="trakt_watchlist_failed">De Trakt-volglijst kon niet worden bijgewerkt. Probeer het opnieuw.</string>
+<string name="trakt_watchlist_load">Trakt-volglijst laden</string>
+<string name="trakt_watchlist_remove">Verwijderen van Trakt-volglijst</string>
+<string name="dashboard_trakt_watchlist_movies">Films in uw Trakt-kijklijst</string>
+<string name="dashboard_trakt_watchlist_series">Tv-programma's in uw Trakt-kijklijst</string>
+<string name="trakt_rating_action">Beoordeel op Trakt</string>
+<string name="trakt_rating_dialog_message">Kies een beoordeling van 1 tot 10.</string>
+<string name="trakt_rating_current">Je Trakt-beoordeling: %1$d/10</string>
+<string name="trakt_rating_saved">Je beoordeling is opgeslagen op Trakt.</string>
+<string name="trakt_rating_failed">Je beoordeling kon niet op Trakt worden opgeslagen.</string>
+<string name="trakt_favorite_sync_failed">StreamVault heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
 </resources>

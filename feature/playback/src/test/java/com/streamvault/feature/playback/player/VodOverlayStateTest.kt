@@ -59,6 +59,25 @@ class VodOverlayStateTest {
     }
 
     @Test
+    fun `movie exposes subtitle action for online search without embedded tracks`() {
+        val state = buildVodOverlayState(
+            contentType = "MOVIE",
+            isCatchUpPlayback = false,
+            chapters = emptyList(),
+            currentPositionMs = 0L,
+            showEpisodesAction = false,
+            subtitleTrackCount = 0,
+            audioTrackCount = 0,
+            videoQualityCount = 0,
+            onlineSubtitleSearchAvailable = true,
+            showExternalPlayerAction = false,
+            isCastConnected = false,
+        )
+
+        assertThat(state.showSubtitleAction).isTrue()
+    }
+
+    @Test
     fun `cast hides chapter action while preserving navigation state`() {
         val state = buildVodOverlayState(
             contentType = "MOVIE",
@@ -89,6 +108,7 @@ class VodOverlayStateTest {
             subtitleTrackCount = 1,
             audioTrackCount = 1,
             videoQualityCount = 1,
+            onlineSubtitleSearchAvailable = true,
             showExternalPlayerAction = true,
             isCastConnected = false
         )
@@ -123,7 +143,7 @@ class VodOverlayStateTest {
     }
 
     @Test
-    fun `negative capability counts are treated as unavailable`() {
+    fun `vod subtitle action remains available for local subtitle loading`() {
         val state = buildVodOverlayState(
             contentType = "MOVIE",
             isCatchUpPlayback = false,
@@ -137,7 +157,7 @@ class VodOverlayStateTest {
             isCastConnected = false
         )
 
-        assertThat(state.showSubtitleAction).isFalse()
+        assertThat(state.showSubtitleAction).isTrue()
         assertThat(state.showAudioAction).isFalse()
         assertThat(state.showVideoQualityAction).isFalse()
         assertThat(state.showExternalPlayerAction).isTrue()

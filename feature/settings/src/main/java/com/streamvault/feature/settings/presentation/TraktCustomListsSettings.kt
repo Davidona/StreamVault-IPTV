@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,16 +15,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.TvOutlinedTextField
 import com.streamvault.domain.trakt.TraktCustomList
 import com.streamvault.domain.trakt.TraktCustomListActionResult
@@ -166,35 +165,30 @@ internal fun TraktCustomListsSettings() {
         if (state.failure == null) viewModel.clearFailure()
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(stringResource(R.string.trakt_custom_lists_title), color = AppColors.TextPrimary)
-        Text(stringResource(R.string.trakt_custom_lists_description), color = AppColors.TextSecondary)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(
-                onClick = viewModel::refresh,
-                enabled = !busy,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary,
-                    disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.6f),
-                    disabledContentColor = AppColors.TextSecondary,
-                ),
-            ) {
-                Text(stringResource(R.string.trakt_custom_lists_refresh))
-            }
-            Button(
-                onClick = { createExpanded = !createExpanded },
-                enabled = !busy,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary,
-                    disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.6f),
-                    disabledContentColor = AppColors.TextSecondary,
-                ),
-            ) {
-                Text(stringResource(if (createExpanded) R.string.settings_cancel else R.string.trakt_custom_lists_create))
-            }
+    Column(
+        modifier = Modifier.fillMaxWidth().settingsDetailPanel().padding(SettingsDesignTokens.space16),
+        verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space12),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space4)) {
+            Text(
+                stringResource(R.string.trakt_custom_lists_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColors.TextPrimary,
+            )
+            Text(stringResource(R.string.trakt_custom_lists_description), color = AppColors.TextSecondary)
         }
+        TraktListSettingsAction(
+            label = stringResource(R.string.trakt_custom_lists_refresh),
+            onClick = viewModel::refresh,
+            enabled = !busy,
+        )
+        TraktListSettingsAction(
+            label = stringResource(if (createExpanded) R.string.settings_cancel else R.string.trakt_custom_lists_create),
+            onClick = { createExpanded = !createExpanded },
+            enabled = !busy,
+            emphasized = !createExpanded,
+        )
 
         if (createExpanded) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -293,24 +287,28 @@ internal fun TraktCustomListsSettings() {
     }
 
     deleteConfirmation?.let { list ->
-        AlertDialog(
+        PremiumDialog(
+            title = stringResource(R.string.trakt_custom_lists_delete_title),
+            subtitle = stringResource(R.string.trakt_custom_lists_delete_message, list.name),
             onDismissRequest = { if (!busy) deleteConfirmation = null },
-            title = { Text(stringResource(R.string.trakt_custom_lists_delete_title)) },
-            text = { Text(stringResource(R.string.trakt_custom_lists_delete_message, list.name)) },
-            confirmButton = {
-                TextButton(
+            widthFraction = 0.46f,
+            content = {},
+            footer = {
+                PremiumDialogFooterButton(
+                    label = stringResource(R.string.settings_cancel),
+                    onClick = { deleteConfirmation = null },
                     enabled = !busy,
+                )
+                PremiumDialogFooterButton(
+                    label = stringResource(R.string.trakt_custom_lists_delete),
                     onClick = {
                         viewModel.deleteList(list.id)
                         deleteConfirmation = null
                         if (selectedListId == list.id) selectedListId = null
                     },
-                ) { Text(stringResource(R.string.trakt_custom_lists_delete)) }
-            },
-            dismissButton = {
-                TextButton(enabled = !busy, onClick = { deleteConfirmation = null }) {
-                    Text(stringResource(R.string.settings_cancel))
-                }
+                    enabled = !busy,
+                    destructive = true,
+                )
             },
         )
     }
@@ -332,7 +330,10 @@ private fun CustomListRow(
     onMoveItemUp: (com.streamvault.domain.trakt.TraktCustomListItem) -> Unit,
     onMoveItemDown: (com.streamvault.domain.trakt.TraktCustomListItem) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth().settingsDetailPanel().padding(SettingsDesignTokens.space12),
+        verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
                 onClick = onClick,
@@ -405,6 +406,25 @@ private fun CustomListRow(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun TraktListSettingsAction(
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    emphasized: Boolean = false,
+) {
+    val colors = SettingsDesignTokens.colors(AppColors.current)
+    SettingsActionSurface(onClick = onClick, enabled = enabled) {
+        Text(
+            text = label,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space12),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = if (enabled && emphasized) colors.accent else colors.primaryText,
+        )
     }
 }
 

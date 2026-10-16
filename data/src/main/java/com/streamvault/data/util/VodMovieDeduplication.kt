@@ -68,7 +68,7 @@ private val EDITION_TOKENS: List<String> = listOf(
 private val YEAR_REGEX = Regex("""(19|20)\d{2}""")
 private val YEAR_SUFFIX_REGEX = Regex("""\s*\((19|20)\d{2}\)\s*$""")
 private val QUALITY_CLEANUP_REGEX = Regex(
-    """\b(8k|4320p|uhd|ultra\s*hd|4k|2160p|2k|qhd|1440p|full\s*hd|fullhd|fhd|1080p|1080i|hd|720p|576p|540p|hq|sd|480p|360p|240p|hdr10|hdr|dolby\s*vision|remux|blu\s*ray|bluray|bdrip|web\s*dl|web-dl|webrip|hevc|h265|x265|av1)\b""",
+    """\b(8k|4320p|uhd|ultra\s*hd|4k|2160p|2k|qhd|1440p|full\s*hd|fullhd|fhd|1080p|1080i|hd|720p|576p|540p|hq|sd|480p|360p|240p|hdr10|hdr|dolby\s*vision|remux|blu\s*ray|bluray|bdrip|web\s*dl|web-dl|webrip|hevc|h[ ._-]*265|x265|hev1|hvc1|avc|h[ ._-]*264|x264|av1)\b""",
     RegexOption.IGNORE_CASE
 )
 private val NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")

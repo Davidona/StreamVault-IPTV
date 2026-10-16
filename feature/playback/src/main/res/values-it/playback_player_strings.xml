@@ -1,9 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="settings_timer_minutes">
             <item quantity="one">%1$d minuto</item>
             <item quantity="other">%1$d minuti</item>
         </plurals>
-    <string name="add_group_close_cd">Chiudi</string>
     <string name="channel_number_name_format">%1$d. %2$s</string>
     <string name="epg_catchup_available">Recupero disponibile (%1$d giorni)</string>
     <string name="epg_no_info">Nessuna informazione EPG</string>
@@ -20,7 +19,7 @@
     <string name="notification_permission_reminder_required">Abilita le notifiche per StreamVault per ricevere promemoria dei programmi.</string>
     <string name="player_action_cast">Trasmetti</string>
     <string name="player_action_diagnostics">Diagnostica</string>
-    <string name="player_action_format">Format</string>
+    <string name="player_action_format">Formato</string>
     <string name="player_action_group">Gruppo</string>
     <string name="player_action_guide">Guida</string>
     <string name="player_action_mute">Muto</string>
@@ -31,8 +30,6 @@
     <string name="player_action_variants">Varianti</string>
     <string name="player_action_view">Visualizza</string>
     <string name="player_archive">Archivio</string>
-    <string name="player_archive_badge">Archivio</string>
-    <string name="player_archive_title">Archivio del programma</string>
     <string name="player_aspect_ratio_label">Aspetto %1$s</string>
     <string name="player_audio">Audio</string>
     <string name="player_auto_play_cancel">Annulla</string>
@@ -56,7 +53,7 @@
     <string name="player_cancel_scheduled_recording">Annulla pianificata</string>
     <string name="player_cast">Trasmetti</string>
     <string name="player_catchup_badge">Recupero</string>
-    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_catchup_options">Recupero</string>
     <string name="player_channel_list_hint">Seleziona un canale per sintonizzarti immediatamente. Indietro chiude l\'elenco.</string>
     <string name="player_channel_list_title">Canali (%1$d)</string>
     <string name="player_channel_not_found">Canale non trovato</string>
@@ -67,17 +64,17 @@
     <string name="player_diagnostics_alternates">Flussi alternativi</string>
     <string name="player_diagnostics_archive">Archivio</string>
     <string name="player_diagnostics_audio_codec">Codec audio</string>
-    <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
-    <string name="player_diagnostics_audio_output_path">Audio Path</string>
+    <string name="player_diagnostics_audio_decoder">Decoder audio</string>
+    <string name="player_diagnostics_audio_output_path">Percorso audio</string>
     <string name="player_diagnostics_av_offset">A/V Offset</string>
     <string name="player_diagnostics_av_sync">A/V Sync</string>
     <string name="player_diagnostics_av_sync_custom">On (percorso sync personalizzato)</string>
     <string name="player_diagnostics_av_sync_stock">Off (percorso audio standard)</string>
     <string name="player_diagnostics_av_sync_waiting">On (in attesa del riavvio della riproduzione)</string>
     <string name="player_diagnostics_channel_errors">Errori di canale</string>
-    <string name="player_diagnostics_compatibility_note">Compatibility Note</string>
-    <string name="player_diagnostics_compatibility_note_value">Playback may be using a learned or compatibility-assisted audio path for this stream.</string>
-    <string name="player_diagnostics_compatibility_source">Compatibility Source</string>
+    <string name="player_diagnostics_compatibility_note">Nota di compatibilità</string>
+    <string name="player_diagnostics_compatibility_note_value">La riproduzione potrebbe usare un percorso audio appreso o assistito dalla compatibilità per questo stream.</string>
+    <string name="player_diagnostics_compatibility_source">Fonte di compatibilità</string>
     <string name="player_diagnostics_dropped_frames">Fotogrammi persi</string>
     <string name="player_diagnostics_ffmpeg">FFmpeg</string>
     <string name="player_diagnostics_last_failure">Ultimo fallimento</string>
@@ -102,6 +99,8 @@
     <string name="player_epg_overlay_hint">Sfoglia i prossimi programmi qui. Seleziona un elemento pronto per l\'archiviazione per iniziare il recupero.</string>
     <string name="player_epg_short">EPG</string>
     <string name="player_episodes">Episodi</string>
+    <string name="player_previous_episode">Episodio precedente</string>
+    <string name="player_next_episode">Episodio successivo</string>
     <string name="player_error_back">Oppure premi Indietro per tornare</string>
     <string name="player_error_decoder">Impossibile riprodurre questo formato: prova a cambiare la modalità del decoder in Impostazioni</string>
     <string name="player_error_drm">La licenza DRM o i requisiti di sicurezza del dispositivo hanno impedito la riproduzione</string>
@@ -110,7 +109,7 @@
     <string name="player_error_source">Stream non trovato o accesso negato</string>
     <string name="player_error_title">Errore di riproduzione</string>
     <string name="player_error_unknown">Errore di riproduzione sconosciuto</string>
-    <string name="player_format_short">Format</string>
+    <string name="player_format_short">Formato</string>
     <string name="player_forward">Avanti veloce</string>
     <string name="player_idle_standby_after">Consenti standby dopo inattività</string>
     <string name="player_idle_timer_status">Standby inattivo %1$s</string>
@@ -127,7 +126,7 @@
     <string name="player_live_now">Ora in riproduzione</string>
     <string name="player_live_offset">%1$s indietro rispetto al live</string>
     <string name="player_live_ready">LIVE</string>
-    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_rewind_badge">DVR LOCALE</string>
     <string name="player_live_scrubber_cd">Linea temporale di riavvolgimento live. Usa sinistra e destra per cercare.</string>
     <string name="player_live_timeshift_buffering">Il riavvolgimento live locale è ancora in buffering.</string>
     <string name="player_minutes_remaining">%1$d minuti rimanenti</string>
@@ -136,10 +135,9 @@
     <string name="player_mute">Muto</string>
     <string name="player_muted_badge">Disattivato</string>
     <string name="player_next_label">Successivo:</string>
-    <string name="player_no_archive">Nessun programma archiviato trovato</string>
     <string name="player_no_guide_data">Nessun dato guida</string>
     <string name="player_open_guide_action">Guida aperta</string>
-    <string name="player_open_in_external_player">Open in external player</string>
+    <string name="player_open_in_external_player">Apri nel player esterno</string>
     <string name="player_pause">Pausa</string>
     <string name="player_picture_in_picture">Immagine nell\'immagine</string>
     <string name="player_pip_short">PiP</string>
@@ -173,12 +171,12 @@
     <string name="player_stop_playback_after">Arresta riproduzione dopo</string>
     <string name="player_stop_recording">Interrompi la registrazione</string>
     <string name="player_stop_timer_status">Arresta in %1$s</string>
-    <string name="player_stream_format">Stream Format</string>
+    <string name="player_stream_format">Formato stream</string>
     <string name="player_subs">Sost</string>
     <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
     <string name="player_timer_disable">Disabilita</string>
     <string name="player_timer_extend_30">+30 min</string>
-    <string name="player_timer_off">Off</string>
+    <string name="player_timer_off">Spento</string>
     <string name="player_timer_warning_idle">Standby consentito in %1$s</string>
     <string name="player_timer_warning_stop">Riproduzione si ferma in %1$s</string>
     <string name="player_track_audio">Seleziona Traccia audio</string>
@@ -192,16 +190,119 @@
     <string name="player_up_next">Prossimo</string>
     <string name="player_variants_short">Varianti</string>
     <string name="player_video_quality">Qualità video</string>
-    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="series_seasons">Stagioni</string>
     <string name="settings_recording_status_recording">Registrazione</string>
     <string name="time_range_format">%1$s – %2$s</string>
-    <string name="player_trakt_connect_required">Collega Trakt nelle Impostazioni</string>
-    <string name="player_trakt_not_supported">Trakt monitora solo film ed episodi.</string>
-    <string name="player_trakt_no_match">Nessuna corrispondenza esatta in Trakt per questo titolo.</string>
-    <string name="player_trakt_starting">Avvio del monitoraggio Trakt…</string>
-    <string name="player_trakt_tracking">Trakt monitora la riproduzione</string>
-    <string name="player_trakt_paused">Monitoraggio Trakt in pausa</string>
-    <string name="player_trakt_failed">Monitoraggio Trakt non riuscito</string>
-    <string name="player_trakt_sent">Inviato a Trakt</string>
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Cerca sottotitoli online</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Carica SRT dal dispositivo</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Ritardo sottotitoli (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Ritardo sottotitoli</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">I valori negativi mostrano i sottotitoli prima; i valori positivi li mostrano dopo.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Ritardo attuale: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Mostra i sottotitoli %1$d ms prima</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Mostra i sottotitoli %1$d ms dopo</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Reimposta ritardo</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s caricato. Il lettore sta caricando il sottotitolo.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Scegli un file di sottotitoli .srt valido.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">I file dei sottotitoli devono essere di 20 MB o meno.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Impossibile caricare questo file di sottotitoli.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Trova sottotitoli</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Scegli un sottotitolo da aggiungere a questo video.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Risultati per %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Puoi cercare senza accedere se l\'accesso anonimo è abilitato. Accedi per usare il limite di download del tuo account.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Collega account (facoltativo)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Ricerca su OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Nessun sottotitolo trovato per questo titolo e questa lingua.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Cerca di nuovo</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Scegli una lingua, poi seleziona una versione.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Tutte le lingue</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Mostra tutte le lingue disponibili</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Caricamento lingue…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Lingua: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Cambia lingua</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Impossibile caricare l\'elenco delle lingue.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s download</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Edizione generale</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Download del sottotitolo…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s aggiunto. Il lettore sta caricando il sottotitolo.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Chiudi</string>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Sessione Cast disconnessa.</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Recupero disponibile</string>
+    <string name="player_chapters">Capitoli</string>
+    <string name="player_chapter_count">%1$d capitoli</string>
+    <string name="player_chapter_label">Capitolo %1$d</string>
+    <string name="player_chapter_selected">Capitolo %1$d, selezionato</string>
+    <string name="player_chapter_title">Capitolo %1$d · %2$s</string>
+    <string name="player_close_chapters">Chiudi capitoli</string>
+    <string name="player_previous_chapter">Capitolo precedente</string>
+    <string name="player_next_chapter">Capitolo successivo</string>
+    <string name="player_rewind_10_seconds">Riavvolgi 10 secondi</string>
+    <string name="player_forward_10_seconds">Avanza di 10 secondi</string>
+    <string name="player_vod_timeline">Linea temporale VOD</string>
+    <string name="player_close_controls">Chiudi controlli</string>
+    <string name="player_back_to_menu">Torna al menu</string>
+    <string name="player_playback_settings">Impostazioni di riproduzione</string>
+    <string name="player_close_playback_settings">Chiudi impostazioni di riproduzione</string>
+    <string name="player_vod_controls">Controlli di riproduzione VOD</string>
+    <string name="player_aspect_ratio">Proporzioni</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Modalità decodificatore audio</string>
+    <string name="player_diagnostics_frame_rate">Frequenza fotogrammi</string>
+    <string name="player_diagnostics_stream_bitrate">Bitrate dello stream</string>
+    <string name="player_diagnostics_bandwidth_estimate">Larghezza di banda di rete</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Modalità decodificatore video</string>
+    <string name="player_close_playback_title">Chiudere la riproduzione?</string>
+    <string name="player_close_playback_desc">La riproduzione verrà interrotta e si tornerà alla schermata precedente.</string>
+    <string name="player_close_playback_confirm">Sì</string>
+    <string name="player_close_playback_cancel">No</string>
+    <string name="player_skip_intro">Salta intro</string>
+    <string name="player_skip_opening">Salta sigla</string>
+    <string name="player_skip_recap">Salta riepilogo</string>
+    <string name="player_skip_outro">Salta outro</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Traduzione in tempo reale</string>
+    <string name="player_quality_save_as_limit">Salva la risoluzione attuale come limite adattivo</string>
+    <string name="player_quality_remove_saved_limit">Rimuovi il limite di risoluzione salvato</string>
+    <string name="player_quality_use_session_limit">Limita questa riproduzione alla risoluzione attuale</string>
+    <string name="player_quality_clear_session_limit">Rimuovi il limite temporaneo di qualità</string>
+
+    <string name="player_quality_gate_title">Riproduzione in pausa per i limiti di qualità</string>
+    <string name="player_quality_gate_message">Nessuna qualità video disponibile rispetta i tuoi limiti. Controlla la qualità proposta e i dettagli prima di continuare.</string>
+    <string name="player_quality_gate_offer">Qualità video proposta: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">L’altezza di %1$d p supera il limite di %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">L’altezza del video è sconosciuta; il limite è %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Il bitrate di %1$s Mbps supera il limite di %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Il bitrate del video è sconosciuto; il limite è %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Continua una volta</string>
+
+    <string name="player_diagnostics_quality_limits">Limiti di qualità</string>
+    <string name="player_diagnostics_quality_reasons">Fattori limitanti</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferenze di riproduzione</string>
+    <string name="player_diagnostics_quality_source_device">Compatibilità del dispositivo</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Carico del decoder</string>
+
+    <string name="player_diagnostics_quality_capability">Capacità della sorgente video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Qualità adattive</string>
+    <string name="player_diagnostics_quality_capability_single">Qualità singola o fissa</string>
+    <string name="player_diagnostics_quality_capability_unknown">Sconosciuta</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Sorgente in differita</string>
+    <string name="player_quality_save_bitrate_as_limit">Salva il bitrate video attuale come massimo</string>
+    <string name="player_quality_inherit_height_limit">Usa il limite di altezza ereditato</string>
+    <string name="player_quality_inherit_bitrate_limit">Usa il limite di bitrate ereditato</string>
+    <string name="player_quality_no_additional_height_limit">Nessun limite di altezza aggiuntivo per questo contenuto</string>
+    <string name="player_quality_no_additional_bitrate_limit">Nessun limite di bitrate aggiuntivo per questo contenuto</string>
+    <string name="player_quality_mode_auto">Selezione automatica (adattiva)</string>
+    <string name="player_quality_mode_fixed">Traccia fissa</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Il ricevitore Cast sceglie la qualità; questi limiti non vengono applicati.</string>
+    <string name="player_video_quality_selection_blocked">Questa qualità video non rientra nei limiti di riproduzione.</string>
+    <string name="player_diagnostics_quality_height_summary">Risoluzione: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">La destinazione della registrazione non è riuscita a tenere il passo con la riproduzione in diretta.</string>
+
+<string name="player_trakt_connect_required">Collega Trakt nelle Impostazioni</string>
+<string name="player_trakt_not_supported">Trakt monitora solo film ed episodi.</string>
+<string name="player_trakt_no_match">Nessuna corrispondenza esatta in Trakt per questo titolo.</string>
+<string name="player_trakt_starting">Avvio del monitoraggio Trakt…</string>
+<string name="player_trakt_tracking">Trakt monitora la riproduzione</string>
+<string name="player_trakt_paused">Monitoraggio Trakt in pausa</string>
+<string name="player_trakt_failed">Monitoraggio Trakt non riuscito</string>
+<string name="player_trakt_sent">Inviato a Trakt</string>
 </resources>

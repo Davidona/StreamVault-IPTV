@@ -1,5 +1,6 @@
 package com.streamvault.feature.catalog.presentation.movies
 
+import com.streamvault.core.ui.design.BrowseShapes
 import android.content.Intent
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -7,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,7 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -60,25 +62,27 @@ import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
+import com.streamvault.feature.catalog.presentation.components.DetailActionButton
+import com.streamvault.feature.catalog.presentation.components.DetailInfoPanel
+import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
 import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
-import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
 import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
 import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
-import com.streamvault.feature.catalog.presentation.components.TraktRatingSummary
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.VodMovieVariant
 import com.streamvault.domain.trakt.TraktCustomListItem
 import com.streamvault.domain.trakt.TraktCustomListItemIdentity
 import com.streamvault.domain.trakt.TraktCustomListItemType
-import com.streamvault.domain.model.VodMovieVariant
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -96,7 +100,7 @@ fun MovieDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val movie = uiState.movie
     val context = LocalContext.current
-    var ratingDialogOpen by remember(movie?.id) { mutableStateOf(false) }
+    var ratingDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -150,10 +154,9 @@ fun MovieDetailScreen(
                 traktWatchlistLoaded = uiState.traktWatchlistLoaded,
                 traktWatchlisted = uiState.traktWatchlisted,
                 traktWatchlistBusy = uiState.traktWatchlistBusy,
-                onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
-                traktRatingConnected = uiState.traktWatchlistConnected,
                 traktUserRating = uiState.traktUserRating,
                 traktRatingBusy = uiState.traktRatingBusy,
+                onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
                 onRateOnTrakt = { ratingDialogOpen = true },
                 onPlay = { onPlay(movie) },
                 onCopyUrl = {
@@ -199,10 +202,9 @@ private fun MovieDetailContent(
     traktWatchlistLoaded: Boolean,
     traktWatchlisted: Boolean,
     traktWatchlistBusy: Boolean,
-    onToggleTraktWatchlist: () -> Unit,
-    traktRatingConnected: Boolean,
     traktUserRating: Int?,
     traktRatingBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
     onRateOnTrakt: () -> Unit,
     onPlay: () -> Unit,
     onCopyUrl: suspend () -> String?,
@@ -297,15 +299,6 @@ private fun MovieDetailContent(
                             isCasting = isCasting,
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
-                            traktWatchlistConnected = traktWatchlistConnected,
-                            traktWatchlistLoaded = traktWatchlistLoaded,
-                            traktWatchlisted = traktWatchlisted,
-                            traktWatchlistBusy = traktWatchlistBusy,
-                            onToggleTraktWatchlist = onToggleTraktWatchlist,
-                            traktRatingConnected = traktRatingConnected,
-                            traktUserRating = traktUserRating,
-                            traktRatingBusy = traktRatingBusy,
-                            onRateOnTrakt = onRateOnTrakt,
                             onPlay = onPlay,
                             onCopyUrl = {
                                 coroutineScope.launch {
@@ -339,15 +332,6 @@ private fun MovieDetailContent(
                             isCasting = isCasting,
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
-                            traktWatchlistConnected = traktWatchlistConnected,
-                            traktWatchlistLoaded = traktWatchlistLoaded,
-                            traktWatchlisted = traktWatchlisted,
-                            traktWatchlistBusy = traktWatchlistBusy,
-                            onToggleTraktWatchlist = onToggleTraktWatchlist,
-                            traktRatingConnected = traktRatingConnected,
-                            traktUserRating = traktUserRating,
-                            traktRatingBusy = traktRatingBusy,
-                            onRateOnTrakt = onRateOnTrakt,
                             onPlay = onPlay,
                             onCopyUrl = {
                                 coroutineScope.launch {
@@ -372,13 +356,44 @@ private fun MovieDetailContent(
                 }
             }
 
+            if (movie.tmdbId?.let { it > 0L } == true) {
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        item {
+                            TraktWatchlistActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                loaded = traktWatchlistLoaded,
+                                watchlisted = traktWatchlisted,
+                                busy = traktWatchlistBusy,
+                                onClick = onToggleTraktWatchlist,
+                            )
+                        }
+                        item {
+                            TraktRatingActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                busy = traktRatingBusy,
+                                rating = traktUserRating,
+                                onClick = onRateOnTrakt,
+                            )
+                        }
+                        item { TraktCustomListActionButton(movie.traktCustomListItem()) }
+                    }
+                }
+            }
+
+            if (listOf(movie.director, movie.releaseDate, movie.duration, movie.genre, movie.cast)
+                    .any { !it.isNullOrBlank() }) {
+                item { MovieFactGrid(movie = movie) }
+            }
+
             if (relatedContent.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.movie_detail_related),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppColors.TextPrimary
-                    )
+                    DetailSectionHeading(stringResource(R.string.movie_detail_related))
                 }
                 item {
                     LazyRow(
@@ -394,7 +409,7 @@ private fun MovieDetailContent(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(2f / 3f)
-                                            .clip(RoundedCornerShape(12.dp))
+                                            .clip(BrowseShapes.Artwork)
                                             .background(AppColors.SurfaceElevated)
                                     ) {
                                         AsyncImage(
@@ -421,6 +436,15 @@ private fun MovieDetailContent(
     }
 }
 
+private fun Movie.traktCustomListItem(): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(TraktCustomListItemType.MOVIE, showTmdbId),
+        title = name,
+        year = releaseDate?.take(4)?.toIntOrNull(),
+    )
+}
+
 @Composable
 private fun MoviePoster(
     movie: Movie,
@@ -430,8 +454,9 @@ private fun MoviePoster(
         modifier = Modifier
             .width(posterWidth)
             .aspectRatio(2f / 3f)
-            .clip(RoundedCornerShape(24.dp))
+            .clip(BrowseShapes.Panel)
             .background(AppColors.SurfaceElevated)
+            .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
     ) {
         AsyncImage(
             model = rememberCrossfadeImageModel(movie.posterUrl ?: movie.backdropUrl),
@@ -450,15 +475,6 @@ private fun MovieDetailHeroText(
     isCasting: Boolean,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
-    traktWatchlistConnected: Boolean,
-    traktWatchlistLoaded: Boolean,
-    traktWatchlisted: Boolean,
-    traktWatchlistBusy: Boolean,
-    onToggleTraktWatchlist: () -> Unit,
-    traktRatingConnected: Boolean,
-    traktUserRating: Int?,
-    traktRatingBusy: Boolean,
-    onRateOnTrakt: () -> Unit,
     onPlay: () -> Unit,
     onCopyUrl: () -> Unit,
     onDownload: () -> Unit,
@@ -504,13 +520,10 @@ private fun MovieDetailHeroText(
             )
         )
 
-        TraktRatingSummary(traktUserRating)
         ExternalRatingsStrip(
             ratings = externalRatings,
             isLoading = isLoadingExternalRatings
         )
-
-        MovieFactGrid(movie = movie)
 
         MovieVersionSelector(
             variants = movie.variants,
@@ -518,108 +531,48 @@ private fun MovieDetailHeroText(
             onSelectVariant = onSelectVariant
         )
 
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                TvButton(
-                    onClick = onPlay,
-                    modifier = Modifier.focusRequester(playButtonFocusRequester),
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.Brand,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        text = if (hasResume) {
-                            stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
-                        } else {
-                            stringResource(R.string.movie_detail_play)
-                        }
-                    )
-                }
-                TvButton(
-                    onClick = onCopyUrl,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.SurfaceEmphasis,
-                        contentColor = AppColors.TextPrimary
-                    )
-                ) {
-                    Text(stringResource(R.string.stream_url_copy))
-                }
-                TvButton(
-                    onClick = onDownload,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.SurfaceEmphasis,
-                        contentColor = AppColors.TextPrimary
-                    )
-                ) {
-                    Text(stringResource(R.string.download_button_label))
-                }
-                TvButton(
-                    onClick = onCast,
-                    enabled = !isCasting,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.SurfaceEmphasis,
-                        contentColor = AppColors.TextPrimary
-                    )
-                ) {
-                    Text(
-                        stringResource(
-                            if (isCasting) R.string.cast_launching else R.string.cast_button_label
-                        )
-                    )
-                }
-                if (hasTrailer) {
-                    TvButton(
-                        onClick = onPlayTrailer,
-                        colors = ButtonDefaults.colors(
-                            containerColor = AppColors.SurfaceEmphasis,
-                            contentColor = AppColors.TextPrimary
-                        )
-                    ) {
-                        Text(stringResource(R.string.movie_detail_trailer))
-                    }
-                }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            item { DetailActionButton(
+                label = if (hasResume) {
+                    stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
+                } else {
+                    stringResource(R.string.movie_detail_play)
+                },
+                onClick = onPlay,
+                modifier = Modifier.focusRequester(playButtonFocusRequester),
+                primary = true
+            ) }
+            item { DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl) }
+            item { DetailActionButton(stringResource(R.string.download_button_label), onDownload) }
+            item { DetailActionButton(
+                stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+                onCast, enabled = !isCasting
+            ) }
+            if (hasTrailer) {
+                item { DetailActionButton(stringResource(R.string.movie_detail_trailer), onPlayTrailer) }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                TvIconButton(
-                    onClick = onToggleFavorite,
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (movie.isFavorite) Color.White else AppColors.TextSecondary
+            item { TvIconButton(
+                onClick = onToggleFavorite,
+                scale = ButtonDefaults.scale(focusedScale = 1f),
+                shape = ButtonDefaults.shape(shape = CircleShape),
+                border = ButtonDefaults.border(
+                    border = Border(androidx.compose.foundation.BorderStroke(1.dp, AppColors.Outline), shape = CircleShape),
+                    focusedBorder = Border(androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus), shape = CircleShape)
+                ),
+                colors = ButtonDefaults.colors(
+                    containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+                    focusedContainerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+                    contentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary,
+                    focusedContentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
+                )
+            ) {
+                Icon(
+                    imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = stringResource(
+                        if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
                     )
-                ) {
-                    Icon(
-                        imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = stringResource(
-                            if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
-                        )
-                    )
-                }
-                TraktWatchlistActionButton(
-                    hasIdentity = movie.tmdbId?.let { it > 0L } == true,
-                    connected = traktWatchlistConnected,
-                    loaded = traktWatchlistLoaded,
-                    watchlisted = traktWatchlisted,
-                    busy = traktWatchlistBusy,
-                    onClick = onToggleTraktWatchlist,
                 )
-                TraktRatingActionButton(
-                    hasIdentity = movie.tmdbId?.let { it > 0L } == true,
-                    connected = traktRatingConnected,
-                    busy = traktRatingBusy,
-                    rating = traktUserRating,
-                    onClick = onRateOnTrakt,
-                )
-                TraktCustomListActionButton(
-                    movie.tmdbId?.takeIf { it > 0L }?.let { tmdbId ->
-                        TraktCustomListItem(
-                            identity = TraktCustomListItemIdentity(TraktCustomListItemType.MOVIE, tmdbId),
-                            title = movie.name,
-                            year = movie.releaseDate?.take(4)?.toIntOrNull(),
-                        )
-                    },
-                )
-            }
+            } }
         }
 
         Text(
@@ -627,7 +580,7 @@ private fun MovieDetailHeroText(
                 ?: stringResource(R.string.movie_plot_fallback),
             style = MaterialTheme.typography.bodyLarge,
             color = AppColors.TextSecondary,
-            maxLines = 6,
+            maxLines = 4,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -653,7 +606,7 @@ private fun MovieVersionSelector(
                     onClick = { onSelectVariant(variant.rawMovieId) },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (selected) Color.White else AppColors.TextPrimary
+                        contentColor = if (selected) AppColors.OnPrimary else AppColors.TextPrimary
                     )
                 ) {
                     Text(
@@ -690,32 +643,41 @@ private fun resolveTrailerUrl(rawTrailer: String?): String? {
 
 @Composable
 private fun MovieFactGrid(movie: Movie) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        MovieFactRow(label = stringResource(R.string.movie_detail_director), value = movie.director)
-        MovieFactRow(label = stringResource(R.string.movie_detail_release_date), value = movie.releaseDate)
-        MovieFactRow(label = stringResource(R.string.movie_detail_duration), value = movie.duration)
-        MovieFactRow(label = stringResource(R.string.movie_detail_genre), value = movie.genre)
-        MovieFactRow(label = stringResource(R.string.movie_detail_cast), value = movie.cast)
+    DetailInfoPanel(spacing = 12.dp) {
+        movie.director?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_director), value = it)
+        }
+        movie.releaseDate?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_release_date), value = it)
+        }
+        movie.duration?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_duration), value = it)
+        }
+        movie.genre?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_genre), value = it)
+        }
+        movie.cast?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_cast), value = it)
+        }
     }
 }
 
 @Composable
 private fun MovieFactRow(
     label: String,
-    value: String?
+    value: String
 ) {
-    val resolvedValue = value?.takeIf { it.isNotBlank() } ?: stringResource(R.string.movie_detail_unknown)
     Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
-            color = AppColors.TextPrimary,
-            modifier = Modifier.width(180.dp)
+            style = MaterialTheme.typography.labelMedium,
+            color = AppColors.TextTertiary,
+            modifier = Modifier.width(130.dp)
         )
         Text(
-            text = resolvedValue,
-            style = MaterialTheme.typography.bodyLarge,
-            color = AppColors.TextSecondary,
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.TextPrimary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )

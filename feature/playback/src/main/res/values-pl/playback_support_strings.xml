@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Przesyłanie na podłączone urządzenie.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast jest niedostępny na tym urządzeniu.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Ten format strumienia nie jest obsługiwany przez Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Strumienie RTSP i RTMP nie są obsługiwane podczas przesyłania.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Strumienie chronione DRM nie są obsługiwane przez Google Cast w tej aplikacji.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Tego elementu nie można wysłać do odbiornika Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Ten strumień używa lokalnego adresu URL lub adresu dostępnego tylko na urządzeniu, do którego Chromecast nie ma bezpośredniego dostępu.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Ten strumień wymaga nagłówków HTTP lub plików cookie, których Chromecast nie może użyć bezpośrednio.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Ten strumień wymaga niestandardowego User-Agenta, którego Chromecast nie może użyć bezpośrednio.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Ten strumień wymaga ustawień proxy aplikacji, więc Chromecast nie może go użyć bezpośrednio.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Ten strumień używa obsługi SSL, której Chromecast nie może użyć bezpośrednio.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Nie udało się rozpocząć sesji Cast.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Odbiornik Cast nie mógł wczytać tego strumienia.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Podłączony odbiornik Cast nie jest gotowy do odtwarzania.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Anulowano wybór urządzenia Cast.</string>
+    <string name="add_group_close_cd">Zamknij</string>
+    <string name="player_archive_title">Archiwum programu</string>
+    <string name="player_no_archive">Nie znaleziono zarchiwizowanych programów</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archiwum</string>
+</resources>

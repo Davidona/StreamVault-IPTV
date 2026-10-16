@@ -38,6 +38,7 @@ internal data class PlayerInputState(
     val showVariantSelection: Boolean = false,
     val showSpeedSelection: Boolean = false,
     val showAudioVideoOffsetDialog: Boolean = false,
+    val showSubtitleOffsetDialog: Boolean = false,
     val showStopPlaybackTimerDialog: Boolean = false,
     val showIdleStandbyTimerDialog: Boolean = false,
     val showProgramHistory: Boolean = false,
@@ -67,6 +68,7 @@ internal sealed interface PlayerInputAction {
     data object PlayPrevious : PlayerInputAction
     data object CancelAutoPlay : PlayerInputAction
     data object DismissAudioVideoOffset : PlayerInputAction
+    data object DismissSubtitleOffset : PlayerInputAction
     data object CloseSpeedSelection : PlayerInputAction
     data object CloseVariantSelection : PlayerInputAction
     data object CloseStopIdleTimersAndTrackSelection : PlayerInputAction
@@ -109,6 +111,7 @@ internal fun playerPreviewInputDecision(
         state.showVariantSelection ||
         state.showSpeedSelection ||
         state.showAudioVideoOffsetDialog ||
+        state.showSubtitleOffsetDialog ||
         state.showStopPlaybackTimerDialog ||
         state.showIdleStandbyTimerDialog ||
         state.showProgramHistory ||
@@ -150,6 +153,8 @@ internal fun playerInputDecision(
             return modalInputDecision(PlayerInputAction.CancelClosePlayback, key)
         state.showAudioVideoOffsetDialog ->
             return modalInputDecision(PlayerInputAction.DismissAudioVideoOffset, key)
+        state.showSubtitleOffsetDialog ->
+            return modalInputDecision(PlayerInputAction.DismissSubtitleOffset, key)
         state.showSpeedSelection ->
             return modalInputDecision(PlayerInputAction.CloseSpeedSelection, key)
         state.showVariantSelection ->

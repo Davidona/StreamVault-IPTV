@@ -27,7 +27,7 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

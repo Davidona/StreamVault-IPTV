@@ -22,7 +22,7 @@ import com.streamvault.core.ui.design.AppColors
 @Composable
 internal fun SettingsPageCard(page: SettingsPage, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
-    SettingsActionSurface(onClick, modifier) {
+    SettingsActionSurface(onClick, modifier, overview = true) {
         Row(Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
             .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
             horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space12),

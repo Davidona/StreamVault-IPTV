@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
 
 @Composable
 fun LiveChannelContentHost(

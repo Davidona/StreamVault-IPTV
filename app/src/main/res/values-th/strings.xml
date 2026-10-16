@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+
+    <string name="nav_home">หน้าแรก</string>
+    <string name="nav_live_tv">ทีวีสด</string>
+    <string name="nav_movies">ภาพยนตร์</string>
+    <string name="nav_series">ซีรีส์</string>
+    <string name="nav_epg">ผังรายการ</string>
+    <string name="nav_settings">ตั้งค่า</string>
+    <string name="nav_plugins">ปลั๊กอิน</string>
+    <string name="nav_close_app">ปิดแอป</string>
+
+
+    <string name="welcome_enter_app">เข้าใช้งานแอป</string>
+    <string name="welcome_manage_providers">จัดการผู้ให้บริการ</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">เรียกดูช่องสดได้รวดเร็ว เน้นการใช้งานด้วยรีโมทเป็นหลัก</string>
+    <string name="welcome_feature_library">ภาพยนตร์และซีรีส์ในคลังขนาดใหญ่โดยไม่รกตา</string>
+    <string name="welcome_feature_player">ส่วนควบคุมเครื่องเล่นแบบรวมศูนย์ การเข้าถึงผังรายการ และเนื้อหาที่บันทึกไว้</string>
+    <string name="welcome_manage_hint">สลับผู้ให้บริการ รีเฟรชข้อมูลเมตา หรือเพิ่มแหล่งใหม่</string>
+
+
+    <string name="hidden_categories_dialog_title">หมวดหมู่ที่ซ่อนไว้</string>
+    <string name="hidden_categories_dialog_subtitle">เลือกรายการที่ต้องการกู้คืน</string>
+    <string name="hidden_categories_dialog_unhide_all">แสดงทั้งหมด</string>
+    <string name="hidden_categories_dialog_close">ปิด</string>
+    <string name="home_recent_channels">ล่าสุด</string>
+    <string name="home_last_channel">ช่องล่าสุด</string>
+    <string name="home_last_channel_label">ล่าสุด: %1$s</string>
+    <string name="home_last_group_label">ล่าสุด: %1$s</string>
+    <string name="home_loading">กำลังโหลด...</string>
+    <string name="home_locked_short">ล็อก</string>
+    <string name="live_shell_subtitle">สแกนหมวดหมู่ช่องสดได้อย่างรวดเร็ว การนำทางที่แน่นอน และแสดงเฉพาะข้อมูลผังรายการที่สำคัญบนหน้าจอ</string>
+    <string name="live_shell_context">%1$d หมวดหมู่ • %2$d ช่อง</string>
+    <string name="live_shell_provider">ผู้ให้บริการ</string>
+    <string name="live_shell_split">มุมมองหลายจอ</string>
+    <string name="live_manage_groups">จัดการช่องของมุมมองหลายจอ</string>
+    <string name="live_reorder_title">กำลังจัดลำดับ %1$s</string>
+    <string name="live_empty_hint_favorites">เพิ่มช่องไปยังรายการโปรดหรือกลุ่มที่บันทึกไว้เพื่อแสดงในแถวนี้</string>
+    <string name="live_empty_hint_recent">เริ่มเล่นช่องสักสองสามช่อง แล้วช่องเหล่านั้นจะปรากฏที่นี่</string>
+    <string name="home_saved_subtitle">รายการโปรดและกลุ่มช่องสดที่กำหนดเอง</string>
+    <string name="home_saved_empty_hint">เพิ่มช่องเป็นรายการโปรดหรือเพิ่มไปยังกลุ่มช่องสดที่กำหนดเองเพื่อปักหมุดไว้ที่นี่</string>
+    <string name="home_delete_group_title">ลบกลุ่ม?</string>
+    <string name="home_delete_group_body">คุณแน่ใจหรือไม่ว่าต้องการลบ \'%1$s\'? การทำเช่นนี้จะลบช่องทั้งหมดออกจากกลุ่มนี้</string>
+    <string name="home_delete_group_confirm">ลบ</string>
+    <string name="home_delete_group_cancel">ยกเลิก</string>
+
+
+    <string name="dashboard_customize_home">ปรับแต่งหน้าแรก</string>
+    <string name="dashboard_customize_home_subtitle">เลือกว่าจะแสดงชั้นวางใดที่นี่ เพิ่มแถวใหม่ และจัดลำดับใหม่ได้ทุกเมื่อ</string>
+    <string name="dashboard_customize_home_action">ปรับแต่ง</string>
+
+
+
+    <string name="category_options_set_default">ตั้งเป็นกลุ่มเริ่มต้น</string>
+    <string name="category_options_rename">เปลี่ยนชื่อกลุ่ม</string>
+    <string name="category_options_unlock">ปลดล็อกกลุ่ม</string>
+    <string name="category_options_lock">ล็อกกลุ่ม</string>
+    <string name="category_options_delete">ลบกลุ่ม</string>
+    <string name="category_options_cancel">ยกเลิก</string>
+    <string name="category_options_reorder">จัดลำดับรายการ</string>
+    <string name="category_options_hide">ซ่อนหมวดหมู่</string>
+    <string name="category_options_hide_from_live_tv">ซ่อนจากทีวีสด</string>
+    <string name="category_options_clear_recent">ล้างรายการล่าสุดทั้งหมด</string>
+    <string name="category_options_pin">ปักหมุดหมวดหมู่</string>
+    <string name="category_options_unpin">เลิกปักหมุดหมวดหมู่</string>
+    <string name="m3u_organize_items">จัดระเบียบรายการ M3U</string>
+    <string name="m3u_move_to_movies">ย้ายไปภาพยนตร์</string>
+    <string name="m3u_move_to_series">ย้ายไปซีรีส์</string>
+    <string name="m3u_move_back_to_live">ย้ายกลับไปทีวีสด</string>
+    <string name="m3u_series_name">ชื่อซีรีส์</string>
+    <string name="m3u_episode_number">หมายเลขตอน</string>
+    <string name="m3u_season_number">หมายเลขซีซัน</string>
+    <string name="m3u_classify">จัดประเภท</string>
+    <string name="m3u_classification_saved">บันทึกการจัดประเภท M3U แล้ว</string>
+    <string name="m3u_category_rule_subtitle">เลือกค่าเริ่มต้นสำหรับกลุ่ม M3U นี้ ยังสามารถกำหนดทับเป็นรายช่องได้</string>
+    <string name="m3u_keep_live">เก็บเป็นทีวีสด</string>
+    <string name="m3u_series_review_title">จัดระเบียบซีรีส์ใน %1$s</string>
+    <string name="m3u_series_review_subtitle">ตรวจสอบคำแนะนำอัตโนมัติ หรือกำหนดแต่ละรายการให้เป็นซีรีส์ ซีซัน และตอน</string>
+    <string name="m3u_episode_unresolved">ไม่สามารถระบุหมายเลขตอนได้ — รายการนี้จะยังคงถูกทำเครื่องหมายให้แก้ไข</string>
+
+    <string name="add_group_manage_title">จัดการ: %1$s</string>
+    <string name="add_group_close_cd">ปิด</string>
+    <string name="add_group_name_hint">ชื่อกลุ่ม</string>
+    <string name="add_group_cancel">ยกเลิก</string>
+    <string name="add_group_create">สร้าง</string>
+    <string name="add_group_rename">เปลี่ยนชื่อ</string>
+    <string name="add_group_remove_favorites">ลบออกจากรายการโปรด</string>
+    <string name="add_group_add_favorites">เพิ่มไปยังรายการโปรด</string>
+    <string name="channel_options_remove_from_recent">ลบออกจากรายการล่าสุด</string>
+    <string name="add_group_reorder_title">จัดลำดับ</string>
+    <string name="add_group_move_up">เลื่อนขึ้น</string>
+    <string name="add_group_move_down">เลื่อนลง</string>
+    <string name="add_group_custom_groups_title">กลุ่มที่กำหนดเอง</string>
+    <string name="add_group_remove_btn">ลบออก</string>
+    <string name="add_group_add_btn">เพิ่ม</string>
+    <string name="add_group_create_new_btn">สร้างกลุ่มใหม่</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">ซ่อนช่องนี้</string>
+    <string name="hidden_channels_dialog_title">ช่องที่ซ่อนไว้</string>
+    <string name="hidden_channels_dialog_subtitle">เลือกรายการที่ต้องการกู้คืน</string>
+    <string name="hidden_channels_dialog_unhide_all">แสดงทั้งหมด</string>
+    <string name="hidden_channels_dialog_close">ปิด</string>
+
+    <string name="card_live_badge">สด</string>
+    <string name="card_locked">ล็อกอยู่</string>
+
+
+    <string name="playlist_no_provider">ไม่มีผู้ให้บริการ</string>
+    <string name="live_source_label">แหล่งที่มา</string>
+    <string name="live_source_filter_label">ตัวกรองเพลย์ลิสต์</string>
+    <string name="live_source_filter_all">ทุกแหล่งที่มา</string>
+    <string name="live_source_unavailable_short">ไม่พร้อมใช้งาน</string>
+    <string name="live_source_empty_short">ว่าง</string>
+
+
+    <string name="movies_shell_subtitle">แถวคัดสรร กลุ่มที่บันทึกไว้ และการเรียกดูคลังทั้งหมดโดยไม่ต้องออกจากบริบทผู้ให้บริการปัจจุบัน</string>
+    <string name="movies_all_categories">ทุกหมวดหมู่</string>
+    <string name="movies_search_launch_title">ค้นหาคลังภาพยนตร์</string>
+    <string name="movies_search_launch_subtitle">เข้าสู่หน้าค้นหาเฉพาะโดยไม่สูญเสียสถานะการเรียกดูปัจจุบัน</string>
+    <string name="movies_group_created">สร้างกลุ่ม %1$s แล้ว</string>
+    <string name="movies_group_renamed">เปลี่ยนชื่อกลุ่มเป็น %1$s แล้ว</string>
+    <string name="movies_group_deleted">ลบกลุ่ม %1$s แล้ว</string>
+    <string name="movies_group_name_invalid">กรอกชื่อกลุ่ม</string>
+    <string name="movies_group_name_reserved">รายการโปรดเป็นชื่อที่สงวนไว้</string>
+    <string name="movies_group_name_duplicate">มีกลุ่มภาพยนตร์ชื่อนี้อยู่แล้ว</string>
+    <string name="movies_saved_empty_hint">เพิ่มภาพยนตร์เป็นรายการโปรดหรือเพิ่มไปยังกลุ่มที่กำหนดเองเพื่อดูที่นี่</string>
+    <string name="movies_filter_subtitle">กรองหมวดหมู่ภาพยนตร์ที่เลือกโดยไม่ต้องสร้างคลังทั้งหมดใหม่</string>
+    <string name="movies_reorder_title">กำลังจัดลำดับ %1$s</string>
+
+
+    <string name="series_shell_subtitle">แถวคัดสรร กลุ่มที่บันทึกไว้ และการเรียกดูซีรีส์แบบแบ่งหน้าซึ่งเหมาะกับคลังผู้ให้บริการขนาดใหญ่</string>
+    <string name="series_all_categories">ทุกหมวดหมู่</string>
+    <string name="series_search_launch_title">ค้นหาคลังซีรีส์</string>
+    <string name="series_search_launch_subtitle">เปิดมุมมองค้นหาแบบคำสั่งเพื่อค้นหาชื่อเรื่อง ตอน หรือกลุ่มที่บันทึกไว้ได้เร็วขึ้น</string>
+    <string name="series_group_created">สร้างกลุ่ม %1$s แล้ว</string>
+    <string name="series_group_renamed">เปลี่ยนชื่อกลุ่มเป็น %1$s แล้ว</string>
+    <string name="series_group_deleted">ลบกลุ่ม %1$s แล้ว</string>
+    <string name="series_group_name_invalid">กรอกชื่อกลุ่ม</string>
+    <string name="series_group_name_reserved">รายการโปรดเป็นชื่อที่สงวนไว้</string>
+    <string name="series_group_name_duplicate">มีกลุ่มซีรีส์ชื่อนี้อยู่แล้ว</string>
+    <string name="series_saved_empty_hint">เพิ่มซีรีส์เป็นรายการโปรดหรือเพิ่มไปยังกลุ่มที่กำหนดเองเพื่อดูที่นี่</string>
+    <string name="series_filter_subtitle">สลับระหว่างซีรีส์ที่บันทึกไว้ กำลังดู อัปเดตใหม่ และคะแนนสูง</string>
+    <string name="series_reorder_title">กำลังจัดลำดับ %1$s</string>
+
+    <string name="library_saved_title">บันทึกไว้</string>
+    <string name="library_saved_subtitle">รายการโปรดและกลุ่มที่กำหนดเอง</string>
+    <string name="library_saved_manage_hint">กดค้างที่กลุ่มที่บันทึกไว้เพื่อดูตัวเลือก</string>
+    <string name="library_lens_title">เลนส์คลัง</string>
+    <string name="library_filter_results">กำลังแสดง %1$d จาก %2$d รายการ</string>
+    <string name="library_loaded_results">โหลดแล้ว %1$d จาก %2$d รายการ</string>
+    <string name="library_sort_library">ลำดับคลัง</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">ใหม่ล่าสุด</string>
+    <string name="library_sort_updated">อัปเดตล่าสุด</string>
+    <string name="library_sort_rating">คะแนน</string>
+
+
+    <string name="settings_parental_subtitle">ปกป้องเนื้อหาผู้ใหญ่หรือเนื้อหาที่ละเอียดอ่อนด้วยการควบคุมที่เหมาะกับทีวี</string>
+    <string name="settings_parental_groups_title">กลุ่มที่ได้รับการป้องกัน</string>
+    <string name="settings_parental_groups_hint">ล็อกหรือปลดล็อกหมวดหมู่สำหรับผู้ให้บริการที่ใช้งานอยู่</string>
+    <string name="settings_parental_groups_action">จัดการ</string>
+    <string name="settings_categories_title">การตั้งค่าหมวดหมู่</string>
+    <string name="settings_categories_subtitle">ซ่อนหมวดหมู่ของผู้ให้บริการและจัดลำดับการเรียงตามที่คุณต้องการ</string>
+    <string name="settings_category_sorting_title">การจัดลำดับหมวดหมู่</string>
+    <string name="settings_category_sorting_subtitle">จัดลำดับหมวดหมู่สำหรับเพลย์ลิสต์ที่ใช้งานอยู่ การล็อกและซ่อนย้ายไปอยู่ที่การควบคุมหมวดหมู่แล้ว</string>
+    <string name="settings_hidden_categories_title">หมวดหมู่ที่ซ่อนไว้</string>
+    <string name="settings_hidden_categories_subtitle">กู้คืนหมวดหมู่ของผู้ให้บริการที่คุณซ่อนไว้ก่อนหน้านี้จากหน้าจอเรียกดู</string>
+    <string name="settings_hidden_categories_none">ไม่มีรายการที่ซ่อน</string>
+    <string name="settings_hidden_categories_count">ซ่อน %1$d รายการ</string>
+    <string name="settings_hidden_categories_empty">ขณะนี้ไม่มีหมวดหมู่ที่ซ่อนไว้</string>
+    <string name="settings_playback_subtitle">ปรับแต่งตัวถอดรหัสและพฤติกรรมบัฟเฟอร์เพื่อการเล่นที่ลื่นไหลขึ้น</string>
+    <string name="settings_live_timeshift_backend_value">อัตโนมัติ</string>
+    <string name="vod_classic_categories_title">หมวดหมู่</string>
+    <string name="settings_decoder_mode">โหมดตัวถอดรหัส</string>
+    <string name="settings_select_decoder_mode">เลือกโหมดตัวถอดรหัส</string>
+    <string name="settings_buffer_duration">ระยะเวลาบัฟเฟอร์</string>
+    <string name="settings_buffer_5s">5 วินาที</string>
+    <string name="settings_about_subtitle">รายละเอียดเวอร์ชัน บิลด์ และการสนับสนุนสำหรับการติดตั้งนี้</string>
+    <string name="settings_syncing">กำลังซิงค์ข้อมูล โปรดรอสักครู่...</string>
+    <string name="settings_cancel">ยกเลิก</string>
+    <string name="settings_sync_option_all">ซิงค์ทั้งหมด</string>
+    <string name="settings_sync_option_fast">ซิงค์ด่วน</string>
+    <string name="settings_pc_btn">การควบคุมโดยผู้ปกครอง</string>
+    <string name="settings_language">ภาษา</string>
+    <string name="settings_language_subtitle">เลือกภาษาของแอปโดยไม่ต้องออกจากอินเทอร์เฟซทีวี</string>
+
+    <string name="settings_backup_share_failed">ไม่มีแอปที่สามารถรับไฟล์สำรองได้</string>
+    <string name="settings_crash_report_share_failed">ไม่มีแอปที่สามารถรับรายงานข้อขัดข้องได้</string>
+    <string name="settings_crash_report_missing">ไม่มีรายงานข้อขัดข้อง</string>
+    <string name="settings_catalog_count_pending">รอดำเนินการ</string>
+    <string name="settings_diagnostic_never">ไม่เคย</string>
+    <string name="settings_diagnostic_items">%1$d รายการ</string>
+    <string name="settings_recording_subtitle">จัดการงานบันทึกช่องสดในเครื่อง พื้นที่จัดเก็บ และการบันทึกตามกำหนดเวลา</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+
+    <string name="saved_preset_watch_next">ดูต่อไป</string>
+    <string name="tv_channel_continue_watching_title">ดูต่อ</string>
+    <string name="tv_channel_continue_watching_description">เล่นต่อรายการที่คุณเริ่มดูเมื่อไม่นานมานี้</string>
+    <string name="tv_channel_top_movies_title">ภาพยนตร์ยอดนิยม</string>
+    <string name="tv_channel_top_movies_description">รายการยอดนิยมจาก %1$s</string>
+    <string name="tv_channel_recommended_movies_title">ภาพยนตร์แนะนำ</string>
+    <string name="tv_channel_recommended_movies_description">คัดเลือกตามรายการล่าสุดของคุณบน %1$s</string>
+    <string name="tv_channel_fresh_series_title">ซีรีส์ใหม่</string>
+    <string name="tv_channel_fresh_series_description">ซีรีส์ที่อัปเดตล่าสุดจาก %1$s</string>
+
+
+    <string name="search_title">ค้นหา</string>
+    <string name="parental_group_shell_subtitle">ตรวจสอบกลุ่มช่องสด ภาพยนตร์ และซีรีส์ที่ได้รับการป้องกันโดยไม่ต้องออกจากหน้าตั้งค่า</string>
+    <string name="search_command_title">ค้นหาแบบคำสั่ง</string>
+    <string name="search_hint">ค้นหา...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">กรอกรหัส PIN ผู้ปกครองเพื่อยืนยัน</string>
+    <string name="a11y_locked">ล็อกอยู่</string>
+    <string name="a11y_favorite">รายการโปรด</string>
+    <string name="a11y_catch_up_available">มีรายการย้อนหลัง</string>
+    <string name="a11y_now_playing">กำลังเล่น %1$s</string>
+    <string name="a11y_channel_with_number">ช่อง %1$d, %2$s</string>
+
+
+
+
+    <string name="player_no_external_player">ไม่ได้ติดตั้งเครื่องเล่นภายนอก</string>
+    <string name="player_unsafe_stream_url">ไม่สามารถเปิดสตรีมนี้ในเครื่องเล่นภายนอกได้</string>
+    <string name="player_external_launch_failed">เครื่องเล่นภายนอกเริ่มทำงานไม่สำเร็จ</string>
+    <string name="player_next">ถัดไป</string>
+    <string name="player_recording_started">เริ่มบันทึก %1$s แล้ว</string>
+    <string name="player_recording_stopped">หยุดบันทึกแล้ว</string>
+    <string name="player_recording_scheduled">ตั้งเวลาบันทึก %1$s แล้ว</string>
+    <string name="player_recording_missing_context">การบันทึกต้องมีบริบทช่องสดที่ถูกต้อง</string>
+    <string name="player_categories_label">หมวดหมู่</string>
+    <string name="player_full_epg">EPG ทั้งหมด</string>
+    <string name="player_action_controls">การควบคุม</string>
+    <string name="player_action_restart_short">เริ่มใหม่</string>
+    <string name="player_action_recent_short">ล่าสุด</string>
+    <string name="player_diagnostics_decoder">ตัวถอดรหัส</string>
+    <string name="player_diagnostics_policy_guard">ตัวป้องกันนโยบาย</string>
+    <string name="player_diagnostics_policy_profile">โปรไฟล์นโยบาย</string>
+    <string name="player_diagnostics_policy_buffer">โปรไฟล์บัฟเฟอร์</string>
+    <string name="player_diagnostics_policy_render_path">เส้นทางการเรนเดอร์</string>
+    <string name="player_diagnostics_policy_known_bad">นโยบายสตรีมที่รู้ว่ามีปัญหา</string>
+    <string name="player_diagnostics_policy_recovery">กู้คืนอัตโนมัติ</string>
+    <string name="player_diagnostics_policy_last_action">การดำเนินการตามนโยบายล่าสุด</string>
+    <string name="epg_search_short">ค้นหารายการ</string>
+    <string name="epg_show_options">แสดงตัวเลือกผังรายการ</string>
+    <string name="epg_hide_options">ซ่อนตัวเลือกผังรายการ</string>
+    <string name="epg_showing_channels">กำลังแสดง %1$d จาก %2$d ช่อง</string>
+    <string name="epg_schedule_summary">มีข้อมูลผังรายการใน %1$d จาก %2$d ช่อง</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">ไทม์ไลน์</string>
+    <string name="epg_timeline_range_label">ช่วง %1$s</string>
+    <string name="epg_updated_now">อัปเดตเมื่อสักครู่</string>
+    <string name="epg_updated_minutes_ago">อัปเดต %1$d นาทีที่แล้ว</string>
+    <string name="epg_minutes_remaining">เหลือ %1$d นาที</string>
+    <string name="epg_program_channel_label">ช่อง</string>
+    <string name="epg_program_provider_label">ผู้ให้บริการ</string>
+    <string name="epg_program_provider_type_label">แหล่งที่มา</string>
+    <string name="epg_program_language_label">ภาษา</string>
+    <string name="epg_program_replay_label">เล่นย้อนหลัง</string>
+    <string name="epg_program_progress_label">ความคืบหน้า</string>
+    <string name="epg_program_replay_unavailable">ไม่พร้อมใช้งาน</string>
+    <string name="epg_program_progress_value">เสร็จ %1$d%% • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">การเล่นย้อนหลังอาจล้มเหลว เนื่องจากผู้ให้บริการแจ้งว่ามีการรองรับรายการย้อนหลัง แต่ไม่มีเทมเพลตการเล่นย้อนหลังที่ใช้งานได้</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">การเล่นย้อนหลังอาจล้มเหลว เนื่องจากผู้ให้บริการไม่ได้ระบุรหัสสตรีมสำหรับการเล่นย้อนหลัง</string>
+
+
+    <string name="parental_group_title">กลุ่มที่ได้รับการป้องกัน</string>
+    <string name="parental_group_search">ค้นหาหมวดหมู่...</string>
+    <string name="player_live_timeshift_ready">ไทม์ชิฟต์พร้อมใช้งาน</string>
+    <string name="player_live_timeshift_failed">ไม่สามารถย้อนดูช่องสดในเครื่องได้สำหรับสตรีมนี้</string>
+
+
+    <string name="multiview_add_to_split">เพิ่มไปยังหน้าจอแยก</string>
+    <string name="multiview_queued">อยู่ในหน้าจอแยก</string>
+
+
+    <string name="settings_privacy_subtitle">จัดการประวัติการรับชมและโหมดไม่ระบุตัวตน</string>
+
+
+    <string name="action_done">เสร็จสิ้น</string>
+    <string name="action_delete">ลบ</string>
+    <string name="action_clear">ล้าง</string>
+    <string name="action_space">เว้นวรรค</string>
+
+
+    <string name="label_provider">ผู้ให้บริการ</string>
+    <string name="label_selected">เลือกแล้ว</string>
+    <string name="label_no_schedule">ไม่มีข้อมูลผังรายการ</string>
+    <string name="label_slots_count">%1$d/4 ช่อง</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">ตอนที่ %1$d</string>
+    <string name="badge_saved">บันทึกแล้ว</string>
+    <string name="badge_catch_up">ย้อนหลัง</string>
+    <string name="badge_moving">กำลังย้าย</string>
+    <string name="badge_fav">โปรด</string>
+
+
+
+
+    <string name="favorites_content_type_movie">ภาพยนตร์</string>
+
+
+
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">กำลังสแกนช่อง StreamVault</string>
+    <string name="tv_input_setup_success_title">ทีวีสดพร้อมใช้งาน</string>
+    <string name="tv_input_setup_no_provider_title">ยังไม่ได้ตั้งค่าผู้ให้บริการ IPTV</string>
+    <string name="tv_input_setup_error_title">สแกนอัตโนมัติล้มเหลว</string>
+    <string name="tv_input_setup_idle_title">กำลังเตรียมการเชื่อมต่อทีวีสด</string>
+    <string name="tv_input_setup_scanning_body">StreamVault กำลังซิงค์ผู้ให้บริการที่ใช้งานอยู่ไปยังทีวีสดของ Android TV</string>
+    <string name="tv_input_setup_success_body">ซิงค์ช่องของคุณสำเร็จแล้ว</string>
+    <string name="tv_input_setup_no_provider_body">เพิ่มผู้ให้บริการ IPTV อย่างน้อยหนึ่งรายการใน StreamVault แล้วกลับมาที่นี่เพื่อสแกนช่องเข้าสู่ทีวีสดของ Android TV</string>
+    <string name="tv_input_setup_error_body">การซิงค์อินพุตทีวีไม่สำเร็จ</string>
+    <string name="tv_input_setup_idle_body">โปรดรอสักครู่</string>
+    <string name="tv_input_setup_source_format">แหล่งที่มา: %1$s</string>
+    <string name="tv_input_setup_open_setup">เปิดการตั้งค่า StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">ลองสแกนอัตโนมัติอีกครั้ง</string>
+    <string name="tv_input_setup_retry_scan">สแกนอัตโนมัติอีกครั้ง</string>
+    <string name="tv_input_setup_success_hint">ทีวีสดของ Android TV สามารถเปิดช่อง StreamVault ของคุณได้แล้ว</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">กลับไปที่การดำเนินการสำรองข้อมูล Drive</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">ดาวน์โหลดล้มเหลว: %1$s</string>
+    <string name="download_completed">ดาวน์โหลดเสร็จสิ้น</string>
+    <string name="download_cancelled">ยกเลิกการดาวน์โหลดแล้ว</string>
+    <string name="download_notification_channel">ดาวน์โหลด</string>
+    <string name="download_notification_channel_description">แสดงความคืบหน้าและการเสร็จสิ้นของการดาวน์โหลด</string>
+    <string name="download_in_progress">กำลังดาวน์โหลด %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">ดาวน์โหลด</string>
+    <string name="downloads_empty">ยังไม่มีการดาวน์โหลด</string>
+    <string name="downloads_delete_confirm">ลบการดาวน์โหลดนี้หรือไม่?</string>
+    <string name="download_play_local">เล่น</string>
+    <string name="nav_vod">VOD</string>
+</resources>

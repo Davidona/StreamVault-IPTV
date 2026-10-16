@@ -1,5 +1,6 @@
 package com.streamvault.player.playback
 
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 
@@ -36,12 +37,13 @@ enum class PlayerTimeoutProfile(
             preload: Boolean
         ): PlayerTimeoutProfile {
             if (preload) return PRELOAD
-            if (streamInfo.streamType == StreamType.RTSP) return LIVE
+            val isLive = isLivePlayback(streamInfo.playbackContentKind, resolvedStreamType)
+            if (
+                isLive ||
+                (streamInfo.playbackContentKind == PlaybackContentKind.UNKNOWN &&
+                    streamInfo.streamType == StreamType.RTSP)
+            ) return LIVE
             return when {
-                resolvedStreamType == ResolvedStreamType.HLS -> LIVE
-                resolvedStreamType == ResolvedStreamType.SMOOTH_STREAMING -> LIVE
-                resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE -> LIVE
-                resolvedStreamType == ResolvedStreamType.RTSP -> LIVE
                 resolvedStreamType == ResolvedStreamType.PROGRESSIVE -> PROGRESSIVE
                 streamInfo.streamType == StreamType.PROGRESSIVE -> PROGRESSIVE
                 else -> VOD

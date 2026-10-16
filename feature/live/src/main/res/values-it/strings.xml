@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="m3u_category_rule_subtitle">Choose a default for this M3U group. Individual channels can still be overridden.</string>
-    <string name="m3u_classify">Classify</string>
-    <string name="m3u_episode_number">Episode number</string>
-    <string name="m3u_episode_unresolved">Episode number unresolved &#x2192; it will remain flagged for correction.</string>
-    <string name="m3u_keep_live">Keep as Live TV</string>
-    <string name="m3u_move_to_movies">Move to Movies</string>
-    <string name="m3u_move_to_series">Move to Series</string>
-    <string name="m3u_organize_items">Organize M3U Items</string>
-    <string name="m3u_season_number">Season number</string>
-    <string name="m3u_series_name">Series name</string>
-    <string name="m3u_series_review_subtitle">Review the automatic suggestions or assign each entry to a series, season, and episode.</string>
-    <string name="m3u_series_review_title">Organize series in %1$s</string>
+    <string name="m3u_category_rule_subtitle">Scegli un valore predefinito per questo gruppo M3U. I singoli canali possono comunque essere sovrascritti.</string>
+    <string name="m3u_classify">Classifica</string>
+    <string name="m3u_episode_number">Numero episodio</string>
+    <string name="m3u_episode_unresolved">Numero episodio non risolto &#x2192; rimarrà contrassegnato per la correzione.</string>
+    <string name="m3u_keep_live">Mantieni come TV in diretta</string>
+    <string name="m3u_move_to_movies">Sposta in Film</string>
+    <string name="m3u_move_to_series">Sposta in Serie</string>
+    <string name="m3u_organize_items">Organizza elementi M3U</string>
+    <string name="m3u_season_number">Numero stagione</string>
+    <string name="m3u_series_name">Nome serie</string>
+    <string name="m3u_series_review_subtitle">Esamina i suggerimenti automatici o assegna ogni voce a una serie, stagione ed episodio.</string>
+    <string name="m3u_series_review_title">Organizza le serie in %1$s</string>
     <string name="hidden_categories_dialog_close">Chiudi</string>
     <string name="hidden_categories_dialog_subtitle">Scegli quelle da ripristinare.</string>
     <string name="hidden_categories_dialog_title">Categorie nascoste</string>
@@ -22,10 +22,10 @@
     <string name="hidden_channels_dialog_unhide_all">Mostra tutti</string>
     <string name="live_quick_filter_hidden_categories">Categorie nascoste (%1$d)</string>
     <string name="live_quick_filter_hidden_channels">Canali nascosti (%1$d)</string>
-    <string name="epg_provider_troubleshooting_incomplete_metadata">Replay may fail because the provider advertises catch-up without enough playback metadata.</string>
-    <string name="epg_provider_troubleshooting_m3u_best_effort">M3U replay is best effort and depends on the playlist catch-up template.</string>
-    <string name="epg_provider_troubleshooting_stalker_ready">Portal archive metadata is present; playback will request an archive link for the selected window.</string>
-    <string name="epg_provider_troubleshooting_xtream_ready">Xtream replay metadata is present; playback will use the channel stream id and selected archive window.</string>
+    <string name="epg_provider_troubleshooting_incomplete_metadata">La riproduzione potrebbe non riuscire perché il provider dichiara il recupero senza metadati di riproduzione sufficienti.</string>
+    <string name="epg_provider_troubleshooting_m3u_best_effort">La riproduzione M3U è di tipo best effort e dipende dal modello di recupero della playlist.</string>
+    <string name="epg_provider_troubleshooting_stalker_ready">I metadati di archivio del portale sono presenti; la riproduzione richiederà un link di archivio per la finestra selezionata.</string>
+    <string name="epg_provider_troubleshooting_xtream_ready">I metadati di riproduzione Xtream sono presenti; la riproduzione userà l\'ID flusso del canale e la finestra di archivio selezionata.</string>
     <string name="home_error_load_failed">Impossibile caricare i canali. Controlla la connessione e riprova.</string>
     <string name="settings_live_tv_quick_filter_blank">Inserisci un filtro prima di salvarlo.</string>
     <string name="settings_live_tv_quick_filter_duplicate">%1$s è già salvato.</string>
@@ -245,4 +245,5 @@
     <string name="notification_permission_reminder_required">Abilita le notifiche per StreamVault per ricevere promemoria dei programmi.</string>
     <string name="player_archive_badge">Archivio</string>
     <string name="settings_parental_control">Controllo parentale</string>
+    <string name="home_show_categories">Mostra categorie</string>
 </resources>

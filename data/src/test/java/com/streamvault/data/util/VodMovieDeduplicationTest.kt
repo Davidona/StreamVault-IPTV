@@ -10,6 +10,21 @@ import org.junit.Test
 class VodMovieDeduplicationTest {
 
     @Test
+    fun `codec labelled counterparts group without merging unrelated titles or years`() {
+        for ((hevc, avc) in listOf("HEVC" to "AVC", "H.265" to "H.264", "x265" to "x264", "hvc1" to "avc")) {
+            val source = movie(1L, "Resilience Fixture 1080p $hevc", "2026")
+            val counterpart = movie(2L, "Resilience Fixture 720p $avc", "2026")
+            val unrelated = movie(3L, "Unrelated Fixture 720p $avc", "2026")
+            val remake = movie(4L, "Resilience Fixture 720p $avc", "2025")
+            val settings = MoviePresentationSettings(VodDuplicateHandlingMode.SMART, VodVariantPreferenceMode.BEST_QUALITY)
+            val grouped = buildPresentedMovies(listOf(source, counterpart, unrelated, remake), settings)
+            assertThat(grouped).hasSize(3)
+            assertThat(grouped.single { it.id == 1L }.variants.map { it.rawMovieId }).containsExactly(1L, 2L)
+            assertThat(buildPresentedMovies(listOf(source, counterpart), settings.copy(duplicateHandlingMode = VodDuplicateHandlingMode.SHOW_ALL))).hasSize(2)
+        }
+    }
+
+    @Test
     fun `force latest prefers newest version over older higher quality`() {
         val older4k = movie(
             id = 1L,

@@ -18,12 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.BorderStroke
@@ -50,7 +48,7 @@ import com.streamvault.feature.catalog.presentation.components.SavedCategoryShor
 import com.streamvault.feature.catalog.presentation.components.SelectionChip
 import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.feature.catalog.presentation.components.SeriesCard
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy

@@ -19,7 +19,12 @@ public fun supportedAppLanguages(systemDefaultLabel: String): List<AppLanguageOp
                 systemDefaultLabel
             } else {
                 val locale = localeForLanguageTag(tag)
-                locale.getDisplayLanguage(locale)
+                val display = if (tag.contains('-')) {
+                    locale.getDisplayName(locale)
+                } else {
+                    locale.getDisplayLanguage(locale)
+                }
+                display
                     .replaceFirstChar { character ->
                         if (character.isLowerCase()) {
                             character.titlecase(locale)
@@ -37,6 +42,31 @@ public fun supportedAudioLanguages(autoLabel: String): List<AppLanguageOption> {
         add(AppLanguageOption(tag = "auto", label = autoLabel))
         addAll(supportedAppLanguages(autoLabel).filterNot { it.tag == "system" })
     }
+}
+
+private val subtitleLanguageTags = listOf(
+    "en", "ar", "bg", "bn", "ca", "cs", "da", "de", "el", "es", "fa", "fi", "fr", "he", "hi",
+    "hr", "hu", "id", "it", "ja", "ko", "ms", "nb", "nl", "pl", "pt", "pt-br", "ro", "ru",
+    "sk", "sl", "sr", "sv", "ta", "te", "th", "tr", "uk", "ur", "vi", "zh-cn", "zh-tw"
+)
+
+public fun subtitleLanguageOptions(): List<AppLanguageOption> = subtitleLanguageTags
+    .map { tag -> AppLanguageOption(tag = tag, label = subtitleLanguageLabel(tag)) }
+    .sortedBy { it.label.lowercase(Locale.getDefault()) }
+
+public fun subtitleLanguageLabel(languageTag: String): String {
+    if (languageTag.isBlank()) return languageTag
+    val locale = Locale.forLanguageTag(languageTag)
+    if (locale.language.isBlank()) return languageTag
+    return locale.getDisplayName(Locale.getDefault())
+        .replaceFirstChar { character ->
+            if (character.isLowerCase()) {
+                character.titlecase(Locale.getDefault())
+            } else {
+                character.toString()
+            }
+        }
+        .ifBlank { languageTag }
 }
 
 public fun displayLanguageLabel(languageTag: String, defaultLabel: String): String {

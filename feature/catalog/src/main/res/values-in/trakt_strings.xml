@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Tidak ada film dari daftar pantauan Trakt Anda yang cocok dengan penyedia ini atau filter saat ini.</string>
+    <string name="trakt_watchlist_series_no_matches">Tidak ada serial dari daftar pantauan Trakt Anda yang cocok dengan penyedia ini atau filter saat ini.</string>
+    <string name="trakt_discovery_trending_movies">Sedang tren di Trakt</string>
+    <string name="trakt_discovery_popular_movies">Populer di Trakt</string>
+    <string name="trakt_discovery_trending_series">Sedang tren di Trakt</string>
+    <string name="trakt_discovery_popular_series">Populer di Trakt</string>
+    <string name="trakt_discovery_movies_no_matches">Tidak ada film Trakt yang sedang tren atau populer yang cocok dengan penyedia ini atau filter saat ini.</string>
+    <string name="trakt_discovery_series_no_matches">Tidak ada acara Trakt yang sedang tren atau populer yang cocok dengan penyedia ini atau filter saat ini.</string>
+    <string name="trakt_discovery_load_failed">Tidak dapat memuat judul penemuan Trakt. Coba lagi.</string>
+    <string name="trakt_custom_lists_action">Daftar Trakt</string>
+    <string name="trakt_custom_lists_title">Daftar Trakt Anda</string>
+    <string name="trakt_custom_lists_for_item">Kelola %1$s dalam daftar</string>
+    <string name="trakt_custom_lists_loading">Memuat informasi daftar…</string>
+    <string name="trakt_custom_lists_connect_first">Hubungkan Trakt di Pengaturan untuk menggunakan daftar Anda.</string>
+    <string name="trakt_custom_lists_empty">Anda belum memiliki daftar Trakt khusus.</string>
+    <string name="trakt_custom_lists_failed">Tidak dapat memuat atau memperbarui daftar Trakt ini. Coba lagi.</string>
+    <string name="trakt_custom_lists_incognito">Daftar Trakt tidak tersedia saat mode Penyamaran aktif.</string>
+    <string name="trakt_custom_lists_too_large">Daftar ini terlalu besar untuk dimuat seluruhnya di StreamVault.</string>
+    <string name="trakt_custom_list_open">%1$s · Item %2$d</string>
+    <string name="trakt_custom_list_contains_item">%1$s ada dalam daftar ini.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s tidak ada dalam daftar ini.</string>
+    <string name="trakt_custom_list_add_item">Tambahkan ke daftar</string>
+    <string name="trakt_custom_lists_create_new">Buat daftar baru</string>
+    <string name="trakt_custom_lists_name">Nama daftar</string>
+    <string name="trakt_custom_lists_optional_description">Deskripsi (opsional)</string>
+    <string name="trakt_custom_lists_private_note">Daftar baru bersifat pribadi di Trakt.</string>
+    <string name="trakt_custom_lists_create">Buat daftar pribadi</string>
+    <string name="trakt_custom_list_remove_item">Hapus</string>
+    <string name="trakt_custom_list_items_truncated">Menampilkan 200 item pertama.</string>
+    <string name="trakt_custom_lists_back">Kembali ke daftar</string>
+    <string name="trakt_custom_lists_choose_item">Pilih apa yang akan ditambahkan atau dihapus</string>
+    <string name="trakt_custom_lists_movies">Film</string>
+    <string name="trakt_custom_lists_series">Seri</string>
+    <string name="trakt_custom_lists_seasons_count">Musim (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Episode (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Ganti judul</string>
+</resources>

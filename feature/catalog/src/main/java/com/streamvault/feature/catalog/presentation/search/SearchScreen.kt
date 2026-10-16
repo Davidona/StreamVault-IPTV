@@ -1,5 +1,7 @@
 package com.streamvault.feature.catalog.presentation.search
 
+import android.widget.Toast
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
@@ -11,9 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +23,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -54,10 +54,13 @@ import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.feature.catalog.api.CatalogMessage
+import com.streamvault.feature.catalog.api.CatalogUiEvent
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.CatalogCompleteness
@@ -70,13 +73,13 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.SearchContent
 import com.streamvault.domain.usecase.SearchContentScope
+import com.streamvault.domain.manager.RecordingManager
+import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.trakt.TraktFavorites
 import com.streamvault.domain.trakt.TraktFavoriteActionResult
 import com.streamvault.domain.trakt.TraktFavoriteFailure
 import com.streamvault.domain.trakt.TraktFavoriteIdentity
 import com.streamvault.domain.trakt.TraktFavoriteType
-import com.streamvault.domain.manager.RecordingManager
-import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.util.AdultContentVisibilityPolicy
 import com.streamvault.core.navigation.AppDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -119,8 +122,8 @@ class SearchViewModel @Inject constructor(
     private val _scheduledChannelIds = MutableStateFlow<Set<Long>>(emptySet())
     val scheduledChannelIds: StateFlow<Set<Long>> = _scheduledChannelIds.asStateFlow()
 
-    private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val userMessages = _userMessages.asSharedFlow()
+    private val _uiEvents = MutableSharedFlow<CatalogUiEvent>()
+    val uiEvents: SharedFlow<CatalogUiEvent> = _uiEvents.asSharedFlow()
 
     private val unlockedCategoryIds = providerRepository.getActiveProvider()
         .onEach { provider -> _activeProviderId.value = provider?.id }
@@ -300,7 +303,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             val providerId = _activeProviderId.value ?: return@launch
             val favorited = !currentlyFavorite
-            if (currentlyFavorite) {
+            if (!favorited) {
                 favoriteRepository.removeFavorite(providerId, contentId, contentType)
             } else {
                 favoriteRepository.addFavorite(providerId, contentId, contentType)
@@ -310,13 +313,16 @@ class SearchViewModel @Inject constructor(
                 ContentType.SERIES -> TraktFavoriteType.SHOW
                 else -> null
             }
-            val traktId = tmdbId?.takeIf { it > 0L }
-            if (traktType != null && traktId != null) {
-                when (val result = traktFavorites.setFavorited(TraktFavoriteIdentity(traktType, traktId), favorited)) {
-                    TraktFavoriteActionResult.Success -> Unit
-                    is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
-                        result.reason != TraktFavoriteFailure.INCOGNITO) {
-                        _userMessages.emit("StreamVault saved the change, but could not update Trakt Favorites. Try again.")
+            tmdbId?.takeIf { it > 0L }?.let { id ->
+                traktType?.let { type ->
+                    when (val result = traktFavorites.setFavorited(TraktFavoriteIdentity(type, id), favorited)) {
+                        TraktFavoriteActionResult.Success -> Unit
+                        is TraktFavoriteActionResult.Failure -> if (
+                            result.reason != TraktFavoriteFailure.DISCONNECTED &&
+                            result.reason != TraktFavoriteFailure.INCOGNITO
+                        ) {
+                            _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktFavoriteSyncFailed))
+                        }
                     }
                 }
             }
@@ -404,6 +410,7 @@ fun SearchScreen(
     scaffold: CatalogScaffoldContent,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val query by viewModel.query.collectAsStateWithLifecycle()
     val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
     val recentQueries by viewModel.recentQueries.collectAsStateWithLifecycle()
@@ -419,12 +426,15 @@ fun SearchScreen(
     var pendingMovie by remember { mutableStateOf<Movie?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     val selectedStateLabel = stringResource(R.string.a11y_selected)
     val incorrectPinMessage = stringResource(R.string.search_incorrect_pin)
 
-    LaunchedEffect(viewModel) {
-        viewModel.userMessages.collect { message -> snackbarHostState.showSnackbar(message) }
+    LaunchedEffect(viewModel, context) {
+        viewModel.uiEvents.collect { event ->
+            if (event is CatalogUiEvent.ShowMessage) {
+                Toast.makeText(context, context.catalogMessageText(event.message), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // ג”€ג”€ Long-press actions dialog state ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
@@ -591,7 +601,6 @@ fun SearchScreen(
         true,
         false
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -860,11 +869,6 @@ fun SearchScreen(
                 }
             }
         }
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
-            )
-        }
     }
 }
 
@@ -884,7 +888,7 @@ private fun SearchHeroPanel(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated.copy(alpha = 0.92f))
     ) {
         Column(
@@ -1020,7 +1024,7 @@ private fun SearchPill(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Primary.copy(alpha = 0.22f) else Surface.copy(alpha = 0.72f),
             focusedContainerColor = if (selected) Primary.copy(alpha = 0.30f) else SurfaceHighlight,
-            contentColor = if (selected) Color.White else TextSecondary,
+            contentColor = if (selected) TextPrimary else TextSecondary,
             focusedContentColor = TextPrimary
         ),
         border = ClickableSurfaceDefaults.border(
@@ -1058,7 +1062,7 @@ private fun SearchStatusCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Surface.copy(alpha = 0.78f))
     ) {
         Column(
@@ -1281,7 +1285,7 @@ private fun SearchItemActionsDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = BrowseShapes.Panel,
             colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
             modifier = Modifier
                 .width(360.dp)
@@ -1376,36 +1380,34 @@ private fun SearchActionButton(
     focusRequester: FocusRequester? = null,
     enabled: Boolean = true
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     val baseModifier = modifier
         .fillMaxWidth()
-        .onFocusChanged { isFocused = it.isFocused }
         .then(
             if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
         )
-        .border(
-            width = if (isFocused) 2.dp else 0.dp,
-            color = if (isFocused) AppColors.Focus else Color.Transparent,
-            shape = RoundedCornerShape(12.dp)
-        )
         .mouseClickable(onClick = onClick)
+
+    val actionColor = if (isActive) AppColors.Warning.copy(alpha = 0.18f)
+        else AppColors.SurfaceAccent
 
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = baseModifier,
         colors = ButtonDefaults.colors(
-            containerColor = when {
-                !enabled -> AppColors.Surface.copy(alpha = 0.3f)
-                isFocused -> AppColors.Focus
-                isActive -> AppColors.Warning.copy(alpha = 0.85f)
-                else -> AppColors.Brand.copy(alpha = 0.70f)
-            },
-            contentColor = if (!enabled) AppColors.TextSecondary else Color.Black,
+            containerColor = actionColor,
+            focusedContainerColor = actionColor,
+            contentColor = AppColors.TextPrimary,
+            focusedContentColor = AppColors.TextPrimary,
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
             disabledContentColor = AppColors.TextSecondary
         ),
-        shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp))
+        shape = ButtonDefaults.shape(shape = BrowseShapes.Control),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline)),
+            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus))
+        ),
+        scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Icon(
             imageVector = icon,

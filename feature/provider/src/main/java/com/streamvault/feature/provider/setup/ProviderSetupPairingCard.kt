@@ -1,10 +1,10 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +21,7 @@ import com.streamvault.feature.provider.R
 import com.streamvault.feature.provider.pairing.ProviderQrPairingState
 import com.streamvault.feature.provider.pairing.ProviderQrPairingStatus
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 
 @Composable
 internal fun PhonePairingCard(
@@ -35,14 +35,14 @@ internal fun PhonePairingCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = BrowseShapes.Control,
         colors = SurfaceDefaults.colors(containerColor = Surface.copy(alpha = 0.72f)),
         border = Border(
             border = BorderStroke(
                 1.dp,
                 if (isActive) Primary.copy(alpha = 0.55f) else SurfaceHighlight
             ),
-            shape = RoundedCornerShape(16.dp)
+            shape = BrowseShapes.Control
         )
     ) {
         Column(
@@ -93,7 +93,7 @@ internal fun PhonePairingCard(
                         contentDescription = stringResource(R.string.setup_phone_pairing_qr_description),
                         modifier = Modifier
                             .size(156.dp)
-                            .background(Color.White, RoundedCornerShape(12.dp))
+                            .background(Color.White, BrowseShapes.Artwork)
                             .padding(8.dp)
                     )
                     Column(

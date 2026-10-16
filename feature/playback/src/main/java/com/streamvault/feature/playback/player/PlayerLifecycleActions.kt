@@ -2,14 +2,67 @@ package com.streamvault.feature.playback.player
 
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.StreamInfo
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private const val LIFECYCLE_TOKEN_RENEWAL_LEAD_MS = 60_000L
-private const val LIFECYCLE_TOKEN_RENEWAL_CHECK_INTERVAL_MS = 10_000L
+private const val LIFECYCLE_TOKEN_RENEWAL_RECHECK_INTERVAL_MS = 15_000L
+private const val LIFECYCLE_TOKEN_RENEWAL_FINAL_GRACE_MS = 15_000L
+
+internal fun isSamePlaybackRequestForRenewal(current: StreamInfo, refreshed: StreamInfo): Boolean =
+    current.copy(title = null, expirationTime = null) ==
+        refreshed.copy(title = null, expirationTime = null)
+
+internal fun shouldArmNextTokenRenewal(
+    previousExpiryTime: Long,
+    refreshedExpiryTime: Long?,
+    nowMs: Long
+): Boolean {
+    val refreshedExpiry = refreshedExpiryTime ?: return false
+    if (refreshedExpiry >= Long.MAX_VALUE || refreshedExpiry <= previousExpiryTime) return false
+    return refreshedExpiry > nowMs && refreshedExpiry - nowMs > LIFECYCLE_TOKEN_RENEWAL_LEAD_MS
+}
+
+internal fun nextTokenRenewalCheckAtMs(
+    previousExpiryTime: Long,
+    refreshedExpiryTime: Long?,
+    nowMs: Long
+): Long? {
+    val refreshedExpiry = refreshedExpiryTime?.takeIf { it > 0L && it < Long.MAX_VALUE } ?: return null
+    if (refreshedExpiry > nowMs && refreshedExpiry - nowMs > LIFECYCLE_TOKEN_RENEWAL_LEAD_MS) {
+        return refreshedExpiry - LIFECYCLE_TOKEN_RENEWAL_LEAD_MS
+    }
+
+    val latestExpiry = maxOf(previousExpiryTime, refreshedExpiry)
+    val lastCheckAt = if (latestExpiry > Long.MAX_VALUE - LIFECYCLE_TOKEN_RENEWAL_FINAL_GRACE_MS) {
+        Long.MAX_VALUE
+    } else {
+        latestExpiry + LIFECYCLE_TOKEN_RENEWAL_FINAL_GRACE_MS
+    }
+    if (nowMs >= lastCheckAt) return null
+
+    val nextIntervalAt = if (nowMs > Long.MAX_VALUE - LIFECYCLE_TOKEN_RENEWAL_RECHECK_INTERVAL_MS) {
+        Long.MAX_VALUE
+    } else {
+        nowMs + LIFECYCLE_TOKEN_RENEWAL_RECHECK_INTERVAL_MS
+    }
+    return minOf(nextIntervalAt, lastCheckAt)
+}
+
+internal fun isUsableTokenRenewalExpiry(
+    previousExpiryTime: Long,
+    refreshedExpiryTime: Long?,
+    nowMs: Long
+): Boolean {
+    val refreshedExpiry = refreshedExpiryTime ?: return true
+    if (refreshedExpiry == 0L || refreshedExpiry == Long.MAX_VALUE) return true
+    return refreshedExpiry > previousExpiryTime && refreshedExpiry > nowMs
+}
 
 /** Captures the old content before prepare mutates the shared playback context. */
 internal fun PlayerViewModel.queueContentSwitchProgressFlush(): Job? {
@@ -43,8 +96,13 @@ internal fun PlayerViewModel.queueContentSwitchProgressFlush(): Job? {
  */
 internal fun PlayerViewModel.queueForcedProgressFlush(): Job? {
     if (currentContentType == ContentType.LIVE) return null
+    val history = buildPlaybackHistorySnapshot(playerEngine.currentPosition.value, playerEngine.duration.value)
     return viewModelScope.launch {
-        persistPlaybackProgress()
+        if (history != null) {
+            val result = playbackHistoryCoordinator.updateResumePosition(history)
+            logRepositoryFailure("Persist playback resume position", result)
+            if (result.isSuccess) playbackHistoryCoordinator.updateWatchNextProgress(history)
+        }
         logRepositoryFailure(
             operation = "Flush pending playback progress at lifecycle boundary",
             result = playbackHistoryCoordinator.flushPendingProgress()
@@ -83,30 +141,73 @@ internal suspend fun PlayerViewModel.persistPlaybackProgress() {
     }
 }
 
-internal fun PlayerViewModel.startTokenRenewalMonitoring(expirationTime: Long?) {
+internal fun PlayerViewModel.startTokenRenewalMonitoring(
+    expirationTime: Long?,
+    scheduledCheckAtMs: Long? = null
+) {
     tokenRenewalJob?.cancel()
     tokenRenewalJob = null
-    val expiry = expirationTime?.takeIf { it > 0L } ?: return
+    val expiry = expirationTime?.takeIf { it > 0L && it < Long.MAX_VALUE } ?: return
     val requestVersion = prepareRequestVersion
+    val episodeToken = episodeSourceState.token
     tokenRenewalJob = playbackSessionScope(requestVersion)?.launch {
-        while (true) {
-            delay(LIFECYCLE_TOKEN_RENEWAL_CHECK_INTERVAL_MS)
-            if (!playerEngine.isPlaying.value) continue
-            val remaining = expiry - System.currentTimeMillis()
-            if (remaining > LIFECYCLE_TOKEN_RENEWAL_LEAD_MS) continue
-            if (!isActivePlaybackSession(requestVersion)) return@launch
-            val refreshed = resolvePlaybackStreamInfo(
-                logicalUrl = currentStreamUrl,
-                internalContentId = currentContentId,
-                providerId = currentProviderId,
-                contentType = currentContentType
-            ) ?: return@launch
-            if (!isActivePlaybackSession(requestVersion)) return@launch
-            currentResolvedPlaybackUrl = refreshed.url
-            currentResolvedStreamInfo = refreshed
-            playerEngine.renewStreamUrl(refreshed)
-            startTokenRenewalMonitoring(refreshed.expirationTime)
+        val nowBeforeWait = System.currentTimeMillis()
+        val defaultCheckAt = (expiry - LIFECYCLE_TOKEN_RENEWAL_LEAD_MS).coerceAtLeast(nowBeforeWait)
+        val checkAt = scheduledCheckAtMs ?: defaultCheckAt
+        delay((checkAt - nowBeforeWait).coerceAtLeast(0L))
+        if (!isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) return@launch
+
+        // If playback is paused at the deadline, wait for resume instead of polling in the
+        // background. Session cancellation still releases this wait when content changes.
+        playerEngine.isPlaying.first { isPlaying -> isPlaying }
+        if (!isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) return@launch
+
+        val refreshed = resolvePlaybackStreamInfo(
+            logicalUrl = currentStreamUrl,
+            internalContentId = currentContentId,
+            providerId = currentProviderId,
+            contentType = currentContentType
+        ) ?: return@launch
+        if (!isActivePlaybackSession(requestVersion) || !episodeSourceState.isCurrent(episodeToken)) return@launch
+
+        val now = System.currentTimeMillis()
+        val refreshedExpiry = refreshed.expirationTime
+        val sameRequest = currentResolvedStreamInfo?.let {
+            isSamePlaybackRequestForRenewal(it, refreshed)
+        } == true
+        val hasUsableChangedRequest = !sameRequest && refreshedExpiry?.let { it > now } == true
+        if (!isUsableTokenRenewalExpiry(expiry, refreshedExpiry, now) && !hasUsableChangedRequest) {
+            android.util.Log.w(
+                "PlayerVM",
+                "token-renewal skipped reason=stale-expiry current-remaining-ms=${expiry - now} " +
+                "refreshed-remaining-ms=${refreshedExpiry?.minus(now)}"
+            )
+            nextTokenRenewalCheckAtMs(expiry, refreshedExpiry, now)?.let { nextCheckAt ->
+                startTokenRenewalMonitoring(expiry, scheduledCheckAtMs = nextCheckAt)
+            }
             return@launch
+        }
+
+        android.util.Log.i(
+            "PlayerVM",
+            "token-renewal request-changed=${!sameRequest} current-remaining-ms=${expiry - now} " +
+                "refreshed-remaining-ms=${refreshedExpiry?.minus(now)}"
+        )
+        currentResolvedPlaybackUrl = refreshed.url
+        currentResolvedStreamInfo = refreshed
+
+        if (sameRequest) {
+            // A timestamp or display-title change cannot justify replacing an identical request.
+            // Recheck only during the final renewal window instead of discarding a healthy buffer.
+            nextTokenRenewalCheckAtMs(expiry, refreshedExpiry, now)?.let { nextCheckAt ->
+                startTokenRenewalMonitoring(refreshedExpiry, scheduledCheckAtMs = nextCheckAt)
+            }
+            return@launch
+        }
+
+        playerEngine.renewStreamUrl(refreshed)
+        nextTokenRenewalCheckAtMs(expiry, refreshedExpiry, now)?.let { nextCheckAt ->
+            startTokenRenewalMonitoring(refreshedExpiry, scheduledCheckAtMs = nextCheckAt)
         }
     }
 }
@@ -132,6 +233,7 @@ fun PlayerViewModel.onAppForegrounded() {
 
 fun PlayerViewModel.onPlayerScreenDisposed(): Job? {
     val progressFlush = queueForcedProgressFlush()
+    episodeSourceState.reset(prepareRequestVersion)
     clearPreloadWindow()
     playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
@@ -154,6 +256,7 @@ internal fun PlayerViewModel.clearPlaybackTimers() {
 
 fun PlayerViewModel.handOffPlaybackToMultiView(): Job? {
     val progressFlush = queueForcedProgressFlush()
+    episodeSourceState.reset(prepareRequestVersion)
     clearPreloadWindow()
     playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
@@ -180,9 +283,6 @@ internal fun PlayerViewModel.cleanupAfterCleared(mainPlayerEngine: PlayerEngine)
     aspectRatioJob?.cancel()
     recentChannelsJob?.cancel()
     lastVisitedCategoryJob?.cancel()
-    thumbnailPreloadJob?.cancel()
-    inFlightThumbnailPreloadKey = null
-    lastCompletedThumbnailPreloadKey = null
     playerThumbnailCoordinator.clearCache()
 
     val activeEngine = playerEngine

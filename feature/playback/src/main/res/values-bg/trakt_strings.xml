@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Свържете Trakt в Настройки</string>
+    <string name="player_trakt_not_supported">Trakt проследява само филми и епизоди.</string>
+    <string name="player_trakt_no_match">Няма точно съвпадение на Trakt за това заглавие.</string>
+    <string name="player_trakt_starting">Стартиране на проследяването на Trakt…</string>
+    <string name="player_trakt_tracking">Проследяване с Trakt</string>
+    <string name="player_trakt_paused">Проследяването на Trakt на пауза</string>
+    <string name="player_trakt_failed">Неуспешно проследяване на Trakt</string>
+    <string name="player_trakt_sent">Изпратено до Trakt</string>
+</resources>

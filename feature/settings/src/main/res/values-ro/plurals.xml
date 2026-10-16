@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="one">%1$d salvat</item>
-        <item quantity="other">%1$d salvate</item>
-    </plurals>
 <plurals name="settings_timeout_seconds">
         <item quantity="one">%d secundă</item>
+        <item quantity="few">%d secunde</item>
         <item quantity="other">%d secunde</item>
     </plurals>
 <plurals name="settings_timer_minutes">
         <item quantity="one">%1$d minut</item>
+        <item quantity="few">%1$d minute</item>
         <item quantity="other">%1$d minute</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
         <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="few">%d taburi</item>
+        <item quantity="other">%d taburi</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d raft</item>
+        <item quantity="few">%d rafturi</item>
+        <item quantity="other">%d rafturi</item>
     </plurals>
 </resources>

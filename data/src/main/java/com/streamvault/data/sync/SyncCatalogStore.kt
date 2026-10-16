@@ -42,6 +42,9 @@ internal class SyncCatalogStore(
     companion object {
         private const val TAG = "SyncCatalogStore"
         private const val STAGE_BATCH_SIZE = 500
+        private const val CATEGORY_SCOPE_QUERY_CHUNK_SIZE = 400
+        private val TEXT_WHITESPACE = Regex("\\s+")
+        private const val HEX_DIGITS = "0123456789abcdef"
     }
 
     data class StagedLiveImportState(
@@ -163,7 +166,36 @@ internal class SyncCatalogStore(
                 categories?.let { timed(providerId, "category-staging") { stageCategories(providerId, sessionId, it) } }
                 categories?.let { timed(providerId, "category-commit") { applyCategories(providerId, sessionId, "LIVE") } }
                 timed(providerId, "channel-insert-update-delete") { applyChannels(providerId, sessionId) }
-                timed(providerId, "channel-fts-rebuild") { catalogSyncDao.rebuildChannelFts() }
+                // Room's content-sync triggers update search for these changed rows.
+                afterCatalogApply()
+            }
+        } finally {
+            clearSession(providerId, sessionId)
+        }
+    }
+
+    /** Promotes completed category scopes while retaining channels from failed/unvisited scopes. */
+    suspend fun applyStagedLiveCatalogWithCoverage(
+        providerId: Long,
+        sessionId: Long,
+        categories: List<CategoryEntity>?,
+        completeCategoryIds: Set<Long>,
+        pruneCategories: Boolean,
+        afterCatalogApply: suspend () -> Unit = {}
+    ) {
+        try {
+            providerTransaction(providerId) {
+                categories?.let { stageCategories(providerId, sessionId, it) }
+                categories?.let {
+                    applyCategories(providerId, sessionId, ContentType.LIVE.name, pruneStale = pruneCategories)
+                }
+                catalogSyncDao.updateChangedChannelsFromStage(providerId, sessionId)
+                catalogSyncDao.insertMissingChannelsFromStage(providerId, sessionId)
+                completeCategoryIds.chunked(CATEGORY_SCOPE_QUERY_CHUNK_SIZE).forEach { ids ->
+                    if (ids.isNotEmpty()) {
+                        catalogSyncDao.deleteStaleChannelsForStageInCategories(providerId, sessionId, ids)
+                    }
+                }
                 afterCatalogApply()
             }
         } finally {
@@ -228,7 +260,7 @@ internal class SyncCatalogStore(
                 categories?.let { stageCategories(providerId, sessionId, it) }
                 categories?.let { applyCategories(providerId, sessionId, "LIVE", pruneStale = false) }
                 upsertChannels(providerId, sessionId)
-                catalogSyncDao.rebuildChannelFts()
+                // Partial promotion uses the same trigger-maintained search index.
                 afterCatalogApply()
             }
         } finally {
@@ -369,25 +401,46 @@ internal class SyncCatalogStore(
     }
 
     suspend fun stageChannelBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>) {
+        stageChannelBatchInternal(providerId, sessionId, channels, null)
+    }
+
+    /** Only for fresh, isolated attempts whose writer admits each ID once. */
+    suspend fun stageAdmittedLiveBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>, admittedCount: Int) {
+        stageChannelBatchInternal(providerId, sessionId, channels, admittedCount)
+    }
+
+    private suspend fun stageChannelBatchInternal(providerId: Long, sessionId: Long, channels: List<ChannelEntity>, admittedCount: Int?) {
         timed(providerId, "channel-staging-batch(${channels.size})") {
+            val stages = buildChannelStages(providerId, sessionId, channels)
             providerTransaction(providerId) {
+                val previousCount = if (admittedCount == null) {
+                    catalogSyncDao.countChannelStages(providerId, sessionId)
+                } else {
+                    require(admittedCount >= stages.size)
+                    if (admittedCount == stages.size) {
+                        // Establish the fresh-session invariant once. Recovery and
+                        // generic writers still use database accounting.
+                        check(catalogSyncDao.countChannelStages(providerId, sessionId) == 0)
+                    }
+                    admittedCount - stages.size
+                }
                 requireStageCapacity(
-                    currentCount = catalogSyncDao.countChannelStages(providerId, sessionId),
-                    incomingCount = channels.distinctBy { it.streamId }.size,
+                    currentCount = previousCount,
+                    incomingCount = stages.size,
                     maximum = sizeLimits.maxChannelsPerProvider,
                     label = "channel"
                 )
-                insertStageRows(buildChannelStages(providerId, sessionId, channels), catalogSyncDao::insertChannelStages)
+                insertStageRows(stages, catalogSyncDao::insertChannelStages)
             }
         }
     }
 
     private suspend fun <T> timed(providerId: Long, stage: String, block: suspend () -> T): T {
-        val startedAt = System.currentTimeMillis()
+        val startedAt = System.nanoTime()
         return try {
             block()
         } finally {
-            Log.i(TAG, "catalog timing provider=$providerId stage=$stage took=${System.currentTimeMillis() - startedAt}ms")
+            Log.i(TAG, "catalog timing provider=$providerId stage=$stage took=${(System.nanoTime() - startedAt) / 1_000_000}ms")
         }
     }
 
@@ -502,6 +555,38 @@ internal class SyncCatalogStore(
         clearSession(providerId, sessionId)
     }
 
+    suspend fun <T> withLiveCatalogFence(providerId: Long, block: suspend () -> T): T =
+        providerTransaction(providerId, block)
+
+    suspend fun sealCompletedLiveImport(
+        providerId: Long,
+        sessionId: Long,
+        expectedCount: Int,
+        categories: List<CategoryEntity>?,
+        writeReceipt: suspend () -> Unit
+    ) {
+        providerTransaction(providerId) {
+            check(expectedCount > 0 && catalogSyncDao.countChannelStages(providerId, sessionId) == expectedCount)
+            categories?.let { stageCategories(providerId, sessionId, it) }
+            writeReceipt()
+        }
+    }
+
+    suspend fun mergeCompletedLiveCategory(providerId: Long, sourceSessionId: Long, targetSessionId: Long): Int {
+        require(sourceSessionId != targetSessionId)
+        return providerTransaction(providerId) {
+            val moved = catalogSyncDao.moveCompletedChannelStages(providerId, sourceSessionId, targetSessionId)
+            requireStageCapacity(
+                currentCount = catalogSyncDao.countChannelStages(providerId, targetSessionId),
+                incomingCount = 0,
+                maximum = sizeLimits.maxChannelsPerProvider,
+                label = "channel"
+            )
+            catalogSyncDao.clearChannelStages(providerId, sourceSessionId)
+            moved
+        }
+    }
+
     private suspend fun <T> providerTransaction(
         providerId: Long,
         block: suspend () -> T
@@ -552,7 +637,7 @@ internal class SyncCatalogStore(
     }
 
     suspend fun clearProviderStaging(providerId: Long) {
-        transactionRunner.inTransaction {
+        providerTransaction(providerId) {
             catalogSyncDao.clearProviderChannelStages(providerId)
             catalogSyncDao.clearProviderMovieStages(providerId)
             catalogSyncDao.clearProviderSeriesStages(providerId)
@@ -1072,14 +1157,21 @@ internal class SyncCatalogStore(
             messageDigest.update(value.toByteArray(Charsets.UTF_8))
             messageDigest.update(0)
         }
-        return messageDigest.digest().joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
+        val bytes = messageDigest.digest()
+        val hex = CharArray(bytes.size * 2)
+        bytes.forEachIndexed { index, byte ->
+            val value = byte.toInt() and 0xff
+            hex[index * 2] = HEX_DIGITS[value ushr 4]
+            hex[index * 2 + 1] = HEX_DIGITS[value and 0xf]
+        }
+        return String(hex)
     }
 
     private fun normalizeText(value: String?): String {
         return value
             .orEmpty()
             .trim()
-            .replace(Regex("\\s+"), " ")
+            .replace(TEXT_WHITESPACE, " ")
             .lowercase()
     }
 

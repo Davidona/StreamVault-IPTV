@@ -23,12 +23,14 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.LiveChannelVariantAttributes
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StalkerConfig
@@ -300,7 +302,9 @@ class ChannelRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(resolvedStream.containerExtension),
                     containerExtension = resolvedStream.containerExtension,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.LIVE,
+                    livePlaybackIdentity = LivePlaybackIdentity(channel.providerId, channel.id)
                 ).withM3uPlaybackMetadata(persistedChannel?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for channel: ${channel.name}")

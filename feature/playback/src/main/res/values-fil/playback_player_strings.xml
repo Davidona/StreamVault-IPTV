@@ -1,0 +1,299 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Maghanap ng online na subtitle</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Mag-load ng SRT mula sa device</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Delay ng subtitle (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Delay ng subtitle</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Ang mga negatibong halaga ay nagpapakita ng subtitle nang mas maaga; ang mga positibong halaga ay nagpapakita nito nang mas huli.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Kasalukuyang delay: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Ipakita ang subtitle nang %1$d ms mas maaga</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Ipakita ang subtitle nang %1$d ms mas huli</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">I-reset ang delay</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">Na-load ang %1$s. Nilo-load ng player ang subtitle.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Pumili ng valid na .srt subtitle file.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Dapat 20 MB o mas maliit ang mga subtitle file.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Hindi ma-load ang subtitle file na ito.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Maghanap ng subtitle</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Pumili ng subtitle na idadagdag sa video na ito.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Mga resulta para sa %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Maaari kang maghanap nang hindi nag-sign in kung naka-enable ang anonymous access. Mag-sign in para magamit ang download allowance ng iyong account.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Ikonekta ang account (opsyonal)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Naghahanap sa OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Walang nahanap na subtitle para sa title at wikang ito.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Maghanap muli</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Pumili ng wika, pagkatapos ay pumili ng bersyon.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Lahat ng wika</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Ipakita ang lahat ng available na wika</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Nilo-load ang mga wika…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Wika: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Palitan ang wika</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Hindi ma-load ang listahan ng wika.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s na download</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Pangkalahatang release</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Dina-download ang subtitle…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">Naidagdag ang %1$s. Nilo-load ng player ang subtitle.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Isara</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d minuto</item>
+            <item quantity="other">%1$d minuto</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Nadiskonekta ang Cast session.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">May catch-up (%1$d araw)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">May catch-up</string>
+    <string name="epg_no_info">Walang impormasyon sa EPG</string>
+    <string name="epg_now_playing">Tumutugtog Ngayon</string>
+    <string name="epg_title">Gabay sa TV</string>
+    <string name="epg_up_next">Susunod</string>
+    <string name="epg_upcoming_schedule">Paparating na Iskedyul</string>
+    <string name="home_locked_short">NAKA-LOCK</string>
+    <string name="label_categories">Mga Kategorya</string>
+    <string name="label_duration_min">%1$d min</string>
+    <string name="multiview_nav">Split Screen</string>
+    <string name="nav_live_tv">Live TV</string>
+    <string name="notification_permission_recording_alert_required">I-enable ang mga notification para sa StreamVault upang makatanggap ng mga alerto sa pagkabigo ng recording.</string>
+    <string name="notification_permission_reminder_required">I-enable ang mga notification para sa StreamVault upang makatanggap ng mga paalala sa programa.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">Diagnostics</string>
+    <string name="player_action_format">Format</string>
+    <string name="player_action_group">Grupo</string>
+    <string name="player_action_guide">Gabay</string>
+    <string name="player_action_mute">I-mute</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">Playback</string>
+    <string name="player_action_quality">Kalidad</string>
+    <string name="player_action_split">Split</string>
+    <string name="player_action_variants">Mga Variant</string>
+    <string name="player_action_view">View</string>
+    <string name="player_archive">Archive</string>
+    <string name="player_aspect_ratio_label">Aspect %1$s</string>
+    <string name="player_audio">Audio</string>
+    <string name="player_chapters">Mga Kabanata</string>
+    <string name="player_chapter_count">%1$d kabanata</string>
+    <string name="player_chapter_label">Kabanata %1$d</string>
+    <string name="player_chapter_selected">Kabanata %1$d, napili</string>
+    <string name="player_chapter_title">Kabanata %1$d · %2$s</string>
+    <string name="player_close_chapters">Isara ang mga kabanata</string>
+    <string name="player_previous_chapter">Nakaraang kabanata</string>
+    <string name="player_next_chapter">Susunod na kabanata</string>
+    <string name="player_rewind_10_seconds">I-rewind nang 10 segundo</string>
+    <string name="player_forward_10_seconds">I-forward nang 10 segundo</string>
+    <string name="player_vod_timeline">VOD timeline</string>
+    <string name="player_close_controls">Isara ang mga control</string>
+    <string name="player_back_to_menu">Bumalik sa menu</string>
+    <string name="player_playback_settings">Mga setting ng playback</string>
+    <string name="player_close_playback_settings">Isara ang mga setting ng playback</string>
+    <string name="player_vod_controls">Mga control ng VOD playback</string>
+    <string name="player_aspect_ratio">Aspect ratio</string>
+    <string name="player_auto_play_cancel">Kanselahin</string>
+    <string name="player_auto_play_countdown">Magpapatugtog sa %1$d s</string>
+    <string name="player_auto_play_play_now">I-play Ngayon</string>
+    <string name="player_av_sync_channel">Channel</string>
+    <string name="player_av_sync_global">Global</string>
+    <string name="player_av_sync_minus_50">A/V sync -50 ms</string>
+    <string name="player_av_sync_plus_50">A/V sync +50 ms</string>
+    <string name="player_av_sync_preview">Preview</string>
+    <string name="player_av_sync_reset">I-reset sa 0 ms</string>
+    <string name="player_av_sync_save_channel">I-save para sa channel</string>
+    <string name="player_av_sync_save_global">Itakda bilang global</string>
+    <string name="player_av_sync_short">A/V Sync</string>
+    <string name="player_av_sync_title">A/V Sync</string>
+    <string name="player_av_sync_use_global">Gamitin ang global</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">I-browse ang Archive</string>
+    <string name="player_browse_guide_catchup">I-browse ang Gabay</string>
+    <string name="player_buffering">Nagba-buffer...</string>
+    <string name="player_cancel_scheduled_recording">Kanselahin ang Naka-iskedyul</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">Catch-up</string>
+    <string name="player_catchup_options">Catch-up</string>
+    <string name="player_channel_list_hint">Pumili ng channel para agad na makatune. Isinasara ng Back ang listahan.</string>
+    <string name="player_channel_list_title">Mga Channel (%1$d)</string>
+    <string name="player_channel_not_found">Hindi mahanap ang channel</string>
+    <string name="player_channel_selected">Ngayon</string>
+    <string name="player_channel_variants">Mga Variant ng Channel</string>
+    <string name="player_close">Isara</string>
+    <string name="player_diagnostics_active_decoder">Aktibong Decoder</string>
+    <string name="player_diagnostics_alternates">Mga Alternatibong Stream</string>
+    <string name="player_diagnostics_archive">Archive</string>
+    <string name="player_diagnostics_audio_codec">Audio Codec</string>
+    <string name="player_diagnostics_audio_decoder">Audio Decoder</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Mode ng Audio Decoder</string>
+    <string name="player_diagnostics_audio_output_path">Audio Path</string>
+    <string name="player_diagnostics_av_offset">A/V Offset</string>
+    <string name="player_diagnostics_av_sync">A/V Sync</string>
+    <string name="player_diagnostics_av_sync_custom">Naka-on (custom sync path)</string>
+    <string name="player_diagnostics_av_sync_stock">Naka-off (stock audio path)</string>
+    <string name="player_diagnostics_av_sync_waiting">Naka-on (naghihintay ng restart ng playback)</string>
+    <string name="player_diagnostics_channel_errors">Mga Error sa Channel</string>
+    <string name="player_diagnostics_compatibility_note">Tala sa Compatibility</string>
+    <string name="player_diagnostics_compatibility_note_value">Maaaring gumagamit ang playback ng learned o compatibility-assisted na audio path para sa stream na ito.</string>
+    <string name="player_diagnostics_compatibility_source">Pinagmulan ng Compatibility</string>
+    <string name="player_diagnostics_dropped_frames">Mga Na-drop na Frame</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">Huling Pagkabigo</string>
+    <string name="player_diagnostics_last_frame">Huling Video Frame</string>
+    <string name="player_diagnostics_playback_state">Estado ng Playback</string>
+    <string name="player_diagnostics_provider">Provider</string>
+    <string name="player_diagnostics_recovery_actions">Mga Aksyon sa Recovery</string>
+    <string name="player_diagnostics_resolution">Resolution</string>
+    <string name="player_diagnostics_section_audio">Audio</string>
+    <string name="player_diagnostics_section_playback">Playback</string>
+    <string name="player_diagnostics_section_recovery">Recovery</string>
+    <string name="player_diagnostics_section_source">Source</string>
+    <string name="player_diagnostics_section_video">Video</string>
+    <string name="player_diagnostics_source">Source</string>
+    <string name="player_diagnostics_stream_class">Stream Class</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">Diagnostics ng Playback</string>
+    <string name="player_diagnostics_troubleshooting">Troubleshooting</string>
+    <string name="player_diagnostics_frame_rate">Frame Rate</string>
+    <string name="player_diagnostics_stream_bitrate">Stream Bitrate</string>
+    <string name="player_diagnostics_bandwidth_estimate">Network Bandwidth</string>
+    <string name="player_diagnostics_video_bitrate">Video Bitrate</string>
+    <string name="player_diagnostics_video_codec">Video Codec</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Mode ng Video Decoder</string>
+    <string name="player_diagnostics_video_stalls">Mga Video Stall</string>
+    <string name="player_epg_overlay_hint">I-browse ang mga detalye ng gabay dito. Piliin ang catch-up pill para buksan ang archive history.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">Mga Episode</string>
+    <string name="player_previous_episode">Nakaraang episode</string>
+    <string name="player_next_episode">Susunod na episode</string>
+    <string name="player_error_back">O pindutin ang Back para bumalik</string>
+    <string name="player_error_decoder">Hindi ma-play ang format na ito — subukang palitan ang decoder mode sa Settings</string>
+    <string name="player_error_drm">Hinadlangan ng DRM license o mga kinakailangan sa seguridad ng device ang playback</string>
+    <string name="player_error_live_hint">Subukang muli, bumalik sa huling channel, o pindutin ang Back para umalis sa playback.</string>
+    <string name="player_error_network">Hindi available ang stream — tingnan ang iyong koneksyon sa internet</string>
+    <string name="player_error_source">Hindi mahanap ang stream o tinanggihan ang access</string>
+    <string name="player_error_title">Error sa Playback</string>
+    <string name="player_error_unknown">Hindi kilalang error sa playback</string>
+    <string name="player_format_short">Format</string>
+    <string name="player_forward">Fast forward</string>
+    <string name="player_idle_standby_after">Payagan ang Standby Pagkatapos ng Idle</string>
+    <string name="player_idle_timer_status">Idle standby %1$s</string>
+    <string name="player_jump_to_live">Lumipat sa Live</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">Huling Channel</string>
+    <string name="player_last_group_hint">Bumalik sa huling live group na ini-browse mo.</string>
+    <string name="player_last_group_label">Huli: %1$s</string>
+    <string name="player_live_buffer_depth">Buffer %1$s</string>
+    <string name="player_live_buffer_end">Live edge</string>
+    <string name="player_live_buffer_start">Simula ng buffer</string>
+    <string name="player_live_channel">Channel %1$d</string>
+    <string name="player_live_dvr_controls">Player</string>
+    <string name="player_live_now">Tumutugtog Ngayon</string>
+    <string name="player_live_offset">Nahuhuli ng %1$s sa live</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">Timeline ng live rewind. Gamitin ang kaliwa at kanan para mag-seek.</string>
+    <string name="player_live_timeshift_buffering">Nagba-buffer pa ang local live rewind.</string>
+    <string name="player_minutes_remaining">%1$d min ang natitira</string>
+    <string name="player_more_controls">Higit pang mga control</string>
+    <string name="player_multiview_short">Multiview</string>
+    <string name="player_mute">I-mute</string>
+    <string name="player_muted_badge">Naka-mute</string>
+    <string name="player_next_label">Susunod:</string>
+    <string name="player_no_guide_data">Walang data ng gabay</string>
+    <string name="player_open_guide_action">Buksan ang Gabay</string>
+    <string name="player_open_in_external_player">Buksan sa external na player</string>
+    <string name="player_pause">I-pause</string>
+    <string name="player_picture_in_picture">Picture in picture</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">I-play</string>
+    <string name="player_playback_label">Playback</string>
+    <string name="player_playback_speed_title">Bilis ng Playback</string>
+    <string name="player_playback_speed_value">Bilis %1$s</string>
+    <string name="player_quality_short">Kalidad</string>
+    <string name="player_recent_channels">Kamakailan</string>
+    <string name="player_record">I-record</string>
+    <string name="player_record_now">I-record ngayon</string>
+    <string name="player_record_options">Recording</string>
+    <string name="player_recording_badge">Naka-record</string>
+    <string name="player_recording_scheduled_badge">Naka-iskedyul</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">I-restart</string>
+    <string name="player_close_playback_title">Isara ang playback?</string>
+    <string name="player_close_playback_desc">Ihihinto nito ang playback at babalik sa nakaraang screen.</string>
+    <string name="player_close_playback_confirm">Oo</string>
+    <string name="player_close_playback_cancel">Hindi</string>
+    <string name="player_resume">Ituloy</string>
+    <string name="player_resume_desc">Gusto mo bang ituloy ang %1$s mula sa huling napanood mo?</string>
+    <string name="player_resume_start_over">Magsimula Muli</string>
+    <string name="player_resume_title">Ituloy ang Playback</string>
+    <string name="player_retry">Subukang Muli</string>
+    <string name="player_rewind">I-rewind</string>
+    <string name="player_schedule_daily_recording">I-iskedyul Araw-araw</string>
+    <string name="player_schedule_recording">I-iskedyul</string>
+    <string name="player_schedule_weekly_recording">I-iskedyul Linggo-linggo</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Laktawan ang Intro</string>
+    <string name="player_skip_opening">Laktawan ang Opening</string>
+    <string name="player_skip_recap">Laktawan ang Recap</string>
+    <string name="player_skip_outro">Laktawan ang Outro</string>
+    <string name="player_selected">Napili</string>
+    <string name="player_stats">Stats</string>
+    <string name="player_stop_casting">Itigil ang Cast</string>
+    <string name="player_stop_playback_after">Itigil ang Playback Pagkatapos ng</string>
+    <string name="player_stop_recording">Itigil ang Recording</string>
+    <string name="player_stop_timer_status">Hihinto sa %1$s</string>
+    <string name="player_stream_format">Format ng Stream</string>
+    <string name="player_subs">Subs</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
+    <string name="player_timer_disable">I-disable</string>
+    <string name="player_timer_extend_30">+30 min</string>
+    <string name="player_timer_off">Naka-off</string>
+    <string name="player_timer_warning_idle">Pinapayagan ang standby sa %1$s</string>
+    <string name="player_timer_warning_stop">Hihinto ang playback sa %1$s</string>
+    <string name="player_track_audio">Pumili ng Audio Track</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Real-time na pagsasalin</string>
+    <string name="player_track_off">Naka-off</string>
+    <string name="player_track_subs">Pumili ng Subtitle</string>
+    <string name="player_try_alternate_stream">Subukan ang ibang path</string>
+    <string name="player_type_channel_number">I-type ang channel number</string>
+    <string name="player_type_movie">Pelikula</string>
+    <string name="player_type_series">Serye</string>
+    <string name="player_unmute">I-unmute</string>
+    <string name="player_up_next">Susunod</string>
+    <string name="player_variants_short">Mga Variant</string>
+    <string name="player_video_quality">Kalidad ng Video</string>
+    <string name="series_seasons">Mga Season</string>
+    <string name="settings_recording_status_recording">Naka-record</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">I-save ang kasalukuyang resolusyon bilang adaptive na limitasyon</string>
+    <string name="player_quality_remove_saved_limit">Alisin ang naka-save na limitasyon ng resolusyon</string>
+    <string name="player_quality_use_session_limit">Limitahan ang playback na ito sa kasalukuyang resolusyon</string>
+    <string name="player_quality_clear_session_limit">Alisin ang pansamantalang limitasyon ng kalidad</string>
+
+    <string name="player_quality_gate_title">Naka-pause ang playback dahil sa mga limitasyon ng kalidad</string>
+    <string name="player_quality_gate_message">Walang available na kalidad ng video ang pasok sa mga limitasyon mo. Suriin ang iniaalok na kalidad at mga detalye bago magpatuloy.</string>
+    <string name="player_quality_gate_offer">Iniaalok na kalidad ng video: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Lampas sa limitasyong %2$d p mo ang taas na %1$d p.</string>
+    <string name="player_quality_gate_height_unknown">Hindi alam ang taas ng video; %1$d p ang limitasyon mo.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Lampas sa limitasyong %2$s Mbps mo ang bitrate na %1$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Hindi alam ang bitrate ng video; %1$s Mbps ang limitasyon mo.</string>
+    <string name="player_quality_gate_continue_once">Magpatuloy nang isang beses</string>
+
+    <string name="player_diagnostics_quality_limits">Mga limitasyon ng kalidad</string>
+    <string name="player_diagnostics_quality_reasons">Mga salik na naglilimita</string>
+    <string name="player_diagnostics_quality_source_preferences">Mga kagustuhan sa playback</string>
+    <string name="player_diagnostics_quality_source_device">Compatibility ng device</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Load ng decoder</string>
+
+    <string name="player_diagnostics_quality_capability">Kakayahan ng video source</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Mga adaptive na kalidad</string>
+    <string name="player_diagnostics_quality_capability_single">Iisang o nakapirming kalidad</string>
+    <string name="player_diagnostics_quality_capability_unknown">Hindi alam</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Pinagmulan ng timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">I-save ang kasalukuyang bitrate ng video bilang pinakamataas na limitasyon</string>
+    <string name="player_quality_inherit_height_limit">Gamitin ang minanang limitasyon sa taas</string>
+    <string name="player_quality_inherit_bitrate_limit">Gamitin ang minanang limitasyon sa bitrate</string>
+    <string name="player_quality_no_additional_height_limit">Walang karagdagang limitasyon sa taas para sa content na ito</string>
+    <string name="player_quality_no_additional_bitrate_limit">Walang karagdagang limitasyon sa bitrate para sa content na ito</string>
+    <string name="player_quality_mode_auto">Awtomatiko (adaptive)</string>
+    <string name="player_quality_mode_fixed">Nakapirming track</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Ang Cast receiver ang pumipili ng kalidad; hindi ipinapatupad ang mga limitasyong ito.</string>
+    <string name="player_video_quality_selection_blocked">Hindi akma ang kalidad ng video na ito sa mga limitasyon mo sa playback.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolusyon: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
+    <string name="player_recording_failure_output_too_slow">Hindi nakasabay ang lokasyon ng recording sa live playback.</string>
+</resources>

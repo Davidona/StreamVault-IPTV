@@ -4,6 +4,7 @@ import android.content.Context
 import com.streamvault.feature.settings.R
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStorageConfig
+import com.streamvault.domain.model.RecordingSmbStorageConfig
 import com.streamvault.domain.model.RecordingReconciliationResult
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.CoroutineScope
@@ -162,6 +163,44 @@ internal class SettingsRecordingActions(
         }
     }
 
+    fun updateRecordingSmbStorage(
+        scope: CoroutineScope,
+        url: String,
+        username: String,
+        password: String?,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
+        scope.launch {
+            storageConfigMutex.withLock {
+                when (val result = recordingManager.updateSmbStorageConfig(
+                    RecordingSmbStorageConfig(url = url, username = username, password = password)
+                )) {
+                    is Result.Success -> {
+                        uiState.update { state ->
+                            state.copy(
+                                recordingStorageState = result.data,
+                                userMessage = appContext.getString(R.string.settings_recording_storage_updated)
+                            )
+                        }
+                        onComplete(true)
+                    }
+                    is Result.Error -> {
+                        uiState.update { state ->
+                            state.copy(
+                                userMessage = appContext.getString(
+                                    R.string.settings_recording_storage_update_failed,
+                                    result.message
+                                )
+                            )
+                        }
+                        onComplete(false)
+                    }
+                    Result.Loading -> onComplete(false)
+                }
+            }
+        }
+    }
+
     fun updateRecordingLocalDirectory(scope: CoroutineScope, localDirectory: String) {
         scope.launch {
             storageConfigMutex.withLock {
@@ -199,6 +238,8 @@ internal class SettingsRecordingActions(
                         treeUri = current.treeUri,
                         displayName = current.displayName,
                         localDirectory = current.localDirectory,
+                        smbUrl = current.smbUrl,
+                        smbUsername = current.smbUsername,
                         fileNamePattern = pattern,
                         retentionDays = current.retentionDays,
                         maxSimultaneousRecordings = current.maxSimultaneousRecordings
@@ -227,6 +268,8 @@ internal class SettingsRecordingActions(
                         treeUri = current.treeUri,
                         displayName = current.displayName,
                         localDirectory = current.localDirectory,
+                        smbUrl = current.smbUrl,
+                        smbUsername = current.smbUsername,
                         fileNamePattern = current.fileNamePattern,
                         retentionDays = retentionDays,
                         maxSimultaneousRecordings = current.maxSimultaneousRecordings
@@ -255,6 +298,8 @@ internal class SettingsRecordingActions(
                         treeUri = current.treeUri,
                         displayName = current.displayName,
                         localDirectory = current.localDirectory,
+                        smbUrl = current.smbUrl,
+                        smbUsername = current.smbUsername,
                         fileNamePattern = current.fileNamePattern,
                         retentionDays = current.retentionDays,
                         maxSimultaneousRecordings = maxSimultaneousRecordings

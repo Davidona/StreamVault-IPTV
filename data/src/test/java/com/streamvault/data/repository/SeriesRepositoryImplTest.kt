@@ -46,6 +46,7 @@ import com.streamvault.data.remote.xtream.XtreamParsingException
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.security.CredentialCrypto
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryBrowseQuery
@@ -77,6 +78,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.timeout
@@ -166,6 +169,61 @@ class SeriesRepositoryImplTest {
         verify(seriesDao, never()).replaceCategory(eq(7L), eq(77L), any())
         verify(xtreamApiService, never()).getSeriesList(any(), any())
         verify(episodeDao, never()).deleteOrphans()
+    }
+
+    @Test
+    fun `series preview keeps local catalog when provider credentials are unreadable`() = runTest {
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+            flowOf(listOf(CategoryEntity(providerId = 7L, categoryId = 77L, name = "Drama", type = ContentType.SERIES)))
+        )
+        whenever(seriesDao.getByCategoryPreview(7L, 77L, 18)).thenReturn(flowOf(emptyList()))
+        whenever(providerCapabilityResolver.snapshot(7L)).thenThrow(CredentialDecryptionException())
+
+        val result = createRepository().getCategoryPreviewRows(7L, listOf(77L), 18).first()
+
+        assertThat(result).containsKey(77L)
+        assertThat(result.getValue(77L)).isEmpty()
+        verifyNoInteractions(stalkerApiService, xtreamApiService)
+    }
+
+    @Test
+    fun `series preview contains background provider credential decryption failure`() = runTest {
+        val uncaughtExceptionLatch = CountDownLatch(1)
+        var uncaughtException: Throwable? = null
+        val previousUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { _, error ->
+            uncaughtException = error
+            uncaughtExceptionLatch.countDown()
+        }
+
+        try {
+            whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+            whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+                flowOf(listOf(CategoryEntity(providerId = 7L, categoryId = 77L, name = "Drama", type = ContentType.SERIES)))
+            )
+            whenever(seriesDao.getCountByCategory(7L, 77L)).thenReturn(flowOf(0))
+            whenever(seriesDao.getByCategoryPreview(7L, 77L, 18)).thenReturn(flowOf(emptyList()))
+            whenever(seriesCategoryHydrationDao.get(7L, 77L)).thenReturn(null)
+            whenever(stalkerRemoteIdentityResolver.reverse(7L, ContentType.SERIES, 77L)).thenReturn("77")
+
+            val provider = stalkerProvider()
+            stubProvider(provider)
+            val snapshot = provider.toProviderSnapshot()
+            whenever(providerCapabilityResolver.snapshot(7L))
+                .thenReturn(snapshot, snapshot)
+                .thenThrow(CredentialDecryptionException())
+
+            val result = createRepository().getCategoryPreviewRows(7L, listOf(77L), 18).first()
+
+            assertThat(result).containsKey(77L)
+            verify(providerCapabilityResolver, timeout(1_000).times(3)).snapshot(7L)
+            assertThat(uncaughtExceptionLatch.await(300, TimeUnit.MILLISECONDS)).isFalse()
+            assertThat(uncaughtException).isNull()
+            verifyNoInteractions(stalkerApiService)
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(previousUncaughtExceptionHandler)
+        }
     }
 
     @Test
@@ -1256,6 +1314,54 @@ class SeriesRepositoryImplTest {
         assertThat(result).hasSize(1)
         assertThat(result.single().selectedVariantId).isEqualTo(18L)
         assertThat(result.single().variants.map { it.rawSeriesId }).containsExactly(18L, 17L).inOrder()
+    }
+
+    private suspend fun stubFallbackSeries() {
+        val source = SeriesEntity(id = 17L, seriesId = 1700L, name = "Drama 1080p", providerId = 7L, tmdbId = 5000L)
+        val candidate = source.copy(id = 18L, seriesId = 1800L, name = "Drama 720p")
+        whenever(seriesDao.getById(17L)).thenReturn(source)
+        whenever(seriesDao.getById(18L)).thenReturn(candidate)
+        whenever(seriesDao.getByProviderAndTmdbIdSync(7L, 5000L)).thenReturn(listOf(source, candidate))
+    }
+
+    @Test
+    fun currentAndStaleSavedChoiceBlockFallback() = runTest {
+        stubFallbackSeries()
+        for (selections in listOf(mapOf("7|series:7:tmdb:5000" to 999L), mapOf("7|series:7:drama:2024" to 18L))) {
+            assertThat(createRepository(VodDuplicateHandlingMode.SMART, preferredVariants = selections)
+                .hasExplicitSeriesVariantSelection(17L)).isTrue()
+        }
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun otherProviderChoiceDoesNotBlock() = runTest {
+        stubFallbackSeries()
+        val repository = createRepository(VodDuplicateHandlingMode.SMART,
+            preferredVariants = mapOf("8|series:8:tmdb:5000" to 18L, "7|unrelated" to 99L))
+        assertThat(repository.hasExplicitSeriesVariantSelection(17L)).isFalse()
+    }
+
+    @Test
+    fun autoPresentedSelectedIdIsNotManual() = runTest {
+        stubFallbackSeries()
+        val repository = createRepository(VodDuplicateHandlingMode.SMART)
+        assertThat(repository.getSeriesVariants(17L).map { it.rawSeriesId }).containsExactly(17L, 18L)
+        assertThat(repository.hasExplicitSeriesVariantSelection(17L)).isFalse()
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun showAllDoesNotInventVariants() = runTest {
+        stubFallbackSeries()
+        assertThat(createRepository().getSeriesVariants(17L)).isEmpty()
+        verifyNoInteractions(seriesCatalogSource, xtreamApiService)
+    }
+
+    @Test
+    fun missingSeriesBlocksFallback() = runTest {
+        assertThat(createRepository().hasExplicitSeriesVariantSelection(999L)).isTrue()
+        assertThat(createRepository().getSeriesVariants(999L)).isEmpty()
     }
 
     private fun createRepository(

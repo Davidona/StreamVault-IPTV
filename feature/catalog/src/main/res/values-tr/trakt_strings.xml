@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Trakt izleme listenizdeki hiçbir film bu sağlayıcıyla veya mevcut filtrelerle eşleşmiyor.</string>
+    <string name="trakt_watchlist_series_no_matches">Trakt izleme listenizdeki hiçbir dizi bu sağlayıcıyla veya mevcut filtrelerle eşleşmiyor.</string>
+    <string name="trakt_discovery_trending_movies">Trakt'da Trend</string>
+    <string name="trakt_discovery_popular_movies">Trakt'da Popüler</string>
+    <string name="trakt_discovery_trending_series">Trakt'da Trend</string>
+    <string name="trakt_discovery_popular_series">Trakt'da Popüler</string>
+    <string name="trakt_discovery_movies_no_matches">Bu sağlayıcıyla veya mevcut filtrelerle eşleşen trend veya popüler Trakt filmi yok.</string>
+    <string name="trakt_discovery_series_no_matches">Bu sağlayıcıyla veya mevcut filtrelerle eşleşen trend veya popüler Trakt şovu yok.</string>
+    <string name="trakt_discovery_load_failed">Trakt keşif başlıkları yüklenemedi. Tekrar deneyin.</string>
+    <string name="trakt_custom_lists_action">Trakt Listeleri</string>
+    <string name="trakt_custom_lists_title">Trakt listeleriniz</string>
+    <string name="trakt_custom_lists_for_item">%1$s'yu bir listede yönetin</string>
+    <string name="trakt_custom_lists_loading">Liste bilgileri yükleniyor…</string>
+    <string name="trakt_custom_lists_connect_first">Listelerinizi kullanmak için Ayarlar'da Trakt'yu bağlayın.</string>
+    <string name="trakt_custom_lists_empty">Henüz özel Trakt listeniz yok.</string>
+    <string name="trakt_custom_lists_failed">Bu Trakt listesi yüklenemedi veya güncellenemedi. Tekrar deneyin.</string>
+    <string name="trakt_custom_lists_incognito">Gizli mod açıkken Trakt listeleri kullanılamaz.</string>
+    <string name="trakt_custom_lists_too_large">Bu liste tamamen StreamVault'ya yüklenemeyecek kadar büyük.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d öğeleri</string>
+    <string name="trakt_custom_list_contains_item">%1$s bu listede.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s bu listede yok.</string>
+    <string name="trakt_custom_list_add_item">Listeye ekle</string>
+    <string name="trakt_custom_lists_create_new">Yeni liste oluştur</string>
+    <string name="trakt_custom_lists_name">Liste adı</string>
+    <string name="trakt_custom_lists_optional_description">Açıklama (isteğe bağlı)</string>
+    <string name="trakt_custom_lists_private_note">Yeni listeler Trakt'da özeldir.</string>
+    <string name="trakt_custom_lists_create">Özel liste oluştur</string>
+    <string name="trakt_custom_list_remove_item" />
+    <string name="trakt_custom_list_items_truncated">Kaldır İlk 200 öğe gösteriliyor.</string>
+    <string name="trakt_custom_lists_back">Listelere geri dön</string>
+    <string name="trakt_custom_lists_choose_item">Ne ekleyeceğinizi veya kaldıracağınızı seçin</string>
+    <string name="trakt_custom_lists_movies">Film</string>
+    <string name="trakt_custom_lists_series">Seri</string>
+    <string name="trakt_custom_lists_seasons_count">Mevsimler (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Bölümler (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Başlığı değiştir</string>
+</resources>

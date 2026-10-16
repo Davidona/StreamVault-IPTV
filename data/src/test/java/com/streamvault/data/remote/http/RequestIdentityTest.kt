@@ -20,6 +20,12 @@ class RequestIdentityTest {
     }
 
     @Test
+    fun `OpenSubtitles user agent follows app name and version format`() {
+        assertThat(buildOpenSubtitlesUserAgent("1.2.3")).isEqualTo("StreamVault v1.2.3")
+        assertThat(buildOpenSubtitlesUserAgent(null)).isEqualTo("StreamVault vdev")
+    }
+
+    @Test
     fun `safeRequestIdentitySummary redacts sensitive headers`() {
         val request = Request.Builder()
             .url("https://example.test/epg.xml")

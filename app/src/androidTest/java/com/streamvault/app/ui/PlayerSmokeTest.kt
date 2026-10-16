@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.streamvault.app.ui.components.shell.CategoryRailPanel
 import com.streamvault.feature.playback.player.overlay.PlayerControlsOverlay
+import com.streamvault.feature.playback.player.overlay.PlayerSubtitleOffsetDialog
 import com.streamvault.feature.playback.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.app.ui.test.TestFixtures
 import com.streamvault.core.ui.theme.StreamVaultTheme
@@ -177,5 +178,48 @@ class PlayerSmokeTest {
         composeRule.runOnIdle {
             check(selectedTrackId == "audio-es")
         }
+    }
+
+    @Test
+    fun playerTrackSelectionDialog_offersLocalSubtitleAndTimingWithoutEmbeddedTracks() {
+        composeRule.setContent {
+            StreamVaultTheme {
+                PlayerTrackSelectionDialog(
+                    trackType = TrackType.TEXT,
+                    audioTracks = emptyList(),
+                    subtitleTracks = emptyList(),
+                    videoTracks = emptyList(),
+                    subtitleOffsetMs = 0,
+                    onDismiss = {},
+                    onSelectAudio = {},
+                    onSelectVideo = {},
+                    onSelectSubtitle = {},
+                    onOpenSubtitleOffset = {},
+                    onLoadLocalSubtitle = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Subtitle delay (+0 ms)").assertExists()
+        composeRule.onNodeWithText("Load SRT from device").assertExists()
+    }
+
+    @Test
+    fun playerSubtitleOffsetDialog_usesNegativeForEarlierAndPositiveForLater() {
+        composeRule.setContent {
+            StreamVaultTheme {
+                PlayerSubtitleOffsetDialog(
+                    visible = true,
+                    offsetMs = -200,
+                    onDismiss = {},
+                    onAdjust = {},
+                    onReset = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Current delay: -200 ms").assertExists()
+        composeRule.onNodeWithText("Show subtitles 100 ms earlier").assertExists()
+        composeRule.onNodeWithText("Show subtitles 100 ms later").assertExists()
     }
 }

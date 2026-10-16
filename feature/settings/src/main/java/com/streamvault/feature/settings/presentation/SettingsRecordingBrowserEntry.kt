@@ -23,7 +23,7 @@ internal fun SettingsRecordingBrowserDialog(
         onSelectedRecordingChange = onSelectedRecordingChange,
         onDismiss = { onShowRecordingBrowserDialogChange(false) },
         onPlay = { item ->
-            val playbackUrl = item.playbackUrl()
+            val playbackUrl = item.playbackUrl("${platformHost.buildInfo.applicationId}.recordings")
             if (!playbackUrl.isNullOrBlank()) {
                 platformHost.playRecording(
                     SettingsRecordingPlaybackRequest(

@@ -13,11 +13,11 @@
         <item quantity="other">%1$d 分钟</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="one">%d 个标签页</item>
+        <item quantity="other">%d 个标签页</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d 个栏目</item>
+        <item quantity="other">%d 个栏目</item>
     </plurals>
 </resources>

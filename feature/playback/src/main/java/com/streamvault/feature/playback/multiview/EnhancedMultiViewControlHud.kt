@@ -1,32 +1,33 @@
 package com.streamvault.feature.playback.multiview
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
+import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.feature.playback.R
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.interaction.TvIconButton
+import com.streamvault.feature.playback.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 internal fun EnhancedMultiViewControlHud(
@@ -41,26 +42,34 @@ internal fun EnhancedMultiViewControlHud(
     onSavePreset: (Int) -> Unit
 ) {
     val telemetryTone = if (uiState.telemetry.standbySlots > 0 || uiState.telemetry.bufferingSlots > 0) {
-        Color(0xFFFFD166)
+        BrowseColors.Warning
     } else {
-        Primary
+        BrowseColors.Success
     }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
-            .background(Color(0xFF0B1220).copy(alpha = 0.94f), RoundedCornerShape(24.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        BrowseColors.SurfaceEmphasis.copy(alpha = 0.98f),
+                        BrowseColors.Surface.copy(alpha = 0.98f)
+                    )
+                ),
+                BrowseShapes.Hero
+            )
+            .border(1.dp, BrowseColors.Outline, BrowseShapes.Hero)
             .padding(horizontal = 22.dp, vertical = 18.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
                 text = "Split Screen Controls",
-                color = Color.White,
+                color = BrowseColors.TextPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -70,7 +79,7 @@ internal fun EnhancedMultiViewControlHud(
                     uiState.performancePolicy.tier.name.lowercase().replaceFirstChar { it.uppercase() },
                     uiState.telemetry.activeSlotLimit
                 ),
-                color = Color.White.copy(alpha = 0.82f),
+                color = BrowseColors.TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -78,7 +87,7 @@ internal fun EnhancedMultiViewControlHud(
         if (focused != null && focused.title.isNotBlank()) {
             Text(
                 text = stringResource(R.string.multiview_focused_prefix, focused.title),
-                color = Primary,
+                color = BrowseColors.BrandStrong,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -89,10 +98,8 @@ internal fun EnhancedMultiViewControlHud(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                shape = RoundedCornerShape(999.dp),
-                colors = androidx.tv.material3.SurfaceDefaults.colors(
-                    containerColor = Color.White.copy(alpha = 0.08f)
-                )
+                shape = BrowseShapes.Control,
+                colors = SurfaceDefaults.colors(containerColor = BrowseColors.SurfaceAccent)
             ) {
                 Text(
                     text = stringResource(
@@ -109,14 +116,14 @@ internal fun EnhancedMultiViewControlHud(
             }
             if (!uiState.telemetry.throttledReason.isNullOrBlank()) {
                 Surface(
-                    shape = RoundedCornerShape(999.dp),
-                    colors = androidx.tv.material3.SurfaceDefaults.colors(
-                        containerColor = Color(0xFFFFC107).copy(alpha = 0.16f)
+                    shape = BrowseShapes.Control,
+                    colors = SurfaceDefaults.colors(
+                        containerColor = BrowseColors.Warning.copy(alpha = 0.14f)
                     )
                 ) {
                     Text(
                         text = "Standby active",
-                        color = Color(0xFFFFD166),
+                        color = BrowseColors.Warning,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                     )
@@ -125,52 +132,27 @@ internal fun EnhancedMultiViewControlHud(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TvButton(
+            SplitControlButton(
                 onClick = onShowReplacementPicker,
                 modifier = Modifier.focusRequester(firstControlFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = Primary.copy(alpha = 0.94f),
-                    contentColor = Color.Black,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
-                )
+                primary = true
             ) {
                 Text(stringResource(R.string.multiview_replace_slot))
             }
-            TvButton(
+            SplitControlButton(
                 onClick = onRemoveFocusedSlot,
-                enabled = focused != null && !focused.isEmpty,
-                colors = ButtonDefaults.colors(
-                    containerColor = Color.White.copy(alpha = 0.10f),
-                    contentColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
-                )
+                enabled = focused != null && !focused.isEmpty
             ) {
                 Text(stringResource(R.string.multiview_remove_slot))
             }
             if (uiState.pinnedAudioSlotIndex == uiState.focusedSlotIndex) {
-                TvButton(
-                    onClick = onClearPinnedAudio,
-                    colors = ButtonDefaults.colors(
-                        containerColor = Color(0xFF203A5C),
-                        contentColor = Color.White,
-                        focusedContainerColor = Color.White,
-                        focusedContentColor = Color.Black
-                    )
-                ) {
+                SplitControlButton(onClick = onClearPinnedAudio) {
                     Text(stringResource(R.string.multiview_audio_follow_focus))
                 }
             } else {
-                TvButton(
+                SplitControlButton(
                     onClick = onPinAudioToFocusedSlot,
-                    enabled = focused != null && !focused.isEmpty && focused.performanceBlockedReason == null,
-                    colors = ButtonDefaults.colors(
-                        containerColor = Color(0xFF203A5C),
-                        contentColor = Color.White,
-                        focusedContainerColor = Color.White,
-                        focusedContentColor = Color.Black
-                    )
+                    enabled = focused != null && !focused.isEmpty && focused.performanceBlockedReason == null
                 ) {
                     Text(stringResource(R.string.multiview_pin_audio))
                 }
@@ -180,7 +162,7 @@ internal fun EnhancedMultiViewControlHud(
         if (uiState.presets.isNotEmpty()) {
             Text(
                 text = "Presets",
-                color = Color.White.copy(alpha = 0.84f),
+                color = BrowseColors.TextSecondary,
                 style = MaterialTheme.typography.labelLarge
             )
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -190,15 +172,7 @@ internal fun EnhancedMultiViewControlHud(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        TvButton(
-                            onClick = { onLoadPreset(preset.index) },
-                            colors = ButtonDefaults.colors(
-                                containerColor = Color.White.copy(alpha = 0.10f),
-                                contentColor = Color.White,
-                                focusedContainerColor = Color.White,
-                                focusedContentColor = Color.Black
-                            )
-                        ) {
+                        SplitControlButton(onClick = { onLoadPreset(preset.index) }) {
                             Text(
                                 text = if (preset.isPopulated) {
                                     "$presetLabel (${preset.channelCount})"
@@ -207,15 +181,7 @@ internal fun EnhancedMultiViewControlHud(
                                 }
                             )
                         }
-                        TvButton(
-                            onClick = { onSavePreset(preset.index) },
-                            colors = ButtonDefaults.colors(
-                                containerColor = Color(0xFF172033),
-                                contentColor = Color.White,
-                                focusedContainerColor = Color.White,
-                                focusedContentColor = Color.Black
-                            )
-                        ) {
+                        SplitControlButton(onClick = { onSavePreset(preset.index) }) {
                             Text(text = stringResource(R.string.multiview_preset_save, preset.index + 1))
                         }
                     }
@@ -226,10 +192,43 @@ internal fun EnhancedMultiViewControlHud(
         if (!uiState.telemetry.throttledReason.isNullOrBlank()) {
             Text(
                 text = uiState.telemetry.throttledReason.orEmpty(),
-                color = Color(0xFFFFE7A3),
+                color = BrowseColors.Warning,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
             )
         }
     }
+}
+
+@Composable
+private fun SplitControlButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    primary: Boolean = false,
+    content: @Composable RowScope.() -> Unit
+) {
+    val shape = BrowseShapes.Control
+    val containerColor = if (primary) BrowseColors.Brand else BrowseColors.SurfaceAccent
+    val contentColor = if (primary) BrowseColors.OnPrimary else BrowseColors.TextPrimary
+    TvButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = ButtonDefaults.shape(shape),
+        colors = ButtonDefaults.colors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = containerColor,
+            focusedContentColor = contentColor,
+            disabledContainerColor = BrowseColors.Surface.copy(alpha = 0.72f),
+            disabledContentColor = BrowseColors.TextDisabled
+        ),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = shape),
+            focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = shape)
+        ),
+        scale = ButtonDefaults.scale(focusedScale = 1f),
+        content = content
+    )
 }

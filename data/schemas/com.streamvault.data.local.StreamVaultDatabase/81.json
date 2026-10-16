@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 81,
-    "identityHash": "bf6f92b8689ef564643e5c397acc582f",
+    "identityHash": "4c7a70bfc0d581d4c86dfa31d69b3de6",
     "entities": [
       {
         "tableName": "providers",
@@ -5666,6 +5666,84 @@
         ]
       },
       {
+        "tableName": "stalker_live_category_retries",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `configuration_generation` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `last_attempt_at` INTEGER NOT NULL, `last_error` TEXT, PRIMARY KEY(`provider_id`, `category_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "providerId",
+            "columnName": "provider_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryId",
+            "columnName": "category_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryName",
+            "columnName": "category_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "configurationGeneration",
+            "columnName": "configuration_generation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attemptCount",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAttemptAt",
+            "columnName": "last_attempt_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "provider_id",
+            "category_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_stalker_live_category_retries_provider_id",
+            "unique": false,
+            "columnNames": [
+              "provider_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stalker_live_category_retries_provider_id` ON `${TABLE_NAME}` (`provider_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "providers",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "provider_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "stalker_portal_state",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `working_endpoint` TEXT, `bootstrap_recipe` TEXT, `bulk_live_supported` INTEGER, `bulk_live_category_fidelity` INTEGER, `movie_wildcard_supported` INTEGER, `series_wildcard_supported` INTEGER, `epg_supported` INTEGER, `safe_metadata_concurrency` INTEGER NOT NULL, `stress_cooldown_until` INTEGER NOT NULL, `endpoint_health_json` TEXT NOT NULL, `endpoint_failed_until` INTEGER NOT NULL, `validated_at` INTEGER NOT NULL, `schema_version` INTEGER NOT NULL, `configuration_generation` INTEGER NOT NULL, `learning_json` TEXT NOT NULL, `observation_source` TEXT NOT NULL, `observed_at` INTEGER NOT NULL, PRIMARY KEY(`provider_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -7116,7 +7194,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bf6f92b8689ef564643e5c397acc582f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c7a70bfc0d581d4c86dfa31d69b3de6')"
     ]
   }
 }

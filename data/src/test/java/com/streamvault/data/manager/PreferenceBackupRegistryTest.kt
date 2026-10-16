@@ -25,7 +25,7 @@ class PreferenceBackupRegistryTest {
             "hidden_channels_42",
             "pinned_categories_42_LIVE",
             "category_sort_42_LIVE",
-            "aspect_ratio_123"
+            "aspect_ratio_123", "automatic_sync_provider_42", "automatic_sync_status_42"
         )
         val allKeys = literalKeys + dynamicSamples
         val knownDynamicFactories = setOf(

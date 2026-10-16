@@ -51,12 +51,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

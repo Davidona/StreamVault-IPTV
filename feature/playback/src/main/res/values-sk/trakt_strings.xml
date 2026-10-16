@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Pripojte Trakt v Nastaveniach</string>
+    <string name="player_trakt_not_supported">Trakt sleduje iba filmy a epizódy.</string>
+    <string name="player_trakt_no_match">Pre tento titul neexistuje presná zhoda Trakt.</string>
+    <string name="player_trakt_starting">Spúšťa sa sledovanie Trakt…</string>
+    <string name="player_trakt_tracking">Sledovanie pomocou Trakt</string>
+    <string name="player_trakt_paused">Sledovanie Trakt pozastavené</string>
+    <string name="player_trakt_failed">Sledovanie Trakt zlyhalo</string>
+    <string name="player_trakt_sent">Odoslané na Trakt</string>
+</resources>

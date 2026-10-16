@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Bronnen</string>
+    <string name="vod_subtitle_settings">Instellingen</string>
+    <string name="vod_subtitle_provider">Ondertitels van aanbieder</string>
+    <string name="vod_subtitle_provider_hint">Kies een ondertitelspoor uit deze video</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Ondertitels online zoeken</string>
+    <string name="vod_subtitle_online_unavailable">Online zoeken is niet beschikbaar voor deze video</string>
+    <string name="vod_subtitle_device_hint">Kies een SRT-bestand</string>
+    <string name="vod_subtitle_back">Terug naar bronnen</string>
+    <string name="vod_tracks_empty">Geen sporen beschikbaar in deze video</string>
+    <string name="vod_subtitle_preview">Dit is een ondertitel.</string>
+    <string name="vod_subtitle_font_size">Lettergrootte</string>
+    <string name="vod_subtitle_background">Achtergronddekking</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparant · 100% effen zwart</string>
+    <string name="vod_subtitle_decrease_setting">%1$s verlagen</string>
+    <string name="vod_subtitle_increase_setting">%1$s verhogen</string>
+</resources>

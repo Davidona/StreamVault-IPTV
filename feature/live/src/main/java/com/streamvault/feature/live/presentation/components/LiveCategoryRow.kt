@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,11 +31,11 @@ import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.PushPin
 import com.streamvault.core.ui.components.shell.AppSectionHeader
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 
 /** Netflix-style horizontal category row for Live browse surfaces. */
 @OptIn(ExperimentalComposeUiApi::class)
@@ -85,11 +85,11 @@ fun <T : Any> LiveCategoryRow(
                                 contentColor = if (isPinned) Primary else OnSurface,
                                 focusedContentColor = OnSurface
                             ),
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+                            shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
                                     border = BorderStroke(2.dp, FocusBorder),
-                                    shape = RoundedCornerShape(999.dp)
+                                    shape = BrowseShapes.Control
                                 )
                             )
                         ) {
@@ -132,11 +132,11 @@ private fun LiveCategoryAction(
             contentColor = contentColor,
             focusedContentColor = OnSurface
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             )
         )
     ) {

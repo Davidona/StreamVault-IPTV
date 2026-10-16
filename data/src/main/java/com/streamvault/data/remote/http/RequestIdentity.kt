@@ -80,6 +80,11 @@ fun buildAppUserAgent(versionName: String?): String {
     return "StreamVault/$normalizedVersion (Android; Media3; OkHttp)"
 }
 
+fun buildOpenSubtitlesUserAgent(versionName: String?): String {
+    val normalizedVersion = versionName?.trim().orEmpty().ifBlank { "dev" }
+    return "StreamVault v$normalizedVersion"
+}
+
 fun buildAppRequestProfile(
     versionName: String?,
     ownerTag: String

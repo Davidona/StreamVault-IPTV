@@ -5,10 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,16 +14,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.TvOutlinedTextField
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.domain.trakt.TraktCustomListActionResult
@@ -119,7 +113,8 @@ internal fun TraktCustomListActionButton(
     var listName by remember(item.identity) { mutableStateOf("") }
     var listDescription by remember(item.identity) { mutableStateOf("") }
 
-    TvButton(
+    DetailActionButton(
+        label = stringResource(R.string.trakt_custom_lists_action),
         onClick = {
             dialogOpen = true
             selectedListId = null
@@ -131,40 +126,25 @@ internal fun TraktCustomListActionButton(
             listDescription = ""
             viewModel.refreshLists()
         },
-        enabled = !operation,
-        colors = ButtonDefaults.colors(
-            containerColor = AppColors.SurfaceEmphasis,
-            contentColor = AppColors.TextPrimary,
-        ),
-    ) { Text(stringResource(R.string.trakt_custom_lists_action)) }
+        enabled = state.connected && !operation,
+        compact = true,
+    )
 
     if (!dialogOpen) return
-    Dialog(
+    val selectedList = selectedListId?.let(state::list)
+    val targetItem = selectedItem
+    PremiumDialog(
+        title = selectedList?.name ?: stringResource(R.string.trakt_custom_lists_title),
+        subtitle = targetItem?.let { stringResource(R.string.trakt_custom_lists_for_item, it.title) },
         onDismissRequest = { if (!operation) dialogOpen = false },
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
-        ) {
+        widthFraction = 0.58f,
+        smallScreenWidthFraction = 0.94f,
+        bodyHeightFraction = 0.66f,
+        content = {
             Column(
-                modifier = Modifier.widthIn(min = 420.dp, max = 680.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val selectedList = selectedListId?.let(state::list)
-                val targetItem = selectedItem
-                Text(
-                    text = selectedList?.name ?: stringResource(R.string.trakt_custom_lists_title),
-                    color = AppColors.TextPrimary,
-                )
-                targetItem?.let {
-                    Text(
-                        text = stringResource(R.string.trakt_custom_lists_for_item, it.title),
-                        color = AppColors.TextSecondary,
-                    )
-                }
 
                 if (state.refreshingLists || selectedListId?.let { it in state.loadingItems } == true || operation) {
                     Text(stringResource(R.string.trakt_custom_lists_loading), color = AppColors.TextSecondary)
@@ -385,16 +365,16 @@ internal fun TraktCustomListActionButton(
                         color = AppColors.Warning,
                     )
                 }
-                TvButton(
-                    onClick = { dialogOpen = false },
-                    enabled = !operation,
-                    colors = traktNeutralButtonColors(),
-                ) {
-                    Text(stringResource(R.string.settings_cancel))
-                }
             }
-        }
-    }
+        },
+        footer = {
+            PremiumDialogFooterButton(
+                label = stringResource(R.string.settings_cancel),
+                onClick = { dialogOpen = false },
+                enabled = !operation,
+            )
+        },
+    )
 }
 
 @Composable

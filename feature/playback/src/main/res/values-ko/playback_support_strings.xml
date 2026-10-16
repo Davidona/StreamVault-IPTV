@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">연결된 기기로 캐스트 중입니다.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">이 기기에서는 Google Cast를 사용할 수 없습니다.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">이 스트림 형식은 Google Cast에서 지원되지 않습니다.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP 및 RTMP 스트림은 캐스트할 수 없습니다.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM으로 보호된 스트림은 이 앱에서 Google Cast로 지원되지 않습니다.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">이 항목은 Cast 수신기로 보낼 수 없습니다.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">이 스트림은 Chromecast가 직접 접근할 수 없는 로컬 또는 기기 전용 URL을 사용합니다.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">이 스트림에는 Chromecast가 직접 사용할 수 없는 HTTP 헤더 또는 쿠키가 필요합니다.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">이 스트림에는 Chromecast가 직접 사용할 수 없는 사용자 지정 User-Agent가 필요합니다.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">이 스트림에는 앱 프록시 설정이 필요하여 Chromecast가 직접 사용할 수 없습니다.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">이 스트림은 Chromecast가 직접 사용할 수 없는 SSL 처리를 사용합니다.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">캐스트 세션을 시작할 수 없습니다.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast 수신기가 이 스트림을 로드할 수 없습니다.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">연결된 Cast 수신기가 재생 준비되지 않았습니다.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">캐스트 기기 선택이 취소되었습니다.</string>
+    <string name="add_group_close_cd">닫기</string>
+    <string name="player_archive_title">프로그램 아카이브</string>
+    <string name="player_no_archive">보관된 프로그램이 없습니다</string>
+    <string name="program_date_time_range">%1$s | %2$s ~ %3$s</string>
+    <string name="player_archive_badge">아카이브</string>
+</resources>

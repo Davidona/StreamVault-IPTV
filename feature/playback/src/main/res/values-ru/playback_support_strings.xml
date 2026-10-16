@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Трансляция на подключённое устройство.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast недоступен на этом устройстве.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Этот формат потока не поддерживается Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Потоки RTSP и RTMP не поддерживаются для трансляции.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Потоки с защитой DRM не поддерживаются Google Cast в этом приложении.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Этот элемент нельзя отправить на приёмник Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Этот поток использует локальный URL или URL только для устройства, недоступный для Chromecast напрямую.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Этому потоку нужны HTTP-заголовки или cookie, которые Chromecast не может использовать напрямую.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Этому потоку нужен пользовательский User-Agent, который Chromecast не может использовать напрямую.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Этому потоку нужны прокси-настройки приложения, поэтому Chromecast не может использовать его напрямую.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Этот поток использует обработку SSL, недоступную для Chromecast напрямую.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Не удалось запустить сеанс трансляции.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Приёмник Cast не смог загрузить этот поток.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Подключённый приёмник Cast не готов к воспроизведению.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Выбор устройства Cast отменён.</string>
+    <string name="add_group_close_cd">Закрыть</string>
+    <string name="player_archive_title">Архив программ</string>
+    <string name="player_no_archive">Архивных программ не найдено</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Архив</string>
+</resources>

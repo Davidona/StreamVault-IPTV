@@ -37,7 +37,10 @@ if (localPropertiesFile.exists()) {
     FileInputStream(localPropertiesFile).use(localProperties::load)
 }
 
-fun localProp(key: String): String = localProperties.getProperty(key, "")
+// Opt-in performance APK has isolated app storage and never seeds real accounts.
+val xtreamSyncBenchmark = providers.gradleProperty("xtreamSyncBenchmark").orNull == "true"
+fun localProp(key: String): String =
+    if (xtreamSyncBenchmark) "" else localProperties.getProperty(key, "")
 
 // Public app configuration; OAuth user credentials are never build inputs.
 val traktClientId = providers.environmentVariable("TRAKT_CLIENT_ID").orNull ?: localProp("trakt.client.id")
@@ -87,6 +90,7 @@ android {
         }
         buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.app\"")
         buildConfigField("String", "OFFICIAL_SIGNING_CERT_SHA256", "\"$officialSigningCertSha256\"")
+        buildConfigField("String", "OPENSUBTITLES_API_KEY", "\"\"")
         buildConfigField("String", "APP_UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("long", "BUILD_TIMESTAMP_UTC", "0L")
         ndk {
@@ -120,7 +124,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = if (xtreamSyncBenchmark) ".syncbenchmark" else ".debug"
             versionNameSuffix = "-debug"
             buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
             buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")
@@ -128,6 +132,11 @@ android {
             buildConfigField("String", "XTREAM_DEV_NAME", "\"${localProp("xtream.dev.name")}\"")
             buildConfigField("String", "M3U_DEV_URL", "\"${localProp("m3u.dev.url")}\"")
             buildConfigField("String", "M3U_DEV_NAME", "\"${localProp("m3u.dev.name")}\"")
+            buildConfigField(
+                "String",
+                "OPENSUBTITLES_API_KEY",
+                "\"${localProp("opensubtitles.api.key").replace("\\", "\\\\").replace("\"", "\\\"")}\""
+            )
         }
         create("beta") {
             initWith(getByName("release"))
@@ -553,6 +562,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.datastore.preferences)
 }
 
 tasks.configureEach {

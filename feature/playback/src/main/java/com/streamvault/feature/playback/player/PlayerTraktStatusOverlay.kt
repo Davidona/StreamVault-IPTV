@@ -1,19 +1,20 @@
 package com.streamvault.feature.playback.player
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
 import com.streamvault.feature.playback.R
 
 @Composable
@@ -34,22 +35,24 @@ internal fun PlayerTraktStatusOverlay(
         PlayerTraktTrackingStatus.FAILED -> R.string.player_trakt_failed
         PlayerTraktTrackingStatus.SENT -> R.string.player_trakt_sent
     }
+    val palette = BrowseColors.current
     val accent = when (status) {
         PlayerTraktTrackingStatus.TRACKING,
-        PlayerTraktTrackingStatus.SENT -> Color(0xFF85E3A8)
+        PlayerTraktTrackingStatus.SENT -> palette.success
         PlayerTraktTrackingStatus.PAUSED,
-        PlayerTraktTrackingStatus.STARTING -> Color(0xFF8FC7FF)
+        PlayerTraktTrackingStatus.STARTING -> palette.info
         PlayerTraktTrackingStatus.FAILED,
         PlayerTraktTrackingStatus.CONNECT_REQUIRED,
-        PlayerTraktTrackingStatus.NO_MATCH,
-        PlayerTraktTrackingStatus.NOT_SUPPORTED -> Color(0xFFFFC36A)
-        PlayerTraktTrackingStatus.HIDDEN -> Color.Transparent
+        PlayerTraktTrackingStatus.NO_MATCH -> palette.warning
+        PlayerTraktTrackingStatus.NOT_SUPPORTED -> palette.textSecondary
+        PlayerTraktTrackingStatus.HIDDEN -> palette.surface
     }
 
     Row(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.72f), RoundedCornerShape(18.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .background(palette.surfaceElevated.copy(alpha = 0.96f), BrowseShapes.Control)
+            .border(1.dp, palette.outline, BrowseShapes.Control)
+            .padding(horizontal = 14.dp, vertical = 9.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -62,7 +65,7 @@ internal fun PlayerTraktStatusOverlay(
         Text(
             text = stringResource(label),
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White,
+            color = BrowseColors.TextPrimary,
             maxLines = 1,
         )
     }

@@ -103,8 +103,14 @@ internal fun AppNavHost(
             onPlayMovie = { movie, returnDestination ->
                 actions.openPlayer(movie.toPlayerNavigationRequest(returnDestination))
             },
-            onPlayEpisode = { episode, returnDestination ->
-                actions.openPlayer(episode.toPlayerNavigationRequest(returnDestination))
+            onPlayEpisode = { episode, series, returnDestination ->
+                actions.openPlayer(
+                    episode.toPlayerNavigationRequest(
+                        returnDestination = returnDestination,
+                        remoteSeriesId = series.providerSeriesId?.trim()?.takeIf(String::isNotBlank)
+                            ?: series.seriesId.takeIf { it > 0L }?.toString()
+                    )
+                )
             },
             onPlayHistory = { history, returnDestination ->
                 when (history.contentType) {

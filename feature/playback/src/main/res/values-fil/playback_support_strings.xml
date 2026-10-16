@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Nag-ca-cast sa konektadong device.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Hindi available ang Google Cast sa device na ito.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Hindi sinusuportahan ng Google Cast ang format ng stream na ito.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Hindi sinusuportahan ang mga RTSP at RTMP stream para sa casting.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Hindi sinusuportahan ng Google Cast sa app na ito ang mga stream na protektado ng DRM.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Hindi maipapadala ang item na ito sa Cast receiver.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Gumagamit ang stream na ito ng lokal o device-only na URL na hindi direktang maabot ng Chromecast.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Kailangan ng stream na ito ng HTTP headers o cookies na hindi direktang magagamit ng Chromecast.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Kailangan ng stream na ito ng custom na User-Agent na hindi direktang magagamit ng Chromecast.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Kailangan ng stream na ito ang proxy settings ng app, kaya hindi ito direktang magagamit ng Chromecast.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Gumagamit ang stream na ito ng SSL handling na hindi direktang magagamit ng Chromecast.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Hindi masimulan ang Cast session.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Hindi ma-load ng Cast receiver ang stream na ito.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Hindi pa handa sa playback ang konektadong Cast receiver.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Kinansela ang pagpili ng Cast device.</string>
+    <string name="add_group_close_cd">Isara</string>
+    <string name="player_archive_title">Archive ng Programa</string>
+    <string name="player_no_archive">Walang nahanap na naka-archive na programa</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Archive</string>
+</resources>

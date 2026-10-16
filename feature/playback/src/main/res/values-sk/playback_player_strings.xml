@@ -1,0 +1,301 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">Hľadať titulky online</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">Načítať SRT zo zariadenia</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">Oneskorenie titulkov (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">Oneskorenie titulkov</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">Záporné hodnoty zobrazujú titulky skôr; kladné hodnoty ich zobrazujú neskôr.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">Aktuálne oneskorenie: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">Zobraziť titulky o %1$d ms skôr</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">Zobraziť titulky o %1$d ms neskôr</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">Obnoviť oneskorenie</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s načítané. Prehrávač načítava titulky.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">Vyberte platný súbor titulkov .srt.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">Súbory titulkov môžu mať najviac 20 MB.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">Tento súbor titulkov sa nepodarilo načítať.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">Nájsť titulky</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">Vyberte titulky, ktoré chcete pridať k tomuto videu.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">Výsledky pre %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">Ak je povolený anonymný prístup, môžete vyhľadávať bez prihlásenia. Prihláste sa a využite limit sťahovania svojho účtu.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">Pripojiť účet (voliteľné)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">Vyhľadávanie v OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">Pre tento titul a jazyk sa nenašli žiadne titulky.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">Hľadať znova</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">Vyberte jazyk a potom zvoľte verziu.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">Všetky jazyky</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">Zobraziť všetky dostupné jazyky</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">Načítavajú sa jazyky…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">Jazyk: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">Zmeniť jazyk</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">Zoznam jazykov sa nepodarilo načítať.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s stiahnutí</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">Všeobecné vydanie</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">Sťahujú sa titulky…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s pridané. Prehrávač načítava titulky.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">Zavrieť</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d minúta</item>
+            <item quantity="few">%1$d minúty</item>
+            <item quantity="many">%1$d minút</item>
+            <item quantity="other">%1$d minút</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">Relácia Cast bola odpojená.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">Archív dostupný (%1$d dní)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">Archív dostupný</string>
+    <string name="epg_no_info">Žiadne informácie EPG</string>
+    <string name="epg_now_playing">Práve sa prehráva</string>
+    <string name="epg_title">TV program</string>
+    <string name="epg_up_next">Nasleduje</string>
+    <string name="epg_upcoming_schedule">Nadchádzajúci program</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="label_categories">Kategórie</string>
+    <string name="label_duration_min">%1$d min</string>
+    <string name="multiview_nav">Rozdelená obrazovka</string>
+    <string name="nav_live_tv">Živé TV</string>
+    <string name="notification_permission_recording_alert_required">Povoľte oznámenia pre StreamVault, aby ste dostávali upozornenia na zlyhanie nahrávania.</string>
+    <string name="notification_permission_reminder_required">Povoľte oznámenia pre StreamVault, aby ste dostávali pripomienky programov.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">Diagnostika</string>
+    <string name="player_action_format">Formát</string>
+    <string name="player_action_group">Skupina</string>
+    <string name="player_action_guide">Program</string>
+    <string name="player_action_mute">Stlmiť</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">Prehrávanie</string>
+    <string name="player_action_quality">Kvalita</string>
+    <string name="player_action_split">Rozdeliť</string>
+    <string name="player_action_variants">Varianty</string>
+    <string name="player_action_view">Zobrazenie</string>
+    <string name="player_archive">Archív</string>
+    <string name="player_aspect_ratio_label">Pomer strán %1$s</string>
+    <string name="player_audio">Zvuk</string>
+    <string name="player_chapters">Kapitoly</string>
+    <string name="player_chapter_count">%1$d kapitol</string>
+    <string name="player_chapter_label">Kapitola %1$d</string>
+    <string name="player_chapter_selected">Kapitola %1$d, vybraná</string>
+    <string name="player_chapter_title">Kapitola %1$d · %2$s</string>
+    <string name="player_close_chapters">Zavrieť kapitoly</string>
+    <string name="player_previous_chapter">Predchádzajúca kapitola</string>
+    <string name="player_next_chapter">Ďalšia kapitola</string>
+    <string name="player_rewind_10_seconds">Pretočiť o 10 sekúnd vzad</string>
+    <string name="player_forward_10_seconds">Pretočiť o 10 sekúnd vpred</string>
+    <string name="player_vod_timeline">Časová os VOD</string>
+    <string name="player_close_controls">Zavrieť ovládacie prvky</string>
+    <string name="player_back_to_menu">Späť do ponuky</string>
+    <string name="player_playback_settings">Nastavenia prehrávania</string>
+    <string name="player_close_playback_settings">Zavrieť nastavenia prehrávania</string>
+    <string name="player_vod_controls">Ovládacie prvky prehrávania VOD</string>
+    <string name="player_aspect_ratio">Pomer strán</string>
+    <string name="player_auto_play_cancel">Zrušiť</string>
+    <string name="player_auto_play_countdown">Prehrávanie za %1$d s</string>
+    <string name="player_auto_play_play_now">Prehrať teraz</string>
+    <string name="player_av_sync_channel">Kanál</string>
+    <string name="player_av_sync_global">Globálne</string>
+    <string name="player_av_sync_minus_50">Synchronizácia A/V -50 ms</string>
+    <string name="player_av_sync_plus_50">Synchronizácia A/V +50 ms</string>
+    <string name="player_av_sync_preview">Ukážka</string>
+    <string name="player_av_sync_reset">Obnoviť na 0 ms</string>
+    <string name="player_av_sync_save_channel">Uložiť pre kanál</string>
+    <string name="player_av_sync_save_global">Nastaviť ako globálne</string>
+    <string name="player_av_sync_short">Synch. A/V</string>
+    <string name="player_av_sync_title">Synchronizácia A/V</string>
+    <string name="player_av_sync_use_global">Použiť globálne</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">Prehľadávať archív</string>
+    <string name="player_browse_guide_catchup">Prehľadávať program</string>
+    <string name="player_buffering">Načítavanie...</string>
+    <string name="player_cancel_scheduled_recording">Zrušiť naplánované</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">Archív</string>
+    <string name="player_catchup_options">Archív</string>
+    <string name="player_channel_list_hint">Vyberte kanál a okamžite ho naladíte. Späť zavrie zoznam.</string>
+    <string name="player_channel_list_title">Kanály (%1$d)</string>
+    <string name="player_channel_not_found">Kanál sa nenašiel</string>
+    <string name="player_channel_selected">Teraz</string>
+    <string name="player_channel_variants">Varianty kanála</string>
+    <string name="player_close">Zavrieť</string>
+    <string name="player_diagnostics_active_decoder">Aktívny dekodér</string>
+    <string name="player_diagnostics_alternates">Alternatívne streamy</string>
+    <string name="player_diagnostics_archive">Archív</string>
+    <string name="player_diagnostics_audio_codec">Zvukový kodek</string>
+    <string name="player_diagnostics_audio_decoder">Zvukový dekodér</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">Režim zvukového dekodéra</string>
+    <string name="player_diagnostics_audio_output_path">Zvuková cesta</string>
+    <string name="player_diagnostics_av_offset">Posun A/V</string>
+    <string name="player_diagnostics_av_sync">Synchronizácia A/V</string>
+    <string name="player_diagnostics_av_sync_custom">Zapnuté (vlastná cesta synchronizácie)</string>
+    <string name="player_diagnostics_av_sync_stock">Vypnuté (štandardná zvuková cesta)</string>
+    <string name="player_diagnostics_av_sync_waiting">Zapnuté (čaká sa na reštart prehrávania)</string>
+    <string name="player_diagnostics_channel_errors">Chyby kanála</string>
+    <string name="player_diagnostics_compatibility_note">Poznámka ku kompatibilite</string>
+    <string name="player_diagnostics_compatibility_note_value">Prehrávanie môže pre tento stream používať naučenú alebo kompatibilitou podporovanú zvukovú cestu.</string>
+    <string name="player_diagnostics_compatibility_source">Zdroj kompatibility</string>
+    <string name="player_diagnostics_dropped_frames">Zahodené snímky</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">Posledné zlyhanie</string>
+    <string name="player_diagnostics_last_frame">Posledná snímka videa</string>
+    <string name="player_diagnostics_playback_state">Stav prehrávania</string>
+    <string name="player_diagnostics_provider">Poskytovateľ</string>
+    <string name="player_diagnostics_recovery_actions">Akcie obnovy</string>
+    <string name="player_diagnostics_resolution">Rozlíšenie</string>
+    <string name="player_diagnostics_section_audio">Zvuk</string>
+    <string name="player_diagnostics_section_playback">Prehrávanie</string>
+    <string name="player_diagnostics_section_recovery">Obnova</string>
+    <string name="player_diagnostics_section_source">Zdroj</string>
+    <string name="player_diagnostics_section_video">Video</string>
+    <string name="player_diagnostics_source">Zdroj</string>
+    <string name="player_diagnostics_stream_class">Trieda streamu</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">Diagnostika prehrávania</string>
+    <string name="player_diagnostics_troubleshooting">Riešenie problémov</string>
+    <string name="player_diagnostics_frame_rate">Frekvencia snímok</string>
+    <string name="player_diagnostics_stream_bitrate">Dátový tok streamu</string>
+    <string name="player_diagnostics_bandwidth_estimate">Šírka pásma siete</string>
+    <string name="player_diagnostics_video_bitrate">Dátový tok videa</string>
+    <string name="player_diagnostics_video_codec">Video kodek</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">Režim video dekodéra</string>
+    <string name="player_diagnostics_video_stalls">Zaseknutia videa</string>
+    <string name="player_epg_overlay_hint">Tu si prezrite podrobnosti programu. Výberom tlačidla archívu otvoríte históriu archívu.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">Epizódy</string>
+    <string name="player_previous_episode">Predchádzajúca epizóda</string>
+    <string name="player_next_episode">Ďalšia epizóda</string>
+    <string name="player_error_back">Alebo sa vráťte stlačením Späť</string>
+    <string name="player_error_decoder">Tento formát nie je možné prehrať — skúste v nastaveniach zmeniť režim dekodéra</string>
+    <string name="player_error_drm">Prehrávaniu zabránila licencia DRM alebo požiadavky na zabezpečenie zariadenia</string>
+    <string name="player_error_live_hint">Skúste to znova, vráťte sa na posledný kanál alebo stlačením Späť ukončite prehrávanie.</string>
+    <string name="player_error_network">Stream nie je dostupný — skontrolujte internetové pripojenie</string>
+    <string name="player_error_source">Stream sa nenašiel alebo bol prístup zamietnutý</string>
+    <string name="player_error_title">Chyba prehrávania</string>
+    <string name="player_error_unknown">Neznáma chyba prehrávania</string>
+    <string name="player_format_short">Formát</string>
+    <string name="player_forward">Pretočiť vpred</string>
+    <string name="player_idle_standby_after">Povoliť pohotovostný režim po nečinnosti</string>
+    <string name="player_idle_timer_status">Pohotovostný režim %1$s</string>
+    <string name="player_jump_to_live">Prejsť naživo</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">Posledný kanál</string>
+    <string name="player_last_group_hint">Vráťte sa do poslednej skupiny živého vysielania, ktorú ste prezerali.</string>
+    <string name="player_last_group_label">Posledná: %1$s</string>
+    <string name="player_live_buffer_depth">Vyrovnávacia pamäť %1$s</string>
+    <string name="player_live_buffer_end">Živý okraj</string>
+    <string name="player_live_buffer_start">Začiatok vyrovnávacej pamäte</string>
+    <string name="player_live_channel">Kanál %1$d</string>
+    <string name="player_live_dvr_controls">Prehrávač</string>
+    <string name="player_live_now">Práve sa prehráva</string>
+    <string name="player_live_offset">%1$s za živým vysielaním</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">Časová os živého posunu. Na posun použite šípky vľavo a vpravo.</string>
+    <string name="player_live_timeshift_buffering">Miestny posun živého vysielania sa stále ukladá do vyrovnávacej pamäte.</string>
+    <string name="player_minutes_remaining">Zostáva %1$d min</string>
+    <string name="player_more_controls">Ďalšie ovládacie prvky</string>
+    <string name="player_multiview_short">Multiview</string>
+    <string name="player_mute">Stlmiť</string>
+    <string name="player_muted_badge">Stlmené</string>
+    <string name="player_next_label">Ďalej:</string>
+    <string name="player_no_guide_data">Žiadne údaje programu</string>
+    <string name="player_open_guide_action">Otvoriť program</string>
+    <string name="player_open_in_external_player">Otvoriť v externom prehrávači</string>
+    <string name="player_pause">Pozastaviť</string>
+    <string name="player_picture_in_picture">Obraz v obraze</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">Prehrať</string>
+    <string name="player_playback_label">Prehrávanie</string>
+    <string name="player_playback_speed_title">Rýchlosť prehrávania</string>
+    <string name="player_playback_speed_value">Rýchlosť %1$s</string>
+    <string name="player_quality_short">Kvalita</string>
+    <string name="player_recent_channels">Nedávne</string>
+    <string name="player_record">Nahrávať</string>
+    <string name="player_record_now">Nahrávať teraz</string>
+    <string name="player_record_options">Nahrávanie</string>
+    <string name="player_recording_badge">Nahrávanie</string>
+    <string name="player_recording_scheduled_badge">Naplánované</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">Reštartovať</string>
+    <string name="player_close_playback_title">Zavrieť prehrávanie?</string>
+    <string name="player_close_playback_desc">Zastaví sa prehrávanie a vrátite sa na predchádzajúcu obrazovku.</string>
+    <string name="player_close_playback_confirm">Áno</string>
+    <string name="player_close_playback_cancel">Nie</string>
+    <string name="player_resume">Pokračovať</string>
+    <string name="player_resume_desc">Chcete pokračovať v %1$s od miesta, kde ste skončili?</string>
+    <string name="player_resume_start_over">Začať od začiatku</string>
+    <string name="player_resume_title">Obnoviť prehrávanie</string>
+    <string name="player_retry">Skúsiť znova</string>
+    <string name="player_rewind">Pretočiť vzad</string>
+    <string name="player_schedule_daily_recording">Plánovať denne</string>
+    <string name="player_schedule_recording">Naplánovať</string>
+    <string name="player_schedule_weekly_recording">Plánovať týždenne</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">Preskočiť intro</string>
+    <string name="player_skip_opening">Preskočiť úvod</string>
+    <string name="player_skip_recap">Preskočiť rekapituláciu</string>
+    <string name="player_skip_outro">Preskočiť záver</string>
+    <string name="player_selected">Vybrané</string>
+    <string name="player_stats">Štatistiky</string>
+    <string name="player_stop_casting">Zastaviť Cast</string>
+    <string name="player_stop_playback_after">Zastaviť prehrávanie po</string>
+    <string name="player_stop_recording">Zastaviť nahrávanie</string>
+    <string name="player_stop_timer_status">Zastaví sa o %1$s</string>
+    <string name="player_stream_format">Formát streamu</string>
+    <string name="player_subs">Titulky</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d min</string>
+    <string name="player_timer_disable">Vypnúť</string>
+    <string name="player_timer_extend_30">+30 min</string>
+    <string name="player_timer_off">Vypnuté</string>
+    <string name="player_timer_warning_idle">Pohotovostný režim povolený o %1$s</string>
+    <string name="player_timer_warning_stop">Prehrávanie sa zastaví o %1$s</string>
+    <string name="player_track_audio">Vyberte zvukovú stopu</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">Preklad v reálnom čase</string>
+    <string name="player_track_off">Vypnuté</string>
+    <string name="player_track_subs">Vyberte titulky</string>
+    <string name="player_try_alternate_stream">Skúsiť inú cestu</string>
+    <string name="player_type_channel_number">Zadajte číslo kanála</string>
+    <string name="player_type_movie">Film</string>
+    <string name="player_type_series">Seriál</string>
+    <string name="player_unmute">Zrušiť stlmenie</string>
+    <string name="player_up_next">Nasleduje</string>
+    <string name="player_variants_short">Varianty</string>
+    <string name="player_video_quality">Kvalita videa</string>
+    <string name="series_seasons">Série</string>
+    <string name="settings_recording_status_recording">Nahrávanie</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Uložiť aktuálne rozlíšenie ako adaptívny limit</string>
+    <string name="player_quality_remove_saved_limit">Odstrániť uložený limit rozlíšenia</string>
+    <string name="player_quality_use_session_limit">Obmedziť toto prehrávanie na aktuálne rozlíšenie</string>
+    <string name="player_quality_clear_session_limit">Zrušiť dočasný limit kvality</string>
+
+    <string name="player_quality_gate_title">Prehrávanie pozastavené pre limity kvality</string>
+    <string name="player_quality_gate_message">Žiadna dostupná kvalita videa nespĺňa vaše limity. Pred pokračovaním skontrolujte ponúkanú kvalitu a podrobnosti.</string>
+    <string name="player_quality_gate_offer">Ponúkaná kvalita videa: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Výška %1$d p prekračuje váš limit %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Výška videa nie je známa; váš limit je %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Dátový tok %1$s Mbps prekračuje váš limit %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Dátový tok videa nie je známy; váš limit je %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Pokračovať raz</string>
+
+    <string name="player_diagnostics_quality_limits">Limity kvality</string>
+    <string name="player_diagnostics_quality_reasons">Obmedzujúce faktory</string>
+    <string name="player_diagnostics_quality_source_preferences">Predvoľby prehrávania</string>
+    <string name="player_diagnostics_quality_source_device">Kompatibilita zariadenia</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Zaťaženie dekodéra</string>
+
+    <string name="player_diagnostics_quality_capability">Možnosti zdroja videa</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptívne kvality</string>
+    <string name="player_diagnostics_quality_capability_single">Jedna alebo pevná kvalita</string>
+    <string name="player_diagnostics_quality_capability_unknown">Neznáme</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Zdroj časového posunu</string>
+    <string name="player_quality_save_bitrate_as_limit">Uložiť aktuálny dátový tok videa ako maximum</string>
+    <string name="player_quality_inherit_height_limit">Použiť zdedený limit výšky</string>
+    <string name="player_quality_inherit_bitrate_limit">Použiť zdedený limit dátového toku</string>
+    <string name="player_quality_no_additional_height_limit">Pre tento obsah nepridávať limit výšky</string>
+    <string name="player_quality_no_additional_bitrate_limit">Pre tento obsah nepridávať limit dátového toku</string>
+    <string name="player_quality_mode_auto">Automatický (adaptívny) výber</string>
+    <string name="player_quality_mode_fixed">Pevná stopa</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Kvalitu vyberá prijímač Cast; tieto limity sa neuplatňujú.</string>
+    <string name="player_video_quality_selection_blocked">Táto kvalita videa nespĺňa vaše limity prehrávania.</string>
+    <string name="player_diagnostics_quality_height_summary">Rozlíšenie: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Dátový tok: %1$s Mb/s</string>
+    <string name="player_recording_failure_output_too_slow">Cieľové úložisko záznamu nedokázalo držať krok so živým prehrávaním.</string>
+</resources>

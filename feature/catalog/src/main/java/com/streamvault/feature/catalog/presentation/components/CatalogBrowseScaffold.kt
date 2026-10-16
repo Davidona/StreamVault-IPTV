@@ -1,5 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +40,8 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
@@ -120,8 +121,9 @@ fun CategoryRailPanel(
     val spacing = LocalAppSpacing.current
     Surface(
         modifier = modifier.fillMaxSize(),
-        shape = RoundedCornerShape(28.dp),
-        colors = androidx.tv.material3.SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated)
+        shape = BrowseShapes.Panel,
+        colors = androidx.tv.material3.SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
+        border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Panel)
     ) {
         Column(
             modifier = Modifier
@@ -173,7 +175,7 @@ fun BrowseSearchLaunchCard(
     TvClickableSurface(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(22.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
             focusedContainerColor = AppColors.SurfaceEmphasis
@@ -181,7 +183,7 @@ fun BrowseSearchLaunchCard(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(22.dp)
+                shape = BrowseShapes.Panel
             )
         )
     ) {
@@ -219,7 +221,7 @@ fun BrowseHeroPanel(
         modifier = modifier
             .fillMaxWidth()
             .height(240.dp),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(28.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Hero),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
             focusedContainerColor = AppColors.SurfaceEmphasis
@@ -227,7 +229,7 @@ fun BrowseHeroPanel(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(28.dp)
+                shape = BrowseShapes.Hero
             )
         )
     ) {
@@ -301,10 +303,7 @@ fun BrowseHeroPanel(
                 }
                 TvButton(
                     onClick = onClick,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.Brand,
-                        contentColor = Color.Black
-                    )
+                    colors = browsePrimaryButtonColors()
                 ) {
                     Text(actionLabel)
                 }

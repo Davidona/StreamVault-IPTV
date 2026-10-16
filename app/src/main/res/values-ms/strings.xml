@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+
+    <string name="nav_home">Utama</string>
+    <string name="nav_live_tv">TV Langsung</string>
+    <string name="nav_movies">Filem</string>
+    <string name="nav_series">Siri</string>
+    <string name="nav_epg">Panduan</string>
+    <string name="nav_settings">Tetapan</string>
+    <string name="nav_plugins">Pemalam</string>
+    <string name="nav_close_app">Tutup apl</string>
+
+
+    <string name="welcome_enter_app">Masuk Apl</string>
+    <string name="welcome_manage_providers">Urus Penyedia</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Pelayaran langsung pantas dengan fokus alat kawalan jauh</string>
+    <string name="welcome_feature_library">Filem dan siri pustaka besar tanpa kekacauan</string>
+    <string name="welcome_feature_player">Overlay pemain bersatu, akses panduan dan kandungan tersimpan</string>
+    <string name="welcome_manage_hint">Tukar penyedia, muat semula metadata atau tambah sumber baharu.</string>
+
+
+    <string name="hidden_categories_dialog_title">Kategori tersembunyi</string>
+    <string name="hidden_categories_dialog_subtitle">Pilih yang ingin dipulihkan.</string>
+    <string name="hidden_categories_dialog_unhide_all">Nyahsembunyi semua</string>
+    <string name="hidden_categories_dialog_close">Tutup</string>
+    <string name="home_recent_channels">Terkini</string>
+    <string name="home_last_channel">Saluran Terakhir</string>
+    <string name="home_last_channel_label">Terakhir: %1$s</string>
+    <string name="home_last_group_label">Terakhir: %1$s</string>
+    <string name="home_loading">Memuatkan...</string>
+    <string name="home_locked_short">TERKUNCI</string>
+    <string name="live_shell_subtitle">Imbas kategori langsung dengan pantas, kekalkan navigasi yang konsisten dan paparkan hanya data jadual yang penting pada skrin.</string>
+    <string name="live_shell_context">%1$d kategori • %2$d saluran</string>
+    <string name="live_shell_provider">Penyedia</string>
+    <string name="live_shell_split">Multiview</string>
+    <string name="live_manage_groups">Urus slot multiview</string>
+    <string name="live_reorder_title">Menyusun semula %1$s</string>
+    <string name="live_empty_hint_favorites">Tambah saluran ke Kegemaran atau kumpulan tersimpan untuk mengisi rel ini.</string>
+    <string name="live_empty_hint_recent">Mulakan main balik pada beberapa saluran dan ia akan muncul di sini.</string>
+    <string name="home_saved_subtitle">Kegemaran dan kumpulan langsung tersuai</string>
+    <string name="home_saved_empty_hint">Tambah saluran ke Kegemaran atau kumpulan langsung tersuai untuk menyematkannya di sini.</string>
+    <string name="home_delete_group_title">Padam Kumpulan?</string>
+    <string name="home_delete_group_body">Adakah anda pasti mahu memadam \'%1$s\'? Semua saluran akan dialih keluar daripada kumpulan ini.</string>
+    <string name="home_delete_group_confirm">Padam</string>
+    <string name="home_delete_group_cancel">Batal</string>
+
+
+    <string name="dashboard_customize_home">Sesuaikan Utama</string>
+    <string name="dashboard_customize_home_subtitle">Pilih rak yang dipaparkan di sini, tambah baris baharu dan susun semula pada bila-bila masa.</string>
+    <string name="dashboard_customize_home_action">Sesuaikan</string>
+
+
+
+    <string name="category_options_set_default">Tetapkan sebagai Kumpulan Lalai</string>
+    <string name="category_options_rename">Namakan Semula Kumpulan</string>
+    <string name="category_options_unlock">Buka Kunci Kumpulan</string>
+    <string name="category_options_lock">Kunci Kumpulan</string>
+    <string name="category_options_delete">Padam Kumpulan</string>
+    <string name="category_options_cancel">Batal</string>
+    <string name="category_options_reorder">Susun Semula Item</string>
+    <string name="category_options_hide">Sembunyikan Kategori</string>
+    <string name="category_options_hide_from_live_tv">Sembunyikan daripada TV Langsung</string>
+    <string name="category_options_clear_recent">Kosongkan Semua Terkini</string>
+    <string name="category_options_pin">Sematkan Kategori</string>
+    <string name="category_options_unpin">Nyahsemat Kategori</string>
+    <string name="m3u_organize_items">Susun Item M3U</string>
+    <string name="m3u_move_to_movies">Pindah ke Filem</string>
+    <string name="m3u_move_to_series">Pindah ke Siri</string>
+    <string name="m3u_move_back_to_live">Pindah kembali ke TV Langsung</string>
+    <string name="m3u_series_name">Nama siri</string>
+    <string name="m3u_episode_number">Nombor episod</string>
+    <string name="m3u_season_number">Nombor musim</string>
+    <string name="m3u_classify">Kelaskan</string>
+    <string name="m3u_classification_saved">Klasifikasi M3U disimpan</string>
+    <string name="m3u_category_rule_subtitle">Pilih tetapan lalai untuk kumpulan M3U ini. Saluran individu masih boleh ditindih.</string>
+    <string name="m3u_keep_live">Kekalkan sebagai TV Langsung</string>
+    <string name="m3u_series_review_title">Susun siri dalam %1$s</string>
+    <string name="m3u_series_review_subtitle">Semak cadangan automatik atau tetapkan setiap entri kepada siri, musim dan episod.</string>
+    <string name="m3u_episode_unresolved">Nombor episod tidak dapat ditentukan — ia akan kekal ditandakan untuk pembetulan.</string>
+
+    <string name="add_group_manage_title">Urus: %1$s</string>
+    <string name="add_group_close_cd">Tutup</string>
+    <string name="add_group_name_hint">Nama Kumpulan</string>
+    <string name="add_group_cancel">Batal</string>
+    <string name="add_group_create">Cipta</string>
+    <string name="add_group_rename">Namakan Semula</string>
+    <string name="add_group_remove_favorites">Alih keluar daripada Kegemaran</string>
+    <string name="add_group_add_favorites">Tambah ke Kegemaran</string>
+    <string name="channel_options_remove_from_recent">Alih keluar daripada Terkini</string>
+    <string name="add_group_reorder_title">Susun Semula</string>
+    <string name="add_group_move_up">Alih ke Atas</string>
+    <string name="add_group_move_down">Alih ke Bawah</string>
+    <string name="add_group_custom_groups_title">Kumpulan Tersuai</string>
+    <string name="add_group_remove_btn">Buang</string>
+    <string name="add_group_add_btn">Tambah</string>
+    <string name="add_group_create_new_btn">Cipta Kumpulan Baharu</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Sembunyikan saluran ini</string>
+    <string name="hidden_channels_dialog_title">Saluran tersembunyi</string>
+    <string name="hidden_channels_dialog_subtitle">Pilih yang ingin dipulihkan.</string>
+    <string name="hidden_channels_dialog_unhide_all">Nyahsembunyi semua</string>
+    <string name="hidden_channels_dialog_close">Tutup</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">Terkunci</string>
+
+
+    <string name="playlist_no_provider">Tiada Penyedia</string>
+    <string name="live_source_label">SUMBER</string>
+    <string name="live_source_filter_label">Penapis Senarai Main</string>
+    <string name="live_source_filter_all">Semua Sumber</string>
+    <string name="live_source_unavailable_short">Tidak tersedia</string>
+    <string name="live_source_empty_short">Kosong</string>
+
+
+    <string name="movies_shell_subtitle">Rak terpilih, kumpulan tersimpan dan pelayaran pustaka penuh tanpa meninggalkan konteks penyedia semasa.</string>
+    <string name="movies_all_categories">Semua Kategori</string>
+    <string name="movies_search_launch_title">Cari dalam pustaka filem</string>
+    <string name="movies_search_launch_subtitle">Masuk ke paparan carian khusus tanpa kehilangan keadaan pelayaran semasa.</string>
+    <string name="movies_group_created">Kumpulan %1$s dicipta</string>
+    <string name="movies_group_renamed">Kumpulan dinamakan semula kepada %1$s</string>
+    <string name="movies_group_deleted">Kumpulan %1$s dipadam</string>
+    <string name="movies_group_name_invalid">Masukkan nama kumpulan</string>
+    <string name="movies_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+    <string name="movies_group_name_duplicate">Kumpulan filem dengan nama itu sudah wujud</string>
+    <string name="movies_saved_empty_hint">Tambah filem ke Kegemaran atau kumpulan tersuai untuk melihatnya di sini.</string>
+    <string name="movies_filter_subtitle">Perhalusi kategori filem yang dipilih tanpa membina semula seluruh pustaka.</string>
+    <string name="movies_reorder_title">Menyusun semula %1$s</string>
+
+
+    <string name="series_shell_subtitle">Rak editorial, kumpulan tersimpan dan pelayaran siri berhalaman yang disesuaikan untuk pustaka penyedia yang besar.</string>
+    <string name="series_all_categories">Semua Kategori</string>
+    <string name="series_search_launch_title">Cari dalam pustaka siri</string>
+    <string name="series_search_launch_subtitle">Buka paparan carian arahan untuk mencari tajuk, episod atau kumpulan tersimpan dengan lebih pantas.</string>
+    <string name="series_group_created">Kumpulan %1$s dicipta</string>
+    <string name="series_group_renamed">Kumpulan dinamakan semula kepada %1$s</string>
+    <string name="series_group_deleted">Kumpulan %1$s dipadam</string>
+    <string name="series_group_name_invalid">Masukkan nama kumpulan</string>
+    <string name="series_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+    <string name="series_group_name_duplicate">Kumpulan siri dengan nama itu sudah wujud</string>
+    <string name="series_saved_empty_hint">Tambah siri ke Kegemaran atau kumpulan tersuai untuk melihatnya di sini.</string>
+    <string name="series_filter_subtitle">Bertukar antara siri tersimpan, dalam proses, dikemas kini dan berpenilaian tinggi.</string>
+    <string name="series_reorder_title">Menyusun semula %1$s</string>
+
+    <string name="library_saved_title">Disimpan</string>
+    <string name="library_saved_subtitle">Kegemaran dan kumpulan tersuai</string>
+    <string name="library_saved_manage_hint">Tahan kumpulan tersimpan untuk pilihan</string>
+    <string name="library_lens_title">Lensa Pustaka</string>
+    <string name="library_filter_results">Menunjukkan %1$d daripada %2$d item</string>
+    <string name="library_loaded_results">Dimuatkan %1$d daripada %2$d item</string>
+    <string name="library_sort_library">Susunan Pustaka</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Terbaharu</string>
+    <string name="library_sort_updated">Baru Dikemas Kini</string>
+    <string name="library_sort_rating">Penilaian</string>
+
+
+    <string name="settings_parental_subtitle">Lindungi kandungan dewasa atau sensitif dengan kawalan mesra TV.</string>
+    <string name="settings_parental_groups_title">Kumpulan Dilindungi</string>
+    <string name="settings_parental_groups_hint">Kunci atau buka kunci kategori untuk penyedia aktif.</string>
+    <string name="settings_parental_groups_action">Urus</string>
+    <string name="settings_categories_title">Keutamaan Kategori</string>
+    <string name="settings_categories_subtitle">Sembunyikan kategori penyedia dan kekalkan susunannya tepat seperti yang anda mahu.</string>
+    <string name="settings_category_sorting_title">Susunan Kategori</string>
+    <string name="settings_category_sorting_subtitle">Susun kategori untuk senarai main aktif. Mengunci dan menyembunyikan kini berada dalam Kawalan Kategori.</string>
+    <string name="settings_hidden_categories_title">Kategori Tersembunyi</string>
+    <string name="settings_hidden_categories_subtitle">Pulihkan mana-mana kategori penyedia yang sebelum ini anda sembunyikan daripada paparan pelayaran.</string>
+    <string name="settings_hidden_categories_none">Tiada tersembunyi</string>
+    <string name="settings_hidden_categories_count">%1$d tersembunyi</string>
+    <string name="settings_hidden_categories_empty">Tiada kategori tersembunyi buat masa ini.</string>
+    <string name="settings_playback_subtitle">Selaraskan dekoder dan penimbalan untuk main balik yang lebih lancar.</string>
+    <string name="settings_live_timeshift_backend_value">Automatik</string>
+    <string name="vod_classic_categories_title">Kategori</string>
+    <string name="settings_decoder_mode">Mod Dekoder</string>
+    <string name="settings_select_decoder_mode">Pilih Mod Dekoder</string>
+    <string name="settings_buffer_duration">Tempoh Penimbalan</string>
+    <string name="settings_buffer_5s">5 saat</string>
+    <string name="settings_about_subtitle">Butiran versi, binaan dan sokongan untuk pemasangan ini.</string>
+    <string name="settings_syncing">Menyegerakkan data, sila tunggu...</string>
+    <string name="settings_cancel">Batal</string>
+    <string name="settings_sync_option_all">Segerakkan Semua</string>
+    <string name="settings_sync_option_fast">Segerak Pantas</string>
+    <string name="settings_pc_btn">Kawalan Ibu Bapa</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="settings_language_subtitle">Pilih bahasa apl tanpa meninggalkan antara muka TV.</string>
+
+    <string name="settings_backup_share_failed">Tiada apl boleh menerima fail sandaran.</string>
+    <string name="settings_crash_report_share_failed">Tiada apl boleh menerima laporan ranap.</string>
+    <string name="settings_crash_report_missing">Tiada laporan ranap tersedia.</string>
+    <string name="settings_catalog_count_pending">Belum selesai</string>
+    <string name="settings_diagnostic_never">Tidak pernah</string>
+    <string name="settings_diagnostic_items">%1$d item</string>
+    <string name="settings_recording_subtitle">Urus kerja DVR langsung setempat, storan dan tangkapan berjadual.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+
+    <string name="saved_preset_watch_next">Tonton Seterusnya</string>
+    <string name="tv_channel_continue_watching_title">Sambung Tontonan</string>
+    <string name="tv_channel_continue_watching_description">Sambung semula tajuk yang anda mula baru-baru ini</string>
+    <string name="tv_channel_top_movies_title">Filem Teratas</string>
+    <string name="tv_channel_top_movies_description">Pilihan popular daripada %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Filem Disyorkan</string>
+    <string name="tv_channel_recommended_movies_description">Disesuaikan daripada pilihan terkini anda pada %1$s</string>
+    <string name="tv_channel_fresh_series_title">Siri Baharu</string>
+    <string name="tv_channel_fresh_series_description">Siri yang baru dikemas kini daripada %1$s</string>
+
+
+    <string name="search_title">Cari</string>
+    <string name="parental_group_shell_subtitle">Semak kumpulan langsung, filem dan siri yang dilindungi tanpa meninggalkan antara muka tetapan premium.</string>
+    <string name="search_command_title">Carian Arahan</string>
+    <string name="search_hint">Cari...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Masukkan PIN ibu bapa anda untuk mengesahkan</string>
+    <string name="a11y_locked">Terkunci</string>
+    <string name="a11y_favorite">Kegemaran</string>
+    <string name="a11y_catch_up_available">Tontonan semula tersedia</string>
+    <string name="a11y_now_playing">Sedang dimainkan %1$s</string>
+    <string name="a11y_channel_with_number">Saluran %1$d, %2$s</string>
+
+
+
+
+    <string name="player_no_external_player">Tiada pemain luaran dipasang</string>
+    <string name="player_unsafe_stream_url">Strim ini tidak boleh dibuka dalam pemain luaran</string>
+    <string name="player_external_launch_failed">Pemain luaran gagal dimulakan</string>
+    <string name="player_next">SETERUSNYA</string>
+    <string name="player_recording_started">Rakaman dimulakan untuk %1$s.</string>
+    <string name="player_recording_stopped">Rakaman dihentikan.</string>
+    <string name="player_recording_scheduled">Rakaman dijadualkan untuk %1$s.</string>
+    <string name="player_recording_missing_context">Rakaman memerlukan konteks saluran langsung yang sah.</string>
+    <string name="player_categories_label">Kategori</string>
+    <string name="player_full_epg">EPG Penuh</string>
+    <string name="player_action_controls">Kawalan</string>
+    <string name="player_action_restart_short">Mula Semula</string>
+    <string name="player_action_recent_short">Terkini</string>
+    <string name="player_diagnostics_decoder">Dekoder</string>
+    <string name="player_diagnostics_policy_guard">Pengawal Polisi</string>
+    <string name="player_diagnostics_policy_profile">Profil Polisi</string>
+    <string name="player_diagnostics_policy_buffer">Profil Penimbalan</string>
+    <string name="player_diagnostics_policy_render_path">Laluan Render</string>
+    <string name="player_diagnostics_policy_known_bad">Polisi Diketahui Buruk</string>
+    <string name="player_diagnostics_policy_recovery">Pemulihan Automatik</string>
+    <string name="player_diagnostics_policy_last_action">Tindakan Polisi Terakhir</string>
+    <string name="epg_search_short">Carian Program</string>
+    <string name="epg_show_options">Tunjuk pilihan panduan</string>
+    <string name="epg_hide_options">Sembunyi pilihan panduan</string>
+    <string name="epg_showing_channels">Menunjukkan %1$d daripada %2$d saluran</string>
+    <string name="epg_schedule_summary">Data panduan tersedia pada %1$d daripada %2$d saluran</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Garis Masa</string>
+    <string name="epg_timeline_range_label">Julat %1$s</string>
+    <string name="epg_updated_now">Dikemas kini sebentar tadi</string>
+    <string name="epg_updated_minutes_ago">Dikemas kini %1$d min lalu</string>
+    <string name="epg_minutes_remaining">%1$d min lagi</string>
+    <string name="epg_program_channel_label">Saluran</string>
+    <string name="epg_program_provider_label">Penyedia</string>
+    <string name="epg_program_provider_type_label">Sumber</string>
+    <string name="epg_program_language_label">Bahasa</string>
+    <string name="epg_program_replay_label">Main Semula</string>
+    <string name="epg_program_progress_label">Kemajuan</string>
+    <string name="epg_program_replay_unavailable">Tidak tersedia</string>
+    <string name="epg_program_progress_value">%1$d%% selesai • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Main semula mungkin gagal kerana penyedia mendedahkan sokongan tontonan semula tanpa templat main semula yang boleh digunakan.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Main semula mungkin gagal kerana penyedia tidak mendedahkan pengecam strim main semula.</string>
+
+
+    <string name="parental_group_title">Kumpulan Dilindungi</string>
+    <string name="parental_group_search">Cari kategori...</string>
+    <string name="player_live_timeshift_ready">Timeshift sedia.</string>
+    <string name="player_live_timeshift_failed">Gulung semula langsung setempat tidak tersedia untuk strim ini.</string>
+
+
+    <string name="multiview_add_to_split">Tambah ke Skrin Berpecah</string>
+    <string name="multiview_queued">Dalam Skrin Berpecah</string>
+
+
+    <string name="settings_privacy_subtitle">Urus sejarah tontonan dan mod inkognito.</string>
+
+
+    <string name="action_done">Selesai</string>
+    <string name="action_delete">Padam</string>
+    <string name="action_clear">Kosongkan</string>
+    <string name="action_space">Ruang</string>
+
+
+    <string name="label_provider">PENYEDIA</string>
+    <string name="label_selected">Dipilih</string>
+    <string name="label_no_schedule">Tiada maklumat jadual</string>
+    <string name="label_slots_count">%1$d/4 slot</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Episod %1$d</string>
+    <string name="badge_saved">DISIMPAN</string>
+    <string name="badge_catch_up">TONTON SEMULA</string>
+    <string name="badge_moving">BERPINDAH</string>
+    <string name="badge_fav">FAV</string>
+
+
+
+
+    <string name="favorites_content_type_movie">Filem</string>
+
+
+
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Mengimbas saluran StreamVault</string>
+    <string name="tv_input_setup_success_title">TV Langsung sedia</string>
+    <string name="tv_input_setup_no_provider_title">Tiada penyedia IPTV dikonfigurasikan</string>
+    <string name="tv_input_setup_error_title">Imbas automatik gagal</string>
+    <string name="tv_input_setup_idle_title">Menyediakan integrasi TV Langsung</string>
+    <string name="tv_input_setup_scanning_body">StreamVault sedang menyegerakkan penyedia aktif anda ke Android TV Live TV.</string>
+    <string name="tv_input_setup_success_body">Saluran anda berjaya disegerakkan.</string>
+    <string name="tv_input_setup_no_provider_body">Tambah sekurang-kurangnya satu penyedia IPTV dalam StreamVault, kemudian kembali ke sini untuk mengimbas saluran ke Android TV Live TV.</string>
+    <string name="tv_input_setup_error_body">Penyegerakan input TV tidak selesai.</string>
+    <string name="tv_input_setup_idle_body">Sila tunggu.</string>
+    <string name="tv_input_setup_source_format">Sumber: %1$s</string>
+    <string name="tv_input_setup_open_setup">Buka Persediaan StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">Cuba Imbas Automatik Semula</string>
+    <string name="tv_input_setup_retry_scan">Cuba Semula Imbas Automatik</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV kini boleh membuka saluran StreamVault anda.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Kembali ke tindakan sandaran Drive.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Muat turun gagal: %1$s</string>
+    <string name="download_completed">Muat turun selesai</string>
+    <string name="download_cancelled">Muat turun dibatalkan</string>
+    <string name="download_notification_channel">Muat Turun</string>
+    <string name="download_notification_channel_description">Menunjukkan kemajuan dan penyiapan muat turun</string>
+    <string name="download_in_progress">Memuat turun %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Muat Turun</string>
+    <string name="downloads_empty">Tiada muat turun lagi</string>
+    <string name="downloads_delete_confirm">Padam muat turun ini?</string>
+    <string name="download_play_local">Main</string>
+    <string name="nav_vod">VOD</string>
+</resources>

@@ -36,6 +36,7 @@ import com.streamvault.data.provider.guidePolicy
 import com.streamvault.data.provider.logoPolicy
 import com.streamvault.data.remote.jellyfin.JellyfinProvider
 import com.streamvault.data.remote.stalker.StalkerApiService
+import com.streamvault.data.remote.stalker.StalkerResolvedCategoryHandoff
 import com.streamvault.data.remote.stalker.StalkerPlaybackMode
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
@@ -402,6 +403,7 @@ class ProviderRepositoryImpl @Inject constructor(
                 return Result.error("Provider is saved but no content has been committed yet. Sync will resume in background.")
             }
             providerDao.setActive(id)
+            syncManager.scheduleAutomaticSyncCheck()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.error("Failed to set active provider: ${e.message}", e)
@@ -426,6 +428,7 @@ class ProviderRepositoryImpl @Inject constructor(
                 xtreamLiveSyncMode = config.liveSyncMode,
                 guideSourcePolicy = config.guideSourcePolicy,
                 channelLogoSourcePolicy = config.channelLogoSourcePolicy,
+                preferredLiveStreamFormat = config.preferredLiveStreamFormat,
                 onProgress = onProgress,
                 id = request.existingProviderId
             )
@@ -500,6 +503,7 @@ class ProviderRepositoryImpl @Inject constructor(
         xtreamLiveSyncMode: com.streamvault.domain.model.ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
         guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
         channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
+        preferredLiveStreamFormat: LiveStreamFormatMode? = null,
         onProgress: ((String) -> Unit)? = null,
         id: Long? = null
     ): Result<Provider> = try {
@@ -557,7 +561,8 @@ class ProviderRepositoryImpl @Inject constructor(
                     guideSourcePolicy = guideSourcePolicy,
                     channelLogoSourcePolicy = channelLogoSourcePolicy,
                     fastSyncEnabled = xtreamFastSyncEnabled,
-                    liveSyncMode = xtreamLiveSyncMode
+                    liveSyncMode = xtreamLiveSyncMode,
+                    preferredLiveStreamFormat = preferredLiveStreamFormat
                 ),
                 configurationGeneration = candidateGeneration
             )
@@ -584,6 +589,7 @@ class ProviderRepositoryImpl @Inject constructor(
                         xtreamLiveSyncMode = xtreamLiveSyncMode,
                         guideSourcePolicy = guideSourcePolicy,
                         channelLogoSourcePolicy = channelLogoSourcePolicy,
+                        preferredLiveStreamFormat = preferredLiveStreamFormat,
                         xtreamFastSyncEnabled = false,
                         isActive = false,
                         status = ProviderStatus.PARTIAL,
@@ -604,6 +610,7 @@ class ProviderRepositoryImpl @Inject constructor(
                         xtreamLiveSyncMode = xtreamLiveSyncMode,
                         guideSourcePolicy = guideSourcePolicy,
                         channelLogoSourcePolicy = channelLogoSourcePolicy,
+                        preferredLiveStreamFormat = preferredLiveStreamFormat,
                         xtreamFastSyncEnabled = false,
                         isActive = false,
                         status = ProviderStatus.PARTIAL
@@ -1203,6 +1210,16 @@ class ProviderRepositoryImpl @Inject constructor(
                     )
                 }
 
+                if (!acceptedWithoutVerification) {
+                    val handoffProvider = onboardingTarget.providerForSync
+                    authenticatedProvider.handoffResolvedCategories(
+                        StalkerResolvedCategoryHandoff.key(
+                            handoffProvider.id,
+                            handoffProvider.stalkerConfigurationGeneration,
+                            handoffProvider.toTypedConfiguration() as StalkerConfig
+                        )
+                    )
+                }
                 val onboardingResult = try {
                     if (acceptedWithoutVerification) {
                         syncManager.scheduleProviderSyncResume(

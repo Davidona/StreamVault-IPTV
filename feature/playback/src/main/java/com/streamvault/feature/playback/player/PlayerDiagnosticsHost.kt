@@ -18,9 +18,11 @@ internal fun PlayerDiagnosticsHost(
 
     val playerStats by viewModel.playerStats.collectAsStateWithLifecycle()
     val playerDiagnostics by viewModel.playerDiagnostics.collectAsStateWithLifecycle()
+    val castConnectionState by viewModel.castConnectionState.collectAsStateWithLifecycle()
     DiagnosticsOverlay(
         stats = playerStats,
         diagnostics = playerDiagnostics,
+        isCastConnected = castConnectionState == com.streamvault.feature.playback.cast.CastConnectionState.CONNECTED,
         modifier = modifier
     )
 }
