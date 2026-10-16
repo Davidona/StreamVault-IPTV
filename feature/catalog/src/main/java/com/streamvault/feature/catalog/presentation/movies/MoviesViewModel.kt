@@ -211,12 +211,18 @@ class MoviesViewModel @Inject constructor(
 
         viewModelScope.launch {
             combine(
+                traktAccount.state,
                 preferencesRepository.showTraktTrendingMovies,
                 preferencesRepository.showTraktPopularMovies,
                 preferencesRepository.showTraktTrendingSeries,
                 preferencesRepository.showTraktPopularSeries
-            ) { trendingMovies, popularMovies, trendingSeries, popularSeries ->
-                listOf(trendingMovies, popularMovies, trendingSeries, popularSeries)
+            ) { account, trendingMovies, popularMovies, trendingSeries, popularSeries ->
+                listOf(
+                    account.connected && trendingMovies,
+                    account.connected && popularMovies,
+                    account.connected && trendingSeries,
+                    account.connected && popularSeries
+                )
             }.distinctUntilChanged().collect { visibility ->
                 val showTrending = visibility[0]
                 val showPopular = visibility[1]
@@ -1674,10 +1680,10 @@ data class MoviesUiState(
     val traktPopularCount: Int = 0,
     val traktTrendingFailed: Boolean = false,
     val traktPopularFailed: Boolean = false,
-    val showTraktTrendingMovies: Boolean = true,
-    val showTraktPopularMovies: Boolean = true,
-    val showTraktTrendingSeries: Boolean = true,
-    val showTraktPopularSeries: Boolean = true,
+    val showTraktTrendingMovies: Boolean = false,
+    val showTraktPopularMovies: Boolean = false,
+    val showTraktTrendingSeries: Boolean = false,
+    val showTraktPopularSeries: Boolean = false,
     val favoriteCategoryName: String = "\u2605 Favorites",
     val fullLibraryCategoryName: String = "__full_library__",
     val libraryLensRows: Map<MovieLibraryLens, List<Movie>> = emptyMap(),
