@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="player_trakt_connect_required">सेटिंग्स</string>
+    <string name="player_trakt_connect_required">सेटिंग्स में Trakt से कनेक्ट करें</string>
     <string name="player_trakt_not_supported">में Trakt कनेक्ट करें Trakt केवल फिल्में और एपिसोड ट्रैक करता है।</string>
     <string name="player_trakt_no_match">इस शीर्षक के लिए कोई सटीक Trakt मेल नहीं खाता।</string>
     <string name="player_trakt_starting">Trakt ट्रैकिंग शुरू हो रही है...</string>
@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">के साथ ट्रैकिंग Trakt ट्रैकिंग रोक दी गई</string>
     <string name="player_trakt_failed">Trakt ट्रैकिंग विफल</string>
     <string name="player_trakt_sent">Trakt को भेजा गया</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

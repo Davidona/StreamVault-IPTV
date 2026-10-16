@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">아래로 이동</string>
     <string name="trakt_custom_list_items_truncated">처음 200개 항목을 표시합니다.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d 국산품을 수입했습니다.</item>
-        <item quantity="other">%1$d 로컬 품목을 수입했습니다.</item>
+        <item quantity="one">%1$d개의 로컬 항목을 가져왔습니다.</item>
+        <item quantity="other">%1$d개의 로컬 항목을 가져왔습니다.</item>
     </plurals>
 </resources>

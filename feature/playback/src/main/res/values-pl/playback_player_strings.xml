@@ -307,4 +307,5 @@
 <string name="player_trakt_paused">Śledzenie Trakt wstrzymane</string>
 <string name="player_trakt_failed">Śledzenie Trakt nie powiodło się</string>
 <string name="player_trakt_sent">Wysłano do Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

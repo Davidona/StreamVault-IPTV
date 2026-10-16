@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Pelacakan Trakt dijeda</string>
 <string name="player_trakt_failed">Pelacakan Trakt gagal</string>
 <string name="player_trakt_sent">Terkirim ke Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

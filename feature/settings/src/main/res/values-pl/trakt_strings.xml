@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">Przesuń w dół</string>
     <string name="trakt_custom_list_items_truncated">Wyświetlanie pierwszych 200 elementów.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">Zaimportowano lokalny element %1$d.</item>
-        <item quantity="other">Importowane produkty lokalne %1$d.</item>
+        <item quantity="one">Zaimportowano %1$d lokalny element.</item>
+        <item quantity="other">Zaimportowano %1$d lokalnych elementów.</item>
     </plurals>
 </resources>

@@ -29,8 +29,8 @@
     <string name="trakt_profile_age">Yaş: %1$d</string>
     <string name="trakt_profile_vip">Trakt VIP</string>
     <string name="trakt_profile_about">Hakkında: %1$s</string>
-    <string name="trakt_scrobbling_setting">Trakt</string>
-    <string name="trakt_history_sync_setting">ile oynatma etkinliğini izleyin Geçmişi içe aktarma ve yükleme</string>
+    <string name="trakt_scrobbling_setting">Trakt ile oynatma etkinliğini takip edin</string>
+    <string name="trakt_history_sync_setting">Geçmişi içe aktarma ve yükleme</string>
     <string name="trakt_setting_enabled">Etkin</string>
     <string name="trakt_setting_disabled">Devre Dışı</string>
     <string name="trakt_import_favorites">Trakt favorilerini bu sağlayıcıya aktar</string>

@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt 追踪已暂停</string>
 <string name="player_trakt_failed">Trakt 追踪失败</string>
 <string name="player_trakt_sent">已发送到 Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

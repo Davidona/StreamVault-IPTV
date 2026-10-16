@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">Sledovanie Trakt pozastavené</string>
     <string name="player_trakt_failed">Sledovanie Trakt zlyhalo</string>
     <string name="player_trakt_sent">Odoslané na Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

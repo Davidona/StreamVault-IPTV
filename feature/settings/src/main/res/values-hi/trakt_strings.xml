@@ -31,8 +31,8 @@
     <string name="trakt_profile_age">आयु: %1$d</string>
     <string name="trakt_profile_vip">Trakt वीआईपी</string>
     <string name="trakt_profile_about">के बारे में: %1$s</string>
-    <string name="trakt_scrobbling_setting">Trakt</string>
-    <string name="trakt_history_sync_setting">के साथ प्लेबैक गतिविधि को ट्रैक करें इतिहास आयात और अपलोड</string>
+    <string name="trakt_scrobbling_setting">Trakt के साथ प्लेबैक गतिविधि ट्रैक करें</string>
+    <string name="trakt_history_sync_setting">देखने का इतिहास आयात और अपलोड करें</string>
     <string name="trakt_setting_enabled">सक्षम</string>
     <string name="trakt_setting_disabled">विकलांग</string>
     <string name="trakt_import_favorites">इस प्रदाता के लिए Trakt पसंदीदा आयात करें</string>
@@ -74,7 +74,7 @@
     <string name="trakt_custom_lists_move_down">नीचे जाएँ</string>
     <string name="trakt_custom_list_items_truncated">पहले 200 आइटम दिखा रहा हूँ.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d स्थानीय आइटम आयातित।</item>
-        <item quantity="other">%1$d स्थानीय आइटम आयातित।</item>
+        <item quantity="one">%1$d स्थानीय आइटम आयात किया गया।</item>
+        <item quantity="other">%1$d स्थानीय आइटम आयात किए गए।</item>
     </plurals>
 </resources>

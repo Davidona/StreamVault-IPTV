@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Monitoraggio Trakt in pausa</string>
 <string name="player_trakt_failed">Monitoraggio Trakt non riuscito</string>
 <string name="player_trakt_sent">Inviato a Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

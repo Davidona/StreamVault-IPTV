@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt takibi duraklatıldı</string>
 <string name="player_trakt_failed">Trakt takibi başarısız oldu</string>
 <string name="player_trakt_sent">Trakt hizmetine gönderildi</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

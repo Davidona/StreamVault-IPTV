@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">Вниз</string>
     <string name="trakt_custom_list_items_truncated">Показаны первые 200 позиций.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d импортирован местный товар.</item>
-        <item quantity="other">%1$d импортированы местные товары.</item>
+        <item quantity="one">Импортирована %1$d локальная запись.</item>
+        <item quantity="other">Импортировано %1$d локальных записей.</item>
     </plurals>
 </resources>

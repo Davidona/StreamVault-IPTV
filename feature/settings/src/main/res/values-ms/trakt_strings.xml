@@ -74,7 +74,7 @@
     <string name="trakt_custom_lists_move_down">Bergerak ke bawah</string>
     <string name="trakt_custom_list_items_truncated">Menunjukkan 200 item pertama.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d barangan tempatan diimport.</item>
-        <item quantity="other">%1$d barangan tempatan diimport.</item>
+        <item quantity="one">%1$d item tempatan diimport.</item>
+        <item quantity="other">%1$d item tempatan diimport.</item>
     </plurals>
 </resources>

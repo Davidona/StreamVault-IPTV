@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt-Tracking pausiert</string>
 <string name="player_trakt_failed">Trakt-Tracking fehlgeschlagen</string>
 <string name="player_trakt_sent">An Trakt gesendet</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

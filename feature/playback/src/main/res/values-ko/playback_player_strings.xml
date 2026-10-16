@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt 추적이 일시 중지되었습니다</string>
 <string name="player_trakt_failed">Trakt 추적에 실패했습니다</string>
 <string name="player_trakt_sent">Trakt로 전송했습니다</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

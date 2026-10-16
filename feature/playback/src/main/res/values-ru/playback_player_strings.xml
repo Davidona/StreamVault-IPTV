@@ -307,4 +307,5 @@
 <string name="player_trakt_paused">Отслеживание Trakt приостановлено</string>
 <string name="player_trakt_failed">Не удалось выполнить отслеживание Trakt</string>
 <string name="player_trakt_sent">Отправлено в Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

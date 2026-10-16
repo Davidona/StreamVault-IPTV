@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">Penjejakan Trakt dijeda</string>
     <string name="player_trakt_failed">Penjejakan Trakt gagal</string>
     <string name="player_trakt_sent">Dihantar ke Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

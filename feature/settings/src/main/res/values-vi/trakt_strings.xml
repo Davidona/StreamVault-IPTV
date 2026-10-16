@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">Di chuyển xuống</string>
     <string name="trakt_custom_list_items_truncated">Hiển thị 200 mục đầu tiên.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d hàng nội địa nhập khẩu.</item>
-        <item quantity="other">%1$d hàng nội địa nhập khẩu.</item>
+        <item quantity="one">Đã nhập %1$d mục cục bộ.</item>
+        <item quantity="other">Đã nhập %1$d mục cục bộ.</item>
     </plurals>
 </resources>

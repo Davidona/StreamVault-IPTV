@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.series
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
@@ -62,6 +63,8 @@ import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
 import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistItems
 import com.streamvault.feature.catalog.presentation.dashboard.orderedDiscoveryItems
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.streamvault.feature.catalog.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -92,6 +95,7 @@ enum class SeriesLibraryLens {
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class SeriesViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val providerRepository: ProviderRepository,
     private val seriesRepository: SeriesRepository,
     private val preferencesRepository: PreferencesRepository,
@@ -691,9 +695,9 @@ class SeriesViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 userMessage = if (result.reason == com.streamvault.domain.trakt.TraktWatchlistFailure.DISCONNECTED) {
-                                    "Connect Trakt in Settings to view your watchlist."
+                                    appContext.getString(R.string.trakt_watchlist_connect)
                                 } else {
-                                    "Could not load the Trakt watchlist. Try again."
+                                    appContext.getString(R.string.trakt_watchlist_failed)
                                 }
                             )
                         }
@@ -706,7 +710,7 @@ class SeriesViewModel @Inject constructor(
         if (discoveryCategory != null) {
             viewModelScope.launch {
                 if (traktDiscovery.refresh(discoveryCategory) is TraktDiscoveryRefreshResult.Failure) {
-                    _uiState.update { it.copy(userMessage = "Could not load Trakt discovery titles. Try again.") }
+                    _uiState.update { it.copy(userMessage = appContext.getString(R.string.trakt_discovery_load_failed)) }
                 }
             }
             return
@@ -933,7 +937,7 @@ class SeriesViewModel @Inject constructor(
             is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
                 result.reason != TraktFavoriteFailure.INCOGNITO) {
                 _uiState.update {
-                    it.copy(userMessage = "StreamVault saved the change, but could not update Trakt Favorites. Try again.")
+                    it.copy(userMessage = appContext.getString(R.string.trakt_favorite_sync_failed))
                 }
             }
         }

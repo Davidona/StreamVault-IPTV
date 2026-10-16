@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">การติดตาม Trakt หยุดชั่วคราว</string>
     <string name="player_trakt_failed">การติดตาม Trakt ล้มเหลว</string>
     <string name="player_trakt_sent">ส่งไปที่ Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

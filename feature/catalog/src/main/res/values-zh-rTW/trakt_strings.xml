@@ -12,8 +12,8 @@
     <string name="trakt_discovery_series_no_matches">沒有趨勢或流行的 Trakt 節目與該提供者或當前過濾器相符。</string>
     <string name="trakt_discovery_load_failed">無法載入 Trakt 發現標題。再試一次。</string>
     <string name="trakt_watchlist_add">加入 Trakt 關注列表</string>
-    <string name="trakt_watchlist_connect">在設定</string>
-    <string name="trakt_watchlist_failed">中連接Trakt無法更新 Trakt 監視清單。再試一次。</string>
+    <string name="trakt_watchlist_connect">在設定中連接 Trakt</string>
+    <string name="trakt_watchlist_failed">無法更新 Trakt 追蹤清單，請再試一次。</string>
     <string name="trakt_favorite_sync_failed">StreamVault 儲存了更改，但無法更新 Trakt 收藏夾。再試一次。</string>
     <string name="trakt_watchlist_load">載入 Trakt 關注列表</string>
     <string name="trakt_watchlist_remove">從 Trakt 關注列表中刪除</string>

@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.movies
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.data.preferences.PreferencesRepository
@@ -62,6 +63,8 @@ import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistIt
 import com.streamvault.feature.catalog.presentation.dashboard.orderedDiscoveryItems
 import com.streamvault.domain.playback.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.streamvault.feature.catalog.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -92,6 +95,7 @@ enum class MovieLibraryLens {
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class MoviesViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val providerRepository: ProviderRepository,
     private val movieRepository: MovieRepository,
     private val preferencesRepository: PreferencesRepository,
@@ -698,9 +702,9 @@ class MoviesViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 userMessage = if (result.reason == com.streamvault.domain.trakt.TraktWatchlistFailure.DISCONNECTED) {
-                                    "Connect Trakt in Settings to view your watchlist."
+                                    appContext.getString(R.string.trakt_watchlist_connect)
                                 } else {
-                                    "Could not load the Trakt watchlist. Try again."
+                                    appContext.getString(R.string.trakt_watchlist_failed)
                                 }
                             )
                         }
@@ -713,7 +717,7 @@ class MoviesViewModel @Inject constructor(
         if (discoveryCategory != null) {
             viewModelScope.launch {
                 if (traktDiscovery.refresh(discoveryCategory) is TraktDiscoveryRefreshResult.Failure) {
-                    _uiState.update { it.copy(userMessage = "Could not load Trakt discovery titles. Try again.") }
+                    _uiState.update { it.copy(userMessage = appContext.getString(R.string.trakt_discovery_load_failed)) }
                 }
             }
             return
@@ -940,7 +944,7 @@ class MoviesViewModel @Inject constructor(
             is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
                 result.reason != TraktFavoriteFailure.INCOGNITO) {
                 _uiState.update {
-                    it.copy(userMessage = "StreamVault saved the change, but could not update Trakt Favorites. Try again.")
+                    it.copy(userMessage = appContext.getString(R.string.trakt_favorite_sync_failed))
                 }
             }
         }

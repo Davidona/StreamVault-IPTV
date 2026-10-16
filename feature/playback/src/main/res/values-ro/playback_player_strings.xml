@@ -306,4 +306,5 @@
 <string name="player_trakt_paused">Urmărirea Trakt este întreruptă</string>
 <string name="player_trakt_failed">Urmărirea Trakt a eșuat</string>
 <string name="player_trakt_sent">Trimis către Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

@@ -12,8 +12,8 @@
     <string name="trakt_discovery_series_no_matches">कोई भी ट्रेंडिंग या लोकप्रिय Trakt शो इस प्रदाता या वर्तमान फ़िल्टर से मेल नहीं खाता।</string>
     <string name="trakt_discovery_load_failed">Trakt खोज शीर्षक लोड नहीं किया जा सका। पुनः प्रयास करें।</string>
     <string name="trakt_watchlist_add">Trakt वॉचलिस्ट में जोड़ें</string>
-    <string name="trakt_watchlist_connect">सेटिंग्स</string>
-    <string name="trakt_watchlist_failed">में Trakt कनेक्ट करें Trakt वॉचलिस्ट को अपडेट नहीं किया जा सका। पुनः प्रयास करें।</string>
+    <string name="trakt_watchlist_connect">सेटिंग्स में Trakt से कनेक्ट करें</string>
+    <string name="trakt_watchlist_failed">Trakt वॉचलिस्ट अपडेट नहीं हो सकी। कृपया फिर से कोशिश करें।</string>
     <string name="trakt_favorite_sync_failed">StreamVault ने परिवर्तन सहेजा, लेकिन Trakt पसंदीदा को अपडेट नहीं कर सका। पुनः प्रयास करें।</string>
     <string name="trakt_watchlist_load">Trakt वॉचलिस्ट लोड करें</string>
     <string name="trakt_watchlist_remove">Trakt वॉचलिस्ट से हटाएँ</string>

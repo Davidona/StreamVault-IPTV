@@ -306,4 +306,5 @@
 <string name="player_trakt_paused">המעקב דרך Trakt מושהה</string>
 <string name="player_trakt_failed">המעקב דרך Trakt נכשל</string>
 <string name="player_trakt_sent">נשלח אל Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

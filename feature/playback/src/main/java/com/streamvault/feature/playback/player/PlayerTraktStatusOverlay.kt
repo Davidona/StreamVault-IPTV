@@ -57,7 +57,7 @@ internal fun PlayerTraktStatusOverlay(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "TRAKT",
+            text = stringResource(R.string.player_trakt_badge),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = accent,

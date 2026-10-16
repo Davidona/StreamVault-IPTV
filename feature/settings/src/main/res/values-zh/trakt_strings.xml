@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">下移</string>
     <string name="trakt_custom_list_items_truncated">显示前 200 项。</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d本地产品进口。</item>
-        <item quantity="other">%1$d本地产品进口。</item>
+        <item quantity="one">%1$d 个本地项目已导入。</item>
+        <item quantity="other">%1$d 个本地项目已导入。</item>
     </plurals>
 </resources>

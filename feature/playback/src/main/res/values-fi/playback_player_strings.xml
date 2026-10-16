@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt-seuranta tauolla</string>
 <string name="player_trakt_failed">Trakt-seuranta epäonnistui</string>
 <string name="player_trakt_sent">Lähetetty Traktiin</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

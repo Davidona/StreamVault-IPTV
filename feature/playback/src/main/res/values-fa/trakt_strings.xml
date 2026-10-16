@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">ردیابی Trakt متوقف شد</string>
     <string name="player_trakt_failed">ردیابی Trakt ناموفق</string>
     <string name="player_trakt_sent">ارسال به Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

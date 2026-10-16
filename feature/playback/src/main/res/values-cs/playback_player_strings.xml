@@ -307,4 +307,5 @@
 <string name="player_trakt_paused">Sledování přes Trakt je pozastaveno</string>
 <string name="player_trakt_failed">Sledování přes Trakt selhalo</string>
 <string name="player_trakt_sent">Odesláno do Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

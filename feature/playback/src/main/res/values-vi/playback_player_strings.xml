@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Đã tạm dừng theo dõi Trakt</string>
 <string name="player_trakt_failed">Theo dõi Trakt thất bại</string>
 <string name="player_trakt_sent">Đã gửi đến Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

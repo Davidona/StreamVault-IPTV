@@ -8,4 +8,5 @@
     <string name="player_trakt_paused">Naka-pause ang pagsubaybay sa Trakt</string>
     <string name="player_trakt_failed">Nabigo ang pagsubaybay sa Trakt</string>
     <string name="player_trakt_sent">Ipinadala sa Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

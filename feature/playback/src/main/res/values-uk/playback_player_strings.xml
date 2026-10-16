@@ -307,4 +307,5 @@
 <string name="player_trakt_paused">Відстеження Trakt призупинено</string>
 <string name="player_trakt_failed">Не вдалося відстежити у Trakt</string>
 <string name="player_trakt_sent">Надіслано до Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

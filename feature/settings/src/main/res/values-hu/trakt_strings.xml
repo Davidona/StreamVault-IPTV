@@ -30,7 +30,7 @@
     <string name="trakt_profile_vip">Trakt VIP</string>
     <string name="trakt_profile_about">Névjegy: %1$s</string>
     <string name="trakt_scrobbling_setting">A lejátszási tevékenység nyomon követése a Trakt</string>
-    <string name="trakt_history_sync_setting">segítségével Előzmények importálása és feltöltése</string>
+    <string name="trakt_history_sync_setting">Előzmények importálása és feltöltése</string>
     <string name="trakt_setting_enabled">Engedélyezve</string>
     <string name="trakt_setting_disabled">Letiltva</string>
     <string name="trakt_import_favorites">Trakt kedvencek importálása ehhez a szolgáltatóhoz</string>
@@ -73,6 +73,6 @@
     <string name="trakt_custom_list_items_truncated">Az első 200 elem megjelenítése.</string>
     <plurals name="trakt_sync_imported_count">
         <item quantity="one">%1$d helyi elem importálva.</item>
-        <item quantity="other">%1$d helyi termékek importálva.</item>
+        <item quantity="other">%1$d helyi elem importálva.</item>
     </plurals>
 </resources>

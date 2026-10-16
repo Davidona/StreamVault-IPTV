@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">Переміститися вниз</string>
     <string name="trakt_custom_list_items_truncated">Показано перші 200 елементів.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">Імпортований місцевий продукт %1$d.</item>
-        <item quantity="other">%1$d імпортовані місцеві товари.</item>
+        <item quantity="one">Імпортовано %1$d локальний елемент.</item>
+        <item quantity="other">Імпортовано %1$d локальних елементів.</item>
     </plurals>
 </resources>

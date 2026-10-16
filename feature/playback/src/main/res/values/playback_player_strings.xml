@@ -252,14 +252,14 @@
     <string name="player_type_channel_number">Type channel number</string>
     <string name="player_type_movie">Movie</string>
     <string name="player_type_series">Series</string>
-    <string name="player_trakt_connect_required">Connect Trakt in Settings</string>
-    <string name="player_trakt_not_supported">Trakt tracks movies and episodes only.</string>
-    <string name="player_trakt_no_match">No exact Trakt match for this title.</string>
-    <string name="player_trakt_starting">Starting Trakt tracking…</string>
-    <string name="player_trakt_tracking">Tracking with Trakt</string>
-    <string name="player_trakt_paused">Trakt tracking paused</string>
-    <string name="player_trakt_failed">Trakt tracking failed</string>
-    <string name="player_trakt_sent">Sent to Trakt</string>
+
+
+
+
+
+
+
+
     <string name="player_unmute">Unmute</string>
     <string name="player_up_next">Up Next</string>
     <string name="player_variants_short">Variants</string>

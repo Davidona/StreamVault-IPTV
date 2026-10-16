@@ -74,7 +74,7 @@
     <string name="trakt_custom_lists_move_down">下移</string>
     <string name="trakt_custom_list_items_truncated">顯示前 200 項。</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d 本地專案已匯入。</item>
-        <item quantity="other">%1$d 本地專案已匯入。</item>
+        <item quantity="one">%1$d 個本機項目已匯入。</item>
+        <item quantity="other">%1$d 個本機項目已匯入。</item>
     </plurals>
 </resources>

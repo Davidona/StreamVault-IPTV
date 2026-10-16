@@ -30,7 +30,7 @@
     <string name="trakt_profile_vip">Trakt VIP</string>
     <string name="trakt_profile_about">Tietoja: %1$s</string>
     <string name="trakt_scrobbling_setting">Seuraa toistotoimintaa Trakt</string>
-    <string name="trakt_history_sync_setting">:lla Historian tuonti ja lataaminen</string>
+    <string name="trakt_history_sync_setting">Katseluhistorian tuonti ja lähetys</string>
     <string name="trakt_setting_enabled">Käytössä</string>
     <string name="trakt_setting_disabled">Ei käytössä</string>
     <string name="trakt_import_favorites">Tuo Trakt suosikit tälle palveluntarjoajalle</string>
@@ -72,7 +72,7 @@
     <string name="trakt_custom_lists_move_down">Siirrä alas</string>
     <string name="trakt_custom_list_items_truncated">Näytetään 200 ensimmäistä kohdetta.</string>
     <plurals name="trakt_sync_imported_count">
-        <item quantity="one">%1$d paikallinen tuote tuotu.</item>
-        <item quantity="other">%1$d paikalliset tuotteet tuotu.</item>
+        <item quantity="one">%1$d paikallinen kohde tuotiin.</item>
+        <item quantity="other">%1$d paikallista kohdetta tuotiin.</item>
     </plurals>
 </resources>

@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">Trakt の追跡を一時停止中</string>
 <string name="player_trakt_failed">Trakt の追跡に失敗しました</string>
 <string name="player_trakt_sent">Trakt に送信しました</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>

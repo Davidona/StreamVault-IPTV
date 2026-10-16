@@ -305,4 +305,5 @@
 <string name="player_trakt_paused">A Trakt-követés szünetel</string>
 <string name="player_trakt_failed">A Trakt-követés nem sikerült</string>
 <string name="player_trakt_sent">Elküldve a Traktnak</string>
+    <string name="player_trakt_badge">TRAKT</string>
 </resources>
