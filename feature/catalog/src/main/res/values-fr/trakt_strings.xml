@@ -30,7 +30,7 @@
     <string name="trakt_custom_list_remove_item">Supprimer</string>
     <string name="trakt_custom_list_items_truncated">Affichage des 200 premiers éléments.</string>
     <string name="trakt_custom_lists_back">Retour aux listes</string>
-    <string name="trakt_custom_lists_choose_item">Choisissez ce qu'il faut ajouter ou supprimer</string>
+    <string name="trakt_custom_lists_choose_item">Choisissez ce qu\'il faut ajouter ou supprimer</string>
     <string name="trakt_custom_lists_movies">Film</string>
     <string name="trakt_custom_lists_series">Série</string>
     <string name="trakt_custom_lists_seasons_count">Saisons (%1$d)</string>

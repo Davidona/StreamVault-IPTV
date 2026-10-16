@@ -53,7 +53,7 @@
     <string name="trakt_custom_lists_refresh">Оновити списки</string>
     <string name="trakt_custom_lists_create">Створити приватний список</string>
     <string name="trakt_custom_lists_name">Назва списку</string>
-    <string name="trakt_custom_lists_optional_description">Опис (необов'язково)</string>
+    <string name="trakt_custom_lists_optional_description">Опис (необов\'язково)</string>
     <string name="trakt_custom_lists_private_note">Нові списки приватні на Trakt.</string>
     <string name="trakt_custom_lists_not_loaded">Оновіть, щоб завантажити списки.</string>
     <string name="trakt_custom_lists_no_items">Цей список не містить підтримуваних фільмів, шоу, сезонів чи епізодів.</string>

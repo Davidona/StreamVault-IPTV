@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Lidhni Trakt te "Cilësimet" për të përdorur listat tuaja.</string>
     <string name="trakt_custom_lists_failed">Kjo listë Trakt nuk mund të ngarkohej ose përditësohej. Provo sërish.</string>
     <string name="trakt_custom_lists_incognito">Listat Trakt nuk ofrohen ndërsa modaliteti i fshehtë është aktiv.</string>
-    <string name="trakt_custom_lists_too_large">Kjo listë është shumë e madhe për t'u ngarkuar plotësisht në StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Kjo listë është shumë e madhe për t\'u ngarkuar plotësisht në StreamVault.</string>
     <string name="trakt_custom_list_remove_item">Hiq</string>
     <string name="trakt_custom_lists_delete">Fshij</string>
     <string name="trakt_custom_lists_delete_title">Të fshihet kjo listë Trakt?</string>

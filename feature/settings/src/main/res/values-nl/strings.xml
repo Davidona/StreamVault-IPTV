@@ -857,5 +857,5 @@
     <string name="settings_recording_failure_output_too_slow">De opnamelocatie kon het live afspelen niet bijhouden.</string>
 
 <string name="dashboard_trakt_watchlist_movies">Films in uw Trakt-kijklijst</string>
-<string name="dashboard_trakt_watchlist_series">Tv-programma's in uw Trakt-kijklijst</string>
+<string name="dashboard_trakt_watchlist_series">Tv-programma\'s in uw Trakt-kijklijst</string>
 </resources>

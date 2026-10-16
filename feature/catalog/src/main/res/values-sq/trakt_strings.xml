@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Nuk keni ende ndonjë listë të personalizuar Trakt.</string>
     <string name="trakt_custom_lists_failed">Kjo listë Trakt nuk mund të ngarkohej ose përditësohej. Provo sërish.</string>
     <string name="trakt_custom_lists_incognito">Listat Trakt nuk ofrohen ndërsa modaliteti i fshehtë është aktiv.</string>
-    <string name="trakt_custom_lists_too_large">Kjo listë është shumë e madhe për t'u ngarkuar plotësisht në StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Kjo listë është shumë e madhe për t\'u ngarkuar plotësisht në StreamVault.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d artikuj</string>
     <string name="trakt_custom_list_contains_item">%1$s është në këtë listë.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s nuk është në këtë listë.</string>

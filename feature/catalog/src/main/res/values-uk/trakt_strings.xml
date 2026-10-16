@@ -24,7 +24,7 @@
     <string name="trakt_custom_list_add_item">Додати до списку</string>
     <string name="trakt_custom_lists_create_new">Створити новий список</string>
     <string name="trakt_custom_lists_name">Назва списку</string>
-    <string name="trakt_custom_lists_optional_description">Опис (необов'язково)</string>
+    <string name="trakt_custom_lists_optional_description">Опис (необов\'язково)</string>
     <string name="trakt_custom_lists_private_note">Нові списки приватні на Trakt.</string>
     <string name="trakt_custom_lists_create">Створити приватний список</string>
     <string name="trakt_custom_list_remove_item">Видалити</string>
