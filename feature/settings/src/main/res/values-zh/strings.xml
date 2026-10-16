@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">切换、同步、编辑并排查您的 IPTV 来源。</string>
 <string name="settings_title">设置</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+<string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
 </resources>

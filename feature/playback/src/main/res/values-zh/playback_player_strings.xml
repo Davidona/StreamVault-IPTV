@@ -196,4 +196,12 @@
     <string name="series_seasons">季</string>
     <string name="settings_recording_status_recording">录制中</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">在设置中连接 Trakt</string>
+    <string name="player_trakt_not_supported">Trakt 仅追踪电影和剧集。</string>
+    <string name="player_trakt_no_match">Trakt 中没有与此标题完全匹配的条目。</string>
+    <string name="player_trakt_starting">正在启动 Trakt 追踪…</string>
+    <string name="player_trakt_tracking">Trakt 正在追踪播放进度</string>
+    <string name="player_trakt_paused">Trakt 追踪已暂停</string>
+    <string name="player_trakt_failed">Trakt 追踪失败</string>
+    <string name="player_trakt_sent">已发送到 Trakt</string>
 </resources>

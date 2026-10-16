@@ -155,6 +155,18 @@ class SeriesRepositoryImpl @Inject constructor(
                 buildPresentedSeries(list, settings)
             }.flowOn(Dispatchers.Default)
 
+    override suspend fun getSeriesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Series> {
+        val ids = tmdbIds.asSequence().filter { it > 0L }.distinct().toList()
+        if (ids.isEmpty()) return emptyList()
+        val hideProtected = preferencesRepository.parentalControlLevel.first() >= 3
+        val rows = ids.chunked(400).flatMap { seriesDao.getByProviderTmdbIdsSync(providerId, it) }
+            .asSequence()
+            .filterNot { hideProtected && it.isUserProtected }
+            .map { it.toDomain() }
+            .toList()
+        return buildPresentedSeries(rows, seriesPresentationSettingsFlow.first())
+    }
+
     override fun getSeriesByCategory(providerId: Long, categoryId: Long): Flow<List<Series>> =
         flow {
             ensureXtreamCategoryLoaded(providerId, categoryId)

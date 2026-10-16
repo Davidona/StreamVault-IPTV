@@ -196,4 +196,12 @@
     <string name="series_seasons">Saisons</string>
     <string name="settings_recording_status_recording">Enregistrement</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Connectez Trakt dans les paramètres</string>
+    <string name="player_trakt_not_supported">Trakt suit uniquement les films et les épisodes.</string>
+    <string name="player_trakt_no_match">Aucune correspondance exacte dans Trakt pour ce titre.</string>
+    <string name="player_trakt_starting">Démarrage du suivi Trakt…</string>
+    <string name="player_trakt_tracking">Suivi Trakt en cours</string>
+    <string name="player_trakt_paused">Suivi Trakt en pause</string>
+    <string name="player_trakt_failed">Échec du suivi Trakt</string>
+    <string name="player_trakt_sent">Envoyé à Trakt</string>
 </resources>

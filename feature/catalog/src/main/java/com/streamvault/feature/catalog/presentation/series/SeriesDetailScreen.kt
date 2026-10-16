@@ -64,6 +64,11 @@ import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.EpisodeRowCard
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
+import com.streamvault.feature.catalog.presentation.components.TraktRatingSummary
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
@@ -74,6 +79,9 @@ import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
+import com.streamvault.domain.trakt.TraktCustomListItem
+import com.streamvault.domain.trakt.TraktCustomListItemIdentity
+import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
@@ -94,6 +102,7 @@ fun SeriesDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val series = uiState.series
     val context = LocalContext.current
+    var ratingDialogOpen by remember(series?.id) { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -143,6 +152,15 @@ fun SeriesDetailScreen(
         isCasting = uiState.isCasting,
         externalRatings = uiState.externalRatings,
         isLoadingExternalRatings = uiState.isLoadingExternalRatings,
+        traktWatchlistConnected = uiState.traktWatchlistConnected,
+        traktWatchlistLoaded = uiState.traktWatchlistLoaded,
+        traktWatchlisted = uiState.traktWatchlisted,
+        traktWatchlistBusy = uiState.traktWatchlistBusy,
+        onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+        traktRatingConnected = uiState.traktWatchlistConnected,
+        traktUserRating = uiState.traktUserRating,
+        traktRatingBusy = uiState.traktRatingBusy,
+        onRateOnTrakt = { ratingDialogOpen = true },
         onToggleFavorite = viewModel::toggleFavorite,
         onSelectVariant = viewModel::selectSeriesVariant,
         onSeasonSelected = viewModel::selectSeason,
@@ -162,6 +180,17 @@ fun SeriesDetailScreen(
         onCastEpisode = viewModel::castEpisode,
         onBack = onBack
     )
+    if (ratingDialogOpen) {
+        TraktRatingDialog(
+            currentRating = uiState.traktUserRating,
+            busy = uiState.traktRatingBusy,
+            onDismiss = { ratingDialogOpen = false },
+            onSelect = { rating ->
+                ratingDialogOpen = false
+                viewModel.rateOnTrakt(rating)
+            },
+        )
+    }
 }
 
 @Composable
@@ -173,6 +202,15 @@ private fun SeriesDetailContent(
     isCasting: Boolean,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    traktRatingConnected: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onRateOnTrakt: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSelectVariant: (Long) -> Unit,
     onSeasonSelected: (Season) -> Unit,
@@ -311,6 +349,7 @@ private fun SeriesDetailContent(
                                     selectedSeason?.name.orEmpty()
                                 )
                             )
+                            TraktRatingSummary(traktUserRating)
                             ExternalRatingsStrip(
                                 ratings = externalRatings,
                                 isLoading = isLoadingExternalRatings
@@ -337,11 +376,43 @@ private fun SeriesDetailContent(
                                      onResumeClick = onResumeClick,
                                      onCopyUrl = { copyEpisodeUrl(ep) },
                                      onCast = onCastResumeEpisode,
-                                     onToggleFavorite = onToggleFavorite
+                                     onToggleFavorite = onToggleFavorite,
+                                     hasTraktIdentity = series.tmdbId?.let { it > 0L } == true,
+                                     traktWatchlistConnected = traktWatchlistConnected,
+                                     traktWatchlistLoaded = traktWatchlistLoaded,
+                                     traktWatchlisted = traktWatchlisted,
+                                     traktWatchlistBusy = traktWatchlistBusy,
+                                     onToggleTraktWatchlist = onToggleTraktWatchlist,
+                                     traktRatingConnected = traktRatingConnected,
+                                     traktUserRating = traktUserRating,
+                                     traktRatingBusy = traktRatingBusy,
+                                     onRateOnTrakt = onRateOnTrakt,
                                  )
                             }
                             if (resumeEpisode == null) {
-                                SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+                                        TraktWatchlistActionButton(
+                                            hasIdentity = series.tmdbId?.let { it > 0L } == true,
+                                            connected = traktWatchlistConnected,
+                                            loaded = traktWatchlistLoaded,
+                                            watchlisted = traktWatchlisted,
+                                            busy = traktWatchlistBusy,
+                                            onClick = onToggleTraktWatchlist,
+                                        )
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        TraktRatingActionButton(
+                                            hasIdentity = series.tmdbId?.let { it > 0L } == true,
+                                            connected = traktRatingConnected,
+                                            busy = traktRatingBusy,
+                                            rating = traktUserRating,
+                                            onClick = onRateOnTrakt,
+                                        )
+                                        TraktCustomListActionButton(series.traktShowListItem())
+                                    }
+                                }
                             }
                         }
                     }
@@ -399,6 +470,7 @@ private fun SeriesDetailContent(
                                     selectedSeason?.name.orEmpty()
                                 )
                             )
+                            TraktRatingSummary(traktUserRating)
                             ExternalRatingsStrip(
                                 ratings = externalRatings,
                                 isLoading = isLoadingExternalRatings
@@ -425,11 +497,43 @@ private fun SeriesDetailContent(
                                      onResumeClick = onResumeClick,
                                      onCopyUrl = { copyEpisodeUrl(ep) },
                                      onCast = onCastResumeEpisode,
-                                     onToggleFavorite = onToggleFavorite
+                                     onToggleFavorite = onToggleFavorite,
+                                     hasTraktIdentity = series.tmdbId?.let { it > 0L } == true,
+                                     traktWatchlistConnected = traktWatchlistConnected,
+                                     traktWatchlistLoaded = traktWatchlistLoaded,
+                                     traktWatchlisted = traktWatchlisted,
+                                     traktWatchlistBusy = traktWatchlistBusy,
+                                     onToggleTraktWatchlist = onToggleTraktWatchlist,
+                                     traktRatingConnected = traktRatingConnected,
+                                     traktUserRating = traktUserRating,
+                                     traktRatingBusy = traktRatingBusy,
+                                     onRateOnTrakt = onRateOnTrakt,
                                  )
                             }
                             if (resumeEpisode == null) {
-                                SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+                                        TraktWatchlistActionButton(
+                                            hasIdentity = series.tmdbId?.let { it > 0L } == true,
+                                            connected = traktWatchlistConnected,
+                                            loaded = traktWatchlistLoaded,
+                                            watchlisted = traktWatchlisted,
+                                            busy = traktWatchlistBusy,
+                                            onClick = onToggleTraktWatchlist,
+                                        )
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        TraktRatingActionButton(
+                                            hasIdentity = series.tmdbId?.let { it > 0L } == true,
+                                            connected = traktRatingConnected,
+                                            busy = traktRatingBusy,
+                                            rating = traktUserRating,
+                                            onClick = onRateOnTrakt,
+                                        )
+                                        TraktCustomListActionButton(series.traktShowListItem())
+                                    }
+                                }
                             }
                         }
                     }
@@ -462,17 +566,20 @@ private fun SeriesDetailContent(
 
             selectedSeason?.let { season ->
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(
-                            text = stringResource(R.string.series_episodes, season.episodes.size),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = AppColors.TextPrimary
-                        )
-                        Text(
-                            text = season.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = AppColors.TextTertiary
-                        )
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                text = stringResource(R.string.series_episodes, season.episodes.size),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = AppColors.TextPrimary
+                            )
+                            Text(
+                                text = season.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = AppColors.TextTertiary
+                            )
+                        }
+                        series?.let { TraktCustomListActionButton(it.traktSeasonListItem(season)) }
                     }
                 }
                 val fallbackCover = series?.let {
@@ -481,6 +588,7 @@ private fun SeriesDetailContent(
                 items(visibleEpisodes, key = { it.id }) { episode ->
                     EpisodeItem(
                         episode = episode,
+                        traktCustomListItem = series?.traktEpisodeListItem(episode),
                         fallbackImageUrl = fallbackCover,
                         onClick = { onEpisodeClick(episode) },
                         onCopyUrl = { copyEpisodeUrl(episode) },
@@ -555,58 +663,121 @@ private fun SeriesDetailActions(
     onResumeClick: (Episode) -> Unit,
     onCopyUrl: () -> Unit,
     onCast: () -> Unit,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    hasTraktIdentity: Boolean,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    traktRatingConnected: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onRateOnTrakt: () -> Unit,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        TvButton(
-            onClick = { onResumeClick(resumeEpisode) },
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.Brand,
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = if (hasProgress) {
-                    stringResource(
-                        R.string.series_detail_resume,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber,
-                        formatPositionMs(resumeEpisode.watchProgress)
-                    )
-                } else {
-                    stringResource(
-                        R.string.series_detail_play_episode,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber
-                    )
-                }
-            )
-        }
-        TvButton(
-            onClick = onCopyUrl,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(stringResource(R.string.stream_url_copy))
-        }
-        TvButton(
-            onClick = onCast,
-            enabled = !isCasting,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(
-                stringResource(
-                    if (isCasting) R.string.cast_launching else R.string.cast_button_label
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            TvButton(
+                onClick = { onResumeClick(resumeEpisode) },
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.Brand,
+                    contentColor = Color.White
                 )
-            )
+            ) {
+                Text(
+                    text = if (hasProgress) {
+                        stringResource(
+                            R.string.series_detail_resume,
+                            resumeEpisode.seasonNumber,
+                            resumeEpisode.episodeNumber,
+                            formatPositionMs(resumeEpisode.watchProgress)
+                        )
+                    } else {
+                        stringResource(
+                            R.string.series_detail_play_episode,
+                            resumeEpisode.seasonNumber,
+                            resumeEpisode.episodeNumber
+                        )
+                    }
+                )
+            }
+            TvButton(
+                onClick = onCopyUrl,
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.stream_url_copy))
+            }
+            TvButton(
+                onClick = onCast,
+                enabled = !isCasting,
+                colors = ButtonDefaults.colors(
+                    containerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary
+                )
+            ) {
+                Text(
+                    stringResource(
+                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
+                    )
+                )
+            }
         }
-        SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+            TraktWatchlistActionButton(
+                hasIdentity = hasTraktIdentity,
+                connected = traktWatchlistConnected,
+                loaded = traktWatchlistLoaded,
+                watchlisted = traktWatchlisted,
+                busy = traktWatchlistBusy,
+                onClick = onToggleTraktWatchlist,
+            )
+            TraktRatingActionButton(
+                hasIdentity = hasTraktIdentity,
+                connected = traktRatingConnected,
+                busy = traktRatingBusy,
+                rating = traktUserRating,
+                onClick = onRateOnTrakt,
+            )
+            TraktCustomListActionButton(series.traktShowListItem())
+        }
     }
+}
+
+private fun Series.traktShowListItem(): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(TraktCustomListItemType.SHOW, showTmdbId),
+        title = name,
+        year = releaseDate?.take(4)?.toIntOrNull(),
+    )
+}
+
+private fun Series.traktSeasonListItem(season: Season): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(
+            TraktCustomListItemType.SEASON, showTmdbId, seasonNumber = season.seasonNumber,
+        ),
+        title = "$name · ${season.name}",
+    )
+}
+
+private fun Series.traktEpisodeListItem(episode: Episode): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    if (episode.episodeNumber <= 0) return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(
+            TraktCustomListItemType.EPISODE,
+            showTmdbId,
+            seasonNumber = episode.seasonNumber,
+            episodeNumber = episode.episodeNumber,
+        ),
+        title = "$name · S${episode.seasonNumber}E${episode.episodeNumber} · ${episode.title}",
+    )
 }
 
 @Composable
@@ -667,6 +838,7 @@ fun SeasonChip(
 @Composable
 fun EpisodeItem(
     episode: Episode,
+    traktCustomListItem: TraktCustomListItem? = null,
     fallbackImageUrl: String? = null,
     onClick: () -> Unit,
     onCopyUrl: () -> Unit,
@@ -717,6 +889,7 @@ fun EpisodeItem(
                     )
                 )
             }
+            TraktCustomListActionButton(traktCustomListItem)
         }
     }
 }

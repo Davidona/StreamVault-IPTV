@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">Skift, synkroniser, rediger og fejlfind dine IPTV-kilder.</string>
 <string name="settings_title">Indstillinger</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+<string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
 </resources>

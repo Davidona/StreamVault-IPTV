@@ -9,6 +9,8 @@
     <string name="dashboard_pinned_categories">Pinned Categories</string>
     <string name="dashboard_favorite_movies">Favorite Movies</string>
     <string name="dashboard_favorite_series">Favorite Series</string>
+    <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+    <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
     <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
     <string name="dashboard_continue_watching_series">Continue Watching Series</string>
     <string name="dashboard_top_rated_movies">Top Rated Movies</string>
@@ -226,6 +228,14 @@
     <string name="settings_vod_portal_search">Portal-backed VOD search</string>
     <string name="settings_vod_portal_search_off">Use the locally indexed VOD catalog for search.</string>
     <string name="settings_vod_portal_search_on">Ask Stalker portals to search VOD before the full catalog is indexed.</string>
+    <string name="settings_trakt_discovery_title">Trakt discovery categories</string>
+    <string name="settings_trakt_discovery_description">Choose which Trending and Popular categories appear in Movies and Series.</string>
+    <string name="settings_trakt_discovery_trending_movies">Trending movies on Trakt</string>
+    <string name="settings_trakt_discovery_popular_movies">Popular movies on Trakt</string>
+    <string name="settings_trakt_discovery_trending_series">Trending series on Trakt</string>
+    <string name="settings_trakt_discovery_popular_series">Popular series on Trakt</string>
+    <string name="settings_trakt_discovery_visible">Visible</string>
+    <string name="settings_trakt_discovery_hidden">Hidden</string>
     <string name="settings_retry_epg">Retry EPG</string>
     <string name="settings_retry_movies">Retry Movies</string>
     <string name="settings_retry_series">Retry Series</string>

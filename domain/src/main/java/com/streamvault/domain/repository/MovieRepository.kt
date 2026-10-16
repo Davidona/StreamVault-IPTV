@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.flowOf
 
 interface MovieRepository {
     fun getMovies(providerId: Long): Flow<List<Movie>>
+    /** Loads only active-provider rows with the requested Trakt/TMDB identities. */
+    suspend fun getMoviesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Movie> = emptyList()
     fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>>
     fun getMoviesByCategoryPage(providerId: Long, categoryId: Long, limit: Int, offset: Int): Flow<List<Movie>>
     fun getMoviesByCategoryPreview(providerId: Long, categoryId: Long, limit: Int): Flow<List<Movie>>

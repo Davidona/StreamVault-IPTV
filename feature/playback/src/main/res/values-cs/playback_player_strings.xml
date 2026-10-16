@@ -196,4 +196,12 @@
     <string name="series_seasons">Sezóny</string>
     <string name="settings_recording_status_recording">Nahrávání</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Připojte Trakt v Nastavení</string>
+    <string name="player_trakt_not_supported">Trakt sleduje pouze filmy a epizody.</string>
+    <string name="player_trakt_no_match">Pro tento titul nebyla nalezena přesná shoda v Trakt.</string>
+    <string name="player_trakt_starting">Spouští se sledování přes Trakt…</string>
+    <string name="player_trakt_tracking">Trakt sleduje přehrávání</string>
+    <string name="player_trakt_paused">Sledování přes Trakt je pozastaveno</string>
+    <string name="player_trakt_failed">Sledování přes Trakt selhalo</string>
+    <string name="player_trakt_sent">Odesláno do Trakt</string>
 </resources>

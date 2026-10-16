@@ -1,0 +1,32 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.streamvault.app",
+      "sha256_cert_fingerprints": [
+        "C2:48:B6:5F:3E:F3:AC:2B:61:C6:B2:1E:61:29:FB:13:96:92:4A:01:5B:6B:EF:21:56:6A:CE:D8:27:BF:4F:4D"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.streamvault.app.beta",
+      "sha256_cert_fingerprints": [
+        "C2:48:B6:5F:3E:F3:AC:2B:61:C6:B2:1E:61:29:FB:13:96:92:4A:01:5B:6B:EF:21:56:6A:CE:D8:27:BF:4F:4D"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.streamvault.app.debug",
+      "sha256_cert_fingerprints": [
+        "79:64:0D:DA:63:77:00:C3:27:68:C7:B6:60:E1:8A:BF:99:13:66:2C:7B:92:D6:33:ED:87:8B:91:B4:D1:AC:DF"
+      ]
+    }
+  }
+]

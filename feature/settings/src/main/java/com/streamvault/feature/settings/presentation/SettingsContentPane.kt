@@ -237,6 +237,10 @@ public fun SettingsContentPane(
                     verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
                     userScrollEnabled = true,
                 ) {
+                if (category == SettingsCategory.TRAKT) {
+                    item { TraktSettingsSection(modifier = if (activeSearchTarget?.itemId == "trakt.account")
+                        searchTargetModifier else directEntryModifier) }
+                }
                 if (page == null && category.pages.isNotEmpty()) {
                     items(category.pages, key = { it.name }) { destination ->
                             val isReturnTarget = destination == lastPage

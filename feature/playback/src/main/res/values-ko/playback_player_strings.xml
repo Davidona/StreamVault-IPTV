@@ -196,4 +196,12 @@
     <string name="series_seasons">시즌</string>
     <string name="settings_recording_status_recording">녹화 중</string>
     <string name="time_range_format">%1$s ~ %2$s</string>
+    <string name="player_trakt_connect_required">설정에서 Trakt 연결</string>
+    <string name="player_trakt_not_supported">Trakt는 영화와 에피소드만 추적합니다.</string>
+    <string name="player_trakt_no_match">이 제목과 정확히 일치하는 Trakt 항목이 없습니다.</string>
+    <string name="player_trakt_starting">Trakt 추적 시작 중…</string>
+    <string name="player_trakt_tracking">Trakt가 재생을 추적 중입니다</string>
+    <string name="player_trakt_paused">Trakt 추적이 일시 중지되었습니다</string>
+    <string name="player_trakt_failed">Trakt 추적에 실패했습니다</string>
+    <string name="player_trakt_sent">Trakt로 전송했습니다</string>
 </resources>

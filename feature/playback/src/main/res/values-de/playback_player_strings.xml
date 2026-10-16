@@ -196,4 +196,12 @@
     <string name="series_seasons">Jahreszeiten</string>
     <string name="settings_recording_status_recording">Aufnahme</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Trakt in den Einstellungen verbinden</string>
+    <string name="player_trakt_not_supported">Trakt verfolgt nur Filme und Episoden.</string>
+    <string name="player_trakt_no_match">Kein genauer Trakt-Treffer für diesen Titel.</string>
+    <string name="player_trakt_starting">Trakt-Tracking wird gestartet…</string>
+    <string name="player_trakt_tracking">Trakt verfolgt die Wiedergabe</string>
+    <string name="player_trakt_paused">Trakt-Tracking pausiert</string>
+    <string name="player_trakt_failed">Trakt-Tracking fehlgeschlagen</string>
+    <string name="player_trakt_sent">An Trakt gesendet</string>
 </resources>

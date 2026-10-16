@@ -196,4 +196,12 @@
     <string name="series_seasons">Årstider</string>
     <string name="settings_recording_status_recording">Inspelning</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Anslut Trakt i Inställningar</string>
+    <string name="player_trakt_not_supported">Trakt spårar bara filmer och avsnitt.</string>
+    <string name="player_trakt_no_match">Ingen exakt matchning i Trakt hittades för titeln.</string>
+    <string name="player_trakt_starting">Startar Trakt-spårning…</string>
+    <string name="player_trakt_tracking">Trakt spårar uppspelningen</string>
+    <string name="player_trakt_paused">Trakt-spårning pausad</string>
+    <string name="player_trakt_failed">Trakt-spårning misslyckades</string>
+    <string name="player_trakt_sent">Skickat till Trakt</string>
 </resources>

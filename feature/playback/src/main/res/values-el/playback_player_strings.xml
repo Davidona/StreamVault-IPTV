@@ -196,4 +196,12 @@
     <string name="series_seasons">Σεζόν</string>
     <string name="settings_recording_status_recording">Εγγραφή</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Συνδέστε το Trakt στις Ρυθμίσεις</string>
+    <string name="player_trakt_not_supported">Το Trakt παρακολουθεί μόνο ταινίες και επεισόδια.</string>
+    <string name="player_trakt_no_match">Δεν βρέθηκε ακριβής αντιστοιχία στο Trakt για αυτόν τον τίτλο.</string>
+    <string name="player_trakt_starting">Έναρξη παρακολούθησης Trakt…</string>
+    <string name="player_trakt_tracking">Το Trakt παρακολουθεί την αναπαραγωγή</string>
+    <string name="player_trakt_paused">Η παρακολούθηση Trakt τέθηκε σε παύση</string>
+    <string name="player_trakt_failed">Αποτυχία παρακολούθησης Trakt</string>
+    <string name="player_trakt_sent">Στάλθηκε στο Trakt</string>
 </resources>

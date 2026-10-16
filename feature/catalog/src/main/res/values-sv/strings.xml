@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Synkronisering krävs</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Lägg till i Trakts bevakningslista</string>
+  <string name="trakt_watchlist_connect">Anslut Trakt i Inställningar</string>
+  <string name="trakt_watchlist_failed">Det gick inte att uppdatera Trakts bevakningslista. Försök igen.</string>
+  <string name="trakt_watchlist_load">Läs in Trakts bevakningslista</string>
+  <string name="trakt_watchlist_remove">Ta bort från Trakts bevakningslista</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Betygsätt på Trakt</string>
+  <string name="trakt_rating_dialog_message">Välj ett betyg från 1 till 10.</string>
+  <string name="trakt_rating_current">Ditt Trakt-betyg: %1$d/10</string>
+  <string name="trakt_rating_saved">Ditt betyg har sparats på Trakt.</string>
+  <string name="trakt_rating_failed">Det gick inte att spara ditt betyg på Trakt.</string>
+  <string name="trakt_favorite_sync_failed">StreamVault sparade ändringen men kunde inte uppdatera dina Trakt-favoriter. Försök igen.</string>
 </resources>

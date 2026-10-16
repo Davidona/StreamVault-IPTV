@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Synkronointi tarvitaan</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Lisää Trakt-katselulistalle</string>
+  <string name="trakt_watchlist_connect">Yhdistä Trakt Asetuksissa</string>
+  <string name="trakt_watchlist_failed">Trakt-katselulistan päivitys epäonnistui. Yritä uudelleen.</string>
+  <string name="trakt_watchlist_load">Lataa Trakt-katselulista</string>
+  <string name="trakt_watchlist_remove">Poista Trakt-katselulistalta</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Arvioi Traktissa</string>
+  <string name="trakt_rating_dialog_message">Valitse arvosana 1–10.</string>
+  <string name="trakt_rating_current">Trakt-arvosanasi: %1$d/10</string>
+  <string name="trakt_rating_saved">Arvosanasi tallennettiin Traktiin.</string>
+  <string name="trakt_rating_failed">Arvosanan tallentaminen Traktiin epäonnistui.</string>
+  <string name="trakt_favorite_sync_failed">StreamVault tallensi muutoksen, mutta Trakt-suosikkeja ei voitu päivittää. Yritä uudelleen.</string>
 </resources>

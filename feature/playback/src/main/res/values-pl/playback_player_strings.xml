@@ -196,4 +196,12 @@
     <string name="series_seasons">Pory roku</string>
     <string name="settings_recording_status_recording">Nagrywanie</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Połącz Trakt w Ustawieniach</string>
+    <string name="player_trakt_not_supported">Trakt śledzi tylko filmy i odcinki.</string>
+    <string name="player_trakt_no_match">Nie znaleziono dokładnego dopasowania w Trakt dla tego tytułu.</string>
+    <string name="player_trakt_starting">Uruchamianie śledzenia Trakt…</string>
+    <string name="player_trakt_tracking">Trakt śledzi odtwarzanie</string>
+    <string name="player_trakt_paused">Śledzenie Trakt wstrzymane</string>
+    <string name="player_trakt_failed">Śledzenie Trakt nie powiodło się</string>
+    <string name="player_trakt_sent">Wysłano do Trakt</string>
 </resources>

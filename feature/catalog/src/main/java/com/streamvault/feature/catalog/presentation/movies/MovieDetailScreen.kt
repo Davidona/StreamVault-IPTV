@@ -30,7 +30,9 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +61,11 @@ import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
+import com.streamvault.feature.catalog.presentation.components.TraktRatingSummary
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
@@ -68,6 +75,9 @@ import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.trakt.TraktCustomListItem
+import com.streamvault.domain.trakt.TraktCustomListItemIdentity
+import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.domain.model.VodMovieVariant
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
@@ -86,6 +96,7 @@ fun MovieDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val movie = uiState.movie
     val context = LocalContext.current
+    var ratingDialogOpen by remember(movie?.id) { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -135,6 +146,15 @@ fun MovieDetailScreen(
                 externalRatings = uiState.externalRatings,
                 isLoadingExternalRatings = uiState.isLoadingExternalRatings,
                 relatedContent = uiState.relatedContent,
+                traktWatchlistConnected = uiState.traktWatchlistConnected,
+                traktWatchlistLoaded = uiState.traktWatchlistLoaded,
+                traktWatchlisted = uiState.traktWatchlisted,
+                traktWatchlistBusy = uiState.traktWatchlistBusy,
+                onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+                traktRatingConnected = uiState.traktWatchlistConnected,
+                traktUserRating = uiState.traktUserRating,
+                traktRatingBusy = uiState.traktRatingBusy,
+                onRateOnTrakt = { ratingDialogOpen = true },
                 onPlay = { onPlay(movie) },
                 onCopyUrl = {
                     when (val result = viewModel.resolveCopyStreamUrl()) {
@@ -151,6 +171,17 @@ fun MovieDetailScreen(
                 onBack = onBack,
                 viewModel = viewModel
             )
+            if (ratingDialogOpen) {
+                TraktRatingDialog(
+                    currentRating = uiState.traktUserRating,
+                    busy = uiState.traktRatingBusy,
+                    onDismiss = { ratingDialogOpen = false },
+                    onSelect = { rating ->
+                        ratingDialogOpen = false
+                        viewModel.rateOnTrakt(rating)
+                    },
+                )
+            }
         }
     }
 }
@@ -164,6 +195,15 @@ private fun MovieDetailContent(
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
     relatedContent: List<Movie>,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    traktRatingConnected: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onRateOnTrakt: () -> Unit,
     onPlay: () -> Unit,
     onCopyUrl: suspend () -> String?,
     onDownload: () -> Unit,
@@ -257,6 +297,15 @@ private fun MovieDetailContent(
                             isCasting = isCasting,
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
+                            traktWatchlistConnected = traktWatchlistConnected,
+                            traktWatchlistLoaded = traktWatchlistLoaded,
+                            traktWatchlisted = traktWatchlisted,
+                            traktWatchlistBusy = traktWatchlistBusy,
+                            onToggleTraktWatchlist = onToggleTraktWatchlist,
+                            traktRatingConnected = traktRatingConnected,
+                            traktUserRating = traktUserRating,
+                            traktRatingBusy = traktRatingBusy,
+                            onRateOnTrakt = onRateOnTrakt,
                             onPlay = onPlay,
                             onCopyUrl = {
                                 coroutineScope.launch {
@@ -290,6 +339,15 @@ private fun MovieDetailContent(
                             isCasting = isCasting,
                             externalRatings = externalRatings,
                             isLoadingExternalRatings = isLoadingExternalRatings,
+                            traktWatchlistConnected = traktWatchlistConnected,
+                            traktWatchlistLoaded = traktWatchlistLoaded,
+                            traktWatchlisted = traktWatchlisted,
+                            traktWatchlistBusy = traktWatchlistBusy,
+                            onToggleTraktWatchlist = onToggleTraktWatchlist,
+                            traktRatingConnected = traktRatingConnected,
+                            traktUserRating = traktUserRating,
+                            traktRatingBusy = traktRatingBusy,
+                            onRateOnTrakt = onRateOnTrakt,
                             onPlay = onPlay,
                             onCopyUrl = {
                                 coroutineScope.launch {
@@ -392,6 +450,15 @@ private fun MovieDetailHeroText(
     isCasting: Boolean,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    traktRatingConnected: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onRateOnTrakt: () -> Unit,
     onPlay: () -> Unit,
     onCopyUrl: () -> Unit,
     onDownload: () -> Unit,
@@ -437,6 +504,7 @@ private fun MovieDetailHeroText(
             )
         )
 
+        TraktRatingSummary(traktUserRating)
         ExternalRatingsStrip(
             ratings = externalRatings,
             isLoading = isLoadingExternalRatings
@@ -450,78 +518,106 @@ private fun MovieDetailHeroText(
             onSelectVariant = onSelectVariant
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            TvButton(
-                onClick = onPlay,
-                modifier = Modifier.focusRequester(playButtonFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.Brand,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(
-                    text = if (hasResume) {
-                        stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
-                    } else {
-                        stringResource(R.string.movie_detail_play)
-                    }
-                )
-            }
-            TvButton(
-                onClick = onCopyUrl,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.stream_url_copy))
-            }
-            TvButton(
-                onClick = onDownload,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.download_button_label))
-            }
-            TvButton(
-                onClick = onCast,
-                enabled = !isCasting,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(
-                    stringResource(
-                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
-                    )
-                )
-            }
-            if (hasTrailer) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 TvButton(
-                    onClick = onPlayTrailer,
+                    onClick = onPlay,
+                    modifier = Modifier.focusRequester(playButtonFocusRequester),
+                    colors = ButtonDefaults.colors(
+                        containerColor = AppColors.Brand,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = if (hasResume) {
+                            stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
+                        } else {
+                            stringResource(R.string.movie_detail_play)
+                        }
+                    )
+                }
+                TvButton(
+                    onClick = onCopyUrl,
                     colors = ButtonDefaults.colors(
                         containerColor = AppColors.SurfaceEmphasis,
                         contentColor = AppColors.TextPrimary
                     )
                 ) {
-                    Text(stringResource(R.string.movie_detail_trailer))
+                    Text(stringResource(R.string.stream_url_copy))
+                }
+                TvButton(
+                    onClick = onDownload,
+                    colors = ButtonDefaults.colors(
+                        containerColor = AppColors.SurfaceEmphasis,
+                        contentColor = AppColors.TextPrimary
+                    )
+                ) {
+                    Text(stringResource(R.string.download_button_label))
+                }
+                TvButton(
+                    onClick = onCast,
+                    enabled = !isCasting,
+                    colors = ButtonDefaults.colors(
+                        containerColor = AppColors.SurfaceEmphasis,
+                        contentColor = AppColors.TextPrimary
+                    )
+                ) {
+                    Text(
+                        stringResource(
+                            if (isCasting) R.string.cast_launching else R.string.cast_button_label
+                        )
+                    )
+                }
+                if (hasTrailer) {
+                    TvButton(
+                        onClick = onPlayTrailer,
+                        colors = ButtonDefaults.colors(
+                            containerColor = AppColors.SurfaceEmphasis,
+                            contentColor = AppColors.TextPrimary
+                        )
+                    ) {
+                        Text(stringResource(R.string.movie_detail_trailer))
+                    }
                 }
             }
-            TvIconButton(
-                onClick = onToggleFavorite,
-                colors = ButtonDefaults.colors(
-                    containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    contentColor = if (movie.isFavorite) Color.White else AppColors.TextSecondary
-                )
-            ) {
-                Icon(
-                    imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = stringResource(
-                        if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                TvIconButton(
+                    onClick = onToggleFavorite,
+                    colors = ButtonDefaults.colors(
+                        containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+                        contentColor = if (movie.isFavorite) Color.White else AppColors.TextSecondary
                     )
+                ) {
+                    Icon(
+                        imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = stringResource(
+                            if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
+                        )
+                    )
+                }
+                TraktWatchlistActionButton(
+                    hasIdentity = movie.tmdbId?.let { it > 0L } == true,
+                    connected = traktWatchlistConnected,
+                    loaded = traktWatchlistLoaded,
+                    watchlisted = traktWatchlisted,
+                    busy = traktWatchlistBusy,
+                    onClick = onToggleTraktWatchlist,
+                )
+                TraktRatingActionButton(
+                    hasIdentity = movie.tmdbId?.let { it > 0L } == true,
+                    connected = traktRatingConnected,
+                    busy = traktRatingBusy,
+                    rating = traktUserRating,
+                    onClick = onRateOnTrakt,
+                )
+                TraktCustomListActionButton(
+                    movie.tmdbId?.takeIf { it > 0L }?.let { tmdbId ->
+                        TraktCustomListItem(
+                            identity = TraktCustomListItemIdentity(TraktCustomListItemType.MOVIE, tmdbId),
+                            title = movie.name,
+                            year = movie.releaseDate?.take(4)?.toIntOrNull(),
+                        )
+                    },
                 )
             }
         }

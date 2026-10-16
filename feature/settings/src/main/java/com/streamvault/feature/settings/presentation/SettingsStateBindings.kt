@@ -114,6 +114,10 @@ fun observeSettingsPreferenceSnapshot(
             groupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
             liveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
             vodViewMode = VodViewMode.MODERN,
+            showTraktTrendingMovies = true,
+            showTraktPopularMovies = true,
+            showTraktTrendingSeries = true,
+            showTraktPopularSeries = true,
             vodTypeBadgeAsIcon = false,
             vodCategoryLoadMode = VodCategoryLoadMode.PAGED,
             vodInfiniteScroll = true,
@@ -271,6 +275,14 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(liveVariantPreferenceMode = liveVariantPreferenceMode)
     }.combine(preferencesRepository.vodViewMode) { snapshot, vodViewMode ->
         snapshot.copy(vodViewMode = VodViewMode.fromStorage(vodViewMode))
+    }.combine(preferencesRepository.showTraktTrendingMovies) { snapshot, enabled ->
+        snapshot.copy(showTraktTrendingMovies = enabled)
+    }.combine(preferencesRepository.showTraktPopularMovies) { snapshot, enabled ->
+        snapshot.copy(showTraktPopularMovies = enabled)
+    }.combine(preferencesRepository.showTraktTrendingSeries) { snapshot, enabled ->
+        snapshot.copy(showTraktTrendingSeries = enabled)
+    }.combine(preferencesRepository.showTraktPopularSeries) { snapshot, enabled ->
+        snapshot.copy(showTraktPopularSeries = enabled)
     }.combine(preferencesRepository.vodTypeBadgeAsIcon) { snapshot, vodTypeBadgeAsIcon ->
         snapshot.copy(vodTypeBadgeAsIcon = vodTypeBadgeAsIcon)
     }.combine(preferencesRepository.vodCategoryLoadMode) { snapshot, vodCategoryLoadMode ->

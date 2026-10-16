@@ -196,4 +196,12 @@
     <string name="series_seasons">Mùa</string>
     <string name="settings_recording_status_recording">ghi âm</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Kết nối Trakt trong Cài đặt</string>
+    <string name="player_trakt_not_supported">Trakt chỉ theo dõi phim và tập.</string>
+    <string name="player_trakt_no_match">Không tìm thấy mục Trakt khớp chính xác với tiêu đề này.</string>
+    <string name="player_trakt_starting">Đang bắt đầu theo dõi bằng Trakt…</string>
+    <string name="player_trakt_tracking">Trakt đang theo dõi nội dung phát</string>
+    <string name="player_trakt_paused">Đã tạm dừng theo dõi Trakt</string>
+    <string name="player_trakt_failed">Theo dõi Trakt thất bại</string>
+    <string name="player_trakt_sent">Đã gửi đến Trakt</string>
 </resources>

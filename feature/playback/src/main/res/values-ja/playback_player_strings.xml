@@ -196,4 +196,12 @@
     <string name="series_seasons">シーズン</string>
     <string name="settings_recording_status_recording">録画中</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">設定で Trakt に接続</string>
+    <string name="player_trakt_not_supported">Trakt が追跡するのは映画とエピソードのみです。</string>
+    <string name="player_trakt_no_match">この作品に一致する Trakt タイトルが見つかりません。</string>
+    <string name="player_trakt_starting">Trakt の追跡を開始中…</string>
+    <string name="player_trakt_tracking">Trakt が再生を追跡中</string>
+    <string name="player_trakt_paused">Trakt の追跡を一時停止中</string>
+    <string name="player_trakt_failed">Trakt の追跡に失敗しました</string>
+    <string name="player_trakt_sent">Trakt に送信しました</string>
 </resources>

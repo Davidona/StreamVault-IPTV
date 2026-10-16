@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">بدّل مصادر IPTV الخاصة بك، وزامنها، وعدّلها، واستكشف أخطاءها.</string>
 <string name="settings_title">الإعدادات</string>
+<string name="dashboard_trakt_watchlist_movies">قائمة Trakt للأفلام</string>
+<string name="dashboard_trakt_watchlist_series">قائمة Trakt للمسلسلات</string>
 </resources>

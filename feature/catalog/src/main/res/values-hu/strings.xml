@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Szinkronizálás szükséges</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Hozzáadás a Trakt megtekintendő listájához</string>
+  <string name="trakt_watchlist_connect">Csatlakoztasd a Traktot a Beállításokban</string>
+  <string name="trakt_watchlist_failed">Nem sikerült frissíteni a Trakt listáját. Próbáld újra.</string>
+  <string name="trakt_watchlist_load">Trakt lista betöltése</string>
+  <string name="trakt_watchlist_remove">Eltávolítás a Trakt listájáról</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Értékelés Trakton</string>
+  <string name="trakt_rating_dialog_message">Válassz értékelést 1-től 10-ig.</string>
+  <string name="trakt_rating_current">Trakt-értékelésed: %1$d/10</string>
+  <string name="trakt_rating_saved">Az értékelésed mentve a Traktra.</string>
+  <string name="trakt_rating_failed">Nem sikerült menteni az értékelésedet a Traktra.</string>
+  <string name="trakt_favorite_sync_failed">A StreamVault mentette a módosítást, de nem sikerült frissítenie a Trakt kedvenceket. Próbáld újra.</string>
 </resources>

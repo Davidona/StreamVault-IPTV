@@ -513,7 +513,7 @@ data class SeriesFtsEntity(
     indices = [
         Index(value = ["series_id"]),
         Index(value = ["provider_id"]),
-        Index(value = ["provider_id", "episode_id"], unique = true)
+        Index(value = ["provider_id", "series_id", "episode_id"], unique = true)
     ]
 )
 data class EpisodeEntity(

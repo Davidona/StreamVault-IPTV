@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Απαιτείται συγχρονισμός</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Προσθήκη στη λίστα παρακολούθησης Trakt</string>
+  <string name="trakt_watchlist_connect">Συνδέστε το Trakt από τις Ρυθμίσεις</string>
+  <string name="trakt_watchlist_failed">Δεν ήταν δυνατή η ενημέρωση της λίστας Trakt. Δοκιμάστε ξανά.</string>
+  <string name="trakt_watchlist_load">Φόρτωση λίστας Trakt</string>
+  <string name="trakt_watchlist_remove">Αφαίρεση από τη λίστα Trakt</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Βαθμολόγηση στο Trakt</string>
+  <string name="trakt_rating_dialog_message">Επιλέξτε βαθμολογία από 1 έως 10.</string>
+  <string name="trakt_rating_current">Η βαθμολογία σας στο Trakt: %1$d/10</string>
+  <string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
+  <string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
+  <string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
 </resources>

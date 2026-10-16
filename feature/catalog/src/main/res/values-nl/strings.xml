@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Synchronisatie vereist</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Toevoegen aan Trakt-volglijst</string>
+  <string name="trakt_watchlist_connect">Verbind Trakt via Instellingen</string>
+  <string name="trakt_watchlist_failed">De Trakt-volglijst kon niet worden bijgewerkt. Probeer het opnieuw.</string>
+  <string name="trakt_watchlist_load">Trakt-volglijst laden</string>
+  <string name="trakt_watchlist_remove">Verwijderen van Trakt-volglijst</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Beoordeel op Trakt</string>
+  <string name="trakt_rating_dialog_message">Kies een beoordeling van 1 tot 10.</string>
+  <string name="trakt_rating_current">Je Trakt-beoordeling: %1$d/10</string>
+  <string name="trakt_rating_saved">Je beoordeling is opgeslagen op Trakt.</string>
+  <string name="trakt_rating_failed">Je beoordeling kon niet op Trakt worden opgeslagen.</string>
+  <string name="trakt_favorite_sync_failed">StreamVault heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
 </resources>

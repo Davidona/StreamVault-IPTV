@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">IPTVソースの切り替え、同期、編集、トラブルシュートを行います。</string>
 <string name="settings_title">設定</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+<string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
 </resources>

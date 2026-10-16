@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">Cambia, sincronizza, modifica e risolvi i problemi delle tue sorgenti IPTV.</string>
 <string name="settings_title">Impostazioni</string>
+<string name="dashboard_trakt_watchlist_movies">Film nella watchlist Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Serie nella watchlist Trakt</string>
 </resources>

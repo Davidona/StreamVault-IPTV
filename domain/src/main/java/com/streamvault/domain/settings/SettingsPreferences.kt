@@ -410,6 +410,22 @@ interface SettingsPreferences {
 
     suspend fun setVodPortalSearch(enabled: Boolean)
 
+    val showTraktTrendingMovies: Flow<Boolean>
+
+    suspend fun setShowTraktTrendingMovies(enabled: Boolean)
+
+    val showTraktPopularMovies: Flow<Boolean>
+
+    suspend fun setShowTraktPopularMovies(enabled: Boolean)
+
+    val showTraktTrendingSeries: Flow<Boolean>
+
+    suspend fun setShowTraktTrendingSeries(enabled: Boolean)
+
+    val showTraktPopularSeries: Flow<Boolean>
+
+    suspend fun setShowTraktPopularSeries(enabled: Boolean)
+
     val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode>
 
     suspend fun setVodCategoryLoadMode(mode: com.streamvault.domain.model.VodCategoryLoadMode)

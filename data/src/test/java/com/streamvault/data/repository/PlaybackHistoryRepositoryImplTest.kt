@@ -8,6 +8,7 @@ import com.streamvault.data.local.dao.PlaybackHistoryDao
 import com.streamvault.data.local.entity.PlaybackHistoryEntity
 import com.streamvault.data.local.entity.PlaybackHistoryLiteEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.mapper.toEntity
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.PlaybackWatchedStatus
@@ -26,6 +27,45 @@ import org.mockito.kotlin.whenever
 import org.mockito.kotlin.check
 
 class PlaybackHistoryRepositoryImplTest {
+    @Test fun `Trakt import respects current incognito preference without waiting for state collection`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(true))
+        val identity = com.streamvault.domain.trakt.TraktMediaIdentity.MovieId(603)
+        assertThat(repository().importTraktHistory(movieHistory(), identity,
+            com.streamvault.domain.trakt.TraktHistoryMatch(identity, 2000, 1)).getOrNull()).isFalse()
+        verify(historyDao, never()).insertOrUpdate(org.mockito.kotlin.any())
+    }
+    @Test fun `Trakt import is idempotent and preserves remote time count and completion`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(false))
+        val original = movieHistory().copy(lastWatchedAt = 1000, watchCount = 4)
+        var stored = original.toEntity()
+        whenever(historyDao.get(10, ContentType.MOVIE.name, 5)).thenAnswer { stored }
+        org.mockito.kotlin.doAnswer {
+            stored = it.getArgument(0)
+            Unit
+        }.whenever(historyDao).insertOrUpdate(org.mockito.kotlin.any())
+        val repository = repository()
+        val identity = com.streamvault.domain.trakt.TraktMediaIdentity.MovieId(603)
+        val match = com.streamvault.domain.trakt.TraktHistoryMatch(identity, 2000, 2)
+        assertThat(repository.importTraktHistory(original, identity, match).getOrNull()).isTrue()
+        assertThat(repository.importTraktHistory(original, identity, match).getOrNull()).isFalse()
+        assertThat(stored.lastWatchedAt).isEqualTo(2000)
+        assertThat(stored.watchCount).isEqualTo(4)
+        assertThat(stored.resumePositionMs).isEqualTo(original.totalDurationMs)
+        assertThat(stored.watchedStatus).isEqualTo(PlaybackWatchedStatus.COMPLETED_AUTO.name)
+        verify(historyDao, times(1)).insertOrUpdate(org.mockito.kotlin.any())
+        verify(movieDao, times(1)).syncWatchProgressFromHistory(10, 5)
+    }
+
+    @Test fun `Trakt import rechecks persisted newer progress before writing`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(false))
+        val base = movieHistory().copy(lastWatchedAt = 1000)
+        val newer = base.copy(lastWatchedAt = 3000)
+        whenever(historyDao.get(10, ContentType.MOVIE.name, 5)).thenReturn(newer.toEntity())
+        val identity = com.streamvault.domain.trakt.TraktMediaIdentity.MovieId(603)
+        assertThat(repository().importTraktHistory(base, identity,
+            com.streamvault.domain.trakt.TraktHistoryMatch(identity, 2000, 1)).getOrNull()).isFalse()
+        verify(historyDao, never()).insertOrUpdate(org.mockito.kotlin.any())
+    }
 
     private val historyDao: PlaybackHistoryDao = mock()
     private val preferencesRepository: PreferencesRepository = mock()

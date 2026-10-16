@@ -35,6 +35,10 @@ import com.streamvault.domain.usecase.GetContinueWatching
 import com.streamvault.domain.usecase.GetCustomCategories
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStatus
+import com.streamvault.domain.trakt.TraktAccount
+import com.streamvault.domain.trakt.TraktWatchlist
+import com.streamvault.domain.trakt.TraktWatchlistState
+import com.streamvault.domain.trakt.TraktWatchlistType
 import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -74,7 +78,9 @@ class DashboardViewModel @Inject constructor(
     private val getCustomCategories: GetCustomCategories,
     private val syncManager: ProviderSyncStateSource,
     private val appUpdatePort: CatalogAppUpdatePort,
-    private val recordingManager: RecordingManager
+    private val recordingManager: RecordingManager,
+    private val traktAccount: TraktAccount,
+    private val traktWatchlist: TraktWatchlist
 ) : ViewModel() {
     private companion object {
         const val FAVORITE_CHANNEL_LIMIT = 12
@@ -95,6 +101,15 @@ class DashboardViewModel @Inject constructor(
     val scheduledChannelIds: StateFlow<Set<Long>> = _scheduledChannelIds.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            traktAccount.state
+                .map { state -> state.username.takeIf { state.connected } }
+                .distinctUntilChanged()
+                .collect { username ->
+                    if (username != null) traktWatchlist.refresh()
+                }
+        }
+        viewModelScope.launch { traktWatchlist.refresh() }
         viewModelScope.launch {
             recordingManager.observeRecordingItems().collect { items ->
                 _recordingChannelIds.value = items
@@ -264,6 +279,67 @@ class DashboardViewModel @Inject constructor(
                 .filter { !shouldHideVodFromHome(it, level) }
                 .take(SERIES_SHELF_LIMIT)
         }
+        val activeTraktWatchlistState = combine(traktAccount.state, traktWatchlist.state) { account, watchlist ->
+            if (account.connected && account.username == watchlist.accountUsername) {
+                watchlist
+            } else {
+                TraktWatchlistState(accountUsername = account.username, connected = account.connected)
+            }
+        }.distinctUntilChanged()
+        val traktWatchlistMoviesShelf = combine(
+            activeTraktWatchlistState,
+            preferencesRepository.parentalControlLevel
+        ) { watchlist, level -> watchlist to level }
+            .flatMapLatest { (watchlist, level) ->
+                val movieTmdbIds = watchlist.items.asSequence()
+                    .filter { it.type == TraktWatchlistType.MOVIE }
+                    .map { it.tmdbId }
+                    .toList()
+                if (movieTmdbIds.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    flow {
+                        val movies = movieRepository.getMoviesByTmdbIds(provider.id, movieTmdbIds)
+                        emit(
+                            orderedWatchlistItems(
+                                watchlistItems = watchlist.items,
+                                type = TraktWatchlistType.MOVIE,
+                                catalogItems = movies.filter { !shouldHideVodFromHome(it, level) },
+                                tmdbIdOf = Movie::tmdbId,
+                                idOf = Movie::id,
+                                limit = MOVIE_SHELF_LIMIT
+                            )
+                        )
+                    }
+                }
+            }
+        val traktWatchlistSeriesShelf = combine(
+            activeTraktWatchlistState,
+            preferencesRepository.parentalControlLevel
+        ) { watchlist, level -> watchlist to level }
+            .flatMapLatest { (watchlist, level) ->
+                val seriesTmdbIds = watchlist.items.asSequence()
+                    .filter { it.type == TraktWatchlistType.SHOW }
+                    .map { it.tmdbId }
+                    .toList()
+                if (seriesTmdbIds.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    flow {
+                        val series = seriesRepository.getSeriesByTmdbIds(provider.id, seriesTmdbIds)
+                        emit(
+                            orderedWatchlistItems(
+                                watchlistItems = watchlist.items,
+                                type = TraktWatchlistType.SHOW,
+                                catalogItems = series.filter { !shouldHideVodFromHome(it, level) },
+                                tmdbIdOf = Series::tmdbId,
+                                idOf = Series::id,
+                                limit = SERIES_SHELF_LIMIT
+                            )
+                        )
+                    }
+                }
+            }
         val baseContentShelves = combine(
             observeFavoriteChannels(liveProviderIds).onStart { emit(emptyList()) },
             observeRecentChannels(liveProviderIds).onStart { emit(emptyList()) },
@@ -309,11 +385,15 @@ class DashboardViewModel @Inject constructor(
         val contentShelvesWithPinned = combine(
             contentShelves,
             pinnedMovieCategoriesShelf,
-            pinnedSeriesCategoriesShelf
-        ) { shelves, pinnedMovies, pinnedSeries ->
+            pinnedSeriesCategoriesShelf,
+            traktWatchlistMoviesShelf.onStart { emit(emptyList()) },
+            traktWatchlistSeriesShelf.onStart { emit(emptyList()) }
+        ) { shelves, pinnedMovies, pinnedSeries, watchlistMovies, watchlistSeries ->
             shelves.copy(
                 pinnedMovieCategories = pinnedMovies,
-                pinnedSeriesCategories = pinnedSeries
+                pinnedSeriesCategories = pinnedSeries,
+                traktWatchlistMovies = watchlistMovies,
+                traktWatchlistSeries = watchlistSeries
             )
         }
 
@@ -361,6 +441,8 @@ class DashboardViewModel @Inject constructor(
                 continueWatchingDegraded = snapshot.shelves.continueWatchingDegraded,
                 favoriteMovies = snapshot.shelves.favoriteMovies,
                 favoriteSeries = snapshot.shelves.favoriteSeries,
+                traktWatchlistMovies = snapshot.shelves.traktWatchlistMovies,
+                traktWatchlistSeries = snapshot.shelves.traktWatchlistSeries,
                 recentMovies = snapshot.shelves.recentMovies,
                 recentSeries = snapshot.shelves.recentSeries,
                 topRatedMovies = snapshot.shelves.topRatedMovies,
@@ -868,6 +950,8 @@ private data class DashboardContentShelves(
     val continueWatchingDegraded: Boolean = false,
     val favoriteMovies: List<Movie> = emptyList(),
     val favoriteSeries: List<Series> = emptyList(),
+    val traktWatchlistMovies: List<Movie> = emptyList(),
+    val traktWatchlistSeries: List<Series> = emptyList(),
     val recentMovies: List<Movie>,
     val recentSeries: List<Series>,
     val topRatedMovies: List<Movie> = emptyList(),
@@ -900,6 +984,8 @@ data class DashboardUiState(
     val continueWatchingDegraded: Boolean = false,
     val favoriteMovies: List<Movie> = emptyList(),
     val favoriteSeries: List<Series> = emptyList(),
+    val traktWatchlistMovies: List<Movie> = emptyList(),
+    val traktWatchlistSeries: List<Series> = emptyList(),
     val recentMovies: List<Movie> = emptyList(),
     val recentSeries: List<Series> = emptyList(),
     val topRatedMovies: List<Movie> = emptyList(),

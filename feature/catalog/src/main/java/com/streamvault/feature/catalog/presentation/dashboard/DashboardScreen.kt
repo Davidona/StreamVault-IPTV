@@ -290,6 +290,28 @@ fun DashboardScreen(
                         )
                     }
 
+                    AppHomeDashboardShelf.TRAKT_WATCHLIST_MOVIES -> CategoryRow(
+                        title = stringResource(R.string.dashboard_trakt_watchlist_movies),
+                        items = uiState.traktWatchlistMovies,
+                        keySelector = { it.id },
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
+                    ) { movie ->
+                        MovieCard(movie = movie, onClick = { onMovieClick(movie) })
+                    }
+
+                    AppHomeDashboardShelf.TRAKT_WATCHLIST_SERIES -> CategoryRow(
+                        title = stringResource(R.string.dashboard_trakt_watchlist_series),
+                        items = uiState.traktWatchlistSeries,
+                        keySelector = { it.id },
+                        onSeeAll = { onDestinationRequested(AppDestination.Series) }
+                    ) { series ->
+                        SeriesCard(
+                            series = series,
+                            subtitle = series.releaseDate ?: stringResource(R.string.dashboard_updated_series_badge),
+                            onClick = { onSeriesClick(series) }
+                        )
+                    }
+
                     AppHomeDashboardShelf.CONTINUE_WATCHING_MOVIES -> ContinueWatchingRow(
                         title = stringResource(R.string.dashboard_continue_watching_movies),
                         items = uiState.continueWatchingMovies,
@@ -941,6 +963,8 @@ private fun rememberDashboardSections(
         uiState.continueWatchingSeriesItems,
         uiState.favoriteMovies,
         uiState.favoriteSeries,
+        uiState.traktWatchlistMovies,
+        uiState.traktWatchlistSeries,
         uiState.recentMovies,
         uiState.recentSeries,
         uiState.topRatedMovies,

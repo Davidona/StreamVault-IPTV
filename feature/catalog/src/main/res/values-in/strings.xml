@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Sinkronisasi diperlukan</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Tambahkan ke daftar tontonan Trakt</string>
+  <string name="trakt_watchlist_connect">Hubungkan Trakt di Setelan</string>
+  <string name="trakt_watchlist_failed">Tidak dapat memperbarui daftar tontonan Trakt. Coba lagi.</string>
+  <string name="trakt_watchlist_load">Muat daftar tontonan Trakt</string>
+  <string name="trakt_watchlist_remove">Hapus dari daftar tontonan Trakt</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Beri nilai di Trakt</string>
+  <string name="trakt_rating_dialog_message">Pilih nilai dari 1 sampai 10.</string>
+  <string name="trakt_rating_current">Nilai Trakt Anda: %1$d/10</string>
+  <string name="trakt_rating_saved">Nilai Anda tersimpan di Trakt.</string>
+  <string name="trakt_rating_failed">Nilai Anda tidak dapat disimpan di Trakt.</string>
+  <string name="trakt_favorite_sync_failed">StreamVault menyimpan perubahan, tetapi tidak dapat memperbarui Favorit Trakt. Coba lagi.</string>
 </resources>

@@ -196,4 +196,12 @@
     <string name="series_seasons">Musim</string>
     <string name="settings_recording_status_recording">Rekaman</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Hubungkan Trakt di Setelan</string>
+    <string name="player_trakt_not_supported">Trakt hanya melacak film dan episode.</string>
+    <string name="player_trakt_no_match">Judul ini tidak memiliki kecocokan tepat di Trakt.</string>
+    <string name="player_trakt_starting">Memulai pelacakan Trakt…</string>
+    <string name="player_trakt_tracking">Trakt sedang melacak pemutaran</string>
+    <string name="player_trakt_paused">Pelacakan Trakt dijeda</string>
+    <string name="player_trakt_failed">Pelacakan Trakt gagal</string>
+    <string name="player_trakt_sent">Terkirim ke Trakt</string>
 </resources>

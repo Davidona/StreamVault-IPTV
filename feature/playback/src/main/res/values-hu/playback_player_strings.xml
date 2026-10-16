@@ -196,4 +196,12 @@
     <string name="series_seasons">Évszakok</string>
     <string name="settings_recording_status_recording">Felvétel</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Csatlakoztasd a Traktot a Beállításokban</string>
+    <string name="player_trakt_not_supported">A Trakt csak filmeket és epizódokat követ.</string>
+    <string name="player_trakt_no_match">Nincs pontos Trakt-találat ehhez a címhez.</string>
+    <string name="player_trakt_starting">Trakt-követés indítása…</string>
+    <string name="player_trakt_tracking">A Trakt követi a lejátszást</string>
+    <string name="player_trakt_paused">A Trakt-követés szünetel</string>
+    <string name="player_trakt_failed">A Trakt-követés nem sikerült</string>
+    <string name="player_trakt_sent">Elküldve a Traktnak</string>
 </resources>

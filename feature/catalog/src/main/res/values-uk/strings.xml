@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">Необхідна синхронізація</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">Додати до списку перегляду Trakt</string>
+  <string name="trakt_watchlist_connect">Підключіть Trakt у налаштуваннях</string>
+  <string name="trakt_watchlist_failed">Не вдалося оновити список Trakt. Спробуйте ще раз.</string>
+  <string name="trakt_watchlist_load">Завантажити список Trakt</string>
+  <string name="trakt_watchlist_remove">Видалити зі списку Trakt</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">Оцінити в Trakt</string>
+  <string name="trakt_rating_dialog_message">Виберіть оцінку від 1 до 10.</string>
+  <string name="trakt_rating_current">Ваша оцінка в Trakt: %1$d/10</string>
+  <string name="trakt_rating_saved">Оцінку збережено в Trakt.</string>
+  <string name="trakt_rating_failed">Не вдалося зберегти оцінку в Trakt.</string>
+  <string name="trakt_favorite_sync_failed">StreamVault зберіг зміни, але не зміг оновити обране Trakt. Спробуйте ще раз.</string>
 </resources>

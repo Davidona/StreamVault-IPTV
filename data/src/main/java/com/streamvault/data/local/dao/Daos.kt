@@ -976,6 +976,12 @@ interface TmdbIdentityDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface MovieDao {
+    @Query("SELECT * FROM movies WHERE id IN (:ids) AND provider_id > 0")
+    suspend fun getByIdsSync(ids: List<Long>): List<MovieEntity>
+    @Query("SELECT * FROM movies WHERE tmdb_id IN (:ids) AND provider_id > 0")
+    suspend fun getByTmdbIdsSync(ids: List<Long>): List<MovieEntity>
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND tmdb_id IN (:ids)")
+    suspend fun getByProviderTmdbIdsSync(providerId: Long, ids: List<Long>): List<MovieEntity>
     @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<MovieBrowseEntity>>
 
@@ -1880,6 +1886,12 @@ interface MovieDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface SeriesDao {
+    @Query("SELECT * FROM series WHERE id IN (:ids) AND provider_id > 0")
+    suspend fun getByIdsSync(ids: List<Long>): List<SeriesEntity>
+    @Query("SELECT * FROM series WHERE tmdb_id IN (:ids) AND provider_id > 0")
+    suspend fun getByTmdbIdsSync(ids: List<Long>): List<SeriesEntity>
+    @Query("SELECT * FROM series WHERE provider_id = :providerId AND tmdb_id IN (:ids)")
+    suspend fun getByProviderTmdbIdsSync(providerId: Long, ids: List<Long>): List<SeriesEntity>
     @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY last_modified DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<SeriesBrowseEntity>>
 
@@ -2901,6 +2913,7 @@ interface EpisodeDao {
            AND playback_history.provider_id = episodes.provider_id
         WHERE episodes.provider_id = :providerId
           AND episodes.series_id = :seriesId
+          AND COALESCE(playback_history.watched_status, 'IN_PROGRESS') = 'IN_PROGRESS'
           AND (
               COALESCE(playback_history.total_duration_ms, episodes.duration_seconds * 1000) <= 0
               OR COALESCE(playback_history.resume_position_ms, episodes.watch_progress) < CAST(
@@ -3524,8 +3537,11 @@ interface VirtualGroupDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface PlaybackHistoryDao {
-    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC LIMIT :limit")
+    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit")
     fun getRecentlyWatched(limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>
+
+    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit OFFSET :offset")
+    fun getRecentlyWatchedPage(limit: Int, offset: Int): Flow<List<PlaybackHistoryLiteEntity>>
 
     @Query("SELECT * FROM playback_history WHERE provider_id = :providerId ORDER BY last_watched_at DESC LIMIT :limit")
     fun getRecentlyWatchedByProvider(providerId: Long, limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>

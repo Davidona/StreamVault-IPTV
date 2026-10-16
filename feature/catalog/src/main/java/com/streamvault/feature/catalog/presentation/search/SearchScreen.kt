@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,6 +70,11 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.SearchContent
 import com.streamvault.domain.usecase.SearchContentScope
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteFailure
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.util.AdultContentVisibilityPolicy
@@ -89,7 +96,8 @@ class SearchViewModel @Inject constructor(
     private val parentalControlManager: ParentalControlManager,
     private val favoriteRepository: FavoriteRepository,
     private val categoryRepository: CategoryRepository,
-    private val recordingManager: RecordingManager
+    private val recordingManager: RecordingManager,
+    private val traktFavorites: TraktFavorites,
 ) : ViewModel() {
     private companion object {
         const val MAX_RESULTS_PER_SECTION = 120
@@ -110,6 +118,9 @@ class SearchViewModel @Inject constructor(
 
     private val _scheduledChannelIds = MutableStateFlow<Set<Long>>(emptySet())
     val scheduledChannelIds: StateFlow<Set<Long>> = _scheduledChannelIds.asStateFlow()
+
+    private val _userMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val userMessages = _userMessages.asSharedFlow()
 
     private val unlockedCategoryIds = providerRepository.getActiveProvider()
         .onEach { provider -> _activeProviderId.value = provider?.id }
@@ -280,13 +291,34 @@ class SearchViewModel @Inject constructor(
 
     // ג”€ג”€ Search item long-press actions ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
 
-    fun toggleFavorite(contentId: Long, contentType: ContentType, currentlyFavorite: Boolean) {
+    fun toggleFavorite(
+        contentId: Long,
+        contentType: ContentType,
+        currentlyFavorite: Boolean,
+        tmdbId: Long? = null,
+    ) {
         viewModelScope.launch {
             val providerId = _activeProviderId.value ?: return@launch
+            val favorited = !currentlyFavorite
             if (currentlyFavorite) {
                 favoriteRepository.removeFavorite(providerId, contentId, contentType)
             } else {
                 favoriteRepository.addFavorite(providerId, contentId, contentType)
+            }
+            val traktType = when (contentType) {
+                ContentType.MOVIE -> TraktFavoriteType.MOVIE
+                ContentType.SERIES -> TraktFavoriteType.SHOW
+                else -> null
+            }
+            val traktId = tmdbId?.takeIf { it > 0L }
+            if (traktType != null && traktId != null) {
+                when (val result = traktFavorites.setFavorited(TraktFavoriteIdentity(traktType, traktId), favorited)) {
+                    TraktFavoriteActionResult.Success -> Unit
+                    is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
+                        result.reason != TraktFavoriteFailure.INCOGNITO) {
+                        _userMessages.emit("StreamVault saved the change, but could not update Trakt Favorites. Try again.")
+                    }
+                }
             }
         }
     }
@@ -387,8 +419,13 @@ fun SearchScreen(
     var pendingMovie by remember { mutableStateOf<Movie?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val selectedStateLabel = stringResource(R.string.a11y_selected)
     val incorrectPinMessage = stringResource(R.string.search_incorrect_pin)
+
+    LaunchedEffect(viewModel) {
+        viewModel.userMessages.collect { message -> snackbarHostState.showSnackbar(message) }
+    }
 
     // ג”€ג”€ Long-press actions dialog state ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
     var showActionsDialog by remember { mutableStateOf(false) }
@@ -518,7 +555,12 @@ fun SearchScreen(
             hasCategoryId = actionsCategoryId != null,
             onDismiss = { showActionsDialog = false },
             onToggleFavorite = {
-                viewModel.toggleFavorite(actionsItemId, actionsContentType, actionsIsFavorite)
+                viewModel.toggleFavorite(
+                    actionsItemId,
+                    actionsContentType,
+                    actionsIsFavorite,
+                    actionsMovie?.tmdbId ?: actionsSeries?.tmdbId,
+                )
                 actionsIsFavorite = !actionsIsFavorite
             },
             onHide = if (actionsCategoryId != null) {
@@ -549,6 +591,7 @@ fun SearchScreen(
         true,
         false
     ) {
+        Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -816,6 +859,11 @@ fun SearchScreen(
                     }
                 }
             }
+        }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
+            )
         }
     }
 }

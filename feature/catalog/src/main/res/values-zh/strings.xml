@@ -351,4 +351,17 @@
   <string name="vod_sync_needed_title">需要同步</string>
   <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
   <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="trakt_watchlist_add">添加到 Trakt 稍后观看列表</string>
+  <string name="trakt_watchlist_connect">在设置中连接 Trakt</string>
+  <string name="trakt_watchlist_failed">无法更新 Trakt 列表，请重试。</string>
+  <string name="trakt_watchlist_load">加载 Trakt 稍后观看列表</string>
+  <string name="trakt_watchlist_remove">从 Trakt 列表中移除</string>
+  <string name="dashboard_trakt_watchlist_movies">Trakt Watchlist Movies</string>
+  <string name="dashboard_trakt_watchlist_series">Trakt Watchlist Series</string>
+  <string name="trakt_rating_action">在 Trakt 上评分</string>
+  <string name="trakt_rating_dialog_message">选择 1 到 10 之间的评分。</string>
+  <string name="trakt_rating_current">你的 Trakt 评分：%1$d/10</string>
+  <string name="trakt_rating_saved">评分已保存到 Trakt。</string>
+  <string name="trakt_rating_failed">无法将评分保存到 Trakt。</string>
+  <string name="trakt_favorite_sync_failed">StreamVault 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
 </resources>

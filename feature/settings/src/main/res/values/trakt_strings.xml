@@ -1,0 +1,69 @@
+<resources>
+    <string name="trakt_sync_now" translatable="false">Sync Now</string>
+    <string name="trakt_sync_description" translatable="false">Sync watched movies and episodes with Trakt. Newer local progress and manual completion are preserved.</string>
+    <string name="trakt_sync_complete" translatable="false">Imported %1$d · Uploaded %2$d · Unchanged %3$d · Unmatched %4$d · Skipped %5$d</string>
+    <string name="trakt_sync_failed" translatable="false">Sync could not finish. Trakt history is checked before another upload.</string>
+    <string name="trakt_sync_limit" translatable="false">Your history exceeds this sync’s limit. No items were imported.</string>
+    <string name="trakt_sync_incognito" translatable="false">Turn off Incognito mode to sync watch history.</string>
+    <string name="trakt_sync_more_uploads" translatable="false">There may be more local history to upload. Select Sync Now again to continue.</string>
+    <string name="settings_trakt" translatable="false">Trakt</string>
+    <string name="settings_trakt_description" translatable="false">Connect your Trakt account and sync watched history.</string>
+    <string name="trakt_connect" translatable="false">Connect Trakt</string>
+    <string name="trakt_disconnect" translatable="false">Disconnect</string>
+    <string name="trakt_connected" translatable="false">Connected</string>
+    <string name="trakt_disconnected" translatable="false">Disconnected</string>
+    <string name="trakt_refresh_profile" translatable="false">Refresh profile</string>
+    <string name="trakt_profile_name" translatable="false">Name: %1$s</string>
+    <string name="trakt_profile_location" translatable="false">Location: %1$s</string>
+    <string name="trakt_profile_joined" translatable="false">Joined Trakt: %1$s</string>
+    <string name="trakt_profile_gender" translatable="false">Gender: %1$s</string>
+    <string name="trakt_profile_age" translatable="false">Age: %1$d</string>
+    <string name="trakt_profile_vip" translatable="false">Trakt VIP</string>
+    <string name="trakt_profile_about" translatable="false">About: %1$s</string>
+    <string name="trakt_scrobbling_setting" translatable="false">Playback scrobbling</string>
+    <string name="trakt_history_sync_setting" translatable="false">History import and upload</string>
+    <string name="trakt_setting_enabled" translatable="false">On</string>
+    <string name="trakt_setting_disabled" translatable="false">Off</string>
+    <string name="trakt_import_favorites" translatable="false">Import Trakt favorites to this provider</string>
+    <string name="trakt_import_favorites_result" translatable="false">Added %1$d · Already favorited %2$d · Not in provider %3$d · Skipped %4$d</string>
+    <string name="trakt_favorites_import_failed" translatable="false">Could not finish importing Trakt favorites. Added so far: %1$d.</string>
+    <string name="trakt_favorites_connect_first" translatable="false">Connect Trakt before importing favorites.</string>
+    <string name="trakt_favorites_incognito" translatable="false">Turn off Incognito mode to import Trakt favorites.</string>
+    <string name="trakt_favorites_provider_required" translatable="false">Select an active provider before importing favorites.</string>
+    <string name="trakt_favorites_too_large" translatable="false">This Trakt favorites list exceeds the import limit. Nothing was imported.</string>
+    <string name="trakt_cancel" translatable="false">Cancel sign-in</string>
+    <string name="trakt_complete_browser" translatable="false">Complete sign-in in your browser.</string>
+    <string name="trakt_configuration_required" translatable="false">Trakt sign-in is not configured for this build.</string>
+    <string name="trakt_sign_in_failed" translatable="false">Could not connect to Trakt. Please try again.</string>
+    <string name="trakt_browser_required" translatable="false">Install a browser on this device, then try connecting to Trakt again.</string>
+    <string name="trakt_network_error" translatable="false">Could not reach Trakt. Try again when connected.</string>
+    <string name="trakt_reconnect_required" translatable="false">Your Trakt session has expired. Please reconnect.</string>
+    <string name="trakt_rate_limited" translatable="false">Trakt is busy. Please try again later.</string>
+    <string name="trakt_custom_lists_title" translatable="false">Custom Trakt lists</string>
+    <string name="trakt_custom_lists_description" translatable="false">Manage your lists, change their order, and remove items. Movie and show details can add movies, shows, seasons, or episodes.</string>
+    <string name="trakt_custom_lists_refresh" translatable="false">Refresh lists</string>
+    <string name="trakt_custom_lists_create" translatable="false">Create private list</string>
+    <string name="trakt_custom_lists_name" translatable="false">List name</string>
+    <string name="trakt_custom_lists_optional_description" translatable="false">Description (optional)</string>
+    <string name="trakt_custom_lists_private_note" translatable="false">New lists are private on Trakt.</string>
+    <string name="trakt_custom_lists_not_loaded" translatable="false">Refresh to load your lists.</string>
+    <string name="trakt_custom_lists_no_items" translatable="false">This list has no supported movie, show, season, or episode items.</string>
+    <string name="trakt_custom_list_open_with_privacy" translatable="false">%1$s · %2$d items · %3$s</string>
+    <string name="trakt_custom_lists_loading" translatable="false">Loading list information…</string>
+    <string name="trakt_custom_lists_empty" translatable="false">You have no custom lists yet. Create one above.</string>
+    <string name="trakt_custom_lists_connect_first" translatable="false">Connect Trakt in Settings to use your lists.</string>
+    <string name="trakt_custom_lists_failed" translatable="false">Could not load or update this Trakt list. Try again.</string>
+    <string name="trakt_custom_lists_incognito" translatable="false">Trakt lists are unavailable while Incognito mode is on.</string>
+    <string name="trakt_custom_lists_too_large" translatable="false">This list is too large to load completely in StreamVault.</string>
+    <string name="trakt_custom_list_remove_item" translatable="false">Remove</string>
+    <string name="trakt_custom_lists_delete" translatable="false">Delete</string>
+    <string name="trakt_custom_lists_delete_title" translatable="false">Delete this Trakt list?</string>
+    <string name="trakt_custom_lists_delete_message" translatable="false">“%1$s” and all of its items will be deleted from your Trakt account.</string>
+    <string name="trakt_custom_lists_move_up" translatable="false">Move up</string>
+    <string name="trakt_custom_lists_move_down" translatable="false">Move down</string>
+    <string name="trakt_custom_list_items_truncated" translatable="false">Showing the first 200 items.</string>
+    <plurals name="trakt_sync_imported_count" translatable="false">
+        <item quantity="one">%1$d local item imported.</item>
+        <item quantity="other">%1$d local items imported.</item>
+    </plurals>
+</resources>

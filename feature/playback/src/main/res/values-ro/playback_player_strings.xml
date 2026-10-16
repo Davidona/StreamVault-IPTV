@@ -196,4 +196,12 @@
     <string name="series_seasons">anotimpuri</string>
     <string name="settings_recording_status_recording">Înregistrare</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Conectează Trakt din Setări</string>
+    <string name="player_trakt_not_supported">Trakt urmărește doar filme și episoade.</string>
+    <string name="player_trakt_no_match">Nu există o potrivire exactă în Trakt pentru acest titlu.</string>
+    <string name="player_trakt_starting">Se pornește urmărirea Trakt…</string>
+    <string name="player_trakt_tracking">Trakt urmărește redarea</string>
+    <string name="player_trakt_paused">Urmărirea Trakt este întreruptă</string>
+    <string name="player_trakt_failed">Urmărirea Trakt a eșuat</string>
+    <string name="player_trakt_sent">Trimis către Trakt</string>
 </resources>

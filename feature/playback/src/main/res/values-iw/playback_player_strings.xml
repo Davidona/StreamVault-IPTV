@@ -196,4 +196,12 @@
     <string name="series_seasons">עונות</string>
     <string name="settings_recording_status_recording">הקלטה</string>
     <string name="time_range_format">%1$s עד %2$s</string>
+    <string name="player_trakt_connect_required">התחברו ל‑Trakt דרך ההגדרות</string>
+    <string name="player_trakt_not_supported">Trakt עוקב רק אחר סרטים ופרקים.</string>
+    <string name="player_trakt_no_match">לא נמצאה התאמה מדויקת של הכותר ב‑Trakt.</string>
+    <string name="player_trakt_starting">מתחיל מעקב דרך Trakt…</string>
+    <string name="player_trakt_tracking">Trakt עוקב אחר ההפעלה</string>
+    <string name="player_trakt_paused">המעקב דרך Trakt מושהה</string>
+    <string name="player_trakt_failed">המעקב דרך Trakt נכשל</string>
+    <string name="player_trakt_sent">נשלח אל Trakt</string>
 </resources>

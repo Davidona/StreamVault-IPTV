@@ -196,4 +196,12 @@
     <string name="series_seasons">Сезоны</string>
     <string name="settings_recording_status_recording">Запись</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Подключите Trakt в настройках</string>
+    <string name="player_trakt_not_supported">Trakt отслеживает только фильмы и эпизоды.</string>
+    <string name="player_trakt_no_match">Для этого названия не найдено точное совпадение в Trakt.</string>
+    <string name="player_trakt_starting">Запуск отслеживания Trakt…</string>
+    <string name="player_trakt_tracking">Trakt отслеживает воспроизведение</string>
+    <string name="player_trakt_paused">Отслеживание Trakt приостановлено</string>
+    <string name="player_trakt_failed">Не удалось выполнить отслеживание Trakt</string>
+    <string name="player_trakt_sent">Отправлено в Trakt</string>
 </resources>

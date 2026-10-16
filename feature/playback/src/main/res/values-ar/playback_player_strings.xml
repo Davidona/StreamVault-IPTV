@@ -200,4 +200,12 @@
     <string name="series_seasons">المواسم</string>
     <string name="settings_recording_status_recording">جارٍ التسجيل</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">اتصل بـ Trakt من الإعدادات</string>
+    <string name="player_trakt_not_supported">يتتبع Trakt الأفلام والحلقات فقط.</string>
+    <string name="player_trakt_no_match">لم يتم العثور على تطابق دقيق لهذا العنوان في Trakt.</string>
+    <string name="player_trakt_starting">جارٍ بدء التتبع في Trakt…</string>
+    <string name="player_trakt_tracking">جارٍ التتبع عبر Trakt</string>
+    <string name="player_trakt_paused">تم إيقاف التتبع في Trakt</string>
+    <string name="player_trakt_failed">فشل التتبع في Trakt</string>
+    <string name="player_trakt_sent">تم الإرسال إلى Trakt</string>
 </resources>

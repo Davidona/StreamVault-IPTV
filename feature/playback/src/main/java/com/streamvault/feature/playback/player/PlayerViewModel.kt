@@ -76,6 +76,7 @@ class PlayerViewModel @Inject constructor(
     internal val playerPlaybackContextCoordinator: PlayerPlaybackContextCoordinator,
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
+    internal val playerTraktCoordinator: PlayerTraktCoordinator,
 ) : ViewModel() {
     companion object {
         private const val MIN_WATCHED_FOR_AUTO_PLAY_MS = 5_000L
@@ -111,6 +112,8 @@ class PlayerViewModel @Inject constructor(
     val currentChannel: StateFlow<com.streamvault.domain.model.Channel?> = currentChannelFlow.asStateFlow()
 
     private val _currentSeries = MutableStateFlow<Series?>(null)
+    internal var traktMovieSession: Long? = null
+    internal var traktMovieIdentity: com.streamvault.domain.trakt.TraktMediaIdentity.MovieId? = null
     val currentSeries: StateFlow<Series?> = _currentSeries.asStateFlow()
 
     private val _currentEpisode = MutableStateFlow<Episode?>(null)
@@ -503,6 +506,12 @@ class PlayerViewModel @Inject constructor(
     init {
         observeCastPlaybackEvents()
         viewModelScope.launch {
+            while (true) {
+                reportTraktPlayback()
+                delay(500)
+            }
+        }
+        viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.error }.collect { error ->
                 if (error != null) {
                     handlePlaybackError(error)
@@ -513,6 +522,7 @@ class PlayerViewModel @Inject constructor(
             activePlayerEngineFlow.flatMapLatest { it.playbackState }.collect { state ->
                 _playerDiagnostics.update { it.copy(playbackStateLabel = state.name.replace('_', ' ')) }
                 if (state == PlaybackState.ENDED && lastObservedPlaybackState != PlaybackState.ENDED) {
+                    reportTraktPlayback(state)
                     handlePlaybackEnded()
                 }
                 lastObservedPlaybackState = state
@@ -1689,6 +1699,7 @@ class PlayerViewModel @Inject constructor(
     )?.url
 
     override fun onCleared() {
+        playerTraktCoordinator.close()
         playbackSessionCoordinator.invalidate()
         super.onCleared()
         cleanupAfterCleared(playerEngineCoordinator.mainEngine)

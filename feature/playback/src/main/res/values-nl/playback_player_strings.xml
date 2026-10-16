@@ -196,4 +196,12 @@
     <string name="series_seasons">Seizoenen</string>
     <string name="settings_recording_status_recording">Opname</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_trakt_connect_required">Verbind Trakt via Instellingen</string>
+    <string name="player_trakt_not_supported">Trakt volgt alleen films en afleveringen.</string>
+    <string name="player_trakt_no_match">Geen exacte overeenkomst in Trakt voor deze titel.</string>
+    <string name="player_trakt_starting">Trakt-tracking wordt gestart…</string>
+    <string name="player_trakt_tracking">Trakt volgt de weergave</string>
+    <string name="player_trakt_paused">Trakt-tracking gepauzeerd</string>
+    <string name="player_trakt_failed">Trakt-tracking mislukt</string>
+    <string name="player_trakt_sent">Verzonden naar Trakt</string>
 </resources>

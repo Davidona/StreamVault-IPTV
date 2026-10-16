@@ -23,6 +23,20 @@ import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SeriesRepository
 import com.streamvault.domain.repository.M3uClassificationRepository
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteFailure
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
+import com.streamvault.domain.trakt.TraktAccount
+import com.streamvault.domain.trakt.TraktAccountState
+import com.streamvault.domain.trakt.TraktWatchlist
+import com.streamvault.domain.trakt.TraktWatchlistRefreshResult
+import com.streamvault.domain.trakt.TraktWatchlistState
+import com.streamvault.domain.trakt.TraktWatchlistType
+import com.streamvault.domain.trakt.TraktDiscovery
+import com.streamvault.domain.trakt.TraktDiscoveryRefreshResult
+import com.streamvault.domain.trakt.TraktDiscoveryState
 import com.streamvault.domain.usecase.ContinueWatchingResult
 import com.streamvault.domain.usecase.ContinueWatchingScope
 import com.streamvault.domain.usecase.GetContinueWatching
@@ -45,6 +59,8 @@ import com.streamvault.feature.catalog.presentation.vod.setVodSearchQuery
 import com.streamvault.feature.catalog.presentation.vod.setVodFavorite
 import com.streamvault.feature.catalog.presentation.vod.updateVodGroupMembership
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
+import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistItems
+import com.streamvault.feature.catalog.presentation.dashboard.orderedDiscoveryItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -84,7 +100,11 @@ class SeriesViewModel @Inject constructor(
     private val getContinueWatching: GetContinueWatching,
     private val getCustomCategories: GetCustomCategories,
     private val parentalControlManager: ParentalControlManager,
-    private val m3uClassificationRepository: M3uClassificationRepository
+    private val m3uClassificationRepository: M3uClassificationRepository,
+    private val traktFavorites: TraktFavorites,
+    private val traktAccount: TraktAccount,
+    private val traktWatchlist: TraktWatchlist,
+    private val traktDiscovery: TraktDiscovery,
 ) : ViewModel() {
     private companion object {
         const val UNCATEGORIZED = "Uncategorized"
@@ -139,6 +159,81 @@ class SeriesViewModel @Inject constructor(
                         isLoading = if (provider == null) false else it.isLoading,
                         isLoadingSelectedCategory = if (provider == null) false else it.isLoadingSelectedCategory,
                         isLoadingPreviewRows = if (provider == null) false else it.isLoadingPreviewRows
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            runCatching { traktAccount.load() }
+            traktAccount.state
+                .map { state -> state.username.takeIf { state.connected } }
+                .distinctUntilChanged()
+                .collectLatest { username ->
+                    _uiState.update { it.copy(traktWatchlistConnected = username != null) }
+                    if (username != null) traktWatchlist.refresh()
+                }
+        }
+
+        viewModelScope.launch {
+            combine(traktAccount.state, traktWatchlist.state) { account, watchlist ->
+                val watchlistBelongsToAccount = account.connected &&
+                    account.username != null &&
+                    account.username == watchlist.accountUsername
+                account.connected to if (watchlistBelongsToAccount) {
+                    watchlist.items.count { it.type == TraktWatchlistType.SHOW }
+                } else {
+                    0
+                }
+            }.collect { (connected, count) ->
+                _uiState.update {
+                    it.copy(traktWatchlistConnected = connected, traktWatchlistCount = count)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            traktDiscovery.state.collect { discovery ->
+                _uiState.update {
+                    it.copy(
+                        traktTrendingCount = discovery.items(VodBrowseDefaults.TRAKT_TRENDING_SERIES).size,
+                        traktPopularCount = discovery.items(VodBrowseDefaults.TRAKT_POPULAR_SERIES).size,
+                        traktTrendingFailed = VodBrowseDefaults.TRAKT_TRENDING_SERIES in discovery.failed,
+                        traktPopularFailed = VodBrowseDefaults.TRAKT_POPULAR_SERIES in discovery.failed,
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                preferencesRepository.showTraktTrendingMovies,
+                preferencesRepository.showTraktPopularMovies,
+                preferencesRepository.showTraktTrendingSeries,
+                preferencesRepository.showTraktPopularSeries
+            ) { trendingMovies, popularMovies, trendingSeries, popularSeries ->
+                listOf(trendingMovies, popularMovies, trendingSeries, popularSeries)
+            }.distinctUntilChanged().collect { visibility ->
+                val showTrending = visibility[2]
+                val showPopular = visibility[3]
+                _uiState.update { state ->
+                    val hideSelectedCategory = when (state.selectedCategory) {
+                        VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY -> !showTrending
+                        VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> !showPopular
+                        else -> false
+                    }
+                    state.copy(
+                        showTraktTrendingMovies = visibility[0],
+                        showTraktPopularMovies = visibility[1],
+                        showTraktTrendingSeries = showTrending,
+                        showTraktPopularSeries = showPopular,
+                        selectedCategory = if (hideSelectedCategory) null else state.selectedCategory,
+                        selectedCategoryItems = if (hideSelectedCategory) emptyList() else state.selectedCategoryItems,
+                        selectedCategoryLoadedCount = if (hideSelectedCategory) 0 else state.selectedCategoryLoadedCount,
+                        selectedCategoryTotalCount = if (hideSelectedCategory) 0 else state.selectedCategoryTotalCount,
+                        canLoadMoreSelectedCategory = if (hideSelectedCategory) false else state.canLoadMoreSelectedCategory,
+                        isLoadingSelectedCategory = if (hideSelectedCategory) false else state.isLoadingSelectedCategory,
+                        isLoadingMoreSelectedCategory = if (hideSelectedCategory) false else state.isLoadingMoreSelectedCategory
                     )
                 }
             }
@@ -371,6 +466,15 @@ class SeriesViewModel @Inject constructor(
                             hiddenCategoryIds = hiddenCategoryIds
                         )
                     }.combine(
+                        combine(traktAccount.state, traktWatchlist.state) { account, watchlist -> account to watchlist }
+                    ) { dependencies, traktState ->
+                        dependencies.copy(
+                            traktAccountState = traktState.first,
+                            traktWatchlistState = traktState.second
+                        )
+                    }.combine(traktDiscovery.state) { dependencies, discoveryState ->
+                        dependencies.copy(traktDiscoveryState = discoveryState)
+                    }.combine(
                         combine(
                             _uiState.map { it.selectedCategory }.distinctUntilChanged(),
                             _selectedCategoryLoadLimit,
@@ -398,7 +502,10 @@ class SeriesViewModel @Inject constructor(
                             history = dependencies.history,
                             customCategories = dependencies.customCategories,
                             providerCategories = dependencies.providerCategories,
-                            hiddenCategoryIds = dependencies.hiddenCategoryIds
+                            hiddenCategoryIds = dependencies.hiddenCategoryIds,
+                            traktAccountState = dependencies.traktAccountState,
+                            traktWatchlistState = dependencies.traktWatchlistState,
+                            traktDiscoveryState = dependencies.traktDiscoveryState
                         )
                     }
                 }
@@ -414,7 +521,8 @@ class SeriesViewModel @Inject constructor(
                             selectedCategoryLoadedCount = snapshot.loadedCount,
                             selectedCategoryTotalCount = snapshot.totalCount,
                             canLoadMoreSelectedCategory = snapshot.canLoadMore,
-                            isLoadingSelectedCategory = initialRemoteRequestInFlight && snapshot.items.isEmpty()
+                            isLoadingSelectedCategory = snapshot.isLoading ||
+                                (initialRemoteRequestInFlight && snapshot.items.isEmpty())
                         )
                     }
                 }
@@ -574,6 +682,34 @@ class SeriesViewModel @Inject constructor(
                 canLoadMoreSelectedCategory = false,
                 isLoadingSelectedCategory = isLoadingSelectedCategory
             )
+        }
+        if (categoryName == VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY) {
+            viewModelScope.launch {
+                when (val result = traktWatchlist.refresh()) {
+                    is TraktWatchlistRefreshResult.Success -> Unit
+                    is TraktWatchlistRefreshResult.Failure -> {
+                        _uiState.update {
+                            it.copy(
+                                userMessage = if (result.reason == com.streamvault.domain.trakt.TraktWatchlistFailure.DISCONNECTED) {
+                                    "Connect Trakt in Settings to view your watchlist."
+                                } else {
+                                    "Could not load the Trakt watchlist. Try again."
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            return
+        }
+        val discoveryCategory = VodBrowseDefaults.traktDiscoveryCategory(categoryName)
+        if (discoveryCategory != null) {
+            viewModelScope.launch {
+                if (traktDiscovery.refresh(discoveryCategory) is TraktDiscoveryRefreshResult.Failure) {
+                    _uiState.update { it.copy(userMessage = "Could not load Trakt discovery titles. Try again.") }
+                }
+            }
+            return
         }
         val providerId = activeProviderId ?: return
         val categoryId = resolveProviderCategoryId(categoryName) ?: return
@@ -776,6 +912,7 @@ class SeriesViewModel @Inject constructor(
         viewModelScope.launch {
             setVodFavorite(series.providerId, series.selectedRawSeriesId(), ContentType.SERIES, true, favoriteRepository)
             _uiState.update { it.copy(selectedSeriesForDialog = series.copy(isFavorite = true)) }
+            syncTraktFavorite(series.tmdbId, true)
         }
     }
 
@@ -785,6 +922,20 @@ class SeriesViewModel @Inject constructor(
                 setVodFavorite(series.providerId, rawSeriesId, ContentType.SERIES, false, favoriteRepository)
             }
             _uiState.update { it.copy(selectedSeriesForDialog = series.copy(isFavorite = false)) }
+            syncTraktFavorite(series.tmdbId, false)
+        }
+    }
+
+    private suspend fun syncTraktFavorite(tmdbId: Long?, favorited: Boolean) {
+        val id = tmdbId?.takeIf { it > 0L } ?: return
+        when (val result = traktFavorites.setFavorited(TraktFavoriteIdentity(TraktFavoriteType.SHOW, id), favorited)) {
+            TraktFavoriteActionResult.Success -> Unit
+            is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
+                result.reason != TraktFavoriteFailure.INCOGNITO) {
+                _uiState.update {
+                    it.copy(userMessage = "StreamVault saved the change, but could not update Trakt Favorites. Try again.")
+                }
+            }
         }
     }
 
@@ -1172,6 +1323,60 @@ class SeriesViewModel @Inject constructor(
             .toSet()
 
         val (selectedItems, totalCount, hasMoreRemote) = when (request.selectedCategory) {
+            VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY -> {
+                val account = request.traktAccountState
+                val watchlist = request.traktWatchlistState
+                if (!account.connected || account.username == null ||
+                    account.username != watchlist.accountUsername || !watchlist.loaded
+                ) {
+                    Triple(emptyList<Series>(), 0, false)
+                } else {
+                    val watchlistTmdbIds = watchlist.items.asSequence()
+                        .filter { it.type == TraktWatchlistType.SHOW }
+                        .map { it.tmdbId }
+                        .toList()
+                    val catalogItems = seriesRepository.getSeriesByTmdbIds(request.providerId, watchlistTmdbIds)
+                        .filterNot { series -> series.categoryId in request.hiddenCategoryIds }
+                    val watchlistSeries = orderedWatchlistItems(
+                        watchlistItems = watchlist.items,
+                        type = TraktWatchlistType.SHOW,
+                        catalogItems = catalogItems,
+                        tmdbIdOf = Series::tmdbId,
+                        idOf = Series::id,
+                        limit = Int.MAX_VALUE
+                    )
+                    val filteredItems = applyLocalBrowseToSeries(
+                        watchlistSeries,
+                        request.history,
+                        request.filterType,
+                        request.sortBy,
+                        effectiveQuery
+                    )
+                    Triple(filteredItems.take(request.loadLimit), filteredItems.size, false)
+                }
+            }
+            VodBrowseDefaults.TRAKT_TRENDING_SERIES_CATEGORY,
+            VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> {
+                val discoveryCategory = requireNotNull(VodBrowseDefaults.traktDiscoveryCategory(request.selectedCategory))
+                val tmdbIds = request.traktDiscoveryState.items(discoveryCategory)
+                val catalogItems = seriesRepository.getSeriesByTmdbIds(request.providerId, tmdbIds)
+                    .filterNot { series -> series.categoryId in request.hiddenCategoryIds }
+                val discoverySeries = orderedDiscoveryItems(
+                    tmdbIds = tmdbIds,
+                    catalogItems = catalogItems,
+                    tmdbIdOf = Series::tmdbId,
+                    idOf = Series::id,
+                    limit = Int.MAX_VALUE
+                )
+                val filteredItems = applyLocalBrowseToSeries(
+                    discoverySeries,
+                    request.history,
+                    request.filterType,
+                    request.sortBy,
+                    effectiveQuery
+                )
+                Triple(filteredItems.take(request.loadLimit), filteredItems.size, false)
+            }
             VodBrowseDefaults.FULL_LIBRARY_CATEGORY -> {
                 val result = seriesRepository
                     .browseSeries(
@@ -1285,7 +1490,12 @@ class SeriesViewModel @Inject constructor(
             items = enrichedItems,
             loadedCount = enrichedItems.size,
             totalCount = totalCount,
-            canLoadMore = totalCount > enrichedItems.size || hasMoreRemote
+            canLoadMore = totalCount > enrichedItems.size || hasMoreRemote,
+            isLoading = request.selectedCategory == VodBrowseDefaults.TRAKT_WATCHLIST_CATEGORY &&
+                request.traktWatchlistState.isRefreshing ||
+                VodBrowseDefaults.traktDiscoveryCategory(request.selectedCategory)?.let {
+                    it in request.traktDiscoveryState.refreshing
+                } == true
         )
     }
 
@@ -1414,7 +1624,10 @@ private data class SeriesCategorySelectionDependencies(
     val history: List<PlaybackHistory>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
-    val hiddenCategoryIds: Set<Long>
+    val hiddenCategoryIds: Set<Long>,
+    val traktAccountState: TraktAccountState = TraktAccountState(),
+    val traktWatchlistState: TraktWatchlistState = TraktWatchlistState(),
+    val traktDiscoveryState: TraktDiscoveryState = TraktDiscoveryState()
 )
 
 private data class SelectedSeriesCategoryRequest(
@@ -1428,7 +1641,10 @@ private data class SelectedSeriesCategoryRequest(
     val history: List<PlaybackHistory>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
-    val hiddenCategoryIds: Set<Long>
+    val hiddenCategoryIds: Set<Long>,
+    val traktAccountState: TraktAccountState,
+    val traktWatchlistState: TraktWatchlistState,
+    val traktDiscoveryState: TraktDiscoveryState
 )
 
 private data class SelectedSeriesBrowseSelection(
@@ -1443,7 +1659,8 @@ private data class SelectedSeriesCategorySnapshot(
     val items: List<Series> = emptyList(),
     val loadedCount: Int = 0,
     val totalCount: Int = 0,
-    val canLoadMore: Boolean = false
+    val canLoadMore: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 data class SeriesUiState(
@@ -1451,6 +1668,16 @@ data class SeriesUiState(
     val categoryNames: List<String> = emptyList(),
     val categoryCounts: Map<String, Int> = emptyMap(),
     val libraryCount: Int = 0,
+    val traktWatchlistConnected: Boolean = false,
+    val traktWatchlistCount: Int = 0,
+    val traktTrendingCount: Int = 0,
+    val traktPopularCount: Int = 0,
+    val traktTrendingFailed: Boolean = false,
+    val traktPopularFailed: Boolean = false,
+    val showTraktTrendingMovies: Boolean = true,
+    val showTraktPopularMovies: Boolean = true,
+    val showTraktTrendingSeries: Boolean = true,
+    val showTraktPopularSeries: Boolean = true,
     val favoriteCategoryName: String = "\u2605 Favorites",
     val fullLibraryCategoryName: String = "__full_library__",
     val libraryLensRows: Map<SeriesLibraryLens, List<Series>> = emptyMap(),
