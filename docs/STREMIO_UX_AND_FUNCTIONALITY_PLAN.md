@@ -1,7 +1,7 @@
 # Stremio and Extensions UX and functionality improvement plan
 
 - Date: 2026-10-16.
-- Status: Implementation in progress; catalog replacement, focus restoration, backup compatibility, and playback handoff regressions are covered. Debug APK is installed on the requested emulator; configured-emulator UX and real-torrent acceptance remain pending.
+- Status: Implementation checks are complete, including plugin Messenger request/reply coverage. Debug APK is installed on the requested emulator; configured-emulator UX and real-torrent acceptance remain pending.
 - Reviewed baseline: `f1ac7d3d` on `feature/stremio-addons`.
 - Worktree: `D:\antigravity-scratch\iptv-player\.worktrees\stremio-addons`.
 
@@ -183,9 +183,8 @@ Addresses R1-R2.
 - [x] Cover direct HTTP header scoping, invalid headers, unavailable torrent
   capability, explicit magnet plugin routing, safe/unsafe loopback output, and
   populated supported upgrade origins.
-- [ ] Add a plugin-manager binder-level test for handler-reported failure and
-  successful magnet handoff. Current tests cover the policy and UI availability
-  decisions without invoking the Android Messenger call path.
+- [x] Exercise the Android Messenger bind/request/reply/unbind path for both a
+  handler-reported failure and successful magnet preparation response.
 
 Gate: targeted playback tests pass, supported database upgrades validate the
 final Room schema and foreign keys, and a current debug APK builds.
@@ -287,7 +286,10 @@ unclassified `hide_stremio_addons` preference; the registry and backup
 import/export mappings were fixed, and the full suite then passed. The debug APK
 `1.0.19-debug` built and installed on `emulator-5558`. That emulator is currently
 at first-run provider setup, so add-on management focus could not be exercised
-there. These checks do not establish visual quality or real torrent playback.
+there. `PluginMessengerClientTest` now exercises the Messenger round trip for a
+reported handler failure and a successful magnet preparation reply, including
+request metadata and service unbinding. These checks do not establish visual
+quality or real torrent playback.
 
 | Area | Required evidence after implementation |
 | --- | --- |
@@ -298,7 +300,7 @@ there. These checks do not establish visual quality or real torrent playback.
 | Catalog requests | Tests cover selected-only loading, required/unsupported extras, stale-response cancellation, page retry retaining previous items, and explicit refresh/cache behavior. |
 | Sources and series | Tests cover exact episode IDs, long episode lists, progressive providers, partial failures, retry, and rapid episode changes; user verifies the source-picker flow. |
 | Navigation | User verifies player-to-title-to-browse Back behavior and retained selection, filters, scroll, and focus; automated state/navigation checks cover the same contracts where practical. |
-| Playback and subtitles | Tests cover direct HTTP headers, invalid headers, magnet capability/routing/output policy, handoff headers, resume identity, and inline/add-on subtitles. Plugin Messenger failure/success integration and real stream/torrent acceptance remain open. |
+| Playback and subtitles | Tests cover direct HTTP headers, invalid headers, magnet capability/routing/output policy, Messenger handler failure/success replies, handoff headers, resume identity, and inline/add-on subtitles. Real stream/torrent acceptance remains open. |
 | Database upgrade | Migration tests use populated supported historical variants and verify final schema, episode uniqueness, Xtream columns, preserved data, and foreign keys. |
 | Visibility | Tests retain independent Hide Stremio Add-ons behavior and prevent content access through hidden Stremio routes. |
 
