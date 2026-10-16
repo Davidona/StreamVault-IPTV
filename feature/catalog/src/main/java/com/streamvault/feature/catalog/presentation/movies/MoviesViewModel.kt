@@ -60,7 +60,6 @@ import com.streamvault.feature.catalog.presentation.vod.setVodFavorite
 import com.streamvault.feature.catalog.presentation.vod.updateVodGroupMembership
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
 import com.streamvault.feature.catalog.presentation.vod.orderedTraktDiscoveryItems
-import com.streamvault.feature.catalog.presentation.vod.traktDiscoveryCatalogYear
 import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistItems
 import com.streamvault.domain.playback.isPlaybackComplete
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -1380,13 +1379,9 @@ class MoviesViewModel @Inject constructor(
             VodBrowseDefaults.TRAKT_POPULAR_MOVIES_CATEGORY -> {
                 val discoveryCategory = requireNotNull(VodBrowseDefaults.traktDiscoveryCategory(request.selectedCategory))
                 val discoveryItems = orderedTraktDiscoveryItems(
-                    entries = request.traktDiscoveryState.entries(discoveryCategory),
                     tmdbIds = request.traktDiscoveryState.items(discoveryCategory),
                     loadByTmdbIds = { ids -> movieRepository.getMoviesByTmdbIds(request.providerId, ids) },
-                    searchByTitle = { title -> movieRepository.searchMovies(request.providerId, title).first() },
                     tmdbIdOf = Movie::tmdbId,
-                    titleOf = Movie::name,
-                    yearOf = { movie -> traktDiscoveryCatalogYear(movie.year, movie.releaseDate, movie.name) },
                     idOf = Movie::id,
                 )
                 val filteredCatalogItems = discoveryItems

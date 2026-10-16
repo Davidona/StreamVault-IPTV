@@ -61,7 +61,6 @@ import com.streamvault.feature.catalog.presentation.vod.setVodFavorite
 import com.streamvault.feature.catalog.presentation.vod.updateVodGroupMembership
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
 import com.streamvault.feature.catalog.presentation.vod.orderedTraktDiscoveryItems
-import com.streamvault.feature.catalog.presentation.vod.traktDiscoveryCatalogYear
 import com.streamvault.feature.catalog.presentation.dashboard.orderedWatchlistItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.streamvault.feature.catalog.R
@@ -1374,13 +1373,9 @@ class SeriesViewModel @Inject constructor(
             VodBrowseDefaults.TRAKT_POPULAR_SERIES_CATEGORY -> {
                 val discoveryCategory = requireNotNull(VodBrowseDefaults.traktDiscoveryCategory(request.selectedCategory))
                 val discoveryItems = orderedTraktDiscoveryItems(
-                    entries = request.traktDiscoveryState.entries(discoveryCategory),
                     tmdbIds = request.traktDiscoveryState.items(discoveryCategory),
                     loadByTmdbIds = { ids -> seriesRepository.getSeriesByTmdbIds(request.providerId, ids) },
-                    searchByTitle = { title -> seriesRepository.searchSeries(request.providerId, title).first() },
                     tmdbIdOf = Series::tmdbId,
-                    titleOf = Series::name,
-                    yearOf = { series -> traktDiscoveryCatalogYear(null, series.releaseDate, series.name) },
                     idOf = Series::id,
                 )
                 val filteredCatalogItems = discoveryItems
