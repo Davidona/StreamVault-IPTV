@@ -1,4 +1,4 @@
-# Stremio UX and functionality improvement plan
+# Stremio and Extensions UX and functionality improvement plan
 
 - Date: 2026-10-16.
 - Status: Planning only; implementation has not started.
@@ -7,10 +7,10 @@
 
 ## Purpose and scope
 
-Bring the Stremio experience up to the app's current browsing standard in both
-layout and behavior. Preserve the existing theme and colors, correct the
-integration defects found after merging develop and modern visuals, and make
-navigation with a TV remote predictable.
+Bring Stremio browsing and both Extensions management sections up to the app's
+current layout and behavior standard. Preserve the existing theme and colors,
+correct the integration defects found after merging develop and modern visuals,
+and make navigation with a TV remote predictable.
 
 This plan reconciles the five agreed UI directions with the subsequent code
 review. It supplements the original Stremio implementation plan and handoff;
@@ -49,6 +49,8 @@ through a real torrent session or an emulator database upgrade during this revie
 | R8 | P2 | Retry after a pagination failure resets the query to page one, clears loaded items, and can serve the first page from cache. It does not retry the failed offset. | `StremioCatalogBrowseViewModel.retry`, request reset, and page-cache lookup. |
 | R9 | P2 | Removal is immediate, manifest refresh is absent, and add-ons without catalogs still expose a Catalogs action. | `AddonsScreen`, `AddonsViewModel`, and `StremioAddonRepositoryImpl`. |
 | R10 | P2 | Some unexpected repository failures lack cleanup of loading state; some detail exceptions are swallowed and can appear as an empty/no-provider result. | Install/management operations in `AddonsViewModel`; exception paths in `StremioItemDetailViewModel`. |
+| R11 | P1 UX | The Plugins page also spends a fixed header area on the Extensions tabs, a title/description, and an install panel before the installed-plugin list. The install panel remains visible after setup, while the list is confined to the remaining viewport. | `feature/system/.../presentation/plugins/PluginsScreen.kt`; `PluginsContent` and `PluginInstallPanel`. |
+| R12 | P2 UX | Plugin rows repeat enabled state as both a status pill and switch, expose package/version details in the main row, and configuration keeps the Plugins/Stremio tabs above a full-page form. | `PluginsScreen.kt`; `PluginCard`, `PluginConfigurationPanel`, and `ExtensionsSectionTabs`. |
 
 ### Requirements clarified by the existing handoff
 
@@ -69,6 +71,33 @@ through a real torrent session or an emulator database upgrade during this revie
   the user's acceptance pass.
 
 ## Intended user experience
+
+### Extensions navigation and Plugins
+
+- Keep Extensions as a full-screen app destination in the existing app shell.
+  The current Plugins and Stremio routes already work this way; selecting
+  Extensions should continue to open a normal destination with the app's
+  navigation shell, not a drop-down attached to the top navigation bar.
+- Keep a compact, clearly selected **Plugins | Stremio-compatible Add-ons**
+  section switcher near the page title. Both are substantial destinations, and
+  visible tabs make the alternate section discoverable and easy to reach with a
+  TV remote. Avoid adding a second large navigation strip.
+- When plugins are installed, replace the introductory title/description and
+  permanent install panel with a compact **Plugins · N installed** header,
+  **Add plugin** action, and refresh action. **Add plugin** offers install from
+  URL or APK. Keep explanatory copy and both install choices in the empty state.
+- Make the installed-plugin list the main vertical scroller. Use compact rows
+  with plugin name, capability badges, one enabled switch, and Configure when
+  supported. Move package name, version, and less-used diagnostics into plugin
+  details/configuration so they do not dominate the list.
+- Treat configuration as a nested full-screen page within Extensions. Replace
+  the section tabs with a clear Back-to-Plugins header, plugin name, and Save /
+  Refresh actions while the form is open. Keep the form itself as one bounded
+  vertical scroller and preserve draft values and focus on recoverable errors.
+- Preserve visible focus and selected-tab styling, a useful empty state, local
+  APK picking, URL installation, refresh, enable/disable, and manifest-declared
+  capability badges. Do not conflate the Android companion-plugin install path
+  with Stremio manifest URL installation.
 
 ### Extensions management
 
@@ -159,10 +188,16 @@ final Room schema and foreign keys, and a current debug APK builds.
 
 ### Phase 2 - Split navigation and compact management
 
-Addresses UI decisions 1-3 and 5; R3, R6, and R9.
+Addresses UI decisions 1-3 and 5; R3, R6, R9, R11, and R12.
 
 - [ ] Separate management and dedicated browse routes with explicit Back targets.
 - [ ] Replace the installed-state hero with the compact header and add-on rows.
+- [ ] Apply the same compact installed-state hierarchy to Plugins: put URL/APK
+  installation behind Add plugin, retain refresh, and make its list the primary
+  vertical content area.
+- [ ] Keep Extensions as a full-screen shell destination with compact section
+  tabs; make plugin configuration a nested page with a Back-to-Plugins header
+  and no duplicate section tabs.
 - [ ] Add capability-aware details, catalog settings, ordering, and removal
   confirmation. Make repeated actions safe and restore focus after a row changes
   or is removed.
@@ -235,7 +270,8 @@ historical-schema integration failures.
 
 | Area | Required evidence after implementation |
 | --- | --- |
-| Management layout | User inspects compact installed rows, details, install error/retry, refresh, reorder, disable, and removal confirmation. |
+| Management layout | User inspects compact Stremio add-on and companion-plugin rows, empty and installed states, install error/retry, refresh, configuration, reorder, disable, and removal confirmation. |
+| Extensions navigation | User confirms Extensions opens as a full-screen app destination, the compact section switcher is easy to reach with a remote, and plugin configuration has a clear nested Back path. |
 | Browse layout | User inspects complete posters/titles, long catalogs, filters, missing artwork, and Continue Watching on the target viewport. |
 | Search interaction | Focus causes no keyboard; click/OK opens editing; Back preserves text and control focus; Search/Done closes editing and reaches results. |
 | Catalog requests | Tests cover selected-only loading, required/unsupported extras, stale-response cancellation, page retry retaining previous items, and explicit refresh/cache behavior. |
@@ -254,6 +290,7 @@ not evidence that a live-playback regression is resolved.
 ## Existing behavior to preserve
 
 - Theme palettes, colors, and the shared browse visual system.
+- Full-screen Extensions destination in the app shell and separate companion APK versus Stremio manifest install flows.
 - Exact episode IDs, resource capability/prefix routing, and catalog provenance.
 - Cancellation and protection from stale catalog/episode responses.
 - Successful providers remaining usable alongside failed providers.
