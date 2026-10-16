@@ -92,6 +92,7 @@ fun MultiViewPlannerDialog(
         subtitle = subtitle,
         onDismissRequest = onDismiss,
         widthFraction = 0.58f,
+        bodyHeightFraction = 0.66f,
         content = {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatusPill(
@@ -110,6 +111,7 @@ fun MultiViewPlannerDialog(
                 } else {
                     listOf(listOf(0, 1), listOf(2, 3))
                 }
+                val slotAspectRatio = if (centeredTwoSlotLayout) 16f / 9f else 2.1f
                 plannerRows.forEachIndexed { rowIndex, rowSlots ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -121,6 +123,7 @@ fun MultiViewPlannerDialog(
                                 slotIndex = slotIndex,
                                 occupant = occupant,
                                 isPickerMode = isPickerMode && !channelPlaced,
+                                aspectRatio = slotAspectRatio,
                                 modifier = Modifier
                                     .weight(1f)
                                     .then(
@@ -187,6 +190,7 @@ private fun MultiViewSlotCard(
     slotIndex: Int,
     occupant: Channel?,
     isPickerMode: Boolean,
+    aspectRatio: Float,
     modifier: Modifier = Modifier,
     onSlotClick: () -> Unit,
     onClearSlot: () -> Unit
@@ -201,18 +205,18 @@ private fun MultiViewSlotCard(
 
     TvClickableSurface(
         onClick = { if (isPickerMode) onSlotClick() else onClearSlot() },
-        modifier = modifier.aspectRatio(16f / 9f),
+        modifier = modifier.aspectRatio(aspectRatio),
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
-            focusedContainerColor = AppColors.SurfaceEmphasis,
+            focusedContainerColor = AppColors.SurfaceElevated,
             pressedContainerColor = AppColors.SurfaceEmphasis
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(border = BorderStroke(1.dp, accent.copy(alpha = 0.35f))),
             focusedBorder = Border(border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus))
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = FocusSpec.FocusedScale)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Box(
             modifier = Modifier

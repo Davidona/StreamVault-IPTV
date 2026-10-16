@@ -48,7 +48,7 @@ internal fun ProviderEpgAssignmentsCard(
     androidx.compose.foundation.layout.Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(SurfaceElevated, RoundedCornerShape(12.dp))
+            .settingsDetailPanel()
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(providerName, style = MaterialTheme.typography.titleSmall, color = OnSurface)

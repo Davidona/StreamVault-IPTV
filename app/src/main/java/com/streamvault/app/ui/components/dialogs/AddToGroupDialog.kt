@@ -1,44 +1,50 @@
 package com.streamvault.app.ui.components.dialogs
 
-import com.streamvault.core.ui.design.contentOnColor
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.border
+import android.view.KeyEvent as AndroidKeyEvent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.streamvault.domain.model.Channel
-import com.streamvault.domain.model.Category
-import androidx.compose.ui.res.stringResource
-import com.streamvault.app.R
-import com.streamvault.core.ui.design.BrowseColors as AppColors
-import androidx.compose.ui.input.key.*
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.foundation.shape.CircleShape
-import kotlinx.coroutines.delay
 import androidx.tv.material3.*
+import com.streamvault.app.R
 import com.streamvault.app.device.rememberIsTelevisionDevice
-import com.streamvault.core.ui.interaction.mouseClickable
-import android.view.KeyEvent as AndroidKeyEvent
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.Channel
+import kotlinx.coroutines.delay
+
+private val menuShape = RoundedCornerShape(20.dp)
+private val actionShape = RoundedCornerShape(12.dp)
 
 @Composable
 fun AddToGroupDialog(
     contentTitle: String,
-    channel: Channel? = null,          // the channel being managed (for split screen)
+    channel: Channel? = null,
     groups: List<Category>,
     isFavorite: Boolean,
     memberOfGroups: List<Long>,
@@ -56,421 +62,237 @@ fun AddToGroupDialog(
     onMoveBackToLive: (() -> Unit)? = null
 ) {
     var showCreateGroup by remember { mutableStateOf(false) }
-    val isTelevisionDevice = rememberIsTelevisionDevice()
-    val contentFocusRequester = remember { FocusRequester() }  // focuses first interactive item, not close button
-
-    // Ghost-click debounce
     var canInteract by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        runCatching { contentFocusRequester.requestFocus() }
-        delay(500)
-        canInteract = true
-    }
+    val firstActionFocus = remember { FocusRequester() }
+    val isTelevisionDevice = rememberIsTelevisionDevice()
 
+    LaunchedEffect(showCreateGroup) {
+        if (!showCreateGroup) {
+            canInteract = false
+            runCatching { firstActionFocus.requestFocus() }
+            delay(500)
+            canInteract = true
+        }
+    }
     val blockOpenGesture: (KeyEvent) -> Boolean = { event ->
-        !canInteract &&
-            event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_UP &&
-            when (event.nativeKeyEvent.keyCode) {
-                AndroidKeyEvent.KEYCODE_DPAD_CENTER,
-                AndroidKeyEvent.KEYCODE_ENTER,
-                AndroidKeyEvent.KEYCODE_NUMPAD_ENTER,
-                AndroidKeyEvent.KEYCODE_BUTTON_A -> true
-                else -> false
-            }
+        !canInteract && event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_UP &&
+            event.nativeKeyEvent.keyCode in listOf(
+                AndroidKeyEvent.KEYCODE_DPAD_CENTER, AndroidKeyEvent.KEYCODE_ENTER,
+                AndroidKeyEvent.KEYCODE_NUMPAD_ENTER, AndroidKeyEvent.KEYCODE_BUTTON_A
+            )
     }
-
-    val safeDismiss = { if (canInteract) onDismiss() }
-    val safeToggleFavorite = { if (canInteract) onToggleFavorite() }
-    val safeOpenSplitScreenPlanner = { if (canInteract) onOpenSplitScreenPlanner?.invoke() }
-    val safeRemoveFromRecent = { if (canInteract) onRemoveFromRecent?.invoke() }
-    val safeHideChannel = { if (canInteract) onHideChannel?.invoke() }
-    val safeMoveToMovies = { if (canInteract) onMoveToMovies?.invoke() }
-    val safeMoveToSeries = { if (canInteract) onMoveToSeries?.invoke() }
-    val safeMoveBackToLive = { if (canInteract) onMoveBackToLive?.invoke() }
-    val safeCreateGroup = { if (canInteract && onCreateGroup != null) showCreateGroup = true }
-    val safeAddToGroup: (Category) -> Unit = { group -> if (canInteract) onAddToGroup(group) }
-    val safeRemoveFromGroup: (Category) -> Unit = { group -> if (canInteract) onRemoveFromGroup(group) }
 
     if (showCreateGroup && onCreateGroup != null) {
         CreateGroupDialog(
             onDismissRequest = { showCreateGroup = false },
             onConfirm = { name ->
-                onCreateGroup.invoke(name)
+                onCreateGroup(name)
                 showCreateGroup = false
             }
         )
-    }
-
-    if (!showCreateGroup) {
+    } else {
         Dialog(
-            onDismissRequest = safeDismiss,
+            onDismissRequest = { if (canInteract) onDismiss() },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            val dialogModifier = if (isTelevisionDevice) {
-                Modifier.width(400.dp)
-            } else {
-                Modifier
-            }
-
-            val dialogContent: @Composable (Modifier) -> Unit = { resolvedModifier ->
+            BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                val width = when {
+                    isTelevisionDevice -> Modifier.width(420.dp)
+                    maxWidth < 700.dp -> Modifier.fillMaxWidth(0.92f)
+                    maxWidth < 1280.dp -> Modifier.fillMaxWidth(0.58f)
+                    else -> Modifier.width(420.dp)
+                }
+                val maxListHeight = maxHeight * 0.68f
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = menuShape,
                     colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
-                    modifier = resolvedModifier
-                        .padding(16.dp)
+                    modifier = width.padding(12.dp)
+                        .border(1.dp, AppColors.Outline, menuShape)
                         .onPreviewKeyEvent(blockOpenGesture)
                 ) {
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        // Header
+                    Column(
+                        Modifier.background(
+                            Brush.verticalGradient(
+                                listOf(AppColors.BrandMuted.copy(alpha = 0.16f),
+                                    AppColors.SurfaceElevated, AppColors.Surface)
+                            )
+                        ).padding(22.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.add_group_manage_title, contentTitle),
+                                stringResource(R.string.add_group_manage_title, contentTitle),
                                 style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
                                 color = AppColors.TextPrimary,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f)
                             )
-                            IconButton(
-                                onClick = safeDismiss,
-                                modifier = Modifier.mouseClickable(onClick = safeDismiss)
+                            MenuFocusSurface(
+                                onClick = { if (canInteract) onDismiss() },
+                                modifier = Modifier.size(38.dp),
+                                containerColor = AppColors.SurfaceAccent
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.add_group_close_cd))
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.add_group_close_cd),
+                                        tint = AppColors.TextSecondary,
+                                        modifier = Modifier.size(20.dp))
+                                }
                             }
                         }
 
                         LazyColumn(
-                            modifier = Modifier.weight(1f, fill = false),
+                            modifier = Modifier.heightIn(max = maxListHeight),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                        // ג”€ג”€ Favorites ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
-                        item {
-                            var isFocused by remember { mutableStateOf(false) }
-                            val favoriteInk = contentOnColor(
-                                when {
-                                    isFocused -> AppColors.Focus
-                                    isFavorite -> AppColors.Warning
-                                    else -> AppColors.Brand
-                                }
-                            )
-                            Button(
-                                onClick = safeToggleFavorite,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .focusRequester(contentFocusRequester)
-                                    .onFocusChanged { isFocused = it.isFocused }
-                                    .background(
-                                        color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                        shape = CircleShape
-                                    )
-                                    .border(
-                                        if (isFocused) 3.dp else 0.dp,
-                                        if (isFocused) AppColors.Focus else Color.Transparent,
-                                        CircleShape
-                                    )
-                                    .mouseClickable(onClick = safeToggleFavorite),
-                                colors = ButtonDefaults.colors(
-                                    containerColor = when {
-                                        isFocused -> AppColors.Focus
-                                        isFavorite -> AppColors.Warning
-                                        else -> AppColors.Brand
-                                    },
-                                    contentColor = favoriteInk
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = if (isFavorite) stringResource(R.string.add_group_remove_favorites)
-                                        else stringResource(R.string.add_group_add_favorites),
-                                    tint = favoriteInk
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = if (isFavorite) stringResource(R.string.add_group_remove_favorites)
-                                    else stringResource(R.string.add_group_add_favorites),
-                                    color = favoriteInk
+                            item {
+                                MenuAction(
+                                    label = stringResource(
+                                        if (isFavorite) R.string.add_group_remove_favorites
+                                        else R.string.add_group_add_favorites),
+                                    icon = Icons.Default.Star,
+                                    accent = AppColors.Brand,
+                                    selected = isFavorite,
+                                    onClick = { if (canInteract) onToggleFavorite() },
+                                    modifier = Modifier.focusRequester(firstActionFocus)
                                 )
                             }
-                        }
-
-                        if (onMoveToMovies != null) {
-                            item {
-                                Button(
-                                    onClick = safeMoveToMovies,
-                                    modifier = Modifier.fillMaxWidth().mouseClickable(onClick = safeMoveToMovies),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = AppColors.Brand,
-                                        contentColor = contentOnColor(AppColors.Brand)
-                                    )
-                                ) { Text(stringResource(R.string.m3u_move_to_movies)) }
+                            if (onMoveToMovies != null) item {
+                                MenuAction(stringResource(R.string.m3u_move_to_movies), Icons.Default.Add,
+                                    AppColors.Brand, onClick = { if (canInteract) onMoveToMovies() })
                             }
-                        }
-
-                        if (onMoveToSeries != null) {
-                            item {
-                                Button(
-                                    onClick = safeMoveToSeries,
-                                    modifier = Modifier.fillMaxWidth().mouseClickable(onClick = safeMoveToSeries),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = AppColors.Success,
-                                        contentColor = contentOnColor(AppColors.Success)
-                                    )
-                                ) { Text(stringResource(R.string.m3u_move_to_series)) }
+                            if (onMoveToSeries != null) item {
+                                MenuAction(stringResource(R.string.m3u_move_to_series), Icons.Default.Add,
+                                    AppColors.Success, onClick = { if (canInteract) onMoveToSeries() })
                             }
-                        }
-
-                        if (onMoveBackToLive != null) {
-                            item {
-                                Button(
-                                    onClick = safeMoveBackToLive,
-                                    modifier = Modifier.fillMaxWidth().mouseClickable(onClick = safeMoveBackToLive),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                ) { Text(stringResource(R.string.m3u_move_back_to_live)) }
+                            if (onMoveBackToLive != null) item {
+                                MenuAction(stringResource(R.string.m3u_move_back_to_live), Icons.Default.Add,
+                                    AppColors.Brand, onClick = { if (canInteract) onMoveBackToLive() })
                             }
-                        }
-
-                        // ג”€ג”€ Split Screen ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
-                        if (channel != null && onOpenSplitScreenPlanner != null) {
+                            if (channel != null && onOpenSplitScreenPlanner != null) item {
+                                MenuAction(
+                                    label = stringResource(
+                                        if (isQueuedForSplitScreen) R.string.multiview_queued
+                                        else R.string.multiview_add_to_split),
+                                    icon = Icons.Default.Add,
+                                    accent = AppColors.Success,
+                                    selected = isQueuedForSplitScreen,
+                                    onClick = { if (canInteract) onOpenSplitScreenPlanner() }
+                                )
+                            }
+                            if (channel != null && onHideChannel != null) item {
+                                MenuAction(stringResource(R.string.channel_action_hide), Icons.Default.Lock,
+                                    AppColors.Warning, onClick = { if (canInteract) onHideChannel() })
+                            }
+                            if (onRemoveFromRecent != null) item {
+                                MenuAction(stringResource(R.string.channel_options_remove_from_recent),
+                                    Icons.Default.Close, AppColors.Warning,
+                                    onClick = { if (canInteract) onRemoveFromRecent() })
+                            }
                             item {
-                                var isFocused by remember { mutableStateOf(false) }
-                                Button(
-                                    onClick = safeOpenSplitScreenPlanner,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .onFocusChanged { isFocused = it.isFocused }
-                                        .background(
-                                            color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .border(
-                                            if (isFocused) 3.dp else 0.dp,
-                                            if (isFocused) AppColors.Focus else Color.Transparent,
-                                            CircleShape
-                                        )
-                                        .mouseClickable(onClick = safeOpenSplitScreenPlanner),
-                                    colors = ButtonDefaults.colors(
-                                    containerColor = when {
-                                        isFocused -> AppColors.Focus
-                                        isQueuedForSplitScreen -> AppColors.Success.copy(alpha = 0.8f)
-                                        else -> AppColors.Success
+                                Spacer(Modifier.height(4.dp))
+                                Box(Modifier.fillMaxWidth().height(1.dp).background(AppColors.Outline))
+                                Text(stringResource(R.string.add_group_custom_groups_title),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppColors.TextSecondary,
+                                    modifier = Modifier.padding(top = 14.dp, bottom = 4.dp))
+                            }
+                            items(groups, key = { it.id }) { group ->
+                                val isMember = group.id in memberOfGroups
+                                MenuAction(
+                                    label = group.name,
+                                    icon = Icons.Default.Add,
+                                    accent = AppColors.Brand,
+                                    selected = isMember,
+                                    trailing = stringResource(
+                                        if (isMember) R.string.add_group_remove_btn
+                                        else R.string.add_group_add_btn),
+                                    onClick = {
+                                        if (canInteract) {
+                                            if (isMember) onRemoveFromGroup(group) else onAddToGroup(group)
+                                        }
                                     }
                                 )
-                            ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = stringResource(R.string.multiview_add_to_split),
-                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else Color.White
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = if (isQueuedForSplitScreen) stringResource(R.string.multiview_queued)
-                                        else stringResource(R.string.multiview_add_to_split),
-                                        color = if (isFocused) contentOnColor(AppColors.Focus) else Color.White
-                                    )
-                                }
                             }
-                        }
-
-                        // ג”€ג”€ Hide channel ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
-                        if (channel != null && onHideChannel != null) {
-                            item {
-                                var isFocused by remember { mutableStateOf(false) }
-                                Button(
-                                    onClick = safeHideChannel,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .onFocusChanged { isFocused = it.isFocused }
-                                        .background(
-                                            color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .border(
-                                            if (isFocused) 3.dp else 0.dp,
-                                            if (isFocused) AppColors.Focus else Color.Transparent,
-                                            CircleShape
-                                        )
-                                        .mouseClickable(onClick = safeHideChannel),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = if (isFocused) AppColors.Focus else AppColors.SurfaceAccent,
-                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Lock,
-                                        contentDescription = stringResource(R.string.channel_action_hide),
-                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.channel_action_hide),
-                                        color = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
-                                    )
-                                }
+                            if (onCreateGroup != null) item {
+                                MenuAction(stringResource(R.string.add_group_create_new_btn),
+                                    Icons.Default.Add, AppColors.Brand,
+                                    onClick = { if (canInteract) showCreateGroup = true })
                             }
-                        }
-
-                        // ג”€ג”€ Remove from Recent ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
-                        if (onRemoveFromRecent != null) {
-                            item {
-                                var isFocused by remember { mutableStateOf(false) }
-                                Button(
-                                    onClick = safeRemoveFromRecent,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .onFocusChanged { isFocused = it.isFocused }
-                                        .background(
-                                            color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .border(
-                                            if (isFocused) 3.dp else 0.dp,
-                                            if (isFocused) AppColors.Focus else Color.Transparent,
-                                            CircleShape
-                                        )
-                                        .mouseClickable(onClick = safeRemoveFromRecent),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = when {
-                                            isFocused -> AppColors.Focus
-                                            else -> MaterialTheme.colorScheme.errorContainer
-                                        },
-                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.channel_options_remove_from_recent),
-                                        tint = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.channel_options_remove_from_recent),
-                                        color = if (isFocused) contentOnColor(AppColors.Focus) else MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
-                            }
-                        }
-
-                        // ג”€ג”€ Custom Groups Section ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€ג”€
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                                    .height(1.dp)
-                                    .background(AppColors.SurfaceAccent.copy(alpha = 0.7f))
-                            )
-                            Text(
-                                text = stringResource(R.string.add_group_custom_groups_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = AppColors.TextPrimary,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
-
-                        items(
-                            items = groups,
-                            key = { it.id },
-                            contentType = { "category" }
-                        ) { group ->
-                            val isMember = memberOfGroups.contains(group.id)
-                            var isFocused by remember { mutableStateOf(false) }
-                            val groupAction = { if (isMember) safeRemoveFromGroup(group) else safeAddToGroup(group) }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = group.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = AppColors.TextPrimary,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Button(
-                                    onClick = groupAction,
-                                    modifier = Modifier
-                                        .background(
-                                            color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .onFocusChanged { isFocused = it.isFocused }
-                                        .border(
-                                            if (isFocused) 3.dp else 0.dp,
-                                            if (isFocused) AppColors.Focus else Color.Transparent,
-                                            CircleShape
-                                        )
-                                        .mouseClickable(onClick = groupAction),
-                                    colors = ButtonDefaults.colors(
-                                        containerColor = when {
-                                            isFocused -> AppColors.Focus
-                                            isMember -> AppColors.Live.copy(alpha = 0.2f)
-                                            else -> AppColors.BrandMuted.copy(alpha = 0.4f)
-                                        },
-                                        contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
-                                    )
-                                ) {
-                                    Text(
-                                        if (isMember) stringResource(R.string.add_group_remove_btn)
-                                        else stringResource(R.string.add_group_add_btn)
-                                    )
-                                }
-                            }
-                        }
-
-                    if (onCreateGroup != null) item {
-                        var isFocused by remember { mutableStateOf(false) }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = safeCreateGroup,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onFocusChanged { isFocused = it.isFocused }
-                                .background(
-                                    color = if (isFocused) AppColors.Focus else Color.Transparent,
-                                    shape = CircleShape
-                                )
-                                .border(
-                                    if (isFocused) 3.dp else 1.dp,
-                                    if (isFocused) AppColors.Focus else AppColors.BrandMuted.copy(alpha = 0.55f),
-                                    CircleShape
-                                )
-                                .mouseClickable(onClick = safeCreateGroup),
-                            colors = ButtonDefaults.colors(
-                                containerColor = if (isFocused) AppColors.Focus else Color.Transparent,
-                                contentColor = if (isFocused) contentOnColor(AppColors.Focus) else AppColors.TextPrimary
-                            )
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_group_create_new_btn))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.add_group_create_new_btn))
                         }
                     }
-                        }
-                    }
-                }
-            }
-
-            if (isTelevisionDevice) {
-                dialogContent(dialogModifier)
-            } else {
-                BoxWithConstraints(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val responsiveModifier = when {
-                        maxWidth < 700.dp -> Modifier.fillMaxWidth(0.92f)
-                        maxWidth < 1280.dp -> Modifier.fillMaxWidth(0.58f)
-                        else -> Modifier.width(400.dp)
-                    }
-                    dialogContent(responsiveModifier)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun MenuAction(
+    label: String,
+    icon: ImageVector,
+    accent: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    trailing: String? = null
+) {
+    MenuFocusSurface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        containerColor = if (selected) accent.copy(alpha = 0.17f) else AppColors.SurfaceAccent
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                Modifier.size(34.dp).background(accent.copy(alpha = 0.17f), RoundedCornerShape(9.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
+            }
+            Text(label, style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium, color = AppColors.TextPrimary,
+                maxLines = 2, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f))
+            if (trailing != null) {
+                Text(trailing, style = MaterialTheme.typography.labelMedium, color = accent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MenuFocusSurface(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    containerColor: Color,
+    content: @Composable BoxScope.() -> Unit
+) {
+    TvClickableSurface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = ClickableSurfaceDefaults.shape(actionShape),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = containerColor,
+            focusedContainerColor = containerColor,
+            contentColor = AppColors.TextPrimary,
+            focusedContentColor = AppColors.TextPrimary
+        ),
+        border = ClickableSurfaceDefaults.border(
+            border = Border(border = BorderStroke(1.dp, AppColors.Outline), shape = actionShape),
+            focusedBorder = Border(border = BorderStroke(2.dp, AppColors.Focus), shape = actionShape)
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+        content = content
+    )
 }

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -378,74 +379,88 @@ fun EpisodeRowCard(
     fallbackImageUrl: String? = null
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val previewWidth = if (screenWidth < 700.dp) 124.dp else 164.dp
+    val previewWidth = if (screenWidth < 700.dp) 116.dp else 154.dp
     val durationMs = episode.durationSeconds.toLong() * 1000L
     val showProgress = episode.watchProgress > 5000L && durationMs > 0L &&
         !isPlaybackComplete(episode.watchProgress, durationMs)
     val displayUrl = episode.coverUrl.takeIf { !it.isNullOrBlank() } ?: fallbackImageUrl
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(BrowseShapes.Panel)
-            .background(AppColors.SurfaceElevated)
-            .padding(16.dp)
+            .background(
+                Brush.horizontalGradient(
+                    listOf(AppColors.SurfaceElevated, AppColors.Surface)
+                )
+            )
+            .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .width(previewWidth)
-                        .aspectRatio(16f / 9f)
-                        .clip(BrowseShapes.Artwork)
-                        .background(AppColors.SurfaceEmphasis),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_episode, episode.episodeNumber),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppColors.TextSecondary
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.width(previewWidth).aspectRatio(16f / 9f)
+                    .clip(BrowseShapes.Artwork)
+                    .background(AppColors.SurfaceEmphasis)
+                    .border(1.dp, AppColors.Outline, BrowseShapes.Artwork),
+                contentAlignment = Alignment.Center
+            ) {
+                if (displayUrl != null) {
+                    AsyncImage(
+                        model = rememberCrossfadeImageModel(displayUrl),
+                        contentDescription = episode.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
-                    if (displayUrl != null) {
-                        AsyncImage(
-                            model = displayUrl,
-                            contentDescription = episode.title,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(
-                        text = episode.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppColors.TextPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                Text(
+                    text = stringResource(R.string.label_episode_full, episode.episodeNumber),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppColors.TextPrimary,
+                    modifier = Modifier.align(Alignment.TopStart)
+                        .padding(7.dp)
+                        .background(AppColors.HeroBottom.copy(alpha = 0.9f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+                if (showProgress) {
+                    LinearProgressIndicator(
+                        progress = { (episode.watchProgress.toFloat() / durationMs).coerceIn(0f, 1f) },
+                        modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(4.dp),
+                        color = AppColors.Brand,
+                        trackColor = AppColors.SurfaceEmphasis
                     )
-                    ContentMetadataStrip(
-                        values = listOf(stringResource(R.string.label_episode_full, episode.episodeNumber), episode.duration ?: "")
-                    )
-                    episode.plot?.takeIf { it.isNotBlank() }?.let { plot ->
-                        Text(
-                            text = plot,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = AppColors.TextSecondary,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
                 }
             }
-            if (showProgress) {
-                LinearProgressIndicator(
-                    progress = { (episode.watchProgress.toFloat() / durationMs).coerceIn(0f, 1f) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .height(3.dp),
-                    color = AppColors.Brand,
-                    trackColor = AppColors.SurfaceEmphasis
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text(
+                    text = episode.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppColors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+                episode.duration?.takeIf { it.isNotBlank() }?.let { duration ->
+                    Text(
+                        duration,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = AppColors.Brand
+                    )
+                }
+                episode.plot?.takeIf { it.isNotBlank() }?.let { plot ->
+                    Text(
+                        text = plot,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = AppColors.TextSecondary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

@@ -55,17 +55,9 @@ public fun ProviderSettingsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = if (isActive) SurfaceHighlight else SurfaceElevated,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .border(
-                width = if (isActive) 2.dp else 0.dp,
-                color = if (isActive) Primary else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .settingsDetailPanel(accented = isActive)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Provider info
         Row(
@@ -73,16 +65,17 @@ public fun ProviderSettingsCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = provider.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                     color = OnBackground
                 )
                 Text(
-                    text = provider.type.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurface
+                    text = diagnostics?.sourceLabel ?: provider.type.name.replace('_', ' '),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = OnSurfaceDim
                 )
             }
             ProviderStatusBadge(
@@ -93,14 +86,15 @@ public fun ProviderSettingsCard(
                     com.streamvault.domain.model.StalkerTransportMode.AUTO_STRICT
             )
             if (isActive) {
+                Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.settings_provider_in_use),
                     style = MaterialTheme.typography.labelSmall,
                     color = Primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     modifier = Modifier
-                        .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .background(Primary.copy(alpha = 0.1f), SettingsDetailShapes.Badge)
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }
         }
@@ -167,27 +161,31 @@ public fun ProviderSettingsCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = OnSurface
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ProviderCompactStat(
                     title = stringResource(R.string.settings_diagnostic_live),
-                    value = model.liveCatalogCount(liveOnboardingIncomplete, xtreamLiveOnboardingPhase)
+                    value = model.liveCatalogCount(liveOnboardingIncomplete, xtreamLiveOnboardingPhase),
+                    modifier = Modifier.weight(1f)
                 )
                 ProviderCompactStat(
                     title = stringResource(R.string.settings_diagnostic_movies),
                     value = model.movieCatalogCount(xtreamIndexSectionStatuses["MOVIE"]),
-                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
+                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                    modifier = Modifier.weight(1f)
                 )
                 if (provider.type != ProviderType.M3U) {
                     ProviderCompactStat(
                         title = stringResource(R.string.settings_diagnostic_series),
                         value = model.seriesCatalogCount(xtreamIndexSectionStatuses["SERIES"]),
-                        syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
+                        syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 ProviderCompactStat(
                     title = stringResource(R.string.settings_diagnostic_epg),
                     value = model.epgCatalogCount(xtreamIndexSectionStatuses["EPG"]),
-                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
+                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                    modifier = Modifier.weight(1f)
                 )
             }
 

@@ -30,8 +30,8 @@ public fun RecordingMetricCard(
 ) {
     Column(
         modifier = modifier
-            .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(12.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .settingsDetailPanel()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
@@ -41,7 +41,7 @@ public fun RecordingMetricCard(
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             color = OnBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

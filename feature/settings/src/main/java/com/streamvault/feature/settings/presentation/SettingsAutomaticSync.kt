@@ -3,10 +3,7 @@ package com.streamvault.feature.settings.presentation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,7 +14,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.SurfaceElevated
@@ -48,9 +44,9 @@ internal fun AutomaticSyncSettingsCard(
     val editable = provider == null || override != null
 
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        modifier = Modifier.fillMaxWidth(),
+        shape = SettingsDetailShapes.Panel,
+        colors = SurfaceDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier.fillMaxWidth().settingsDetailPanel(),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -328,8 +324,7 @@ internal fun AutomaticSyncSettingsCard(
     }
 
     dialog?.let { choice ->
-        PremiumDialog(
-            onDismissRequest = { dialog = null },
+        SettingsSingleChoiceDialog(
             title = stringResource(
                 when (choice) {
                     "catalog" -> R.string.settings_auto_sync_catalog_interval
@@ -337,69 +332,70 @@ internal fun AutomaticSyncSettingsCard(
                     else -> R.string.settings_auto_sync_window
                 }
             ),
-            content = {
-                LazyColumn(Modifier.heightIn(max = 360.dp)) {
-                    if (choice == "window") {
-                        item {
-                            ClickableSettingsRow(
-                                stringResource(R.string.settings_auto_sync_any_time), "",
-                                {
-                                    update(policy.copy(windowStartHour = 0, windowEndHour = 0))
-                                    dialog = null
-                                },
-                            )
-                            ClickableSettingsRow(
-                                stringResource(R.string.settings_auto_sync_overnight), "",
-                                {
-                                    update(policy.copy(windowStartHour = 2, windowEndHour = 6))
-                                    dialog = null
-                                },
-                            )
-                            ClickableSettingsRow(
-                                stringResource(R.string.settings_auto_sync_start),
-                                stringResource(R.string.settings_auto_sync_hour, policy.windowStartHour),
-                                { dialog = "start" },
-                            )
-                            ClickableSettingsRow(
-                                stringResource(R.string.settings_auto_sync_end),
-                                stringResource(R.string.settings_auto_sync_hour, policy.windowEndHour),
-                                { dialog = "end" },
-                            )
-                        }
-                    } else if (choice == "start" || choice == "end") {
-                        items((0..23).toList()) { hour ->
-                            ClickableSettingsRow(
-                                stringResource(R.string.settings_auto_sync_hour, hour),
-                                "",
-                                {
-                                    update(
-                                        if (choice == "start") {
-                                            policy.copy(windowStartHour = hour)
-                                        } else {
-                                            policy.copy(windowEndHour = hour)
-                                        }
-                                    )
-                                    dialog = "window"
-                                },
-                            )
-                        }
-                    } else {
-                        items(listOf(1, 3, 6, 12, 24, 48, 168)) { hours ->
-                            ClickableSettingsRow(
-                                pluralStringResource(R.plurals.settings_auto_sync_hours, hours, hours),
-                                "",
-                                {
-                                    update(
-                                        if (choice == "catalog") policy.copy(catalogHours = hours)
-                                        else policy.copy(epgHours = hours)
-                                    )
-                                    dialog = null
-                                },
-                            )
-                        }
-                    }
+            onDismiss = { dialog = null },
+            widthFraction = 0.44f,
+            bodyHeightFraction = 0.62f,
+        ) {
+            when (choice) {
+                "window" -> {
+                    SettingsChoiceOption(
+                        label = stringResource(R.string.settings_auto_sync_any_time),
+                        selected = policy.windowStartHour == policy.windowEndHour,
+                        onSelect = {
+                            update(policy.copy(windowStartHour = 0, windowEndHour = 0))
+                            dialog = null
+                        },
+                    )
+                    SettingsChoiceOption(
+                        label = stringResource(R.string.settings_auto_sync_overnight),
+                        selected = policy.windowStartHour == 2 && policy.windowEndHour == 6,
+                        onSelect = {
+                            update(policy.copy(windowStartHour = 2, windowEndHour = 6))
+                            dialog = null
+                        },
+                    )
+                    SettingsChoiceOption(
+                        label = stringResource(R.string.settings_auto_sync_start),
+                        description = stringResource(R.string.settings_auto_sync_hour, policy.windowStartHour),
+                        selected = false,
+                        onSelect = { dialog = "start" },
+                    )
+                    SettingsChoiceOption(
+                        label = stringResource(R.string.settings_auto_sync_end),
+                        description = stringResource(R.string.settings_auto_sync_hour, policy.windowEndHour),
+                        selected = false,
+                        onSelect = { dialog = "end" },
+                    )
                 }
-            },
-        )
+                "start", "end" -> (0..23).forEach { hour ->
+                    val isStart = choice == "start"
+                    SettingsChoiceOption(
+                        label = stringResource(R.string.settings_auto_sync_hour, hour),
+                        selected = hour == if (isStart) policy.windowStartHour else policy.windowEndHour,
+                        onSelect = {
+                            update(
+                                if (isStart) policy.copy(windowStartHour = hour)
+                                else policy.copy(windowEndHour = hour)
+                            )
+                            dialog = "window"
+                        },
+                    )
+                }
+                else -> listOf(1, 3, 6, 12, 24, 48, 168).forEach { hours ->
+                    val selectedHours = if (choice == "catalog") policy.catalogHours else policy.epgHours
+                    SettingsChoiceOption(
+                        label = pluralStringResource(R.plurals.settings_auto_sync_hours, hours, hours),
+                        selected = hours == selectedHours,
+                        onSelect = {
+                            update(
+                                if (choice == "catalog") policy.copy(catalogHours = hours)
+                                else policy.copy(epgHours = hours)
+                            )
+                            dialog = null
+                        },
+                    )
+                }
+            }
+        }
     }
 }

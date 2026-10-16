@@ -51,6 +51,7 @@ All notable product changes are recorded in this document.
 ### Changed
 
 - Improved the VOD UI with consistent subtitle, audio, and OpenSubtitles side panels matching playback settings, separate Sources and Settings tabs, immediate access to provider, online, and device subtitles, and clearer remote navigation and track selection.
+- Modernized the visual design across Live TV, Movies & Series details and episode lists, search, split-screen setup and controls, and Settings detail pages and selection dialogs. Unified surfaces, spacing, shapes, and theme-aware colors while preserving the blue default, alternate themes, navigation, and feature placement; selection focus now uses a steady outline without scaling.
 - Raised M3U admission ceilings to 500,000 entries and 400,000 live channels or movies per provider.
 - Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
 - Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.

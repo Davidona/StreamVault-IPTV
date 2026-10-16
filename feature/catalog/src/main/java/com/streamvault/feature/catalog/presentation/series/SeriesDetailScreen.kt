@@ -1,6 +1,5 @@
 package com.streamvault.feature.catalog.presentation.series
 
-import com.streamvault.core.ui.design.browsePrimaryButtonColors
 import com.streamvault.core.ui.design.BrowseShapes
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -8,6 +7,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -63,6 +65,8 @@ import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.EpisodeRowCard
+import com.streamvault.feature.catalog.presentation.components.DetailActionButton
+import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
@@ -269,6 +273,7 @@ private fun SeriesDetailContent(
                                 .aspectRatio(2f / 3f)
                                 .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
+                                .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
                         ) {
                             AsyncImage(
                                 model = rememberCrossfadeImageModel(series.posterUrl ?: series.backdropUrl),
@@ -357,6 +362,7 @@ private fun SeriesDetailContent(
                                 .aspectRatio(2f / 3f)
                                 .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
+                                .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
                         ) {
                             AsyncImage(
                                 model = rememberCrossfadeImageModel(series.posterUrl ?: series.backdropUrl),
@@ -440,11 +446,7 @@ private fun SeriesDetailContent(
             if (series.seasons.isNotEmpty()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.series_seasons),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = AppColors.TextPrimary
-                        )
+                        DetailSectionHeading(stringResource(R.string.series_seasons))
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(vertical = 2.dp)
@@ -463,18 +465,10 @@ private fun SeriesDetailContent(
 
             selectedSeason?.let { season ->
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(
-                            text = stringResource(R.string.series_episodes, season.episodes.size),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = AppColors.TextPrimary
-                        )
-                        Text(
-                            text = season.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = AppColors.TextTertiary
-                        )
-                    }
+                    DetailSectionHeading(
+                        stringResource(R.string.series_episodes, season.episodes.size),
+                        season.name
+                    )
                 }
                 val fallbackCover = series?.let {
                         it.posterUrl ?: it.backdropUrl
@@ -558,52 +552,31 @@ private fun SeriesDetailActions(
     onCast: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        TvButton(
-            onClick = { onResumeClick(resumeEpisode) },
-            colors = browsePrimaryButtonColors()
-        ) {
-            Text(
-                text = if (hasProgress) {
-                    stringResource(
-                        R.string.series_detail_resume,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber,
-                        formatPositionMs(resumeEpisode.watchProgress)
-                    )
-                } else {
-                    stringResource(
-                        R.string.series_detail_play_episode,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber
-                    )
-                }
-            )
-        }
-        TvButton(
-            onClick = onCopyUrl,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(stringResource(R.string.stream_url_copy))
-        }
-        TvButton(
-            onClick = onCast,
-            enabled = !isCasting,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        item { DetailActionButton(
+            label = if (hasProgress) {
                 stringResource(
-                    if (isCasting) R.string.cast_launching else R.string.cast_button_label
+                    R.string.series_detail_resume,
+                    resumeEpisode.seasonNumber,
+                    resumeEpisode.episodeNumber,
+                    formatPositionMs(resumeEpisode.watchProgress)
                 )
-            )
-        }
-        SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+            } else {
+                stringResource(
+                    R.string.series_detail_play_episode,
+                    resumeEpisode.seasonNumber,
+                    resumeEpisode.episodeNumber
+                )
+            },
+            onClick = { onResumeClick(resumeEpisode) },
+            primary = true
+        ) }
+        item { DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl) }
+        item { DetailActionButton(
+            stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+            onCast, enabled = !isCasting
+        ) }
+        item { SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite) }
     }
 }
 
@@ -614,9 +587,17 @@ private fun SeriesDetailFavoriteAction(
 ) {
     TvIconButton(
         onClick = onToggleFavorite,
+        scale = ButtonDefaults.scale(focusedScale = 1f),
+        shape = ButtonDefaults.shape(shape = CircleShape),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline), shape = CircleShape),
+            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus), shape = CircleShape)
+        ),
         colors = ButtonDefaults.colors(
             containerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-            contentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
+            focusedContainerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+            contentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary,
+            focusedContentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
         )
     ) {
         Icon(
@@ -640,7 +621,7 @@ fun SeasonChip(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) AppColors.BrandMuted else AppColors.SurfaceElevated,
             contentColor = AppColors.TextPrimary,
-            focusedContainerColor = AppColors.SurfaceEmphasis,
+            focusedContainerColor = if (isSelected) AppColors.BrandMuted else AppColors.SurfaceElevated,
             focusedContentColor = AppColors.TextPrimary
         ),
         border = ClickableSurfaceDefaults.border(
@@ -652,7 +633,8 @@ fun SeasonChip(
                 border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus),
                 shape = BrowseShapes.Control
             )
-        )
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Text(
             text = season.name,
@@ -682,8 +664,13 @@ fun EpisodeItem(
             shape = ClickableSurfaceDefaults.shape(shape = BrowseShapes.Panel),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = AppColors.SurfaceElevated,
-                focusedContainerColor = AppColors.SurfaceEmphasis
+                focusedContainerColor = AppColors.SurfaceElevated
             ),
+            border = ClickableSurfaceDefaults.border(
+                border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Panel),
+                focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus), shape = BrowseShapes.Panel)
+            ),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
             modifier = Modifier.weight(1f)
         ) {
             EpisodeRowCard(
@@ -692,29 +679,17 @@ fun EpisodeItem(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            TvButton(
-                onClick = onDownload,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.download_button_label))
-            }
-            TvButton(onClick = onCopyUrl) {
-                Text(stringResource(R.string.stream_url_copy))
-            }
-            TvButton(
-                onClick = onCast,
-                enabled = !isCasting
-            ) {
-                Text(
-                    stringResource(
-                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
-                    )
-                )
-            }
+        Column(
+            modifier = Modifier.width(140.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            DetailActionButton(stringResource(R.string.download_button_label), onDownload,
+                modifier = Modifier.fillMaxWidth(), compact = true)
+            DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl,
+                modifier = Modifier.fillMaxWidth(), compact = true)
+            DetailActionButton(
+                stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+                onCast, modifier = Modifier.fillMaxWidth(), enabled = !isCasting, compact = true)
         }
     }
 }

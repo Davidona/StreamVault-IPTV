@@ -1,6 +1,5 @@
 package com.streamvault.feature.catalog.presentation.movies
 
-import com.streamvault.core.ui.design.browsePrimaryButtonColors
 import com.streamvault.core.ui.design.BrowseShapes
 import android.content.Intent
 import android.content.ClipData
@@ -9,6 +8,7 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -59,6 +60,9 @@ import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
+import com.streamvault.feature.catalog.presentation.components.DetailActionButton
+import com.streamvault.feature.catalog.presentation.components.DetailInfoPanel
+import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
@@ -315,13 +319,14 @@ private fun MovieDetailContent(
                 }
             }
 
+            if (listOf(movie.director, movie.releaseDate, movie.duration, movie.genre, movie.cast)
+                    .any { !it.isNullOrBlank() }) {
+                item { MovieFactGrid(movie = movie) }
+            }
+
             if (relatedContent.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.movie_detail_related),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppColors.TextPrimary
-                    )
+                    DetailSectionHeading(stringResource(R.string.movie_detail_related))
                 }
                 item {
                     LazyRow(
@@ -375,6 +380,7 @@ private fun MoviePoster(
             .aspectRatio(2f / 3f)
             .clip(BrowseShapes.Panel)
             .background(AppColors.SurfaceElevated)
+            .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
     ) {
         AsyncImage(
             model = rememberCrossfadeImageModel(movie.posterUrl ?: movie.backdropUrl),
@@ -443,76 +449,45 @@ private fun MovieDetailHeroText(
             isLoading = isLoadingExternalRatings
         )
 
-        MovieFactGrid(movie = movie)
-
         MovieVersionSelector(
             variants = movie.variants,
             selectedVariantId = movie.selectedVariantId ?: movie.id,
             onSelectVariant = onSelectVariant
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            TvButton(
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            item { DetailActionButton(
+                label = if (hasResume) {
+                    stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
+                } else {
+                    stringResource(R.string.movie_detail_play)
+                },
                 onClick = onPlay,
                 modifier = Modifier.focusRequester(playButtonFocusRequester),
-                colors = browsePrimaryButtonColors()
-            ) {
-                Text(
-                    text = if (hasResume) {
-                        stringResource(R.string.movie_detail_resume_from, formatPositionMs(resumePositionMs))
-                    } else {
-                        stringResource(R.string.movie_detail_play)
-                    }
-                )
-            }
-            TvButton(
-                onClick = onCopyUrl,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.stream_url_copy))
-            }
-            TvButton(
-                onClick = onDownload,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.download_button_label))
-            }
-            TvButton(
-                onClick = onCast,
-                enabled = !isCasting,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(
-                    stringResource(
-                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
-                    )
-                )
-            }
+                primary = true
+            ) }
+            item { DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl) }
+            item { DetailActionButton(stringResource(R.string.download_button_label), onDownload) }
+            item { DetailActionButton(
+                stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+                onCast, enabled = !isCasting
+            ) }
             if (hasTrailer) {
-                TvButton(
-                    onClick = onPlayTrailer,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.SurfaceEmphasis,
-                        contentColor = AppColors.TextPrimary
-                    )
-                ) {
-                    Text(stringResource(R.string.movie_detail_trailer))
-                }
+                item { DetailActionButton(stringResource(R.string.movie_detail_trailer), onPlayTrailer) }
             }
-            TvIconButton(
+            item { TvIconButton(
                 onClick = onToggleFavorite,
+                scale = ButtonDefaults.scale(focusedScale = 1f),
+                shape = ButtonDefaults.shape(shape = CircleShape),
+                border = ButtonDefaults.border(
+                    border = Border(androidx.compose.foundation.BorderStroke(1.dp, AppColors.Outline), shape = CircleShape),
+                    focusedBorder = Border(androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus), shape = CircleShape)
+                ),
                 colors = ButtonDefaults.colors(
                     containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    contentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
+                    focusedContainerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+                    contentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary,
+                    focusedContentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
                 )
             ) {
                 Icon(
@@ -521,7 +496,7 @@ private fun MovieDetailHeroText(
                         if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
                     )
                 )
-            }
+            } }
         }
 
         Text(
@@ -529,7 +504,7 @@ private fun MovieDetailHeroText(
                 ?: stringResource(R.string.movie_plot_fallback),
             style = MaterialTheme.typography.bodyLarge,
             color = AppColors.TextSecondary,
-            maxLines = 6,
+            maxLines = 4,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -592,32 +567,41 @@ private fun resolveTrailerUrl(rawTrailer: String?): String? {
 
 @Composable
 private fun MovieFactGrid(movie: Movie) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        MovieFactRow(label = stringResource(R.string.movie_detail_director), value = movie.director)
-        MovieFactRow(label = stringResource(R.string.movie_detail_release_date), value = movie.releaseDate)
-        MovieFactRow(label = stringResource(R.string.movie_detail_duration), value = movie.duration)
-        MovieFactRow(label = stringResource(R.string.movie_detail_genre), value = movie.genre)
-        MovieFactRow(label = stringResource(R.string.movie_detail_cast), value = movie.cast)
+    DetailInfoPanel(spacing = 12.dp) {
+        movie.director?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_director), value = it)
+        }
+        movie.releaseDate?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_release_date), value = it)
+        }
+        movie.duration?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_duration), value = it)
+        }
+        movie.genre?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_genre), value = it)
+        }
+        movie.cast?.takeIf { it.isNotBlank() }?.let {
+            MovieFactRow(label = stringResource(R.string.movie_detail_cast), value = it)
+        }
     }
 }
 
 @Composable
 private fun MovieFactRow(
     label: String,
-    value: String?
+    value: String
 ) {
-    val resolvedValue = value?.takeIf { it.isNotBlank() } ?: stringResource(R.string.movie_detail_unknown)
     Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
-            color = AppColors.TextPrimary,
-            modifier = Modifier.width(180.dp)
+            style = MaterialTheme.typography.labelMedium,
+            color = AppColors.TextTertiary,
+            modifier = Modifier.width(130.dp)
         )
         Text(
-            text = resolvedValue,
-            style = MaterialTheme.typography.bodyLarge,
-            color = AppColors.TextSecondary,
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.TextPrimary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )

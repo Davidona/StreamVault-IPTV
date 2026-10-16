@@ -357,7 +357,7 @@ private fun RemoteShortcutSettingsPanel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(18.dp))
+                .settingsDetailPanel()
                 .padding(horizontal = 14.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

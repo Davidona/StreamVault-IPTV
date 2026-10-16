@@ -4,9 +4,11 @@ import com.streamvault.feature.settings.presentation.*
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -124,32 +126,40 @@ public fun ProviderCompactStat(
 public fun ProviderCompactStat(
     title: String,
     value: ProviderCatalogCountUiModel,
-    syncingLabel: String = stringResource(R.string.settings_catalog_count_syncing)
+    syncingLabel: String = stringResource(R.string.settings_catalog_count_syncing),
+    modifier: Modifier = Modifier,
 ) {
-    Surface(
-        shape = RoundedCornerShape(10.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+    BoxWithConstraints(modifier) {
+        val compact = maxWidth < 100.dp
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = SettingsDetailShapes.Row,
+            colors = SurfaceDefaults.colors(
+                containerColor = com.streamvault.core.ui.design.AppColors.current.canvas.copy(alpha = 0.6f)
+            )
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelSmall,
-                color = OnSurfaceDim
-            )
-            Text(
-                text = value.count.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                color = OnBackground
-            )
-            providerCatalogStatusTagText(value, syncingLabel)?.let { tag ->
+            Column(
+                modifier = Modifier.padding(horizontal = if (compact) 8.dp else 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 Text(
-                    text = tag,
+                    text = title,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Secondary
+                    color = OnSurfaceDim
                 )
+                Text(
+                    text = value.count.toString(),
+                    style = if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = OnBackground
+                )
+                providerCatalogStatusTagText(value, syncingLabel)?.let { tag ->
+                    Text(
+                        text = tag,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Secondary
+                    )
+                }
             }
         }
     }
@@ -197,7 +207,7 @@ public fun ProviderStatusBadge(
         color = color,
         fontWeight = FontWeight.Bold,
         modifier = Modifier
-            .background(color.copy(alpha = 0.16f), RoundedCornerShape(4.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .background(color.copy(alpha = 0.12f), SettingsDetailShapes.Badge)
+            .padding(horizontal = 10.dp, vertical = 6.dp)
     )
 }

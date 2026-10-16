@@ -1328,36 +1328,34 @@ private fun SearchActionButton(
     focusRequester: FocusRequester? = null,
     enabled: Boolean = true
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     val baseModifier = modifier
         .fillMaxWidth()
-        .onFocusChanged { isFocused = it.isFocused }
         .then(
             if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
         )
-        .border(
-            width = if (isFocused) 2.dp else 0.dp,
-            color = if (isFocused) AppColors.Focus else Color.Transparent,
-            shape = BrowseShapes.Artwork
-        )
         .mouseClickable(onClick = onClick)
+
+    val actionColor = if (isActive) AppColors.Warning.copy(alpha = 0.18f)
+        else AppColors.SurfaceAccent
 
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = baseModifier,
         colors = ButtonDefaults.colors(
-            containerColor = when {
-                !enabled -> AppColors.Surface.copy(alpha = 0.3f)
-                isFocused -> AppColors.Focus
-                isActive -> AppColors.Warning.copy(alpha = 0.85f)
-                else -> AppColors.Brand.copy(alpha = 0.70f)
-            },
-            contentColor = if (!enabled) AppColors.TextSecondary else Color.Black,
+            containerColor = actionColor,
+            focusedContainerColor = actionColor,
+            contentColor = AppColors.TextPrimary,
+            focusedContentColor = AppColors.TextPrimary,
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
             disabledContentColor = AppColors.TextSecondary
         ),
-        shape = ButtonDefaults.shape(shape = BrowseShapes.Artwork)
+        shape = ButtonDefaults.shape(shape = BrowseShapes.Control),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline)),
+            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus))
+        ),
+        scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Icon(
             imageVector = icon,

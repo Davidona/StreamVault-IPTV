@@ -5,12 +5,16 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,23 +51,31 @@ internal fun SettingsActionSurface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    overview: Boolean = false,
     content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
+    val shape = if (overview) RoundedCornerShape(SettingsDesignTokens.groupRadius) else SettingsDetailShapes.Row
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
+        shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = colors.groupSurface,
+            containerColor = if (overview) colors.groupSurface else AppColors.current.surfaceElevated,
             focusedContainerColor = colors.focusedSurface,
             disabledContainerColor = colors.groupSurface.copy(alpha = 0.58f)
         ),
         border = ClickableSurfaceDefaults.border(
+            border = androidx.tv.material3.Border(
+                androidx.compose.foundation.BorderStroke(
+                    if (overview) 0.dp else 1.dp,
+                    if (overview) Color.Transparent else colors.primaryText.copy(alpha = 0.09f)
+                ), shape = shape,
+            ),
             focusedBorder = androidx.tv.material3.Border(
                 androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
-                shape = RoundedCornerShape(SettingsDesignTokens.groupRadius)
+                shape = shape
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
@@ -74,11 +86,11 @@ internal fun SettingsActionSurface(
 @Composable
 public fun SettingsRow(label: String, value: String, modifier: Modifier = Modifier) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
-    Column(modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.simpleRowMinHeight)
-        .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8),
+    Column(modifier.fillMaxWidth().settingsDetailPanel().heightIn(min = SettingsDesignTokens.simpleRowMinHeight)
+        .padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space12),
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = colors.secondaryText)
-        Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.primaryText)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = colors.secondaryText)
+        Text(value, style = MaterialTheme.typography.titleSmall, color = colors.primaryText)
     }
 }
 
@@ -93,21 +105,42 @@ public fun ClickableSettingsRow(
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
     SettingsActionSurface(onClick = onClick, enabled = enabled, modifier = modifier) {
-        Row(Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
-            .padding(start = SettingsDesignTokens.space16 + indent, end = SettingsDesignTokens.space16,
-                top = SettingsDesignTokens.space8, bottom = SettingsDesignTokens.space8),
-            horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space16), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(label, style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = if (enabled) colors.primaryText else colors.disabledText)
-                if (value.isNotBlank()) Text(value, style = MaterialTheme.typography.bodySmall,
-                    color = if (enabled) colors.secondaryText else colors.disabledText)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val compactValue = value.isNotBlank() && value.length <= 28 &&
+                !value.contains('\n') && maxWidth >= 520.dp
+            val valueMaxWidth = maxWidth * 0.4f
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)
+                    .padding(
+                        start = SettingsDesignTokens.space16 + indent,
+                        end = SettingsDesignTokens.space16,
+                        top = SettingsDesignTokens.space8,
+                        bottom = SettingsDesignTokens.space8,
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space16),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(label, style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Medium,
+                        color = if (enabled) colors.primaryText else colors.disabledText)
+                    if (value.isNotBlank() && !compactValue) {
+                        Text(value, style = MaterialTheme.typography.bodySmall,
+                            color = if (enabled) colors.secondaryText else colors.disabledText)
+                    }
+                }
+                if (compactValue) {
+                    Text(value, style = MaterialTheme.typography.labelLarge,
+                        color = if (enabled) colors.accent else colors.disabledText,
+                        modifier = Modifier.widthIn(max = valueMaxWidth)
+                            .background(colors.accent.copy(alpha = 0.10f), SettingsDetailShapes.Control)
+                            .padding(horizontal = 12.dp, vertical = 8.dp))
+                }
+                androidx.tv.material3.Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = if (enabled) colors.secondaryText else colors.disabledText,
+                    modifier = Modifier.size(20.dp))
             }
-            androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                contentDescription = null,
-                tint = if (enabled) colors.secondaryText else colors.disabledText,
-                modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -136,18 +169,22 @@ public fun SwitchSettingsRow(
                 top = SettingsDesignTokens.space8, bottom = SettingsDesignTokens.space8),
             horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space16), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
+                Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium,
                     color = if (enabled) colors.primaryText else colors.disabledText)
                 if (value.isNotBlank()) Text(value, style = MaterialTheme.typography.bodySmall,
                     color = if (enabled) colors.secondaryText else colors.disabledText)
             }
             Switch(checked = checked, onCheckedChange = null, enabled = enabled,
+                thumbContent = if (checked) ({
+                    androidx.tv.material3.Icon(Icons.Rounded.Check, contentDescription = null,
+                        tint = colors.accent, modifier = Modifier.size(14.dp))
+                }) else null,
                 colors = androidx.compose.material3.SwitchDefaults.colors(
                     checkedTrackColor = colors.accent,
-                    checkedThumbColor = colors.canvas,
-                    uncheckedTrackColor = colors.groupSurface,
+                    checkedThumbColor = com.streamvault.core.ui.design.contentOnColor(colors.accent),
+                    uncheckedTrackColor = colors.canvas,
                     uncheckedThumbColor = colors.secondaryText,
-                    uncheckedBorderColor = colors.secondaryText
+                    uncheckedBorderColor = colors.secondaryText.copy(alpha = 0.55f)
                 ))
         }
     }

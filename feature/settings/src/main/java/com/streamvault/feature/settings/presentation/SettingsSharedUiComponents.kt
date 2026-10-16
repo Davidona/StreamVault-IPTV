@@ -66,18 +66,18 @@ fun SettingsOverviewStat(
 ) {
     Column(
         modifier = modifier
-            .background(SurfaceHighlight.copy(alpha = 0.28f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .settingsDetailPanel()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            text = label.uppercase(Locale.getDefault()),
+            text = label,
             style = MaterialTheme.typography.labelSmall,
             color = OnSurfaceDim
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             color = OnBackground,
             fontWeight = FontWeight.SemiBold
         )
@@ -96,7 +96,7 @@ fun CompactSettingsActionChip(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+        shape = ClickableSurfaceDefaults.shape(SettingsDetailShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = accent.copy(alpha = if (enabled) 0.14f else 0.08f),
             contentColor = accent.copy(alpha = if (enabled) 1f else 0.42f),
@@ -108,11 +108,11 @@ fun CompactSettingsActionChip(
         border = ClickableSurfaceDefaults.border(
             border = Border(
                 border = BorderStroke(1.dp, com.streamvault.core.ui.design.AppColors.Divider),
-                shape = RoundedCornerShape(8.dp)
+                shape = SettingsDetailShapes.Control
             ),
             focusedBorder = Border(
                 border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
-                shape = RoundedCornerShape(8.dp)
+                shape = SettingsDetailShapes.Control
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -120,8 +120,8 @@ fun CompactSettingsActionChip(
         Text(
             text = label,
             color = accent.copy(alpha = if (enabled) 1f else 0.42f),
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
         )
     }
 }
@@ -232,7 +232,7 @@ fun EpgSourceTextField(
             pendingInputActivation = true
             requestBringIntoView()
         },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+        shape = ClickableSurfaceDefaults.shape(SettingsDetailShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = settingsColors.searchSurface,
             focusedContainerColor = settingsColors.searchFocusedSurface,
@@ -240,11 +240,11 @@ fun EpgSourceTextField(
         border = ClickableSurfaceDefaults.border(
             border = Border(
                 BorderStroke(1.dp, settingsColors.divider),
-                shape = RoundedCornerShape(8.dp),
+                shape = SettingsDetailShapes.Control,
             ),
             focusedBorder = Border(
                 BorderStroke(SettingsDesignTokens.focusStroke, settingsColors.focusOutline),
-                shape = RoundedCornerShape(8.dp),
+                shape = SettingsDetailShapes.Control,
             ),
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
