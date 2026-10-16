@@ -8,7 +8,12 @@ sealed class XtreamApiException(message: String, cause: Throwable? = null) :
     Exception(message, cause),
     ProviderSetupFailure
 
-class XtreamNetworkException(message: String, cause: Throwable? = null) :
+class XtreamNetworkException(
+    message: String,
+    cause: Throwable? = null,
+    override val statusCode: Int? = null,
+    val retryAfterMs: Long? = null
+) :
     IOException(message, cause),
     ProviderSetupFailure {
     override val kind: ProviderSetupFailureKind = ProviderSetupFailureKind.NETWORK

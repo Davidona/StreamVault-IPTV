@@ -52,13 +52,15 @@ internal class SyncManagerPlanDelegate(
     override suspend fun syncXtreamMovies(request: SectionProviderSyncRequest): SyncOutcome =
         xtreamCatalogSectionExecutor.syncMovies(
             request.snapshot.toLegacyProvider(),
-            request.onProgress
+            request.onProgress,
+            preservePendingIndex = !request.retryFailedCategoriesOnly
         )
 
     override suspend fun syncXtreamSeries(request: SectionProviderSyncRequest): SyncOutcome =
         xtreamCatalogSectionExecutor.syncSeries(
             request.snapshot.toLegacyProvider(),
-            request.onProgress
+            request.onProgress,
+            preservePendingIndex = !request.retryFailedCategoriesOnly
         )
 
     override suspend fun syncXtreamGuide(request: ProviderGuideSyncRequest): ProviderGuideSyncResult {
@@ -112,7 +114,9 @@ internal class SyncManagerPlanDelegate(
         )
 
     override suspend fun syncStalkerLive(request: SectionProviderSyncRequest): SyncOutcome =
-        stalkerSyncExecutor.syncLive(request.snapshot.toLegacyProvider(), request.onProgress)
+        stalkerSyncExecutor.syncLive(
+            request.snapshot.toLegacyProvider(), request.onProgress, request.retryFailedCategoriesOnly
+        )
 
     override suspend fun syncStalkerEpg(request: SectionProviderSyncRequest) {
         providerEpgExecutor.syncStalkerEpgOnly(request.snapshot.toLegacyProvider(), request.onProgress)
@@ -121,13 +125,19 @@ internal class SyncManagerPlanDelegate(
     override suspend fun syncStalkerMovies(request: SectionProviderSyncRequest): SyncOutcome =
         stalkerCatalogSectionExecutor.syncMovies(
             request.snapshot.toLegacyProvider(),
-            request.onProgress
+            request.onProgress,
+            preservePendingIndex = !request.retryFailedCategoriesOnly,
+            indexCatalog = request.syncReason != XtreamLiveSyncReason.BACKGROUND_STALE ||
+                (request.snapshot.configuration as com.streamvault.domain.model.StalkerConfig).catalogMode == com.streamvault.domain.model.StalkerCatalogMode.BACKGROUND_INDEX
         )
 
     override suspend fun syncStalkerSeries(request: SectionProviderSyncRequest): SyncOutcome =
         stalkerCatalogSectionExecutor.syncSeries(
             request.snapshot.toLegacyProvider(),
-            request.onProgress
+            request.onProgress,
+            preservePendingIndex = !request.retryFailedCategoriesOnly,
+            indexCatalog = request.syncReason != XtreamLiveSyncReason.BACKGROUND_STALE ||
+                (request.snapshot.configuration as com.streamvault.domain.model.StalkerConfig).catalogMode == com.streamvault.domain.model.StalkerCatalogMode.BACKGROUND_INDEX
         )
 
     override suspend fun syncStalkerGuide(request: ProviderGuideSyncRequest): ProviderGuideSyncResult {

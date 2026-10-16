@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="one">%d सेकंड</item>
+        <item quantity="other">%d सेकंड</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d मिनट</item>
+        <item quantity="other">%1$d मिनट</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d टैब</item>
+        <item quantity="other">%d टैब</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d शेल्फ</item>
+        <item quantity="other">%d शेल्फ</item>
+    </plurals>
+</resources>

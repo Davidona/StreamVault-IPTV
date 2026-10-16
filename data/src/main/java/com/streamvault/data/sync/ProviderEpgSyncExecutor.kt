@@ -552,8 +552,8 @@ internal class ProviderEpgSyncExecutor(
         val hiddenLiveCategoryIds = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE).first()
         when {
             shouldUseExternalGuide(provider.guideSourcePolicy) -> {
-                hasRetryableFailure = hasRetryableFailure ||
-                    refreshExternalGuide(provider, hiddenLiveCategoryIds, onProgress, warnings)
+                val externalFailure = refreshExternalGuide(provider, hiddenLiveCategoryIds, onProgress, warnings)
+                hasRetryableFailure = hasRetryableFailure || externalFailure
             }
             provider.guideSourcePolicy == GuideSourcePolicy.DISABLED -> {
                 progress(provider.id, onProgress, "Guide data disabled for this provider.")

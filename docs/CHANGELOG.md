@@ -8,11 +8,26 @@ All notable product changes are recorded in this document.
 
 - Clarified Extensions navigation and plugin installation actions, added Stremio onboarding, and replaced its blanket parental gate with an independent Hide Stremio Add-ons option under Privacy (off by default).
 - Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, and resume history. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.
+- Added six selectable UI themes: Forest, Sunset, Ocean, Rose, AMOLED Black, and Vintage.
+- Added OpenSubtitles search and subtitle downloads for VOD playback.
+- Added loading local SRT subtitle files from the device during VOD playback.
+- Added VOD subtitle settings for delay adjustment and reset, font size, and black background transparency, with an appearance preview and saved size and background preferences.
+- Added pinned subtitle languages so the pinned languages appear first, in the chosen order, in provider and OpenSubtitles subtitle lists; pinning only changes ordering, missing pinned languages are ignored, and the list is saved with settings and included in backups.
+- Added Previous and Next episode controls to the VOD overlay for series playback.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
+- Added durable retries for failed Stalker live categories, scoped to the current provider configuration and visible categories, with retry promotion and cleanup committed atomically (Room migration v80 to v81).
+- Added SMB2/SMB3 share destinations for DVR recordings, with encrypted device-side credentials and in-app playback and deletion.
+- Added Stalker provider setup from supported Stalker playback or export URLs in the URL tab by detecting the portal and MAC address.
+- Added global and per-title VOD audio and subtitle preferences to portable backups, while preserving compatibility with earlier backup files.
+- Added configurable automatic provider sync in Settings, with global defaults and per-provider overrides for content sections, catalog and guide intervals, network, charging, idle, and preferred run times. It is enabled by default for saved providers, with catalogs refreshed every 24 hours and guides every 6 hours, and shows refresh status and timestamps.
+- Added 12 new translations: Albanian, Bulgarian, Croatian, Filipino, Hindi, Macedonian, Malay, Persian, Serbian, Slovak, Thai, and Traditional Chinese (Taiwan), complete across the app and feature modules.
 
 ### Fixed
 
+- Fixed live channels in custom groups showing **Add** instead of **Remove** in the channel options dialog.
+- Fixed provider observation crashes on devices where saved credentials cannot be decrypted by skipping unnecessary credential decryption in public provider projections.
+- Fixed successful new-provider setup staying on Add Provider; new providers now navigate to Home, while edits return to the previous screen.
 - Fixed repeated stream restarts during network outages and unnecessary recovery from nonfatal audio errors.
 - Fixed stalled live playback recovery to refresh the live window without interrupting active network retries.
 - Fixed adaptive playback failing to try another available rendition after eligible server or missing-segment errors.
@@ -24,16 +39,40 @@ All notable product changes are recorded in this document.
 - Fixed Xtream playlist setup ignoring the requested HLS or MPEG-TS format when playback format is set to Auto.
 - Fixed matching AVC/H.264 and HEVC/H.265 movie versions failing to group together.
 - Fixed newly imported movie summaries skipping detail loading.
+- Fixed provider diagnostics reporting movie catalogs as stale while their background index was queued, retrying, or running, including Stalker providers.
+- Fixed Stalker add-provider security and verification dialogs stretching to near full screen; they now size to their content and use a narrower width on compact screens.
+- Fixed Xtream series losing some or all of their episodes after another series was opened (#166). Episode ids are now unique per series instead of per provider, and series cached before the fix are re-fetched the next time they are opened.
+- Fixed M3U channels sharing a `tvg-id` but using different stream URLs or Acestream hashes from being incorrectly treated as the same channel (#231).
 - Fixed background movie refresh crashes when saved provider credentials cannot be decrypted.
+- Fixed Series browsing and background hydration continuing from cached catalog data when saved provider credentials cannot be decrypted.
 - Fixed cropped video during adaptive resolution changes on affected Android TV emulators.
+- Fixed backup imports rejecting internal restore checkpoints and episode conflict previews matching episodes without their parent-series identity.
+- Fixed backup export sharing to remove failed temporary files and share only completed exports.
+- Fixed Jellyfin scheduled sync repeatedly fetching movie and series catalogs without checking freshness.
+- Fixed scheduled Stalker index checks reading Xtream job state and enqueueing redundant index work.
 
 ### Changed
 
+- Improved the VOD UI with consistent subtitle, audio, and OpenSubtitles side panels matching playback settings, separate Sources and Settings tabs, immediate access to provider, online, and device subtitles, and clearer remote navigation and track selection.
+- Modernized the visual design across Live TV, Movies & Series details and episode lists, search, split-screen setup and controls, and Settings detail pages and selection dialogs. Unified surfaces, spacing, shapes, and theme-aware colors while preserving the blue default, alternate themes, navigation, and feature placement; selection focus now uses a steady outline without scaling.
+- Raised M3U admission ceilings to 500,000 entries and 400,000 live channels or movies per provider.
+- Reduced duplicate category requests and per-row identity database work during Stalker provider setup, preserving portal verification and stable catalog IDs.
+- Added direct Stalker live-row decoding and bounded ingestion with isolated authorization retries; incomplete responses cannot promote a full catalog, and bootstrap prefixes do not certify bulk catalog fidelity.
+- Overlapped Stalker live-category and bulk requests when provider admission allows it; category fallback now streams isolated attempts, preserves failed scopes, stops bootstrap after its accepted prefix, and leaves incomplete live coverage eligible for durable refresh.
+- Improved Stalker VOD recovery and hydration: an empty first page retries through the paged API without accumulating a whole category, page provenance and durable continuation remain accurate, and category protection is read in the page commit transaction.
+- Fenced Stalker index row, checkpoint, metadata, and prune writes by the active provider-workflow lease; preserved mixed movie/native-series/VOD-derived-series classification and page ordering.
+- Updated scheduled sync for Xtream, Stalker, M3U, and Jellyfin to refresh stale sections for saved providers through their current sync paths, defer background work during playback or recording, and catch up when the device becomes idle.
+
+- Reworked Xtream Live sync with streamed decoding and bounded staging, and made bulk-first `AUTO` the normal-build default with category fallback for safety conditions and bulk failures.
+- Applied the Xtream live strategy to Add Provider and Settings refresh, including hidden-category routing and clearer sync progress.
+- Reduced repeated Xtream movie/series summary work with fingerprint checks and bounded resumable indexing; prioritized catalog work before guide refreshes and coalesced duplicate imports.
 - Improved playback buffer memory limits based on stream bitrate, device memory, and multiview usage.
 - Prioritized active playback over adjacent-item preloading and removed startup thumbnail warmup.
 - Improved seek previews with request-header support and cancellation when seeking or leaving the player.
 - Reduced audio output buffering for more responsive playback.
 - Restored automatic live playback speed adjustments to stay near the live edge.
+- Clarified in Settings that backup files contain provider passwords in readable form.
+- Updated all missing translations across the app and feature modules.
 
 ## [1.0.19]
 

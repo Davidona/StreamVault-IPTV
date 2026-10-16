@@ -13,7 +13,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.tv.material3.MaterialTheme
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseVisualStyle
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.core.ui.components.shell.AppSectionHeader
@@ -91,11 +92,11 @@ class CatalogPresentationGoldenTest {
     private fun captureGolden(name: String, content: @androidx.compose.runtime.Composable () -> Unit) {
         composeRule.setContent {
             StreamVaultTheme {
-                MaterialTheme {
+                BrowseVisualStyle {
                     Box(
                         Modifier
                             .fillMaxSize()
-                            .background(AppColors.Canvas)
+                            .background(BrowseColors.Canvas)
                             .testTag("golden")
                     ) {
                         content()

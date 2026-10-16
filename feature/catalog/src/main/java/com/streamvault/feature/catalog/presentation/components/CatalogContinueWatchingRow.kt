@@ -32,12 +32,12 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.core.ui.theme.AccentCyan
-import com.streamvault.core.ui.theme.GradientOverlayBottom
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
-import com.streamvault.core.ui.theme.TextTertiary
+import com.streamvault.core.ui.design.browse.AccentCyan
+import com.streamvault.core.ui.design.browse.GradientOverlayBottom
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
+import com.streamvault.core.ui.design.browse.TextTertiary
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 

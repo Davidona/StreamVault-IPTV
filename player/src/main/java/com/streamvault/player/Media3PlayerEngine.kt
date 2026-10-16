@@ -283,6 +283,9 @@ class Media3PlayerEngine @Inject constructor(
     private val audioVideoOffsetUs = AtomicLong(0L)
     private val _audioVideoOffsetMs = MutableStateFlow(0)
     override val audioVideoOffsetMs: StateFlow<Int> = _audioVideoOffsetMs.asStateFlow()
+    private val subtitleOffsetUs = AtomicLong(0L)
+    private val _subtitleOffsetMs = MutableStateFlow(0)
+    override val subtitleOffsetMs: StateFlow<Int> = _subtitleOffsetMs.asStateFlow()
     private val _audioVideoSyncEnabled = MutableStateFlow(false)
     override val audioVideoSyncEnabled: StateFlow<Boolean> = _audioVideoSyncEnabled.asStateFlow()
 
@@ -517,11 +520,22 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
+        com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
+        if (_subtitleOffsetMs.value != 0) {
+            _subtitleOffsetMs.value = 0
+            subtitleOffsetUs.set(0L)
+        }
         if (!vodTrackPreferencesConfiguredForNextPrepare) {
             trackController.setVodTrackPreferences(exoPlayer, null)
         }
         vodTrackPreferencesConfiguredForNextPrepare = false
         prepareInternal(streamInfo = streamInfo, preserveRetryState = false, seekPositionMs = null, autoPlay = true)
+    }
+
+    private fun withSubtitleOffset(
+        mediaSource: androidx.media3.exoplayer.source.MediaSource
+    ): androidx.media3.exoplayer.source.MediaSource = SubtitleOffsetMediaSource(mediaSource) {
+        subtitleOffsetUs.get()
     }
 
     override fun renewStreamUrl(streamInfo: StreamInfo) {
@@ -558,7 +572,7 @@ class Media3PlayerEngine @Inject constructor(
             preload = false
         ).second
 
-        player.setMediaSource(mediaSource, /* resetPosition= */ false)
+        player.setMediaSource(withSubtitleOffset(mediaSource), /* resetPosition= */ false)
         player.prepare()
 
         Log.i(
@@ -568,6 +582,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun play() {
+        if (exoPlayer != null && lastStreamInfo != null) com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
         if (audioFocusController.requestAudioFocusIfNeeded()) {
             exoPlayer?.playWhenReady = true
             syncTimeshiftState()
@@ -581,6 +596,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun stop() {
+        com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         clearAdaptiveDecodePressure()
         retryJob?.cancel()
         retryJob = null
@@ -750,6 +766,14 @@ class Media3PlayerEngine @Inject constructor(
         audioVideoOffsetUs.set(effectiveOffset * 1_000L)
     }
 
+    override fun setSubtitleOffsetMs(offsetMs: Int) {
+        val clamped = offsetMs.coerceIn(SUBTITLE_OFFSET_MIN_MS, SUBTITLE_OFFSET_MAX_MS)
+        if (_subtitleOffsetMs.value == clamped) return
+        _subtitleOffsetMs.value = clamped
+        subtitleOffsetUs.set(clamped * 1_000L)
+        exoPlayer?.let { player -> player.seekTo(player.currentPosition) }
+    }
+
     override fun setAudioOutputPreference(preference: AudioOutputPreference) {
         if (audioOutputPreference == preference) return
         audioOutputPreference = preference
@@ -848,6 +872,10 @@ class Media3PlayerEngine @Inject constructor(
         trackController.setPreferredAudioLanguage(exoPlayer, languageTag)
     }
 
+    override fun setPinnedSubtitleLanguages(languages: List<String>) {
+        trackController.setPinnedSubtitleLanguages(languages)
+    }
+
     override fun setVodTrackPreferences(preferences: VodTrackPreferences?) {
         vodTrackPreferencesConfiguredForNextPrepare = true
         trackController.setVodTrackPreferences(exoPlayer, preferences)
@@ -885,7 +913,12 @@ class Media3PlayerEngine @Inject constructor(
         liveAudioTap = tap
     }
 
-    override fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String?) {
+    override fun addExternalSubtitle(
+        subtitleUri: android.net.Uri,
+        language: String,
+        label: String?,
+        subtitleSource: SubtitleTrackSource?
+    ) {
         val player = exoPlayer ?: return
         val streamInfo = lastStreamInfo ?: return
         val retryPolicy = currentRetryPolicy ?: return
@@ -901,7 +934,17 @@ class Media3PlayerEngine @Inject constructor(
             vodHttpProtocolMode = requestedVodHttpProtocolMode,
             preload = false
         )
-        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language, label)
+        val resolvedSubtitleSource = subtitleSource ?: if (label != null) {
+            SubtitleTrackSource.DEVICE
+        } else {
+            SubtitleTrackSource.ONLINE
+        }
+        val subtitleConfig = buildExternalSubtitleConfiguration(
+            subtitleUri = subtitleUri,
+            language = language,
+            label = label,
+            subtitleSource = resolvedSubtitleSource
+        )
         val subtitleSource = buildExternalSubtitleMediaSource(
             dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
             configuration = subtitleConfig
@@ -909,7 +952,8 @@ class Media3PlayerEngine @Inject constructor(
         val merged = androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleSource)
 
         player.trackSelectionParameters = player.trackSelectionParameters.withExternalSubtitleEnabled()
-        player.setMediaSource(merged, /* resetPosition= */ false)
+        trackController.requestExternalSubtitleAutoSelect(resolvedSubtitleSource)
+        player.setMediaSource(withSubtitleOffset(merged), /* resetPosition= */ false)
         player.prepare()
         transition.resumePositionMs.takeIf { it > 0L }?.let(player::seekTo)
         player.playWhenReady = transition.playWhenReady
@@ -1000,6 +1044,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun release() {
+        com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         if (isDisposed) return
         isDisposed = true
         liveTimeshiftManager.detachComponentCallbacks()
@@ -1259,7 +1304,7 @@ class Media3PlayerEngine @Inject constructor(
             if (managedSource != null) {
                 Log.i(TAG, "preload-source reused mediaId=$mediaId source=window")
             }
-            player.setMediaSource(mediaSource)
+            player.setMediaSource(withSubtitleOffset(mediaSource))
             player.prepare()
             seekPositionMs?.takeIf { it > 0L }?.let(player::seekTo)
 
@@ -1649,6 +1694,7 @@ class Media3PlayerEngine @Inject constructor(
     private fun createPlayerListener(): Player.Listener {
         return object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
                 val previousState = _playbackState.value
                 _playbackState.value = when (state) {
                     Player.STATE_IDLE -> PlaybackState.IDLE
@@ -1727,6 +1773,7 @@ class Media3PlayerEngine @Inject constructor(
             override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                 trackController.onTracksChanged(tracks)
                 exoPlayer?.let(trackController::applyVodTrackPreferences)
+                exoPlayer?.let(trackController::applyPendingExternalSubtitleAutoSelect)
                 refreshChapters(tracks)
                 // Detect the silent failure: the stream contains audio groups but no track
                 // is decodable on this device (e.g. EAC3/AC3 without passthrough or a

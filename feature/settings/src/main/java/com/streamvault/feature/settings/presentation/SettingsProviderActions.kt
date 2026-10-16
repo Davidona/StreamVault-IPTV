@@ -4,10 +4,10 @@ import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
-import com.streamvault.domain.model.ProviderEpgSyncMode
+import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
-import com.streamvault.domain.model.SyncMetadata
+import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
@@ -19,6 +19,7 @@ import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -39,7 +40,8 @@ internal class SettingsProviderActions(
     private val settingsOperations: SettingsOperations,
     private val syncMetadataRepository: SyncMetadataRepository,
     private val surfaceRefreshPort: SettingsSurfaceRefreshPort,
-    private val uiState: MutableStateFlow<SettingsUiState>
+    private val uiState: MutableStateFlow<SettingsUiState>,
+    private val onSyncRequested: (CoroutineScope, Provider) -> Unit
 ) {
     private companion object {
         val AUTO_SWITCH_SYNC_STALE_AFTER_MS = 24.hours.inWholeMilliseconds
@@ -67,21 +69,8 @@ internal class SettingsProviderActions(
             surfaceRefreshPort.refreshWatchNext()
             surfaceRefreshPort.refreshRecommendations()
             surfaceRefreshPort.refreshTvInputCatalog()
-            val shouldAutoSync = shouldAutoSyncProvider(
-                lastSyncedAt = provider.lastSyncedAt,
-                now = System.currentTimeMillis(),
-                staleAfterMillis = AUTO_SWITCH_SYNC_STALE_AFTER_MS
-            )
-            if (shouldAutoSync) {
-                refreshProvider(
-                    scope = scope,
-                    providerId = providerId,
-                    syncMode = SettingsProviderSyncMode.SYNC_NOW,
-                    progressPrefix = "Refreshing ${provider.name}..."
-                )
-            } else {
-                uiState.update { it.copy(userMessage = "Connected to ${provider.name}") }
-            }
+            settingsOperations.requestAutomaticSyncCheck()
+            uiState.update { it.copy(userMessage = "Connected to ${provider.name}") }
         }
     }
 
@@ -270,32 +259,24 @@ internal class SettingsProviderActions(
         }
     }
 
-    fun refreshProvider(
+    fun rebuildProviderIndex(
         scope: CoroutineScope,
-        providerId: Long,
-        syncMode: SettingsProviderSyncMode = SettingsProviderSyncMode.SYNC_NOW,
-        progressPrefix: String? = null,
-        startedAt: Long = 0L,
-        sectionLabel: String? = null,
-        isCancelable: Boolean = false
+        providerId: Long
     ): Job {
-        return scope.launch {
+        return scope.launch(start = CoroutineStart.LAZY) {
             val providerName = providerRepository.getProvider(providerId)?.name
             uiState.update {
                 it.copy(
                     isSyncing = true,
                     syncingProviderName = providerName,
-                    syncProgress = progressPrefix ?: "Preparing sync...",
-                    syncStartedAt = startedAt,
-                    syncSectionLabel = sectionLabel,
-                    syncCanCancel = isCancelable
+                    syncProgress = "Queueing index rebuild...",
+                    syncStartedAt = System.currentTimeMillis(),
+                    syncSectionLabel = "Rebuild index",
+                    syncCanCancel = true
                 )
             }
             try {
-                when (syncMode) {
-                    SettingsProviderSyncMode.SYNC_NOW -> runSyncNow(providerId, providerName)
-                    SettingsProviderSyncMode.REBUILD_INDEX -> runRebuildIndex(providerId, providerName)
-                }
+                runRebuildIndex(providerId, providerName)
             } catch (e: CancellationException) {
                 uiState.update {
                     it.copy(
@@ -304,7 +285,8 @@ internal class SettingsProviderActions(
                         syncingProviderName = null,
                         syncStartedAt = 0L,
                         syncSectionLabel = null,
-                        syncCanCancel = false
+                        syncCanCancel = false,
+                        userMessage = "Refresh stopped. Already queued library work will continue."
                     )
                 }
                 throw e
@@ -324,99 +306,21 @@ internal class SettingsProviderActions(
         }
     }
 
-    private suspend fun runSyncNow(providerId: Long, providerName: String?) {
+    suspend fun prepareProviderRefresh(providerId: Long): Result<ProviderSectionSyncResult> {
         val provider = providerRepository.getProvider(providerId)
-        val pendingXtreamTextRefreshGeneration = provider
-            ?.takeIf { it.type == ProviderType.XTREAM_CODES }
-            ?.let { currentProvider ->
-                val currentGeneration = preferencesRepository.getXtreamTextImportGeneration()
-                val appliedGeneration = preferencesRepository.getXtreamTextImportAppliedGeneration(currentProvider.id)
-                currentGeneration.takeIf { it > appliedGeneration }
-            }
-        val beforeMetadata = syncMetadataRepository.getMetadata(providerId) ?: SyncMetadata(providerId)
-        val result = syncProvider(
-            SyncProviderCommand(
-                providerId = providerId,
-                force = pendingXtreamTextRefreshGeneration != null,
-                movieFastSyncOverride = null,
-                epgSyncModeOverride = ProviderEpgSyncMode.BACKGROUND
-            ),
-            onProgress = { message ->
-                uiState.update { state ->
-                    state.copy(
-                        syncProgress = mapSyncNowProgress(message),
-                        syncingProviderName = providerName
-                    )
-                }
-            }
-        )
-
-        if (result !is SyncProviderResult.Error) {
-            pendingXtreamTextRefreshGeneration?.let { generation ->
-                preferencesRepository.markXtreamTextImportApplied(providerId, generation)
-            }
-            val afterMetadata = syncMetadataRepository.getMetadata(providerId) ?: beforeMetadata
-            val liveRefreshed = afterMetadata.lastLiveSync > beforeMetadata.lastLiveSync ||
-                afterMetadata.liveCount != beforeMetadata.liveCount
-            val catalogRefreshed = liveRefreshed ||
-                afterMetadata.lastMovieSync > beforeMetadata.lastMovieSync ||
-                afterMetadata.lastSeriesSync > beforeMetadata.lastSeriesSync
-
-            if (liveRefreshed) {
-                uiState.update { state ->
-                    state.copy(
-                        syncProgress = "Updating TV integration...",
-                        syncingProviderName = providerName
-                    )
-                }
-                surfaceRefreshPort.refreshTvInputCatalog()
-            } else if (!catalogRefreshed) {
-                uiState.update { state ->
-                    state.copy(
-                        syncProgress = "Library already up to date.",
-                        syncingProviderName = providerName
-                    )
-                }
-            }
-
-            uiState.update { state ->
-                state.copy(
-                    syncProgress = "Scheduling EPG refresh...",
-                    syncingProviderName = providerName
-                )
-            }
-            settingsOperations.scheduleBackgroundEpgSync(providerId)
+            ?: return Result.error("Provider is no longer available")
+        if (provider.type != ProviderType.XTREAM_CODES) return Result.success(ProviderSectionSyncResult())
+        val generation = preferencesRepository.getXtreamTextImportGeneration()
+        if (generation <= preferencesRepository.getXtreamTextImportAppliedGeneration(providerId)) {
+            return Result.success(ProviderSectionSyncResult())
         }
-
-        uiState.update { state ->
-            val partialWarnings = (result as? SyncProviderResult.Success)?.warnings.orEmpty()
-            val warningsMessage = partialWarnings.take(3).joinToString(separator = ", ").ifBlank { "Some sections are incomplete." }
-            val afterMetadata = syncMetadataRepository.getMetadata(providerId) ?: beforeMetadata
-            val catalogRefreshed = afterMetadata.lastLiveSync > beforeMetadata.lastLiveSync ||
-                afterMetadata.lastMovieSync > beforeMetadata.lastMovieSync ||
-                afterMetadata.lastSeriesSync > beforeMetadata.lastSeriesSync ||
-                afterMetadata.liveCount != beforeMetadata.liveCount
-            state.copy(
-                isSyncing = false,
-                syncProgress = null,
-                syncingProviderName = null,
-                syncStartedAt = 0L,
-                syncSectionLabel = null,
-                syncCanCancel = false,
-                userMessage = when {
-                    result is SyncProviderResult.Error -> "Sync failed: ${result.message}"
-                    (result as? SyncProviderResult.Success)?.isPartial == true -> "Sync completed with warnings: $warningsMessage"
-                    pendingXtreamTextRefreshGeneration != null -> "Sync completed and reapplied Xtream text decoding"
-                    !catalogRefreshed -> "Library already up to date"
-                    else -> "Sync completed"
-                },
-                syncWarningsByProvider = when {
-                    result is SyncProviderResult.Error -> state.syncWarningsByProvider - providerId
-                    (result as? SyncProviderResult.Success)?.isPartial == true -> state.syncWarningsByProvider + (providerId to partialWarnings)
-                    else -> state.syncWarningsByProvider - providerId
-                }
-            )
+        val result = settingsOperations.rebuildXtreamIndex(providerId) { message ->
+            uiState.update { it.copy(syncProgress = message) }
         }
+        if (result is Result.Success && !result.data.partial) {
+            preferencesRepository.markXtreamTextImportApplied(providerId, generation)
+        }
+        return result
     }
 
     private suspend fun runRebuildIndex(providerId: Long, providerName: String?) {
@@ -449,11 +353,13 @@ internal class SettingsProviderActions(
                 }
             )
             when (syncResult) {
-                is SyncProviderResult.Success -> Result.success(Unit)
+                is SyncProviderResult.Success -> Result.success(ProviderSectionSyncResult(
+                    partial = syncResult.isPartial, warnings = syncResult.warnings
+                ))
                 is SyncProviderResult.Error -> Result.error(syncResult.message, syncResult.exception)
             }
         }
-        if (result !is Result.Error) {
+        if (result is Result.Success && !result.data.partial) {
             pendingXtreamTextRefreshGeneration?.let { generation ->
                 preferencesRepository.markXtreamTextImportApplied(providerId, generation)
             }
@@ -468,20 +374,15 @@ internal class SettingsProviderActions(
                 syncCanCancel = false,
                 userMessage = when {
                     result is Result.Error -> "Rebuild index failed: ${result.message}"
+                    result is Result.Success && result.data.partial ->
+                        "Index rebuild queued with warnings: ${result.data.warnings.joinToString()}"
+                    result is Result.Success && !result.data.queued -> "Index rebuild completed"
+                    result is Result.Loading -> "Index rebuild did not complete"
                     else -> "Index rebuild queued"
                 },
-                syncWarningsByProvider = when {
-                    result is Result.Error -> state.syncWarningsByProvider - providerId
-                    else -> state.syncWarningsByProvider - providerId
-                }
+                syncWarningsByProvider = state.syncWarningsByProvider
             )
         }
-    }
-
-    private fun mapSyncNowProgress(message: String): String = when (message) {
-        "Downloading Movies..." -> "Checking Movies..."
-        "Downloading Series..." -> "Checking Series..."
-        else -> message
     }
 
     fun deleteProvider(scope: CoroutineScope, providerId: Long, onSuccess: () -> Unit = {}) {

@@ -38,6 +38,30 @@ abstract class XtreamContentIndexDao {
         remoteId: String
     ): XtreamContentIndexEntity?
 
+    @Query(
+        """
+        SELECT * FROM xtream_content_index
+        WHERE provider_id = :providerId
+          AND content_type = :contentType
+          AND remote_id IN (:remoteIds)
+        """
+    )
+    abstract suspend fun getByRemoteIds(
+        providerId: Long,
+        contentType: String,
+        remoteIds: List<String>
+    ): List<XtreamContentIndexEntity>
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM xtream_content_index
+        WHERE provider_id = :providerId
+          AND content_type = :contentType
+          AND stale_state = 'ACTIVE'
+        """
+    )
+    abstract suspend fun countActiveRows(providerId: Long, contentType: String): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun upsert(entity: XtreamContentIndexEntity)
 
@@ -108,6 +132,31 @@ abstract class XtreamContentIndexDao {
 
     @Query("DELETE FROM xtream_content_index WHERE provider_id = :providerId AND content_type = :contentType")
     abstract suspend fun deleteByProviderAndType(providerId: Long, contentType: String): Int
+
+    @Query("""
+        INSERT INTO xtream_content_index (
+            provider_id, content_type, remote_id, local_content_id, name,
+            category_id, category_name, image_url, container_extension, rating,
+            added_at, remote_updated_at, is_adult, indexed_at, detail_hydrated_at,
+            stale_state, error_state, sync_fingerprint
+        )
+        SELECT provider_id, 'LIVE', CAST(stream_id AS TEXT),
+            CASE WHEN id > 0 THEN id ELSE NULL END, name,
+            category_id, COALESCE(category_name, group_title), logo_url, NULL, 0,
+            0, 0, is_adult, :indexedAt, :indexedAt, 'ACTIVE', NULL, sync_fingerprint
+        FROM channels WHERE provider_id = :providerId
+    """)
+    protected abstract suspend fun insertLiveIndexFromChannels(providerId: Long, indexedAt: Long)
+
+    @Query("SELECT COUNT(*) FROM xtream_content_index WHERE provider_id = :providerId AND content_type = 'LIVE'")
+    protected abstract suspend fun countLiveIndex(providerId: Long): Int
+
+    @Transaction
+    open suspend fun replaceLiveIndexFromChannels(providerId: Long, indexedAt: Long): Int {
+        deleteByProviderAndType(providerId, "LIVE")
+        insertLiveIndexFromChannels(providerId, indexedAt)
+        return countLiveIndex(providerId)
+    }
 
     @Query(
         """
@@ -212,6 +261,18 @@ interface XtreamIndexJobDao {
 
     @Query("SELECT * FROM xtream_index_jobs WHERE provider_id = :providerId AND section = :section")
     suspend fun get(providerId: Long, section: String): XtreamIndexJobEntity?
+
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM xtream_index_jobs
+            WHERE provider_id = :providerId
+              AND section IN ('LIVE', 'MOVIE', 'SERIES')
+              AND state IN ('QUEUED', 'RUNNING')
+        )
+        """
+    )
+    suspend fun hasPendingCatalogWork(providerId: Long): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: XtreamIndexJobEntity)

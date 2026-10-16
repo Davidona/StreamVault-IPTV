@@ -7,6 +7,7 @@ import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -14,6 +15,9 @@ import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
 import com.streamvault.data.local.entity.ProviderWorkflowPhase
 import com.streamvault.data.local.entity.ProviderWorkflowReason
+import com.streamvault.data.local.dao.ProviderDao
+import com.streamvault.data.local.dao.XtreamIndexJobDao
+import com.streamvault.domain.model.ProviderType
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -30,6 +34,8 @@ class BackgroundEpgSyncWorker(
     interface BackgroundEpgSyncWorkerEntryPoint {
         fun syncCommands(): ProviderSyncCommands
         fun providerWorkflowRunner(): ProviderWorkflowRunner
+        fun providerDao(): ProviderDao
+        fun xtreamIndexJobDao(): XtreamIndexJobDao
     }
 
     override suspend fun doWork(): Result {
@@ -54,6 +60,13 @@ class BackgroundEpgSyncWorker(
                 applicationContext,
                 BackgroundEpgSyncWorkerEntryPoint::class.java
             )
+            val provider = entryPoint.providerDao().getById(providerId)
+            if (provider?.type == ProviderType.XTREAM_CODES &&
+                entryPoint.xtreamIndexJobDao().hasPendingCatalogWork(providerId)
+            ) {
+                Log.i(TAG, "Deferring guide work for provider $providerId until queued catalog indexing completes")
+                return Result.retry()
+            }
             when (
                 entryPoint.providerWorkflowRunner().execute(
                     providerId = providerId,
@@ -159,8 +172,8 @@ class BackgroundEpgSyncWorker(
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                providerWorkUniqueName(providerId),
-                providerWorkExistingPolicy(supersede = false),
+                providerEpgWorkUniqueName(providerId),
+                ExistingWorkPolicy.KEEP,
                 request
             )
         }
@@ -168,7 +181,7 @@ class BackgroundEpgSyncWorker(
         fun cancel(context: Context, providerId: Long) {
             if (providerId <= 0L) return
             runCatching {
-                WorkManager.getInstance(context).cancelUniqueWork(providerWorkUniqueName(providerId))
+                WorkManager.getInstance(context).cancelUniqueWork(providerEpgWorkUniqueName(providerId))
             }.onFailure { error ->
                 Log.w(TAG, "Skipping background EPG cancellation for provider $providerId", error)
             }

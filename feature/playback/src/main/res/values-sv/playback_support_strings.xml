@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Castar till den anslutna enheten.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast är inte tillgängligt på den här enheten.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Det här streamformatet stöds inte av Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP- och RTMP-strömmar stöds inte för castning.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-skyddade strömmar stöds inte av Google Cast i den här appen.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Det här objektet kan inte skickas till en Cast-mottagare.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Den här strömmen använder en lokal eller enhetsunik URL som Chromecast inte kan nå direkt.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Den här strömmen kräver HTTP-huvuden eller cookies som Chromecast inte kan använda direkt.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Den här strömmen kräver en anpassad User-Agent som Chromecast inte kan använda direkt.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Den här strömmen kräver appens proxyinställningar, så Chromecast kan inte använda den direkt.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Den här strömmen använder SSL-hantering som Chromecast inte kan använda direkt.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Det gick inte att starta Cast-sessionen.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast-mottagaren kunde inte läsa in den här strömmen.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Den anslutna Cast-mottagaren är inte redo för uppspelning.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Valet av Cast-enhet avbröts.</string>
+    <string name="add_group_close_cd">Stäng</string>
+    <string name="player_archive_title">Programarkiv</string>
+    <string name="player_no_archive">Inga arkiverade program hittades</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkiv</string>
+</resources>

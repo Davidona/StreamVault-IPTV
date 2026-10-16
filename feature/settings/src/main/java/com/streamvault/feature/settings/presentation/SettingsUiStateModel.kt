@@ -11,6 +11,7 @@ import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveBackupSnapshot
 import com.streamvault.domain.manager.DriveSignInRequest
 import com.streamvault.domain.manager.DriveSyncStatus
+import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -112,8 +113,12 @@ data class SettingsUiState(
     val subtitleTextScale: Float = 1f,
     val subtitleTextColor: Int = 0xFFFFFFFF.toInt(),
     val subtitleBackgroundColor: Int = 0x80000000.toInt(),
+    val pinnedSubtitleLanguages: List<String> = emptyList(),
     val playerLiveTranslationEnabled: Boolean = false,
     val playerLiveTranslationEndpoint: String = "http://10.0.2.2:8765",
+    val openSubtitlesAccount: OpenSubtitlesAccount? = null,
+    val isOpenSubtitlesBusy: Boolean = false,
+    val openSubtitlesError: String? = null,
     val wifiMaxVideoHeight: Int? = null,
     val ethernetMaxVideoHeight: Int? = null,
     val playerTimeshiftEnabled: Boolean = false,

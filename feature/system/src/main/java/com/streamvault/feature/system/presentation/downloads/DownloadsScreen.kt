@@ -1,5 +1,7 @@
 package com.streamvault.feature.system.presentation.downloads
 
+import com.streamvault.core.ui.design.contentOnColor
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -50,7 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.streamvault.feature.system.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadStatus
@@ -255,10 +257,10 @@ private fun DownloadCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(BrowseShapes.Control)
             .clickable(enabled = download.status == DownloadStatus.COMPLETED, onClick = onOpenClick),
         color = AppColors.Surface,
-        shape = RoundedCornerShape(14.dp)
+        shape = BrowseShapes.Control
     ) {
         Column(
             modifier = Modifier
@@ -366,7 +368,7 @@ private fun StatusBadge(status: DownloadStatus, modifier: Modifier = Modifier) {
         Text(
             text = statusLabel(status),
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White,
+            color = contentOnColor(color),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }

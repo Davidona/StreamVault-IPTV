@@ -46,6 +46,7 @@ import com.streamvault.data.remote.xtream.XtreamParsingException
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.security.CredentialCrypto
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.SyncManager
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryBrowseQuery
@@ -77,6 +78,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.timeout
@@ -166,6 +169,61 @@ class SeriesRepositoryImplTest {
         verify(seriesDao, never()).replaceCategory(eq(7L), eq(77L), any())
         verify(xtreamApiService, never()).getSeriesList(any(), any())
         verify(episodeDao, never()).deleteOrphans()
+    }
+
+    @Test
+    fun `series preview keeps local catalog when provider credentials are unreadable`() = runTest {
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+            flowOf(listOf(CategoryEntity(providerId = 7L, categoryId = 77L, name = "Drama", type = ContentType.SERIES)))
+        )
+        whenever(seriesDao.getByCategoryPreview(7L, 77L, 18)).thenReturn(flowOf(emptyList()))
+        whenever(providerCapabilityResolver.snapshot(7L)).thenThrow(CredentialDecryptionException())
+
+        val result = createRepository().getCategoryPreviewRows(7L, listOf(77L), 18).first()
+
+        assertThat(result).containsKey(77L)
+        assertThat(result.getValue(77L)).isEmpty()
+        verifyNoInteractions(stalkerApiService, xtreamApiService)
+    }
+
+    @Test
+    fun `series preview contains background provider credential decryption failure`() = runTest {
+        val uncaughtExceptionLatch = CountDownLatch(1)
+        var uncaughtException: Throwable? = null
+        val previousUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { _, error ->
+            uncaughtException = error
+            uncaughtExceptionLatch.countDown()
+        }
+
+        try {
+            whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+            whenever(categoryDao.getByProviderAndType(7L, ContentType.SERIES.name)).thenReturn(
+                flowOf(listOf(CategoryEntity(providerId = 7L, categoryId = 77L, name = "Drama", type = ContentType.SERIES)))
+            )
+            whenever(seriesDao.getCountByCategory(7L, 77L)).thenReturn(flowOf(0))
+            whenever(seriesDao.getByCategoryPreview(7L, 77L, 18)).thenReturn(flowOf(emptyList()))
+            whenever(seriesCategoryHydrationDao.get(7L, 77L)).thenReturn(null)
+            whenever(stalkerRemoteIdentityResolver.reverse(7L, ContentType.SERIES, 77L)).thenReturn("77")
+
+            val provider = stalkerProvider()
+            stubProvider(provider)
+            val snapshot = provider.toProviderSnapshot()
+            whenever(providerCapabilityResolver.snapshot(7L))
+                .thenReturn(snapshot, snapshot)
+                .thenThrow(CredentialDecryptionException())
+
+            val result = createRepository().getCategoryPreviewRows(7L, listOf(77L), 18).first()
+
+            assertThat(result).containsKey(77L)
+            verify(providerCapabilityResolver, timeout(1_000).times(3)).snapshot(7L)
+            assertThat(uncaughtExceptionLatch.await(300, TimeUnit.MILLISECONDS)).isFalse()
+            assertThat(uncaughtException).isNull()
+            verifyNoInteractions(stalkerApiService)
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(previousUncaughtExceptionHandler)
+        }
     }
 
     @Test

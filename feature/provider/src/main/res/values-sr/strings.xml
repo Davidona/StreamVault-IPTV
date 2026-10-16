@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Откажи</string>
+    <string name="settings_syncing_title">Синхронизација података...</string>
+    <string name="settings_syncing_subtitle">Сачекајте док се ваша плејлиста увози.</string>
+    <string name="settings_syncing_btn">Синхронизација...</string>
+    <string name="settings_backup_restore">Резервна копија и враћање</string>
+    <string name="settings_restore_data">Увези податке</string>
+    <string name="settings_restore_subtitle">Изаберите датотеку резервне копије или отворите резервну копију у апликацији StreamVault из управљача датотека.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Додајте провајдера</string>
+    <string name="setup_edit_provider">Уреди провајдера</string>
+    <string name="setup_update_desc">Ажурирајте детаље IPTV провајдера</string>
+    <string name="setup_add_desc">Додајте IPTV провајдера</string>
+    <string name="setup_shell_eyebrow">Подешавање провајдера</string>
+    <string name="setup_shell_subtitle">Користите Xtream или M3U. Касније можете да промените.</string>
+    <string name="setup_form_subtitle">Изаберите извор, унесите детаље и наставите. Касније можете да управљате из подешавања.</string>
+    <string name="setup_source_type_label">Тип извора</string>
+    <string name="setup_info_xtream_title">Користите Xtream када су доступни акредитиви</string>
+    <string name="setup_info_xtream_body">Најбоље када имате сервер, корисника и лозинку.</string>
+    <string name="setup_info_stalker_body">URL портала плус MAC адреса коју је провајдер одобрио.</string>
+    <string name="setup_info_m3u_title">Користите M3U за URL или датотеке плејлиста</string>
+    <string name="setup_info_m3u_body">Користите линк плејлисте или увезите локалну датотеку.</string>
+    <string name="setup_info_manage_title">Провајдерима можете да управљате касније</string>
+    <string name="setup_info_manage_body">Освежите, уредите или замените касније из подешавања.</string>
+    <string name="setup_import_backup">Увези резервну копију</string>
+    <string name="badge_beta">Бета</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">M3U плејлиста</string>
+    <string name="setup_name_hint">Назив плејлисте (опционо)</string>
+    <string name="setup_server_hint">URL сервера</string>
+    <string name="setup_user_hint">Корисничко име</string>
+    <string name="setup_pass_hint">Лозинка</string>
+    <string name="setup_show_password">Прикажи лозинку</string>
+    <string name="setup_hide_password">Сакриј лозинку</string>
+    <string name="setup_phone_pairing_title">Додај са телефона</string>
+    <string name="setup_phone_pairing_body">Скенирајте QR код и унесите акредитиве провајдера са телефона на истој Wi-Fi мрежи.</string>
+    <string name="setup_phone_pairing_start">Прикажи QR код</string>
+    <string name="setup_phone_pairing_restart">Нови QR код</string>
+    <string name="setup_phone_pairing_stop">Заустави упаривање</string>
+    <string name="setup_phone_pairing_same_wifi">Отворите ово са телефона на истој Wi-Fi мрежи. Акредитиви се шаљу директно на овај ТВ.</string>
+    <string name="setup_phone_pairing_qr_description">QR код за подешавање провајдера са телефона</string>
+    <string name="setup_phone_pairing_idle">Само локално</string>
+    <string name="setup_phone_pairing_ready">Скенирајте сада</string>
+    <string name="setup_phone_pairing_receiving">Додавање</string>
+    <string name="setup_phone_pairing_complete">Додато</string>
+    <string name="setup_phone_pairing_error">Грешка</string>
+    <string name="setup_connecting">Повезивање...</string>
+    <string name="setup_save">Сачувај измене</string>
+    <string name="setup_login">Пријава</string>
+    <string name="setup_advanced_options_label">Напредне опције</string>
+    <string name="setup_advanced_options_helper">Контролишите како се подаци водича преузимају током подешавања и освежавања провајдера.</string>
+    <string name="setup_advanced_options_show">Прикажи</string>
+    <string name="setup_advanced_options_hide">Сакриј</string>
+    <string name="setup_m3u_vod_classification_label">M3U VOD класификација</string>
+    <string name="setup_m3u_vod_classification_helper">Само за M3U. Класификујте декодиране URL-ове филмова и локализоване назнаке група или наслова као филмове; препознати URL-ови стримова уживо остају у ТВ уживо.</string>
+    <string name="setup_xtream_live_sync_mode_label">Xtream синхронизација уживо</string>
+    <string name="setup_xtream_live_sync_mode_helper">Изаберите како се преузимају канали уживо. Аутоматски штити слабе уређаје и редовна освежавања док категорије остају попуњене.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Аутоматски</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Препоручено. Користи синхронизацију по категоријама на уређајима са мало меморије, освежавања у позадини, освежавања сакривених категорија и код оптерећених провајдера.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Категорија по категорија</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Увек преузимајте ТВ уживо једну категорију по једну. Сигурније за велике провајдере и слабе Android TV уређаје.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Пуштај све</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Покушајте са крајњом тачком уживо за целог провајдера користећи стриминг парсер. Враћа се на синхронизацију по категоријама ако је небезбедно или не успе.</string>
+    <string name="setup_epg_sync_mode_label">EPG синхронизација</string>
+    <string name="setup_epg_sync_mode_helper">Унапред задржава данашње понашање. У позадини прво завршава подешавање, а прескакање оставља освежавање водича за касније.</string>
+    <string name="setup_epg_sync_mode_upfront_title">Цео EPG сада</string>
+    <string name="setup_epg_sync_mode_upfront_description">Преузмите податке водича провајдера и спољних извора током подешавања, пре него што се заврши.</string>
+    <string name="setup_epg_sync_mode_background_title">Учитај EPG у позадини</string>
+    <string name="setup_epg_sync_mode_background_description">Прво завршите подешавање, затим аутоматски преузмите податке водича у позадини.</string>
+    <string name="setup_epg_sync_mode_skip_title">Прескочи EPG за сада</string>
+    <string name="setup_epg_sync_mode_skip_description">Не преузимајте податке водича аутоматски. EPG можете освежити касније из подешавања.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker може да користи нативни водич портала када XMLTV недостаје или није доступан. Унапред га увози током подешавања, У позадини га одлаже, а Прескочи оставља учитавање водича на захтев.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Преузмите канале уживо и увезите водич Stalker портала током подешавања. Ако је XMLTV подешен и ради, користи се први.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Прво завршите подешавање, затим увезите водич Stalker портала у позадини. Ако је XMLTV подешен и ради, користи се први.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Не увозите масовно податке водича аутоматски. Подаци водича уживо могу да се учитавају на захтев док прегледате канале.</string>
+    <string name="setup_m3u_hint">M3U URL</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">Датотека</string>
+    <string name="setup_choose_file">Изаберите M3U датотеку</string>
+    <string name="setup_file_replace_hint">Притисните да замените датотеку</string>
+    <string name="setup_file_select_title">Изаберите M3U датотеку</string>
+    <string name="setup_file_browse_hint">Прегледајте локално складиште или USB</string>
+    <string name="setup_file_import_failed">Увоз датотеке плејлисте није успео. Покушајте поново.</string>
+    <string name="setup_file_import_storage_full">Складиште је пуно. Ослободите простор и покушајте поново да увезете.</string>
+    <string name="setup_discard_draft_title">Одбацити нацрт подешавања?</string>
+    <string name="setup_discard_draft_body">Ово подешавање провајдера није завршено. Да ли да се вратите назад и изгубите тренутни нацрт?</string>
+    <string name="setup_discard_draft_confirm">Одбаци</string>
+    <string name="setup_discard_draft_cancel">Настави са уређивањем</string>
+    <string name="setup_validating">Провера...</string>
+    <string name="setup_add">Додај плејлисту</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Брзо повезивање</string>
+    <string name="setup_jellyfin_quick_connect_code">Код: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Отворите ваш Jellyfin сервер у прегледачу и унесите овај код или скенирајте QR код телефоном.</string>
+    <string name="setup_server_url">URL сервера</string>
+    <string name="setup_username">Корисничко име</string>
+    <string name="setup_password">Лозинка</string>
+    <string name="setup_name">Назив</string>
+    <string name="setup_name_placeholder">Мој Jellyfin сервер</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Увези са Drive-а</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+</resources>

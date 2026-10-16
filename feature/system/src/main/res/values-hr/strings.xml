@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Postavi pružatelja</string>
+  <string name="welcome_setup_later">Postavi kasnije</string>
+  <string name="welcome_loading_title">Pripremamo vašu biblioteku</string>
+  <string name="welcome_loading_subtitle">Otvaramo pravi zaslon za ovaj uređaj.</string>
+  <string name="sync_section_live">Uživo</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Serije</string>
+  <string name="sync_items_indexed_format">%1$d stavki pripremljeno</string>
+  <string name="welcome_tagline">Premium IPTV za dnevnu sobu</string>
+  <string name="welcome_subtitle">Opustite se uz kanale uživo, gledanje unatrag, filmove i serije u izvornom Android TV iskustvu.</string>
+  <string name="settings_cancel">Odustani</string>
+  <string name="nav_downloads">Preuzimanja</string>
+  <string name="downloads_loading">Učitavanje preuzimanja...</string>
+  <string name="downloads_empty_title">Još nema preuzimanja</string>
+  <string name="downloads_empty_hint">Preuzmite filmove ili epizode sa zaslona pojedinosti i pojavit će se ovdje.</string>
+  <string name="downloads_no_thumb">Nema plakata</string>
+  <string name="downloads_status_completed">Dovršeno</string>
+  <string name="downloads_status_downloading">Preuzimanje</string>
+  <string name="downloads_status_failed">Neuspješno</string>
+  <string name="downloads_status_pending">Na čekanju</string>
+  <string name="downloads_status_paused">Pauzirano</string>
+  <string name="downloads_status_cancelled">Otkazano</string>
+  <string name="downloads_item_title">Preuzimanje bez naslova</string>
+  <string name="downloads_delete_confirm_title">Izbriši preuzimanje</string>
+  <string name="downloads_delete_confirm_msg">Izbrisati %1$s iz preuzimanja?</string>
+  <string name="downloads_delete_confirm_delete">Izbriši</string>
+  <string name="downloads_deleted">Preuzimanje izbrisano</string>
+  <string name="download_folder_change">Promijeni mapu za preuzimanje</string>
+  <string name="download_folder_default">Zadana mapa za preuzimanja</string>
+  <string name="download_resume">Nastavi</string>
+  <string name="download_delete">Izbriši</string>
+  <string name="downloads_resumed">Preuzimanje nastavljeno</string>
+</resources>

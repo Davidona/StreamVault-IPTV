@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">المصادر</string>
+    <string name="vod_subtitle_settings">الإعدادات</string>
+    <string name="vod_subtitle_provider">ترجمات المزوّد</string>
+    <string name="vod_subtitle_provider_hint">اختر مسار ترجمة من هذا الفيديو</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">البحث عن ترجمات عبر الإنترنت</string>
+    <string name="vod_subtitle_online_unavailable">البحث عبر الإنترنت غير متاح لهذا الفيديو</string>
+    <string name="vod_subtitle_device_hint">اختر ملف SRT</string>
+    <string name="vod_subtitle_back">العودة إلى المصادر</string>
+    <string name="vod_tracks_empty">لا توجد مسارات متاحة في هذا الفيديو</string>
+    <string name="vod_subtitle_preview">هذه ترجمة تجريبية.</string>
+    <string name="vod_subtitle_font_size">حجم الخط</string>
+    <string name="vod_subtitle_background">عتامة الخلفية</string>
+    <string name="vod_subtitle_background_hint" formatted="false">شفافية 0% · أسود صلب 100%</string>
+    <string name="vod_subtitle_decrease_setting">تقليل %1$s</string>
+    <string name="vod_subtitle_increase_setting">زيادة %1$s</string>
+</resources>

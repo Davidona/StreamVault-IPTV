@@ -32,6 +32,7 @@ import com.streamvault.domain.manager.PortableProtectedContentBackup
 import com.streamvault.domain.manager.PortableHiddenContentBackup
 import com.streamvault.domain.manager.PortableContentPreferenceBackup
 import com.streamvault.domain.manager.PortableVariantChoiceBackup
+import com.streamvault.domain.manager.PortableVodTrackPreferenceBackup
 import com.streamvault.domain.manager.PortableManualEpgMappingV14Backup
 import com.streamvault.domain.manager.PortableMultiViewPresetV14Backup
 import com.streamvault.domain.manager.BackupProviderReference
@@ -46,6 +47,7 @@ import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.PortableSearchHistoryBackup
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.settings.VodTrackPreferenceScope
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -61,7 +63,7 @@ data class RestoreResolutionSummary(
     val failedCount: Int = 0
 )
 
-/** Applies durable v14 restore intentions after provider catalog transactions commit. */
+/** Applies portable restore intentions after provider catalog transactions commit. */
 @Singleton
 class PendingBackupRestoreCoordinator @Inject constructor(
     private val ledgerDao: BackupRestoreLedgerDao,
@@ -139,6 +141,9 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             SECTION_HIDDEN_CONTENT -> listOf(gson.fromJson(item.payloadJson, PortableHiddenContentBackup::class.java).content)
             SECTION_CONTENT_PREFERENCES -> listOf(gson.fromJson(item.payloadJson, PortableContentPreferenceBackup::class.java).content)
             SECTION_VARIANT_CHOICES -> listOf(gson.fromJson(item.payloadJson, PortableVariantChoiceBackup::class.java).selectedContent)
+            SECTION_VOD_TRACK_PREFERENCES -> listOf(
+                gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java).content
+            )
             SECTION_MANUAL_EPG -> listOf(gson.fromJson(item.payloadJson, PortableManualEpgMappingV14Backup::class.java).content)
             SECTION_MULTIVIEW -> gson.fromJson(item.payloadJson, PortableMultiViewPresetV14Backup::class.java).channels
             SECTION_RECORDING_SCHEDULES -> listOfNotNull(
@@ -216,6 +221,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         SECTION_HIDDEN_CATEGORIES -> applyHiddenCategory(item, providerId)
         SECTION_CONTENT_PREFERENCES -> applyContentPreference(item, providerId)
         SECTION_VARIANT_CHOICES -> applyVariantChoice(item, providerId)
+        SECTION_VOD_TRACK_PREFERENCES -> applyVodTrackPreference(item, providerId)
         SECTION_MANUAL_EPG -> applyManualEpg(item, providerId)
         SECTION_MULTIVIEW -> applyMultiView(item)
         SECTION_RECORDING_SCHEDULES -> applyRecordingSchedule(item, providerId)
@@ -259,12 +265,10 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             .members.all { resolveContent(providerId, it.content) != null }
         SECTION_PLAYBACK_HISTORY -> {
             val backup = gson.fromJson(item.payloadJson, PortablePlaybackHistoryBackup::class.java)
+            val resolved = resolveContent(providerId, backup.content)
             val parentRemoteId = backup.content.parentRemoteContentId
-            resolveContent(providerId, backup.content) != null &&
-                (parentRemoteId == null || resolveContent(
-                    providerId,
-                    backup.content.copy(contentType = ContentType.SERIES, remoteContentId = parentRemoteId)
-                ) != null)
+            resolved != null &&
+                (parentRemoteId == null || (resolved.seriesId ?: resolveParentSeriesId(providerId, parentRemoteId)) != null)
         }
         SECTION_PROTECTED_CONTENT -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableProtectedContentBackup::class.java).content) != null
         SECTION_HIDDEN_CONTENT -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableHiddenContentBackup::class.java).content) != null
@@ -274,6 +278,11 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         ) != null
         SECTION_CONTENT_PREFERENCES -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableContentPreferenceBackup::class.java).content) != null
         SECTION_VARIANT_CHOICES -> resolveContent(providerId, gson.fromJson(item.payloadJson, PortableVariantChoiceBackup::class.java).selectedContent) != null
+        SECTION_VOD_TRACK_PREFERENCES -> {
+            val reference = gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java).content
+            reference.contentType in setOf(ContentType.MOVIE, ContentType.VOD, ContentType.SERIES) &&
+                resolveContent(providerId, reference) != null
+        }
         SECTION_MANUAL_EPG -> {
             val backup = gson.fromJson(item.payloadJson, PortableManualEpgMappingV14Backup::class.java)
             val sourceUrl = backup.sourceUrl
@@ -310,6 +319,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                 preferencesRepository.clearPreferredLiveVariants(providerId)
                 preferencesRepository.clearPreferredVodVariants(providerId)
             }
+            SECTION_VOD_TRACK_PREFERENCES -> preferencesRepository.clearVodTrackPreferencesForProvider(providerId)
             SECTION_MANUAL_EPG -> channelEpgMappingDao.deleteByProvider(providerId)
             SECTION_SEARCH_HISTORY -> searchHistoryDao.deleteByProvider(providerId)
             SECTION_MULTIVIEW -> repeat(3) { preferencesRepository.setMultiViewPreset(it, emptyList()) }
@@ -378,11 +388,8 @@ class PendingBackupRestoreCoordinator @Inject constructor(
     private suspend fun applyPlaybackHistory(item: BackupRestoreItemEntity, providerId: Long): Boolean {
         val backup = gson.fromJson(item.payloadJson, PortablePlaybackHistoryBackup::class.java)
         val resolved = resolveContent(providerId, backup.content) ?: return false
-        val parentSeriesId = backup.content.parentRemoteContentId?.let { remoteParent ->
-            resolveContent(
-                providerId,
-                backup.content.copy(contentType = ContentType.SERIES, remoteContentId = remoteParent)
-            )?.localId
+        val parentSeriesId = resolved.seriesId ?: backup.content.parentRemoteContentId?.let { remoteParent ->
+            resolveParentSeriesId(providerId, remoteParent)
         }
         playbackHistoryDao.insertOrUpdate(
             PlaybackHistoryEntity(
@@ -467,6 +474,18 @@ class PendingBackupRestoreCoordinator @Inject constructor(
             ContentType.VOD, ContentType.MOVIE, ContentType.SERIES, ContentType.SERIES_EPISODE ->
                 preferencesRepository.setPreferredVodVariant(providerId, backup.logicalGroupId, resolved.localId)
         }
+        return true
+    }
+
+    private suspend fun applyVodTrackPreference(item: BackupRestoreItemEntity, providerId: Long): Boolean {
+        val backup = gson.fromJson(item.payloadJson, PortableVodTrackPreferenceBackup::class.java)
+        val resolved = resolveContent(providerId, backup.content) ?: return false
+        val scope = when (backup.content.contentType) {
+            ContentType.MOVIE, ContentType.VOD -> VodTrackPreferenceScope.Movie(providerId, resolved.localId)
+            ContentType.SERIES -> VodTrackPreferenceScope.Series(providerId, resolved.localId)
+            ContentType.LIVE, ContentType.SERIES_EPISODE -> return false
+        }
+        preferencesRepository.setVodTrackPreferences(scope, backup.preferences)
         return true
     }
 
@@ -601,7 +620,12 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                         ?.let { ResolvedContent(it.id, ContentType.SERIES) }
                     ContentType.SERIES_EPISODE -> episodeDao.getById(localId)
                         ?.takeIf { it.providerId == providerId }
-                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE) }
+                        ?.takeIf { episode ->
+                            reference.parentRemoteContentId
+                                ?.let { resolveParentSeriesId(providerId, it) == episode.seriesId }
+                                ?: true
+                        }
+                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE, seriesId = it.seriesId) }
                 }
             }
         val remoteLong = reference.remoteContentId.toLongOrNull()
@@ -630,19 +654,41 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                         ?.let { ResolvedContent(it.id, ContentType.SERIES) }
             }
             ContentType.SERIES_EPISODE -> {
-                val episode = remoteLong?.let { episodeDao.getByProviderAndEpisodeId(providerId, it) }
-                if (episode != null) {
-                    ResolvedContent(episode.id, ContentType.SERIES_EPISODE)
-                } else {
-                    episodeDao.getByProviderSync(providerId)
-                        .resolveUnique(reference, { it.title }, { it.streamUrl })
-                        ?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE) }
+                // Episode ids are only unique within a series: with a known parent, never search wider.
+                val parentSeriesId = reference.parentRemoteContentId?.let { remoteParent ->
+                    resolveParentSeriesId(providerId, remoteParent) ?: return null
                 }
+                val byRemoteId = remoteLong?.let { remoteEpisodeId ->
+                    if (parentSeriesId != null) {
+                        episodeDao.getByProviderSeriesAndEpisodeId(providerId, parentSeriesId, remoteEpisodeId)
+                    } else {
+                        episodeDao.getAllByProviderAndEpisodeId(providerId, remoteEpisodeId).singleOrNull()
+                    }
+                }
+                val episode = byRemoteId ?: run {
+                    val candidates = if (parentSeriesId != null) {
+                        episodeDao.getEntitiesBySeriesSync(parentSeriesId)
+                    } else {
+                        episodeDao.getByProviderSync(providerId)
+                    }
+                    candidates.resolveUnique(reference, { it.title }, { it.streamUrl })
+                }
+                episode?.let { ResolvedContent(it.id, ContentType.SERIES_EPISODE, seriesId = it.seriesId) }
             }
         }
     }
 
-    private data class ResolvedContent(val localId: Long, val favoriteType: ContentType)
+    private suspend fun resolveParentSeriesId(providerId: Long, remoteSeriesId: String): Long? {
+        val series = seriesDao.getByProviderSeriesId(providerId, remoteSeriesId)
+            ?: remoteSeriesId.toLongOrNull()?.let { seriesDao.getBySeriesId(providerId, it) }
+        return series?.id
+    }
+
+    private data class ResolvedContent(
+        val localId: Long,
+        val favoriteType: ContentType,
+        val seriesId: Long? = null
+    )
 
     private operator fun RestoreResolutionSummary.plus(other: RestoreResolutionSummary) = RestoreResolutionSummary(
         appliedCount = appliedCount + other.appliedCount,
@@ -674,6 +720,7 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         const val SECTION_HIDDEN_CATEGORIES = "HIDDEN_CATEGORIES"
         const val SECTION_CONTENT_PREFERENCES = "CONTENT_PREFERENCES"
         const val SECTION_VARIANT_CHOICES = "VARIANT_CHOICES"
+        const val SECTION_VOD_TRACK_PREFERENCES = "VOD_TRACK_PREFERENCES"
         const val SECTION_MANUAL_EPG = "MANUAL_EPG"
         const val SECTION_MULTIVIEW = "MULTIVIEW"
         const val SECTION_RECORDING_SCHEDULES = "RECORDING_SCHEDULES"

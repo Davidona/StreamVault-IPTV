@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="other">%d saat</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="other">%1$d minit</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="other">%d tab</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="other">%d rak</item>
+    </plurals>
+</resources>

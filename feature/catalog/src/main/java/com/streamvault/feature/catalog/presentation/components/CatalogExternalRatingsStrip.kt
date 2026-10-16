@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.catalog.R
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.domain.model.ExternalRatingValue
 import com.streamvault.domain.model.ExternalRatings
 
@@ -108,8 +109,8 @@ private fun RatingBadgeCard(
     Column(
         modifier = Modifier
             .widthIn(min = 92.dp)
-            .background(containerColor, RoundedCornerShape(18.dp))
-            .border(1.dp, AppColors.Outline, RoundedCornerShape(18.dp))
+            .background(containerColor, BrowseShapes.Panel)
+            .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

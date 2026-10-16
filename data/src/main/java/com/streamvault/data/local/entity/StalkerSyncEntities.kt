@@ -39,6 +39,28 @@ data class StalkerIndexJobEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long = 0L
 )
 
+/** A failed live category scope that must be retried before the catalog is considered fresh. */
+@Entity(
+    tableName = "stalker_live_category_retries",
+    primaryKeys = ["provider_id", "category_id"],
+    foreignKeys = [ForeignKey(
+        entity = ProviderEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["provider_id"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(value = ["provider_id"])]
+)
+data class StalkerLiveCategoryRetryEntity(
+    @ColumnInfo(name = "provider_id") val providerId: Long,
+    @ColumnInfo(name = "category_id") val categoryId: Long,
+    @ColumnInfo(name = "category_name") val categoryName: String,
+    @ColumnInfo(name = "configuration_generation") val configurationGeneration: Long,
+    @ColumnInfo(name = "attempt_count") val attemptCount: Int = 1,
+    @ColumnInfo(name = "last_attempt_at") val lastAttemptAt: Long,
+    @ColumnInfo(name = "last_error") val lastError: String? = null
+)
+
 @Entity(
     tableName = "stalker_portal_state",
     foreignKeys = [ForeignKey(

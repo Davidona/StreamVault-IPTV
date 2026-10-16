@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+
+    <string name="nav_home">Domov</string>
+    <string name="nav_live_tv">Živá TV</string>
+    <string name="nav_movies">Filmy</string>
+    <string name="nav_series">Seriály</string>
+    <string name="nav_epg">Sprievodca</string>
+    <string name="nav_settings">Nastavenia</string>
+    <string name="nav_plugins">Doplnky</string>
+    <string name="nav_close_app">Zavrieť aplikáciu</string>
+
+
+    <string name="welcome_enter_app">Vstúpiť do aplikácie</string>
+    <string name="welcome_manage_providers">Spravovať poskytovateľov</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Rýchle prehliadanie živého vysielania s dôrazom na ovládanie diaľkovým ovládačom</string>
+    <string name="welcome_feature_library">Filmy a seriály z rozsiahlej knižnice bez neporiadku</string>
+    <string name="welcome_feature_player">Jednotné prekrytia prehrávača, prístup k sprievodcovi a uložený obsah</string>
+    <string name="welcome_manage_hint">Vymeňte poskytovateľa, obnovte metadáta alebo pridajte nový zdroj.</string>
+
+
+    <string name="hidden_categories_dialog_title">Skryté kategórie</string>
+    <string name="hidden_categories_dialog_subtitle">Vyberte tie, ktoré chcete obnoviť.</string>
+    <string name="hidden_categories_dialog_unhide_all">Zobraziť všetky</string>
+    <string name="hidden_categories_dialog_close">Zavrieť</string>
+    <string name="home_recent_channels">Nedávne</string>
+    <string name="home_last_channel">Posledný kanál</string>
+    <string name="home_last_channel_label">Posledný: %1$s</string>
+    <string name="home_last_group_label">Posledná: %1$s</string>
+    <string name="home_loading">Načítava sa...</string>
+    <string name="home_locked_short">ZAMKNUTÉ</string>
+    <string name="live_shell_subtitle">Rýchlo prehliadajte živé kategórie, zachovajte predvídateľnú navigáciu a zobrazujte iba tie údaje o programe, ktoré sú na obrazovke dôležité.</string>
+    <string name="live_shell_context">%1$d kategórií • %2$d kanálov</string>
+    <string name="live_shell_provider">Poskytovateľ</string>
+    <string name="live_shell_split">Multiview</string>
+    <string name="live_manage_groups">Spravovať sloty multiview</string>
+    <string name="live_reorder_title">Zmena poradia %1$s</string>
+    <string name="live_empty_hint_favorites">Pridajte kanály do obľúbených alebo do uloženej skupiny a tento pruh sa naplní.</string>
+    <string name="live_empty_hint_recent">Spustite prehrávanie na niekoľkých kanáloch a zobrazia sa tu.</string>
+    <string name="home_saved_subtitle">Obľúbené a vlastné živé skupiny</string>
+    <string name="home_saved_empty_hint">Pridajte kanál do obľúbených alebo do vlastnej živej skupiny, aby sa tu pripol.</string>
+    <string name="home_delete_group_title">Odstrániť skupinu?</string>
+    <string name="home_delete_group_body">Naozaj chcete odstrániť \'%1$s\'? Týmto sa odstránia všetky kanály z tejto skupiny.</string>
+    <string name="home_delete_group_confirm">Odstrániť</string>
+    <string name="home_delete_group_cancel">Zrušiť</string>
+
+
+    <string name="dashboard_customize_home">Prispôsobiť domovskú obrazovku</string>
+    <string name="dashboard_customize_home_subtitle">Vyberte, ktoré police sa tu zobrazia, pridajte ďalšie riadky a kedykoľvek ich preusporiadajte.</string>
+    <string name="dashboard_customize_home_action">Prispôsobiť</string>
+
+
+
+    <string name="category_options_set_default">Nastaviť ako predvolenú skupinu</string>
+    <string name="category_options_rename">Premenovať skupinu</string>
+    <string name="category_options_unlock">Odomknúť skupinu</string>
+    <string name="category_options_lock">Zamknúť skupinu</string>
+    <string name="category_options_delete">Odstrániť skupinu</string>
+    <string name="category_options_cancel">Zrušiť</string>
+    <string name="category_options_reorder">Preusporiadať položky</string>
+    <string name="category_options_hide">Skryť kategóriu</string>
+    <string name="category_options_hide_from_live_tv">Skryť zo Živej TV</string>
+    <string name="category_options_clear_recent">Vymazať všetky nedávne</string>
+    <string name="category_options_pin">Pripnúť kategóriu</string>
+    <string name="category_options_unpin">Odopnúť kategóriu</string>
+    <string name="m3u_organize_items">Usporiadať položky M3U</string>
+    <string name="m3u_move_to_movies">Presunúť do filmov</string>
+    <string name="m3u_move_to_series">Presunúť do seriálov</string>
+    <string name="m3u_move_back_to_live">Presunúť späť do Živej TV</string>
+    <string name="m3u_series_name">Názov seriálu</string>
+    <string name="m3u_episode_number">Číslo epizódy</string>
+    <string name="m3u_season_number">Číslo série</string>
+    <string name="m3u_classify">Klasifikovať</string>
+    <string name="m3u_classification_saved">Klasifikácia M3U uložená</string>
+    <string name="m3u_category_rule_subtitle">Vyberte predvolenú možnosť pre túto skupinu M3U. Jednotlivé kanály sa dajú stále prepísať.</string>
+    <string name="m3u_keep_live">Ponechať ako živú TV</string>
+    <string name="m3u_series_review_title">Usporiadať seriály v %1$s</string>
+    <string name="m3u_series_review_subtitle">Skontrolujte automatické návrhy alebo priraďte každú položku k seriálu, sérii a epizóde.</string>
+    <string name="m3u_episode_unresolved">Číslo epizódy nebolo rozpoznané — zostane označené na opravu.</string>
+
+    <string name="add_group_manage_title">Spravovať: %1$s</string>
+    <string name="add_group_close_cd">Zavrieť</string>
+    <string name="add_group_name_hint">Názov skupiny</string>
+    <string name="add_group_cancel">Zrušiť</string>
+    <string name="add_group_create">Vytvoriť</string>
+    <string name="add_group_rename">Premenovať</string>
+    <string name="add_group_remove_favorites">Odstrániť z obľúbených</string>
+    <string name="add_group_add_favorites">Pridať do obľúbených</string>
+    <string name="channel_options_remove_from_recent">Odstrániť z nedávnych</string>
+    <string name="add_group_reorder_title">Zmeniť poradie</string>
+    <string name="add_group_move_up">Posunúť nahor</string>
+    <string name="add_group_move_down">Posunúť nadol</string>
+    <string name="add_group_custom_groups_title">Vlastné skupiny</string>
+    <string name="add_group_remove_btn">Odstrániť</string>
+    <string name="add_group_add_btn">Pridať</string>
+    <string name="add_group_create_new_btn">Vytvoriť novú skupinu</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Skryť tento kanál</string>
+    <string name="hidden_channels_dialog_title">Skryté kanály</string>
+    <string name="hidden_channels_dialog_subtitle">Vyberte tie, ktoré chcete obnoviť.</string>
+    <string name="hidden_channels_dialog_unhide_all">Zobraziť všetky</string>
+    <string name="hidden_channels_dialog_close">Zavrieť</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">Zamknuté</string>
+
+
+    <string name="playlist_no_provider">Žiadny poskytovateľ</string>
+    <string name="live_source_label">ZDROJ</string>
+    <string name="live_source_filter_label">Filter playlistu</string>
+    <string name="live_source_filter_all">Všetky zdroje</string>
+    <string name="live_source_unavailable_short">Nedostupné</string>
+    <string name="live_source_empty_short">Prázdne</string>
+
+
+    <string name="movies_shell_subtitle">Vybrané police, uložené skupiny a prehliadanie celej knižnice bez opustenia kontextu aktuálneho poskytovateľa.</string>
+    <string name="movies_all_categories">Všetky kategórie</string>
+    <string name="movies_search_launch_title">Hľadať vo filmovej knižnici</string>
+    <string name="movies_search_launch_subtitle">Prejdite do vyhradeného vyhľadávania bez straty aktuálneho stavu prehliadania.</string>
+    <string name="movies_group_created">Vytvorená skupina %1$s</string>
+    <string name="movies_group_renamed">Skupina premenovaná na %1$s</string>
+    <string name="movies_group_deleted">Odstránená skupina %1$s</string>
+    <string name="movies_group_name_invalid">Zadajte názov skupiny</string>
+    <string name="movies_group_name_reserved">Obľúbené je vyhradené</string>
+    <string name="movies_group_name_duplicate">Skupina filmov s týmto názvom už existuje</string>
+    <string name="movies_saved_empty_hint">Pridajte film do obľúbených alebo do vlastnej skupiny a zobrazí sa tu.</string>
+    <string name="movies_filter_subtitle">Spresnite vybranú filmovú kategóriu bez opätovného zostavovania celej knižnice.</string>
+    <string name="movies_reorder_title">Zmena poradia %1$s</string>
+
+
+    <string name="series_shell_subtitle">Redakčné police, uložené skupiny a stránkované prehliadanie seriálov prispôsobené rozsiahlym knižniciam poskytovateľov.</string>
+    <string name="series_all_categories">Všetky kategórie</string>
+    <string name="series_search_launch_title">Hľadať v knižnici seriálov</string>
+    <string name="series_search_launch_subtitle">Otvorte zobrazenie príkazového vyhľadávania a rýchlejšie nájdite tituly, epizódy alebo uložené skupiny.</string>
+    <string name="series_group_created">Vytvorená skupina %1$s</string>
+    <string name="series_group_renamed">Skupina premenovaná na %1$s</string>
+    <string name="series_group_deleted">Odstránená skupina %1$s</string>
+    <string name="series_group_name_invalid">Zadajte názov skupiny</string>
+    <string name="series_group_name_reserved">Obľúbené je vyhradené</string>
+    <string name="series_group_name_duplicate">Skupina seriálov s týmto názvom už existuje</string>
+    <string name="series_saved_empty_hint">Pridajte seriál do obľúbených alebo do vlastnej skupiny a zobrazí sa tu.</string>
+    <string name="series_filter_subtitle">Prepínajte medzi uloženými, rozpozeranými, aktualizovanými a vysoko hodnotenými seriálmi.</string>
+    <string name="series_reorder_title">Zmena poradia %1$s</string>
+
+    <string name="library_saved_title">Uložené</string>
+    <string name="library_saved_subtitle">Obľúbené a vlastné skupiny</string>
+    <string name="library_saved_manage_hint">Podržte uloženú skupinu pre možnosti</string>
+    <string name="library_lens_title">Objektív knižnice</string>
+    <string name="library_filter_results">Zobrazuje sa %1$d z %2$d položiek</string>
+    <string name="library_loaded_results">Načítané %1$d z %2$d položiek</string>
+    <string name="library_sort_library">Poradie knižnice</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Najnovšie</string>
+    <string name="library_sort_updated">Nedávno aktualizované</string>
+    <string name="library_sort_rating">Hodnotenie</string>
+
+
+    <string name="settings_parental_subtitle">Chráňte obsah pre dospelých alebo citlivý obsah pomocou ovládania vhodného pre TV.</string>
+    <string name="settings_parental_groups_title">Chránené skupiny</string>
+    <string name="settings_parental_groups_hint">Zamknite alebo odomknite kategórie pre aktívneho poskytovateľa.</string>
+    <string name="settings_parental_groups_action">Spravovať</string>
+    <string name="settings_categories_title">Predvoľby kategórií</string>
+    <string name="settings_categories_subtitle">Skryte kategórie poskytovateľa a zachovajte ich poradie presne tak, ako chcete.</string>
+    <string name="settings_category_sorting_title">Zoradenie kategórií</string>
+    <string name="settings_category_sorting_subtitle">Zoraďte kategórie pre aktívny playlist. Zamykanie a skrývanie teraz nájdete v Ovládaní kategórií.</string>
+    <string name="settings_hidden_categories_title">Skryté kategórie</string>
+    <string name="settings_hidden_categories_subtitle">Obnovte kategórie poskytovateľa, ktoré ste predtým skryli v prostrediach na prehliadanie.</string>
+    <string name="settings_hidden_categories_none">Žiadne skryté</string>
+    <string name="settings_hidden_categories_count">Skryté: %1$d</string>
+    <string name="settings_hidden_categories_empty">Momentálne nie sú skryté žiadne kategórie.</string>
+    <string name="settings_playback_subtitle">Doladte správanie dekodéra a vyrovnávacej pamäte pre plynulejšie prehrávanie.</string>
+    <string name="settings_live_timeshift_backend_value">Automaticky</string>
+    <string name="vod_classic_categories_title">Kategórie</string>
+    <string name="settings_decoder_mode">Režim dekodéra</string>
+    <string name="settings_select_decoder_mode">Vyberte režim dekodéra</string>
+    <string name="settings_buffer_duration">Trvanie vyrovnávacej pamäte</string>
+    <string name="settings_buffer_5s">5 sekúnd</string>
+    <string name="settings_about_subtitle">Podrobnosti o verzii, zostavení a podpore pre túto inštaláciu.</string>
+    <string name="settings_syncing">Synchronizujú sa údaje, čakajte prosím...</string>
+    <string name="settings_cancel">Zrušiť</string>
+    <string name="settings_sync_option_all">Synchronizovať všetko</string>
+    <string name="settings_sync_option_fast">Rýchla synchronizácia</string>
+    <string name="settings_pc_btn">Rodičovská kontrola</string>
+    <string name="settings_language">Jazyk</string>
+    <string name="settings_language_subtitle">Vyberte jazyk aplikácie bez opustenia TV rozhrania.</string>
+
+    <string name="settings_backup_share_failed">Žiadna aplikácia nedokázala prijať záložný súbor.</string>
+    <string name="settings_crash_report_share_failed">Žiadna aplikácia nedokázala prijať správu o zlyhaní.</string>
+    <string name="settings_crash_report_missing">Nie je k dispozícii žiadna správa o zlyhaní.</string>
+    <string name="settings_catalog_count_pending">Čaká sa</string>
+    <string name="settings_diagnostic_never">Nikdy</string>
+    <string name="settings_diagnostic_items">%1$d položiek</string>
+    <string name="settings_recording_subtitle">Spravujte lokálne úlohy DVR pre živé vysielanie, úložisko a naplánované nahrávania.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+
+    <string name="saved_preset_watch_next">Sledovať ďalej</string>
+    <string name="tv_channel_continue_watching_title">Pokračovať v sledovaní</string>
+    <string name="tv_channel_continue_watching_description">Pokračujte v tituloch, ktoré ste nedávno začali sledovať</string>
+    <string name="tv_channel_top_movies_title">Najlepšie filmy</string>
+    <string name="tv_channel_top_movies_description">Obľúbené tipy z %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Odporúčané filmy</string>
+    <string name="tv_channel_recommended_movies_description">Prispôsobené podľa vašich nedávnych tipov na %1$s</string>
+    <string name="tv_channel_fresh_series_title">Nové seriály</string>
+    <string name="tv_channel_fresh_series_description">Nedávno aktualizované seriály z %1$s</string>
+
+
+    <string name="search_title">Hľadať</string>
+    <string name="parental_group_shell_subtitle">Skontrolujte chránené skupiny živého vysielania, filmov a seriálov bez opustenia prémiového prostredia nastavení.</string>
+    <string name="search_command_title">Príkazové vyhľadávanie</string>
+    <string name="search_hint">Hľadať...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Na potvrdenie zadajte rodičovský PIN</string>
+    <string name="a11y_locked">Zamknuté</string>
+    <string name="a11y_favorite">Obľúbené</string>
+    <string name="a11y_catch_up_available">K dispozícii je archív</string>
+    <string name="a11y_now_playing">Práve sa prehráva %1$s</string>
+    <string name="a11y_channel_with_number">Kanál %1$d, %2$s</string>
+
+
+
+
+    <string name="player_no_external_player">Nie je nainštalovaný žiadny externý prehrávač</string>
+    <string name="player_unsafe_stream_url">Tento stream nie je možné otvoriť v externom prehrávači</string>
+    <string name="player_external_launch_failed">Externý prehrávač sa nepodarilo spustiť</string>
+    <string name="player_next">ĎALŠÍ</string>
+    <string name="player_recording_started">Nahrávanie pre %1$s bolo spustené.</string>
+    <string name="player_recording_stopped">Nahrávanie zastavené.</string>
+    <string name="player_recording_scheduled">Nahrávanie je naplánované na %1$s.</string>
+    <string name="player_recording_missing_context">Nahrávanie vyžaduje platný kontext živého kanála.</string>
+    <string name="player_categories_label">Kategórie</string>
+    <string name="player_full_epg">Kompletné EPG</string>
+    <string name="player_action_controls">Ovládacie prvky</string>
+    <string name="player_action_restart_short">Reštart</string>
+    <string name="player_action_recent_short">Nedávne</string>
+    <string name="player_diagnostics_decoder">Dekodér</string>
+    <string name="player_diagnostics_policy_guard">Ochrana pravidiel</string>
+    <string name="player_diagnostics_policy_profile">Profil pravidiel</string>
+    <string name="player_diagnostics_policy_buffer">Profil vyrovnávacej pamäte</string>
+    <string name="player_diagnostics_policy_render_path">Cesta vykresľovania</string>
+    <string name="player_diagnostics_policy_known_bad">Pravidlá známych chýb</string>
+    <string name="player_diagnostics_policy_recovery">Automatická obnova</string>
+    <string name="player_diagnostics_policy_last_action">Posledná akcia pravidla</string>
+    <string name="epg_search_short">Hľadanie programov</string>
+    <string name="epg_show_options">Zobraziť možnosti sprievodcu</string>
+    <string name="epg_hide_options">Skryť možnosti sprievodcu</string>
+    <string name="epg_showing_channels">Zobrazuje sa %1$d z %2$d kanálov</string>
+    <string name="epg_schedule_summary">Údaje sprievodcu sú dostupné pre %1$d z %2$d kanálov</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Časová os</string>
+    <string name="epg_timeline_range_label">%1$s okno</string>
+    <string name="epg_updated_now">Práve aktualizované</string>
+    <string name="epg_updated_minutes_ago">Aktualizované pred %1$d min</string>
+    <string name="epg_minutes_remaining">Zostáva %1$d min</string>
+    <string name="epg_program_channel_label">Kanál</string>
+    <string name="epg_program_provider_label">Poskytovateľ</string>
+    <string name="epg_program_provider_type_label">Zdroj</string>
+    <string name="epg_program_language_label">Jazyk</string>
+    <string name="epg_program_replay_label">Prehrať znova</string>
+    <string name="epg_program_progress_label">Priebeh</string>
+    <string name="epg_program_replay_unavailable">Nedostupné</string>
+    <string name="epg_program_progress_value">%1$d%% dokončené • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Prehratie môže zlyhať, pretože poskytovateľ uviedol podporu archívu bez použiteľnej šablóny prehratia.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Prehratie môže zlyhať, pretože poskytovateľ neposkytol identifikátor streamu pre prehratie.</string>
+
+
+    <string name="parental_group_title">Chránené skupiny</string>
+    <string name="parental_group_search">Hľadať kategórie...</string>
+    <string name="player_live_timeshift_ready">Timeshift pripravený.</string>
+    <string name="player_live_timeshift_failed">Lokálne pretáčanie živého vysielania nie je pre tento stream dostupné.</string>
+
+
+    <string name="multiview_add_to_split">Pridať na rozdelenú obrazovku</string>
+    <string name="multiview_queued">Na rozdelenej obrazovke</string>
+
+
+    <string name="settings_privacy_subtitle">Spravujte históriu sledovania a režim inkognito.</string>
+
+
+    <string name="action_done">Hotovo</string>
+    <string name="action_delete">Odstrániť</string>
+    <string name="action_clear">Vymazať</string>
+    <string name="action_space">Medzerník</string>
+
+
+    <string name="label_provider">POSKYTOVATEĽ</string>
+    <string name="label_selected">Vybraté</string>
+    <string name="label_no_schedule">Žiadne informácie o programe</string>
+    <string name="label_slots_count">%1$d/4 sloty</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Epizóda %1$d</string>
+    <string name="badge_saved">ULOŽENÉ</string>
+    <string name="badge_catch_up">ARCHÍV</string>
+    <string name="badge_moving">PRESUN</string>
+    <string name="badge_fav">FAV</string>
+
+
+
+
+    <string name="favorites_content_type_movie">Film</string>
+
+
+
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Skenujú sa kanály StreamVault</string>
+    <string name="tv_input_setup_success_title">Živá TV je pripravená</string>
+    <string name="tv_input_setup_no_provider_title">Nie je nastavený žiadny IPTV poskytovateľ</string>
+    <string name="tv_input_setup_error_title">Automatické skenovanie zlyhalo</string>
+    <string name="tv_input_setup_idle_title">Pripravuje sa integrácia Živej TV</string>
+    <string name="tv_input_setup_scanning_body">StreamVault synchronizuje vášho aktívneho poskytovateľa do Android TV Live TV.</string>
+    <string name="tv_input_setup_success_body">Vaše kanály boli úspešne synchronizované.</string>
+    <string name="tv_input_setup_no_provider_body">Pridajte aspoň jedného IPTV poskytovateľa v aplikácii StreamVault a potom sa sem vráťte, aby ste naskenovali kanály do Android TV Live TV.</string>
+    <string name="tv_input_setup_error_body">Synchronizácia TV vstupu sa nedokončila.</string>
+    <string name="tv_input_setup_idle_body">Čakajte prosím.</string>
+    <string name="tv_input_setup_source_format">Zdroj: %1$s</string>
+    <string name="tv_input_setup_open_setup">Otvoriť nastavenie StreamVault</string>
+    <string name="tv_input_setup_try_scan_again">Skúsiť automatické skenovanie znova</string>
+    <string name="tv_input_setup_retry_scan">Zopakovať automatické skenovanie</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV teraz môže otvárať vaše kanály StreamVault.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Návrat k akciám zálohy na Disku.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Sťahovanie zlyhalo: %1$s</string>
+    <string name="download_completed">Sťahovanie dokončené</string>
+    <string name="download_cancelled">Sťahovanie zrušené</string>
+    <string name="download_notification_channel">Sťahovania</string>
+    <string name="download_notification_channel_description">Zobrazuje priebeh a dokončenie sťahovania</string>
+    <string name="download_in_progress">Sťahuje sa %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Sťahovania</string>
+    <string name="downloads_empty">Zatiaľ žiadne sťahovania</string>
+    <string name="downloads_delete_confirm">Odstrániť toto sťahovanie?</string>
+    <string name="download_play_local">Prehrať</string>
+    <string name="nav_vod">VOD</string>
+</resources>

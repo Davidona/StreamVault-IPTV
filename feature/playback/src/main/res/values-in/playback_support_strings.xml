@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Mentransmisikan ke perangkat yang terhubung.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast tidak tersedia di perangkat ini.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Format stream ini tidak didukung oleh Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Stream RTSP dan RTMP tidak didukung untuk transmisi.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Stream yang dilindungi DRM tidak didukung oleh Google Cast di aplikasi ini.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Item ini tidak dapat dikirim ke receiver Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Stream ini menggunakan URL lokal atau khusus perangkat yang tidak dapat dijangkau langsung oleh Chromecast.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Stream ini memerlukan header HTTP atau cookie yang tidak dapat digunakan langsung oleh Chromecast.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Stream ini memerlukan User-Agent khusus yang tidak dapat digunakan langsung oleh Chromecast.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Stream ini memerlukan pengaturan proksi aplikasi, sehingga Chromecast tidak dapat menggunakannya langsung.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Stream ini menggunakan penanganan SSL yang tidak dapat digunakan langsung oleh Chromecast.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Sesi Cast tidak dapat dimulai.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Receiver Cast tidak dapat memuat stream ini.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Receiver Cast yang terhubung belum siap untuk pemutaran.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Pemilihan perangkat Cast dibatalkan.</string>
+    <string name="add_group_close_cd">Tutup</string>
+    <string name="player_archive_title">Arsip Program</string>
+    <string name="player_no_archive">Tidak ada program yang diarsipkan ditemukan</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arsip</string>
+</resources>

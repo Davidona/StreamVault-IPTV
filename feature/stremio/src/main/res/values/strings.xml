@@ -11,6 +11,7 @@
     <string name="stremio_installing">Adding add-on...</string>
     <string name="stremio_cancel">Cancel</string>
     <string name="stremio_enabled">Enabled</string>
+    <string name="stremio_disabled">Disabled</string>
     <string name="stremio_move_up">Move up</string>
     <string name="stremio_move_down">Move down</string>
     <string name="stremio_catalogs">Catalogs</string>

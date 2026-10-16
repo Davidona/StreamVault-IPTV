@@ -36,6 +36,14 @@ interface SettingsPreferences {
 
     suspend fun setHideStremioAddons(hidden: Boolean)
 
+    val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration>
+        get() = kotlinx.coroutines.flow.flowOf(com.streamvault.domain.sync.AutomaticSyncConfiguration())
+    val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>>
+        get() = kotlinx.coroutines.flow.flowOf(emptyMap())
+    suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        throw UnsupportedOperationException("Automatic sync preferences are unavailable")
+    }
+
     val isIncognitoMode: Flow<Boolean>
 
     val useXtreamTextClassification: Flow<Boolean>
@@ -81,6 +89,8 @@ interface SettingsPreferences {
     val playerSubtitleTextColor: Flow<Int>
 
     val playerSubtitleBackgroundColor: Flow<Int>
+
+    val pinnedSubtitleLanguages: Flow<List<String>>
 
     val playerLiveTranslationEnabled: Flow<Boolean>
 
@@ -257,6 +267,8 @@ interface SettingsPreferences {
     suspend fun setPlayerSubtitleTextColor(colorArgb: Int)
 
     suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int)
+
+    suspend fun setPinnedSubtitleLanguages(languages: List<String>)
 
     suspend fun setPlayerLiveTranslationEnabled(enabled: Boolean)
 

@@ -24,13 +24,20 @@ import com.streamvault.data.manager.recording.RecordingOutputTarget
 import com.streamvault.data.manager.recording.RecordingServiceLauncher
 import com.streamvault.data.manager.recording.RecordingSourceResolver
 import com.streamvault.data.manager.recording.ResolvedRecordingSource
+import com.streamvault.data.manager.recording.SmbRecordingCredentials
+import com.streamvault.data.manager.recording.SmbRecordingStorage
 import com.streamvault.data.manager.recording.TsPassThroughCaptureEngine
 import com.streamvault.data.manager.recording.UnsupportedRecordingException
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.security.AndroidKeystoreCredentialCrypto
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.util.runSuspendCatching
 import com.streamvault.data.manager.recording.asPersistenceValues
 import com.streamvault.data.manager.recording.createOutputTarget
+import com.streamvault.data.manager.recording.decodeSmbCredentials
 import com.streamvault.data.manager.recording.deleteOutputTarget
+import com.streamvault.data.manager.recording.encodeEncrypted
+import com.streamvault.data.manager.recording.encryptedSmbCredentials
 import com.streamvault.data.manager.recording.headersFromJson
 import com.streamvault.data.manager.recording.headersToJson
 import com.streamvault.data.manager.recording.inferFailureCategory
@@ -46,6 +53,7 @@ import com.streamvault.domain.model.RecordingReconciliationResult
 import com.streamvault.domain.model.RecordingReconciliationRowFailure
 import com.streamvault.domain.model.RecordingReconciliationSummary
 import com.streamvault.domain.model.RecordingRequest
+import com.streamvault.domain.model.RecordingSmbStorageConfig
 import com.streamvault.domain.model.RecordingSourceType
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.RecordingStorageConfig
@@ -123,7 +131,8 @@ class RecordingManagerImpl @Inject constructor(
     private val alarmScheduler: RecordingAlarmScheduler,
     private val preferencesRepository: PreferencesRepository,
     private val recordingServiceLauncher: RecordingServiceLauncher,
-    private val providerSnapshotDao: ProviderSnapshotDao? = null
+    private val providerSnapshotDao: ProviderSnapshotDao? = null,
+    private val credentialCrypto: CredentialCrypto = AndroidKeystoreCredentialCrypto(context)
 ) : RecordingManager {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -166,7 +175,7 @@ class RecordingManagerImpl @Inject constructor(
 
     override fun observeStorageState(): Flow<RecordingStorageState> =
         recordingStorageDao.observe().map { entity ->
-            (entity ?: ensureStorageStateSync()).toDomain()
+            (entity ?: ensureStorageStateSync()).toDomain(credentialCrypto)
         }
 
     override suspend fun startManualRecording(request: RecordingRequest): Result<RecordingItem> = withContext(Dispatchers.IO) {
@@ -186,7 +195,8 @@ class RecordingManagerImpl @Inject constructor(
                     programTitle = request.programTitle,
                     startMs = request.scheduledStartMs,
                     pattern = storage.fileNamePattern
-                )
+                ),
+                credentialCrypto = credentialCrypto
             )
             val run = try {
                 persistManualRun(request, source, outputTarget)
@@ -194,7 +204,13 @@ class RecordingManagerImpl @Inject constructor(
                 throw cancelled
             } catch (error: Throwable) {
                 val (outputUri, outputDisplayPath) = outputTarget.asPersistenceValues()
-                deleteOutputTarget(context, outputUri, outputDisplayPath)
+                deleteOutputTarget(
+                    context,
+                    outputUri,
+                    outputDisplayPath,
+                    outputTarget.encryptedSmbCredentials(credentialCrypto),
+                    credentialCrypto
+                )
                 throw error
             }
 
@@ -406,7 +422,13 @@ class RecordingManagerImpl @Inject constructor(
         if (run.status == RecordingStatus.SCHEDULED || run.status == RecordingStatus.RECORDING) {
             return@withContext Result.error("Only finished recordings can be deleted.")
         }
-        deleteOutputTarget(context, run.outputUri, run.outputDisplayPath)
+        deleteOutputTarget(
+            context,
+            run.outputUri,
+            run.outputDisplayPath,
+            run.outputCredentialsEncrypted,
+            credentialCrypto
+        )
         recordingRunDao.delete(recordingId)
         Result.success(Unit)
     }
@@ -498,17 +520,64 @@ class RecordingManagerImpl @Inject constructor(
     override suspend fun updateStorageConfig(config: RecordingStorageConfig): Result<RecordingStorageState> = withContext(Dispatchers.IO) {
         runSuspendCatching {
             val existing = recordingStorageDao.get()
-            val (outputDirectory, availableBytes, isWritable) =
+            val (outputDirectory, availableBytes, isWritable) = if (!config.smbUrl.isNullOrBlank()) {
+                Triple(
+                    config.smbUrl,
+                    null,
+                    existing?.takeIf { it.smbUrl == config.smbUrl }?.isWritable == true
+                )
+            } else {
                 resolveStorageDetails(context, config.treeUri, config.localDirectory)
+            }
             val entity = config.toEntity(existing, outputDirectory, availableBytes, isWritable)
             recordingStorageDao.upsert(entity)
             reconcileRecordingState()
-            entity.toDomain()
+            entity.toDomain(credentialCrypto)
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { error -> Result.error(error.message ?: "Failed to update recording storage", error) }
         )
     }
+
+    override suspend fun updateSmbStorageConfig(config: RecordingSmbStorageConfig): Result<RecordingStorageState> =
+        withContext(Dispatchers.IO) {
+            runSuspendCatching {
+                val url = SmbRecordingStorage.normalizeDirectoryUrl(config.url)
+                val existing = recordingStorageDao.get()
+                val previousCredentials = existing
+                    ?.takeIf { it.smbUrl == url }
+                    ?.let { decodeSmbCredentials(it.smbCredentialsEncrypted, credentialCrypto) }
+                val credentials = SmbRecordingCredentials(
+                    username = config.username.trim(),
+                    password = config.password ?: previousCredentials
+                        ?.takeIf { it.username == config.username.trim() }
+                        ?.password
+                        .orEmpty()
+                )
+                SmbRecordingStorage.validateWritable(url, credentials)
+
+                val storage = RecordingStorageEntity(
+                    id = existing?.id ?: 1L,
+                    treeUri = null,
+                    smbUrl = url,
+                    smbCredentialsEncrypted = credentials.encodeEncrypted(credentialCrypto),
+                    displayName = "SMB · ${android.net.Uri.parse(url).host.orEmpty()}",
+                    outputDirectory = url,
+                    availableBytes = null,
+                    isWritable = true,
+                    fileNamePattern = existing?.fileNamePattern ?: "ChannelName_yyyy-MM-dd_HH-mm_ProgramTitle.ts",
+                    retentionDays = existing?.retentionDays,
+                    maxSimultaneousRecordings = existing?.maxSimultaneousRecordings ?: 2,
+                    updatedAt = System.currentTimeMillis()
+                )
+                recordingStorageDao.upsert(storage)
+                reconcileRecordingState()
+                storage.toDomain(credentialCrypto)
+            }.fold(
+                onSuccess = { Result.success(it) },
+                onFailure = { error -> Result.error(error.message ?: "Failed to connect to the SMB recording folder", error) }
+            )
+        }
 
     override suspend fun reconcileRecordingState(): RecordingReconciliationResult =
         withContext(Dispatchers.IO) {
@@ -659,7 +728,8 @@ class RecordingManagerImpl @Inject constructor(
                         createOutputTarget(
                             context = context,
                             storage = storage,
-                            fileName = sanitizeRecordingFileName(run.channelName, run.programTitle, run.scheduledStartMs, storage.fileNamePattern)
+                            fileName = sanitizeRecordingFileName(run.channelName, run.programTitle, run.scheduledStartMs, storage.fileNamePattern),
+                            credentialCrypto = credentialCrypto
                         )
                     }
                     val (outputUri, outputDisplayPath) = outputTarget.asPersistenceValues()
@@ -674,6 +744,8 @@ class RecordingManagerImpl @Inject constructor(
                         providerLabel = source.providerLabel,
                         outputUri = outputUri ?: run.outputUri,
                         outputDisplayPath = outputDisplayPath ?: run.outputDisplayPath,
+                        outputCredentialsEncrypted = outputTarget.encryptedSmbCredentials(credentialCrypto)
+                            ?: run.outputCredentialsEncrypted,
                         startedAtMs = now,
                         updatedAt = now,
                         alarmStopAtMs = run.scheduledEndMs
@@ -822,9 +894,12 @@ class RecordingManagerImpl @Inject constructor(
         if (existing != null) {
             // Preserve an explicitly chosen local path (e.g. a USB folder) across refreshes; without
             // passing it back in, a null treeUri would reset the destination to internal default.
-            val localDirectory = existing.outputDirectory?.takeIf { existing.treeUri.isNullOrBlank() }
-            val (outputDirectory, availableBytes, isWritable) =
+            val (outputDirectory, availableBytes, isWritable) = if (!existing.smbUrl.isNullOrBlank()) {
+                Triple(existing.smbUrl, null, existing.isWritable)
+            } else {
+                val localDirectory = existing.outputDirectory?.takeIf { existing.treeUri.isNullOrBlank() }
                 resolveStorageDetails(context, existing.treeUri, localDirectory)
+            }
             val refreshed = existing.copy(
                 outputDirectory = outputDirectory,
                 availableBytes = availableBytes,
@@ -849,7 +924,13 @@ class RecordingManagerImpl @Inject constructor(
         val thresholdMs = System.currentTimeMillis() - retentionDays.toLong() * 86_400_000L
         val expired = recordingRunDao.getExpiredRuns(thresholdMs)
         expired.forEach { run ->
-            deleteOutputTarget(context, run.outputUri, run.outputDisplayPath)
+            deleteOutputTarget(
+                context,
+                run.outputUri,
+                run.outputDisplayPath,
+                run.outputCredentialsEncrypted,
+                credentialCrypto
+            )
             recordingRunDao.delete(run.id)
         }
         if (expired.isNotEmpty()) {
@@ -907,7 +988,13 @@ class RecordingManagerImpl @Inject constructor(
     private suspend fun markRunFailed(recordingId: String, reason: String, category: RecordingFailureCategory) {
         val run = recordingRunDao.getById(recordingId) ?: return
         if (run.bytesWritten == 0L) {
-            deleteOutputTarget(context, run.outputUri, run.outputDisplayPath)
+            deleteOutputTarget(
+                context,
+                run.outputUri,
+                run.outputDisplayPath,
+                run.outputCredentialsEncrypted,
+                credentialCrypto
+            )
         }
         val now = System.currentTimeMillis()
         recordingRunDao.update(
@@ -1033,6 +1120,7 @@ class RecordingManagerImpl @Inject constructor(
         outputTarget: RecordingOutputTarget
     ): RecordingRunEntity {
         val (outputUri, outputDisplayPath) = outputTarget.asPersistenceValues()
+        val outputCredentialsEncrypted = outputTarget.encryptedSmbCredentials(credentialCrypto)
         val now = System.currentTimeMillis()
         return RecordingRunEntity(
             id = UUID.randomUUID().toString(),
@@ -1054,6 +1142,7 @@ class RecordingManagerImpl @Inject constructor(
             providerLabel = source.providerLabel,
             outputUri = outputUri,
             outputDisplayPath = outputDisplayPath,
+            outputCredentialsEncrypted = outputCredentialsEncrypted,
             startedAtMs = now,
             scheduleEnabled = true,
             priority = request.priority,
@@ -1148,6 +1237,7 @@ class RecordingManagerImpl @Inject constructor(
                 providerLabel = null,
                 outputUri = null,
                 outputDisplayPath = null,
+                outputCredentialsEncrypted = null,
                 bytesWritten = 0L,
                 averageThroughputBytesPerSecond = 0L,
                 retryCount = 0,
@@ -1266,15 +1356,22 @@ class RecordingManagerImpl @Inject constructor(
     private suspend fun observeActiveRecordingCountSync(): Int =
         activeJobsMutex.withLock { activeJobs.values.count { it.isActive } }
 
-    private fun existingOutputTarget(run: RecordingRunEntity): RecordingOutputTarget =
-        when {
-            !run.outputUri.isNullOrBlank() -> RecordingOutputTarget.DocumentTarget(
-                uri = android.net.Uri.parse(run.outputUri),
-                displayPath = run.outputDisplayPath
-            )
-            !run.outputDisplayPath.isNullOrBlank() -> RecordingOutputTarget.FileTarget(File(run.outputDisplayPath))
-            else -> throw IllegalStateException("Recording output target is unavailable.")
+    private suspend fun existingOutputTarget(run: RecordingRunEntity): RecordingOutputTarget = when {
+        run.outputUri?.startsWith("smb://", ignoreCase = true) == true -> {
+            val credentials = decodeSmbCredentials(run.outputCredentialsEncrypted, credentialCrypto)
+                ?: recordingStorageDao.get()?.let {
+                    decodeSmbCredentials(it.smbCredentialsEncrypted, credentialCrypto)
+                }
+                ?: throw IllegalStateException("SMB credentials are unavailable. Reconfigure the SMB recording folder.")
+            RecordingOutputTarget.SmbTarget(run.outputUri, credentials, run.outputDisplayPath)
         }
+        !run.outputUri.isNullOrBlank() -> RecordingOutputTarget.DocumentTarget(
+            uri = android.net.Uri.parse(run.outputUri),
+            displayPath = run.outputDisplayPath
+        )
+        !run.outputDisplayPath.isNullOrBlank() -> RecordingOutputTarget.FileTarget(File(run.outputDisplayPath))
+        else -> throw IllegalStateException("Recording output target is unavailable.")
+    }
 
     private fun RecordingRunEntity.toStandaloneDomain(): RecordingItem = RecordingItem(
         id = id,

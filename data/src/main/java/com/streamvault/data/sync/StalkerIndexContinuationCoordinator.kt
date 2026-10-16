@@ -72,6 +72,8 @@ internal class StalkerIndexContinuationCoordinator(
     }
 
     fun scheduleEpgIfCatalogIdle(provider: Provider) {
+        // Automatic guide freshness is owned by the shared planner, independently of indexing.
+        if (AutomaticSyncExecution.automatic.get() == true) return
         if (
             provider.type != ProviderType.STALKER_PORTAL ||
             provider.epgSyncMode != ProviderEpgSyncMode.BACKGROUND
@@ -108,6 +110,12 @@ internal class StalkerIndexContinuationCoordinator(
         force: Boolean,
         now: Long
     ): StalkerCatalogSectionState {
+        val automaticPolicy = AutomaticSyncExecution.policy.get()
+        if (AutomaticSyncExecution.automatic.get() == true && automaticPolicy != null &&
+            (!automaticPolicy.enabled || (contentType == ContentType.MOVIE && !automaticPolicy.movies) ||
+                (contentType == ContentType.SERIES && !automaticPolicy.series))) {
+            return StalkerCatalogSectionState(contentType, false, 0L, false, "DISABLED", now)
+        }
         val job = stalkerIndexJobStore.get(provider.id, contentType)
         if (!force && !stalkerIndexJobStore.shouldRunSummary(job)) {
             return StalkerCatalogSectionState(

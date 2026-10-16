@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">接続中のデバイスにキャストしています。</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">このデバイスでは Google Cast を利用できません。</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">このストリーム形式は Google Cast でサポートされていません。</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP および RTMP ストリームのキャストはサポートされていません。</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM 保護されたストリームは、このアプリの Google Cast ではサポートされていません。</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">この項目は Cast レシーバーに送信できません。</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">このストリームはローカルまたはデバイス専用の URL を使用しており、Chromecast は直接アクセスできません。</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">このストリームには Chromecast が直接使用できない HTTP ヘッダーまたは Cookie が必要です。</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">このストリームには Chromecast が直接使用できないカスタム User-Agent が必要です。</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">このストリームにはアプリのプロキシ設定が必要なため、Chromecast では直接使用できません。</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">このストリームは Chromecast が直接使用できない SSL 処理を使用しています。</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast セッションを開始できませんでした。</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast レシーバーがこのストリームを読み込めませんでした。</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">接続されている Cast レシーバーの準備ができていません。</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Cast デバイスの選択がキャンセルされました。</string>
+    <string name="add_group_close_cd">閉じる</string>
+    <string name="player_archive_title">番組アーカイブ</string>
+    <string name="player_no_archive">アーカイブされた番組は見つかりません</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">アーカイブ</string>
+</resources>

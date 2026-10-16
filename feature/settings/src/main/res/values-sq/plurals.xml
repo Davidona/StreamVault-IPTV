@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="one">%d sekondë</item>
+        <item quantity="other">%d sekonda</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d minutë</item>
+        <item quantity="other">%1$d minuta</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d skedë</item>
+        <item quantity="other">%d skeda</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d raft</item>
+        <item quantity="other">%d rafte</item>
+    </plurals>
+</resources>

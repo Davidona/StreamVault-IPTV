@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">ยกเลิก</string>
+    <string name="settings_syncing_title">กำลังซิงค์ข้อมูล...</string>
+    <string name="settings_syncing_subtitle">โปรดรอสักครู่ระหว่างนำเข้าเพลย์ลิสต์ของคุณ</string>
+    <string name="settings_syncing_btn">กำลังซิงค์...</string>
+    <string name="settings_backup_restore">สำรอง &amp; กู้คืน</string>
+    <string name="settings_restore_data">นำเข้าข้อมูล</string>
+    <string name="settings_restore_subtitle">เลือกไฟล์สำรอง หรือเปิดไฟล์สำรองด้วย StreamVault จากแอปจัดการไฟล์</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">เพิ่มผู้ให้บริการ</string>
+    <string name="setup_edit_provider">แก้ไขผู้ให้บริการ</string>
+    <string name="setup_update_desc">อัปเดตรายละเอียดผู้ให้บริการ IPTV ของคุณ</string>
+    <string name="setup_add_desc">เพิ่มผู้ให้บริการ IPTV ของคุณ</string>
+    <string name="setup_shell_eyebrow">เริ่มต้นตั้งค่าผู้ให้บริการ</string>
+    <string name="setup_shell_subtitle">ใช้ Xtream หรือ M3U เปลี่ยนได้ภายหลัง</string>
+    <string name="setup_form_subtitle">เลือกแหล่งที่มา กรอกรายละเอียด แล้วดำเนินการต่อ จัดการได้ภายหลังจากตั้งค่า</string>
+    <string name="setup_source_type_label">ประเภทแหล่งที่มา</string>
+    <string name="setup_info_xtream_title">ใช้ Xtream เมื่อมีข้อมูลรับรอง</string>
+    <string name="setup_info_xtream_body">เหมาะที่สุดเมื่อคุณมีเซิร์ฟเวอร์ ชื่อผู้ใช้ และรหัสผ่าน</string>
+    <string name="setup_info_stalker_body">URL พอร์ทัลพร้อมที่อยู่ MAC ที่ผู้ให้บริการอนุมัติ</string>
+    <string name="setup_info_m3u_title">ใช้ M3U สำหรับเพลย์ลิสต์แบบ URL หรือไฟล์</string>
+    <string name="setup_info_m3u_body">ใช้ลิงก์เพลย์ลิสต์หรือนำเข้าไฟล์ในเครื่อง</string>
+    <string name="setup_info_manage_title">จัดการผู้ให้บริการได้ภายหลัง</string>
+    <string name="setup_info_manage_body">รีเฟรช แก้ไข หรือเปลี่ยนได้ภายหลังจากตั้งค่า</string>
+    <string name="setup_import_backup">นำเข้าไฟล์สำรอง</string>
+    <string name="badge_beta">เบต้า</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">เพลย์ลิสต์ M3U</string>
+    <string name="setup_name_hint">ชื่อเพลย์ลิสต์ (ไม่บังคับ)</string>
+    <string name="setup_server_hint">URL เซิร์ฟเวอร์</string>
+    <string name="setup_user_hint">ชื่อผู้ใช้</string>
+    <string name="setup_pass_hint">รหัสผ่าน</string>
+    <string name="setup_show_password">แสดงรหัสผ่าน</string>
+    <string name="setup_hide_password">ซ่อนรหัสผ่าน</string>
+    <string name="setup_phone_pairing_title">เพิ่มจากโทรศัพท์</string>
+    <string name="setup_phone_pairing_body">สแกนคิวอาร์โค้ดและกรอกข้อมูลรับรองผู้ให้บริการจากโทรศัพท์ที่เชื่อมต่อ Wi-Fi เดียวกัน</string>
+    <string name="setup_phone_pairing_start">แสดงคิวอาร์โค้ด</string>
+    <string name="setup_phone_pairing_restart">คิวอาร์โค้ดใหม่</string>
+    <string name="setup_phone_pairing_stop">หยุดจับคู่</string>
+    <string name="setup_phone_pairing_same_wifi">เปิดจากโทรศัพท์ที่เชื่อมต่อ Wi-Fi เดียวกัน ข้อมูลรับรองจะถูกส่งตรงไปยังทีวีเครื่องนี้</string>
+    <string name="setup_phone_pairing_qr_description">คิวอาร์โค้ดสำหรับตั้งค่าผู้ให้บริการผ่านโทรศัพท์</string>
+    <string name="setup_phone_pairing_idle">เฉพาะในเครื่อง</string>
+    <string name="setup_phone_pairing_ready">สแกนเลย</string>
+    <string name="setup_phone_pairing_receiving">กำลังเพิ่ม</string>
+    <string name="setup_phone_pairing_complete">เพิ่มแล้ว</string>
+    <string name="setup_phone_pairing_error">ข้อผิดพลาด</string>
+    <string name="setup_connecting">กำลังเชื่อมต่อ...</string>
+    <string name="setup_save">บันทึกการเปลี่ยนแปลง</string>
+    <string name="setup_login">เข้าสู่ระบบ</string>
+    <string name="setup_advanced_options_label">ตัวเลือกขั้นสูง</string>
+    <string name="setup_advanced_options_helper">ควบคุมวิธีดึงข้อมูลผังรายการระหว่างการตั้งค่าและรีเฟรชผู้ให้บริการ</string>
+    <string name="setup_advanced_options_show">แสดง</string>
+    <string name="setup_advanced_options_hide">ซ่อน</string>
+    <string name="setup_m3u_vod_classification_label">การจัดประเภท VOD สำหรับ M3U</string>
+    <string name="setup_m3u_vod_classification_helper">เฉพาะ M3U จัดประเภท URL ภาพยนตร์ที่ถอดรหัสแล้วและคำใบ้กลุ่มหรือชื่อเรื่องที่แปลแล้วเป็นภาพยนตร์ ส่วน URL สตรีมสดที่รู้จักจะยังอยู่ในทีวีสด</string>
+    <string name="setup_xtream_live_sync_mode_label">การซิงค์ช่องสด Xtream</string>
+    <string name="setup_xtream_live_sync_mode_helper">เลือกวิธีดึงช่องทีวีสด อัตโนมัติช่วยปกป้องอุปกรณ์ที่อ่อนแอและการรีเฟรชตามปกติ พร้อมคงหมวดหมู่ให้ครบถ้วน</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">อัตโนมัติ</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">แนะนำ ใช้การซิงค์แบบหมวดหมู่บนอุปกรณ์หน่วยความจำต่ำ การรีเฟรชเบื้องหลัง การรีเฟรชหมวดหมู่ที่ซ่อนไว้ และผู้ให้บริการที่ทำงานหนัก</string>
+    <string name="setup_xtream_live_sync_mode_category_title">ทีละหมวดหมู่</string>
+    <string name="setup_xtream_live_sync_mode_category_description">ดึงช่องทีวีสดทีละหมวดหมู่เสมอ ปลอดภัยกว่าสำหรับผู้ให้บริการรายใหญ่และอุปกรณ์ Android TV ที่อ่อนแอ</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">สตรีมทั้งหมด</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">ลองใช้ปลายทาง Live ของผู้ให้บริการทั้งหมดด้วยตัวแยกวิเคราะห์แบบสตรีมมิ่ง หากไม่ปลอดภัยหรือล้มเหลวจะกลับไปใช้การซิงค์แบบหมวดหมู่</string>
+    <string name="setup_epg_sync_mode_label">การซิงค์ EPG</string>
+    <string name="setup_epg_sync_mode_helper">แบบล่วงหน้ารักษาพฤติกรรมปัจจุบัน แบบเบื้องหลังจะตั้งค่าให้เสร็จก่อน ส่วนข้ามจะเลื่อนการรีเฟรชผังรายการไปไว้ทีหลัง</string>
+    <string name="setup_epg_sync_mode_upfront_title">EPG ทั้งหมดตอนนี้</string>
+    <string name="setup_epg_sync_mode_upfront_description">ดาวน์โหลดข้อมูลผังรายการจากผู้ให้บริการและภายนอกระหว่างการตั้งค่าให้เสร็จก่อน</string>
+    <string name="setup_epg_sync_mode_background_title">โหลด EPG เบื้องหลัง</string>
+    <string name="setup_epg_sync_mode_background_description">ตั้งค่าให้เสร็จก่อน แล้วดึงข้อมูลผังรายการอัตโนมัติในเบื้องหลัง</string>
+    <string name="setup_epg_sync_mode_skip_title">ข้าม EPG ไปก่อน</string>
+    <string name="setup_epg_sync_mode_skip_description">ไม่ดึงข้อมูลผังรายการอัตโนมัติ รีเฟรช EPG ได้ภายหลังจากตั้งค่า</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker ใช้ผังรายการของพอร์ทัลได้เมื่อไม่มี XMLTV หรือใช้งานไม่ได้ แบบล่วงหน้าจะนำเข้าระหว่างตั้งค่า แบบเบื้องหลังจะเลื่อนไว้ ส่วนข้ามจะโหลดผังรายการเมื่อต้องการ</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">ดาวน์โหลดช่องสดและนำเข้าผังรายการพอร์ทัล Stalker ระหว่างการตั้งค่า หากตั้งค่า XMLTV และใช้งานได้ จะใช้ก่อน</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">ตั้งค่าให้เสร็จก่อน แล้วนำเข้าผังรายการพอร์ทัล Stalker ในเบื้องหลัง หากตั้งค่า XMLTV และใช้งานได้ จะใช้ก่อน</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">ไม่นำเข้าข้อมูลผังรายการจำนวนมากอัตโนมัติ ยังโหลดผังรายการสดเมื่อต้องการได้ขณะเรียกดูช่อง</string>
+    <string name="setup_m3u_hint">URL M3U</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">ไฟล์</string>
+    <string name="setup_choose_file">เลือกไฟล์ M3U</string>
+    <string name="setup_file_replace_hint">กดเพื่อเปลี่ยนไฟล์</string>
+    <string name="setup_file_select_title">เลือกไฟล์ M3U</string>
+    <string name="setup_file_browse_hint">เรียกดูพื้นที่จัดเก็บในเครื่องหรือ USB</string>
+    <string name="setup_file_import_failed">ไม่สามารถนำเข้าไฟล์เพลย์ลิสต์ได้ โปรดลองอีกครั้ง</string>
+    <string name="setup_file_import_storage_full">พื้นที่จัดเก็บเต็ม กรุณาเพิ่มพื้นที่ว่างแล้วลองนำเข้าอีกครั้ง</string>
+    <string name="setup_discard_draft_title">ทิ้งฉบับร่างการตั้งค่า?</string>
+    <string name="setup_discard_draft_body">การตั้งค่าผู้ให้บริการนี้ยังไม่เสร็จ ต้องการย้อนกลับและเสียฉบับร่างปัจจุบันหรือไม่?</string>
+    <string name="setup_discard_draft_confirm">ทิ้ง</string>
+    <string name="setup_discard_draft_cancel">แก้ไขต่อ</string>
+    <string name="setup_validating">กำลังตรวจสอบ...</string>
+    <string name="setup_add">เพิ่มเพลย์ลิสต์</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">เชื่อมต่อด่วน</string>
+    <string name="setup_jellyfin_quick_connect_code">รหัส: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">เปิดเซิร์ฟเวอร์ Jellyfin ของคุณในเบราว์เซอร์แล้วกรอกรหัสนี้ หรือสแกนคิวอาร์โค้ดด้วยโทรศัพท์</string>
+    <string name="setup_server_url">URL เซิร์ฟเวอร์</string>
+    <string name="setup_username">ชื่อผู้ใช้</string>
+    <string name="setup_password">รหัสผ่าน</string>
+    <string name="setup_name">ชื่อ</string>
+    <string name="setup_name_placeholder">เซิร์ฟเวอร์ Jellyfin ของฉัน</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">นำเข้าจาก Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+</resources>

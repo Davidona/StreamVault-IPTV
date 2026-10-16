@@ -1,5 +1,6 @@
 package com.streamvault.feature.system.presentation.plugins
 
+import com.streamvault.core.ui.design.browsePanel
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,12 +68,12 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.components.shell.ExtensionsEmptyState
 import com.streamvault.core.ui.components.shell.ExtensionsSectionTabs
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.interaction.TvPrimaryButton
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
 
 @Composable
 fun PluginsScreen(
@@ -271,41 +272,44 @@ private fun PluginButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
-    if (tone == PluginButtonTone.Primary) {
-        TvPrimaryButton(
-            onClick = onClick,
-            modifier = modifier,
-            enabled = enabled,
-            content = content,
+    val colors = when (tone) {
+        PluginButtonTone.Primary -> ButtonDefaults.colors(
+            containerColor = Primary,
+            contentColor = AppColors.OnPrimary,
+            focusedContainerColor = Primary.copy(alpha = 0.88f),
+            focusedContentColor = AppColors.OnPrimary,
+            disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
+            disabledContentColor = AppColors.TextDisabled
         )
-    } else {
-        TvButton(
-            onClick = onClick,
-            modifier = modifier.heightIn(min = 44.dp),
-            enabled = enabled,
-            shape = ButtonDefaults.shape(shape),
-            colors = ButtonDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = OnSurface,
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedContentColor = OnSurface,
-                disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
-                disabledContentColor = AppColors.TextDisabled
-            ),
-            border = ButtonDefaults.border(
-                focusedBorder = Border(
-                    border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
-                    shape = shape
-                )
-            ),
-            scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                horizontal = 20.dp,
-                vertical = 7.dp
-            ),
-            content = content,
+        PluginButtonTone.Secondary -> ButtonDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = OnSurface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedContentColor = OnSurface,
+            disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
+            disabledContentColor = AppColors.TextDisabled
         )
     }
+
+    TvButton(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 44.dp),
+        enabled = enabled,
+        shape = ButtonDefaults.shape(shape),
+        colors = colors,
+        border = ButtonDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
+                shape = shape
+            )
+        ),
+        scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            horizontal = 20.dp,
+            vertical = 7.dp
+        ),
+        content = content
+    )
 }
 
 @Composable
@@ -318,7 +322,7 @@ private fun PluginInstallPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.72f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -443,7 +447,7 @@ private fun PluginCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -584,7 +588,7 @@ private fun PluginConfigurationHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.72f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -649,7 +653,7 @@ private fun PluginConfigurationSectionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -729,7 +733,7 @@ private fun PluginConfigurationBooleanField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.38f), RoundedCornerShape(8.dp))
+            .browsePanel()
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -871,7 +875,7 @@ private fun PluginConfigurationActions(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.Surface.copy(alpha = 0.55f), RoundedCornerShape(10.dp))
+            .browsePanel()
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {

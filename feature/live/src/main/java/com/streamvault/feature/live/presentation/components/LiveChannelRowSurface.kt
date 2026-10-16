@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,9 +46,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.AppMotion
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
@@ -109,17 +110,19 @@ fun LiveChannelRowSurface(
             }
             .onFocusChanged { if (it.isFocused && !isFocused) sounds.playNavigate(); isFocused = it.isFocused },
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated, focusedContainerColor = AppColors.SurfaceEmphasis),
         border = ClickableSurfaceDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Control),
             focusedBorder = Border(
                 border = BorderStroke(if (isDragging) 4.dp else FocusSpec.BorderWidth, if (isDragging) AppColors.Warning else AppColors.Focus),
-                shape = RoundedCornerShape(16.dp)
+                shape = BrowseShapes.Control
             )
         )
     ) {
         Box {
             LiveChannelRowCard(
+                highlighted = isFocused,
                 channel = channel,
                 nowMs = nowMs,
                 sourceBadgeLabel = sourceBadgeLabel,
@@ -142,7 +145,7 @@ fun LiveChannelRowSurface(
             }
             if (!isLocked && !isReorderMode && channel.isFavorite) {
                 Box(modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(4.dp)).padding(4.dp)) {
-                    Icon(imageVector = Icons.Filled.Star, contentDescription = null, tint = AppColors.Warning, modifier = Modifier.size(11.dp))
+                    Icon(imageVector = Icons.Filled.Star, contentDescription = null, tint = AppColors.MediaWarning, modifier = Modifier.size(11.dp))
                 }
             }
         }
@@ -151,6 +154,7 @@ fun LiveChannelRowSurface(
 
 @Composable
 fun LiveChannelRowCard(
+    highlighted: Boolean = false,
     channel: Channel,
     nowMs: Long,
     sourceBadgeLabel: String? = null,
@@ -165,9 +169,9 @@ fun LiveChannelRowCard(
     val ultraCompact = rowHeight <= 60.dp
     val logoWidth = if (dense) 42.dp else if (ultraCompact) 46.dp else 52.dp
     val hasArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
-    Box(modifier = modifier.clip(RoundedCornerShape(18.dp)).background(AppColors.SurfaceElevated).fillMaxWidth().height(rowHeight)) {
+    Box(modifier = modifier.clip(BrowseShapes.Panel).background(if (highlighted) AppColors.SurfaceEmphasis else AppColors.SurfaceElevated).fillMaxWidth().height(rowHeight)) {
         Row(modifier = Modifier.fillMaxSize().padding(horizontal = if (ultraCompact) 8.dp else 10.dp, vertical = if (ultraCompact) 5.dp else 6.dp), horizontalArrangement = Arrangement.spacedBy(if (ultraCompact) 8.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.width(logoWidth).fillMaxHeight().clip(RoundedCornerShape(12.dp))) {
+            Box(modifier = Modifier.width(logoWidth).fillMaxHeight().clip(BrowseShapes.Artwork)) {
                 ChannelLogoBadge(channelName = channel.name, logoUrl = channel.logoUrl, backgroundColor = AppColors.SurfaceEmphasis, contentPadding = PaddingValues(if (dense) 5.dp else 8.dp), textStyle = MaterialTheme.typography.titleLarge, textColor = AppColors.TextSecondary, modifier = Modifier.fillMaxSize())
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -183,7 +187,7 @@ fun LiveChannelRowCard(
                 channel.currentProgram?.let { program ->
                     Text(text = program.title, style = if (dense) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall, color = AppColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (!dense) {
-                        LinearProgressIndicator(progress = { liveChannelProgressFraction(nowMs, program.startTime, program.endTime) }, modifier = Modifier.fillMaxWidth().height(2.dp).clip(RoundedCornerShape(999.dp)), color = AppColors.Info, trackColor = AppColors.SurfaceEmphasis)
+                        LinearProgressIndicator(progress = { liveChannelProgressFraction(nowMs, program.startTime, program.endTime) }, modifier = Modifier.fillMaxWidth().height(2.dp).clip(BrowseShapes.Control), color = AppColors.Info, trackColor = AppColors.SurfaceEmphasis)
                     }
                 } ?: Text(text = noScheduleLabel, style = if (dense) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall, color = AppColors.TextTertiary)
             }

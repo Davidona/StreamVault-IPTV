@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,11 +33,11 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.image.ChannelLogoBadge
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
@@ -72,7 +73,7 @@ fun LiveGuidePreviewPane(
     Surface(
         modifier = modifier.height(150.dp),
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        shape = RoundedCornerShape(20.dp)
+        shape = BrowseShapes.Panel
     ) {
         Row(
             modifier = Modifier.fillMaxSize().padding(10.dp),
@@ -83,8 +84,8 @@ fun LiveGuidePreviewPane(
                 modifier = Modifier
                     .fillMaxHeight()
                     .aspectRatio(16f / 9f)
-                    .background(Color.Black, RoundedCornerShape(12.dp))
-                    .clip(RoundedCornerShape(12.dp)),
+                    .background(Color.Black, BrowseShapes.Artwork)
+                    .clip(BrowseShapes.Artwork),
                 contentAlignment = Alignment.Center
             ) {
                 if (previewPlayerEngine != null) {
@@ -110,7 +111,7 @@ fun LiveGuidePreviewPane(
                         Text(
                             text = labels.placeholderTitle,
                             style = MaterialTheme.typography.labelMedium,
-                            color = OnSurfaceDim,
+                            color = Color.White.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
                         )
                     }

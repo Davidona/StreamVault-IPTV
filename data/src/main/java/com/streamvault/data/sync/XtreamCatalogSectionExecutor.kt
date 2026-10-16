@@ -23,7 +23,8 @@ internal class XtreamCatalogSectionExecutor(
     private val markIndexFailure: suspend (Long, ContentType, Long, Throwable) -> Unit,
     private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
     private val sanitizeThrowableMessage: (Throwable) -> String,
-    private val userMessage: (Throwable, String) -> String
+    private val userMessage: (Throwable, String) -> String,
+    private val hasPendingIndex: suspend (Long, ContentType) -> Boolean = { _, _ -> false }
 ) {
     suspend fun syncCategoryShell(
         provider: Provider,
@@ -51,8 +52,13 @@ internal class XtreamCatalogSectionExecutor(
 
     suspend fun syncMovies(
         provider: Provider,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        preservePendingIndex: Boolean = false
     ): SyncOutcome {
+        if (preservePendingIndex && hasPendingIndex(provider.id, ContentType.MOVIE)) {
+            progress(provider.id, onProgress, "Resuming Movies index...")
+            return queuedOutcome(ContentType.MOVIE)
+        }
         val now = System.currentTimeMillis()
         progress(provider.id, onProgress, "Queueing Movies index...")
         val useTextClassification = preferencesRepository.useXtreamTextClassification.first()
@@ -95,14 +101,18 @@ internal class XtreamCatalogSectionExecutor(
 
     suspend fun syncSeries(
         provider: Provider,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        preservePendingIndex: Boolean = false
     ): SyncOutcome {
+        if (preservePendingIndex && hasPendingIndex(provider.id, ContentType.SERIES)) {
+            progress(provider.id, onProgress, "Resuming Series index...")
+            return queuedOutcome(ContentType.SERIES)
+        }
         val now = System.currentTimeMillis()
         progress(provider.id, onProgress, "Queueing Series index...")
         val useTextClassification = preferencesRepository.useXtreamTextClassification.first()
         val enableBase64TextCompatibility = preferencesRepository.xtreamBase64TextCompatibility.first()
         val api = createProvider(provider, useTextClassification, enableBase64TextCompatibility)
-        val currentMetadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
         val categoryCount = syncCategoryShell(
             provider = provider,
             api = api,
@@ -117,7 +127,7 @@ internal class XtreamCatalogSectionExecutor(
                 error
             )
         }
-        syncMetadataRepository.updateMetadata(currentMetadata.copy(lastSeriesSync = now))
+        // A category shell is an attempt, not a completed series import.
         Log.i(TAG, "Queued Xtream series index for provider ${provider.id}: $categoryCount categories.")
         return SyncOutcome(
             continuationWork = listOf(
@@ -136,6 +146,15 @@ internal class XtreamCatalogSectionExecutor(
         is Result.Error -> throw IllegalStateException(result.message.ifBlank { fallbackMessage }, result.exception)
         is Result.Loading -> throw IllegalStateException("Unexpected loading state")
     }
+
+    private fun queuedOutcome(section: ContentType) = SyncOutcome(
+        continuationWork = listOf(SyncContinuation(
+            operation = SyncContinuationOperation.INDEX_CATALOG,
+            section = section,
+            reason = "resume the existing durable index without resetting its cursor"
+        )),
+        activation = SyncActivation.DEFERRED_TO_FOLLOW_UP
+    )
 
     private companion object {
         const val TAG = "XtreamCatalogSection"

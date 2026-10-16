@@ -16,6 +16,7 @@ import com.streamvault.data.remote.stalker.StalkerSeriesDetailDialect
 import com.streamvault.data.remote.stalker.StalkerUrlFactory
 import com.streamvault.data.remote.stalker.StalkerVodPlaybackDialect
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.ContentCachePolicy
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.data.util.SeriesPresentationSettings
@@ -235,10 +236,14 @@ class SeriesRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    val nonWildcard = filteredCategories.filterNot { category ->
-                        stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
+                    if (stalkerProvider == null) {
+                        filteredCategories
+                    } else {
+                        val nonWildcard = filteredCategories.filterNot { category ->
+                            stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
+                        }
+                        if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                     }
-                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
@@ -426,7 +431,11 @@ class SeriesRepositoryImpl @Inject constructor(
             mode == VodCategoryLoadMode.PAGED
         ) {
             repositoryScope.launch {
-                requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.NEXT_PAGE)
+                try {
+                    requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.NEXT_PAGE)
+                } catch (_: CredentialDecryptionException) {
+                    logUnreadableProviderCredentials(providerId)
+                }
             }
         }
         return derivedResult
@@ -1676,6 +1685,8 @@ class SeriesRepositoryImpl @Inject constructor(
                         allowWildcard = allowStalkerWildcard
                     )
                 }
+            } catch (_: CredentialDecryptionException) {
+                logUnreadableProviderCredentials(providerId)
             } finally {
                 backgroundRefreshes.remove(key)
             }
@@ -1715,7 +1726,7 @@ class SeriesRepositoryImpl @Inject constructor(
         xtreamCategoryLoadLocks.withLock(key) {
             val persistedHydration = seriesCategoryHydrationDao.get(providerId, categoryId)
             if (requestedPage != null && (persistedHydration?.lastSuccessfulPage ?: 0) >= requestedPage) return@withLock
-            val stalkerProvider = createStalkerProvider(providerId)
+            val stalkerProvider = createStalkerProvider(providerId) ?: return@withLock
             if (!allowWildcard && stalkerProvider.isWildcardCategory(ContentType.SERIES, categoryId)) return@withLock
             var currentCount = localCount ?: seriesDao.getCountByCategory(providerId, categoryId).first()
             var currentHydration = persistedHydration ?: hydration
@@ -1935,8 +1946,13 @@ class SeriesRepositoryImpl @Inject constructor(
     private fun seriesUpdatedScore(series: Series): Long =
         series.lastModified.takeIf { it > 0L } ?: 0L
 
-    private suspend fun createStalkerProvider(providerId: Long): StalkerProvider {
-        val snapshot = providerCapabilityResolver.snapshot(providerId)
+    private suspend fun createStalkerProvider(providerId: Long): StalkerProvider? {
+        val snapshot = try {
+            providerCapabilityResolver.snapshot(providerId)
+        } catch (_: CredentialDecryptionException) {
+            logUnreadableProviderCredentials(providerId)
+            return null
+        }
             ?: throw IllegalStateException("Provider $providerId has no typed configuration")
         return when (val resolution = typedProviderClientFactory.stalker(snapshot)) {
             is CapabilityResolution.Available -> resolution.capability
@@ -1964,6 +1980,14 @@ class SeriesRepositoryImpl @Inject constructor(
         catalogLayoutDetectionVersion.toString()
     ).joinToString("\u0000").hashCode()
 
-    private suspend fun loadCompatibilityProvider(providerId: Long): Provider? =
+    private suspend fun loadCompatibilityProvider(providerId: Long): Provider? = try {
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
+    } catch (_: CredentialDecryptionException) {
+        logUnreadableProviderCredentials(providerId)
+        null
+    }
+
+    private fun logUnreadableProviderCredentials(providerId: Long) {
+        Log.w(TAG, "Skipping series provider work because stored credentials are unreadable (providerId=$providerId)")
+    }
 }

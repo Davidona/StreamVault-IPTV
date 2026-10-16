@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">来源</string>
+    <string name="vod_subtitle_settings">设置</string>
+    <string name="vod_subtitle_provider">提供商字幕</string>
+    <string name="vod_subtitle_provider_hint">从此视频中选择字幕轨道</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">在线查找字幕</string>
+    <string name="vod_subtitle_online_unavailable">此视频无法使用在线搜索</string>
+    <string name="vod_subtitle_device_hint">选择一个 SRT 文件</string>
+    <string name="vod_subtitle_back">返回来源</string>
+    <string name="vod_tracks_empty">此视频中没有可用的轨道</string>
+    <string name="vod_subtitle_preview">这是字幕。</string>
+    <string name="vod_subtitle_font_size">字体大小</string>
+    <string name="vod_subtitle_background">背景不透明度</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% 透明 · 100% 纯黑</string>
+    <string name="vod_subtitle_decrease_setting">减小 %1$s</string>
+    <string name="vod_subtitle_increase_setting">增大 %1$s</string>
+</resources>

@@ -8,6 +8,7 @@ import com.streamvault.data.remote.stalker.StalkerPlaybackMode
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
+import com.streamvault.data.remote.stalker.StalkerResolvedCategoryHandoff
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamProvider
 import com.streamvault.domain.model.JellyfinConfig
@@ -126,7 +127,10 @@ class TypedProviderClientFactory @Inject constructor(
                 catalogLayoutDetectionVersionHint = snapshot.accountRuntime.catalogLayoutDetectionVersion,
                 identityResolver = stalkerRemoteIdentityResolver,
                 portalStateStore = stalkerPortalStateStore,
-                onProgress = options.onProgress
+                onProgress = options.onProgress,
+                resolvedCategoryHandoffKey = StalkerResolvedCategoryHandoff.key(
+                    snapshot.provider.id, snapshot.configurationGeneration, config
+                )
             )
         )
     }

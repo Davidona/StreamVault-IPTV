@@ -22,6 +22,7 @@ import com.streamvault.data.local.dao.SearchHistoryDao
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.settings.SubtitleLanguageOrdering
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -177,6 +178,45 @@ class PreferencesRepository @Inject constructor(
         )
     }
 
+    override val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration> = preferencesDataStore.data.map { values ->
+        val defaults = readAutomaticSyncSettings(values[stringPreferencesKey("automatic_sync_defaults")])
+        val providers = values.asMap().mapNotNull { (key, value) ->
+            key.name.removePrefix("automatic_sync_provider_").toLongOrNull()
+                ?.takeIf { key.name.startsWith("automatic_sync_provider_") }
+                ?.let { it to readAutomaticSyncSettings(value as? String) }
+        }.toMap()
+        com.streamvault.domain.sync.AutomaticSyncConfiguration(defaults, providers)
+    }
+
+    override val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>> = preferencesDataStore.data.map { values ->
+        values.asMap().mapNotNull { (key, value) ->
+            val id = key.name.takeIf { it.startsWith("automatic_sync_status_") }
+                ?.removePrefix("automatic_sync_status_")?.toLongOrNull() ?: return@mapNotNull null
+            runCatching { id to com.google.gson.Gson().fromJson(value as String, com.streamvault.domain.sync.AutomaticSyncStatus::class.java) }.getOrNull()
+        }.toMap()
+    }
+
+    private fun readAutomaticSyncSettings(json: String?): com.streamvault.domain.sync.AutomaticSyncSettings =
+        runCatching { com.google.gson.Gson().fromJson(json, com.streamvault.domain.sync.AutomaticSyncSettings::class.java)?.normalized() }.getOrNull()
+            ?: com.streamvault.domain.sync.AutomaticSyncSettings()
+
+    override suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        val key = if (providerId == null) stringPreferencesKey("automatic_sync_defaults") else stringPreferencesKey("automatic_sync_provider_$providerId")
+        preferencesDataStore.edit { values ->
+            if (settings == null) values.remove(key)
+            else values[key] = com.google.gson.Gson().toJson(settings.normalized())
+        }
+        // Update durable work immediately; the worker re-reads policy before each section.
+        com.streamvault.data.sync.ProviderSyncWorker.enqueuePeriodic(context)
+        com.streamvault.data.sync.ProviderSyncWorker.enqueueLaunchStaleCheck(context)
+    }
+
+    suspend fun recordAutomaticSyncStatus(providerId: Long, status: com.streamvault.domain.sync.AutomaticSyncStatus) {
+        preferencesDataStore.edit { values ->
+            values[stringPreferencesKey("automatic_sync_status_$providerId")] = com.google.gson.Gson().toJson(status)
+        }
+    }
+
     private val Context.dataStore: DataStore<Preferences>
         get() = preferencesDataStore
     companion object {
@@ -273,6 +313,7 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_SUBTITLE_TEXT_SCALE = stringPreferencesKey("player_subtitle_text_scale")
         val PLAYER_SUBTITLE_TEXT_COLOR = intPreferencesKey("player_subtitle_text_color")
         val PLAYER_SUBTITLE_BACKGROUND_COLOR = intPreferencesKey("player_subtitle_background_color")
+        val PINNED_SUBTITLE_LANGUAGES = stringPreferencesKey("pinned_subtitle_languages")
         val PLAYER_LIVE_TRANSLATION_ENABLED = booleanPreferencesKey("player_live_translation_enabled")
         val PLAYER_LIVE_TRANSLATION_ENDPOINT = stringPreferencesKey("player_live_translation_endpoint")
         val PLAYER_CONTROLS_TIMEOUT_SECONDS = intPreferencesKey("player_controls_timeout_seconds")
@@ -575,6 +616,24 @@ class PreferencesRepository @Inject constructor(
         decodeVodTrackPreferences(preferences[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES])
     }
 
+    val vodTrackPreferencesByScope: Flow<Map<VodTrackPreferenceScope, VodTrackPreferences>> =
+        context.dataStore.data.map { preferences ->
+            decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])
+                .mapNotNull { (storageKey, trackPreferences) ->
+                    val parts = storageKey.split('|', limit = 3)
+                    if (parts.size != 3) return@mapNotNull null
+                    val providerId = parts[0].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val contentId = parts[2].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val scope = when (parts[1]) {
+                        "movie" -> VodTrackPreferenceScope.Movie(providerId, contentId)
+                        "series" -> VodTrackPreferenceScope.Series(providerId, contentId)
+                        else -> return@mapNotNull null
+                    }
+                    scope to trackPreferences
+                }
+                .toMap()
+        }
+
     override fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?> =
         context.dataStore.data.map { preferences ->
             decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])[
@@ -595,6 +654,13 @@ class PreferencesRepository @Inject constructor(
 
     override val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] ?: 0x80000000.toInt()
+    }
+
+    override val pinnedSubtitleLanguages: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES]
+            ?.split('\n')
+            .orEmpty()
+            .let(SubtitleLanguageOrdering::normalizePinned)
     }
 
     override val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -1293,6 +1359,20 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun clearVodTrackPreferencesForProvider(providerId: Long) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { values ->
+            val updated = decodeVodTrackPreferenceEntries(
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES]
+            ).filterKeys { key -> key.substringBefore('|').toLongOrNull() != providerId }
+            if (updated.isEmpty()) {
+                values.remove(PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES)
+            } else {
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES] = encodeVodTrackPreferenceEntries(updated)
+            }
+        }
+    }
+
     override suspend fun setPlayerSubtitleTextScale(scale: Float) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE] = scale.coerceIn(0.75f, 1.75f).toString()
@@ -1308,6 +1388,17 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] = colorArgb
+        }
+    }
+
+    override suspend fun setPinnedSubtitleLanguages(languages: List<String>) {
+        context.dataStore.edit { preferences ->
+            val normalized = SubtitleLanguageOrdering.normalizePinned(languages)
+            if (normalized.isEmpty()) {
+                preferences.remove(PreferencesKeys.PINNED_SUBTITLE_LANGUAGES)
+            } else {
+                preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES] = normalized.joinToString("\n")
+            }
         }
     }
 

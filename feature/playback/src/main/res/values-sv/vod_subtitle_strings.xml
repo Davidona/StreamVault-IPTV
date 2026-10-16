@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vod_subtitle_sources">Källor</string>
+    <string name="vod_subtitle_settings">Inställningar</string>
+    <string name="vod_subtitle_provider">Leverantörsundertexter</string>
+    <string name="vod_subtitle_provider_hint">Välj ett undertextspår från den här videon</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Hitta undertexter online</string>
+    <string name="vod_subtitle_online_unavailable">Onlinesökning är inte tillgänglig för den här videon</string>
+    <string name="vod_subtitle_device_hint">Välj en SRT-fil</string>
+    <string name="vod_subtitle_back">Tillbaka till källor</string>
+    <string name="vod_tracks_empty">Inga spår tillgängliga i den här videon</string>
+    <string name="vod_subtitle_preview">Detta är en undertext.</string>
+    <string name="vod_subtitle_font_size">Teckenstorlek</string>
+    <string name="vod_subtitle_background">Bakgrundens opacitet</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% genomskinlig · 100% heldragen svart</string>
+    <string name="vod_subtitle_decrease_setting">Minska %1$s</string>
+    <string name="vod_subtitle_increase_setting">Öka %1$s</string>
+</resources>

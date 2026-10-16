@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="one">%1$d mentett</item>
-        <item quantity="other">%1$d mentett</item>
-    </plurals>
 <plurals name="settings_timeout_seconds">
         <item quantity="one">%d másodperc</item>
         <item quantity="other">%d másodperc</item>
@@ -13,11 +9,11 @@
         <item quantity="other">%1$d perc</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="one">%d lap</item>
+        <item quantity="other">%d lap</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d polc</item>
+        <item quantity="other">%d polc</item>
     </plurals>
 </resources>

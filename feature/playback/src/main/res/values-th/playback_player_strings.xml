@@ -1,0 +1,261 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">ค้นหาคำบรรยายออนไลน์</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">โหลด SRT จากอุปกรณ์</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">หน่วงคำบรรยาย (%1$+d ms)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">การหน่วงคำบรรยาย</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">ค่าติดลบจะแสดงคำบรรยายเร็วขึ้น ค่าบวกจะแสดงช้าลง</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">การหน่วงปัจจุบัน: %1$+d ms</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">แสดงคำบรรยายเร็วขึ้น %1$d ms</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">แสดงคำบรรยายช้าลง %1$d ms</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">รีเซ็ตการหน่วง</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">โหลด %1$s แล้ว เครื่องเล่นกำลังโหลดคำบรรยาย</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">เลือกไฟล์คำบรรยาย .srt ที่ถูกต้อง</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">ไฟล์คำบรรยายต้องมีขนาดไม่เกิน 20 MB</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">ไม่สามารถโหลดไฟล์คำบรรยายนี้ได้</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">ค้นหาคำบรรยาย</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">เลือกคำบรรยายเพื่อเพิ่มในวิดีโอนี้</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">ผลลัพธ์สำหรับ %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">คุณสามารถค้นหาได้โดยไม่ต้องลงชื่อเข้าใช้ หากเปิดใช้การเข้าถึงแบบไม่ระบุตัวตน ลงชื่อเข้าใช้เพื่อใช้โควตาดาวน์โหลดของบัญชีคุณ</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">เชื่อมต่อบัญชี (ไม่บังคับ)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">กำลังค้นหา OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">ไม่พบคำบรรยายสำหรับชื่อเรื่องและภาษานี้</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">ค้นหาอีกครั้ง</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">เลือกภาษา แล้วเลือกเวอร์ชัน</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">ทุกภาษา</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">แสดงทุกภาษาที่มี</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">กำลังโหลดภาษา…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">ภาษา: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">เปลี่ยนภาษา</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">ไม่สามารถโหลดรายการภาษาได้</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">ดาวน์โหลด %1$s ครั้ง</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">ฉบับเผยแพร่ทั่วไป</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">กำลังดาวน์โหลดคำบรรยาย…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">เพิ่ม %1$s แล้ว เครื่องเล่นกำลังโหลดคำบรรยาย</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">ปิด</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="other">%1$d นาที</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">การแคสต์ถูกตัดการเชื่อมต่อแล้ว</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">เล่นย้อนหลังได้ (%1$d วัน)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">เล่นย้อนหลังได้</string>
+    <string name="epg_no_info">ไม่มีข้อมูล EPG</string>
+    <string name="epg_now_playing">กำลังเล่น</string>
+    <string name="epg_title">ผังรายการทีวี</string>
+    <string name="epg_up_next">ถัดไป</string>
+    <string name="epg_upcoming_schedule">ผังรายการที่กำลังจะมาถึง</string>
+    <string name="home_locked_short">ล็อก</string>
+    <string name="label_categories">หมวดหมู่</string>
+    <string name="label_duration_min">%1$d นาที</string>
+    <string name="multiview_nav">หน้าจอแยก</string>
+    <string name="nav_live_tv">ทีวีสด</string>
+    <string name="notification_permission_recording_alert_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนเมื่อการบันทึกล้มเหลว</string>
+    <string name="notification_permission_reminder_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนรายการที่ตั้งไว้</string>
+    <string name="player_action_cast">แคสต์</string>
+    <string name="player_action_diagnostics">การวินิจฉัย</string>
+    <string name="player_action_format">รูปแบบ</string>
+    <string name="player_action_group">กลุ่ม</string>
+    <string name="player_action_guide">ผังรายการ</string>
+    <string name="player_action_mute">ปิดเสียง</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">การเล่น</string>
+    <string name="player_action_quality">คุณภาพ</string>
+    <string name="player_action_split">แยก</string>
+    <string name="player_action_variants">รูปแบบอื่น</string>
+    <string name="player_action_view">มุมมอง</string>
+    <string name="player_archive">ย้อนหลัง</string>
+    <string name="player_aspect_ratio_label">อัตราส่วน %1$s</string>
+    <string name="player_audio">เสียง</string>
+    <string name="player_chapters">บท</string>
+    <string name="player_chapter_count">%1$d บท</string>
+    <string name="player_chapter_label">บท %1$d</string>
+    <string name="player_chapter_selected">บท %1$d เลือกอยู่</string>
+    <string name="player_chapter_title">บท %1$d · %2$s</string>
+    <string name="player_close_chapters">ปิดบท</string>
+    <string name="player_previous_chapter">บทก่อนหน้า</string>
+    <string name="player_next_chapter">บทถัดไป</string>
+    <string name="player_rewind_10_seconds">ย้อนกลับ 10 วินาที</string>
+    <string name="player_forward_10_seconds">ไปข้างหน้า 10 วินาที</string>
+    <string name="player_vod_timeline">ไทม์ไลน์ VOD</string>
+    <string name="player_close_controls">ปิดตัวควบคุม</string>
+    <string name="player_back_to_menu">กลับไปที่เมนู</string>
+    <string name="player_playback_settings">การตั้งค่าการเล่น</string>
+    <string name="player_close_playback_settings">ปิดการตั้งค่าการเล่น</string>
+    <string name="player_vod_controls">ตัวควบคุมการเล่น VOD</string>
+    <string name="player_aspect_ratio">อัตราส่วนภาพ</string>
+    <string name="player_auto_play_cancel">ยกเลิก</string>
+    <string name="player_auto_play_countdown">จะเล่นใน %1$d วินาที</string>
+    <string name="player_auto_play_play_now">เล่นทันที</string>
+    <string name="player_av_sync_channel">ช่อง</string>
+    <string name="player_av_sync_global">ทั่วไป</string>
+    <string name="player_av_sync_minus_50">ซิงค์ A/V -50 ms</string>
+    <string name="player_av_sync_plus_50">ซิงค์ A/V +50 ms</string>
+    <string name="player_av_sync_preview">ตัวอย่าง</string>
+    <string name="player_av_sync_reset">รีเซ็ตเป็น 0 ms</string>
+    <string name="player_av_sync_save_channel">บันทึกสำหรับช่องนี้</string>
+    <string name="player_av_sync_save_global">ตั้งเป็นค่าทั่วไป</string>
+    <string name="player_av_sync_short">ซิงค์ A/V</string>
+    <string name="player_av_sync_title">ซิงค์ A/V</string>
+    <string name="player_av_sync_use_global">ใช้ค่าทั่วไป</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">เรียกดูย้อนหลัง</string>
+    <string name="player_browse_guide_catchup">เรียกดูผังรายการ</string>
+    <string name="player_buffering">กำลังบัฟเฟอร์...</string>
+    <string name="player_cancel_scheduled_recording">ยกเลิกที่ตั้งเวลาไว้</string>
+    <string name="player_cast">แคสต์</string>
+    <string name="player_catchup_badge">ย้อนหลัง</string>
+    <string name="player_catchup_options">ย้อนหลัง</string>
+    <string name="player_channel_list_hint">เลือกช่องเพื่อเปิดทันที ปุ่มย้อนกลับจะปิดรายการ</string>
+    <string name="player_channel_list_title">ช่อง (%1$d)</string>
+    <string name="player_channel_not_found">ไม่พบช่อง</string>
+    <string name="player_channel_selected">ตอนนี้</string>
+    <string name="player_channel_variants">ช่องรูปแบบอื่น</string>
+    <string name="player_close">ปิด</string>
+    <string name="player_diagnostics_active_decoder">ตัวถอดรหัสที่ใช้งานอยู่</string>
+    <string name="player_diagnostics_alternates">สตรีมสำรอง</string>
+    <string name="player_diagnostics_archive">ย้อนหลัง</string>
+    <string name="player_diagnostics_audio_codec">ตัวแปลงรหัสเสียง</string>
+    <string name="player_diagnostics_audio_decoder">ตัวถอดรหัสเสียง</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">โหมดตัวถอดรหัสเสียง</string>
+    <string name="player_diagnostics_audio_output_path">เส้นทางเอาต์พุตเสียง</string>
+    <string name="player_diagnostics_av_offset">ออฟเซต A/V</string>
+    <string name="player_diagnostics_av_sync">การซิงค์ A/V</string>
+    <string name="player_diagnostics_av_sync_custom">เปิด (เส้นทางซิงค์กำหนดเอง)</string>
+    <string name="player_diagnostics_av_sync_stock">ปิด (เส้นทางเสียงมาตรฐาน)</string>
+    <string name="player_diagnostics_av_sync_waiting">เปิด (รอเริ่มการเล่นใหม่)</string>
+    <string name="player_diagnostics_channel_errors">ข้อผิดพลาดของช่อง</string>
+    <string name="player_diagnostics_compatibility_note">หมายเหตุความเข้ากันได้</string>
+    <string name="player_diagnostics_compatibility_note_value">การเล่นอาจใช้เส้นทางเสียงที่เรียนรู้หรือที่ช่วยด้านความเข้ากันได้สำหรับสตรีมนี้</string>
+    <string name="player_diagnostics_compatibility_source">แหล่งความเข้ากันได้</string>
+    <string name="player_diagnostics_dropped_frames">เฟรมที่หลุด</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">ความล้มเหลวล่าสุด</string>
+    <string name="player_diagnostics_last_frame">เฟรมวิดีโอล่าสุด</string>
+    <string name="player_diagnostics_playback_state">สถานะการเล่น</string>
+    <string name="player_diagnostics_provider">ผู้ให้บริการ</string>
+    <string name="player_diagnostics_recovery_actions">การดำเนินการกู้คืน</string>
+    <string name="player_diagnostics_resolution">ความละเอียด</string>
+    <string name="player_diagnostics_section_audio">เสียง</string>
+    <string name="player_diagnostics_section_playback">การเล่น</string>
+    <string name="player_diagnostics_section_recovery">การกู้คืน</string>
+    <string name="player_diagnostics_section_source">แหล่งที่มา</string>
+    <string name="player_diagnostics_section_video">วิดีโอ</string>
+    <string name="player_diagnostics_source">แหล่งที่มา</string>
+    <string name="player_diagnostics_stream_class">ประเภทสตรีม</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">การวินิจฉัยการเล่น</string>
+    <string name="player_diagnostics_troubleshooting">การแก้ไขปัญหา</string>
+    <string name="player_diagnostics_frame_rate">อัตราเฟรม</string>
+    <string name="player_diagnostics_stream_bitrate">บิตเรตสตรีม</string>
+    <string name="player_diagnostics_bandwidth_estimate">แบนด์วิดท์เครือข่าย</string>
+    <string name="player_diagnostics_video_bitrate">บิตเรตวิดีโอ</string>
+    <string name="player_diagnostics_video_codec">ตัวแปลงรหัสวิดีโอ</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">โหมดตัวถอดรหัสวิดีโอ</string>
+    <string name="player_diagnostics_video_stalls">การหยุดชะงักของวิดีโอ</string>
+    <string name="player_epg_overlay_hint">เรียกดูรายละเอียดผังรายการได้ที่นี่ เลือกปุ่มย้อนหลังเพื่อเปิดประวัติคลังย้อนหลัง</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">ตอน</string>
+    <string name="player_previous_episode">ตอนก่อนหน้า</string>
+    <string name="player_next_episode">ตอนถัดไป</string>
+    <string name="player_error_back">หรือกดย้อนกลับเพื่อกลับ</string>
+    <string name="player_error_decoder">ไม่สามารถเล่นรูปแบบนี้ได้ — ลองเปลี่ยนโหมดตัวถอดรหัสในการตั้งค่า</string>
+    <string name="player_error_drm">ข้อกำหนดด้านลิขสิทธิ์ DRM หรือความปลอดภัยของอุปกรณ์ทำให้ไม่สามารถเล่นได้</string>
+    <string name="player_error_live_hint">ลองอีกครั้ง กลับไปช่องล่าสุด หรือกดย้อนกลับเพื่อออกจากการเล่น</string>
+    <string name="player_error_network">สตรีมไม่พร้อมใช้งาน — ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ</string>
+    <string name="player_error_source">ไม่พบสตรีมหรือการเข้าถึงถูกปฏิเสธ</string>
+    <string name="player_error_title">ข้อผิดพลาดในการเล่น</string>
+    <string name="player_error_unknown">ข้อผิดพลาดในการเล่นที่ไม่ทราบสาเหตุ</string>
+    <string name="player_format_short">รูปแบบ</string>
+    <string name="player_forward">กรอไปข้างหน้า</string>
+    <string name="player_idle_standby_after">อนุญาตสแตนด์บายเมื่อไม่ใช้งาน</string>
+    <string name="player_idle_timer_status">สแตนด์บายเมื่อไม่ใช้งาน %1$s</string>
+    <string name="player_jump_to_live">ข้ามไปชมสด</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">ช่องล่าสุด</string>
+    <string name="player_last_group_hint">กลับไปยังกลุ่มช่องสดล่าสุดที่คุณกำลังเรียกดู</string>
+    <string name="player_last_group_label">ล่าสุด: %1$s</string>
+    <string name="player_live_buffer_depth">บัฟเฟอร์ %1$s</string>
+    <string name="player_live_buffer_end">ตำแหน่งสด</string>
+    <string name="player_live_buffer_start">จุดเริ่มบัฟเฟอร์</string>
+    <string name="player_live_channel">ช่อง %1$d</string>
+    <string name="player_live_dvr_controls">เครื่องเล่น</string>
+    <string name="player_live_now">กำลังเล่น</string>
+    <string name="player_live_offset">ช้ากว่าสด %1$s</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">DVR ในเครื่อง</string>
+    <string name="player_live_scrubber_cd">ไทม์ไลน์ย้อนหลังสด ใช้ปุ่มซ้ายและขวาเพื่อเลื่อนตำแหน่ง</string>
+    <string name="player_live_timeshift_buffering">การย้อนหลังสดในเครื่องยังคงบัฟเฟอร์อยู่</string>
+    <string name="player_minutes_remaining">เหลือ %1$d นาที</string>
+    <string name="player_more_controls">ตัวควบคุมเพิ่มเติม</string>
+    <string name="player_multiview_short">มุมมองหลายจอ</string>
+    <string name="player_mute">ปิดเสียง</string>
+    <string name="player_muted_badge">ปิดเสียงอยู่</string>
+    <string name="player_next_label">ถัดไป:</string>
+    <string name="player_no_guide_data">ไม่มีข้อมูลผังรายการ</string>
+    <string name="player_open_guide_action">เปิดผังรายการ</string>
+    <string name="player_open_in_external_player">เปิดในเครื่องเล่นภายนอก</string>
+    <string name="player_pause">หยุดชั่วคราว</string>
+    <string name="player_picture_in_picture">ภาพในภาพ</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">เล่น</string>
+    <string name="player_playback_label">การเล่น</string>
+    <string name="player_playback_speed_title">ความเร็วการเล่น</string>
+    <string name="player_playback_speed_value">ความเร็ว %1$s</string>
+    <string name="player_quality_short">คุณภาพ</string>
+    <string name="player_recent_channels">ล่าสุด</string>
+    <string name="player_record">บันทึก</string>
+    <string name="player_record_now">บันทึกทันที</string>
+    <string name="player_record_options">การบันทึก</string>
+    <string name="player_recording_badge">กำลังบันทึก</string>
+    <string name="player_recording_scheduled_badge">ตั้งเวลาไว้</string>
+    <string name="player_resolution_auto_label">อัตโนมัติ:%1$s</string>
+    <string name="player_restart">เริ่มใหม่</string>
+    <string name="player_close_playback_title">ปิดการเล่นหรือไม่</string>
+    <string name="player_close_playback_desc">การดำเนินการนี้จะหยุดการเล่นและกลับไปยังหน้าจอก่อนหน้า</string>
+    <string name="player_close_playback_confirm">ใช่</string>
+    <string name="player_close_playback_cancel">ไม่</string>
+    <string name="player_resume">เล่นต่อ</string>
+    <string name="player_resume_desc">ต้องการเล่น %1$s ต่อจากจุดที่ค้างไว้หรือไม่</string>
+    <string name="player_resume_start_over">เริ่มตั้งแต่ต้น</string>
+    <string name="player_resume_title">เล่นต่อ</string>
+    <string name="player_retry">ลองอีกครั้ง</string>
+    <string name="player_rewind">ย้อนกลับ</string>
+    <string name="player_schedule_daily_recording">ตั้งเวลาทุกวัน</string>
+    <string name="player_schedule_recording">ตั้งเวลา</string>
+    <string name="player_schedule_weekly_recording">ตั้งเวลาทุกสัปดาห์</string>
+    <string name="player_seek_back_10">-10s</string>
+    <string name="player_seek_forward_10">+10s</string>
+    <string name="player_skip_intro">ข้ามบทนำ</string>
+    <string name="player_skip_opening">ข้ามเพลงเปิด</string>
+    <string name="player_skip_recap">ข้ามส่วนสรุป</string>
+    <string name="player_skip_outro">ข้ามส่วนท้าย</string>
+    <string name="player_selected">เลือกอยู่</string>
+    <string name="player_stats">สถิติ</string>
+    <string name="player_stop_casting">หยุดแคสต์</string>
+    <string name="player_stop_playback_after">หยุดการเล่นหลังจาก</string>
+    <string name="player_stop_recording">หยุดบันทึก</string>
+    <string name="player_stop_timer_status">หยุดใน %1$s</string>
+    <string name="player_stream_format">รูปแบบสตรีม</string>
+    <string name="player_subs">คำบรรยาย</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d นาที</string>
+    <string name="player_timer_disable">ปิดใช้งาน</string>
+    <string name="player_timer_extend_30">+30 นาที</string>
+    <string name="player_timer_off">ปิด</string>
+    <string name="player_timer_warning_idle">อนุญาตสแตนด์บายใน %1$s</string>
+    <string name="player_timer_warning_stop">การเล่นจะหยุดใน %1$s</string>
+    <string name="player_track_audio">เลือกแทร็กเสียง</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">การแปลแบบเรียลไทม์</string>
+    <string name="player_track_off">ปิด</string>
+    <string name="player_track_subs">เลือกคำบรรยาย</string>
+    <string name="player_try_alternate_stream">ลองเส้นทางอื่น</string>
+    <string name="player_type_channel_number">พิมพ์หมายเลขช่อง</string>
+    <string name="player_type_movie">ภาพยนตร์</string>
+    <string name="player_type_series">ซีรีส์</string>
+    <string name="player_unmute">เปิดเสียง</string>
+    <string name="player_up_next">ถัดไป</string>
+    <string name="player_variants_short">รูปแบบอื่น</string>
+    <string name="player_video_quality">คุณภาพวิดีโอ</string>
+    <string name="series_seasons">ซีซัน</string>
+    <string name="settings_recording_status_recording">กำลังบันทึก</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+</resources>

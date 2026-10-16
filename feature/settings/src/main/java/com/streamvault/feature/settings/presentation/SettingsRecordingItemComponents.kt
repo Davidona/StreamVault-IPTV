@@ -51,13 +51,13 @@ public fun RecordingItemCard(
     onToggleSchedule: (Boolean) -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        shape = RoundedCornerShape(12.dp)
+        modifier = Modifier.fillMaxWidth().settingsDetailPanel(),
+        colors = SurfaceDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        shape = SettingsDetailShapes.Panel
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -241,9 +241,19 @@ public fun RecordingItemCard(
     }
 }
 
-public fun RecordingItem.playbackUrl(): String? {
+public fun RecordingItem.playbackUrl(recordingProviderAuthority: String? = null): String? {
     val persistedUri = outputUri?.trim()?.takeIf { it.isNotBlank() }
     if (persistedUri != null) {
+        if (persistedUri.startsWith("smb://", ignoreCase = true)) {
+            val authority = recordingProviderAuthority?.trim()?.takeIf { it.isNotBlank() } ?: return null
+            return android.net.Uri.Builder()
+                .scheme("content")
+                .authority(authority)
+                .appendPath("recording")
+                .appendPath("$id.ts")
+                .build()
+                .toString()
+        }
         return persistedUri
     }
     val localPath = outputPath?.trim()?.takeIf { it.isNotBlank() } ?: return null

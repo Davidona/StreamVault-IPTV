@@ -8,9 +8,12 @@ import androidx.media3.common.Format
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
+import com.streamvault.domain.settings.SubtitleLanguageOrdering
+import com.streamvault.domain.settings.VodTrackPreference
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.PlayerTrack
+import com.streamvault.player.SubtitleTrackSource
 import com.streamvault.player.TrackType
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,12 +39,15 @@ class PlayerTrackController(
     private var preferredWifiMaxVideoHeight: Int? = null
     private var preferredEthernetMaxVideoHeight: Int? = null
     private var vodTrackPreferences: VodTrackPreferences? = null
+    private var pendingExternalSubtitleAutoSelect: SubtitleTrackSource? = null
+    private var pinnedSubtitleLanguages: List<String> = emptyList()
 
     fun resetSelections() {
         _availableAudioTracks.value = emptyList()
         _availableSubtitleTracks.value = emptyList()
         _availableVideoTracks.value = emptyList()
         selectedVideoTrackId = PLAYER_TRACK_AUTO_ID
+        pendingExternalSubtitleAutoSelect = null
     }
 
     fun applyInitialParameters(player: ExoPlayer, constrainResolutionForMultiView: Boolean) {
@@ -122,6 +128,17 @@ class PlayerTrackController(
             ?: return
     }
 
+    fun setPinnedSubtitleLanguages(languages: List<String>) {
+        pinnedSubtitleLanguages = SubtitleLanguageOrdering.normalizePinned(languages)
+        _availableSubtitleTracks.update { tracks ->
+            SubtitleLanguageOrdering.sortByPinned(
+                pinnedTags = pinnedSubtitleLanguages,
+                items = tracks,
+                languageOf = PlayerTrack::language
+            )
+        }
+    }
+
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?) {
         preferredWifiMaxVideoHeight = wifiMaxHeight?.takeIf { it > 0 }
         preferredEthernetMaxVideoHeight = ethernetMaxHeight?.takeIf { it > 0 }
@@ -151,7 +168,13 @@ class PlayerTrackController(
                             isText -> TrackType.TEXT
                             else -> TrackType.VIDEO
                         },
-                        isSelected = if (isVideo) selectedVideoTrackId == id else group.isTrackSelected(index)
+                        isSelected = if (isVideo) selectedVideoTrackId == id else group.isTrackSelected(index),
+                        subtitleSource = when (format.id) {
+                            com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.ONLINE
+                            com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.DEVICE
+                            com.streamvault.player.STREMIO_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.STREMIO
+                            else -> com.streamvault.player.SubtitleTrackSource.PROVIDER
+                        },
                     )
                     when {
                         isAudio && group.isTrackSupported(index, false) -> audioTracks += track
@@ -168,7 +191,11 @@ class PlayerTrackController(
         )
 
         _availableAudioTracks.value = audioTracks
-        _availableSubtitleTracks.value = subtitleTracks
+        _availableSubtitleTracks.value = SubtitleLanguageOrdering.sortByPinned(
+            pinnedTags = pinnedSubtitleLanguages,
+            items = subtitleTracks,
+            languageOf = PlayerTrack::language
+        )
         _availableVideoTracks.value = when {
             videoTracks.size > 1 -> listOf(
                 PlayerTrack(
@@ -232,6 +259,29 @@ class PlayerTrackController(
             .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
             .setOverrideForType(override)
             .build()
+    }
+
+    fun requestExternalSubtitleAutoSelect(source: SubtitleTrackSource) {
+        pendingExternalSubtitleAutoSelect = source
+    }
+
+    fun applyPendingExternalSubtitleAutoSelect(player: ExoPlayer) {
+        val source = pendingExternalSubtitleAutoSelect ?: return
+        val track = _availableSubtitleTracks.value.lastOrNull { it.subtitleSource == source } ?: return
+        val override = findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, track.id) ?: return
+        pendingExternalSubtitleAutoSelect = null
+        player.trackSelectionParameters = player.trackSelectionParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+            .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            .setOverrideForType(override)
+            .build()
+        _availableSubtitleTracks.update { tracks ->
+            tracks.map { existing -> existing.copy(isSelected = existing.id == track.id) }
+        }
+        vodTrackPreferences = (vodTrackPreferences ?: VodTrackPreferences()).copy(
+            subtitle = VodTrackPreference(trackId = track.id, language = track.language, label = track.name)
+        )
     }
 
     private fun findOverride(tracks: Tracks, trackType: Int, trackId: String): TrackSelectionOverride? {

@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -62,22 +63,22 @@ import com.streamvault.feature.catalog.presentation.components.SeriesPosterCard
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
 import com.streamvault.domain.playback.archivePlaybackCapability
-import com.streamvault.core.ui.theme.AccentAmber
-import com.streamvault.core.ui.theme.AccentCyan
-import com.streamvault.core.ui.theme.AccentRed
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.GradientOverlayBottom
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.Surface
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
-import com.streamvault.core.ui.theme.TextTertiary
+import com.streamvault.core.ui.design.browse.AccentAmber
+import com.streamvault.core.ui.design.browse.AccentCyan
+import com.streamvault.core.ui.design.browse.AccentRed
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.GradientOverlayBottom
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.Surface
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
+import com.streamvault.core.ui.design.browse.TextTertiary
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 
@@ -141,7 +142,7 @@ fun FocusableCard(
                 }
                 isFocused = it.isFocused
             },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         scale = ClickableSurfaceDefaults.scale(
             focusedScale = 1f,
             pressedScale = FocusSpec.PressedScale
@@ -152,15 +153,15 @@ fun FocusableCard(
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(0.dp, Color.Transparent),
-                shape = RoundedCornerShape(12.dp)
+                border = BorderStroke(1.dp, com.streamvault.core.ui.design.BrowseColors.Outline),
+                shape = BrowseShapes.Artwork
             ),
             focusedBorder = Border(
                 border = BorderStroke(
                     width = if (isDragging) 4.dp else FocusSpec.CardBorderWidth,
                     color = if (isDragging) AccentAmber else FocusBorder
                 ),
-                shape = RoundedCornerShape(12.dp)
+                shape = BrowseShapes.Artwork
             )
         )
     ) {
@@ -296,7 +297,7 @@ fun ChannelCard(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = AccentAmber,
+                        tint = com.streamvault.core.ui.design.BrowseColors.MediaWarning,
                         modifier = Modifier.size(14.dp)
                     )
                 }
@@ -456,7 +457,7 @@ fun MovieCard(
                     Text(
                         text = formatVodRatingLabel(movie.rating),
                         style = MaterialTheme.typography.labelSmall,
-                        color = AccentAmber
+                        color = com.streamvault.core.ui.design.BrowseColors.MediaWarning
                     )
                 }
             }
@@ -472,7 +473,7 @@ fun MovieCard(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = AccentAmber,
+                        tint = com.streamvault.core.ui.design.BrowseColors.MediaWarning,
                         modifier = Modifier.size(12.dp)
                     )
                 }
@@ -576,7 +577,7 @@ fun SeriesCard(
                     Text(
                         text = formatVodRatingLabel(series.rating),
                         style = MaterialTheme.typography.labelSmall,
-                        color = AccentAmber
+                        color = com.streamvault.core.ui.design.BrowseColors.MediaWarning
                     )
                 }
             }
@@ -592,7 +593,7 @@ fun SeriesCard(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = AccentAmber,
+                        tint = com.streamvault.core.ui.design.BrowseColors.MediaWarning,
                         modifier = Modifier.size(12.dp)
                     )
                 }

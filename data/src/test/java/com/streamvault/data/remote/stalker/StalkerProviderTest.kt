@@ -7,11 +7,14 @@ import com.streamvault.data.local.dao.StalkerRemoteIdentityDao
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.local.entity.StalkerRemoteIdentityEntity
 import com.streamvault.data.security.CredentialCrypto
+import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ProviderStatus
 import com.streamvault.domain.model.PlaybackTransportMode
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.SeriesCatalogOrigin
+import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.provider.GuideRequest
 import com.streamvault.domain.model.StalkerBootstrapRecipe
 import com.streamvault.domain.model.StalkerTransportGrant
@@ -29,6 +32,109 @@ class StalkerProviderTest {
     fun clearSharedAuthCache() {
         StalkerProvider.clearSharedAuthCacheForTests()
         StalkerProvider.clearResolvedStreamUrlCacheForTests()
+    }
+
+    private fun categoryReuseProvider(api: StalkerApiService, key: String? = null) = StalkerProvider(
+        providerId = 7L, api = api, portalUrl = "https://portal.example.com/c/",
+        macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en",
+        resolvedCategoryHandoffKey = key
+    )
+
+    @Test
+    fun layoutDetectionCategoriesAreConsumedOnceWithoutRepeatingDiscovery() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("20", "Series"))
+        )
+        val provider = categoryReuseProvider(api)
+        assertThat((provider.authenticate() as Result.Success).data.catalogLayout).isEqualTo(CatalogLayout.SPLIT)
+        val probeCalls = api.seriesCategoryCalls
+        assertThat((provider.getSeriesCategories() as Result.Success).data.single().name).isEqualTo("Series")
+        assertThat(api.seriesCategoryCalls).isEqualTo(probeCalls)
+        provider.getSeriesCategories()
+        assertThat(api.seriesCategoryCalls).isEqualTo(probeCalls + 1)
+    }
+
+    @Test
+    fun unifiedLayoutReusesSuccessfulVodProbe() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = listOf(StalkerCategoryRecord("10", "Mixed"))
+        )
+        val provider = categoryReuseProvider(api)
+        assertThat((provider.authenticate() as Result.Success).data.catalogLayout).isEqualTo(CatalogLayout.UNIFIED_VOD)
+        val probeCalls = api.vodCategoryCalls
+        assertThat((provider.getUnifiedVodCategories() as Result.Success).data.single().name).isEqualTo("Mixed")
+        assertThat(api.vodCategoryCalls).isEqualTo(probeCalls)
+    }
+
+    @Test
+    fun categorySnapshotHandoffUsesValidatedSessionAndNormalMapping() = runTest {
+        val sourceApi = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("20", "Resolved"))
+        )
+        val source = categoryReuseProvider(sourceApi)
+        source.authenticate()
+        source.handoffResolvedCategories("handoff")
+        val targetApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val target = categoryReuseProvider(targetApi, "handoff")
+        assertThat((target.getSeriesCategories() as Result.Success).data.single().name).isEqualTo("Resolved")
+        assertThat(targetApi.restoreSessionCalls).isEqualTo(1)
+        assertThat(targetApi.seriesCategoryCalls).isEqualTo(0)
+        target.invalidateAuthentication()
+        target.getSeriesCategories()
+        assertThat(targetApi.seriesCategoryCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun categoryHandoffSurvivesNewProviderIdThroughExistingPersistedSession() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("20", "Resolved"))
+        )
+        val source = StalkerProvider(
+            providerId = 0L, api = api, portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en"
+        )
+        val resolved = (source.authenticate() as Result.Success).data.copy(id = 25L, stalkerConfigurationGeneration = 1L)
+        val config = resolved.toTypedConfiguration()
+        val key = StalkerResolvedCategoryHandoff.key(25L, 1L, config as com.streamvault.domain.model.StalkerConfig)
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        val (session, profile) = source.validatedAuthenticationSnapshot()!!
+        store.recordAuthentication(25L, session, profile, configurationGeneration = 1L)
+        source.handoffResolvedCategories(key)
+        val targetApi = FakeStalkerApiService(profile = StalkerProviderProfile(accountName = "Room"))
+        val target = StalkerProvider(
+            providerId = 25L, api = targetApi, portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en",
+            configurationGeneration = 1L, portalStateStore = store, catalogLayoutHint = resolved.catalogLayout,
+            catalogLayoutDetectionVersionHint = resolved.catalogLayoutDetectionVersion,
+            resolvedCategoryHandoffKey = key
+        )
+        assertThat(target.authenticate()).isInstanceOf(Result.Success::class.java)
+        assertThat((target.getSeriesCategories() as Result.Success).data.single().name).isEqualTo("Resolved")
+        assertThat(targetApi.authenticateCalls).isEqualTo(0)
+        assertThat(targetApi.seriesCategoryCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun categoryLookupPreservesFirstMatchWhenIdAndNameDisagree() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            liveCategoryResults = ArrayDeque(listOf(Result.success(listOf(
+                StalkerCategoryRecord("10", "News"), StalkerCategoryRecord("20", "Sports"),
+                StalkerCategoryRecord("30", "SPORTS")
+            )))),
+            liveStreams = listOf(
+                StalkerItemRecord("1", "Channel", categoryId = "20", categoryName = "NEWS", cmd = "ffmpeg http://localhost/ch/1_"),
+                StalkerItemRecord("2", "Channel", categoryId = "30", categoryName = "sports", cmd = "ffmpeg http://localhost/ch/2_")
+            )
+        )
+        val provider = categoryReuseProvider(api)
+        provider.getLiveCategories()
+        val rows = (provider.getLiveStreams() as Result.Success).data
+        assertThat(rows.map { it.categoryName }).containsExactly("News", "Sports").inOrder()
     }
 
     @Test
@@ -395,6 +501,95 @@ class StalkerProviderTest {
         assertThat(series.data.items.map { it.name }).containsExactly("Series")
         assertThat(movies.data.totalPages).isEqualTo(1)
         assertThat(series.data.totalPages).isEqualTo(1)
+    }
+
+    @Test
+    fun splitVodPage_keepsMixedOrder_andMarksVodDerivedSeries() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = listOf(StalkerCategoryRecord("124", "Mixed")),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie A",
+                    streamUrl = "https://cdn.example.com/movie-a.mp4",
+                    isSeries = false
+                ),
+                StalkerItemRecord(
+                    id = "200",
+                    name = "Derived Series",
+                    streamUrl = "https://cdn.example.com/series.mp4",
+                    isSeries = true
+                ),
+                StalkerItemRecord(
+                    id = "300",
+                    name = "Movie B",
+                    streamUrl = "https://cdn.example.com/movie-b.mp4",
+                    isSeries = false
+                )
+            )
+        )
+        val provider = categoryReuseProvider(api)
+        val movieCategory = (provider.getVodCategories() as Result.Success).data.single()
+        val seriesCategoryId = checkNotNull(provider.projectVodCategoryToSeries(movieCategory.id))
+
+        val page = (provider.getSplitVodPage(movieCategory.id, seriesCategoryId, 1) as Result.Success).data
+
+        assertThat(page.items.map { it.rawItemId }).containsExactly("100", "200", "300").inOrder()
+        assertThat(page.items.map { entry ->
+            when (entry.item) {
+                is VodCatalogItem.MovieItem -> "movie"
+                is VodCatalogItem.SeriesItem -> "series"
+            }
+        }).containsExactly("movie", "series", "movie").inOrder()
+        val derivedSeries = (page.items[1].item as VodCatalogItem.SeriesItem).series
+        assertThat(derivedSeries.categoryId).isEqualTo(seriesCategoryId)
+        assertThat(derivedSeries.catalogOrigin).isEqualTo(SeriesCatalogOrigin.VOD_DERIVED)
+    }
+
+    @Test
+    fun seriesPage_fallsBackToVodItemsMarkedAsSeries_whenNativePageIsEmpty() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie",
+                    streamUrl = "https://cdn.example.com/movie.mp4",
+                    isSeries = false
+                ),
+                StalkerItemRecord(
+                    id = "200",
+                    name = "Derived Series",
+                    streamUrl = "https://cdn.example.com/series.mp4",
+                    isSeries = true
+                )
+            ),
+            vodPageItems = listOf(
+                StalkerItemRecord(
+                    id = "100",
+                    name = "Movie",
+                    streamUrl = "https://cdn.example.com/movie.mp4",
+                    isSeries = false
+                ),
+                StalkerItemRecord(
+                    id = "200",
+                    name = "Derived Series",
+                    streamUrl = "https://cdn.example.com/series.mp4",
+                    isSeries = true
+                )
+            )
+        )
+        val provider = categoryReuseProvider(api)
+
+        val page = (provider.getSeriesListPage(categoryId = null, page = 1) as Result.Success).data
+
+        assertThat(page.items.map { it.name }).containsExactly("Derived Series")
+        assertThat(page.items.single().catalogOrigin).isEqualTo(SeriesCatalogOrigin.VOD_DERIVED)
+
+        val listed = (provider.getSeriesList(categoryId = null) as Result.Success).data
+        assertThat(listed.map { it.name }).containsExactly("Derived Series")
+        assertThat(listed.single().catalogOrigin).isEqualTo(SeriesCatalogOrigin.VOD_DERIVED)
     }
 
     @Test
@@ -1637,6 +1832,7 @@ class StalkerProviderTest {
         private val seriesCategoriesResult: Result<List<StalkerCategoryRecord>>? = null,
         private val vodPageItems: List<StalkerItemRecord> = emptyList(),
         private val seriesPageItems: List<StalkerItemRecord> = emptyList(),
+        private val vodItems: List<StalkerItemRecord> = emptyList(),
         private val shortEpgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
         private val shortEpgResultsByChannel: Map<String, Result<List<StalkerProgramRecord>>> = emptyMap(),
         private val epgByChannel: Map<String, List<StalkerProgramRecord>> = emptyMap(),
@@ -1648,6 +1844,8 @@ class StalkerProviderTest {
     ) : StalkerApiService {
         var createLinkCalls: Int = 0
             private set
+        var seriesCategoryCalls: Int = 0
+        var vodCategoryCalls: Int = 0
         var authenticateCalls: Int = 0
             private set
         var restoreSessionCalls: Int = 0
@@ -1702,13 +1900,16 @@ class StalkerProviderTest {
         override suspend fun getVodCategories(
             session: StalkerSession,
             profile: StalkerDeviceProfile
-        ) = vodCategoriesResult ?: Result.success(vodCategories)
+        ): Result<List<StalkerCategoryRecord>> {
+            vodCategoryCalls++
+            return vodCategoriesResult ?: Result.success(vodCategories)
+        }
 
         override suspend fun getVodStreams(
             session: StalkerSession,
             profile: StalkerDeviceProfile,
             categoryId: String?
-        ) = Result.success(emptyList<StalkerItemRecord>())
+        ) = Result.success(vodItems)
 
         override suspend fun getVodStreamsPage(
             session: StalkerSession,
@@ -1740,7 +1941,10 @@ class StalkerProviderTest {
         override suspend fun getSeriesCategories(
             session: StalkerSession,
             profile: StalkerDeviceProfile
-        ) = seriesCategoriesResult ?: Result.success(seriesCategories)
+        ): Result<List<StalkerCategoryRecord>> {
+            seriesCategoryCalls++
+            return seriesCategoriesResult ?: Result.success(seriesCategories)
+        }
 
         override suspend fun getSeries(
             session: StalkerSession,
@@ -1939,6 +2143,19 @@ class StalkerProviderTest {
 
     private class FakeIdentityDao : StalkerRemoteIdentityDao {
         private val rows = mutableListOf<StalkerRemoteIdentityEntity>()
+
+        override suspend fun getByRawIds(providerId: Long, contentType: String, rawIds: List<String>) =
+            rows.filter { it.providerId == providerId && it.contentType.name == contentType && it.rawId in rawIds }
+
+        override suspend fun getBySurrogateIds(providerId: Long, contentType: String, surrogateIds: List<Long>) =
+            rows.filter { it.providerId == providerId && it.contentType.name == contentType && it.surrogateId in surrogateIds }
+
+        override suspend fun insertAll(entities: List<StalkerRemoteIdentityEntity>): List<Long> =
+            entities.map { entity ->
+                if (rows.any { it.providerId == entity.providerId && it.contentType == entity.contentType &&
+                        (it.rawId == entity.rawId || it.surrogateId == entity.surrogateId) }) -1L
+                else { insert(entity); rows.size.toLong() }
+            }
 
         override suspend fun getByRawId(providerId: Long, contentType: String, rawId: String) =
             rows.firstOrNull { row ->

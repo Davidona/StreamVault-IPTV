@@ -2,6 +2,7 @@ package com.streamvault.feature.stremio.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,16 +15,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,10 +30,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.StremioPlaybackReference
 import com.streamvault.core.navigation.StremioPlayerHandoff
 import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
+import com.streamvault.core.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.components.shell.StatusPill
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.browsePanel
+import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.interaction.TvPrimaryButton
 import com.streamvault.domain.model.stremio.StremioMediaType
 import com.streamvault.domain.model.stremio.StremioStream
 import com.streamvault.domain.model.stremio.StremioStreamKind
@@ -78,98 +88,50 @@ private fun StremioItemDetailContent(
     onPlay: (StremioPlayerHandoff) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)
     ) {
         if (state.replayOriginUnavailable) {
             item(key = "history-origin-unavailable") {
-                Text(
+                StremioDetailMessage(
                     stringResource(R.string.stremio_history_origin_unavailable),
-                    color = MaterialTheme.colorScheme.error
+                    error = true
                 )
             }
         }
         item(key = "meta") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Hero).padding(20.dp)
             ) {
-                AsyncImage(
-                    model = state.displayPoster,
-                    contentDescription = null,
-                    modifier = Modifier.width(160.dp).height(230.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        state.displayName,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    state.displayReleaseInfo?.let {
+                val poster = @Composable {
+                    Box(
+                        modifier = Modifier.width(160.dp).height(230.dp).clip(BrowseShapes.Artwork)
+                            .background(AppColors.SurfaceEmphasis),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
-                            it,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            state.displayName.take(1).uppercase(),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = AppColors.BrandStrong
+                        )
+                        AsyncImage(
+                            model = state.displayPoster,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     }
-                    state.metadata?.genres?.takeIf { it.isNotEmpty() }?.let { genres ->
-                        Text(
-                            genres.joinToString(" · "),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                }
+                if (maxWidth < 620.dp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { poster() }
+                        StremioMetadataContent(state, onRetryMetadata)
                     }
-                    state.displayDescription?.let { description ->
-                        Text(
-                            description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 6,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    state.metaOrigin?.let { origin ->
-                        Text(
-                            "Metadata from ${origin.addonName}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (state.metadataLoading) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                stringResource(R.string.stremio_item_metadata_loading),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    } else if (state.metadata == null) {
-                        Text(
-                            stringResource(R.string.stremio_item_preview_only),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        state.metadataFailures.forEach { failure ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    stringResource(
-                                        R.string.stremio_item_metadata_failed,
-                                        failure.source.addonName,
-                                        failure.message
-                                    ),
-                                    modifier = Modifier.weight(1f),
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                TextButton(onClick = onRetryMetadata) {
-                                    Text(stringResource(R.string.stremio_retry))
-                                }
-                            }
-                        }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(22.dp), verticalAlignment = Alignment.Top) {
+                        poster()
+                        StremioMetadataContent(state, onRetryMetadata, Modifier.weight(1f))
                     }
                 }
             }
@@ -177,44 +139,62 @@ private fun StremioItemDetailContent(
 
         if (state.preview.type == StremioMediaType.MOVIE) {
             item(key = "movie-streams") {
-                Button(onClick = onLoadMovieStreams, enabled = !state.replayOriginUnavailable) {
+                TvPrimaryButton(onClick = onLoadMovieStreams, enabled = !state.replayOriginUnavailable) {
                     Text(stringResource(R.string.stremio_item_find_streams))
                 }
             }
         } else if (state.preview.type == StremioMediaType.SERIES) {
             item(key = "episodes-header") {
-                Text(
-                    stringResource(R.string.stremio_item_episodes),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                AppSectionHeader(title = stringResource(R.string.stremio_item_episodes))
             }
             if (state.metadataLoading) {
                 item(key = "episodes-loading") {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp, color = AppColors.Brand)
                         Spacer(Modifier.width(8.dp))
                         Text(
                             stringResource(R.string.stremio_item_metadata_loading),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = AppColors.TextSecondary
                         )
                     }
                 }
             } else if (state.videos.isEmpty()) {
                 item(key = "episodes-empty") {
-                    Text(
-                        stringResource(R.string.stremio_item_no_episode_ids),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    StremioDetailMessage(stringResource(R.string.stremio_item_no_episode_ids))
                 }
             } else {
                 items(state.videos, key = { "episode:${it.id}" }) { video ->
-                    Button(
+                    TvClickableSurface(
                         onClick = { onLoadEpisodeStreams(video.id) },
                         enabled = !state.replayOriginUnavailable,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
+                        colors = ClickableSurfaceDefaults.colors(
+                            containerColor = AppColors.SurfaceElevated,
+                            focusedContainerColor = AppColors.SurfaceEmphasis,
+                            contentColor = AppColors.TextPrimary,
+                            focusedContentColor = AppColors.TextPrimary
+                        )
                     ) {
-                        Text(episodeLabel(video))
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(episodeLabel(video), style = MaterialTheme.typography.titleMedium)
+                                video.overview?.takeIf(String::isNotBlank)?.let { overview ->
+                                    Text(
+                                        overview,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = AppColors.TextTertiary,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                            StatusPill(label = stringResource(R.string.stremio_item_play), containerColor = AppColors.BrandMuted)
+                        }
                     }
                 }
             }
@@ -222,19 +202,18 @@ private fun StremioItemDetailContent(
 
         state.requestedVideoId?.let { requestedVideoId ->
             item(key = "streams-heading") {
-                Text(
-                    stringResource(
+                AppSectionHeader(
+                    title = stringResource(
                         R.string.stremio_item_streams_for,
                         state.selectedVideo?.title ?: state.displayName
                     ),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    subtitle = state.selectedVideo?.let(::episodeLabel)
                 )
             }
             if (state.streamsLoading && state.streams.isEmpty()) {
                 item(key = "streams-loading") {
                     Box(Modifier.fillMaxWidth().height(96.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = AppColors.Brand)
                     }
                 }
             }
@@ -242,17 +221,11 @@ private fun StremioItemDetailContent(
                 state.streamFailures.isEmpty() && state.streamCandidateCount == 0
             ) {
                 item(key = "streams-no-addon") {
-                    Text(
-                        stringResource(R.string.stremio_item_no_stream_addons),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    StremioDetailMessage(stringResource(R.string.stremio_item_no_stream_addons))
                 }
             } else if (!state.streamsLoading && state.streams.isEmpty() && state.streamFailures.isEmpty()) {
                 item(key = "streams-empty") {
-                    Text(
-                        stringResource(R.string.stremio_item_no_streams),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    StremioDetailMessage(stringResource(R.string.stremio_item_no_streams))
                 }
             }
             itemsIndexed(
@@ -271,50 +244,63 @@ private fun StremioItemDetailContent(
                     StremioStreamKind.TORRENT -> stream.toMagnetUri() != null
                     else -> false
                 }
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Panel).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
                                 stream.title ?: stream.name ?: stream.description ?: stream.kind.name,
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleMedium,
+                                color = AppColors.TextPrimary
                             )
-                            Text(
-                                "${attributed.source.addonName} · ${stream.kind.name.lowercase()}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                StatusPill(label = stream.kind.name.lowercase(), containerColor = AppColors.BrandMuted)
+                                Text(
+                                    attributed.source.addonName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = AppColors.TextTertiary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                             if (!canPlay) {
                                 Text(
                                     unsupportedStreamLabel(stream),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = AppColors.TextSecondary
                                 )
                             } else if (stream.kind == StremioStreamKind.TORRENT) {
                                 Text(
                                     stringResource(R.string.stremio_item_torrent_plugin_hint),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = AppColors.TextSecondary
                                 )
                             }
                         }
                         if (canPlay) {
-                            Button(
-                                enabled = state.catalogOriginKey != null && requestedVideoId.isNotBlank(),
+                            TvPrimaryButton(
                                 onClick = {
                                     buildHandoff(state, attributed.source.installFingerprint, stream, requestedVideoId)
                                         ?.let(onPlay)
-                                }
+                                },
+                                enabled = state.catalogOriginKey != null && requestedVideoId.isNotBlank()
                             ) { Text(stringResource(R.string.stremio_item_play)) }
                         }
                     }
                 }
             }
             items(state.streamFailures, key = { "stream-error:${it.source.addonId}" }) { failure ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Control).padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Text(
                         stringResource(
                             R.string.stremio_item_stream_failed,
@@ -322,14 +308,97 @@ private fun StremioItemDetailContent(
                             failure.message
                         ),
                         modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.error
+                        color = AppColors.Live,
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    TextButton(onClick = { onRetryAddon(failure.source.addonId) }) {
+                    TvButton(onClick = { onRetryAddon(failure.source.addonId) }) {
                         Text(stringResource(R.string.stremio_retry))
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StremioMetadataContent(
+    state: StremioItemDetailState,
+    onRetryMetadata: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            state.displayName,
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppColors.TextPrimary
+        )
+        state.displayReleaseInfo?.let { releaseInfo ->
+            StatusPill(label = releaseInfo, containerColor = AppColors.BrandMuted)
+        }
+        state.metadata?.genres?.takeIf { it.isNotEmpty() }?.let { genres ->
+            Text(
+                genres.joinToString(" · "),
+                style = MaterialTheme.typography.bodySmall,
+                color = AppColors.TextSecondary
+            )
+        }
+        state.displayDescription?.let { description ->
+            Text(
+                description,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 8,
+                overflow = TextOverflow.Ellipsis,
+                color = AppColors.TextPrimary
+            )
+        }
+        state.metaOrigin?.let { origin ->
+            StatusPill(
+                label = "Metadata from ${origin.addonName}",
+                containerColor = AppColors.SurfaceEmphasis,
+                contentColor = AppColors.TextSecondary
+            )
+        }
+        if (state.metadataLoading) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp, color = AppColors.Brand)
+                Text(stringResource(R.string.stremio_item_metadata_loading), color = AppColors.TextSecondary)
+            }
+        } else if (state.metadata == null) {
+            StremioDetailMessage(stringResource(R.string.stremio_item_preview_only))
+            state.metadataFailures.forEach { failure ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        stringResource(
+                            R.string.stremio_item_metadata_failed,
+                            failure.source.addonName,
+                            failure.message
+                        ),
+                        modifier = Modifier.weight(1f),
+                        color = AppColors.Live,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    TvButton(onClick = onRetryMetadata) { Text(stringResource(R.string.stremio_retry)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StremioDetailMessage(message: String, error: Boolean = false) {
+    Row(
+        modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Control).padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            message,
+            color = if (error) AppColors.Live else AppColors.TextSecondary,
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 

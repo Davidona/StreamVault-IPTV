@@ -3,31 +3,19 @@ package com.streamvault.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-/** Adds the installed Stremio addon registry. Addon content is fetched on demand, not synced. */
+/** Scopes episode uniqueness to the owning series and re-hydrates series damaged by the old key. */
 object FeatureMigrationsV78To79 {
     val MIGRATION_78_79 = object : Migration(78, 79) {
         override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP INDEX IF EXISTS index_episodes_provider_id_episode_id")
             db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS `stremio_addons` (
-                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    `install_url` TEXT NOT NULL,
-                    `manifest_id` TEXT NOT NULL,
-                    `name` TEXT NOT NULL,
-                    `version` TEXT NOT NULL,
-                    `manifest_json` TEXT NOT NULL,
-                    `enabled` INTEGER NOT NULL,
-                    `sort_order` INTEGER NOT NULL,
-                    `catalog_settings_json` TEXT NOT NULL,
-                    `created_at` INTEGER NOT NULL,
-                    `updated_at` INTEGER NOT NULL
-                )
-                """.trimIndent()
+                "CREATE UNIQUE INDEX IF NOT EXISTS index_episodes_provider_id_series_id_episode_id " +
+                    "ON episodes(provider_id, series_id, episode_id)"
             )
-            db.execSQL(
-                "CREATE UNIQUE INDEX IF NOT EXISTS `index_stremio_addons_install_url` " +
-                    "ON `stremio_addons` (`install_url`)"
-            )
+
+            // Expire every detail TTL: collisions usually truncate a season rather than empty it, and
+            // nothing persisted tells the two apart. A timestamp of 1 (not 0) keeps sync preserving details.
+            db.execSQL("UPDATE series SET detail_hydrated_at = 1 WHERE detail_hydrated_at > 0")
         }
     }
 }

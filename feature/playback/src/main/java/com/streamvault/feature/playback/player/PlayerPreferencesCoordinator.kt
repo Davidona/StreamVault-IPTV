@@ -63,6 +63,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerWifiMaxVideoHeight get() = preferencesRepository.playerWifiMaxVideoHeight
     internal val preventStandbyDuringPlayback get() = preferencesRepository.preventStandbyDuringPlayback
     internal val preferredAudioLanguage get() = preferencesRepository.preferredAudioLanguage
+    internal val pinnedSubtitleLanguages get() = preferencesRepository.pinnedSubtitleLanguages
     internal val globalVodTrackPreferences get() = preferencesRepository.globalVodTrackPreferences
     internal val remoteShortcutPreferences get() = preferencesRepository.remoteShortcutPreferences
     internal val vodVariantObservations get() = preferencesRepository.vodVariantObservations
@@ -119,6 +120,14 @@ class PlayerPreferencesCoordinator @Inject constructor(
 
     internal suspend fun setPlayerPlaybackSpeed(speed: Float) {
         preferencesRepository.setPlayerPlaybackSpeed(speed)
+    }
+
+    internal suspend fun setSubtitleTextScale(scale: Float) {
+        preferencesRepository.setPlayerSubtitleTextScale(scale.coerceIn(0.75f, 1.75f))
+    }
+
+    internal suspend fun setSubtitleBackgroundOpacity(opacity: Int) {
+        preferencesRepository.setPlayerSubtitleBackgroundColor((opacity.coerceIn(0, 100) * 255 / 100) shl 24)
     }
 
     internal suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences) {

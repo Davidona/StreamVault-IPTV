@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">स्रोत</string>
+    <string name="vod_subtitle_settings">सेटिंग्स</string>
+    <string name="vod_subtitle_provider">प्रदाता सबटाइटल</string>
+    <string name="vod_subtitle_provider_hint">इस वीडियो से सबटाइटल ट्रैक चुनें</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">ऑनलाइन सबटाइटल खोजें</string>
+    <string name="vod_subtitle_online_unavailable">इस वीडियो के लिए ऑनलाइन खोज उपलब्ध नहीं है</string>
+    <string name="vod_subtitle_device_hint">SRT फ़ाइल चुनें</string>
+    <string name="vod_subtitle_back">स्रोतों पर वापस जाएँ</string>
+    <string name="vod_tracks_empty">इस वीडियो में कोई ट्रैक उपलब्ध नहीं है</string>
+    <string name="vod_subtitle_preview">यह एक सबटाइटल है।</string>
+    <string name="vod_subtitle_font_size">फ़ॉन्ट आकार</string>
+    <string name="vod_subtitle_background">पृष्ठभूमि अपारदर्शिता</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% पारदर्शी · 100% ठोस काला</string>
+    <string name="vod_subtitle_decrease_setting">%1$s घटाएँ</string>
+    <string name="vod_subtitle_increase_setting">%1$s बढ़ाएँ</string>
+</resources>

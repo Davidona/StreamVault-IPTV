@@ -22,8 +22,8 @@ public fun RecordingMetaPill(label: String, value: String) {
     Column(
         modifier = Modifier
             .widthIn(min = 92.dp, max = 160.dp)
-            .background(SurfaceElevated, RoundedCornerShape(10.dp))
-            .padding(horizontal = 7.dp, vertical = 5.dp)
+            .settingsDetailPanel()
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = OnSurfaceDim)
         Text(text = value, style = MaterialTheme.typography.labelMedium, color = OnBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)

@@ -87,6 +87,7 @@ object DatabaseModule {
     @Provides fun provideXtreamIndexJobDao(db: StreamVaultDatabase): XtreamIndexJobDao = db.xtreamIndexJobDao()
     @Provides fun provideXtreamLiveOnboardingDao(db: StreamVaultDatabase): XtreamLiveOnboardingDao = db.xtreamLiveOnboardingDao()
     @Provides fun provideStalkerIndexJobDao(db: StreamVaultDatabase): StalkerIndexJobDao = db.stalkerIndexJobDao()
+    @Provides fun provideStalkerLiveCategoryRetryDao(db: StreamVaultDatabase): StalkerLiveCategoryRetryDao = db.stalkerLiveCategoryRetryDao()
     @Provides fun provideStalkerPortalStateDao(db: StreamVaultDatabase): StalkerPortalStateDao = db.stalkerPortalStateDao()
     @Provides fun provideStalkerRemoteIdentityDao(db: StreamVaultDatabase): StalkerRemoteIdentityDao = db.stalkerRemoteIdentityDao()
     @Provides fun provideStalkerDiscoveryStageDao(db: StreamVaultDatabase): StalkerDiscoveryStageDao = db.stalkerDiscoveryStageDao()

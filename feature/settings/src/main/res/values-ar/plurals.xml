@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="zero">لا توجد فلاتر محفوظة</item>
-        <item quantity="one">فلتر واحد محفوظ</item>
-        <item quantity="two">فلتران محفوظان</item>
-        <item quantity="few">%1$d فلاتر محفوظة</item>
-        <item quantity="many">%1$d فلترًا محفوظًا</item>
-        <item quantity="other">%1$d فلتر محفوظ</item>
-    </plurals>
 <plurals name="settings_timeout_seconds">
         <item quantity="zero">%d ثانية</item>
         <item quantity="one">ثانية واحدة</item>

@@ -1,5 +1,6 @@
 package com.streamvault.feature.catalog.presentation.search
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
@@ -11,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,10 +52,10 @@ import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.CatalogCompleteness
@@ -836,7 +836,7 @@ private fun SearchHeroPanel(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated.copy(alpha = 0.92f))
     ) {
         Column(
@@ -972,7 +972,7 @@ private fun SearchPill(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Primary.copy(alpha = 0.22f) else Surface.copy(alpha = 0.72f),
             focusedContainerColor = if (selected) Primary.copy(alpha = 0.30f) else SurfaceHighlight,
-            contentColor = if (selected) Color.White else TextSecondary,
+            contentColor = if (selected) TextPrimary else TextSecondary,
             focusedContentColor = TextPrimary
         ),
         border = ClickableSurfaceDefaults.border(
@@ -1010,7 +1010,7 @@ private fun SearchStatusCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Surface.copy(alpha = 0.78f))
     ) {
         Column(
@@ -1233,7 +1233,7 @@ private fun SearchItemActionsDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = BrowseShapes.Panel,
             colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated),
             modifier = Modifier
                 .width(360.dp)
@@ -1328,36 +1328,34 @@ private fun SearchActionButton(
     focusRequester: FocusRequester? = null,
     enabled: Boolean = true
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     val baseModifier = modifier
         .fillMaxWidth()
-        .onFocusChanged { isFocused = it.isFocused }
         .then(
             if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
         )
-        .border(
-            width = if (isFocused) 2.dp else 0.dp,
-            color = if (isFocused) AppColors.Focus else Color.Transparent,
-            shape = RoundedCornerShape(12.dp)
-        )
         .mouseClickable(onClick = onClick)
+
+    val actionColor = if (isActive) AppColors.Warning.copy(alpha = 0.18f)
+        else AppColors.SurfaceAccent
 
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = baseModifier,
         colors = ButtonDefaults.colors(
-            containerColor = when {
-                !enabled -> AppColors.Surface.copy(alpha = 0.3f)
-                isFocused -> AppColors.Focus
-                isActive -> AppColors.Warning.copy(alpha = 0.85f)
-                else -> AppColors.Brand.copy(alpha = 0.70f)
-            },
-            contentColor = if (!enabled) AppColors.TextSecondary else Color.Black,
+            containerColor = actionColor,
+            focusedContainerColor = actionColor,
+            contentColor = AppColors.TextPrimary,
+            focusedContentColor = AppColors.TextPrimary,
             disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
             disabledContentColor = AppColors.TextSecondary
         ),
-        shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp))
+        shape = ButtonDefaults.shape(shape = BrowseShapes.Control),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline)),
+            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus))
+        ),
+        scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Icon(
             imageVector = icon,

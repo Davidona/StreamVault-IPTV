@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +42,7 @@ public fun ProviderSettingsCard(
     targetItemId: String? = null,
     targetFocusModifier: Modifier = Modifier,
 ) {
+    var diagnosticsExpanded by rememberSaveable(provider.id) { mutableStateOf(false) }
     val liveOnboardingIncomplete = provider.type == ProviderType.XTREAM_CODES &&
         provider.status == ProviderStatus.PARTIAL &&
         !isActive
@@ -53,17 +55,9 @@ public fun ProviderSettingsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = if (isActive) SurfaceHighlight else SurfaceElevated,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .border(
-                width = if (isActive) 2.dp else 0.dp,
-                color = if (isActive) Primary else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .settingsDetailPanel(accented = isActive)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Provider info
         Row(
@@ -71,16 +65,17 @@ public fun ProviderSettingsCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = provider.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                     color = OnBackground
                 )
                 Text(
-                    text = provider.type.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurface
+                    text = diagnostics?.sourceLabel ?: provider.type.name.replace('_', ' '),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = OnSurfaceDim
                 )
             }
             ProviderStatusBadge(
@@ -91,14 +86,15 @@ public fun ProviderSettingsCard(
                     com.streamvault.domain.model.StalkerTransportMode.AUTO_STRICT
             )
             if (isActive) {
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.settings_active),
+                    text = stringResource(R.string.settings_provider_in_use),
                     style = MaterialTheme.typography.labelSmall,
                     color = Primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     modifier = Modifier
-                        .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .background(Primary.copy(alpha = 0.1f), SettingsDetailShapes.Badge)
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }
         }
@@ -135,62 +131,6 @@ public fun ProviderSettingsCard(
             }
         }
 
-        diagnostics?.let { model ->
-            Text(
-                text = formatProviderSummary(
-                    listOf(model.sourceLabel, model.connectionSummary, model.expirySummary)
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = OnSurface
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ProviderCompactStat(
-                    title = stringResource(R.string.settings_diagnostic_live),
-                    value = model.liveCatalogCount(liveOnboardingIncomplete, xtreamLiveOnboardingPhase)
-                )
-                ProviderCompactStat(
-                    title = stringResource(R.string.settings_diagnostic_movies),
-                    value = model.movieCatalogCount(xtreamIndexSectionStatuses["MOVIE"]),
-                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
-                )
-                if (provider.type != ProviderType.M3U) {
-                    ProviderCompactStat(
-                        title = stringResource(R.string.settings_diagnostic_series),
-                        value = model.seriesCatalogCount(xtreamIndexSectionStatuses["SERIES"]),
-                        syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
-                    )
-                }
-                ProviderCompactStat(
-                    title = stringResource(R.string.settings_diagnostic_epg),
-                    value = model.epgCatalogCount(xtreamIndexSectionStatuses["EPG"]),
-                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing)
-                )
-            }
-
-            ProviderDiagnosticsPanel(
-                provider = provider,
-                diagnostics = model,
-                appTimeFormat = appTimeFormat,
-                movieIndexInProgress = xtreamIndexSectionStatuses["MOVIE"] in setOf(
-                    ProviderCatalogCountStatus.QUEUED,
-                    ProviderCatalogCountStatus.SYNCING
-                ),
-                databaseMaintenance = databaseMaintenance
-            )
-        }
-
-        if (provider.type == ProviderType.M3U) {
-            ProviderM3uOptionsPanel(
-                m3uVodClassificationEnabled = provider.m3uVodClassificationEnabled,
-                isSyncing = isSyncing,
-                onToggleM3uVodClassification = onToggleM3uVodClassification,
-                onRefreshM3uClassification = onRefreshM3uClassification,
-                classificationModifier = if (targetItemId == "sources.m3u_vod_classification") {
-                    targetFocusModifier
-                } else Modifier,
-            )
-        }
-
         if (syncWarnings.isNotEmpty()) {
             ProviderSyncWarningsPanel(
                 providerType = provider.type,
@@ -212,6 +152,77 @@ public fun ProviderSettingsCard(
             targetItemId = targetItemId,
             targetFocusModifier = targetFocusModifier,
         )
+
+        diagnostics?.let { model ->
+            Text(
+                text = formatProviderSummary(
+                    listOf(model.sourceLabel, model.connectionSummary, model.expirySummary)
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurface
+            )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ProviderCompactStat(
+                    title = stringResource(R.string.settings_diagnostic_live),
+                    value = model.liveCatalogCount(liveOnboardingIncomplete, xtreamLiveOnboardingPhase),
+                    modifier = Modifier.weight(1f)
+                )
+                ProviderCompactStat(
+                    title = stringResource(R.string.settings_diagnostic_movies),
+                    value = model.movieCatalogCount(xtreamIndexSectionStatuses["MOVIE"]),
+                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                    modifier = Modifier.weight(1f)
+                )
+                if (provider.type != ProviderType.M3U) {
+                    ProviderCompactStat(
+                        title = stringResource(R.string.settings_diagnostic_series),
+                        value = model.seriesCatalogCount(xtreamIndexSectionStatuses["SERIES"]),
+                        syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                ProviderCompactStat(
+                    title = stringResource(R.string.settings_diagnostic_epg),
+                    value = model.epgCatalogCount(xtreamIndexSectionStatuses["EPG"]),
+                    syncingLabel = stringResource(R.string.settings_catalog_count_indexing),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            val movieIndexInProgress = xtreamIndexSectionStatuses["MOVIE"] in setOf(
+                    ProviderCatalogCountStatus.QUEUED,
+                    ProviderCatalogCountStatus.SYNCING
+                )
+            ClickableSettingsRow(
+                label = stringResource(
+                    if (diagnosticsExpanded) R.string.settings_provider_diagnostics_hide
+                    else R.string.settings_provider_diagnostics_show
+                ),
+                value = model.capabilitySummary,
+                onClick = { diagnosticsExpanded = !diagnosticsExpanded },
+            )
+            if (diagnosticsExpanded) {
+                ProviderDiagnosticsPanel(
+                    provider = provider,
+                    diagnostics = model,
+                    appTimeFormat = appTimeFormat,
+                    movieIndexInProgress = movieIndexInProgress,
+                    databaseMaintenance = databaseMaintenance
+                )
+            }
+        }
+
+        if (provider.type == ProviderType.M3U) {
+            ProviderM3uOptionsPanel(
+                m3uVodClassificationEnabled = provider.m3uVodClassificationEnabled,
+                isSyncing = isSyncing,
+                onToggleM3uVodClassification = onToggleM3uVodClassification,
+                onRefreshM3uClassification = onRefreshM3uClassification,
+                classificationModifier = if (targetItemId == "sources.m3u_vod_classification") {
+                    targetFocusModifier
+                } else Modifier,
+            )
+        }
 
     }
 }

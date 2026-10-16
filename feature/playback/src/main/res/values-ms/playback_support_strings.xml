@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Menghantar ke peranti yang disambungkan.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast tidak tersedia pada peranti ini.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Format strim ini tidak disokong oleh Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Strim RTSP dan RTMP tidak disokong untuk Cast.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Strim dilindungi DRM tidak disokong oleh Google Cast dalam aplikasi ini.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Item ini tidak boleh dihantar ke penerima Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Strim ini menggunakan URL setempat atau khusus peranti yang tidak dapat dicapai oleh Chromecast secara terus.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Strim ini memerlukan pengepala HTTP atau kuki yang tidak dapat digunakan oleh Chromecast secara terus.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Strim ini memerlukan User-Agent tersuai yang tidak dapat digunakan oleh Chromecast secara terus.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Strim ini memerlukan tetapan proksi aplikasi, jadi Chromecast tidak dapat menggunakannya secara terus.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Strim ini menggunakan pengendalian SSL yang tidak dapat digunakan oleh Chromecast secara terus.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Sesi Cast tidak dapat dimulakan.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Penerima Cast tidak dapat memuatkan strim ini.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Penerima Cast yang disambungkan belum sedia untuk main balik.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Pemilihan peranti Cast telah dibatalkan.</string>
+    <string name="add_group_close_cd">Tutup</string>
+    <string name="player_archive_title">Arkib Program</string>
+    <string name="player_no_archive">Tiada program diarkib ditemui</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkib</string>
+</resources>

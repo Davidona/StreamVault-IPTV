@@ -99,6 +99,8 @@ class ProviderWorkflowRunner @Inject constructor(
             publishOutcome(lease, outcome)
         } catch (lost: ProviderWorkflowLeaseLostException) {
             ProviderWorkflowDisposition.SUPERSEDED
+        } catch (superseded: ProviderWorkflowSupersededException) {
+            ProviderWorkflowDisposition.SUPERSEDED
         } catch (cancelled: CancellationException) {
             // Cancellation is owner control flow, not a provider failure. Leave the durable
             // lease running so the normal stale-lease recovery path can reclaim it without

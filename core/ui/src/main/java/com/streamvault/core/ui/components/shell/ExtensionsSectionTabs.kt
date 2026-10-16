@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,7 +24,9 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.BrowseFocusSpec
 import com.streamvault.core.ui.interaction.TvButton
 
 @Composable
@@ -40,26 +41,25 @@ fun ExtensionsSectionTabs(
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         listOf(pluginsLabel, stremioAddonsLabel).forEachIndexed { index, label ->
             val active = selectedIndex == index
-            val shape = RoundedCornerShape(8.dp)
+            val shape = BrowseShapes.Control
             TvButton(
                 onClick = { if (!active) onTabSelected(index) },
-                modifier = Modifier.heightIn(min = 40.dp)
+                modifier = Modifier.heightIn(min = 44.dp)
                     .then(if (active) Modifier.focusRequester(selectedTabFocus) else Modifier)
                     .semantics {
                     selected = active
                     role = Role.Tab
                 },
-                scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f),
                 shape = ButtonDefaults.shape(shape),
                 border = ButtonDefaults.border(
-                    border = if (active) Border(BorderStroke(1.dp, AppColors.Brand), shape = shape) else Border.None,
-                    focusedBorder = Border(BorderStroke(2.dp, AppColors.TextPrimary), shape = shape)
+                    border = if (active) Border(BorderStroke(1.dp, BrowseColors.Brand.copy(alpha = 0.7f)), shape = shape) else Border.None,
+                    focusedBorder = Border(BorderStroke(BrowseFocusSpec.BorderWidth, BrowseColors.Focus), shape = shape)
                 ),
                 colors = ButtonDefaults.colors(
-                    containerColor = if (active) AppColors.BrandMuted else AppColors.Surface,
-                    contentColor = if (active) AppColors.TextPrimary else AppColors.TextSecondary,
-                    focusedContainerColor = if (active) AppColors.BrandMuted else AppColors.SurfaceEmphasis,
-                    focusedContentColor = AppColors.TextPrimary
+                    containerColor = if (active) BrowseColors.BrandMuted else BrowseColors.Surface,
+                    contentColor = if (active) BrowseColors.TextPrimary else BrowseColors.TextSecondary,
+                    focusedContainerColor = if (active) BrowseColors.BrandMuted else BrowseColors.SurfaceEmphasis,
+                    focusedContentColor = BrowseColors.TextPrimary
                 )
             ) {
                 Text(label, modifier = Modifier.padding(horizontal = 8.dp), style = MaterialTheme.typography.titleSmall)

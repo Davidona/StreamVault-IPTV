@@ -6,7 +6,13 @@ data class ExternalSubtitle(
     val displayLanguage: String,
     val releaseName: String,
     val source: ExternalSubtitleSource,
-    val downloadId: String = id
+    val downloadId: String = id,
+    val downloadCount: Long = 0L,
+)
+
+data class ExternalSubtitleLanguage(
+    val code: String,
+    val name: String,
 )
 
 enum class ExternalSubtitleSource {

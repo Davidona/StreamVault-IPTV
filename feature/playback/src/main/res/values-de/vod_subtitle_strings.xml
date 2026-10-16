@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Quellen</string>
+    <string name="vod_subtitle_settings">Einstellungen</string>
+    <string name="vod_subtitle_provider">Anbieter-Untertitel</string>
+    <string name="vod_subtitle_provider_hint">Wähle eine Untertitelspur aus diesem Video</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Untertitel online finden</string>
+    <string name="vod_subtitle_online_unavailable">Die Onlinesuche ist für dieses Video nicht verfügbar</string>
+    <string name="vod_subtitle_device_hint">Wähle eine SRT-Datei</string>
+    <string name="vod_subtitle_back">Zurück zu den Quellen</string>
+    <string name="vod_tracks_empty">In diesem Video sind keine Spuren verfügbar</string>
+    <string name="vod_subtitle_preview">Dies ist ein Untertitel.</string>
+    <string name="vod_subtitle_font_size">Schriftgröße</string>
+    <string name="vod_subtitle_background">Hintergrunddeckkraft</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0 % transparent · 100 % deckendes Schwarz</string>
+    <string name="vod_subtitle_decrease_setting">%1$s verringern</string>
+    <string name="vod_subtitle_increase_setting">%1$s erhöhen</string>
+</resources>

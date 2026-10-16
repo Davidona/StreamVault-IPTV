@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
-<plurals name="settings_live_tv_quick_filters_count">
-        <item quantity="one">%1$d сохранён</item>
-        <item quantity="other">%1$d сохранено</item>
-    </plurals>
-<plurals name="settings_timeout_seconds">
+    <plurals name="settings_timeout_seconds">
         <item quantity="one">%d секунда</item>
+        <item quantity="few">%d секунды</item>
+        <item quantity="many">%d секунд</item>
         <item quantity="other">%d секунд</item>
     </plurals>
-<plurals name="settings_timer_minutes">
+    <plurals name="settings_timer_minutes">
         <item quantity="one">%1$d минута</item>
+        <item quantity="few">%1$d минуты</item>
+        <item quantity="many">%1$d минут</item>
         <item quantity="other">%1$d минут</item>
     </plurals>
-<plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d вкладка</item>
+        <item quantity="few">%d вкладки</item>
+        <item quantity="many">%d вкладок</item>
+        <item quantity="other">%d вкладок</item>
     </plurals>
-<plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d полка</item>
+        <item quantity="few">%d полки</item>
+        <item quantity="many">%d полок</item>
+        <item quantity="other">%d полок</item>
     </plurals>
 </resources>

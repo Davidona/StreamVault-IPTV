@@ -1,6 +1,7 @@
 package com.streamvault.core.ui.interaction
 
 import android.view.KeyEvent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,11 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Surface
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.contentOnColor
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.LocalBrowseVisuals
+import androidx.compose.ui.unit.dp
 
 /**
  * Drop-in replacement for TV Material3 Surface(onClick) that automatically adds
@@ -39,10 +45,18 @@ fun TvClickableSurface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
-    colors: ClickableSurfaceColors = ClickableSurfaceDefaults.colors(),
-    border: ClickableSurfaceBorder = ClickableSurfaceDefaults.border(),
-    scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
+    shape: ClickableSurfaceShape = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.shape(BrowseShapes.Control) else ClickableSurfaceDefaults.shape(),
+    colors: ClickableSurfaceColors = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.colors(
+        containerColor = BrowseColors.SurfaceElevated,
+        focusedContainerColor = BrowseColors.SurfaceEmphasis,
+        contentColor = BrowseColors.TextPrimary,
+        focusedContentColor = BrowseColors.TextPrimary,
+    ) else ClickableSurfaceDefaults.colors(),
+    border: ClickableSurfaceBorder = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.border(
+        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Control),
+        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
+    ) else ClickableSurfaceDefaults.border(),
+    scale: ClickableSurfaceScale = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.scale(focusedScale = 1.035f) else ClickableSurfaceDefaults.scale(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
     onLongClick: (() -> Unit)? = null,
@@ -88,12 +102,20 @@ fun TvButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    scale: ButtonScale = ButtonDefaults.scale(),
+    scale: ButtonScale = if (LocalBrowseVisuals.current) ButtonDefaults.scale(focusedScale = 1.035f) else ButtonDefaults.scale(),
     glow: ButtonGlow = ButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    shape: ButtonShape = ButtonDefaults.shape(),
-    colors: ButtonColors = ButtonDefaults.colors(),
-    border: ButtonBorder = ButtonDefaults.border(),
+    shape: ButtonShape = if (LocalBrowseVisuals.current) ButtonDefaults.shape(BrowseShapes.Control) else ButtonDefaults.shape(),
+    colors: ButtonColors = if (LocalBrowseVisuals.current) ButtonDefaults.colors(
+        containerColor = BrowseColors.Brand.copy(alpha = 0.14f),
+        contentColor = BrowseColors.TextPrimary,
+        focusedContainerColor = BrowseColors.BrandStrong,
+        focusedContentColor = contentOnColor(BrowseColors.BrandStrong),
+    ) else ButtonDefaults.colors(),
+    border: ButtonBorder = if (LocalBrowseVisuals.current) ButtonDefaults.border(
+        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Control),
+        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
+    ) else ButtonDefaults.border(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -125,17 +147,26 @@ fun TvIconButton(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
-    scale: ButtonScale = IconButtonDefaults.scale(),
+    scale: ButtonScale = if (LocalBrowseVisuals.current) IconButtonDefaults.scale(focusedScale = 1.035f) else IconButtonDefaults.scale(),
     glow: ButtonGlow = IconButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    shape: ButtonShape = IconButtonDefaults.shape(),
-    colors: ButtonColors = IconButtonDefaults.colors(
+    shape: ButtonShape = if (LocalBrowseVisuals.current) IconButtonDefaults.shape(BrowseShapes.Control) else IconButtonDefaults.shape(),
+    colors: ButtonColors = if (LocalBrowseVisuals.current) IconButtonDefaults.colors(
+        containerColor = Color.Transparent,
+        contentColor = BrowseColors.TextSecondary,
+        focusedContainerColor = BrowseColors.SurfaceEmphasis,
+        focusedContentColor = BrowseColors.TextPrimary,
+        disabledContainerColor = Color.Transparent,
+        disabledContentColor = BrowseColors.TextDisabled,
+    ) else IconButtonDefaults.colors(
         containerColor = Color.Transparent,
         contentColor = AppColors.TextPrimary,
         focusedContainerColor = AppColors.SurfaceEmphasis,
         focusedContentColor = AppColors.TextPrimary,
     ),
-    border: ButtonBorder = IconButtonDefaults.border(),
+    border: ButtonBorder = if (LocalBrowseVisuals.current) IconButtonDefaults.border(
+        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control)
+    ) else IconButtonDefaults.border(),
     content: @Composable BoxScope.() -> Unit,
 ) {
     val activationTracker = remember { RemoteKeyActivationTracker() }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Настройка на доставчик</string>
+  <string name="welcome_setup_later">Настрой по-късно</string>
+  <string name="welcome_loading_title">Подготовка на вашата библиотека</string>
+  <string name="welcome_loading_subtitle">Отваряне на подходящия екран за това устройство.</string>
+  <string name="sync_section_live">На живо</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Сериали</string>
+  <string name="sync_items_indexed_format">%1$d подготвени елемента</string>
+  <string name="welcome_tagline">Премиум IPTV за всекидневната</string>
+  <string name="welcome_subtitle">Отпуснете се с канали на живо, отложено гледане, филми и сериали с първокласно изживяване за Android TV.</string>
+  <string name="settings_cancel">Отказ</string>
+  <string name="nav_downloads">Изтегляния</string>
+  <string name="downloads_loading">Зареждане на изтеглянията...</string>
+  <string name="downloads_empty_title">Още няма изтегляния</string>
+  <string name="downloads_empty_hint">Изтеглете филми или епизоди от екраните с подробности и те ще се появят тук.</string>
+  <string name="downloads_no_thumb">Няма плакат</string>
+  <string name="downloads_status_completed">Завършено</string>
+  <string name="downloads_status_downloading">Изтегля се</string>
+  <string name="downloads_status_failed">Провалено</string>
+  <string name="downloads_status_pending">Изчаква</string>
+  <string name="downloads_status_paused">Пауза</string>
+  <string name="downloads_status_cancelled">Отменено</string>
+  <string name="downloads_item_title">Изтегляне без заглавие</string>
+  <string name="downloads_delete_confirm_title">Изтриване на изтегляне</string>
+  <string name="downloads_delete_confirm_msg">Да се изтрие ли %1$s от изтеглянията?</string>
+  <string name="downloads_delete_confirm_delete">Изтрий</string>
+  <string name="downloads_deleted">Изтеглянето е изтрито</string>
+  <string name="download_folder_change">Промени папката за изтегляния</string>
+  <string name="download_folder_default">Папка за изтегляния по подразбиране</string>
+  <string name="download_resume">Продължи</string>
+  <string name="download_delete">Изтрий</string>
+  <string name="downloads_resumed">Изтеглянето е продължено</string>
+</resources>

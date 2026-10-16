@@ -78,6 +78,22 @@ class ProviderWorkflowCommitFenceTest {
     }
 
     @Test
+    fun `superseded cleanup cannot erase a newer staged snapshot`() = runTest {
+        insertProvider()
+        val dao = database.providerWorkflowDao()
+        val ticket = dao.request(PROVIDER_ID, ProviderWorkflowPhase.PRIMARY_CATALOG, ProviderWorkflowReason.PERIODIC, now = 100L)
+        val oldLease = checkNotNull(dao.claim(ticket, "old-owner", 101L, 1_000L, staleHeartbeatBefore = 0L))
+        dao.request(PROVIDER_ID, ProviderWorkflowPhase.PREPARE, ProviderWorkflowReason.CONFIG_CHANGE,
+            now = 200L, supersede = true, force = true)
+        store().stageChannelBatch(PROVIDER_ID, 222L, listOf(channel("New snapshot", "fresh")))
+        val failure = runCatching {
+            withContext(ProviderWorkflowExecutionContext(oldLease)) { store().clearProviderStaging(PROVIDER_ID) }
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(ProviderWorkflowSupersededException::class.java)
+        assertThat(database.catalogSyncDao().countChannelStages(PROVIDER_ID, 222L)).isEqualTo(1)
+    }
+
+    @Test
     fun `current generation applies catalog inside fenced transaction`() = runTest {
         insertProvider()
         val workflowDao = database.providerWorkflowDao()

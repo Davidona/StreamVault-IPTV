@@ -493,6 +493,9 @@ abstract class ChannelDao {
     @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId")
     abstract suspend fun countByProvider(providerId: Long): Int
 
+    @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
+    abstract suspend fun countByProviderAndCategories(providerId: Long, categoryIds: List<Long>): Int
+
     @Query("DELETE FROM channels WHERE provider_id = :providerId")
     abstract suspend fun deleteByProvider(providerId: Long)
 
@@ -2877,8 +2880,12 @@ interface EpisodeDao {
     @Query("SELECT * FROM episodes WHERE id = :id")
     suspend fun getById(id: Long): EpisodeEntity?
 
+    /** Episode ids are only unique per series; prefer [getByProviderSeriesAndEpisodeId] when the series is known. */
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId LIMIT 1")
     suspend fun getByProviderAndEpisodeId(providerId: Long, episodeId: Long): EpisodeEntity?
+
+    @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId")
+    suspend fun getAllByProviderAndEpisodeId(providerId: Long, episodeId: Long): List<EpisodeEntity>
 
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId")
     suspend fun getByProviderSync(providerId: Long): List<EpisodeEntity>
@@ -3025,6 +3032,9 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type ORDER BY provider_order ASC, id ASC")
     suspend fun getByProviderAndTypeSync(providerId: Long, type: String): List<CategoryEntity>
+
+    @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type AND category_id = :categoryId LIMIT 1")
+    suspend fun getByProviderTypeAndCategoryId(providerId: Long, type: String, categoryId: Long): CategoryEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)

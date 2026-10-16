@@ -62,47 +62,18 @@ public fun CategorySortModeDialog(
     onModeSelected: (CategorySortMode) -> Unit
 ) {
     val context = LocalContext.current
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = categoryTypeLabel(type, context),
         subtitle = categoryTypeDescription(type, context),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                CategorySortMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == currentMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = formatCategorySortModeLabel(mode, context),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == currentMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = sortModeLabel(mode, context),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        CategorySortMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = formatCategorySortModeLabel(mode, context),
+                description = sortModeLabel(mode, context),
+                selected = mode == currentMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }

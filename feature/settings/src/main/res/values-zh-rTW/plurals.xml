@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingQuantity">
+<plurals name="settings_timeout_seconds">
+        <item quantity="other">%d 秒</item>
+    </plurals>
+<plurals name="settings_timer_minutes">
+        <item quantity="other">%1$d 分鐘</item>
+    </plurals>
+<plurals name="settings_top_navigation_count">
+        <item quantity="other">%d 個分頁</item>
+    </plurals>
+<plurals name="settings_home_dashboard_count">
+        <item quantity="other">%d 個區塊</item>
+    </plurals>
+</resources>

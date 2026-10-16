@@ -118,7 +118,12 @@ internal class VodCategoryHydrationCoordinator(
                         }
                         val pageFingerprint = page.items.joinToString("|") { it.rawItemId }
                             .takeIf(String::isNotEmpty)
-                        if (pageFingerprint != null && !seenPageFingerprints.add(pageFingerprint)) {
+                        if (hasRepeatedPageFingerprint(
+                                seenFingerprints = seenPageFingerprints,
+                                previousFingerprint = hydration?.lastPageFingerprint,
+                                currentFingerprint = pageFingerprint
+                            )
+                        ) {
                             val prior = hydration ?: VodCategoryHydrationEntity(providerId, categoryId)
                             hydration = prior.copy(
                                 lastAttemptedPage = page.page,
@@ -131,17 +136,12 @@ internal class VodCategoryHydrationCoordinator(
                                 hydration!!.lastError ?: "Portal repeated a catalog page"
                             )
                         }
-                        val category = categoryDao.getByProviderAndTypeSync(providerId, ContentType.VOD.name)
-                            .firstOrNull { it.categoryId == categoryId }
-                        val protected = category?.isUserProtected == true
                         val movies = page.items.mapNotNull { entry ->
                             (entry.item as? VodCatalogItem.MovieItem)?.movie
-                                ?.copy(isUserProtected = protected)
                                 ?.toEntity()
                         }
                         val series = page.items.mapNotNull { entry ->
                             (entry.item as? VodCatalogItem.SeriesItem)?.series
-                                ?.copy(isUserProtected = protected)
                                 ?.toEntity()
                         }
                         val entries = page.items.mapIndexed { rawIndex, entry ->
@@ -174,8 +174,22 @@ internal class VodCategoryHydrationCoordinator(
                         val terminationReason = page.terminationReason
                             ?: "page_limit".takeIf { pageLimitReached }
                         transactionRunner.inTransaction {
-                            movieDao.upsertCategoryPage(providerId, movies)
-                            seriesDao.upsertCategoryPage(providerId, series)
+                            // Protection can be edited while the network request is in flight.
+                            // Read just this category at commit time so a long COMPLETE request
+                            // cannot apply a stale cached flag and the page/checkpoint stay atomic.
+                            val protected = categoryDao.getByProviderTypeAndCategoryId(
+                                providerId = providerId,
+                                type = ContentType.VOD.name,
+                                categoryId = categoryId
+                            )?.isUserProtected == true
+                            movieDao.upsertCategoryPage(
+                                providerId,
+                                movies.map { it.copy(isUserProtected = protected) }
+                            )
+                            seriesDao.upsertCategoryPage(
+                                providerId,
+                                series.map { it.copy(isUserProtected = protected) }
+                            )
                             vodCatalogEntryDao.replacePage(providerId, categoryId, page.page, entries)
                             val persistedCount = vodCatalogEntryDao.countByCategory(providerId, categoryId)
                             hydration = VodCategoryHydrationEntity(
@@ -323,7 +337,12 @@ internal class VodCategoryHydrationCoordinator(
                         }
                         val pageFingerprint = page.items.joinToString("|") { it.rawItemId }
                             .takeIf(String::isNotEmpty)
-                        if (pageFingerprint != null && !seenPageFingerprints.add(pageFingerprint)) {
+                        if (hasRepeatedPageFingerprint(
+                                seenFingerprints = seenPageFingerprints,
+                                previousFingerprint = hydration?.lastPageFingerprint,
+                                currentFingerprint = pageFingerprint
+                            )
+                        ) {
                             val prior = hydration ?: MovieCategoryHydrationEntity(providerId, movieCategoryId)
                             hydration = prior.copy(
                                 lastAttemptedPage = page.page,
@@ -486,4 +505,13 @@ internal class VodCategoryHydrationCoordinator(
             ?: return Result.error("Unable to resolve VOD category for derived Series")
         return hydrateSplitVodCategory(providerId, movieCategoryId, request, ContentType.SERIES)
     }
+}
+
+private fun hasRepeatedPageFingerprint(
+    seenFingerprints: MutableSet<String>,
+    previousFingerprint: String?,
+    currentFingerprint: String?
+): Boolean {
+    if (currentFingerprint == null) return false
+    return previousFingerprint == currentFingerprint || !seenFingerprints.add(currentFingerprint)
 }

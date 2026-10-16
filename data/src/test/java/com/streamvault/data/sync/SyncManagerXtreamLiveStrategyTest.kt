@@ -37,8 +37,43 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 
 class SyncManagerXtreamLiveStrategyTest {
+
+    @Test
+    fun `bulk authentication rejection does not start category fallback or stage rows`() = verifyBulkRejection(401, 1)
+
+    @Test
+    fun `action specific bulk forbidden response still tries category fallback`() = verifyBulkRejection(403, 2)
+
+    private fun verifyBulkRejection(status: Int, expectedRequests: Int) = runBlocking {
+        val requests = AtomicInteger()
+        val httpService = OkHttpXtreamApiService(
+            client = OkHttpClient.Builder().addInterceptor { chain ->
+                requests.incrementAndGet()
+                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                    .code(status).message("Rejected")
+                    .body("{}".toResponseBody("application/json".toMediaType())).build()
+            }.build(), json = json
+        )
+        val apiService = FakeXtreamApiService(listOf(XtreamCategory("12", "News")))
+        val provider = Provider(id = 42L, name = "Test", type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.test", username = "user", password = "pass")
+        val strategy = createStrategy(apiService, httpService,
+            stageChannelItems = { _, _, _, _, _ -> error("Rejected catalog must not be staged") })
+        val payload = strategy.syncXtreamLiveCatalog(
+            provider, XtreamProvider(provider.id, apiService, provider.serverUrl, provider.username, provider.password),
+            SyncMetadata(provider.id), emptySet(), null, testRuntimeProfile(), false
+        )
+        val failure = payload.catalogResult as CatalogStrategyResult.Failure
+        if (status == 401) {
+            assertThat(failure.error).isInstanceOf(com.streamvault.data.remote.xtream.XtreamAuthenticationException::class.java)
+        }
+        assertThat(requests.get()).isEqualTo(expectedRequests)
+        assertThat(payload.stagedSessionId).isNull()
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -117,10 +152,17 @@ class SyncManagerXtreamLiveStrategyTest {
             }
         )
 
-        val payload = strategy.loadXtreamLiveFull(provider, xtreamProvider, testRuntimeProfile(batchSize = 2))
+        val progressMessages = mutableListOf<String>()
+        val payload = strategy.loadXtreamLiveFull(
+            provider, xtreamProvider, testRuntimeProfile(batchSize = 2),
+            onProgress = progressMessages::add
+        )
+
+        assertThat(progressMessages.last()).isEqualTo("${XtreamLiveProgressLabels.LOADING}\n1 channel processed")
+        assertThat(progressMessages).doesNotContain(XtreamLiveProgressLabels.READY)
 
         assertThat(payload.catalogResult).isInstanceOf(CatalogStrategyResult.Success::class.java)
-        assertThat(payload.stagedSessionId).isEqualTo(9001L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(stagedChannels.map { it.streamId }).containsExactly(777L)
         assertThat(stagedChannels.single().streamUrl).isEqualTo("xtream://42/live/777?ext=m3u8")
@@ -294,7 +336,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(1L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isFalse()
         assertThat(payload.strategyFeedback.preferredSegmentedFirst).isTrue()
@@ -385,7 +427,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
     assertThat(result.items).isEmpty()
-    assertThat(payload.stagedSessionId).isEqualTo(1L)
+    assertThat(payload.stagedSessionId).isNotNull()
     assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isTrue()
         assertThat(payload.strategyFeedback.fullCatalogUnsafe).isTrue()
@@ -508,7 +550,7 @@ class SyncManagerXtreamLiveStrategyTest {
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.strategyName).isEqualTo("category_bulk")
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(1L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
         assertThat(payload.strategyFeedback.attemptedFullCatalog).isTrue()
         assertThat(payload.strategyFeedback.fullCatalogUnsafe).isTrue()
@@ -619,7 +661,7 @@ class SyncManagerXtreamLiveStrategyTest {
 
         val result = payload.catalogResult as CatalogStrategyResult.Success
         assertThat(result.items).isEmpty()
-        assertThat(payload.stagedSessionId).isEqualTo(77L)
+        assertThat(payload.stagedSessionId).isNotNull()
         assertThat(payload.stagedAcceptedCount).isEqualTo(3)
         assertThat(stageCalls).containsExactly(listOf(1001L, 1002L), listOf(1003L)).inOrder()
     }
@@ -634,19 +676,18 @@ class SyncManagerXtreamLiveStrategyTest {
                     requestCount.incrementAndGet()
                     val categoryId = chain.request().url.queryParameter("category_id")
                     requestedCategoryIds += categoryId
-                    val body = """
-                        [
-                          {
-                            "num": "9",
-                            "name": "Category Live $categoryId",
-                            "stream_id": "${if (categoryId == "12") "912" else "913"}",
-                            "stream_icon": "https://img.example.test/category-$categoryId.png",
-                            "category_id": "$categoryId",
-                            "category_name": "${if (categoryId == "12") "News" else "Sports"}",
-                            "container_extension": "ts"
-                          }
-                        ]
-                    """.trimIndent()
+                    val body = if (categoryId == null) {
+                        """
+                            [
+                              {"num":"9","name":"News Live","stream_id":"912","category_id":"12","category_name":"News","container_extension":"ts"},
+                              {"num":"10","name":"Sports Live","stream_id":"913","category_id":"13","category_name":"Sports","container_extension":"ts"}
+                            ]
+                        """.trimIndent()
+                    } else {
+                        """
+                            [{"num":"9","name":"Category Live $categoryId","stream_id":"${if (categoryId == "12") "912" else "913"}","stream_icon":"https://img.example.test/category-$categoryId.png","category_id":"$categoryId","category_name":"${if (categoryId == "12") "News" else "Sports"}","container_extension":"ts"}]
+                        """.trimIndent()
+                    }
                     Response.Builder()
                         .request(Request.Builder().url(chain.request().url).build())
                         .protocol(Protocol.HTTP_1_1)
@@ -731,7 +772,7 @@ class SyncManagerXtreamLiveStrategyTest {
         )
 
         assertThat(restorePayload.stagedAcceptedCount).isEqualTo(2)
-        assertThat(requestedCategoryIds).containsExactly("12", "13")
+        assertThat(requestedCategoryIds).containsExactly(null)
         Unit
     }
 
@@ -914,7 +955,7 @@ class SyncManagerXtreamLiveStrategyTest {
     }
 
     @Test
-    fun `hidden categories skip full catalog even when effective method is stream all`() = runBlocking {
+    fun `explicit stream all filters hidden rows and still uses the full catalog`() = runBlocking {
         val requestCount = AtomicInteger(0)
         val requestedCategoryIds = mutableListOf<String?>()
         val httpService = OkHttpXtreamApiService(
@@ -923,19 +964,18 @@ class SyncManagerXtreamLiveStrategyTest {
                     requestCount.incrementAndGet()
                     val categoryId = chain.request().url.queryParameter("category_id")
                     requestedCategoryIds += categoryId
-                    val body = """
-                        [
-                          {
-                            "num": "8",
-                            "name": "Visible Live",
-                            "stream_id": "888",
-                            "stream_icon": "https://img.example.test/live.png",
-                            "category_id": "$categoryId",
-                            "category_name": "News",
-                            "container_extension": "m3u8"
-                          }
-                        ]
-                    """.trimIndent()
+                    val body = if (categoryId == null) {
+                        """
+                            [
+                              {"num":"8","name":"Visible Live","stream_id":"888","category_id":"12","category_name":"News","container_extension":"m3u8"},
+                              {"num":"9","name":"Hidden Live","stream_id":"999","category_id":"13","category_name":"Sports","container_extension":"m3u8"}
+                            ]
+                        """.trimIndent()
+                    } else {
+                        """
+                            [{"num":"8","name":"Visible Live","stream_id":"888","category_id":"$categoryId","category_name":"News","container_extension":"m3u8"}]
+                        """.trimIndent()
+                    }
                     Response.Builder()
                         .request(Request.Builder().url(chain.request().url).build())
                         .protocol(Protocol.HTTP_1_1)
@@ -970,10 +1010,12 @@ class SyncManagerXtreamLiveStrategyTest {
             password = provider.password,
             allowedOutputFormats = provider.allowedOutputFormats
         )
+        val stagedStreamIds = mutableListOf<Long>()
         val strategy = createStrategy(
             apiService = apiService,
             httpService = httpService,
             stageChannelItems = { _, channels, _, _, sessionId ->
+                stagedStreamIds += channels.map { it.streamId }
                 StagedCatalogSnapshot(sessionId = sessionId ?: 66L, acceptedCount = channels.size, fallbackCategories = null)
             }
         )
@@ -994,10 +1036,11 @@ class SyncManagerXtreamLiveStrategyTest {
         )
 
         assertThat(payload.catalogResult).isInstanceOf(CatalogStrategyResult.Success::class.java)
-        assertThat(payload.strategyFeedback.attemptedFullCatalog).isFalse()
-        assertThat(payload.strategyFeedback.preferredSegmentedFirst).isTrue()
+        assertThat(payload.strategyFeedback.attemptedFullCatalog).isTrue()
+        assertThat(payload.strategyFeedback.preferredSegmentedFirst).isFalse()
         assertThat(payload.stagedAcceptedCount).isEqualTo(1)
-        assertThat(requestedCategoryIds).containsExactly("12")
+        assertThat(stagedStreamIds).containsExactly(888L)
+        assertThat(requestedCategoryIds).containsExactly(null)
         assertThat(requestCount.get()).isEqualTo(1)
     }
 
@@ -1019,6 +1062,22 @@ class SyncManagerXtreamLiveStrategyTest {
             seriesRequestTimeoutMillis = 60_000L,
             recoveryAbortWarningSuffix = "stopped early."
         )
+        val dao = mock<CatalogSyncDao>()
+        val stagedIds = java.util.concurrent.ConcurrentHashMap<Long, MutableSet<Long>>()
+        runBlocking {
+            whenever(dao.countChannelStages(any(), any())).thenAnswer { invocation ->
+                stagedIds[invocation.getArgument<Long>(1)]?.size ?: 0
+            }
+            whenever(dao.moveCompletedChannelStages(any(), any(), any())).thenAnswer { invocation ->
+                val source = stagedIds[invocation.getArgument<Long>(1)].orEmpty()
+                val target = stagedIds.computeIfAbsent(invocation.getArgument<Long>(2)) { java.util.concurrent.ConcurrentHashMap.newKeySet() }
+                source.count { target.add(it) }
+            }
+            whenever(dao.clearChannelStages(any(), any())).thenAnswer { invocation ->
+                stagedIds.remove(invocation.getArgument<Long>(1))
+                Unit
+            }
+        }
         return SyncManagerXtreamLiveStrategy(
             xtreamCatalogApiService = apiService,
             xtreamCatalogHttpService = httpService,
@@ -1034,7 +1093,7 @@ class SyncManagerXtreamLiveStrategyTest {
                 movieDao = mock<MovieDao>(),
                 seriesDao = mock<SeriesDao>(),
                 categoryDao = mock<CategoryDao>(),
-                catalogSyncDao = mock<CatalogSyncDao>(),
+                catalogSyncDao = dao,
                 tmdbIdentityDao = mock<TmdbIdentityDao>(),
                 transactionRunner = object : DatabaseTransactionRunner {
                     override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
@@ -1046,7 +1105,14 @@ class SyncManagerXtreamLiveStrategyTest {
             categoryFailureWarning = { section, category, error -> "$section category $category failed: ${sanitize(error)}" },
             liveCategorySequentialModeWarning = "Live category sync used sequential mode.",
             isCurrentlyLowOnMemory = isCurrentlyLowOnMemory,
-            stageChannelItems = stageChannelItems,
+            stageChannelItems = { id, channels, seen, categories, session ->
+                val actualSession = requireNotNull(session)
+                val unique = channels.filter { seen.add(it.streamId) }
+                val result = stageChannelItems(id, unique, seen, categories, actualSession)
+                stagedIds.computeIfAbsent(actualSession) { java.util.concurrent.ConcurrentHashMap.newKeySet() }
+                    .addAll(unique.map { it.streamId })
+                result.copy(sessionId = actualSession, acceptedCount = unique.size)
+            },
             emitProgress = { _, _ -> }
         )
     }

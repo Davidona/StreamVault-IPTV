@@ -18,6 +18,8 @@ object ChannelNormalizer {
     private val nonAlphaNumericRegex = Regex("""[^a-z0-9 ]""")
     private val frameRateRegex = Regex("""(?<!\d)(24|25|30|50|60)\s*fps(?!\d)""", RegexOption.IGNORE_CASE)
     private val heightRegex = Regex("""(?<!\d)(4320|2160|1440|1080|720|576|540|480|360|240)\s*p?(?!\d)""", RegexOption.IGNORE_CASE)
+    private val plusRegex = Regex("""\+""")
+    private val colonOrPipeRegex = Regex("""[:|]""")
 
     private val resolutionTags = linkedMapOf(
         "8k" to 4320,
@@ -108,8 +110,10 @@ object ChannelNormalizer {
         .sortedByDescending { it.length }
         .map { phrase -> Regex("""(?<![a-z0-9])${Regex.escape(phrase)}(?![a-z0-9])""", RegexOption.IGNORE_CASE) }
 
-    fun getLogicalGroupId(channelName: String, providerId: Long): String =
-        classify(channelName, providerId).logicalGroupId
+    fun getLogicalGroupId(channelName: String, providerId: Long): String {
+        val originalName = channelName.trim().ifBlank { "Channel" }
+        return buildLogicalGroupId(originalName, buildCanonicalName(originalName), providerId)
+    }
 
     /**
      * Returns true when the channel name is wrapped in hash markers,
@@ -154,22 +158,8 @@ object ChannelNormalizer {
         )
 
         val canonicalName = buildCanonicalName(originalName)
-        val logicalKey = canonicalName
-            .stripAccents()
-            .lowercase(Locale.ROOT)
-            .replace(nonAlphaNumericRegex, " ")
-            .replace(collapseWhitespaceRegex, " ")
-            .trim()
-            .replace(" ", "")
-            .ifEmpty {
-                originalName.stripAccents()
-                    .lowercase(Locale.ROOT)
-                    .replace(nonAlphaNumericRegex, "")
-                    .ifBlank { "channel${providerId}" }
-            }
-
         return ChannelClassification(
-            logicalGroupId = "${providerId}_$logicalKey",
+            logicalGroupId = buildLogicalGroupId(originalName, canonicalName, providerId),
             canonicalName = canonicalName,
             attributes = LiveChannelVariantAttributes(
                 resolutionLabel = declaredHeight?.let(::heightToResolutionLabel),
@@ -187,6 +177,24 @@ object ChannelNormalizer {
         )
     }
 
+    private fun buildLogicalGroupId(originalName: String, canonicalName: String, providerId: Long): String {
+        val logicalKey = canonicalName
+            .stripAccents()
+            .lowercase(Locale.ROOT)
+            .replace(nonAlphaNumericRegex, " ")
+            .replace(collapseWhitespaceRegex, " ")
+            .trim()
+            .replace(" ", "")
+            .ifEmpty {
+                originalName.stripAccents()
+                    .lowercase(Locale.ROOT)
+                    .replace(nonAlphaNumericRegex, "")
+                    .ifBlank { "channel${providerId}" }
+            }
+
+        return "${providerId}_$logicalKey"
+    }
+
     private fun buildCanonicalName(originalName: String): String {
         var cleaned = originalName
             .replace(bracketRegex, " ")
@@ -199,8 +207,8 @@ object ChannelNormalizer {
         cleaned = frameRateRegex.replace(cleaned, " ")
 
         cleaned = cleaned
-            .replace(Regex("""\+"""), " + ")
-            .replace(Regex("""[:|]"""), " ")
+            .replace(plusRegex, " + ")
+            .replace(colonOrPipeRegex, " ")
             .replace(separatorRegex, " ")
             .replace(collapseWhitespaceRegex, " ")
             .trim()

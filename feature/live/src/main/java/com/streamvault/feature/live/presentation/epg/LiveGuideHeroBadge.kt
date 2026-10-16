@@ -1,7 +1,7 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -11,9 +11,9 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 
 @Composable
 fun LiveGuideHeroBadge(
@@ -22,7 +22,7 @@ fun LiveGuideHeroBadge(
     accentColor: Color = Primary
 ) {
     Surface(
-        shape = RoundedCornerShape(999.dp),
+        shape = BrowseShapes.Control,
         colors = SurfaceDefaults.colors(
             containerColor = if (highlight) accentColor.copy(alpha = 0.18f) else SurfaceHighlight
         )

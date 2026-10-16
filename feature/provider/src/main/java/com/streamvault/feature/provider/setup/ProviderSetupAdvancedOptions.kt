@@ -1,9 +1,9 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
@@ -27,7 +27,7 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode
@@ -203,7 +203,7 @@ internal fun AdvancedProviderOptionsSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .mouseClickable(onClick = { showAdvancedOptions = !showAdvancedOptions }),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+            shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = if (showAdvancedOptions) Primary.copy(alpha = 0.12f) else Surface,
                 focusedContainerColor = Primary.copy(alpha = 0.24f)
@@ -259,7 +259,7 @@ internal fun AdvancedProviderOptionsSection(
                         modifier = Modifier
                             .fillMaxWidth()
                             .mouseClickable(onClick = onToggleM3uVodClassification),
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+                        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
                         colors = ClickableSurfaceDefaults.colors(
                             containerColor = if (uiState.m3uVodClassificationEnabled) Primary.copy(alpha = 0.1f) else Surface,
                             focusedContainerColor = Primary.copy(alpha = 0.22f)
@@ -337,8 +337,8 @@ internal fun AdvancedProviderOptionsSection(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Surface, RoundedCornerShape(12.dp))
-                                .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                                .background(Surface, BrowseShapes.Artwork)
+                                .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
@@ -365,8 +365,8 @@ internal fun AdvancedProviderOptionsSection(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Surface, RoundedCornerShape(12.dp))
-                            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                            .background(Surface, BrowseShapes.Artwork)
+                            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -392,8 +392,8 @@ internal fun AdvancedProviderOptionsSection(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Surface, RoundedCornerShape(12.dp))
-                            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                            .background(Surface, BrowseShapes.Artwork)
+                            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -419,8 +419,8 @@ internal fun AdvancedProviderOptionsSection(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Surface, RoundedCornerShape(12.dp))
-                            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                            .background(Surface, BrowseShapes.Artwork)
+                            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -455,8 +455,8 @@ internal fun AdvancedProviderOptionsSection(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Surface, RoundedCornerShape(12.dp))
-                            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                            .background(Surface, BrowseShapes.Artwork)
+                            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -487,8 +487,8 @@ internal fun AdvancedProviderOptionsSection(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Surface, RoundedCornerShape(12.dp))
-                            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+                            .background(Surface, BrowseShapes.Artwork)
+                            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -633,7 +633,7 @@ internal fun AdvancedProviderOptionsSection(
                         modifier = Modifier
                             .fillMaxWidth()
                             .semantics { contentDescription = "Use HTTP proxy" },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+                        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
                         colors = ClickableSurfaceDefaults.colors(
                             containerColor = if (stalkerProxyEnabled) Primary.copy(alpha = 0.1f) else Surface,
                             focusedContainerColor = Primary.copy(alpha = 0.22f)

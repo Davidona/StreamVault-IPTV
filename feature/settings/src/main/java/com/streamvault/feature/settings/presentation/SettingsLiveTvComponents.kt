@@ -18,17 +18,13 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
-import com.streamvault.core.ui.theme.SurfaceElevated
 
 @Composable
 public fun ParentalControlCard(
@@ -43,7 +39,7 @@ public fun ParentalControlCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SurfaceElevated, RoundedCornerShape(8.dp))
+            .settingsDetailPanel()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -122,49 +118,20 @@ public fun LiveTvChannelModeDialog(
     onDismiss: () -> Unit,
     onModeSelected: (LiveTvChannelMode) -> Unit
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_live_tv_channel_mode),
         subtitle = stringResource(R.string.settings_live_tv_channel_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LiveTvChannelMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        LiveTvChannelMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
@@ -173,47 +140,18 @@ public fun LiveTvQuickFilterVisibilityDialog(
     onDismiss: () -> Unit,
     onModeSelected: (LiveTvQuickFilterVisibilityMode) -> Unit
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_live_tv_quick_filter_visibility),
         subtitle = stringResource(R.string.settings_live_tv_quick_filter_visibility_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LiveTvQuickFilterVisibilityMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        LiveTvQuickFilterVisibilityMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }

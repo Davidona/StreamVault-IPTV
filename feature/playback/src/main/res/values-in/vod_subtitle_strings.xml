@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Sumber</string>
+    <string name="vod_subtitle_settings">Pengaturan</string>
+    <string name="vod_subtitle_provider">Subtitle penyedia</string>
+    <string name="vod_subtitle_provider_hint">Pilih trek subtitle dari video ini</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Temukan subtitle online</string>
+    <string name="vod_subtitle_online_unavailable">Pencarian online tidak tersedia untuk video ini</string>
+    <string name="vod_subtitle_device_hint">Pilih file SRT</string>
+    <string name="vod_subtitle_back">Kembali ke sumber</string>
+    <string name="vod_tracks_empty">Tidak ada trek yang tersedia di video ini</string>
+    <string name="vod_subtitle_preview">Ini adalah subtitle.</string>
+    <string name="vod_subtitle_font_size">Ukuran font</string>
+    <string name="vod_subtitle_background">Opasitas latar belakang</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparan · 100% hitam pekat</string>
+    <string name="vod_subtitle_decrease_setting">Kurangi %1$s</string>
+    <string name="vod_subtitle_increase_setting">Tambah %1$s</string>
+</resources>

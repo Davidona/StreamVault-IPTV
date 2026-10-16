@@ -32,11 +32,11 @@
   <string name="badge_series">SERIE</string>
   <string name="card_live_badge">Live</string>
   <string name="card_locked_channel">Canale bloccato</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Trasmetti</string>
+  <string name="cast_item_unavailable">Questo elemento non può essere inviato a un ricevitore Cast.</string>
+  <string name="cast_launching">Trasmissione...</string>
+  <string name="cast_started">Trasmissione al dispositivo connesso.</string>
+  <string name="cast_unavailable">Google Cast non è disponibile su questo dispositivo.</string>
   <string name="category_options_cancel">Annulla</string>
   <string name="category_options_clear_recent">Cancella tutti i recenti</string>
   <string name="category_options_delete">Elimina gruppo</string>
@@ -49,9 +49,9 @@
   <string name="category_options_set_default">Imposta come gruppo predefinito</string>
   <string name="category_options_unlock">Sblocca gruppo</string>
   <string name="category_options_unpin">Sblocca categoria</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Fissa categoria</string>
   <string name="category_see_all">Vedi tutto →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="category_unpin">Rimuovi fissaggio</string>
   <string name="channel_action_hide">Nascondi questo canale</string>
   <string name="channel_options_remove_from_recent">Rimuovi dai recenti</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
@@ -105,9 +105,9 @@
   <string name="dashboard_subtitle">%1$s è attivo. Torna alla diretta, riprendi la visione o sfoglia le nuove aggiunte.</string>
   <string name="dashboard_title">La tua libreria, pronta</string>
   <string name="dashboard_top_rated_movies">Film più votati</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_update_allow_installs">Consenti installazioni</string>
   <string name="dashboard_update_available">Una nuova versione dell\'app è già memorizzata nella cache ed è pronta per la revisione da Impostazioni.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">L\'aggiornamento è stato scaricato. Consenti le installazioni da StreamVault, quindi riprova l\'installazione.</string>
   <string name="dashboard_update_install_ready">L\'ultimo aggiornamento è già stato scaricato. Apri Impostazioni per installarlo.</string>
   <string name="dashboard_update_open_installer">Installa da Impostazioni</string>
   <string name="dashboard_update_open_settings">Apri aggiornamenti</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Mantieni un gruppo salvato per le opzioni</string>
   <string name="library_saved_primary_hint">Ritorna alla libreria completa</string>
   <string name="library_sort_title">Ordina risultati</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Riporta a TV in diretta</string>
+  <string name="m3u_move_to_movies">Sposta in Film</string>
+  <string name="m3u_move_to_series">Sposta in Serie</string>
+  <string name="m3u_organize_items">Organizza elementi M3U</string>
   <string name="movie_detail_back">Torna alla libreria</string>
   <string name="movie_detail_cast">Cast:</string>
   <string name="movie_detail_director">Regia:</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Film</string>
   <string name="nav_series">Serie</string>
   <string name="nav_settings">Impostazioni</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">Video on demand</string>
   <string name="pin_dialog_cancel">Annulla</string>
   <string name="pin_dialog_title">Inserisci il PIN</string>
   <string name="player_resume">Riprendi</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Rimuovi dai preferiti</string>
   <string name="search_actions_unlock">Sblocca controllo genitori</string>
   <string name="search_all">Tutto</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Crea una volta l\'indice di ricerca completo</string>
+  <string name="search_catalog_complete">Indice catalogo completo</string>
+  <string name="search_catalog_downloaded_only">Solo elementi scaricati. Crea l\'indice di ricerca completo per cercare nell\'intero catalogo del portale.</string>
+  <string name="search_catalog_indexing">L\'indice di ricerca completo è in fase di creazione. I risultati sono ancora parziali.</string>
+  <string name="search_catalog_truncated">Il catalogo del portale è stato troncato. I risultati potrebbero essere incompleti.</string>
   <string name="search_clear_history">Chiaro</string>
   <string name="search_command_subtitle">Inizia con un titolo, una parola chiave, il nome del canale o una serie. I risultati rimangono raggruppati per una navigazione remota rapida.</string>
   <string name="search_error_subtitle">Alcuni risultati non sono stati caricati. Riprova.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Aggiorna questo provider per importare film e serie nella libreria.</string>
   <string name="vod_sync_needed_title">Sincronizzazione necessaria</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Questo provider espone cataloghi separati per Film e Serie.</string>
+  <string name="vod_unavailable_title">VOD non è disponibile</string>
 </resources>

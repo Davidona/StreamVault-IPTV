@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.design.browsePanel
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -63,7 +64,7 @@ import com.streamvault.feature.live.presentation.home.shouldCollapseLiveCategory
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.activity.compose.BackHandler
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -714,7 +715,7 @@ fun LiveHomeScreen(
                             modifier = Modifier
                                 .width(sidebarWidth)
                                 .fillMaxHeight()
-                                .background(SurfaceElevated.copy(alpha = 0.88f), RoundedCornerShape(20.dp))
+                                .browsePanel()
                                 .padding(top = 10.dp)
                                 .focusGroup()
                         ) {

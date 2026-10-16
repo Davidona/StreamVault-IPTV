@@ -49,6 +49,7 @@ public fun LazyListScope.settingsPlaybackSection(
     subtitleSizeLabel: String,
     subtitleTextColorLabel: String,
     subtitleBackgroundLabel: String,
+    pinnedSubtitleLanguagesLabel: String,
     liveTranslationEndpointLabel: String,
     wifiQualityLabel: String,
     ethernetQualityLabel: String,
@@ -76,6 +77,7 @@ public fun LazyListScope.settingsPlaybackSection(
     onShowSubtitleSizeDialogChange: (Boolean) -> Unit,
     onShowSubtitleTextColorDialogChange: (Boolean) -> Unit,
     onShowSubtitleBackgroundDialogChange: (Boolean) -> Unit,
+    onShowPinnedSubtitleLanguagesDialogChange: (Boolean) -> Unit,
     onShowLiveTranslationEndpointDialogChange: (Boolean) -> Unit,
     onShowWifiQualityDialogChange: (Boolean) -> Unit,
     onShowEthernetQualityDialogChange: (Boolean) -> Unit,
@@ -376,6 +378,11 @@ public fun LazyListScope.settingsPlaybackSection(
                     modifier = if (targetItemId == "playback.ethernet_cap") targetFocusModifier else Modifier,)
             }
             if (page == null || page == SettingsPage.SUBTITLES) {
+                OpenSubtitlesAccountSettings(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    targetFocusModifier = if (targetItemId == "playback.subtitles_provider") targetFocusModifier else Modifier,
+                )
                 SwitchSettingsRow(
                     label = stringResource(R.string.settings_live_translation_enabled),
                     value = stringResource(R.string.settings_live_translation_enabled_subtitle),
@@ -407,6 +414,12 @@ public fun LazyListScope.settingsPlaybackSection(
                     onClick = { onShowSubtitleBackgroundDialogChange(true) }
                 ,
                     modifier = if (targetItemId == "playback.subtitle_background") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_pinned_subtitle_languages),
+                    value = pinnedSubtitleLanguagesLabel,
+                    onClick = { onShowPinnedSubtitleLanguagesDialogChange(true) }
+                ,
+                    modifier = if (targetItemId == "playback.subtitle_languages") targetFocusModifier else Modifier,)
             }
             if (page == null || page == SettingsPage.TIMESHIFT) {
                 SwitchSettingsRow(

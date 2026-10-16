@@ -16,8 +16,8 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 import com.streamvault.domain.repository.M3uClassificationTarget
 
 data class LiveM3uCategoryOrganizerLabels(

@@ -192,6 +192,7 @@ private fun resolvedSettingsCatalog(
     )
     val controlEntries = listOf(
         setting("sources.add", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_add_provider, "playlist", "source"),
+        setting("sources.automatic_sync", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_auto_sync_title, "scheduled sync", "background refresh", "schedule", "automatic refresh"),
         setting("sources.active_provider", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_provider_selector_hint, "active source"),
         setting("sources.edit", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_edit, "provider details"),
         setting("sources.sync", SettingsCategory.SOURCES, SettingsPage.PROVIDERS, R.string.settings_sync_btn, "refresh provider"),
@@ -223,9 +224,11 @@ private fun resolvedSettingsCatalog(
         setting("playback.audio_language", SettingsCategory.PLAYBACK, SettingsPage.AUDIO, R.string.settings_preferred_audio_language, "language"),
         setting("playback.live_translation", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_live_translation_enabled, "translate subtitles"),
         setting("playback.translation_endpoint", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_live_translation_endpoint, "translation server"),
+        setting("playback.subtitles_provider", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_opensubtitles_title, "opensubtitles", "online subtitles", "subtitle account"),
         setting("playback.subtitle_size", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_size, "captions"),
         setting("playback.subtitle_text_color", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_text_color, "captions color"),
         setting("playback.subtitle_background", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_subtitle_background, "captions background"),
+        setting("playback.subtitle_languages", SettingsCategory.PLAYBACK, SettingsPage.SUBTITLES, R.string.settings_pinned_subtitle_languages, "pinned", "language order", "subtitle languages"),
         setting("playback.fast_retry", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_fast_retry_on_transient_failures, "reconnect"),
         setting("playback.buffer", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_live_buffer_size, "buffering"),
         setting("playback.wifi_cap", SettingsCategory.PLAYBACK, SettingsPage.NETWORK, R.string.settings_wifi_quality_cap, "quality"),

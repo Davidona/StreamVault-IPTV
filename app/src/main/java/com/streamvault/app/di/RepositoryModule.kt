@@ -22,6 +22,7 @@ import com.streamvault.data.remote.xtream.PlaybackObservationCoordinator
 import com.streamvault.data.remote.xtream.PlaybackObservationSink
 import com.streamvault.data.validation.ProviderSetupInputValidatorImpl
 import com.streamvault.domain.manager.ParentalPinVerifier
+import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.manager.ProviderSetupInputValidator
 import com.streamvault.domain.manager.ProviderSyncStateReader
 import com.streamvault.data.repository.*
@@ -102,6 +103,12 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindExternalRatingsRepository(impl: ExternalRatingsRepositoryImpl): ExternalRatingsRepository
+
+    @Binds @Singleton
+    abstract fun bindExternalSubtitleRepository(impl: OpenSubtitlesRepositoryImpl): ExternalSubtitleRepository
+
+    @Binds @Singleton
+    abstract fun bindOpenSubtitlesAccountManager(impl: OpenSubtitlesRepositoryImpl): OpenSubtitlesAccountManager
 
     @Binds @Singleton
     abstract fun bindSyncMetadataRepository(impl: SyncMetadataRepositoryImpl): SyncMetadataRepository

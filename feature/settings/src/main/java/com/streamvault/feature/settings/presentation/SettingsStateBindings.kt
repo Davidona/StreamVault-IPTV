@@ -82,6 +82,7 @@ fun observeSettingsPreferenceSnapshot(
             subtitleTextScale = 1f,
             subtitleTextColor = 0xFFFFFFFF.toInt(),
             subtitleBackgroundColor = 0x80000000.toInt(),
+            pinnedSubtitleLanguages = emptyList(),
             playerLiveTranslationEnabled = false,
             playerLiveTranslationEndpoint = "http://10.0.2.2:8765",
             wifiMaxVideoHeight = null,
@@ -147,6 +148,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(appTimeFormat = timeFormat)
     }.combine(preferencesRepository.preferredAudioLanguage) { snapshot, preferredAudioLanguage ->
         snapshot.copy(preferredAudioLanguage = preferredAudioLanguage ?: "auto")
+    }.combine(preferencesRepository.pinnedSubtitleLanguages) { snapshot, pinnedSubtitleLanguages ->
+        snapshot.copy(pinnedSubtitleLanguages = pinnedSubtitleLanguages)
     }.combine(preferencesRepository.playerMediaSessionEnabled) { snapshot, mediaSessionEnabled ->
         snapshot.copy(playerMediaSessionEnabled = mediaSessionEnabled)
     }.combine(preferencesRepository.playerBackButtonVisibility) { snapshot, visibility ->

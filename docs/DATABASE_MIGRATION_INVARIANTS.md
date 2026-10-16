@@ -12,9 +12,16 @@ Every schema change must satisfy this checklist before the database version is a
 - Verify `PRAGMA foreign_key_check` for every table written by the migration.
 - Downgrades remain unsupported and must fail explicitly; destructive fallback is prohibited.
 
-## Current verification
+## Current verification requirements
 
-- Current schema: v75.
-- Exported historical origins: v1 and v3-v74; v2 has no committed Room schema export.
-- `StreamVaultDatabaseMigrationTest` validates all exported origins to v75 plus populated direct/multi-hop preservation fixtures.
-- Device result (2026-08-13): 37/37 passed on `Television_1080p(AVD) - 16`.
+- Current schema: v81.
+- Exported historical origins: v1 and v3-v80; v2 has no committed Room schema export.
+- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v81 plus populated direct/multi-hop preservation fixtures.
+- Migration 78 → 79 scopes episode uniqueness to the owning series and expires hydrated series detail timestamps.
+- Migration 79 → 80 adds the four Xtream live receipt columns; migration 80 → 81 creates the durable Stalker live-category retry table and its provider index.
+- Versions 79 and 80 were reordered during branch integration. The discarded branch schemas have no upgrade users and are not supported migration origins; their episode-index repair is intentionally omitted.
+
+## Validation (2026-10-10)
+
+- All 45 `StreamVaultDatabaseMigrationTest` tests passed on `Television_4K_2(AVD) - 16` using `:data:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.local.StreamVaultDatabaseMigrationTest`.
+- Coverage includes every committed historical schema to v81, populated v78 → v80 → v81 receipt preservation, and direct v80 → v81 Stalker retry creation with episode/timestamp preservation and provider-delete cascade checks.

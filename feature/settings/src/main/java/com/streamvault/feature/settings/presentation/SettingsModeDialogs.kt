@@ -1,393 +1,171 @@
 package com.streamvault.feature.settings.presentation
 
-import com.streamvault.feature.settings.presentation.*
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
-import com.streamvault.feature.settings.R
-import com.streamvault.core.ui.components.dialogs.PremiumDialog
-import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.domain.model.VodViewMode
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.domain.model.ChannelNumberingMode
+import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveVariantPreferenceMode
-import com.streamvault.domain.model.RemoteColorButton
-import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.domain.model.RemoteShortcutSelection
 import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodVariantPreferenceMode
+import com.streamvault.domain.model.VodViewMode
+import com.streamvault.feature.settings.R
 
 @Composable
 public fun VodViewModeDialog(
     selectedMode: VodViewMode,
     onDismiss: () -> Unit,
-    onModeSelected: (VodViewMode) -> Unit
+    onModeSelected: (VodViewMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_vod_view_mode),
         subtitle = stringResource(R.string.settings_vod_view_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                VodViewMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        VodViewMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun LiveChannelNumberingModeDialog(
     selectedMode: ChannelNumberingMode,
     onDismiss: () -> Unit,
-    onModeSelected: (ChannelNumberingMode) -> Unit
+    onModeSelected: (ChannelNumberingMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_live_channel_numbering_mode),
         subtitle = stringResource(R.string.settings_live_channel_numbering_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                ChannelNumberingMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        ChannelNumberingMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun LiveChannelGroupingModeDialog(
     selectedMode: LiveChannelGroupingMode,
     onDismiss: () -> Unit,
-    onModeSelected: (LiveChannelGroupingMode) -> Unit
+    onModeSelected: (LiveChannelGroupingMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_live_channel_grouping_mode),
         subtitle = stringResource(R.string.settings_live_channel_grouping_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LiveChannelGroupingMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        LiveChannelGroupingMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun GroupedChannelLabelModeDialog(
     selectedMode: GroupedChannelLabelMode,
     onDismiss: () -> Unit,
-    onModeSelected: (GroupedChannelLabelMode) -> Unit
+    onModeSelected: (GroupedChannelLabelMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_grouped_channel_label_mode),
         subtitle = stringResource(R.string.settings_grouped_channel_label_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                GroupedChannelLabelMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        GroupedChannelLabelMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun VodDuplicateHandlingModeDialog(
     selectedMode: VodDuplicateHandlingMode,
     onDismiss: () -> Unit,
-    onModeSelected: (VodDuplicateHandlingMode) -> Unit
+    onModeSelected: (VodDuplicateHandlingMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_vod_duplicate_handling_mode),
         subtitle = stringResource(R.string.settings_vod_duplicate_handling_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                VodDuplicateHandlingMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        VodDuplicateHandlingMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun VodVariantPreferenceModeDialog(
     selectedMode: VodVariantPreferenceMode,
     onDismiss: () -> Unit,
-    onModeSelected: (VodVariantPreferenceMode) -> Unit
+    onModeSelected: (VodVariantPreferenceMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_vod_variant_preference_mode),
         subtitle = stringResource(R.string.settings_vod_variant_preference_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                VodVariantPreferenceMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        VodVariantPreferenceMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
 public fun LiveVariantPreferenceModeDialog(
     selectedMode: LiveVariantPreferenceMode,
     onDismiss: () -> Unit,
-    onModeSelected: (LiveVariantPreferenceMode) -> Unit
+    onModeSelected: (LiveVariantPreferenceMode) -> Unit,
 ) {
-    PremiumDialog(
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_live_variant_preference_mode),
         subtitle = stringResource(R.string.settings_live_variant_preference_mode_subtitle),
-        onDismissRequest = onDismiss,
-        widthFraction = 0.52f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LiveVariantPreferenceMode.entries.forEach { mode ->
-                    TvClickableSurface(
-                        onClick = { onModeSelected(mode) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (mode == selectedMode) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(mode.labelResId()),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (mode == selectedMode) Primary else OnBackground
-                            )
-                            Text(
-                                text = stringResource(mode.descriptionResId()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+        onDismiss = onDismiss,
+    ) {
+        LiveVariantPreferenceMode.entries.forEach { mode ->
+            SettingsChoiceOption(
+                label = stringResource(mode.labelResId()),
+                description = stringResource(mode.descriptionResId()),
+                selected = mode == selectedMode,
+                onSelect = { onModeSelected(mode) },
             )
         }
-    )
+    }
 }
 
 @Composable
@@ -395,50 +173,26 @@ public fun RemoteShortcutSelectionDialog(
     target: RemoteShortcutDialogTarget,
     selectedSelection: RemoteShortcutSelection,
     onDismiss: () -> Unit,
-    onSelection: (RemoteShortcutSelection) -> Unit
+    onSelection: (RemoteShortcutSelection) -> Unit,
 ) {
-    PremiumDialog(
+    val context = LocalContext.current
+    SettingsSingleChoiceDialog(
         title = stringResource(R.string.settings_remote_dialog_title, stringResource(target.button.labelResId())),
         subtitle = stringResource(R.string.settings_remote_dialog_subtitle, stringResource(target.profile.labelResId())),
-        onDismissRequest = onDismiss,
+        onDismiss = onDismiss,
         widthFraction = 0.56f,
-        content = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                remoteShortcutSelectionOptions(target.profile).forEach { selection ->
-                    val isSelected = selection == selectedSelection.normalizedForProfile(target.profile)
-                    TvClickableSurface(
-                        onClick = { onSelection(selection) },
-                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (isSelected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                            focusedContainerColor = Primary.copy(alpha = 0.28f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = formatRemoteShortcutSelectionLabel(
-                                    selection = selection,
-                                    profile = target.profile,
-                                    button = target.button,
-                                    context = androidx.compose.ui.platform.LocalContext.current
-                                ),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (isSelected) Primary else OnBackground
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        footer = {
-            PremiumDialogFooterButton(
-                label = stringResource(R.string.settings_cancel),
-                onClick = onDismiss
+    ) {
+        remoteShortcutSelectionOptions(target.profile).forEach { selection ->
+            SettingsChoiceOption(
+                label = formatRemoteShortcutSelectionLabel(
+                    selection = selection,
+                    profile = target.profile,
+                    button = target.button,
+                    context = context,
+                ),
+                selected = selection == selectedSelection.normalizedForProfile(target.profile),
+                onSelect = { onSelection(selection) },
             )
         }
-    )
+    }
 }

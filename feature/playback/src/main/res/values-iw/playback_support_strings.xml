@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">מעביר למכשיר המחובר.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast אינו זמין במכשיר זה.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">פורמט זרם זה אינו נתמך על ידי Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">זרמי RTSP ו-RTMP אינם נתמכים לשידור.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">זרמים מוגני DRM אינם נתמכים על ידי Google Cast באפליקציה זו.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">לא ניתן לשלוח פריט זה למקלט Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">זרם זה משתמש בכתובת מקומית או ייעודית למכשיר ש-Chromecast אינו יכול להגיע אליה ישירות.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">זרם זה דורש כותרות HTTP או קובצי Cookie ש-Chromecast אינו יכול להשתמש בהם ישירות.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">זרם זה דורש User-Agent מותאם אישית ש-Chromecast אינו יכול להשתמש בו ישירות.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">זרם זה דורש את הגדרות הפרוקסי של האפליקציה, ולכן Chromecast אינו יכול להשתמש בו ישירות.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">זרם זה משתמש בטיפול SSL ש-Chromecast אינו יכול להשתמש בו ישירות.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">לא ניתן היה להתחיל הפעלת Cast.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">מקלט ה-Cast לא הצליח לטעון את הזרם הזה.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">מקלט ה-Cast המחובר אינו מוכן להפעלה.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">בחירת מכשיר ה-Cast בוטלה.</string>
+    <string name="add_group_close_cd">סגור</string>
+    <string name="player_archive_title">ארכיון התוכנית</string>
+    <string name="player_no_archive">לא נמצאו תוכניות בארכיון</string>
+    <string name="program_date_time_range">%1$s | %2$s עד %3$s</string>
+    <string name="player_archive_badge">ארכיון</string>
+</resources>

@@ -1,5 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.contentOnColor
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,15 +38,15 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.feature.catalog.presentation.components.ChipRowItem
 import com.streamvault.feature.catalog.presentation.components.ChipRowSection
-import com.streamvault.core.ui.design.AppColors.Brand as Primary
-import com.streamvault.core.ui.design.AppColors.Focus as FocusBorder
-import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceElevated
-import com.streamvault.core.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
-import com.streamvault.core.ui.design.AppColors.TextPrimary as TextPrimary
-import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.BrowseColors.Brand as Primary
+import com.streamvault.core.ui.design.BrowseColors.Focus as FocusBorder
+import com.streamvault.core.ui.design.BrowseColors.SurfaceElevated as SurfaceElevated
+import com.streamvault.core.ui.design.BrowseColors.SurfaceEmphasis as SurfaceHighlight
+import com.streamvault.core.ui.design.BrowseColors.TextPrimary as TextPrimary
+import com.streamvault.core.ui.design.BrowseColors.TextTertiary as OnSurfaceDim
 import androidx.compose.foundation.BorderStroke
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.components.SearchInput
@@ -115,7 +116,7 @@ fun VodHeroStrip(
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .height(132.dp),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(22.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = SurfaceHighlight,
             focusedContainerColor = Primary.copy(alpha = 0.22f)
@@ -123,7 +124,7 @@ fun VodHeroStrip(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(22.dp)
+                shape = BrowseShapes.Panel
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -155,13 +156,13 @@ fun VodHeroStrip(
                 )
             }
             Surface(
-                shape = RoundedCornerShape(999.dp),
+                shape = BrowseShapes.Control,
                 colors = SurfaceDefaults.colors(containerColor = Primary)
             ) {
                 Text(
                     text = actionLabel,
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.Black,
+                    color = contentOnColor(Primary),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
                 )
             }
@@ -251,7 +252,7 @@ fun VodCategoryPickerDialog(
                                         onDismiss()
                                     }
                                 },
-                                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                                shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                                 colors = ClickableSurfaceDefaults.colors(
                                     containerColor = SurfaceElevated,
                                     focusedContainerColor = SurfaceHighlight
@@ -259,7 +260,7 @@ fun VodCategoryPickerDialog(
                                 border = ClickableSurfaceDefaults.border(
                                     focusedBorder = Border(
                                         border = BorderStroke(2.dp, FocusBorder),
-                                        shape = RoundedCornerShape(14.dp)
+                                        shape = BrowseShapes.Control
                                     )
                                 ),
                                 scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -401,11 +402,11 @@ private fun VodBrowseOptionChip(
             contentColor = if (selected) Primary else TextPrimary,
             focusedContentColor = TextPrimary
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)

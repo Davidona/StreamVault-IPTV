@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">Постави провајдер</string>
+  <string name="welcome_setup_later">Постави подоцна</string>
+  <string name="welcome_loading_title">Подготовка на твојата библиотека</string>
+  <string name="welcome_loading_subtitle">Се отвора соодветниот екран за овој уред.</string>
+  <string name="sync_section_live">Во живо</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Серии</string>
+  <string name="sync_items_indexed_format">Подготвени %1$d ставки</string>
+  <string name="welcome_tagline">Премиум IPTV за дневната соба</string>
+  <string name="welcome_subtitle">Опушти се со канали во живо, гледање одназад, филмови и серии со искуство за Android TV од прва рака.</string>
+  <string name="settings_cancel">Откажи</string>
+  <string name="nav_downloads">Преземања</string>
+  <string name="downloads_loading">Се вчитуваат преземањата...</string>
+  <string name="downloads_empty_title">Сè уште нема преземања</string>
+  <string name="downloads_empty_hint">Преземи филмови или епизоди од екраните со детали и тие ќе се појават овде.</string>
+  <string name="downloads_no_thumb">Нема постер</string>
+  <string name="downloads_status_completed">Завршено</string>
+  <string name="downloads_status_downloading">Се презема</string>
+  <string name="downloads_status_failed">Неуспешно</string>
+  <string name="downloads_status_pending">Во чекање</string>
+  <string name="downloads_status_paused">Паузирано</string>
+  <string name="downloads_status_cancelled">Откажано</string>
+  <string name="downloads_item_title">Преземање без наслов</string>
+  <string name="downloads_delete_confirm_title">Избриши преземање</string>
+  <string name="downloads_delete_confirm_msg">Да се избрише %1$s од преземањата?</string>
+  <string name="downloads_delete_confirm_delete">Избриши</string>
+  <string name="downloads_deleted">Преземањето е избришано</string>
+  <string name="download_folder_change">Смени ја папката за преземања</string>
+  <string name="download_folder_default">Стандардна папка за преземања</string>
+  <string name="download_resume">Продолжи</string>
+  <string name="download_delete">Избриши</string>
+  <string name="downloads_resumed">Преземањето е продолжено</string>
+</resources>

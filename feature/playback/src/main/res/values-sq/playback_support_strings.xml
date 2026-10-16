@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Po transmetohet në pajisjen e lidhur.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast nuk disponohet në këtë pajisje.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Ky format transmetimi nuk mbështetet nga Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Transmetimet RTSP dhe RTMP nuk mbështeten për Cast.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Transmetimet e mbrojtura me DRM nuk mbështeten nga Google Cast në këtë aplikacion.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Ky artikull nuk mund të dërgohet në një marrës Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Ky transmetim përdor një URL lokale ose vetëm për pajisjen që Chromecast nuk mund ta arrijë drejtpërdrejt.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Ky transmetim kërkon tituj HTTP ose cookies që Chromecast nuk mund t\'i përdorë drejtpërdrejt.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Ky transmetim kërkon një User-Agent të personalizuar që Chromecast nuk mund ta përdorë drejtpërdrejt.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Ky transmetim kërkon cilësimet proxy të aplikacionit, ndaj Chromecast nuk mund ta përdorë drejtpërdrejt.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Ky transmetim përdor trajtim SSL që Chromecast nuk mund ta përdorë drejtpërdrejt.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Sesioni Cast nuk mund të fillohej.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Marrësi Cast nuk mund ta ngarkonte këtë transmetim.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Marrësi Cast i lidhur nuk është gati për riprodhim.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Zgjedhja e pajisjes Cast u anulua.</string>
+    <string name="add_group_close_cd">Mbyll</string>
+    <string name="player_archive_title">Arkivi i programeve</string>
+    <string name="player_no_archive">Nuk u gjetën programe të arkivuara</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arkiv</string>
+</resources>

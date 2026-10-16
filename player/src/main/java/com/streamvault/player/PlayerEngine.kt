@@ -26,6 +26,9 @@ import kotlinx.coroutines.flow.StateFlow
 const val AUDIO_VIDEO_OFFSET_MIN_MS = -2_000
 const val AUDIO_VIDEO_OFFSET_MAX_MS = 2_000
 const val AUDIO_VIDEO_OFFSET_STEP_MS = 50
+const val SUBTITLE_OFFSET_MIN_MS = -5_000
+const val SUBTITLE_OFFSET_MAX_MS = 5_000
+const val SUBTITLE_OFFSET_STEP_MS = 100
 
 const val PLAYER_TRACK_AUTO_ID = "__auto__"
 
@@ -57,6 +60,7 @@ interface PlayerEngine {
     val playbackSpeed: StateFlow<Float>
     val audioVideoOffsetMs: StateFlow<Int>
     val audioVideoSyncEnabled: StateFlow<Boolean>
+    val subtitleOffsetMs: StateFlow<Int>
     val timeshiftState: StateFlow<LiveTimeshiftState>
     val renderSurfaceType: StateFlow<PlayerRenderSurfaceType>
 
@@ -86,6 +90,7 @@ interface PlayerEngine {
     fun setPlaybackSpeed(speed: Float)
     fun setAudioVideoSyncEnabled(enabled: Boolean)
     fun setAudioVideoOffsetMs(offsetMs: Int)
+    fun setSubtitleOffsetMs(offsetMs: Int)
     fun setAudioOutputPreference(preference: AudioOutputPreference)
     fun setCompatibilityMemoryEnabled(enabled: Boolean)
     fun clearLearnedPlaybackCompatibility()
@@ -95,13 +100,19 @@ interface PlayerEngine {
     fun pauseTimeshift()
     fun resumeTimeshift()
     fun setPreferredAudioLanguage(languageTag: String?)
+    fun setPinnedSubtitleLanguages(languages: List<String>) {}
     fun setVodTrackPreferences(preferences: VodTrackPreferences?)
     fun setSubtitleStyle(style: PlayerSubtitleStyle)
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?)
     fun selectAudioTrack(trackId: String)
     fun selectVideoTrack(trackId: String)
     fun selectSubtitleTrack(trackId: String?) // null to disable subtitles
-    fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String? = null)
+    fun addExternalSubtitle(
+        subtitleUri: android.net.Uri,
+        language: String,
+        label: String? = null,
+        subtitleSource: SubtitleTrackSource? = null
+    )
     fun setInjectedSubtitleText(text: String?)
     fun setLiveAudioTap(tap: LiveAudioTap?)
     fun clearLiveAudioTap() = setLiveAudioTap(null)

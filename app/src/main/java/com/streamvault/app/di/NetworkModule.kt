@@ -10,6 +10,7 @@ import com.streamvault.data.remote.NetworkTimeoutConfig
 import com.streamvault.data.remote.http.DefaultUserAgentInterceptor
 import com.streamvault.data.remote.http.buildAppRequestProfile
 import com.streamvault.data.remote.http.buildAppUserAgent
+import com.streamvault.data.remote.http.buildOpenSubtitlesUserAgent
 import com.streamvault.data.remote.stalker.OkHttpStalkerApiService
 import com.streamvault.data.remote.stalker.StalkerApiService
 import com.streamvault.data.remote.xtream.XtreamApiService
@@ -33,6 +34,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.util.concurrent.TimeUnit.SECONDS
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -40,6 +42,14 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val HTTP_CACHE_MAX_BYTES = 16L * 1024 * 1024
+
+    @Provides
+    @Named("opensubtitlesApiKey")
+    fun provideOpenSubtitlesApiKey(): String = BuildConfig.OPENSUBTITLES_API_KEY
+
+    @Provides
+    @Named("opensubtitlesUserAgent")
+    fun provideOpenSubtitlesUserAgent(): String = buildOpenSubtitlesUserAgent(BuildConfig.VERSION_NAME)
 
     @Provides
     @Singleton

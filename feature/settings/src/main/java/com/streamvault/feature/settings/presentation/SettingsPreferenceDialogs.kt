@@ -74,6 +74,8 @@ public fun SettingsPreferenceDialogs(
     onShowSubtitleTextColorDialogChange: (Boolean) -> Unit,
     showSubtitleBackgroundDialog: Boolean,
     onShowSubtitleBackgroundDialogChange: (Boolean) -> Unit,
+    showPinnedSubtitleLanguagesDialog: Boolean,
+    onShowPinnedSubtitleLanguagesDialogChange: (Boolean) -> Unit,
     showLiveTranslationEndpointDialog: Boolean,
     onShowLiveTranslationEndpointDialogChange: (Boolean) -> Unit,
     showWifiQualityDialog: Boolean,
@@ -263,6 +265,17 @@ public fun SettingsPreferenceDialogs(
         }
     }
 
+    if (showPinnedSubtitleLanguagesDialog) {
+        PinnedSubtitleLanguagesDialog(
+            currentLanguages = uiState.pinnedSubtitleLanguages,
+            onDismiss = { onShowPinnedSubtitleLanguagesDialogChange(false) },
+            onSave = { languages ->
+                viewModel.setPinnedSubtitleLanguages(languages)
+                onShowPinnedSubtitleLanguagesDialogChange(false)
+            }
+        )
+    }
+
     if (showSubtitleSizeDialog) {
         val subtitleSizeOptions = remember { subtitleSizeOptions() }
         PremiumSelectionDialog(
@@ -402,4 +415,10 @@ private fun AppTheme.labelResId(): Int = when (this) {
     AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
     AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
     AppTheme.LIGHT -> R.string.settings_theme_light
+    AppTheme.FOREST -> R.string.settings_theme_forest
+    AppTheme.SUNSET -> R.string.settings_theme_sunset
+    AppTheme.OCEAN -> R.string.settings_theme_ocean
+    AppTheme.ROSE -> R.string.settings_theme_rose
+    AppTheme.AMOLED_BLACK -> R.string.settings_theme_amoled_black
+    AppTheme.VINTAGE -> R.string.settings_theme_vintage
 }

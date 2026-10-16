@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Sumber</string>
+    <string name="vod_subtitle_settings">Tetapan</string>
+    <string name="vod_subtitle_provider">Sari kata penyedia</string>
+    <string name="vod_subtitle_provider_hint">Pilih trek sari kata daripada video ini</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Cari sari kata dalam talian</string>
+    <string name="vod_subtitle_online_unavailable">Carian dalam talian tidak tersedia untuk video ini</string>
+    <string name="vod_subtitle_device_hint">Pilih fail SRT</string>
+    <string name="vod_subtitle_back">Kembali ke sumber</string>
+    <string name="vod_tracks_empty">Tiada trek tersedia dalam video ini</string>
+    <string name="vod_subtitle_preview">Ini ialah sari kata.</string>
+    <string name="vod_subtitle_font_size">Saiz fon</string>
+    <string name="vod_subtitle_background">Kelegapan latar belakang</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% lutsinar · 100% hitam pepejal</string>
+    <string name="vod_subtitle_decrease_setting">Kurangkan %1$s</string>
+    <string name="vod_subtitle_increase_setting">Tingkatkan %1$s</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">StreamVault</string>
+  <string name="welcome_setup_provider">I-setup ang Provider</string>
+  <string name="welcome_setup_later">I-setup mamaya</string>
+  <string name="welcome_loading_title">Inihahanda ang library mo</string>
+  <string name="welcome_loading_subtitle">Binubuksan ang tamang screen para sa device na ito.</string>
+  <string name="sync_section_live">Live</string>
+  <string name="sync_section_vod">VOD</string>
+  <string name="sync_section_series">Serye</string>
+  <string name="sync_items_indexed_format">%1$d item ang inihanda</string>
+  <string name="welcome_tagline">Premium IPTV para sa living room</string>
+  <string name="welcome_subtitle">Mag-relax at manood ng mga live channel, catch-up, pelikula, at serye sa first-party na Android TV experience.</string>
+  <string name="settings_cancel">Kanselahin</string>
+  <string name="nav_downloads">Mga Download</string>
+  <string name="downloads_loading">Naglo-load ng mga download...</string>
+  <string name="downloads_empty_title">Wala pang download</string>
+  <string name="downloads_empty_hint">Mag-download ng pelikula o episode mula sa detail screen at lalabas ang mga ito dito.</string>
+  <string name="downloads_no_thumb">Walang poster</string>
+  <string name="downloads_status_completed">Tapos na</string>
+  <string name="downloads_status_downloading">Dinodownload</string>
+  <string name="downloads_status_failed">Nabigo</string>
+  <string name="downloads_status_pending">Nakabinbin</string>
+  <string name="downloads_status_paused">Naka-pause</string>
+  <string name="downloads_status_cancelled">Kinansela</string>
+  <string name="downloads_item_title">Walang pamagat na download</string>
+  <string name="downloads_delete_confirm_title">Burahin ang download</string>
+  <string name="downloads_delete_confirm_msg">Burahin ang %1$s sa mga download?</string>
+  <string name="downloads_delete_confirm_delete">Burahin</string>
+  <string name="downloads_deleted">Nabura ang download</string>
+  <string name="download_folder_change">Palitan ang download folder</string>
+  <string name="download_folder_default">Default na download folder</string>
+  <string name="download_resume">Ituloy</string>
+  <string name="download_delete">Burahin</string>
+  <string name="downloads_resumed">Na-resume ang download</string>
+</resources>

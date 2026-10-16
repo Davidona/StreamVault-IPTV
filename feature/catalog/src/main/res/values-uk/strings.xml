@@ -32,11 +32,11 @@
   <string name="badge_series">СЕРІАЛ</string>
   <string name="card_live_badge">ПРЯМО ЗАРАЗ</string>
   <string name="card_locked_channel">Заблокований канал</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Транслювати</string>
+  <string name="cast_item_unavailable">Цей елемент не можна надіслати на приймач Cast.</string>
+  <string name="cast_launching">Трансляція...</string>
+  <string name="cast_started">Трансляція на підключений пристрій.</string>
+  <string name="cast_unavailable">Google Cast недоступний на цьому пристрої.</string>
   <string name="category_options_cancel">Скасувати</string>
   <string name="category_options_clear_recent">Очистити всі нещодавні</string>
   <string name="category_options_delete">Видалити групу</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Зробити групою за замовчуванням</string>
   <string name="category_options_unlock">Розблокувати групу</string>
   <string name="category_options_unpin">Відкріпити категорію</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Закріпити</string>
   <string name="category_see_all">Показати все</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Відкріпити</string>
+  <string name="channel_action_hide">Приховати цей канал</string>
   <string name="channel_options_remove_from_recent">Видалити з нещодавніх</string>
   <string name="continue_watching_season_episode">С%1$d Е%2$d</string>
   <string name="continue_watching_title">Продовжити перегляд</string>
   <string name="dashboard_channels_format">%1$d каналів</string>
   <string name="dashboard_continue_watching">Продовжити перегляд</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Продовжити перегляд фільмів</string>
+  <string name="dashboard_continue_watching_series">Продовжити перегляд серіалів</string>
   <string name="dashboard_empty_body">Спочатку додайте плейлист або джерело Xtream. Коли провайдер стане активним, на головному екрані з’являться улюблені канали, продовження перегляду та нові рядки бібліотеки.</string>
   <string name="dashboard_empty_title">Налаштуйте провайдера, щоб відкрити головний екран</string>
   <string name="dashboard_favorite_channels">Улюблені канали</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Улюблені фільми</string>
+  <string name="dashboard_favorite_series">Улюблені серіали</string>
   <string name="dashboard_fresh_movie_pick">Новий вибір фільму</string>
   <string name="dashboard_jump_back_live">Повернутися до прямого ТБ</string>
   <string name="dashboard_library_ready">Ваша бібліотека IPTV готова</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Нещодавні канали</string>
   <string name="dashboard_recent_movies">Нещодавно додані фільми</string>
   <string name="dashboard_recent_series">Нещодавно оновлені серіали</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Рекомендовані фільми</string>
   <string name="dashboard_resume_episode">Продовжити епізод</string>
   <string name="dashboard_resume_episode_format">Продовжити S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Продовжити</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d серіалів</string>
   <string name="dashboard_subtitle">%1$s активний. Поверніться до live, продовжте перегляд або перегляньте нові додавання.</string>
   <string name="dashboard_title">Ваша бібліотека готова</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Найвище оцінені фільми</string>
+  <string name="dashboard_update_allow_installs">Дозволити встановлення</string>
   <string name="dashboard_update_available">Нова версія програми вже кешована й готова до перегляду в Налаштуваннях.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Оновлення завантажено. Дозвольте встановлення з StreamVault і повторіть спробу.</string>
   <string name="dashboard_update_install_ready">Останнє оновлення вже завантажено. Відкрийте Налаштування, щоб установити його.</string>
   <string name="dashboard_update_open_installer">Встановити з Налаштувань</string>
   <string name="dashboard_update_open_settings">Відкрити оновлення</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Відкрити деталі провайдера</string>
   <string name="dashboard_warning_title">Провайдеру потрібна увага</string>
   <string name="dashboard_watch_live">Дивитися наживо</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Завантажити</string>
+  <string name="download_error_no_url">Не вдалося визначити URL потоку для завантаження</string>
+  <string name="download_failed">Помилка завантаження: %1$s</string>
+  <string name="download_started">Завантаження розпочато</string>
   <string name="favorites_add">Додати до вибраного</string>
   <string name="favorites_all_favorites">Усі обрані</string>
   <string name="favorites_cancel">Назад: скасувати</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Утримуйте збережену групу для параметрів</string>
   <string name="library_saved_primary_hint">Повернутися до повної бібліотеки</string>
   <string name="library_sort_title">Сортувати результати</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Повернути до Прямого ефіру</string>
+  <string name="m3u_move_to_movies">Перемістити до фільмів</string>
+  <string name="m3u_move_to_series">Перемістити до серіалів</string>
+  <string name="m3u_organize_items">Упорядкувати елементи M3U</string>
   <string name="movie_detail_back">Назад до бібліотеки</string>
   <string name="movie_detail_cast">Актори:</string>
   <string name="movie_detail_director">Режисер:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Продовжити з %1$s</string>
   <string name="movie_detail_trailer">Трейлер</string>
   <string name="movie_detail_unknown">Невідомо</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Версії</string>
   <string name="movie_loading_details">Завантаження деталей...</string>
   <string name="movie_not_found">Фільм не знайдено</string>
   <string name="movie_plot_fallback">Сюжет недоступний</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Фільми</string>
   <string name="nav_series">Серіали</string>
   <string name="nav_settings">Налаштування</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Скасувати</string>
   <string name="pin_dialog_title">Введіть PIN</string>
   <string name="player_resume">Продовжити</string>
@@ -253,7 +253,7 @@
   <string name="saved_preset_home_shelf">Домашня полиця</string>
   <string name="saved_preset_home_shelf_global_subtitle">Прямі улюблені, доступні для панелі Головна</string>
   <string name="saved_preset_home_shelf_global_title">Улюблене на головній</string>
-  <string name="saved_preset_live_recall">Live Recall</string>
+  <string name="saved_preset_live_recall">Раніше в ефірі</string>
   <string name="saved_preset_subtitle">Перемикайтеся між переглядом далі, нещодавніми прямими, за типом і власними групами.</string>
   <string name="saved_preset_title">Збережені подання</string>
   <string name="saved_preset_watch_next">Дивитися далі</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Видалити з вибраного</string>
   <string name="search_actions_unlock">Розблокувати батьківський контроль</string>
   <string name="search_all">Усе</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Побудувати повний пошуковий індекс один раз</string>
+  <string name="search_catalog_complete">Повний індекс каталогу</string>
+  <string name="search_catalog_downloaded_only">Лише завантажені елементи. Побудуйте повний пошуковий індекс, щоб шукати в усьому каталозі порталу.</string>
+  <string name="search_catalog_indexing">Повний пошуковий індекс будується. Результати поки що часткові.</string>
+  <string name="search_catalog_truncated">Каталог порталу було скорочено. Результати можуть бути неповними.</string>
   <string name="search_clear_history">Очистити</string>
   <string name="search_command_subtitle">Почніть із назви, ключового слова, назви каналу або серіалу. Результати залишаються згрупованими для швидкої навігації з пульта.</string>
   <string name="search_error_subtitle">Деякі результати не вдалося завантажити. Спробуйте ще раз.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Назад до бібліотеки</string>
   <string name="series_detail_play_episode">Відтворити · Сезон %1$d Еп %2$d</string>
   <string name="series_detail_resume">Продовжити · Сезон %1$d Еп %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Версії</string>
   <string name="series_episodes">Епізоди (%1$d)</string>
   <string name="series_incorrect_pin">Невірний PIN</string>
   <string name="series_library_lens_subtitle">Показуйте обране, те, що переглядається, найвищо оцінене та нові серіали по всій бібліотеці.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Частково</string>
   <string name="settings_status_unknown">Невідомо</string>
   <string name="settings_update_install_started">Відкривається інсталятор пакета.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL потоку</string>
+  <string name="stream_url_copied">URL потоку скопійовано</string>
+  <string name="stream_url_copy">Копіювати URL</string>
+  <string name="stream_url_copy_failed">Не вдалося визначити URL потоку</string>
   <string name="vod_category_picker_empty">Відповідних категорій не знайдено.</string>
   <string name="vod_category_picker_search_placeholder">Пошук категорій…</string>
   <string name="vod_category_picker_subtitle">Шукайте за назвою категорії, потім відкрийте відповідну добірку.</string>
@@ -349,6 +349,6 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Оновіть цього провайдера для імпорту фільмів та серіалів до бібліотеки.</string>
   <string name="vod_sync_needed_title">Необхідна синхронізація</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Цей провайдер надає окремі каталоги фільмів і серіалів.</string>
+  <string name="vod_unavailable_title">VOD недоступний</string>
 </resources>

@@ -13,6 +13,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerAudioVideoOffsetDia
 import com.streamvault.feature.playback.player.overlay.PlayerEpisodeSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSpeedSelectionDialog
+import com.streamvault.feature.playback.player.overlay.PlayerSubtitleOffsetDialog
 import com.streamvault.feature.playback.player.overlay.PlayerTrackSelectionDialog
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
@@ -51,6 +52,8 @@ internal fun PlayerControlsModalHost(
     viewModel: PlayerViewModel,
     isInPictureInPictureMode: Boolean,
     showTrackSelection: TrackType?,
+    showSubtitleSearch: Boolean,
+    onlineSubtitleSearchAvailable: Boolean,
     showVariantSelection: Boolean,
     currentChannel: Channel?,
     showSpeedSelection: Boolean,
@@ -58,10 +61,15 @@ internal fun PlayerControlsModalHost(
     showIdleStandbyTimerDialog: Boolean,
     canSaveChannel: Boolean,
     showAudioVideoOffsetDialog: Boolean,
+    showSubtitleOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
     fallbackTitle: String,
     fallbackEpisodeId: Long,
     fallbackSeasonNumber: Int?,
+    onOpenSubtitleSearch: () -> Unit,
+    onOpenSubtitleOffset: () -> Unit,
+    onPickLocalSubtitle: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDismissModal: () -> Unit,
 ) {
     if (showAudioVideoOffsetDialog) {
@@ -102,27 +110,90 @@ internal fun PlayerControlsModalHost(
         val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
         val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
         val stremioSubtitlePicker by viewModel.stremioSubtitlePickerState.collectAsStateWithLifecycle()
-        PlayerTrackSelectionDialog(
-            trackType = showTrackSelection,
-            audioTracks = availableAudioTracks,
-            subtitleTracks = availableSubtitleTracks,
-            videoTracks = availableVideoQualities,
-            liveTranslationAvailable = liveTranslationAvailable,
-            liveTranslationActive = liveTranslationActive,
-            stremioSubtitlePicker = stremioSubtitlePicker,
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
+        if (viewModel.currentContentType != com.streamvault.domain.model.ContentType.LIVE &&
+            showTrackSelection != TrackType.VIDEO) {
+            val textScale by viewModel.subtitleTextScale.collectAsStateWithLifecycle()
+            val backgroundColor by viewModel.subtitleBackgroundColor.collectAsStateWithLifecycle()
+            VodTrackSelectionSheet(
+                trackType = showTrackSelection,
+                tracks = if (showTrackSelection == TrackType.TEXT) availableSubtitleTracks else availableAudioTracks,
+                offsetMs = subtitleOffsetMs,
+                textScale = textScale,
+                backgroundColor = backgroundColor,
+                onlineAvailable = onlineSubtitleSearchAvailable,
+                stremioSubtitlePicker = stremioSubtitlePicker,
+                onDismiss = onDismissModal,
+                onSelectTrack = { id ->
+                    if (showTrackSelection == TrackType.TEXT) {
+                        viewModel.deactivateLiveTranslation()
+                        viewModel.selectSubtitleTrack(id)
+                    } else if (id != null) viewModel.selectAudioTrack(id)
+                },
+                onSearchOnline = onOpenSubtitleSearch,
+                onLoadLocal = { onDismissModal(); onPickLocalSubtitle() },
+                onAdjustOffset = viewModel::adjustSubtitleOffset,
+                onResetOffset = viewModel::resetSubtitleOffset,
+                onSetTextScale = viewModel::setSubtitleTextScale,
+                onSetOpacity = viewModel::setSubtitleBackgroundOpacity,
+                onSelectStremioSubtitle = viewModel::selectStremioSubtitle,
+                onRetryStremioSubtitles = viewModel::retryStremioAddonSubtitles,
+            )
+        } else {
+            PlayerTrackSelectionDialog(
+                trackType = showTrackSelection,
+                audioTracks = availableAudioTracks,
+                subtitleTracks = availableSubtitleTracks,
+                videoTracks = availableVideoQualities,
+                liveTranslationAvailable = liveTranslationAvailable,
+                liveTranslationActive = liveTranslationActive,
+                stremioSubtitlePicker = stremioSubtitlePicker,
+                onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
+                subtitleOffsetMs = subtitleOffsetMs,
+                onDismiss = onDismissModal,
+                onSelectAudio = viewModel::selectAudioTrack,
+                onSelectVideo = viewModel::selectVideoQuality,
+                onSelectSubtitle = { trackId ->
+                    viewModel.deactivateLiveTranslation()
+                    viewModel.selectSubtitleTrack(trackId)
+                },
+                onSelectLiveTranslation = {
+                    viewModel.selectSubtitleTrack(null)
+                    viewModel.activateLiveTranslation()
+                },
+                onSelectStremioSubtitle = viewModel::selectStremioSubtitle,
+                onRetryStremioSubtitles = viewModel::retryStremioAddonSubtitles,
+                onSearchOnlineSubtitles = onOpenSubtitleSearch,
+                onOpenSubtitleOffset = onOpenSubtitleOffset,
+                onLoadLocalSubtitle = {
+                    onDismissModal()
+                    onPickLocalSubtitle()
+                },
+            )
+        }
+    }
+    if (!isInPictureInPictureMode && showSubtitleOffsetDialog) {
+        val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
+        PlayerSubtitleOffsetDialog(
+            visible = true,
+            offsetMs = subtitleOffsetMs,
             onDismiss = onDismissModal,
-            onSelectAudio = viewModel::selectAudioTrack,
-            onSelectVideo = viewModel::selectVideoQuality,
-            onSelectSubtitle = { trackId ->
-                viewModel.deactivateLiveTranslation()
-                viewModel.selectSubtitleTrack(trackId)
+            onAdjust = viewModel::adjustSubtitleOffset,
+            onReset = viewModel::resetSubtitleOffset
+        )
+    }
+    if (!isInPictureInPictureMode && showSubtitleSearch) {
+        PlayerExternalSubtitleSearchDialog(
+            viewModel = viewModel,
+            onDismiss = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
             },
-            onSelectLiveTranslation = {
-                viewModel.selectSubtitleTrack(null)
-                viewModel.activateLiveTranslation()
-            },
-            onSelectStremioSubtitle = viewModel::selectStremioSubtitle,
-            onRetryStremioSubtitles = viewModel::retryStremioAddonSubtitles
+            onOpenSettings = {
+                viewModel.cancelExternalSubtitleSearch()
+                onDismissModal()
+                onOpenSettings()
+            }
         )
     }
     if (!isInPictureInPictureMode && showVariantSelection) {

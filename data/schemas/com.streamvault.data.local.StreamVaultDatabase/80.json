@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 80,
-    "identityHash": "47af036c49883dad3d96a09b0574b12a",
+    "identityHash": "bf6f92b8689ef564643e5c397acc582f",
     "entities": [
       {
         "tableName": "providers",
@@ -1297,14 +1297,15 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_episodes_provider_id` ON `${TABLE_NAME}` (`provider_id`)"
           },
           {
-            "name": "index_episodes_provider_id_episode_id",
+            "name": "index_episodes_provider_id_series_id_episode_id",
             "unique": true,
             "columnNames": [
               "provider_id",
+              "series_id",
               "episode_id"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `episode_id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_episodes_provider_id_series_id_episode_id` ON `${TABLE_NAME}` (`provider_id`, `series_id`, `episode_id`)"
           }
         ],
         "foreignKeys": [
@@ -5335,7 +5336,7 @@
       },
       {
         "tableName": "xtream_live_onboarding_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `provider_type` TEXT NOT NULL, `content_type` TEXT NOT NULL, `phase` TEXT NOT NULL, `staged_session_id` INTEGER, `import_strategy` TEXT, `next_category_index` INTEGER NOT NULL, `accepted_row_count` INTEGER NOT NULL, `staged_flush_count` INTEGER NOT NULL, `sync_profile_tier` TEXT, `sync_profile_batch_size` INTEGER NOT NULL, `sync_profile_strategy` TEXT, `sync_profile_low_memory` INTEGER NOT NULL, `sync_profile_memory_class_mb` INTEGER NOT NULL, `sync_profile_available_mem_mb` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `completed_at` INTEGER, PRIMARY KEY(`provider_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`provider_id` INTEGER NOT NULL, `provider_type` TEXT NOT NULL, `content_type` TEXT NOT NULL, `phase` TEXT NOT NULL, `staged_session_id` INTEGER, `import_strategy` TEXT, `next_category_index` INTEGER NOT NULL, `accepted_row_count` INTEGER NOT NULL, `staged_flush_count` INTEGER NOT NULL, `sealed_session_id` INTEGER, `sealed_row_count` INTEGER NOT NULL DEFAULT 0, `sealed_configuration_generation` INTEGER, `sealed_mapping_profile` TEXT, `sync_profile_tier` TEXT, `sync_profile_batch_size` INTEGER NOT NULL, `sync_profile_strategy` TEXT, `sync_profile_low_memory` INTEGER NOT NULL, `sync_profile_memory_class_mb` INTEGER NOT NULL, `sync_profile_available_mem_mb` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `completed_at` INTEGER, PRIMARY KEY(`provider_id`), FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "providerId",
@@ -5388,6 +5389,28 @@
             "columnName": "staged_flush_count",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "sealedSessionId",
+            "columnName": "sealed_session_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sealedRowCount",
+            "columnName": "sealed_row_count",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "sealedConfigurationGeneration",
+            "columnName": "sealed_configuration_generation",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sealedMappingProfile",
+            "columnName": "sealed_mapping_profile",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "syncProfileTier",
@@ -7089,181 +7112,11 @@
             ]
           }
         ]
-      },
-      {
-        "tableName": "stremio_addons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `install_url` TEXT NOT NULL, `manifest_id` TEXT NOT NULL, `name` TEXT NOT NULL, `version` TEXT NOT NULL, `manifest_json` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `sort_order` INTEGER NOT NULL, `catalog_settings_json` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "installUrl",
-            "columnName": "install_url",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestId",
-            "columnName": "manifest_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "version",
-            "columnName": "version",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestJson",
-            "columnName": "manifest_json",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "enabled",
-            "columnName": "enabled",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "sortOrder",
-            "columnName": "sort_order",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "catalogSettingsJson",
-            "columnName": "catalog_settings_json",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "created_at",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAt",
-            "columnName": "updated_at",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_stremio_addons_install_url",
-            "unique": true,
-            "columnNames": [
-              "install_url"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_stremio_addons_install_url` ON `${TABLE_NAME}` (`install_url`)"
-          }
-        ]
-      },
-      {
-        "tableName": "stremio_playback_history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_key` TEXT NOT NULL, `media_type` TEXT NOT NULL, `exact_video_id` TEXT NOT NULL, `parent_series_id` TEXT, `title` TEXT NOT NULL, `poster_url` TEXT, `resume_position_ms` INTEGER NOT NULL, `total_duration_ms` INTEGER NOT NULL, `is_watched` INTEGER NOT NULL, `last_watched_at` INTEGER NOT NULL, `catalog_origin_key` TEXT NOT NULL, `stream_origin_key_hint` TEXT, PRIMARY KEY(`content_key`))",
-        "fields": [
-          {
-            "fieldPath": "contentKey",
-            "columnName": "content_key",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "mediaType",
-            "columnName": "media_type",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "exactVideoId",
-            "columnName": "exact_video_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "parentSeriesId",
-            "columnName": "parent_series_id",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "posterUrl",
-            "columnName": "poster_url",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "resumePositionMs",
-            "columnName": "resume_position_ms",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "totalDurationMs",
-            "columnName": "total_duration_ms",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isWatched",
-            "columnName": "is_watched",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastWatchedAt",
-            "columnName": "last_watched_at",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "catalogOriginKey",
-            "columnName": "catalog_origin_key",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "streamOriginKeyHint",
-            "columnName": "stream_origin_key_hint",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "content_key"
-          ]
-        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '47af036c49883dad3d96a09b0574b12a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bf6f92b8689ef564643e5c397acc582f')"
     ]
   }
 }

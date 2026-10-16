@@ -70,9 +70,9 @@ public fun CombinedM3uProfilesCard(
     targetFocusModifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-        modifier = Modifier.fillMaxWidth()
+        shape = SettingsDetailShapes.Panel,
+        colors = SurfaceDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier.fillMaxWidth().settingsDetailPanel()
     ) {
         Column(
             modifier = Modifier
