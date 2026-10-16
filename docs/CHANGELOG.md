@@ -6,6 +6,7 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added six selectable UI themes: Forest, Sunset, Ocean, Rose, AMOLED Black, and Vintage.
 - Added OpenSubtitles search and subtitle downloads for VOD playback.
 - Added loading local SRT subtitle files from the device during VOD playback.
 - Added VOD subtitle settings for delay adjustment and reset, font size, and black background transparency, with an appearance preview and saved size and background preferences.
