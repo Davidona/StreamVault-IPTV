@@ -33,6 +33,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.feature.system.navigation.SystemRoutePatterns
 import com.streamvault.feature.system.navigation.registerSystemGraph
+import com.streamvault.feature.stremio.api.StremioScaffoldContent
+import com.streamvault.feature.stremio.navigation.registerStremioGraph
 
 @Composable
 internal fun AppNavHost(
@@ -57,6 +59,7 @@ internal fun AppNavHost(
             actions = actions,
             startupReady = startupReady,
             onStartupNavigationRequested = onStartupNavigationRequested,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
             scaffold = appSystemScaffold(onTopLevelDestinationRequested),
         )
         registerProviderGraph(
@@ -81,6 +84,12 @@ internal fun AppNavHost(
             }
         )
         registerLiveGraph(actions, onTopLevelDestinationRequested)
+        registerStremioGraph(
+            navController = navController,
+            actions = actions,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
+            scaffold = appStremioScaffold(onTopLevelDestinationRequested)
+        )
         registerCatalogGraph(
             actions = actions,
             platformHost = catalogPlatformHost,
@@ -186,6 +195,22 @@ private fun appSystemScaffold(
         title = title,
         subtitle = subtitle,
         navigationChrome = AppNavigationChrome.TopBar,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content,
+    )
+}
+
+private fun appStremioScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
+): StremioScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, topBarVisible, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(destination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = AppNavigationChrome.TopBar,
+        topBarVisible = topBarVisible,
         compactHeader = compactHeader,
         showScreenHeader = showScreenHeader,
         content = content,

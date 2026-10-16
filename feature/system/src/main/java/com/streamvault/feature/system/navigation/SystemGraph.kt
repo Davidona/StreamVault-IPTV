@@ -15,6 +15,7 @@ fun NavGraphBuilder.registerSystemGraph(
     actions: NavigationActions,
     startupReady: Boolean,
     onStartupNavigationRequested: (AppDestination) -> Unit,
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
     scaffold: SystemScaffoldContent,
 ) {
     composable(SystemRoutePatterns.WELCOME) {
@@ -35,6 +36,9 @@ fun NavGraphBuilder.registerSystemGraph(
         DownloadsScreen(scaffold = scaffold)
     }
     composable(SystemRoutePatterns.PLUGINS) {
-        PluginsScreen(scaffold = scaffold)
+        PluginsScreen(
+            scaffold = scaffold,
+            onNavigateToStremioAddons = { onTopLevelDestinationRequested(AppDestination.Addons) }
+        )
     }
 }

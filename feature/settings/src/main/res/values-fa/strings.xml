@@ -855,4 +855,14 @@
     <string name="settings_ethernet_quality_bitrate_cap">بیشترین نرخ بیت ویدیو در Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">بدون محدودیت اضافی</string>
     <string name="settings_recording_failure_output_too_slow">مقصد ضبط نتوانست با پخش زنده همگام بماند.</string>
+    <string name="settings_hide_stremio_addons">پنهان کردن افزونه‌های سازگار با Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">مرور، نصب و تاریخچهٔ افزونه‌ها را پنهان می‌کند. افزونه‌های نصب‌شده حفظ می‌شوند.</string>
+    <string name="nav_addons">افزونه‌های Stremio</string>
+    <string name="nav_extensions">افزونه‌ها</string>
+    <string name="settings_theme_forest">جنگل</string>
+    <string name="settings_theme_sunset">غروب</string>
+    <string name="settings_theme_ocean">اقیانوس</string>
+    <string name="settings_theme_rose">رز</string>
+    <string name="settings_theme_amoled_black">مشکی AMOLED</string>
+    <string name="settings_theme_vintage">وینتیج</string>
 </resources>

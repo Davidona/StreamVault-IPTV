@@ -288,4 +288,9 @@
     <string name="downloads_delete_confirm">このダウンロードを削除しますか？</string>
     <string name="download_play_local">再生</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">トレントの再生を開始できませんでした。もう一度お試しください。</string>
+    <string name="torrent_cache_capacity_reached">トレント再生が一時ストレージの上限に達しました。キャッシュを消去するか空き容量を確保して、もう一度お試しください。</string>
+    <string name="torrent_storage_check_failed">空き容量を確認できませんでした。安全にトレント再生を続けられません。</string>
+    <string name="nav_addons">Stremioアドオン</string>
+    <string name="nav_extensions">拡張機能</string>
 </resources>

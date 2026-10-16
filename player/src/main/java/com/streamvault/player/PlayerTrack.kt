@@ -11,10 +11,11 @@ data class PlayerTrack(
     val videoBitrateBps: Long? = null,
 )
 
-enum class SubtitleTrackSource { PROVIDER, ONLINE, DEVICE }
+enum class SubtitleTrackSource { PROVIDER, ONLINE, DEVICE, STREMIO }
 
 internal const val ONLINE_SUBTITLE_TRACK_ID = "streamvault-online-subtitle"
 internal const val DEVICE_SUBTITLE_TRACK_ID = "streamvault-device-subtitle"
+internal const val STREMIO_SUBTITLE_TRACK_ID = "streamvault-stremio-subtitle"
 
 enum class TrackType {
     AUDIO,

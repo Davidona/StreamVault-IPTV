@@ -17,6 +17,7 @@ sealed interface AppDestination : Serializable {
     ) : AppDestination
     data class Settings(val backupUri: String? = null) : AppDestination
     data object Plugins : AppDestination
+    data object Addons : AppDestination
     data class Search(val query: String? = null) : AppDestination
     data class ProviderSetup(
         val providerId: Long? = null,

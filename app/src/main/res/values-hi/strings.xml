@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">होम</string>
     <string name="nav_live_tv">लाइव TV</string>
     <string name="nav_movies">फ़िल्में</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">प्लगइन</string>
     <string name="nav_close_app">ऐप बंद करें</string>
 
-    
+
     <string name="welcome_enter_app">ऐप खोलें</string>
     <string name="welcome_manage_providers">प्रदाता प्रबंधित करें</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">एकीकृत प्लेयर ओवरले, गाइड एक्सेस और सहेजी गई सामग्री</string>
     <string name="welcome_manage_hint">प्रदाता बदलें, मेटाडेटा रीफ़्रेश करें या नया स्रोत जोड़ें।</string>
 
-    
+
     <string name="hidden_categories_dialog_title">छिपी श्रेणियाँ</string>
     <string name="hidden_categories_dialog_subtitle">बहाल करने के लिए इन्हें चुनें।</string>
     <string name="hidden_categories_dialog_unhide_all">सभी दिखाएँ</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">हटाएँ</string>
     <string name="home_delete_group_cancel">रद्द करें</string>
 
-    
+
     <string name="dashboard_customize_home">होम को अनुकूलित करें</string>
     <string name="dashboard_customize_home_subtitle">चुनें कि यहाँ कौन-सी शेल्फ़ दिखें, और पंक्तियाँ जोड़ें व कभी भी क्रम बदलें।</string>
     <string name="dashboard_customize_home_action">अनुकूलित करें</string>
 
-    
+
 
     <string name="category_options_set_default">डिफ़ॉल्ट समूह के रूप में सेट करें</string>
     <string name="category_options_rename">समूह का नाम बदलें</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">अनुपलब्ध</string>
     <string name="live_source_empty_short">खाली</string>
 
-    
+
     <string name="movies_shell_subtitle">मौजूदा प्रदाता संदर्भ छोड़े बिना चुनिंदा शेल्फ़, सहेजे गए समूह और पूरी लाइब्रेरी ब्राउज़िंग।</string>
     <string name="movies_all_categories">सभी श्रेणियाँ</string>
     <string name="movies_search_launch_title">फ़िल्म लाइब्रेरी में खोजें</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">पूरी लाइब्रेरी दोबारा बनाए बिना चुनी गई फ़िल्म श्रेणी को परिष्कृत करें।</string>
     <string name="movies_reorder_title">%1$s का क्रम बदला जा रहा है</string>
 
-    
+
     <string name="series_shell_subtitle">बड़ी प्रदाता लाइब्रेरी के लिए चुनिंदा शेल्फ़, सहेजे गए समूह और पेज-आधारित सीरीज़ ब्राउज़िंग।</string>
     <string name="series_all_categories">सभी श्रेणियाँ</string>
     <string name="series_search_launch_title">सीरीज़ लाइब्रेरी में खोजें</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">हाल ही में अपडेट</string>
     <string name="library_sort_rating">रेटिंग</string>
 
-    
+
     <string name="settings_parental_subtitle">टीवी-अनुकूल नियंत्रणों से वयस्क या संवेदनशील सामग्री की सुरक्षा करें।</string>
     <string name="settings_parental_groups_title">संरक्षित समूह</string>
     <string name="settings_parental_groups_hint">सक्रिय प्रदाता के लिए श्रेणियाँ लॉक या अनलॉक करें।</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">स्थानीय लाइव DVR कार्य, स्टोरेज और शेड्यूल की गई रिकॉर्डिंग प्रबंधित करें।</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">आगे देखें</string>
     <string name="tv_channel_continue_watching_title">देखना जारी रखें</string>
     <string name="tv_channel_continue_watching_description">हाल ही में शुरू किए टाइटल फिर से चलाएँ</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">नई सीरीज़</string>
     <string name="tv_channel_fresh_series_description">%1$s से हाल ही में अपडेट हुई सीरीज़</string>
 
-    
+
     <string name="search_title">खोज</string>
     <string name="parental_group_shell_subtitle">प्रीमियम सेटिंग्स शेल छोड़े बिना संरक्षित लाइव, फ़िल्म और सीरीज़ समूह देखें।</string>
     <string name="search_command_title">कमांड खोज</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">अब चल रहा है %1$s</string>
     <string name="a11y_channel_with_number">चैनल %1$d, %2$s</string>
 
-    
 
-    
+
+
     <string name="player_no_external_player">कोई बाहरी प्लेयर इंस्टॉल नहीं है</string>
     <string name="player_unsafe_stream_url">यह स्ट्रीम बाहरी प्लेयर में नहीं खोली जा सकती</string>
     <string name="player_external_launch_failed">बाहरी प्लेयर शुरू नहीं हो सका</string>
@@ -267,26 +267,26 @@
     <string name="epg_provider_troubleshooting_missing_template">रीप्ले विफल हो सकता है क्योंकि प्रदाता ने उपयोग योग्य रीप्ले टेम्पलेट के बिना कैच-अप समर्थन का दावा किया है।</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">रीप्ले विफल हो सकता है क्योंकि प्रदाता ने रीप्ले स्ट्रीम पहचानकर्ता उपलब्ध नहीं कराया।</string>
 
-    
+
     <string name="parental_group_title">संरक्षित समूह</string>
     <string name="parental_group_search">श्रेणियाँ खोजें...</string>
     <string name="player_live_timeshift_ready">टाइमशिफ़्ट तैयार।</string>
     <string name="player_live_timeshift_failed">इस स्ट्रीम के लिए स्थानीय लाइव रिवाइंड उपलब्ध नहीं है।</string>
 
-    
+
     <string name="multiview_add_to_split">स्प्लिट स्क्रीन में जोड़ें</string>
     <string name="multiview_queued">स्प्लिट स्क्रीन में</string>
 
-    
+
     <string name="settings_privacy_subtitle">वॉच इतिहास और गुप्त मोड प्रबंधित करें।</string>
 
-    
+
     <string name="action_done">हो गया</string>
     <string name="action_delete">हटाएँ</string>
     <string name="action_clear">साफ़ करें</string>
     <string name="action_space">स्पेस</string>
 
-    
+
     <string name="label_provider">प्रदाता</string>
     <string name="label_selected">चयनित</string>
     <string name="label_no_schedule">कोई शेड्यूल जानकारी नहीं</string>
@@ -299,14 +299,14 @@
     <string name="badge_moving">MOVING</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
     <string name="favorites_content_type_movie">फ़िल्म</string>
 
-    
 
-    
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">StreamVault चैनल स्कैन हो रहे हैं</string>
     <string name="tv_input_setup_success_title">लाइव TV तैयार है</string>
@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">यह डाउनलोड हटाएँ?</string>
     <string name="download_play_local">चलाएँ</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">टोरेंट प्लेबैक शुरू नहीं हो सका। कृपया फिर से कोशिश करें।</string>
+    <string name="torrent_cache_capacity_reached">टोरेंट प्लेबैक अस्थायी स्टोरेज सीमा तक पहुँच गया है। कैश साफ़ करें या जगह खाली करके फिर कोशिश करें।</string>
+    <string name="torrent_storage_check_failed">उपलब्ध स्टोरेज की जाँच नहीं हो सकी। टोरेंट प्लेबैक सुरक्षित रूप से जारी नहीं रह सकता।</string>
+    <string name="nav_addons">Stremio ऐड-ऑन</string>
+    <string name="nav_extensions">एक्सटेंशन</string>
 </resources>

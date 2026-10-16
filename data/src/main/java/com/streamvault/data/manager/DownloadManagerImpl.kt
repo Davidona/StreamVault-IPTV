@@ -22,8 +22,10 @@ import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadRequest
 import com.streamvault.domain.model.DownloadStatus
+import com.streamvault.domain.model.DownloadSourceType
 import com.streamvault.domain.model.DownloadStorageConfig
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.manager.TorrentDownloadStreamResolver
 import com.streamvault.domain.repository.DownloadManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -63,6 +65,7 @@ class DownloadManagerImpl @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     private val okHttpClient: OkHttpClient,
     private val xtreamStreamUrlResolver: XtreamStreamUrlResolver,
+    private val torrentDownloadStreamResolver: TorrentDownloadStreamResolver,
     private val applicationScope: CoroutineScope
 ) : DownloadManager {
 
@@ -380,7 +383,7 @@ class DownloadManagerImpl @Inject constructor(
             }
             val resolvedStream = resolveFreshDownloadStream(current)
             val requestUrl = resolvedStream?.url?.takeIf { it.isNotBlank() } ?: current.streamUrl
-            if (requestUrl != current.streamUrl) {
+            if (current.sourceType == DownloadSourceType.PROVIDER.name && requestUrl != current.streamUrl) {
                 current = current.copy(streamUrl = requestUrl)
                 downloadDao.update(current)
             }
@@ -630,17 +633,30 @@ class DownloadManagerImpl @Inject constructor(
     }
 
     private suspend fun resolveFreshDownloadStream(entity: DownloadEntity): ResolvedStreamUrl? {
-        val logicalUrl = entity.sourceStreamUrl?.takeIf { it.isNotBlank() } ?: entity.streamUrl
-        return runSuspendCatching {
-            xtreamStreamUrlResolver.resolveAndCommitMetadata(
-                url = logicalUrl,
-                fallbackProviderId = entity.providerId,
-                fallbackStreamId = entity.sourceStreamId ?: entity.contentId,
-                fallbackContentType = entity.contentType.toPlaybackContentType(),
-                fallbackContainerExtension = entity.containerExtension,
-                preferStableUrl = true
+        return when (runCatching { DownloadSourceType.valueOf(entity.sourceType) }
+            .getOrDefault(DownloadSourceType.PROVIDER)
+        ) {
+            DownloadSourceType.PROVIDER -> {
+                val logicalUrl = entity.sourceStreamUrl?.takeIf { it.isNotBlank() } ?: entity.streamUrl
+                runSuspendCatching {
+                    xtreamStreamUrlResolver.resolveAndCommitMetadata(
+                        url = logicalUrl,
+                        fallbackProviderId = entity.providerId,
+                        fallbackStreamId = entity.sourceStreamId ?: entity.contentId,
+                        fallbackContentType = entity.contentType.toPlaybackContentType(),
+                        fallbackContainerExtension = entity.containerExtension,
+                        preferStableUrl = true
+                    )
+                }.getOrNull()
+            }
+            DownloadSourceType.DIRECT_URL -> ResolvedStreamUrl(
+                url = entity.streamUrl,
+                headers = entity.requestHeaders()
             )
-        }.getOrNull()
+            DownloadSourceType.TORRENT_MAGNET -> ResolvedStreamUrl(
+                url = torrentDownloadStreamResolver.resolve(entity.streamUrl)
+            )
+        }
     }
 
     private fun DownloadContentType.toPlaybackContentType(): ContentType = when (this) {

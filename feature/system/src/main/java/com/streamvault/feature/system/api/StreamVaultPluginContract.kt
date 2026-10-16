@@ -25,6 +25,7 @@ object StreamVaultPluginContract {
     const val MSG_GET_CONFIGURATION_VALUES = 8
     const val MSG_SET_CONFIGURATION_VALUES = 9
     const val MSG_RUN_CONFIGURATION_ACTION = 10
+    const val MSG_STOP_PLAYBACK = 11
 
     const val KEY_API_VERSION = "api_version"
     const val KEY_REQUEST_ID = "request_id"

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">خانه</string>
     <string name="nav_live_tv">پخش زنده</string>
     <string name="nav_movies">فیلم‌ها</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">افزونه‌ها</string>
     <string name="nav_close_app">بستن برنامه</string>
 
-    
+
     <string name="welcome_enter_app">ورود به برنامه</string>
     <string name="welcome_manage_providers">مدیریت ارائه‌دهندگان</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">پوسته‌های یکپارچه پخش‌کننده، دسترسی به راهنما و محتوای ذخیره‌شده</string>
     <string name="welcome_manage_hint">ارائه‌دهنده را عوض کنید، فراداده را تازه کنید یا منبع جدیدی اضافه کنید.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">دسته‌های پنهان</string>
     <string name="hidden_categories_dialog_subtitle">مواردی را که می‌خواهید بازگردانید انتخاب کنید.</string>
     <string name="hidden_categories_dialog_unhide_all">نمایش همه</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">حذف</string>
     <string name="home_delete_group_cancel">لغو</string>
 
-    
+
     <string name="dashboard_customize_home">سفارشی‌سازی خانه</string>
     <string name="dashboard_customize_home_subtitle">انتخاب کنید کدام قفسه‌ها اینجا نمایش داده شوند، ردیف‌های بیشتری اضافه کنید و هر زمان ترتیبشان را تغییر دهید.</string>
     <string name="dashboard_customize_home_action">سفارشی‌سازی</string>
 
-    
+
 
     <string name="category_options_set_default">تعیین به‌عنوان گروه پیش‌فرض</string>
     <string name="category_options_rename">تغییر نام گروه</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">در دسترس نیست</string>
     <string name="live_source_empty_short">خالی</string>
 
-    
+
     <string name="movies_shell_subtitle">قفسه‌های منتخب، گروه‌های ذخیره‌شده و مرور کامل کتابخانه بدون خروج از بافت ارائه‌دهنده فعلی.</string>
     <string name="movies_all_categories">همه دسته‌ها</string>
     <string name="movies_search_launch_title">جست‌وجو در کتابخانه فیلم</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">دسته فیلم انتخاب‌شده را بدون بازسازی کل کتابخانه محدود کنید.</string>
     <string name="movies_reorder_title">مرتب‌سازی %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">قفسه‌های ویژه، گروه‌های ذخیره‌شده و مرور صفحه‌بندی‌شده سریال‌ها، تنظیم‌شده برای کتابخانه‌های بزرگ ارائه‌دهندگان.</string>
     <string name="series_all_categories">همه دسته‌ها</string>
     <string name="series_search_launch_title">جست‌وجو در کتابخانه سریال</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">اخیراً به‌روزرسانی‌شده</string>
     <string name="library_sort_rating">امتیاز</string>
 
-    
+
     <string name="settings_parental_subtitle">محتوای بزرگسال یا حساس را با کنترل‌های مناسب تلویزیون محافظت کنید.</string>
     <string name="settings_parental_groups_title">گروه‌های محافظت‌شده</string>
     <string name="settings_parental_groups_hint">دسته‌ها را برای ارائه‌دهنده فعال قفل یا باز کنید.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">مدیریت کارهای DVR زنده محلی، فضای ذخیره‌سازی و ضبط‌های زمان‌بندی‌شده.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">تماشای بعدی</string>
     <string name="tv_channel_continue_watching_title">ادامه تماشا</string>
     <string name="tv_channel_continue_watching_description">از سرگیری عنوان‌هایی که اخیراً شروع کرده‌اید</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">سریال‌های تازه</string>
     <string name="tv_channel_fresh_series_description">سریال‌های اخیراً به‌روزرسانی‌شده از %1$s</string>
 
-    
+
     <string name="search_title">جست‌وجو</string>
     <string name="parental_group_shell_subtitle">گروه‌های زنده، فیلم و سریال محافظت‌شده را بدون خروج از پوسته تنظیمات ویژه بررسی کنید.</string>
     <string name="search_command_title">جست‌وجوی فرمان</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">در حال پخش %1$s</string>
     <string name="a11y_channel_with_number">کانال %1$d، %2$s</string>
 
-    
 
-    
+
+
 
     <string name="player_no_external_player">پخش‌کننده خارجی نصب نشده است</string>
     <string name="player_unsafe_stream_url">این جریان را نمی‌توان در پخش‌کننده خارجی باز کرد</string>
@@ -268,26 +268,26 @@
     <string name="epg_provider_troubleshooting_missing_template">پخش مجدد ممکن است شکست بخورد زیرا ارائه‌دهنده پشتیبانی پخش تأخیری را بدون الگوی پخش مجدد قابل‌استفاده ارائه کرده است.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">پخش مجدد ممکن است شکست بخورد زیرا ارائه‌دهنده شناسه جریان پخش مجدد را ارائه نکرده است.</string>
 
-    
+
     <string name="parental_group_title">گروه‌های محافظت‌شده</string>
     <string name="parental_group_search">جست‌وجوی دسته‌ها...</string>
     <string name="player_live_timeshift_ready">پخش تأخیری آماده است.</string>
     <string name="player_live_timeshift_failed">عقب‌بردن پخش زنده محلی برای این جریان در دسترس نیست.</string>
 
-    
+
     <string name="multiview_add_to_split">افزودن به صفحه تقسیم‌شده</string>
     <string name="multiview_queued">در صفحه تقسیم‌شده</string>
 
-    
+
     <string name="settings_privacy_subtitle">مدیریت تاریخچه تماشا و حالت ناشناس.</string>
 
-    
+
     <string name="action_done">انجام شد</string>
     <string name="action_delete">حذف</string>
     <string name="action_clear">پاک کردن</string>
     <string name="action_space">فاصله</string>
 
-    
+
     <string name="label_provider">ارائه‌دهنده</string>
     <string name="label_selected">انتخاب‌شده</string>
     <string name="label_no_schedule">اطلاعات برنامه موجود نیست</string>
@@ -300,15 +300,15 @@
     <string name="badge_moving">MOVING</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
 
     <string name="favorites_content_type_movie">فیلم</string>
 
-    
 
-    
+
+
 
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">اسکن کانال‌های StreamVault</string>
@@ -343,4 +343,9 @@
     <string name="downloads_delete_confirm">این دانلود حذف شود؟</string>
     <string name="download_play_local">پخش</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">پخش تورنت شروع نشد. لطفاً دوباره امتحان کنید.</string>
+    <string name="torrent_cache_capacity_reached">پخش تورنت به محدودیت فضای موقت رسیده است. حافظه را پاک کنید یا فضا آزاد کنید و دوباره تلاش کنید.</string>
+    <string name="torrent_storage_check_failed">بررسی فضای ذخیره‌سازی ممکن نشد و پخش تورنت نمی‌تواند با اطمینان ادامه یابد.</string>
+    <string name="nav_addons">افزونه‌های Stremio</string>
+    <string name="nav_extensions">افزونه‌ها</string>
 </resources>

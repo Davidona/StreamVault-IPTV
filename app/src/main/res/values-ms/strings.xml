@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">Utama</string>
     <string name="nav_live_tv">TV Langsung</string>
     <string name="nav_movies">Filem</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">Pemalam</string>
     <string name="nav_close_app">Tutup apl</string>
 
-    
+
     <string name="welcome_enter_app">Masuk Apl</string>
     <string name="welcome_manage_providers">Urus Penyedia</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">Overlay pemain bersatu, akses panduan dan kandungan tersimpan</string>
     <string name="welcome_manage_hint">Tukar penyedia, muat semula metadata atau tambah sumber baharu.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">Kategori tersembunyi</string>
     <string name="hidden_categories_dialog_subtitle">Pilih yang ingin dipulihkan.</string>
     <string name="hidden_categories_dialog_unhide_all">Nyahsembunyi semua</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">Padam</string>
     <string name="home_delete_group_cancel">Batal</string>
 
-    
+
     <string name="dashboard_customize_home">Sesuaikan Utama</string>
     <string name="dashboard_customize_home_subtitle">Pilih rak yang dipaparkan di sini, tambah baris baharu dan susun semula pada bila-bila masa.</string>
     <string name="dashboard_customize_home_action">Sesuaikan</string>
 
-    
+
 
     <string name="category_options_set_default">Tetapkan sebagai Kumpulan Lalai</string>
     <string name="category_options_rename">Namakan Semula Kumpulan</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">Tidak tersedia</string>
     <string name="live_source_empty_short">Kosong</string>
 
-    
+
     <string name="movies_shell_subtitle">Rak terpilih, kumpulan tersimpan dan pelayaran pustaka penuh tanpa meninggalkan konteks penyedia semasa.</string>
     <string name="movies_all_categories">Semua Kategori</string>
     <string name="movies_search_launch_title">Cari dalam pustaka filem</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">Perhalusi kategori filem yang dipilih tanpa membina semula seluruh pustaka.</string>
     <string name="movies_reorder_title">Menyusun semula %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">Rak editorial, kumpulan tersimpan dan pelayaran siri berhalaman yang disesuaikan untuk pustaka penyedia yang besar.</string>
     <string name="series_all_categories">Semua Kategori</string>
     <string name="series_search_launch_title">Cari dalam pustaka siri</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">Baru Dikemas Kini</string>
     <string name="library_sort_rating">Penilaian</string>
 
-    
+
     <string name="settings_parental_subtitle">Lindungi kandungan dewasa atau sensitif dengan kawalan mesra TV.</string>
     <string name="settings_parental_groups_title">Kumpulan Dilindungi</string>
     <string name="settings_parental_groups_hint">Kunci atau buka kunci kategori untuk penyedia aktif.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">Urus kerja DVR langsung setempat, storan dan tangkapan berjadual.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">Tonton Seterusnya</string>
     <string name="tv_channel_continue_watching_title">Sambung Tontonan</string>
     <string name="tv_channel_continue_watching_description">Sambung semula tajuk yang anda mula baru-baru ini</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">Siri Baharu</string>
     <string name="tv_channel_fresh_series_description">Siri yang baru dikemas kini daripada %1$s</string>
 
-    
+
     <string name="search_title">Cari</string>
     <string name="parental_group_shell_subtitle">Semak kumpulan langsung, filem dan siri yang dilindungi tanpa meninggalkan antara muka tetapan premium.</string>
     <string name="search_command_title">Carian Arahan</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">Sedang dimainkan %1$s</string>
     <string name="a11y_channel_with_number">Saluran %1$d, %2$s</string>
 
-    
 
-    
+
+
     <string name="player_no_external_player">Tiada pemain luaran dipasang</string>
     <string name="player_unsafe_stream_url">Strim ini tidak boleh dibuka dalam pemain luaran</string>
     <string name="player_external_launch_failed">Pemain luaran gagal dimulakan</string>
@@ -267,26 +267,26 @@
     <string name="epg_provider_troubleshooting_missing_template">Main semula mungkin gagal kerana penyedia mendedahkan sokongan tontonan semula tanpa templat main semula yang boleh digunakan.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Main semula mungkin gagal kerana penyedia tidak mendedahkan pengecam strim main semula.</string>
 
-    
+
     <string name="parental_group_title">Kumpulan Dilindungi</string>
     <string name="parental_group_search">Cari kategori...</string>
     <string name="player_live_timeshift_ready">Timeshift sedia.</string>
     <string name="player_live_timeshift_failed">Gulung semula langsung setempat tidak tersedia untuk strim ini.</string>
 
-    
+
     <string name="multiview_add_to_split">Tambah ke Skrin Berpecah</string>
     <string name="multiview_queued">Dalam Skrin Berpecah</string>
 
-    
+
     <string name="settings_privacy_subtitle">Urus sejarah tontonan dan mod inkognito.</string>
 
-    
+
     <string name="action_done">Selesai</string>
     <string name="action_delete">Padam</string>
     <string name="action_clear">Kosongkan</string>
     <string name="action_space">Ruang</string>
 
-    
+
     <string name="label_provider">PENYEDIA</string>
     <string name="label_selected">Dipilih</string>
     <string name="label_no_schedule">Tiada maklumat jadual</string>
@@ -299,14 +299,14 @@
     <string name="badge_moving">BERPINDAH</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
     <string name="favorites_content_type_movie">Filem</string>
 
-    
 
-    
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">Mengimbas saluran StreamVault</string>
     <string name="tv_input_setup_success_title">TV Langsung sedia</string>
@@ -340,4 +340,10 @@
     <string name="downloads_delete_confirm">Padam muat turun ini?</string>
     <string name="download_play_local">Main</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Main balik torrent tidak dapat dimulakan. Sila cuba lagi.</string>
+    <string name="torrent_cache_capacity_reached">Main balik torrent mencapai had storan sementara. Kosongkan cache atau ruang storan, kemudian cuba lagi.</string>
+    <string name="torrent_storage_check_failed">Storan yang tersedia tidak dapat diperiksa. Main balik torrent tidak dapat diteruskan dengan selamat.</string>
+
+    <string name="nav_addons">Alat tambah Stremio</string>
+    <string name="nav_extensions">Sambungan</string>
 </resources>

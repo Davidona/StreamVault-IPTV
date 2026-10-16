@@ -855,4 +855,14 @@
     <string name="settings_ethernet_quality_bitrate_cap">Максимална бит-стапка на видеото преку Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Нема дополнително ограничување</string>
     <string name="settings_recording_failure_output_too_slow">Локацијата за снимање не можеше да ја следи репродукцијата во живо.</string>
+    <string name="settings_hide_stremio_addons">Скриј додатоци за Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Скриј го прелистувањето, инсталирањето и историјата на додатоците. Инсталираните додатоци се задржуваат.</string>
+    <string name="settings_theme_forest">Шума</string>
+    <string name="settings_theme_sunset">Залез</string>
+    <string name="settings_theme_ocean">Океан</string>
+    <string name="settings_theme_rose">Ружа</string>
+    <string name="settings_theme_amoled_black">AMOLED црна</string>
+    <string name="settings_theme_vintage">Винтиџ</string>
+    <string name="nav_addons">Додатоци за Stremio</string>
+    <string name="nav_extensions">Проширувања</string>
 </resources>

@@ -287,4 +287,9 @@
     <string name="m3u_episode_unresolved">剧集编号未解析——将保留标记以便修正。</string>
     <string name="m3u_series_review_title">在 %1$s 中整理剧集</string>
     <string name="m3u_series_review_subtitle">查看自动建议，或将每个条目指定到剧集、季和集。</string>
+    <string name="torrent_playback_start_failed">无法开始播放种子。请重试。</string>
+    <string name="torrent_cache_capacity_reached">种子播放已达到临时存储上限。请清除缓存或释放设备空间后重试。</string>
+    <string name="torrent_storage_check_failed">无法检查可用存储空间，无法安全地继续播放种子内容。</string>
+    <string name="nav_addons">Stremio 扩展</string>
+    <string name="nav_extensions">扩展功能</string>
 </resources>

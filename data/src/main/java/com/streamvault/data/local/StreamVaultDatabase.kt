@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
 
-internal const val STREAM_VAULT_DATABASE_VERSION = 84
+internal const val STREAM_VAULT_DATABASE_VERSION = 86
 
 @Database(
     entities = [
@@ -74,7 +74,9 @@ internal const val STREAM_VAULT_DATABASE_VERSION = 84
         ProviderWorkflowEntity::class,
         ProviderWorkflowPhaseEntity::class,
         M3uClassificationOverrideEntity::class,
-        M3uCategoryClassificationRuleEntity::class
+        M3uCategoryClassificationRuleEntity::class,
+        StremioAddonEntity::class,
+        StremioPlaybackHistoryEntity::class
     ],
     version = STREAM_VAULT_DATABASE_VERSION,
     exportSchema = true   // ← was false; schema JSON now tracked in version control
@@ -131,6 +133,8 @@ abstract class StreamVaultDatabase : RoomDatabase() {
     abstract fun backupRestoreLedgerDao(): BackupRestoreLedgerDao
     abstract fun providerWorkflowDao(): ProviderWorkflowDao
     abstract fun m3uClassificationDao(): M3uClassificationDao
+    abstract fun stremioAddonDao(): StremioAddonDao
+    abstract fun stremioPlaybackHistoryDao(): StremioPlaybackHistoryDao
 
     companion object {
         val MIGRATION_1_2 = LegacyMigrationsV1To24.MIGRATION_1_2
@@ -216,5 +220,7 @@ abstract class StreamVaultDatabase : RoomDatabase() {
         val MIGRATION_81_82 = FeatureMigrationsV81To82.MIGRATION_81_82
         val MIGRATION_82_83 = FeatureMigrationsV82To83.MIGRATION_82_83
         val MIGRATION_83_84 = FeatureMigrationsV83To84.MIGRATION_83_84
+        val MIGRATION_84_85 = FeatureMigrationsV84To85.MIGRATION_84_85
+        val MIGRATION_85_86 = FeatureMigrationsV85To86.MIGRATION_85_86
     }
 }

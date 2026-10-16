@@ -289,4 +289,9 @@
     <string name="downloads_empty">لا توجد تنزيلات بعد</string>
     <string name="downloads_delete_confirm">هل تريد حذف هذا التنزيل؟</string>
     <string name="download_play_local">تشغيل</string>
+    <string name="torrent_playback_start_failed">تعذّر بدء تشغيل التورنت. يُرجى المحاولة مرة أخرى.</string>
+    <string name="torrent_cache_capacity_reached">وصل تشغيل التورنت إلى حد التخزين المؤقت. امسح الذاكرة أو أفرغ مساحة ثم حاول مرة أخرى.</string>
+    <string name="torrent_storage_check_failed">تعذر التحقق من مساحة التخزين المتاحة، ولا يمكن متابعة تشغيل التورنت بأمان.</string>
+    <string name="nav_addons">إضافات Stremio</string>
+    <string name="nav_extensions">التمديدات</string>
 </resources>

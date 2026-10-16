@@ -855,4 +855,14 @@
     <string name="settings_ethernet_quality_bitrate_cap">Ethernet पर अधिकतम वीडियो बिटरेट</string>
     <string name="settings_quality_cap_no_additional_limit">कोई अतिरिक्त सीमा नहीं</string>
     <string name="settings_recording_failure_output_too_slow">रिकॉर्डिंग गंतव्य लाइव प्लेबैक की गति के साथ नहीं चल सका।</string>
+    <string name="settings_hide_stremio_addons">Stremio ऐड-ऑन छिपाएँ</string>
+    <string name="settings_hide_stremio_addons_subtitle">ऐड-ऑन ब्राउज़िंग, इंस्टॉलेशन और इतिहास छिपाएँ। इंस्टॉल किए गए ऐड-ऑन सुरक्षित रहते हैं।</string>
+    <string name="settings_theme_forest">वन</string>
+    <string name="settings_theme_sunset">सूर्यास्त</string>
+    <string name="settings_theme_ocean">महासागर</string>
+    <string name="settings_theme_rose">गुलाब</string>
+    <string name="settings_theme_amoled_black">AMOLED काला</string>
+    <string name="settings_theme_vintage">विंटेज</string>
+    <string name="nav_addons">Stremio ऐड-ऑन</string>
+    <string name="nav_extensions">एक्सटेंशन</string>
 </resources>

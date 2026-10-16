@@ -287,4 +287,9 @@
     <string name="settings_crash_report_share_failed">Żadna aplikacja nie mogła odebrać raportu o awarii.</string>
     <string name="settings_crash_report_missing">Brak dostępnego raportu o awarii.</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Wróć do działań kopii zapasowej Dysku.</string>
+    <string name="torrent_playback_start_failed">Nie udało się rozpocząć odtwarzania torrenta. Spróbuj ponownie.</string>
+    <string name="torrent_cache_capacity_reached">Odtwarzanie torrenta osiągnęło limit pamięci tymczasowej. Wyczyść pamięć lub zwolnij miejsce i spróbuj ponownie.</string>
+    <string name="torrent_storage_check_failed">Nie można sprawdzić dostępnego miejsca. Odtwarzanie torrenta nie może być bezpiecznie kontynuowane.</string>
+    <string name="nav_addons">Dodatki Stremio</string>
+    <string name="nav_extensions">Rozszerzenia</string>
 </resources>

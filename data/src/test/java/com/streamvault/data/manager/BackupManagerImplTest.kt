@@ -1641,6 +1641,33 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `importConfig restores Stremio add-on visibility preference`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val providerDao: ProviderDao = mock()
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(contentResolver.openInputStream(Uri.parse("content://backup-stremio-visibility"))).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(preferences = mapOf("hideStremioAddons" to "true"))).toByteArray()
+            )
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao
+        ).importConfig(
+            uriString = "content://backup-stremio-visibility",
+            plan = preferencesOnlyPlan()
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        verify(preferencesRepository).setHideStremioAddons(true)
+    }
+
+    @Test
     fun `importConfig clears optional guide preferences when backup has no selected value`() = runBlocking {
         val context: Context = mock()
         val contentResolver: ContentResolver = mock()
@@ -3728,6 +3755,7 @@ class BackupManagerImplTest {
         storedProviders: List<Provider> = emptyList(),
     ): BackupManagerImpl {
         whenever(preferencesRepository.defaultCategoryId).thenReturn(flowOf(null))
+        whenever(preferencesRepository.hideStremioAddons).thenReturn(flowOf(false))
         whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
         whenever(recordingManager.observeStorageState()).thenReturn(flowOf(RecordingStorageState()))
         return BackupManagerImpl(

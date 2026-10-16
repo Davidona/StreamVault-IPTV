@@ -248,6 +248,10 @@
     <string name="player_track_live_translation" tools:ignore="MissingTranslation">Real-time translation</string>
     <string name="player_track_off">Off</string>
     <string name="player_track_subs">Select Subtitles</string>
+    <string name="player_stremio_subtitles_heading">Stremio subtitles</string>
+    <string name="player_stremio_subtitles_loading">Loading add-on subtitles…</string>
+    <string name="player_stremio_subtitles_empty">No add-on subtitles available</string>
+    <string name="player_stremio_subtitles_retry">Retry add-on subtitles</string>
     <string name="player_try_alternate_stream">Try another path</string>
     <string name="player_type_channel_number">Type channel number</string>
     <string name="player_type_movie">Movie</string>

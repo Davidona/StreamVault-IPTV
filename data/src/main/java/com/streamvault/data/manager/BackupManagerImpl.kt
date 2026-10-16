@@ -320,6 +320,7 @@ class BackupManagerImpl @Inject constructor(
                 put("recordingPaddingAfterMinutes", preferencesRepository.recordingPaddingAfterMinutes.first().toString())
                 put("maxConcurrentStreams", preferencesRepository.maxConcurrentStreams.first().toString())
                 put("isIncognitoMode", preferencesRepository.isIncognitoMode.first().toString())
+                put("hideStremioAddons", preferencesRepository.hideStremioAddons.first().toString())
                 put("useXtreamTextClassification", preferencesRepository.useXtreamTextClassification.first().toString())
                 put("xtreamBase64TextCompatibility", preferencesRepository.xtreamBase64TextCompatibility.first().toString())
                 put("guideDensity", preferencesRepository.guideDensity.first() ?: "")
@@ -3436,6 +3437,7 @@ class BackupManagerImpl @Inject constructor(
             put("recordingPaddingAfterMinutes", preferencesRepository.recordingPaddingAfterMinutes.first().toString())
             put("maxConcurrentStreams", preferencesRepository.maxConcurrentStreams.first().toString())
             put("isIncognitoMode", preferencesRepository.isIncognitoMode.first().toString())
+            put("hideStremioAddons", preferencesRepository.hideStremioAddons.first().toString())
             put("useXtreamTextClassification", preferencesRepository.useXtreamTextClassification.first().toString())
             put("xtreamBase64TextCompatibility", preferencesRepository.xtreamBase64TextCompatibility.first().toString())
             put("guideDensity", preferencesRepository.guideDensity.first() ?: "")
@@ -4211,6 +4213,8 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setMaxConcurrentStreams(it) }
         prefs["isIncognitoMode"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setIncognitoMode(it) }
+        prefs["hideStremioAddons"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setHideStremioAddons(it) }
         prefs["useXtreamTextClassification"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setUseXtreamTextClassification(it) }
         prefs["xtreamBase64TextCompatibility"]?.toBooleanStrictOrNull()

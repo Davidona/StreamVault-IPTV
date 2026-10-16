@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">Начало</string>
     <string name="nav_live_tv">ТВ на живо</string>
     <string name="nav_movies">Филми</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">Приставки</string>
     <string name="nav_close_app">Затвори приложението</string>
 
-    
+
     <string name="welcome_enter_app">Влезте в приложението</string>
     <string name="welcome_manage_providers">Управление на доставчици</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">Единен плейър с наслагвания, достъп до програмата и запазено съдържание</string>
     <string name="welcome_manage_hint">Сменете доставчик, обновете метаданните или добавете нов източник.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">Скрити категории</string>
     <string name="hidden_categories_dialog_subtitle">Изберете кои да възстановите.</string>
     <string name="hidden_categories_dialog_unhide_all">Покажи всички</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">Изтрий</string>
     <string name="home_delete_group_cancel">Отказ</string>
 
-    
+
     <string name="dashboard_customize_home">Персонализиране на началото</string>
     <string name="dashboard_customize_home_subtitle">Изберете кои рафтове да се показват тук, добавете още редове и ги пренаредете по всяко време.</string>
     <string name="dashboard_customize_home_action">Персонализирай</string>
 
-    
+
 
     <string name="category_options_set_default">Задай като група по подразбиране</string>
     <string name="category_options_rename">Преименувай група</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">Недостъпен</string>
     <string name="live_source_empty_short">Празен</string>
 
-    
+
     <string name="movies_shell_subtitle">Подбрани рафтове, запазени групи и разглеждане на цялата библиотека, без да напускате контекста на текущия доставчик.</string>
     <string name="movies_all_categories">Всички категории</string>
     <string name="movies_search_launch_title">Търсене във филмовата библиотека</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">Филтрирайте избраната филмова категория, без да пресъздавате цялата библиотека.</string>
     <string name="movies_reorder_title">Пренареждане на %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">Подбрани рафтове, запазени групи и разглеждане на сериали на страници, оптимизирано за големи библиотеки на доставчици.</string>
     <string name="series_all_categories">Всички категории</string>
     <string name="series_search_launch_title">Търсене в библиотеката със сериали</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">Скорошни промени</string>
     <string name="library_sort_rating">Оценка</string>
 
-    
+
     <string name="settings_parental_subtitle">Защитете съдържание за възрастни или чувствително съдържание с удобни за телевизор контроли.</string>
     <string name="settings_parental_groups_title">Защитени групи</string>
     <string name="settings_parental_groups_hint">Заключете или отключете категории за активния доставчик.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">Управлявайте локални DVR записи на живо, хранилище и планирани записвания.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">Следващи за гледане</string>
     <string name="tv_channel_continue_watching_title">Продължи гледането</string>
     <string name="tv_channel_continue_watching_description">Продължете заглавия, които сте започнали наскоро</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">Нови сериали</string>
     <string name="tv_channel_fresh_series_description">Скорошно обновени сериали от %1$s</string>
 
-    
+
     <string name="search_title">Търсене</string>
     <string name="parental_group_shell_subtitle">Прегледайте защитените групи за канали на живо, филми и сериали, без да напускате екрана с настройки.</string>
     <string name="search_command_title">Командно търсене</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">Възпроизвежда се %1$s</string>
     <string name="a11y_channel_with_number">Канал %1$d, %2$s</string>
 
-    
 
-    
+
+
 
     <string name="player_no_external_player">Няма инсталиран външен плейър</string>
     <string name="player_unsafe_stream_url">Този поток не може да се отвори във външен плейър</string>
@@ -268,26 +268,26 @@
     <string name="epg_provider_troubleshooting_missing_template">Повторението може да се провали, защото доставчикът предоставя поддръжка на архив без използваем шаблон за повторение.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Повторението може да се провали, защото доставчикът не предостави идентификатор на потока за повторение.</string>
 
-    
+
     <string name="parental_group_title">Защитени групи</string>
     <string name="parental_group_search">Търсене на категории...</string>
     <string name="player_live_timeshift_ready">Отложеното гледане е готово.</string>
     <string name="player_live_timeshift_failed">Локалното превъртане назад е недостъпно за този поток.</string>
 
-    
+
     <string name="multiview_add_to_split">Добави в разделен екран</string>
     <string name="multiview_queued">В разделен екран</string>
 
-    
+
     <string name="settings_privacy_subtitle">Управлявайте историята на гледане и инкогнито режима.</string>
 
-    
+
     <string name="action_done">Готово</string>
     <string name="action_delete">Изтрий</string>
     <string name="action_clear">Изчисти</string>
     <string name="action_space">Интервал</string>
 
-    
+
     <string name="label_provider">ДОСТАВЧИК</string>
     <string name="label_selected">Избрано</string>
     <string name="label_no_schedule">Няма информация за програмата</string>
@@ -300,15 +300,15 @@
     <string name="badge_moving">ПРЕМЕСТВАНЕ</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
 
     <string name="favorites_content_type_movie">Филм</string>
 
-    
 
-    
+
+
 
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">Сканиране на каналите на StreamVault</string>
@@ -343,4 +343,9 @@
     <string name="downloads_delete_confirm">Да се изтрие ли това изтегляне?</string>
     <string name="download_play_local">Възпроизведи</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Възпроизвеждането на торент не можа да започне. Опитайте отново.</string>
+    <string name="torrent_cache_capacity_reached">Поточното възпроизвеждане достигна лимита за временно съхранение. Изчистете кеша или освободете място и опитайте отново.</string>
+    <string name="torrent_storage_check_failed">Свободното място не можа да бъде проверено. Възпроизвеждането на торент не може да продължи безопасно.</string>
+    <string name="nav_addons">Добавки за Stremio</string>
+    <string name="nav_extensions">Разширения</string>
 </resources>

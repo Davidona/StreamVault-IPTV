@@ -377,6 +377,7 @@ class PlayerTrackController(
                         subtitleSource = when (format.id) {
                             com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.ONLINE
                             com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.DEVICE
+                            com.streamvault.player.STREMIO_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.STREMIO
                             else -> com.streamvault.player.SubtitleTrackSource.PROVIDER
                         },
                         videoHeight = format.height.takeIf { isVideo && it > 0 },

@@ -287,4 +287,9 @@
     <string name="download_play_local">Reproduzir</string>
     <string name="nav_vod">VOD</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">Não foi possível iniciar a reprodução do torrent. Tente novamente.</string>
+    <string name="torrent_cache_capacity_reached">A reprodução do torrent atingiu o limite de armazenamento temporário. Limpe o cache ou libere espaço e tente novamente.</string>
+    <string name="torrent_storage_check_failed">Não foi possível verificar o armazenamento disponível. A reprodução do torrent não pode continuar com segurança.</string>
+    <string name="nav_addons">Complementos do Stremio</string>
+    <string name="nav_extensions">Extensões</string>
 </resources>

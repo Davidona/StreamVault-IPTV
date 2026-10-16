@@ -22,7 +22,9 @@ data class StreamInfo(
     val drmInfo: DrmInfo? = null,
     val playbackContentKind: PlaybackContentKind = PlaybackContentKind.UNKNOWN,
     /** Provider/channel identity used to join a live recording to the active playback request. */
-    val livePlaybackIdentity: LivePlaybackIdentity? = null
+    val livePlaybackIdentity: LivePlaybackIdentity? = null,
+    /** When set, request headers are attached only to requests matching this HTTP origin. */
+    val requestHeadersOrigin: String? = null
 ) {
     init {
         require(url.isNotBlank()) { "StreamInfo url must not be blank" }

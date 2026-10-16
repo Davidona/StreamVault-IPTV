@@ -385,6 +385,7 @@ public fun SettingsContentPane(
                         settingsPrivacySection(
                             uiState = uiState,
                             onToggleIncognitoMode = viewModel::toggleIncognitoMode,
+                            onHideStremioAddonsChange = viewModel::setHideStremioAddons,
                             onToggleXtreamTextClassification = viewModel::toggleXtreamTextClassification,
                             onToggleXtreamBase64TextCompatibility = viewModel::toggleXtreamBase64TextCompatibility,
                             onPendingProtectionLevelChange = { dialogState.pendingProtectionLevel = it },

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">Home</string>
     <string name="nav_live_tv">Live TV</string>
     <string name="nav_movies">Mga Pelikula</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">Mga Plugin</string>
     <string name="nav_close_app">Isara ang app</string>
 
-    
+
     <string name="welcome_enter_app">Pumasok sa App</string>
     <string name="welcome_manage_providers">Pamahalaan ang mga Provider</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">Pinag-isang player overlay, access sa gabay, at naka-save na content</string>
     <string name="welcome_manage_hint">Palitan ang provider, i-refresh ang metadata, o magdagdag ng bagong source.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">Mga nakatagong kategorya</string>
     <string name="hidden_categories_dialog_subtitle">Piliin ang mga ibabalik.</string>
     <string name="hidden_categories_dialog_unhide_all">Ibalik lahat</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">Burahin</string>
     <string name="home_delete_group_cancel">Kanselahin</string>
 
-    
+
     <string name="dashboard_customize_home">I-customize ang Home</string>
     <string name="dashboard_customize_home_subtitle">Piliin kung aling shelf ang lalabas dito, magdagdag ng row, at ayusin ang pagkakasunod-sunod anumang oras.</string>
     <string name="dashboard_customize_home_action">I-customize</string>
 
-    
+
 
     <string name="category_options_set_default">Itakda bilang Default na Grupo</string>
     <string name="category_options_rename">Palitan ang Pangalan ng Grupo</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">Hindi Available</string>
     <string name="live_source_empty_short">Walang Laman</string>
 
-    
+
     <string name="movies_shell_subtitle">Mga curated na shelf, naka-save na grupo, at pag-browse sa buong library nang hindi umaalis sa kasalukuyang provider.</string>
     <string name="movies_all_categories">Lahat ng Kategorya</string>
     <string name="movies_search_launch_title">Maghanap sa library ng pelikula</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">Pinoisin ang napiling kategorya ng pelikula nang hindi binubuo muli ang buong library.</string>
     <string name="movies_reorder_title">Inaayos ang %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">Mga editorial na shelf, naka-save na grupo, at paged na pag-browse ng serye para sa malalaking library ng provider.</string>
     <string name="series_all_categories">Lahat ng Kategorya</string>
     <string name="series_search_launch_title">Maghanap sa library ng serye</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">Kamakailang Na-update</string>
     <string name="library_sort_rating">Rating</string>
 
-    
+
     <string name="settings_parental_subtitle">Protektahan ang adult o sensitibong content gamit ang mga kontrol na angkop sa TV.</string>
     <string name="settings_parental_groups_title">Mga Protektadong Grupo</string>
     <string name="settings_parental_groups_hint">I-lock o i-unlock ang mga kategorya para sa aktibong provider.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">Pamahalaan ang mga lokal na live DVR job, storage, at naka-iskedyul na pag-record.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">Susunod na Panoorin</string>
     <string name="tv_channel_continue_watching_title">Ipagpatuloy ang Panonood</string>
     <string name="tv_channel_continue_watching_description">Ipagpatuloy ang mga title na sinimulan mo kamakailan</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">Mga Bagong Serye</string>
     <string name="tv_channel_fresh_series_description">Mga kamakailang na-update na serye mula sa %1$s</string>
 
-    
+
     <string name="search_title">Maghanap</string>
     <string name="parental_group_shell_subtitle">Suriin ang mga protektadong live, pelikula, at serye na grupo nang hindi umaalis sa settings.</string>
     <string name="search_command_title">Command Search</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">Tumutugtog ngayon ang %1$s</string>
     <string name="a11y_channel_with_number">Channel %1$d, %2$s</string>
 
-    
 
-    
+
+
     <string name="player_no_external_player">Walang naka-install na external player</string>
     <string name="player_unsafe_stream_url">Hindi mabubuksan ang stream na ito sa external player</string>
     <string name="player_external_launch_failed">Hindi nag-start ang external player</string>
@@ -267,26 +267,26 @@
     <string name="epg_provider_troubleshooting_missing_template">Maaaring mabigo ang replay dahil nagbigay ang provider ng catch-up support nang walang magagamit na replay template.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Maaaring mabigo ang replay dahil hindi nagbigay ang provider ng replay stream identifier.</string>
 
-    
+
     <string name="parental_group_title">Mga Protektadong Grupo</string>
     <string name="parental_group_search">Maghanap ng kategorya...</string>
     <string name="player_live_timeshift_ready">Handa na ang timeshift.</string>
     <string name="player_live_timeshift_failed">Walang lokal na live rewind para sa stream na ito.</string>
 
-    
+
     <string name="multiview_add_to_split">Idagdag sa Split Screen</string>
     <string name="multiview_queued">Nasa Split Screen</string>
 
-    
+
     <string name="settings_privacy_subtitle">Pamahalaan ang watch history at incognito mode.</string>
 
-    
+
     <string name="action_done">Tapos</string>
     <string name="action_delete">Burahin</string>
     <string name="action_clear">I-clear</string>
     <string name="action_space">Space</string>
 
-    
+
     <string name="label_provider">PROVIDER</string>
     <string name="label_selected">Napili</string>
     <string name="label_no_schedule">Walang impormasyon ng schedule</string>
@@ -299,14 +299,14 @@
     <string name="badge_moving">MOVING</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
     <string name="favorites_content_type_movie">Pelikula</string>
 
-    
 
-    
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">Ini-scan ang mga channel ng StreamVault</string>
     <string name="tv_input_setup_success_title">Handa na ang Live TV</string>
@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Burahin ang download na ito?</string>
     <string name="download_play_local">I-play</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Hindi masimulan ang pag-play ng torrent. Subukan muli.</string>
+    <string name="torrent_cache_capacity_reached">Naabot ng pag-play ng torrent ang limit ng pansamantalang storage. I-clear ang cache o magbakante ng espasyo at subukang muli.</string>
+    <string name="torrent_storage_check_failed">Hindi masuri ang available na storage. Hindi ligtas na maipagpapatuloy ang pag-play ng torrent.</string>
+    <string name="nav_addons">Mga add-on ng Stremio</string>
+    <string name="nav_extensions">Mga extension</string>
 </resources>

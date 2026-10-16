@@ -18,6 +18,8 @@ class CastUiMessagesTest {
             .isEqualTo(R.string.cast_protocol_unsupported)
         assertThat(CastMediaRequestUnsupportedReason.DRM_PROTECTED.toCastBuildFailureMessageRes())
             .isEqualTo(R.string.cast_drm_unsupported)
+        assertThat(CastMediaRequestUnsupportedReason.SCOPED_HEADERS_UNSUPPORTED.toCastBuildFailureMessageRes())
+            .isEqualTo(R.string.cast_scoped_headers_unsupported)
     }
 
     @Test

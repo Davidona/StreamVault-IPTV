@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "id": "tt0111161",
+    "type": "movie",
+    "name": "The Shawshank Redemption",
+    "poster": "https://images.metahub.space/poster/medium/tt0111161/img",
+    "background": "https://images.metahub.space/background/medium/tt0111161/img",
+    "logo": "https://images.metahub.space/logo/medium/tt0111161/img",
+    "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption.",
+    "releaseInfo": "1994",
+    "imdbRating": "9.3",
+    "genres": ["Drama", "Crime"],
+    "runtime": "142 min",
+    "cast": ["Tim Robbins", "Morgan Freeman", "Bob Gunton"],
+    "director": "Frank Darabont",
+    "country": "United States",
+    "awards": "Nominated for 7 Oscars"
+  }
+}

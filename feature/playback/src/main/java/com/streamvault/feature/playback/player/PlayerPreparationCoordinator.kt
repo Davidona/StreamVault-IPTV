@@ -32,6 +32,10 @@ class PlayerPreparationCoordinator @Inject constructor(
     private val playerEngineCoordinator: PlayerEngineCoordinator,
     private val playerContentResolver: PlayerContentResolver
 ) {
+    internal fun stopPlayback(streamInfo: StreamInfo?) {
+        streamInfo?.let(streamPreparer::stop)
+    }
+
     internal data class Request(
         val streamInfo: StreamInfo,
         val contentType: ContentType,

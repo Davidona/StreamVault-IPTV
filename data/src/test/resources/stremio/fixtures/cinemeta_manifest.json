@@ -1,0 +1,42 @@
+{
+  "id": "com.linvo.cinemeta",
+  "version": "3.0.14",
+  "name": "Cinemeta",
+  "description": "The official addon for movie and series catalogs, powered by TMDB and IMDB.",
+  "logo": "https://www.stremio.com/website/stremio-logo-small.png",
+  "background": "https://images.metahub.space/background/tt0111161/big/img",
+  "types": ["movie", "series"],
+  "resources": [
+    "catalog",
+    {
+      "name": "meta",
+      "types": ["movie", "series"],
+      "idPrefixes": ["tt"]
+    },
+    "stream",
+    "subtitles"
+  ],
+  "catalogs": [
+    {
+      "type": "movie",
+      "id": "top",
+      "name": "Popular",
+      "genres": ["Action", "Comedy"],
+      "extra": [
+        { "name": "search", "isRequired": false },
+        { "name": "genre", "options": ["Action", "Comedy", "Drama"] },
+        { "name": "skip" }
+      ]
+    },
+    {
+      "type": "series",
+      "id": "top",
+      "name": "Popular",
+      "extra": ["search", "skip"]
+    }
+  ],
+  "idPrefixes": ["tt"],
+  "behaviorHints": {
+    "configurable": false
+  }
+}

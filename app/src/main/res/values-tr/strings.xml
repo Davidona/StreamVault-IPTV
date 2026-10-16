@@ -287,4 +287,9 @@
     <string name="m3u_category_rule_subtitle">Bu M3U grubu için bir varsayılan seçin. Tek tek kanallar yine de geçersiz kılınabilir.</string>
     <string name="m3u_classification_saved">M3U sınıflandırması kaydedildi</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Drive yedekleme işlemlerine geri dönün.</string>
+    <string name="torrent_playback_start_failed">Torrent oynatımı başlatılamadı. Lütfen tekrar deneyin.</string>
+    <string name="torrent_cache_capacity_reached">Torrent oynatma geçici depolama sınırına ulaştı. Önbelleği temizleyin veya alan açıp yeniden deneyin.</string>
+    <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı denetlenemedi. Torrent oynatma güvenli biçimde sürdürülemez.</string>
+    <string name="nav_addons">Stremio eklentileri</string>
+    <string name="nav_extensions">Eklentiler</string>
 </resources>

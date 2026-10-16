@@ -852,4 +852,14 @@
     <string name="settings_ethernet_quality_bitrate_cap">Kadar bit video maksimum melalui Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">Tiada had tambahan</string>
     <string name="settings_recording_failure_output_too_slow">Destinasi rakaman tidak dapat mengikuti main balik langsung.</string>
+    <string name="settings_hide_stremio_addons">Sembunyikan alat tambah Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">Sembunyikan pelayaran, pemasangan dan sejarah alat tambah. Alat tambah yang dipasang dikekalkan.</string>
+    <string name="settings_theme_forest">Hutan</string>
+    <string name="settings_theme_sunset">Senja</string>
+    <string name="settings_theme_ocean">Lautan</string>
+    <string name="settings_theme_rose">Mawar</string>
+    <string name="settings_theme_amoled_black">AMOLED hitam</string>
+    <string name="settings_theme_vintage">Vintage</string>
+    <string name="nav_addons">Alat tambah Stremio</string>
+    <string name="nav_extensions">Sambungan</string>
 </resources>

@@ -94,6 +94,7 @@ internal fun PlayerControlsOverlayHost(
     val nextEpisode by viewModel.nextEpisode.collectAsStateWithLifecycle()
     val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
     val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
+    val stremioSubtitlePickerState by viewModel.stremioSubtitlePickerState.collectAsStateWithLifecycle()
     val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
     val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
     val currentChannelRecording by viewModel.currentChannelRecording.collectAsStateWithLifecycle()
@@ -124,6 +125,7 @@ internal fun PlayerControlsOverlayHost(
         currentPositionMs = currentPosition,
         showEpisodesAction = canOpenEpisodePicker,
         subtitleTrackCount = availableSubtitleTracks.size,
+        showStremioSubtitleAction = stremioSubtitlePickerState.enabled,
         audioTrackCount = availableAudioTracks.size,
         videoQualityCount = availableVideoQualities.size,
         audioVideoSyncEnabled = audioVideoSyncEnabled,

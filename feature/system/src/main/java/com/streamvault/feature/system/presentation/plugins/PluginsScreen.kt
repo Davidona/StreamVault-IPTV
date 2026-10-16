@@ -10,6 +10,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -20,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +46,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,9 +69,12 @@ import com.streamvault.feature.system.api.PluginConfigurationSection
 import com.streamvault.feature.system.api.owner
 import com.streamvault.feature.system.api.toBundleSafeKey
 import com.streamvault.feature.system.api.SystemScaffoldContent
+import com.streamvault.feature.system.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.ExtensionsEmptyState
+import com.streamvault.core.ui.components.shell.ExtensionsSectionTabs
 import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
@@ -74,12 +85,14 @@ import com.streamvault.core.ui.design.browse.Primary
 @Composable
 fun PluginsScreen(
     scaffold: SystemScaffoldContent,
+    onNavigateToStremioAddons: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: PluginsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showInstallUrlDialog by remember { mutableStateOf(false) }
+    var showInstallOptionsDialog by remember { mutableStateOf(false) }
     val actions = PluginsActions(
         onUpdateInstallUrl = viewModel::updateInstallUrl,
         onInstallFromLocalUri = viewModel::installFromLocalUri,
@@ -111,10 +124,19 @@ fun PluginsScreen(
     PluginsContent(
         uiState = uiState,
         scaffold = scaffold,
+        onNavigateToStremioAddons = onNavigateToStremioAddons,
         showInstallUrlDialog = showInstallUrlDialog,
+        showInstallOptionsDialog = showInstallOptionsDialog,
+        onShowInstallOptionsDialog = { showInstallOptionsDialog = true },
+        onDismissInstallOptionsDialog = { showInstallOptionsDialog = false },
+        onChooseInstallFromUrl = {
+            showInstallOptionsDialog = false
+            showInstallUrlDialog = true
+        },
         onShowInstallUrlDialog = { showInstallUrlDialog = true },
         onDismissInstallUrlDialog = { showInstallUrlDialog = false },
         onInstallFromFile = {
+            showInstallOptionsDialog = false
             apkPicker.launch(
                 arrayOf(
                     "application/vnd.android.package-archive",
@@ -148,7 +170,12 @@ internal data class PluginsActions(
 internal fun PluginsContent(
     uiState: PluginsUiState,
     scaffold: SystemScaffoldContent,
+    onNavigateToStremioAddons: () -> Unit = {},
     showInstallUrlDialog: Boolean,
+    showInstallOptionsDialog: Boolean = false,
+    onShowInstallOptionsDialog: () -> Unit = {},
+    onDismissInstallOptionsDialog: () -> Unit = {},
+    onChooseInstallFromUrl: () -> Unit = {},
     onShowInstallUrlDialog: () -> Unit,
     onDismissInstallUrlDialog: () -> Unit,
     onInstallFromFile: () -> Unit,
@@ -156,12 +183,13 @@ internal fun PluginsContent(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState? = null,
 ) {
+    var expandedPluginKey by rememberSaveable { mutableStateOf<String?>(null) }
     scaffold(
         AppDestination.Plugins,
-        "Plugins",
-        "Install companion APKs, activate capabilities, and sync plugin providers.",
+        stringResource(R.string.extensions_title),
+        null,
         true,
-        true
+        false
     ) {
         Column(
             modifier = modifier.fillMaxSize(),
@@ -178,13 +206,105 @@ internal fun PluginsContent(
                     onRunAction = actions.onRunConfigurationAction
                 )
             } else {
-                PluginInstallPanel(
-                    isInstalling = uiState.isInstalling,
-                    onInstallFromUrl = onShowInstallUrlDialog,
-                    onInstallFromFile = onInstallFromFile,
-                    onRefresh = actions.onRefreshPlugins
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ExtensionsSectionTabs(
+                        selectedIndex = 0,
+                        pluginsLabel = stringResource(R.string.extensions_tab_plugins),
+                        stremioAddonsLabel = stringResource(R.string.extensions_tab_stremio_addons),
+                        onTabSelected = { if (it == 1) onNavigateToStremioAddons() }
+                    )
+                    Spacer(Modifier.weight(1f))
+                    PluginButton(onClick = onShowInstallOptionsDialog, tone = PluginButtonTone.Primary) {
+                        Text(stringResource(R.string.plugins_add))
+                    }
+                    PluginButton(onClick = actions.onRefreshPlugins, enabled = !uiState.isLoading) {
+                        Text(stringResource(R.string.plugins_refresh))
+                    }
+                }
 
+
+                when {
+                    uiState.isLoading && uiState.plugins.isEmpty() -> Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(color = AppColors.Brand)
+                    }
+                    uiState.plugins.isEmpty() -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            ExtensionsEmptyState(
+                                title = stringResource(R.string.plugins_empty_title),
+                                description = stringResource(R.string.plugins_empty_description),
+                                modifier = Modifier.weight(1f),
+                                action = {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        PluginButton(
+                                            enabled = !uiState.isInstalling,
+                                            onClick = onShowInstallUrlDialog,
+                                            tone = PluginButtonTone.Primary
+                                        ) { Text(stringResource(R.string.plugins_install_url)) }
+                                        PluginButton(
+                                            enabled = !uiState.isInstalling,
+                                            onClick = onInstallFromFile
+                                        ) { Text(stringResource(R.string.plugins_install_file)) }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    else -> {
+                        Text(
+                            stringResource(R.string.plugins_installed_count, uiState.plugins.size),
+                            style = MaterialTheme.typography.titleSmall, color = AppColors.TextSecondary
+                        )
+                        uiState.providerSources.takeIf { it.isNotEmpty() }?.let { sources ->
+                            Text(
+                                text = stringResource(R.string.plugins_provider_sources_count, sources.size),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = AppColors.TextTertiary
+                            )
+                        }
+                        uiState.syncProgress?.let {
+                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = AppColors.Brand)
+                        }
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(400.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            gridItems(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
+                                PluginCard(
+                                    plugin = plugin,
+                                    busy = uiState.activePluginOwner == plugin.owner,
+                                    expanded = expandedPluginKey == plugin.owner.toBundleSafeKey(),
+                                    onToggleDetails = {
+                                        val key = plugin.owner.toBundleSafeKey()
+                                        expandedPluginKey = if (expandedPluginKey == key) null else key
+                                    },
+                                    onEnabledChange = { enabled -> actions.onSetPluginEnabled(plugin, enabled) },
+                                    onOpenConfiguration = { actions.onOpenPluginConfiguration(plugin) }
+                                )
+                            }
+
+                        }
+                    }
+                }
+
+                if (showInstallOptionsDialog) {
+                    PluginInstallOptionsDialog(
+                        onInstallFromUrl = onChooseInstallFromUrl,
+                        onInstallFromFile = onInstallFromFile,
+                        onDismiss = onDismissInstallOptionsDialog
+                    )
+                }
                 if (showInstallUrlDialog) {
                     PluginInstallUrlDialog(
                         installUrl = uiState.installUrl,
@@ -194,52 +314,46 @@ internal fun PluginsContent(
                         onInstall = actions.onInstallFromUrl
                     )
                 }
-
-                uiState.syncProgress?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppColors.Brand
-                    )
-                }
-
-                if (uiState.providerSources.isNotEmpty()) {
-                    Text(
-                        text = "${uiState.providerSources.size} plugin provider source(s) available",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppColors.TextSecondary
-                    )
-                }
-
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (uiState.plugins.isEmpty() && !uiState.isLoading) {
-                        item {
-                            Text(
-                                text = "No compatible StreamVault plugins are installed.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = AppColors.TextSecondary
-                            )
-                        }
-                    }
-                    items(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
-                        PluginCard(
-                            plugin = plugin,
-                            busy = uiState.activePluginOwner == plugin.owner,
-                            onEnabledChange = { enabled -> actions.onSetPluginEnabled(plugin, enabled) },
-                            onOpenConfiguration = { actions.onOpenPluginConfiguration(plugin) }
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.height(20.dp)) }
-                }
             }
         }
         snackbarHostState?.let { hostState ->
             SnackbarHost(hostState = hostState)
         }
     }
+}
+
+@Composable
+private fun PluginInstallOptionsDialog(
+    onInstallFromUrl: () -> Unit,
+    onInstallFromFile: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    PremiumDialog(
+        title = stringResource(R.string.plugins_add),
+        subtitle = stringResource(R.string.plugins_install_hint),
+        onDismissRequest = onDismiss,
+        heightFraction = null,
+        content = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PluginButton(onClick = onInstallFromUrl, tone = PluginButtonTone.Primary) {
+                    Text(stringResource(R.string.plugins_install_url))
+                }
+                PluginButton(onClick = onInstallFromFile) {
+                    Text(stringResource(R.string.plugins_install_file))
+                }
+            }
+        },
+        footer = {
+            PremiumDialogFooterButton(
+                label = stringResource(R.string.settings_cancel),
+                onClick = onDismiss
+            )
+        }
+    )
 }
 
 private enum class PluginButtonTone {
@@ -277,8 +391,7 @@ private fun PluginButton(
 
     TvButton(
         onClick = onClick,
-        modifier = modifier
-            .heightIn(min = 44.dp),
+        modifier = modifier.heightIn(min = 44.dp),
         enabled = enabled,
         shape = ButtonDefaults.shape(shape),
         colors = colors,
@@ -292,54 +405,9 @@ private fun PluginButton(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 20.dp,
             vertical = 7.dp
-        )
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun PluginInstallPanel(
-    isInstalling: Boolean,
-    onInstallFromUrl: () -> Unit,
-    onInstallFromFile: () -> Unit,
-    onRefresh: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .browsePanel()
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PluginButton(
-                enabled = !isInstalling,
-                onClick = onInstallFromUrl,
-                tone = PluginButtonTone.Primary
-            ) {
-                Text("Install URL")
-            }
-            PluginButton(
-                enabled = !isInstalling,
-                onClick = onInstallFromFile
-            ) {
-                Text("Install file")
-            }
-            PluginButton(onClick = onRefresh) {
-                Text("Refresh")
-            }
-        }
-        Text(
-            text = "Manual installs are detected when this screen refreshes. Compatible plugins expose the StreamVault plugin service.",
-            style = MaterialTheme.typography.bodySmall,
-            color = AppColors.TextTertiary
-        )
-    }
+        ),
+        content = content
+    )
 }
 
 @Composable
@@ -427,6 +495,8 @@ private fun PluginInstallUrlDialog(
 private fun PluginCard(
     plugin: InstalledStreamVaultPlugin,
     busy: Boolean,
+    expanded: Boolean,
+    onToggleDetails: () -> Unit,
     onEnabledChange: (Boolean) -> Unit,
     onOpenConfiguration: () -> Unit
 ) {
@@ -451,61 +521,56 @@ private fun PluginCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    StatusPill(
-                        label = if (plugin.enabled) "Enabled" else "Disabled",
-                        containerColor = if (plugin.enabled) AppColors.BrandMuted else AppColors.SurfaceEmphasis,
-                        contentColor = if (plugin.enabled) AppColors.Brand else AppColors.TextSecondary
-                    )
                 }
                 Text(
                     text = plugin.manifest.description.ifBlank { plugin.packageName },
                     style = MaterialTheme.typography.bodySmall,
                     color = AppColors.TextSecondary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                val version = plugin.manifest.versionName.ifBlank { "unknown" }
-                Text(
-                    text = "${plugin.packageName} · v$version",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = AppColors.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (plugin.statusLabel.isNotBlank() || plugin.lastMessage.isNotBlank()) {
-                    Text(
-                        text = listOf(plugin.statusLabel, plugin.lastMessage)
-                            .filter { it.isNotBlank() }
-                            .joinToString(" · "),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppColors.TextTertiary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                PluginButton(
-                    enabled = !busy && plugin.manifest.canConfigure,
-                    onClick = onOpenConfiguration
-                ) {
-                    Text("Configure")
-                }
-                Switch(
-                    checked = plugin.enabled,
-                    enabled = !busy,
-                    onCheckedChange = onEnabledChange
-                )
-            }
+            Switch(
+                checked = plugin.enabled,
+                enabled = !busy,
+                onCheckedChange = onEnabledChange,
+                modifier = Modifier.semantics { contentDescription = plugin.displayName }
+            )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             plugin.manifest.capabilities.forEach { capability ->
                 StatusPill(
                     label = capability,
-                    containerColor = Color.White.copy(alpha = 0.08f),
+                    containerColor = AppColors.BrandMuted,
                     contentColor = AppColors.TextSecondary
                 )
             }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            PluginButton(onClick = onToggleDetails) {
+                Text(stringResource(if (expanded) R.string.plugins_hide_details else R.string.plugins_details))
+            }
+            if (plugin.manifest.canConfigure) {
+                PluginButton(enabled = !busy, onClick = onOpenConfiguration) {
+                    Text(stringResource(R.string.plugins_configure))
+                }
+            }
+        }
+        if (expanded) {
+            val version = plugin.manifest.versionName.ifBlank { "unknown" }
+            val details = listOf("${plugin.packageName} · v$version", plugin.statusLabel, plugin.lastMessage)
+                .filter { it.isNotBlank() }
+                .joinToString(" · ")
+            Text(
+                text = details,
+                style = MaterialTheme.typography.bodySmall,
+                color = AppColors.TextTertiary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -588,12 +653,23 @@ private fun PluginConfigurationHeader(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = configuration.schema.title.ifBlank { configuration.plugin.displayName },
+                    text = configuration.plugin.displayName,
                     style = MaterialTheme.typography.titleMedium,
                     color = AppColors.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                configuration.schema.title
+                    .takeIf { it.isNotBlank() && it != configuration.plugin.displayName }
+                    ?.let { title ->
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppColors.TextSecondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 val description = configuration.schema.description
                     .ifBlank { configuration.plugin.manifest.description }
                 if (description.isNotBlank()) {
@@ -610,13 +686,13 @@ private fun PluginConfigurationHeader(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                PluginButton(enabled = !busy, onClick = onBack) { Text("Back") }
-                PluginButton(enabled = !busy, onClick = onRefresh) { Text("Refresh") }
+                PluginButton(enabled = !busy, onClick = onBack) { Text(stringResource(R.string.plugins_back_to_plugins)) }
+                PluginButton(enabled = !busy, onClick = onRefresh) { Text(stringResource(R.string.plugins_refresh_configuration)) }
                 PluginButton(
                     enabled = !busy && configuration.isDirty,
                     onClick = onSave,
                     tone = PluginButtonTone.Primary
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.plugins_save_configuration)) }
             }
         }
         if (configuration.validationErrors.isNotEmpty()) {

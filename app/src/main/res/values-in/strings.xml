@@ -287,4 +287,9 @@
     <string name="downloads_empty">Belum ada unduhan</string>
     <string name="downloads_delete_confirm">Hapus unduhan ini?</string>
     <string name="download_play_local">Putar</string>
+    <string name="torrent_playback_start_failed">Pemutaran torrent tidak dapat dimulai. Silakan coba lagi.</string>
+    <string name="torrent_cache_capacity_reached">Pemutaran torrent mencapai batas penyimpanan sementara. Hapus cache atau kosongkan ruang lalu coba lagi.</string>
+    <string name="torrent_storage_check_failed">Penyimpanan yang tersedia tidak dapat diperiksa. Pemutaran torrent tidak dapat dilanjutkan dengan aman.</string>
+    <string name="nav_addons">Add-on Stremio</string>
+    <string name="nav_extensions">Ekstensi</string>
 </resources>

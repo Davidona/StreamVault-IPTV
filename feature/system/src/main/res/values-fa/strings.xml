@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="extensions_title">افزونه‌ها</string>
+    <string name="plugins_section_description">با برنامه‌های همراه اندرویدی به StreamVault قابلیت اضافه کنید.</string>
+    <string name="plugins_install_url">نصب افزونه از نشانی وب</string>
+    <string name="plugins_install_file">نصب فایل APK افزونه</string>
+    <string name="plugins_install_hint">از یک فایل APK یا پیوند مستقیم دانلود APK استفاده کنید. برای نشانی‌های مانیفست افزونهٔ سازگار با Stremio، از زبانه افزونه‌های Stremio استفاده کنید.</string>
+    <string name="plugins_empty_title">هیچ افزونه‌ای نصب نشده است</string>
+    <string name="plugins_empty_description">یک برنامه همراه سازگار با StreamVault نصب کنید، یا برای افزونه‌ای که بیرون از StreamVault نصب کرده‌اید دوباره بررسی کنید.</string>
+    <string name="plugins_provider_sources_count">%1$d منبع ارائه‌دهنده در دسترس</string>
+    <string name="plugins_details">جزئیات</string>
+    <string name="plugins_hide_details">پنهان کردن جزئیات</string>
+    <string name="plugins_back_to_plugins">بازگشت به افزونه‌ها</string>
+    <string name="plugins_refresh_configuration">تازه‌سازی</string>
+    <string name="plugins_save_configuration">ذخیره</string>
   <string name="app_name">StreamVault</string>
   <string name="welcome_setup_provider">راه‌اندازی ارائه‌دهنده</string>
   <string name="welcome_setup_later">راه‌اندازی بعداً</string>
@@ -33,4 +46,17 @@
   <string name="download_resume">ادامه</string>
   <string name="download_delete">حذف</string>
   <string name="downloads_resumed">دانلود ادامه یافت</string>
+  <string name="extensions_tab_plugins">افزونه‌ها</string>
+  <string name="extensions_tab_stremio_addons">افزونه‌های Stremio</string>
+  <string name="plugins_add">افزودن افزونه</string>
+  <string name="plugins_refresh">بررسی افزونه‌های نصب‌شده</string>
+  <string name="plugins_installed_count">افزونه‌ها · %1$d نصب‌شده</string>
+  <string name="plugins_configure">پیکربندی</string>
+    <string name="torrent_cache_title">حافظه موقت تورنت</string>
+    <string name="torrent_cache_description">داده موقت برای پخش تورنت با محدودیت ۸ گیگابایت. دانلودهای ذخیره‌شده جدا هستند.</string>
+    <string name="torrent_cache_usage">مصرف‌شده: %1$s از %2$s · فضای خالی: %3$s</string>
+    <string name="torrent_cache_clear">پاک کردن حافظه موقت</string>
+    <string name="torrent_cache_confirm_message">داده موقت تورنت حذف شود؟ دانلودهای ذخیره‌شده حذف نمی‌شوند.</string>
+    <string name="torrent_cache_active">پیش از پاک کردن حافظه موقت، پخش تورنت را متوقف کنید.</string>
+    <string name="torrent_cache_clear_failed">پاک کردن حافظه موقت انجام نشد.</string>
 </resources>

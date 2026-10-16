@@ -32,6 +32,10 @@ import kotlinx.coroutines.flow.Flow
 
 /** Preference streams and commands consumed by settings; persistence remains in the data layer. */
 interface SettingsPreferences {
+    val hideStremioAddons: Flow<Boolean>
+
+    suspend fun setHideStremioAddons(hidden: Boolean)
+
     val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration>
         get() = kotlinx.coroutines.flow.flowOf(com.streamvault.domain.sync.AutomaticSyncConfiguration())
     val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>>

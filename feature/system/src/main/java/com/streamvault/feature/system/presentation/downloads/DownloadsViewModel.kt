@@ -9,7 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.feature.system.R
 import com.streamvault.domain.model.DownloadItem
+import com.streamvault.domain.model.TorrentCacheClearResult
 import com.streamvault.domain.repository.DownloadManager
+import com.streamvault.domain.manager.TorrentCacheManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -28,7 +30,8 @@ import kotlinx.coroutines.cancel
 @HiltViewModel
 class DownloadsViewModel @Inject constructor(
     private val downloadManager: DownloadManager,
-    @ApplicationContext private val application: Context
+    private val torrentCacheManager: TorrentCacheManager,
+    @param:ApplicationContext private val application: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DownloadsUiState())
@@ -48,6 +51,8 @@ class DownloadsViewModel @Inject constructor(
                 _uiState.update { it.copy(storageConfig = storageConfig) }
             }
         }
+
+        refreshTorrentCacheStatus()
     }
 
     /**
@@ -132,6 +137,48 @@ class DownloadsViewModel @Inject constructor(
      */
     fun clearUserMessage() {
         _uiState.update { it.copy(userMessage = null) }
+    }
+
+    fun showClearTorrentCacheConfirm() {
+        if (_uiState.value.torrentCacheStatus?.activeSessionCount == 0) {
+            _uiState.update { it.copy(showClearTorrentCacheConfirm = true) }
+        }
+    }
+
+    fun dismissClearTorrentCacheConfirm() {
+        _uiState.update { it.copy(showClearTorrentCacheConfirm = false) }
+    }
+
+    fun confirmClearTorrentCache() {
+        if (_uiState.value.isClearingTorrentCache) return
+        _uiState.update {
+            it.copy(showClearTorrentCacheConfirm = false, isClearingTorrentCache = true)
+        }
+        viewModelScope.launch {
+            val result = runCatching { torrentCacheManager.clearCache() }
+                .getOrElse { TorrentCacheClearResult.FAILED }
+            val status = runCatching { torrentCacheManager.getStatus() }.getOrNull()
+            val message = when (result) {
+                TorrentCacheClearResult.CLEARED -> null
+                TorrentCacheClearResult.PLAYBACK_ACTIVE -> application.getString(R.string.torrent_cache_active)
+                TorrentCacheClearResult.FAILED -> application.getString(R.string.torrent_cache_clear_failed)
+            }
+            _uiState.update {
+                it.copy(
+                    torrentCacheStatus = status ?: it.torrentCacheStatus,
+                    isClearingTorrentCache = false,
+                    userMessage = message
+                )
+            }
+        }
+    }
+
+    fun refreshTorrentCacheStatus() {
+        viewModelScope.launch {
+            runCatching { torrentCacheManager.getStatus() }.getOrNull()?.let { status ->
+                _uiState.update { it.copy(torrentCacheStatus = status) }
+            }
+        }
     }
 
     private fun getDisplayName(uri: Uri): String? {

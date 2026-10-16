@@ -87,6 +87,8 @@ import com.streamvault.player.PlayerError
 import com.streamvault.player.PlayerTrack
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.TrackType
+import com.streamvault.feature.playback.player.StremioPlayerSubtitleOption
+import com.streamvault.feature.playback.player.StremioSubtitlePickerState
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
@@ -263,6 +265,7 @@ fun PlayerTrackSelectionDialog(
     isCastConnected: Boolean = false,
     liveTranslationAvailable: Boolean = false,
     liveTranslationActive: Boolean = false,
+    stremioSubtitlePicker: StremioSubtitlePickerState = StremioSubtitlePickerState(),
     onlineSubtitleSearchAvailable: Boolean = false,
     subtitleOffsetMs: Int = 0,
     onDismiss: () -> Unit,
@@ -271,6 +274,8 @@ fun PlayerTrackSelectionDialog(
     onSelectSubtitle: (String?) -> Unit,
     onTrySelectVideo: ((String) -> Boolean)? = null,
     onSelectLiveTranslation: () -> Unit = {},
+    onSelectStremioSubtitle: (StremioPlayerSubtitleOption) -> Unit = {},
+    onRetryStremioSubtitles: () -> Unit = {},
     onSearchOnlineSubtitles: () -> Unit = {},
     onOpenSubtitleOffset: () -> Unit = {},
     onLoadLocalSubtitle: () -> Unit = {},
@@ -464,7 +469,60 @@ fun PlayerTrackSelectionDialog(
                             TrackSelectionItem(
                                 name = stringResource(R.string.player_search_online_subtitles),
                                 isSelected = false,
-                                onClick = onSearchOnlineSubtitles,
+                                onClick = onSearchOnlineSubtitles
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT && stremioSubtitlePicker.enabled) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.player_stremio_subtitles_heading),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            )
+                        }
+                        if (stremioSubtitlePicker.loading) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_loading),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        if (stremioSubtitlePicker.failed) {
+                            item {
+                                TrackSelectionItem(
+                                    name = stringResource(R.string.player_stremio_subtitles_retry),
+                                    isSelected = false,
+                                    onClick = onRetryStremioSubtitles
+                                )
+                            }
+                        }
+                        if (!stremioSubtitlePicker.loading &&
+                            !stremioSubtitlePicker.failed &&
+                            stremioSubtitlePicker.options.isEmpty()
+                        ) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_empty),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        items(stremioSubtitlePicker.options, key = { it.key }) { option ->
+                            TrackSelectionItem(
+                                name = option.label,
+                                isSelected = false,
+                                onClick = {
+                                    onSelectStremioSubtitle(option)
+                                    onDismiss()
+                                }
                             )
                         }
                     }

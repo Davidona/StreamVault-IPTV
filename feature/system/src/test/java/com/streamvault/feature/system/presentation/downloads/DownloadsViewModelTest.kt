@@ -14,6 +14,9 @@ import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadRequest
 import com.streamvault.domain.model.DownloadStorageConfig
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.TorrentCacheClearResult
+import com.streamvault.domain.model.TorrentCacheStatus
+import com.streamvault.domain.manager.TorrentCacheManager
 import com.streamvault.domain.repository.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -156,6 +159,16 @@ class DownloadsViewModelTest {
         whenever(application.getString(R.string.downloads_resumed)).thenReturn("Downloads resumed")
         return DownloadsViewModel(
             downloadManager = manager,
+            torrentCacheManager = object : TorrentCacheManager {
+                override suspend fun getStatus() = TorrentCacheStatus(
+                    cachedBytes = 0L,
+                    cacheLimitBytes = 8L * 1024L * 1024L * 1024L,
+                    availableStorageBytes = null,
+                    activeSessionCount = 0
+                )
+
+                override suspend fun clearCache() = TorrentCacheClearResult.CLEARED
+            },
             application = application
         )
     }

@@ -20,6 +20,7 @@ internal class PlayerDataSourceReadStatsFactory(
     private val clockMs: () -> Long = SystemClock::elapsedRealtime,
     private val livePlaybackByteTap: LivePlaybackByteTap? = null,
     private val livePlaybackIdentity: LivePlaybackIdentity? = null,
+    private val sensitiveTargetOrigin: String? = null,
     private val livePlaybackRequestFingerprint: String? = null
 ) : DataSource.Factory {
     override fun createDataSource(): DataSource =
@@ -30,6 +31,7 @@ internal class PlayerDataSourceReadStatsFactory(
             clockMs = clockMs,
             livePlaybackByteTap = livePlaybackByteTap,
             livePlaybackIdentity = livePlaybackIdentity,
+            sensitiveTargetOrigin = sensitiveTargetOrigin,
             livePlaybackRequestFingerprint = livePlaybackRequestFingerprint
         )
 }
@@ -46,10 +48,11 @@ private class PlayerDataSourceReadStatsDataSource(
     private val clockMs: () -> Long,
     private val livePlaybackByteTap: LivePlaybackByteTap?,
     private val livePlaybackIdentity: LivePlaybackIdentity?,
+    private val sensitiveTargetOrigin: String?,
     private val livePlaybackRequestFingerprint: String?
 ) : DataSource {
     private val tracker = PlayerDataSourceReadStatsTracker()
-    private var target = PlaybackLogSanitizer.sanitizeUrl(initialTargetUrl)
+    private var target = sanitizeTarget(initialTargetUrl)
     private var opened = false
     private var livePlaybackPublisher: LivePlaybackByteTap.Publisher? = null
     private var livePlaybackHlsPublisher: LivePlaybackByteTap.HlsPublisher? = null
@@ -62,13 +65,13 @@ private class PlayerDataSourceReadStatsDataSource(
 
     @Throws(IOException::class)
     override fun open(dataSpec: DataSpec): Long {
-        target = PlaybackLogSanitizer.sanitizeUrl(dataSpec.uri.toString())
         livePlaybackPublisher?.close()
         livePlaybackPublisher = null
         livePlaybackHlsPublisher?.close()
         livePlaybackHlsPublisher = null
         livePlaybackHlsExpectedLength = null
         livePlaybackHlsBytesRead = 0L
+        target = sanitizeTarget(dataSpec.uri.toString())
         val length = upstream.open(dataSpec)
         tracker.open(clockMs())
         opened = true
@@ -191,6 +194,9 @@ private class PlayerDataSourceReadStatsDataSource(
         val path = dataSpec.uri.path.orEmpty().lowercase()
         return "mpegurl" in contentType || path.endsWith(".m3u8") || path.endsWith(".m3u")
     }
+
+    private fun sanitizeTarget(url: String): String =
+        PlaybackLogSanitizer.sanitizeUrl(sensitiveTargetOrigin ?: url)
 
     private companion object {
         const val TAG = "PlayerDataReadStats"

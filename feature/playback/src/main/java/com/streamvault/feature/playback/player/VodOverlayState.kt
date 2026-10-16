@@ -26,6 +26,7 @@ internal fun buildVodOverlayState(
     currentPositionMs: Long,
     showEpisodesAction: Boolean,
     subtitleTrackCount: Int,
+    showStremioSubtitleAction: Boolean = false,
     audioTrackCount: Int,
     videoQualityCount: Int,
     audioVideoSyncEnabled: Boolean = false,
@@ -51,7 +52,7 @@ internal fun buildVodOverlayState(
         showChapterAction = isVod && visibleChapters.isNotEmpty() && !isCastConnected,
         showEpisodesAction = isVod && normalizedContentType == "SERIES_EPISODE" && showEpisodesAction,
         showSubtitleAction = isVod &&
-            (subtitleTrackCount > 0 || onlineSubtitleSearchAvailable || localSubtitleLoadingAvailable),
+            (subtitleTrackCount > 0 || showStremioSubtitleAction || onlineSubtitleSearchAvailable || localSubtitleLoadingAvailable),
         showAudioAction = isVod && audioTrackCount > 0,
         showVideoQualityAction = isVod && videoQualityCount > 0,
         showAudioVideoSyncAction = isVod && audioVideoSyncEnabled && !isCastConnected,

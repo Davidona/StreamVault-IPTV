@@ -65,6 +65,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
                 isEstimated = snapshot.lastSpeedTestEstimated
             )
         },
+        hideStremioAddons = snapshot.hideStremioAddons,
         isIncognitoMode = snapshot.isIncognitoMode,
         useXtreamTextClassification = snapshot.useXtreamTextClassification,
         xtreamBase64TextCompatibility = snapshot.xtreamBase64TextCompatibility,

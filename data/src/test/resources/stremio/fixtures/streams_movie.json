@@ -1,0 +1,48 @@
+{
+  "streams": [
+    {
+      "name": "Torrentio\n1080p",
+      "title": "The Shawshank Redemption 1994 1080p BluRay x264",
+      "infoHash": "ABCDEF1234567890ABCDEF1234567890ABCDEF12",
+      "fileIdx": 3,
+      "sources": [
+        "tracker:udp://tracker.opentrackr.org:1337/announce",
+        "dht:abcdef1234567890abcdef1234567890abcdef12"
+      ],
+      "behaviorHints": {
+        "bingeGroup": "torrentio-1080p",
+        "filename": "The.Shawshank.Redemption.1994.1080p.BluRay.x264.mkv",
+        "videoSize": 2198453013,
+        "notWebReady": false
+      }
+    },
+    {
+      "name": "Premium",
+      "title": "1080p direct",
+      "url": "https://cdn.example.test/movies/shawshank/1080p.mp4",
+      "subtitles": [
+        {"id": "inline-eng", "url": "https://cdn.example.test/subtitles/eng.srt", "lang": "eng"}
+      ],
+      "behaviorHints": {
+        "proxyHeaders": {
+          "request": {
+            "User-Agent": "Stremio",
+            "Authorization": "Bearer token123"
+          },
+          "response": {}
+        }
+      }
+    },
+    {
+      "name": "YouTube Trailer",
+      "ytId": "6hB3S9bIaco"
+    },
+    {
+      "name": "Open in browser",
+      "externalUrl": "https://example.test/watch/tt0111161"
+    },
+    {
+      "name": "Junk entry with no source"
+    }
+  ]
+}

@@ -288,4 +288,9 @@
     <string name="settings_drive_cancel_backup_choice_subtitle">Återgå till Drive-säkerhetskopieringsåtgärderna.</string>
 
     <!-- M2: Google Drive backup sync -->
+    <string name="torrent_playback_start_failed">Torrentuppspelningen kunde inte startas. Försök igen.</string>
+    <string name="torrent_cache_capacity_reached">Torrentuppspelningen nådde gränsen för tillfällig lagring. Rensa cachen eller frigör utrymme och försök igen.</string>
+    <string name="torrent_storage_check_failed">Det gick inte att kontrollera tillgängligt lagringsutrymme. Torrentuppspelningen kan inte fortsätta på ett säkert sätt.</string>
+    <string name="nav_addons">Stremio-tillägg</string>
+    <string name="nav_extensions">Tillägg</string>
 </resources>

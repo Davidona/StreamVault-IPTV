@@ -3,6 +3,7 @@
     <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast is unavailable on this device.</string>
     <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">This stream format is not supported by Google Cast.</string>
     <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP and RTMP streams are not supported for casting.</string>
+    <string name="cast_scoped_headers_unsupported" tools:ignore="MissingTranslation">Addon request headers cannot be sent to a Cast receiver.</string>
     <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">DRM-protected streams are not supported by Google Cast in this app.</string>
     <string name="cast_item_unavailable" tools:ignore="MissingTranslation">This item cannot be sent to a Cast receiver.</string>
     <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">This stream uses a local or device-only URL that Chromecast cannot reach directly.</string>

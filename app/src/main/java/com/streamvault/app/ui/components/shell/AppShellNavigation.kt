@@ -13,16 +13,13 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.streamvault.app.R
 import com.streamvault.app.navigation.Routes
 import com.streamvault.core.ui.components.shell.AppTopBarCloseAction
@@ -66,7 +63,7 @@ fun AppScreenScaffold(
     val closeAppLabel = stringResource(R.string.nav_close_app)
 
     CoreAppScreenScaffold(
-        currentDestinationId = currentRoute,
+        currentDestinationId = selectedNavigationDestinationId(currentRoute, navigationDestinations),
         destinations = navigationDestinations,
         onDestinationSelected = onNavigate,
         title = title,
@@ -92,6 +89,18 @@ fun AppScreenScaffold(
         contentPadding = contentPadding,
         content = content
     )
+}
+
+internal fun selectedNavigationDestinationId(
+    currentRoute: String,
+    destinations: List<UiDestination>
+): String = if (
+    currentRoute.substringBefore('?') == Routes.ADDONS &&
+    destinations.any { destination -> destination.id == Routes.PLUGINS }
+) {
+    Routes.PLUGINS
+} else {
+    currentRoute
 }
 
 internal data class AppDestinationItem(
@@ -146,39 +155,6 @@ private fun AppTopLevelDestination.toDestinationItem(): AppDestinationItem = whe
     AppTopLevelDestination.DOWNLOADS -> AppDestinationItem(Routes.DOWNLOADS, R.string.nav_downloads, Icons.Default.Download)
     AppTopLevelDestination.GUIDE -> AppDestinationItem(Routes.EPG, R.string.nav_epg, Icons.Default.Info)
     AppTopLevelDestination.SEARCH -> AppDestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search)
-    AppTopLevelDestination.PLUGINS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_plugins, PluginBlocksIcon)
+    AppTopLevelDestination.EXTENSIONS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_extensions, Icons.Default.Extension)
     AppTopLevelDestination.SETTINGS -> AppDestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)
 }
-
-private val PluginBlocksIcon: ImageVector
-    get() {
-        if (_pluginBlocksIcon != null) return _pluginBlocksIcon!!
-        _pluginBlocksIcon = ImageVector.Builder(
-            name = "PluginBlocks",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            path(fill = SolidColor(Color.Black)) {
-                moveTo(3f, 4f)
-                horizontalLineTo(10f)
-                verticalLineTo(11f)
-                horizontalLineTo(3f)
-                close()
-                moveTo(14f, 4f)
-                horizontalLineTo(21f)
-                verticalLineTo(11f)
-                horizontalLineTo(14f)
-                close()
-                moveTo(8.5f, 13f)
-                horizontalLineTo(15.5f)
-                verticalLineTo(20f)
-                horizontalLineTo(8.5f)
-                close()
-            }
-        }.build()
-        return _pluginBlocksIcon!!
-    }
-
-private var _pluginBlocksIcon: ImageVector? = null

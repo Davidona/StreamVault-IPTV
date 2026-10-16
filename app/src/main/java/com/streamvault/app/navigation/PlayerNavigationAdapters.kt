@@ -2,6 +2,8 @@ package com.streamvault.app.navigation
 
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.PlayerNavigationRequest
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
@@ -28,7 +30,9 @@ internal fun playerNavigationRequest(
     episodeNumber: Int? = null,
     episodeId: Long? = null,
     remoteContentId: String? = null,
-    remoteSeriesId: String? = null
+    remoteSeriesId: String? = null,
+    stremioPlaybackReference: StremioPlaybackReference? = null,
+    stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 ): PlayerNavigationRequest = PlayerNavigationRequest(
     streamUrl = streamUrl,
     title = title,
@@ -50,7 +54,9 @@ internal fun playerNavigationRequest(
     episodeNumber = episodeNumber,
     episodeId = episodeId,
     remoteContentId = remoteContentId,
-    remoteSeriesId = remoteSeriesId
+    remoteSeriesId = remoteSeriesId,
+    stremioPlaybackReference = stremioPlaybackReference,
+    stremioInlineSubtitles = stremioInlineSubtitles
 )
 
 internal fun Channel.toLivePlayerRequest(

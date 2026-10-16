@@ -465,6 +465,7 @@ dependencies {
     implementation(project(":feature:live"))
     implementation(project(":feature:catalog"))
     implementation(project(":feature:system"))
+    implementation(project(":feature:stremio"))
     implementation(libs.profileinstaller)
     baselineProfile(project(":benchmark"))
 
@@ -492,6 +493,13 @@ dependencies {
     implementation(libs.media3.datasource.okhttp)
     implementation(libs.media3.ui)
     implementation(files("../player/libs/media3-decoder-ffmpeg-1.11.0.aar"))
+
+    // Built-in BitTorrent playback (native libraries cover the app's supported ABIs).
+    implementation("org.libtorrent4j:libtorrent4j:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-arm:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-x86:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-x86_64:2.0.6-26")
 
     // Room
     implementation(libs.room.runtime)

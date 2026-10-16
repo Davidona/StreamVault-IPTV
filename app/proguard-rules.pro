@@ -80,6 +80,9 @@
 -dontwarn androidx.media3.decoder.ffmpeg.**
 -dontwarn androidx.media3.**
 
+# libtorrent4j's generated SWIG wrappers are called from the native JNI library.
+-keep class org.libtorrent4j.** { *; }
+
 # ── Coroutines ──────────────────────────────────────────────
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}

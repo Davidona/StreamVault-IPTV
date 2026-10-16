@@ -58,6 +58,19 @@ class ExternalSubtitlePlaybackTest {
     }
 
     @Test
+    fun `external subtitle configuration preserves label and detects webvtt`() {
+        val configuration = buildExternalSubtitleConfiguration(
+            subtitleUri = Uri.parse("https://example.test/private/path/captions.vtt?token=hidden"),
+            language = "en",
+            label = "English · Subtitles"
+        )
+
+        assertThat(configuration.mimeType).isEqualTo(MimeTypes.TEXT_VTT)
+        assertThat(configuration.language).isEqualTo("en")
+        assertThat(configuration.label).isEqualTo("English · Subtitles")
+    }
+
+    @Test
     fun `external subtitles use extraction based progressive media source`() {
         val configuration = buildExternalSubtitleConfiguration(
             subtitleUri = Uri.parse("https://example.test/subtitles/episode.srt"),

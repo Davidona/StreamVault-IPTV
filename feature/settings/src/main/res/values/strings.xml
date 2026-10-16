@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_hide_stremio_addons">Hide Stremio-compatible add-ons</string>
+    <string name="settings_hide_stremio_addons_subtitle">Hide add-on browsing, installation, and history. Installed add-ons are kept.</string>
     <string name="dashboard_favorite_channels">Favorite Channels</string>
     <string name="dashboard_recent_channels">Recent Channels</string>
     <string name="dashboard_live_shortcuts">Live Shortcuts</string>
@@ -579,6 +581,8 @@
     <string name="nav_epg">Guide</string>
     <string name="nav_downloads">Downloads</string>
     <string name="nav_plugins">Plugins</string>
+    <string name="nav_addons">Stremio-compatible Add-ons</string>
+    <string name="nav_extensions">Extensions</string>
     <string name="nav_settings">Settings</string>
     <string name="settings_overview_title">Control Center</string>
     <string name="settings_overview_subtitle">Review your provider, protection, and playback setup at a glance.</string>

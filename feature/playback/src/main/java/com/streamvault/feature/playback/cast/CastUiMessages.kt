@@ -9,6 +9,7 @@ fun CastMediaRequestUnsupportedReason.toCastBuildFailureMessageRes(): Int = when
     CastMediaRequestUnsupportedReason.EMPTY_URL -> R.string.cast_item_unavailable
     CastMediaRequestUnsupportedReason.UNSUPPORTED_PROTOCOL -> R.string.cast_protocol_unsupported
     CastMediaRequestUnsupportedReason.DRM_PROTECTED -> R.string.cast_drm_unsupported
+    CastMediaRequestUnsupportedReason.SCOPED_HEADERS_UNSUPPORTED -> R.string.cast_scoped_headers_unsupported
 }
 
 fun CastMediaRequest.toCastUnsupportedMessageRes(): Int = when (rewriteRequiredReason) {

@@ -1,6 +1,8 @@
 package com.streamvault.feature.playback.player
 
 import android.graphics.Bitmap
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
@@ -169,7 +171,10 @@ data class PlayerPrepareIdentity(
     val combinedSourceFilterProviderId: Long?,
     val contentType: String,
     val archiveStartMs: Long?,
-    val archiveEndMs: Long?
+    val archiveEndMs: Long?,
+    val stremioPlaybackReference: StremioPlaybackReference? = null,
+    val stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    val stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 )
 
 internal fun buildPlayerPrepareIdentity(
@@ -183,7 +188,10 @@ internal fun buildPlayerPrepareIdentity(
     combinedSourceFilterProviderId: Long?,
     contentType: String,
     archiveStartMs: Long?,
-    archiveEndMs: Long?
+    archiveEndMs: Long?,
+    stremioPlaybackReference: StremioPlaybackReference? = null,
+    stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 ): PlayerPrepareIdentity = PlayerPrepareIdentity(
     streamUrl = streamUrl,
     epgChannelId = epgChannelId,
@@ -195,7 +203,10 @@ internal fun buildPlayerPrepareIdentity(
     combinedSourceFilterProviderId = combinedSourceFilterProviderId?.takeIf { it > 0L },
     contentType = contentType,
     archiveStartMs = archiveStartMs,
-    archiveEndMs = archiveEndMs
+    archiveEndMs = archiveEndMs,
+    stremioPlaybackReference = stremioPlaybackReference,
+    stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+    stremioInlineSubtitles = stremioInlineSubtitles
 )
 
 internal fun hasArchivePlaybackIdentity(

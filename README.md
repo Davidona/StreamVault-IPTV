@@ -53,6 +53,7 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Built-in DVR with scheduled recording, background capture, recording playback, and app-managed default storage
 - Multi-view split-screen playback for watching multiple channels at once
 - Plugin API for creating companion Android APKs that extend providers, playback, Cast URL handling, or configuration flows
+- Native Stremio add-on catalogs, metadata, direct/debrid playback, subtitles, and resume history
 - Strong parental controls with PIN-protected categories and automatic adult-category detection
 - TV integrations including Watch Next, launcher recommendations, TV input sync, Cast support, external-player handoff, and in-app update delivery
 
@@ -74,7 +75,7 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Designed for Android TV and D-pad navigation first
 - Fast channel browsing with large-playlist friendly layouts
 - Numeric remote input for direct channel entry
-- Configurable startup landing screen so the app can open Home, Live TV, Movies, Series, Guide, Downloads, Plugins, or Settings first
+- Configurable startup landing screen so the app can open Home, Live TV, Movies, Series, Guide, Downloads, Plugins, Stremio-compatible Add-ons, or Settings first
 - Colored remote button remapping with global defaults plus playback and live-browse overrides
 - Preview mode while browsing channels
 - TV-friendly search and text-entry flows
@@ -150,6 +151,15 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - StreamVault can be extended with companion Android APK plugins.
 - Plugin developers can expose provider, playback, Cast URL rewrite, and host-rendered or native configuration capabilities.
 - See the [StreamVault Plugin API](docs/PLUGIN_API.md) docs to create compatible plugins.
+
+### Stremio-compatible Add-ons
+
+- Install Stremio-compatible add-ons from a manifest URL and browse their catalogs from the Extensions area.
+- Resolve metadata, streams, and subtitles across enabled add-ons, including when the catalog and stream come from different add-ons.
+- Play direct and debrid HTTP(S) streams with add-on request headers scoped to the selected media origin.
+- Save progress and resume by resolving a fresh stream when reopening Stremio playback history.
+- Plugins and Stremio-compatible Add-ons are grouped under one Extensions navigation item with separate, focusable tabs.
+- Stremio-compatible Add-ons are open by default. Use Settings → Privacy → Hide Stremio-compatible add-ons to hide them independently of IPTV parental controls.
 
 ## Quick TV Tips
 

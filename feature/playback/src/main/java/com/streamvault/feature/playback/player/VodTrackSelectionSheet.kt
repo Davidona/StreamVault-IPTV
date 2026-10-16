@@ -105,6 +105,7 @@ internal fun VodTrackSelectionSheet(
     textScale: Float,
     backgroundColor: Int,
     onlineAvailable: Boolean,
+    stremioSubtitlePicker: StremioSubtitlePickerState = StremioSubtitlePickerState(),
     onDismiss: () -> Unit,
     onSelectTrack: (String?) -> Unit,
     onSearchOnline: () -> Unit,
@@ -113,6 +114,8 @@ internal fun VodTrackSelectionSheet(
     onResetOffset: () -> Unit,
     onSetTextScale: (Float) -> Unit,
     onSetOpacity: (Int) -> Unit,
+    onSelectStremioSubtitle: (StremioPlayerSubtitleOption) -> Unit = {},
+    onRetryStremioSubtitles: () -> Unit = {},
 ) {
     var settings by remember { mutableStateOf(false) }
     var provider by remember { mutableStateOf(false) }
@@ -192,13 +195,66 @@ internal fun VodTrackSelectionSheet(
                         VodSelectionRow(stringResource(R.string.player_subtitle_load_from_device),
                             stringResource(R.string.vod_subtitle_device_hint), Icons.Default.FolderOpen, onClick = onLoadLocal)
                     }
+                    if (stremioSubtitlePicker.enabled) {
+                        item {
+                            Text(
+                                stringResource(R.string.player_stremio_subtitles_heading),
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+                            )
+                        }
+                        if (stremioSubtitlePicker.loading) {
+                            item {
+                                Text(
+                                    stringResource(R.string.player_stremio_subtitles_loading),
+                                    color = Color(0xFF9CAABD),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                            }
+                        }
+                        if (stremioSubtitlePicker.failed) {
+                            item {
+                                VodSelectionRow(
+                                    stringResource(R.string.player_stremio_subtitles_retry),
+                                    icon = Icons.Default.Refresh,
+                                    onClick = onRetryStremioSubtitles
+                                )
+                            }
+                        }
+                        if (!stremioSubtitlePicker.loading && !stremioSubtitlePicker.failed &&
+                            stremioSubtitlePicker.options.isEmpty()
+                        ) {
+                            item {
+                                Text(
+                                    stringResource(R.string.player_stremio_subtitles_empty),
+                                    color = Color(0xFF9CAABD),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                            }
+                        }
+                        items(stremioSubtitlePicker.options, key = { "stremio:${it.key}" }) { option ->
+                            VodSelectionRow(
+                                option.label,
+                                icon = Icons.Default.CloudDownload,
+                                onClick = { onSelectStremioSubtitle(option); onDismiss() }
+                            )
+                        }
+                    }
                     item {
                         VodSelectionRow(stringResource(R.string.player_track_off), selected = tracks.none { it.isSelected },
                             icon = Icons.Default.SubtitlesOff) { onSelectTrack(null); onDismiss() }
                     }
                     items(tracks.filter { it.subtitleSource != SubtitleTrackSource.PROVIDER }, key = { it.id }) { track ->
                         VodSelectionRow(track.name, selected = track.isSelected,
-                            icon = if (track.subtitleSource == SubtitleTrackSource.DEVICE) Icons.Default.FolderOpen else Icons.Default.CloudDownload) {
+                            icon = when (track.subtitleSource) {
+                                SubtitleTrackSource.DEVICE -> Icons.Default.FolderOpen
+                                SubtitleTrackSource.STREMIO -> Icons.Default.Subtitles
+                                SubtitleTrackSource.ONLINE -> Icons.Default.CloudDownload
+                                SubtitleTrackSource.PROVIDER -> Icons.Default.ClosedCaption
+                            }) {
                             onSelectTrack(track.id); onDismiss()
                         }
                     }

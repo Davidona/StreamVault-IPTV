@@ -852,4 +852,14 @@
     <string name="settings_ethernet_quality_bitrate_cap">บิตเรตวิดีโอสูงสุดผ่าน Ethernet</string>
     <string name="settings_quality_cap_no_additional_limit">ไม่มีขีดจำกัดเพิ่มเติม</string>
     <string name="settings_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
+    <string name="settings_hide_stremio_addons">ซ่อนส่วนเสริม Stremio</string>
+    <string name="settings_hide_stremio_addons_subtitle">ซ่อนการเรียกดู การติดตั้ง และประวัติของส่วนเสริม ส่วนเสริมที่ติดตั้งไว้จะยังคงอยู่</string>
+    <string name="settings_theme_forest">ป่า</string>
+    <string name="settings_theme_sunset">พระอาทิตย์ตก</string>
+    <string name="settings_theme_ocean">มหาสมุทร</string>
+    <string name="settings_theme_rose">กุหลาบ</string>
+    <string name="settings_theme_amoled_black">ดำ AMOLED</string>
+    <string name="settings_theme_vintage">วินเทจ</string>
+    <string name="nav_addons">ส่วนเสริม Stremio</string>
+    <string name="nav_extensions">ส่วนขยาย</string>
 </resources>

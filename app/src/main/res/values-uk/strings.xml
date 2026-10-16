@@ -287,4 +287,9 @@
     <string name="downloads_empty">Ще немає завантажень</string>
     <string name="downloads_delete_confirm">Видалити це завантаження?</string>
     <string name="download_play_local">Відтворити</string>
+    <string name="torrent_playback_start_failed">Не вдалося почати відтворення торента. Спробуйте ще раз.</string>
+    <string name="torrent_cache_capacity_reached">Відтворення торрента досягло ліміту тимчасового сховища. Очистьте кеш або звільніть місце й повторіть спробу.</string>
+    <string name="torrent_storage_check_failed">Не вдалося перевірити доступне сховище. Відтворення торрента не можна безпечно продовжити.</string>
+    <string name="nav_addons">Доповнення Stremio</string>
+    <string name="nav_extensions">Розширення</string>
 </resources>

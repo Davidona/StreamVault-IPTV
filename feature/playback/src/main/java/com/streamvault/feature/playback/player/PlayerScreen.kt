@@ -95,6 +95,8 @@ import com.streamvault.feature.playback.player.overlay.NextEpisodeCountdownOverl
 import com.streamvault.feature.playback.player.overlay.SkipChapterOverlay
 import com.streamvault.feature.playback.player.LiveClockOverlay
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 
 
 
@@ -123,6 +125,9 @@ fun PlayerScreen(
     episodeId: Long? = null,
     remoteContentId: String? = null,
     remoteSeriesId: String? = null,
+    stremioPlaybackReference: StremioPlaybackReference? = null,
+    stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList(),
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
@@ -342,7 +347,10 @@ fun PlayerScreen(
         combinedSourceFilterProviderId = combinedSourceFilterProviderId,
         contentType = contentType,
         archiveStartMs = archiveStartMs,
-        archiveEndMs = archiveEndMs
+        archiveEndMs = archiveEndMs,
+        stremioPlaybackReference = stremioPlaybackReference,
+        stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+        stremioInlineSubtitles = stremioInlineSubtitles
     )
 
     LaunchedEffect(prepareIdentity) {
@@ -366,7 +374,10 @@ fun PlayerScreen(
             episodeNumber = episodeNumber,
             episodeId = episodeId,
             remoteContentId = remoteContentId,
-            remoteSeriesId = remoteSeriesId
+            remoteSeriesId = remoteSeriesId,
+            stremioPlaybackReference = stremioPlaybackReference,
+            stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+            stremioInlineSubtitles = stremioInlineSubtitles
         )
     }
 

@@ -104,6 +104,7 @@ data class SettingsPreferenceSnapshot(
     val lastSpeedTestTransport: String?,
     val lastSpeedTestRecommendedHeight: Int?,
     val lastSpeedTestEstimated: Boolean,
+    val hideStremioAddons: Boolean = false,
     val isIncognitoMode: Boolean,
     val useXtreamTextClassification: Boolean,
     val xtreamBase64TextCompatibility: Boolean,

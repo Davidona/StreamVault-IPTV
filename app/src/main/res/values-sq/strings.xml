@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">Kryefaqja</string>
     <string name="nav_live_tv">Live TV</string>
     <string name="nav_movies">Filmat</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">Shtojcat</string>
     <string name="nav_close_app">Mbyll aplikacionin</string>
 
-    
+
     <string name="welcome_enter_app">Hyr në aplikacion</string>
     <string name="welcome_manage_providers">Menaxho ofruesit</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">Shtresa të unifikuara të luajtësit, qasje në guidë dhe përmbajtje e ruajtur</string>
     <string name="welcome_manage_hint">Ndërro ofruesit, rifresko metadatat ose shto një burim të ri.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">Kategoritë e fshehura</string>
     <string name="hidden_categories_dialog_subtitle">Zgjidh ato që do të rikthesh.</string>
     <string name="hidden_categories_dialog_unhide_all">Shfaq të gjitha</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">Fshi</string>
     <string name="home_delete_group_cancel">Anulo</string>
 
-    
+
     <string name="dashboard_customize_home">Personalizo kryefaqen</string>
     <string name="dashboard_customize_home_subtitle">Zgjidh cilat rafte shfaqen këtu, shto rreshta të rinj dhe rirendit ata në çdo moment.</string>
     <string name="dashboard_customize_home_action">Personalizo</string>
 
-    
+
 
     <string name="category_options_set_default">Cakto si grup të parazgjedhur</string>
     <string name="category_options_rename">Riemërto grupin</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">I padisponueshëm</string>
     <string name="live_source_empty_short">Bosh</string>
 
-    
+
     <string name="movies_shell_subtitle">Rafte të përzgjedhura, grupe të ruajtura dhe shfletim i bibliotekës së plotë pa u larguar nga konteksti aktual i ofruesit.</string>
     <string name="movies_all_categories">Të gjitha kategoritë</string>
     <string name="movies_search_launch_title">Kërko në bibliotekën e filmave</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">Përsos kategorinë e zgjedhur të filmave pa rindërtuar të gjithë bibliotekën.</string>
     <string name="movies_reorder_title">Po rirenditet %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">Rafte editoriale, grupe të ruajtura dhe shfletim i serialeve me faqe, i përshtatur për biblioteka të mëdha ofruesish.</string>
     <string name="series_all_categories">Të gjitha kategoritë</string>
     <string name="series_search_launch_title">Kërko në bibliotekën e serialeve</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">Përditësuar së fundmi</string>
     <string name="library_sort_rating">Vlerësimi</string>
 
-    
+
     <string name="settings_parental_subtitle">Mbro përmbajtjen për të rritur ose të ndjeshme me kontrolle miqësore për TV.</string>
     <string name="settings_parental_groups_title">Grupet e mbrojtura</string>
     <string name="settings_parental_groups_hint">Kyç ose zhblloko kategoritë për ofruesin aktiv.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">Menaxho punët lokale të DVR-së live, hapësirën e ruajtjes dhe regjistrimet e planifikuara.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">Shiko më pas</string>
     <string name="tv_channel_continue_watching_title">Vazhdo shikimin</string>
     <string name="tv_channel_continue_watching_description">Vazhdo titujt që nise së fundmi</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">Seriale të reja</string>
     <string name="tv_channel_fresh_series_description">Seriale të përditësuara së fundmi nga %1$s</string>
 
-    
+
     <string name="search_title">Kërko</string>
     <string name="parental_group_shell_subtitle">Shqyrto grupet e mbrojtura live, filmash dhe serialesh pa u larguar nga cilësimet premium.</string>
     <string name="search_command_title">Kërkim me komanda</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">Tani po luhet %1$s</string>
     <string name="a11y_channel_with_number">Kanali %1$d, %2$s</string>
 
-    
 
-    
+
+
     <string name="player_no_external_player">Nuk ka luajtës të jashtëm të instaluar</string>
     <string name="player_unsafe_stream_url">Ky transmetim nuk mund të hapet në një luajtës të jashtëm</string>
     <string name="player_external_launch_failed">Luajtësi i jashtëm nuk nisi</string>
@@ -267,26 +267,26 @@
     <string name="epg_provider_troubleshooting_missing_template">Riprodhimi mund të dështojë sepse ofruesi ekspozoi mbështetjen e shikimit me vonesë pa një shabllon të përdorshëm riprodhimi.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Riprodhimi mund të dështojë sepse ofruesi nuk ekspozoi një identifikues transmetimi riprodhimi.</string>
 
-    
+
     <string name="parental_group_title">Grupet e mbrojtura</string>
     <string name="parental_group_search">Kërko kategori...</string>
     <string name="player_live_timeshift_ready">Zhvendosja kohore gati.</string>
     <string name="player_live_timeshift_failed">Kthimi prapa live lokal nuk disponohet për këtë transmetim.</string>
 
-    
+
     <string name="multiview_add_to_split">Shto në ekran të ndarë</string>
     <string name="multiview_queued">Në ekran të ndarë</string>
 
-    
+
     <string name="settings_privacy_subtitle">Menaxho historikun e shikimit dhe modalitetin e fshehtë.</string>
 
-    
+
     <string name="action_done">Gati</string>
     <string name="action_delete">Fshi</string>
     <string name="action_clear">Pastro</string>
     <string name="action_space">Hapësirë</string>
 
-    
+
     <string name="label_provider">OFRUESI</string>
     <string name="label_selected">Zgjedhur</string>
     <string name="label_no_schedule">Nuk ka informacion programi</string>
@@ -299,14 +299,14 @@
     <string name="badge_moving">NË LËVIZJE</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
     <string name="favorites_content_type_movie">Film</string>
 
-    
 
-    
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">Po skanohen kanalet e StreamVault</string>
     <string name="tv_input_setup_success_title">Live TV është gati</string>
@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Të fshihet ky shkarkim?</string>
     <string name="download_play_local">Luaj</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Riprodhimi i torrentit nuk mund të nisej. Provo sërish.</string>
+    <string name="torrent_cache_capacity_reached">Luajtja e torrentit arriti kufirin e hapësirës së përkohshme. Pastro memorien ose liro hapësirë dhe provo përsëri.</string>
+    <string name="torrent_storage_check_failed">Nuk mund të kontrollohej hapësira e disponueshme. Luajtja e torrentit nuk mund të vazhdojë në mënyrë të sigurt.</string>
+    <string name="nav_addons">Shtesa Stremio</string>
+    <string name="nav_extensions">Zgjerimet</string>
 </resources>

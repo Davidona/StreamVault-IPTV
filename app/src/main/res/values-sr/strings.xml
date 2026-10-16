@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">StreamVault</string>
 
-    
+
     <string name="nav_home">Почетна</string>
     <string name="nav_live_tv">ТВ уживо</string>
     <string name="nav_movies">Филмови</string>
@@ -12,7 +12,7 @@
     <string name="nav_plugins">Додаци</string>
     <string name="nav_close_app">Затвори апликацију</string>
 
-    
+
     <string name="welcome_enter_app">Уђи у апликацију</string>
     <string name="welcome_manage_providers">Управљање провајдерима</string>
     <string name="welcome_version">v1.0.3</string>
@@ -21,7 +21,7 @@
     <string name="welcome_feature_player">Јединствени преклопи плејера, приступ водичу и сачувани садржај</string>
     <string name="welcome_manage_hint">Замените провајдера, освежите метаподатке или додајте нови извор.</string>
 
-    
+
     <string name="hidden_categories_dialog_title">Сакривене категорије</string>
     <string name="hidden_categories_dialog_subtitle">Изаберите оне које желите да вратите.</string>
     <string name="hidden_categories_dialog_unhide_all">Откриј све</string>
@@ -47,12 +47,12 @@
     <string name="home_delete_group_confirm">Избриши</string>
     <string name="home_delete_group_cancel">Откажи</string>
 
-    
+
     <string name="dashboard_customize_home">Прилагоди почетну</string>
     <string name="dashboard_customize_home_subtitle">Изаберите које ће се полице појављивати овде, додајте још редова и промените њихов редослед кад год желите.</string>
     <string name="dashboard_customize_home_action">Прилагоди</string>
 
-    
+
 
     <string name="category_options_set_default">Постави као подразумевану групу</string>
     <string name="category_options_rename">Преименуј групу</string>
@@ -116,7 +116,7 @@
     <string name="live_source_unavailable_short">Недоступан</string>
     <string name="live_source_empty_short">Празно</string>
 
-    
+
     <string name="movies_shell_subtitle">Одабране полице, сачуване групе и прегледање целе библиотеке без напуштања контекста тренутног провајдера.</string>
     <string name="movies_all_categories">Све категорије</string>
     <string name="movies_search_launch_title">Претражите библиотеку филмова</string>
@@ -131,7 +131,7 @@
     <string name="movies_filter_subtitle">Прецизирајте изабрану категорију филмова без поновног изграђивања целе библиотеке.</string>
     <string name="movies_reorder_title">Промена редоследа %1$s</string>
 
-    
+
     <string name="series_shell_subtitle">Уређене полице, сачуване групе и странично прегледање серија прилагођено великим библиотекама провајдера.</string>
     <string name="series_all_categories">Све категорије</string>
     <string name="series_search_launch_title">Претражите библиотеку серија</string>
@@ -158,7 +158,7 @@
     <string name="library_sort_updated">Недавно ажурирано</string>
     <string name="library_sort_rating">Оцена</string>
 
-    
+
     <string name="settings_parental_subtitle">Заштите садржај за одрасле или осетљив садржај контролама прилагођеним ТВ-у.</string>
     <string name="settings_parental_groups_title">Заштићене групе</string>
     <string name="settings_parental_groups_hint">Закључајте или откључајте категорије за активног провајдера.</string>
@@ -197,7 +197,7 @@
     <string name="settings_recording_subtitle">Управљајте локалним DVR задацима снимања уживо, складиштем и заказаним снимцима.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
 
-    
+
     <string name="saved_preset_watch_next">Следеће за гледање</string>
     <string name="tv_channel_continue_watching_title">Настави гледање</string>
     <string name="tv_channel_continue_watching_description">Наставите наслове које сте недавно започели</string>
@@ -208,7 +208,7 @@
     <string name="tv_channel_fresh_series_title">Нове серије</string>
     <string name="tv_channel_fresh_series_description">Недавно ажуриране серије са %1$s</string>
 
-    
+
     <string name="search_title">Претрага</string>
     <string name="parental_group_shell_subtitle">Прегледајте заштићене групе уживо, филмова и серија без напуштања напредног оквира подешавања.</string>
     <string name="search_command_title">Командна претрага</string>
@@ -221,9 +221,9 @@
     <string name="a11y_now_playing">Сада се репродукује %1$s</string>
     <string name="a11y_channel_with_number">Канал %1$d, %2$s</string>
 
-    
 
-    
+
+
     <string name="player_no_external_player">Није инсталиран ниједан спољни плејер</string>
     <string name="player_unsafe_stream_url">Овај стрим не може да се отвори у спољном плејеру</string>
     <string name="player_external_launch_failed">Спољни плејер није успео да се покрене</string>
@@ -267,26 +267,26 @@
     <string name="epg_provider_troubleshooting_missing_template">Поновно гледање можда неће успети јер провајдер нуди подршку за гледање уназад без употребљивог шаблона за репродукцију.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Поновно гледање можда неће успети јер провајдер није открио идентификатор стрима за поновно гледање.</string>
 
-    
+
     <string name="parental_group_title">Заштићене групе</string>
     <string name="parental_group_search">Претражи категорије...</string>
     <string name="player_live_timeshift_ready">Временски помак је спреман.</string>
     <string name="player_live_timeshift_failed">Локално враћање уживо није доступно за овај стрим.</string>
 
-    
+
     <string name="multiview_add_to_split">Додај на подељени екран</string>
     <string name="multiview_queued">На подељеном екрану</string>
 
-    
+
     <string name="settings_privacy_subtitle">Управљајте историјом гледања и режимом без трага.</string>
 
-    
+
     <string name="action_done">Готово</string>
     <string name="action_delete">Избриши</string>
     <string name="action_clear">Обриши</string>
     <string name="action_space">Размак</string>
 
-    
+
     <string name="label_provider">ПРОВАЈДЕР</string>
     <string name="label_selected">Изабрано</string>
     <string name="label_no_schedule">Нема информација о распореду</string>
@@ -299,14 +299,14 @@
     <string name="badge_moving">ПРЕМЕШТАЊЕ</string>
     <string name="badge_fav">FAV</string>
 
-    
 
-    
+
+
     <string name="favorites_content_type_movie">Филм</string>
 
-    
 
-    
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
     <string name="tv_input_setup_scanning_title">Скенирање StreamVault канала</string>
     <string name="tv_input_setup_success_title">ТВ уживо је спреман</string>
@@ -340,4 +340,9 @@
     <string name="downloads_delete_confirm">Избрисати ово преузимање?</string>
     <string name="download_play_local">Пусти</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Репродукција торента није могла да се покрене. Покушајте поново.</string>
+    <string name="torrent_cache_capacity_reached">Репродукција торента достигла је ограничење привременог складишта. Обришите кеш или ослободите простор па покушајте поново.</string>
+    <string name="torrent_storage_check_failed">Није могуће проверити доступан простор. Репродукција торента не може безбедно да се настави.</string>
+    <string name="nav_addons">Stremio додаци</string>
+    <string name="nav_extensions">Проширења</string>
 </resources>

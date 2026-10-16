@@ -147,17 +147,26 @@ fun TvIconButton(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
-    scale: ButtonScale = IconButtonDefaults.scale(),
+    scale: ButtonScale = if (LocalBrowseVisuals.current) IconButtonDefaults.scale(focusedScale = 1.035f) else IconButtonDefaults.scale(),
     glow: ButtonGlow = IconButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    shape: ButtonShape = IconButtonDefaults.shape(),
-    colors: ButtonColors = IconButtonDefaults.colors(
+    shape: ButtonShape = if (LocalBrowseVisuals.current) IconButtonDefaults.shape(BrowseShapes.Control) else IconButtonDefaults.shape(),
+    colors: ButtonColors = if (LocalBrowseVisuals.current) IconButtonDefaults.colors(
+        containerColor = Color.Transparent,
+        contentColor = BrowseColors.TextSecondary,
+        focusedContainerColor = BrowseColors.SurfaceEmphasis,
+        focusedContentColor = BrowseColors.TextPrimary,
+        disabledContainerColor = Color.Transparent,
+        disabledContentColor = BrowseColors.TextDisabled,
+    ) else IconButtonDefaults.colors(
         containerColor = Color.Transparent,
         contentColor = AppColors.TextPrimary,
         focusedContainerColor = AppColors.SurfaceEmphasis,
         focusedContentColor = AppColors.TextPrimary,
     ),
-    border: ButtonBorder = IconButtonDefaults.border(),
+    border: ButtonBorder = if (LocalBrowseVisuals.current) IconButtonDefaults.border(
+        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control)
+    ) else IconButtonDefaults.border(),
     content: @Composable BoxScope.() -> Unit,
 ) {
     val activationTracker = remember { RemoteKeyActivationTracker() }

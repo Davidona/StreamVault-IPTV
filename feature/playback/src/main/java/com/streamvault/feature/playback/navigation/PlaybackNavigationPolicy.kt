@@ -12,13 +12,19 @@ private val supportedStreamSchemes = setOf(
     "xtream",
     "stalker",
     "content",
-    "file"
+    "file",
+    "magnet"
 )
 
 /** Accept app-supported media schemes while rejecting obviously unsafe values. */
 private fun isStreamUrlSafe(url: String?): Boolean {
     if (url.isNullOrBlank()) return false
-    val scheme = url.substringBefore("://").lowercase()
+    val scheme = Regex("^([A-Za-z][A-Za-z0-9+.-]*):")
+        .find(url)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.lowercase()
+        ?: return false
     return scheme in supportedStreamSchemes
 }
 
