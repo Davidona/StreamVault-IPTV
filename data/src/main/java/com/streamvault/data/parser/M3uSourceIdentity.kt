@@ -8,6 +8,8 @@ import java.util.Locale
 
 /** Stable, destination-independent identity for an M3U entry. */
 internal object M3uSourceIdentity {
+    private val volatileQueryKeys = setOf("token", "auth", "password", "username")
+
     fun fromEntry(providerId: Long, entry: M3uParser.M3uEntry): String =
         hash(providerId, entry.tvgId ?: entry.tvgName, entry.url, entry.name)
 
@@ -39,25 +41,41 @@ internal object M3uSourceIdentity {
     private fun identity(providerId: Long, externalId: String?, url: String, title: String): String {
         val normalizedExternalId = externalId?.trim()?.lowercase(Locale.ROOT).orEmpty()
         return if (normalizedExternalId.isNotBlank()) {
-            // tvg-id/tvg-name is the provider's durable identity when supplied. Titles and
-            // signed URL query parameters commonly change during a playlist refresh.
-            "$providerId|external=$normalizedExternalId"
+            // Keep tvg-id/tvg-name stable across title and signed-token refreshes while
+            // still distinguishing multi-source streams that share the same EPG tvg-id.
+            "$providerId|external=$normalizedExternalId|url=${canonicalUrl(url, stripVolatileQueryParams = true)}"
         } else {
             "$providerId|url=${canonicalUrl(url)}|title=${normalize(title)}"
         }
     }
 
-    private fun canonicalUrl(url: String): String = runCatching {
+    private fun canonicalUrl(url: String, stripVolatileQueryParams: Boolean = false): String = runCatching {
         val parsed = URI(url)
         buildString {
             append(parsed.scheme?.lowercase(Locale.ROOT).orEmpty())
             append("://")
-            append(parsed.host?.lowercase(Locale.ROOT).orEmpty())
-            parsed.port.takeIf { it > 0 }?.let { append(':').append(it) }
+            val host = parsed.host?.lowercase(Locale.ROOT)
+            if (host != null) {
+                append(host)
+                parsed.port.takeIf { it > 0 }?.let { append(':').append(it) }
+            } else {
+                // Single-label hex hashes starting with a digit (e.g. acestream://<40-hex>)
+                // are parsed by java.net.URI as rawAuthority with host == null.
+                append(parsed.rawAuthority?.lowercase(Locale.ROOT).orEmpty())
+            }
             append(parsed.rawPath.orEmpty())
-            // Query parameters are intentionally retained. M3U URLs frequently use the
-            // query as a credential or token, so this identity is never shown to users.
-            parsed.rawQuery?.let { append('?').append(it) }
+            val query = if (stripVolatileQueryParams) {
+                parsed.rawQuery
+                    ?.split('&')
+                    ?.filter { pair ->
+                        pair.substringBefore('=').lowercase(Locale.ROOT) !in volatileQueryKeys
+                    }
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.joinToString("&")
+            } else {
+                parsed.rawQuery
+            }
+            query?.takeIf { it.isNotEmpty() }?.let { append('?').append(it) }
         }
     }.getOrElse { url.substringBefore('#') }
 
