@@ -2,8 +2,11 @@ package com.streamvault.app.ui.components.shell
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.app.navigation.Routes
+import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.CatalogLayout
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Extension
 import org.junit.Test
 
 class AppShellNavigationTest {
@@ -25,10 +28,21 @@ class AppShellNavigationTest {
                 Routes.EPG,
                 Routes.SEARCH,
                 Routes.PLUGINS,
-                Routes.ADDONS,
                 Routes.SETTINGS
             )
             .inOrder()
+        assertThat(result.single { it.route == Routes.PLUGINS }.labelRes)
+            .isEqualTo(com.streamvault.app.R.string.nav_extensions)
+    }
+
+    @Test
+    fun addonsRouteSelectsTheExtensionsNavigationItem() {
+        val destinations = listOf(
+            UiDestination(Routes.PLUGINS, "Extensions", Icons.Default.Extension)
+        )
+
+        assertThat(selectedNavigationDestinationId(Routes.ADDONS, destinations))
+            .isEqualTo(Routes.PLUGINS)
     }
 
     @Test

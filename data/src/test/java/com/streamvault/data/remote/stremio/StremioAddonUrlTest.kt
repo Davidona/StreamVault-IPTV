@@ -15,10 +15,42 @@ class StremioAddonUrlTest {
     }
 
     @Test
+    fun `cinemeta manifest url is accepted`() {
+        val location = StremioAddonUrl.parse("https://v3-cinemeta.strem.io/manifest.json")
+
+        assertThat(location).isNotNull()
+        assertThat(location!!.manifestUrl).isEqualTo("https://v3-cinemeta.strem.io/manifest.json")
+    }
+
+    @Test
     fun `configured manifest path is preserved`() {
         val location = StremioAddonUrl.parse("https://torrentio.strem.fun/qualityfilter=720p,av1/manifest.json")
         assertThat(location).isNotNull()
         assertThat(location!!.baseUrl).isEqualTo("https://torrentio.strem.fun/qualityfilter=720p,av1")
+    }
+
+    @Test
+    fun `clipboard direction marks around manifest url are ignored`() {
+        val location = StremioAddonUrl.parse(
+            "\u200F\uFEFF https://thepiratebay-plus.strem.fun/manifest.json\u200E\u200F "
+        )
+
+        assertThat(location).isNotNull()
+        assertThat(location!!.manifestUrl)
+            .isEqualTo("https://thepiratebay-plus.strem.fun/manifest.json")
+    }
+
+    @Test
+    fun `encoded configured path bytes round trip unchanged`() {
+        val location = StremioAddonUrl.parse(
+            "https://example.test/tenant%2Fprivate/quality%3D720p/manifest.json?token=secret"
+        )
+
+        assertThat(location).isNotNull()
+        assertThat(location!!.manifestUrl)
+            .isEqualTo("https://example.test/tenant%2Fprivate/quality%3D720p/manifest.json?token=secret")
+        assertThat(location.endpointUrl("/catalog/movie/top.json"))
+            .isEqualTo("https://example.test/tenant%2Fprivate/quality%3D720p/catalog/movie/top.json?token=secret")
     }
 
     @Test

@@ -1,6 +1,9 @@
 package com.streamvault.feature.playback.player
 
+import android.net.Uri
 import android.os.SystemClock
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.feature.playback.cast.CastConnectionState
@@ -23,6 +26,11 @@ import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.model.stremio.StremioPlaybackHistory
+import com.streamvault.domain.model.stremio.StremioMediaType
+import com.streamvault.domain.model.stremio.stremioPlaybackContentKey
+import com.streamvault.domain.model.stremio.stremioMediaRequestHeaders as validateStremioMediaRequestHeaders
+import com.streamvault.domain.repository.StremioAddonRepository
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreferences
@@ -49,6 +57,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import android.content.Context
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
 
 @HiltViewModel
@@ -76,6 +85,7 @@ class PlayerViewModel @Inject constructor(
     internal val playerPlaybackContextCoordinator: PlayerPlaybackContextCoordinator,
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
+    private val stremioAddonRepository: StremioAddonRepository
 ) : ViewModel() {
     companion object {
         private const val MIN_WATCHED_FOR_AUTO_PLAY_MS = 5_000L
@@ -176,6 +186,9 @@ class PlayerViewModel @Inject constructor(
 
     internal val _playerNotice = MutableStateFlow<PlayerNoticeState?>(null)
     val playerNotice: StateFlow<PlayerNoticeState?> = _playerNotice.asStateFlow()
+    private val _stremioSubtitlePickerState = MutableStateFlow(StremioSubtitlePickerState())
+    val stremioSubtitlePickerState: StateFlow<StremioSubtitlePickerState> =
+        _stremioSubtitlePickerState.asStateFlow()
     private val _playerDiagnostics = MutableStateFlow(PlayerDiagnosticsUiState())
     val playerDiagnostics: StateFlow<PlayerDiagnosticsUiState> = _playerDiagnostics.asStateFlow()
     internal val audioVideoOffsetPreviewMs = MutableStateFlow<Int?>(null)
@@ -218,6 +231,10 @@ class PlayerViewModel @Inject constructor(
     internal val livePlaybackRecordCoordinator =
         LivePlaybackRecordCoordinator(playbackHistoryCoordinator::recordPlayback)
     private var currentStreamClassLabel: String = "Primary"
+    internal var currentStremioPlaybackReference: StremioPlaybackReference? = null
+    private var currentStremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
+    private var stremioSubtitleLoadJob: Job? = null
+    private var loadedStremioSubtitleLookupKey: String? = null
     internal var lastRecordedVariantObservationSignature: String? = null
     internal var lastRecordedVodVariantObservationSignature: String? = null
     internal val playbackSessionCoordinator = PlaybackSessionCoordinator(viewModelScope)
@@ -1224,6 +1241,82 @@ class PlayerViewModel @Inject constructor(
     )
     }
 
+    internal fun buildStremioPlaybackHistorySnapshot(
+        positionMs: Long,
+        durationMs: Long,
+        watched: Boolean = false
+    ): StremioPlaybackHistory? {
+        val reference = currentStremioPlaybackReference ?: return null
+        return buildStremioPlaybackHistorySnapshot(
+            reference = reference,
+            positionMs = positionMs,
+            durationMs = durationMs,
+            title = currentTitle,
+            posterUrl = currentArtworkUrl,
+            watched = watched
+        )
+    }
+
+    fun loadStremioAddonSubtitles() = resolveStremioAddonSubtitles(forceRefresh = false)
+
+    fun retryStremioAddonSubtitles() = resolveStremioAddonSubtitles(forceRefresh = true)
+
+    fun selectStremioSubtitle(option: StremioPlayerSubtitleOption) {
+        if (option !in _stremioSubtitlePickerState.value.options) return
+        val uri = option.url.trim().toHttpUrlOrNull()?.toString()?.let { Uri.parse(it) } ?: return
+        playerEngine.addExternalSubtitle(uri, option.languageTag, option.label)
+    }
+
+    private fun resolveStremioAddonSubtitles(forceRefresh: Boolean) {
+        val reference = currentStremioPlaybackReference ?: return
+        val mediaType = StremioMediaType.fromTypeName(reference.mediaType)
+        if (mediaType == StremioMediaType.UNKNOWN) return
+        val lookupKey = listOf(
+            reference.mediaType,
+            reference.exactVideoId,
+            reference.videoHash.orEmpty(),
+            reference.videoSize?.toString().orEmpty(),
+            reference.filename.orEmpty()
+        ).joinToString("|")
+        if (!forceRefresh && (
+                loadedStremioSubtitleLookupKey == lookupKey || stremioSubtitleLoadJob?.isActive == true
+            )
+        ) return
+
+        stremioSubtitleLoadJob?.cancel()
+        loadedStremioSubtitleLookupKey = lookupKey
+        _stremioSubtitlePickerState.update {
+            it.copy(loading = true, failed = false)
+        }
+        stremioSubtitleLoadJob = viewModelScope.launch {
+            try {
+                val result = stremioAddonRepository.resolveSubtitles(
+                    type = mediaType,
+                    exactVideoId = reference.exactVideoId,
+                    videoHash = reference.videoHash,
+                    videoSize = reference.videoSize,
+                    filename = reference.filename
+                )
+                if (currentStremioPlaybackReference != reference) return@launch
+                _stremioSubtitlePickerState.value = StremioSubtitlePickerState(
+                    enabled = true,
+                    loading = false,
+                    failed = result.failures.isNotEmpty(),
+                    options = buildStremioPlayerSubtitleOptions(
+                        inlineSubtitles = currentStremioInlineSubtitles,
+                        addonSubtitles = result.results
+                    )
+                )
+            } catch (cancellation: kotlinx.coroutines.CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                if (currentStremioPlaybackReference == reference) {
+                    _stremioSubtitlePickerState.update { it.copy(loading = false, failed = true) }
+                }
+            }
+        }
+    }
+
     internal fun isActivePlaybackSession(
         requestVersion: Long,
         expectedLogicalUrl: String? = null
@@ -1347,7 +1440,10 @@ class PlayerViewModel @Inject constructor(
         seasonNumber: Int? = null,
         episodeNumber: Int? = null,
         episodeId: Long? = null,
-        showResumePrompt: Boolean = true
+        showResumePrompt: Boolean = true,
+        stremioPlaybackReference: StremioPlaybackReference? = null,
+        stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+        stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
     ) {
         val hasArchiveRequest = hasArchivePlaybackIdentity(
             contentType = contentType,
@@ -1362,6 +1458,19 @@ class PlayerViewModel @Inject constructor(
             PlaybackResolutionUiState.Resolving
         }
         val contentSwitchFlush = queueContentSwitchProgressFlush()
+        if (
+            currentStremioPlaybackReference != stremioPlaybackReference ||
+            currentStremioInlineSubtitles != stremioInlineSubtitles
+        ) {
+            stremioSubtitleLoadJob?.cancel()
+            loadedStremioSubtitleLookupKey = null
+            _stremioSubtitlePickerState.value = StremioSubtitlePickerState(
+                enabled = stremioPlaybackReference != null,
+                options = buildStremioPlayerSubtitleOptions(stremioInlineSubtitles, emptyList())
+            )
+        }
+        currentStremioPlaybackReference = stremioPlaybackReference
+        currentStremioInlineSubtitles = stremioInlineSubtitles
         val requestVersion = beginPlaybackSession()
         val shouldReloadPlaylist = applyPrepareSessionState(
             streamUrl = streamUrl,
@@ -1387,7 +1496,7 @@ class PlayerViewModel @Inject constructor(
             playbackSessionScope(requestVersion)?.launch {
                 contentSwitchFlush?.join()
                 if (!isActivePlaybackSession(requestVersion)) return@launch
-                if (playerPreviewCoordinator.tryAdoptFullscreenHandoff(
+                if (stremioPlaybackReference == null && playerPreviewCoordinator.tryAdoptFullscreenHandoff(
                         channelId = internalChannelId,
                         providerId = providerId,
                         contentType = currentContentType,
@@ -1453,7 +1562,24 @@ class PlayerViewModel @Inject constructor(
                     currentContentType
                 )
                 if (!isActivePlaybackSession(requestVersion, streamUrl)) return@launch
-                val streamInfo = resolution.streamInfo
+                val resolvedStreamInfo = resolution.streamInfo
+                val scopedHeaders = if (stremioPlaybackReference != null) {
+                    validateStremioMediaRequestHeaders(streamUrl, stremioMediaRequestHeaders)
+                } else null
+                if (stremioPlaybackReference != null && scopedHeaders == null) {
+                    _playbackResolutionUiState.value = PlaybackResolutionUiState.Failure(
+                        "The selected addon stream supplied invalid media request headers."
+                    )
+                    return@launch
+                }
+                val streamInfo = resolvedStreamInfo?.let { resolved ->
+                    scopedHeaders?.let { validated ->
+                        resolved.copy(
+                            headers = validated.headers,
+                            requestHeadersOrigin = validated.origin
+                        )
+                    } ?: resolved
+                }
                 if (streamInfo == null) {
                     if (!isActivePlaybackSession(requestVersion, streamUrl)) return@launch
                     resolution.failureMessage?.let(::setLastFailureReason)
@@ -1472,24 +1598,44 @@ class PlayerViewModel @Inject constructor(
                 // Check for resume position after the player is fully prepared (VOD only).
                 // Doing this after preparePlayer ensures pause() acts on the live player instance,
                 // not a stale one that may have already been replaced by prepareInternal().
-                if (showResumePrompt && currentContentType != ContentType.LIVE && currentContentId != -1L && currentProviderId != -1L) {
-                    val history = playbackHistoryCoordinator.getPlaybackHistory(
-                        contentId = currentContentId,
-                        contentType = currentContentType,
-                        providerId = currentProviderId,
-                        seriesId = currentSeriesId,
-                        seasonNumber = currentSeasonNumber,
-                        episodeNumber = currentEpisodeNumber
-                    )
-                    if (isActivePlaybackSession(requestVersion, playbackLogicalUrl)) {
-                        if (history != null && history.resumePositionMs > 5000L && !isPlaybackComplete(history.resumePositionMs, history.totalDurationMs)) {
-                            playerEngine.pause()
-                            _resumePrompt.value = ResumePromptState(
-                                show = true,
-                                positionMs = history.resumePositionMs,
-                                title = currentTitle
-                            )
-                        }
+                if (showResumePrompt && currentContentType != ContentType.LIVE) {
+                    val reference = currentStremioPlaybackReference
+                    val contentKey = reference?.let {
+                        stremioPlaybackContentKey(
+                            mediaType = it.mediaType,
+                            exactVideoId = it.exactVideoId,
+                            parentSeriesId = it.parentSeriesId,
+                            catalogOriginKey = it.catalogOriginKey
+                        )
+                    }
+                    val stremioHistory = contentKey?.let {
+                        playbackHistoryCoordinator.getStremioPlaybackHistory(it)
+                    }
+                    val providerHistory = if (
+                        reference == null && currentContentId != -1L && currentProviderId != -1L
+                    ) {
+                        playbackHistoryCoordinator.getPlaybackHistory(
+                            contentId = currentContentId,
+                            contentType = currentContentType,
+                            providerId = currentProviderId,
+                            seriesId = currentSeriesId,
+                            seasonNumber = currentSeasonNumber,
+                            episodeNumber = currentEpisodeNumber
+                        )
+                    } else null
+                    val resumePosition = stremioHistory?.takeUnless { it.watched }?.resumePositionMs
+                        ?: providerHistory?.resumePositionMs
+                    val resumeDuration = stremioHistory?.totalDurationMs ?: providerHistory?.totalDurationMs
+                    if (isActivePlaybackSession(requestVersion, playbackLogicalUrl) &&
+                        resumePosition != null && resumeDuration != null && resumePosition > 5000L &&
+                        !isPlaybackComplete(resumePosition, resumeDuration)
+                    ) {
+                        playerEngine.pause()
+                        _resumePrompt.value = ResumePromptState(
+                            show = true,
+                            positionMs = resumePosition,
+                            title = currentTitle
+                        )
                     }
                 }
             }
@@ -1731,6 +1877,7 @@ class PlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         playbackSessionCoordinator.invalidate()
+        playerPreparationCoordinator.stopPlayback(currentResolvedStreamInfo)
         super.onCleared()
         cleanupAfterCleared(playerEngineCoordinator.mainEngine)
     }

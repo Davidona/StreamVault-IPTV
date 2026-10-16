@@ -195,6 +195,7 @@ class PreferencesRepository @Inject constructor(
         val ACTIVE_LIVE_SOURCE_TYPE = stringPreferencesKey("active_live_source_type")
         val ACTIVE_LIVE_SOURCE_ID = longPreferencesKey("active_live_source_id")
         val DEFAULT_VIEW_MODE = stringPreferencesKey("default_view_mode")
+        val HIDE_STREMIO_ADDONS = booleanPreferencesKey("hide_stremio_addons")
         val PARENTAL_CONTROL_LEVEL = intPreferencesKey("parental_control_level")
         val PARENTAL_V2_MIGRATED = booleanPreferencesKey("parental_v2_migrated")
         val LEGACY_PARENTAL_PIN = stringPreferencesKey("parental_pin")
@@ -693,6 +694,16 @@ class PreferencesRepository @Inject constructor(
     }
 
     val recentSearchQueries: Flow<List<String>> = getRecentSearchQueries(SearchHistoryScope.ALL, null)
+
+    override val hideStremioAddons: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.HIDE_STREMIO_ADDONS] ?: false
+    }
+
+    override suspend fun setHideStremioAddons(hidden: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HIDE_STREMIO_ADDONS] = hidden
+        }
+    }
 
     override val parentalControlLevel: Flow<Int> = context.dataStore.data
         .map { preferences ->

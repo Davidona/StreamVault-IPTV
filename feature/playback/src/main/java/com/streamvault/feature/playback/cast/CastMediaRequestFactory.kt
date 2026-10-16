@@ -21,6 +21,12 @@ class CastMediaRequestFactory @Inject constructor() {
     ): CastMediaRequestBuildResult {
         val resolvedUrl = streamInfo.url.takeIf { it.isNotBlank() }
             ?: return CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.EMPTY_URL)
+        if (runCatching { URI(resolvedUrl).scheme.equals("magnet", ignoreCase = true) }.getOrDefault(false)) {
+            return CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.UNSUPPORTED_PROTOCOL)
+        }
+        if (streamInfo.requestHeadersOrigin != null && streamInfo.headers.isNotEmpty()) {
+            return CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.SCOPED_HEADERS_UNSUPPORTED)
+        }
         if (streamInfo.drmInfo != null) {
             return CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.DRM_PROTECTED)
         }
@@ -96,7 +102,8 @@ enum class CastMediaRequestUnsupportedReason {
     STREAM_UNAVAILABLE,
     EMPTY_URL,
     UNSUPPORTED_PROTOCOL,
-    DRM_PROTECTED
+    DRM_PROTECTED,
+    SCOPED_HEADERS_UNSUPPORTED
 }
 
 internal fun StreamInfo.inferCastStreamType(): StreamType {

@@ -23,6 +23,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.Authenticator
+import okhttp3.CookieJar
 
 @Singleton
 class StremioAddonClient @Inject constructor(
@@ -96,6 +98,7 @@ class StremioAddonClient @Inject constructor(
         type: StremioMediaType,
         id: String,
         videoHash: String? = null,
+        videoSize: Long? = null,
         filename: String? = null
     ): Result<List<StremioSubtitle>> {
         if (id.isBlank()) return Result.error(MISSING_ID_MESSAGE)
@@ -103,6 +106,7 @@ class StremioAddonClient @Inject constructor(
         val location = StremioAddonUrl.parse(addonUrl) ?: return Result.error(INVALID_URL_MESSAGE)
         val extras = buildList {
             videoHash?.trim()?.takeIf { it.isNotEmpty() }?.let { add("videoHash" to it) }
+            videoSize?.takeIf { it > 0L }?.let { add("videoSize" to it.toString()) }
             filename?.trim()?.takeIf { it.isNotEmpty() }?.let { add("filename" to it) }
         }
         val path = StremioAddonUrl.subtitlePath(type, id, extras)
@@ -126,12 +130,18 @@ class StremioAddonClient @Inject constructor(
         Result.success(map(json.decodeFromString(deserializer, body), body))
     } catch (cancellation: CancellationException) {
         throw cancellation
-    } catch (parseError: SerializationException) {
-        Result.error("Addon response could not be parsed", parseError)
-    } catch (parseError: IllegalArgumentException) {
-        Result.error("Addon response could not be parsed", parseError)
+    } catch (_: SerializationException) {
+        Result.error("Addon response could not be parsed")
+    } catch (_: IllegalArgumentException) {
+        Result.error("Addon response could not be parsed")
     } catch (error: Exception) {
-        Result.error(error.message ?: "Addon request failed", error)
+        val message = when (error) {
+            is StremioHttpException, is StremioResponseTooLargeException, is StremioParseException ->
+                error.message ?: "Addon request failed"
+            else -> "Addon request failed. Check the connection and addon configuration."
+        }
+        // Do not retain arbitrary OkHttp/parser exceptions: they can include a configured URL path or query.
+        Result.error(message)
     }
 
     private suspend fun executeBody(url: String): String {
@@ -141,6 +151,7 @@ class StremioAddonClient @Inject constructor(
             .get()
             .build()
         return okHttpClient.newBuilder()
+            .applyStremioAddonRequestPolicy()
             .callTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build()
             .newCall(request)
@@ -183,6 +194,17 @@ class StremioAddonClient @Inject constructor(
         private const val MISSING_ID_MESSAGE = "Addon content id is missing"
         private const val UNSUPPORTED_TYPE_MESSAGE = "Addon request has an unsupported content type"
     }
+}
+
+/** Addon URLs may contain install credentials in paths or queries; keep them out of inherited app logging and state. */
+private fun OkHttpClient.Builder.applyStremioAddonRequestPolicy(): OkHttpClient.Builder {
+    interceptors().clear()
+    networkInterceptors().clear()
+    cookieJar(CookieJar.NO_COOKIES)
+        .authenticator(Authenticator.NONE)
+        .proxyAuthenticator(Authenticator.NONE)
+        .cache(null)
+    return this
 }
 
 class StremioHttpException(val statusCode: Int) : IOException("Addon request failed with HTTP $statusCode")

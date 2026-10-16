@@ -51,13 +51,13 @@ class PluginsPresentationTest {
             }
         }
 
-        composeRule.onNodeWithText("No compatible StreamVault plugins are installed.")
+        composeRule.onNodeWithText("No plugins installed")
             .assertIsDisplayed()
-        composeRule.onNode(hasText("Install URL") and hasClickAction())
+        composeRule.onNode(hasText("Install plugin from URL") and hasClickAction())
             .performSemanticsAction(SemanticsActions.OnClick)
-        composeRule.onNode(hasText("Install file") and hasClickAction())
+        composeRule.onNode(hasText("Install plugin APK") and hasClickAction())
             .performSemanticsAction(SemanticsActions.OnClick)
-        composeRule.onNode(hasText("Refresh") and hasClickAction())
+        composeRule.onNode(hasText("Check installed plugins") and hasClickAction())
             .performSemanticsAction(SemanticsActions.OnClick)
 
         assertThat(installUrlClicks).isEqualTo(1)

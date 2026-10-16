@@ -12,8 +12,7 @@ enum class AppTopLevelDestination(
     DOWNLOADS("downloads", AppLandingDestination.DOWNLOADS),
     GUIDE("guide", AppLandingDestination.GUIDE),
     SEARCH("search"),
-    PLUGINS("plugins", AppLandingDestination.PLUGINS),
-    ADDONS("addons", AppLandingDestination.ADDONS),
+    EXTENSIONS("extensions"),
     SETTINGS("settings", AppLandingDestination.SETTINGS, isRequired = true);
 
     companion object {
@@ -25,13 +24,17 @@ enum class AppTopLevelDestination(
             DOWNLOADS,
             GUIDE,
             SEARCH,
-            PLUGINS,
-            ADDONS,
+            EXTENSIONS,
             SETTINGS
         )
 
         fun fromStorage(value: String?): AppTopLevelDestination? =
             entries.firstOrNull { it.storageValue.equals(value, ignoreCase = true) }
+                ?: when {
+                    value.equals("plugins", ignoreCase = true) -> EXTENSIONS
+                    value.equals("addons", ignoreCase = true) -> EXTENSIONS
+                    else -> null
+                }
 
         fun normalizeForStorage(destinations: List<AppTopLevelDestination>): List<AppTopLevelDestination> {
             val unique = linkedSetOf<AppTopLevelDestination>()
@@ -45,7 +48,12 @@ enum class AppTopLevelDestination(
         ): List<AppLandingDestination> {
             val normalized = normalizeForStorage(destinations)
             val available = normalized
-                .mapNotNull { it.landingDestination }
+                .flatMap { destination ->
+                    when (destination) {
+                        EXTENSIONS -> listOf(AppLandingDestination.PLUGINS, AppLandingDestination.ADDONS)
+                        else -> listOfNotNull(destination.landingDestination)
+                    }
+                }
                 .distinct()
                 .toMutableList()
             if (LIVE_TV in normalized) {

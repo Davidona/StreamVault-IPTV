@@ -37,12 +37,23 @@ internal fun TrackSelectionParameters.withExternalSubtitleEnabled(): TrackSelect
 
 internal fun buildExternalSubtitleConfiguration(
     subtitleUri: Uri,
-    language: String
+    language: String,
+    label: String? = null
 ): MediaItem.SubtitleConfiguration = MediaItem.SubtitleConfiguration.Builder(subtitleUri)
-    .setMimeType(MimeTypes.APPLICATION_SUBRIP)
+    .setMimeType(externalSubtitleMimeType(subtitleUri))
     .setLanguage(language)
+    .setLabel(label?.takeIf(String::isNotBlank))
     .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
     .build()
+
+private fun externalSubtitleMimeType(uri: Uri): String = when (
+    uri.lastPathSegment.orEmpty().substringAfterLast('.', "").lowercase()
+) {
+    "vtt", "webvtt" -> MimeTypes.TEXT_VTT
+    "ass", "ssa" -> MimeTypes.TEXT_SSA
+    "ttml", "dfxp" -> MimeTypes.APPLICATION_TTML
+    else -> MimeTypes.APPLICATION_SUBRIP
+}
 
 @UnstableApi
 internal fun buildExternalSubtitleMediaSource(

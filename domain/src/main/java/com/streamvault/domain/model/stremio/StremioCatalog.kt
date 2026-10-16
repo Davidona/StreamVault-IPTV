@@ -16,7 +16,10 @@ data class StremioMetaPreview(
 
 data class StremioCatalogPage(
     val metas: List<StremioMetaPreview>,
-    val hasMore: Boolean = false
+    /** `null` means the addon omitted the optional protocol field. */
+    val hasMore: Boolean? = null,
+    /** Count from the unfiltered JSON array, used for stable remote skip offsets. */
+    val rawItemCount: Int = metas.size
 )
 
 data class StremioCatalogQuery(
@@ -27,6 +30,6 @@ data class StremioCatalogQuery(
     fun toExtras(): List<Pair<String, String>> = buildList {
         search?.trim()?.takeIf { it.isNotEmpty() }?.let { add("search" to it) }
         genre?.trim()?.takeIf { it.isNotEmpty() }?.let { add("genre" to it) }
-        skip?.takeIf { it > 0 }?.let { add("skip" to it.toString()) }
+        skip?.takeIf { it >= 0 }?.let { add("skip" to it.toString()) }
     }
 }

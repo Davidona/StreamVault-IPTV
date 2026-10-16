@@ -93,11 +93,15 @@ internal fun PlayerControlsModalHost(
     }
 
     if (!isInPictureInPictureMode && showTrackSelection != null) {
+        LaunchedEffect(showTrackSelection) {
+            if (showTrackSelection == TrackType.TEXT) viewModel.loadStremioAddonSubtitles()
+        }
         val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
         val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
         val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
         val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
         val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
+        val stremioSubtitlePicker by viewModel.stremioSubtitlePickerState.collectAsStateWithLifecycle()
         PlayerTrackSelectionDialog(
             trackType = showTrackSelection,
             audioTracks = availableAudioTracks,
@@ -105,6 +109,7 @@ internal fun PlayerControlsModalHost(
             videoTracks = availableVideoQualities,
             liveTranslationAvailable = liveTranslationAvailable,
             liveTranslationActive = liveTranslationActive,
+            stremioSubtitlePicker = stremioSubtitlePicker,
             onDismiss = onDismissModal,
             onSelectAudio = viewModel::selectAudioTrack,
             onSelectVideo = viewModel::selectVideoQuality,
@@ -115,7 +120,9 @@ internal fun PlayerControlsModalHost(
             onSelectLiveTranslation = {
                 viewModel.selectSubtitleTrack(null)
                 viewModel.activateLiveTranslation()
-            }
+            },
+            onSelectStremioSubtitle = viewModel::selectStremioSubtitle,
+            onRetryStremioSubtitles = viewModel::retryStremioAddonSubtitles
         )
     }
     if (!isInPictureInPictureMode && showVariantSelection) {

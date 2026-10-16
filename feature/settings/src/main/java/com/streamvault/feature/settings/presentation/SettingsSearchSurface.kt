@@ -298,6 +298,7 @@ private fun resolvedSettingsCatalog(
         remoteSetting(RemoteShortcutProfile.BROWSE, R.string.settings_remote_profile_browse, RemoteColorButton.GREEN, R.string.settings_remote_button_green),
         remoteSetting(RemoteShortcutProfile.BROWSE, R.string.settings_remote_profile_browse, RemoteColorButton.YELLOW, R.string.settings_remote_button_yellow),
         remoteSetting(RemoteShortcutProfile.BROWSE, R.string.settings_remote_profile_browse, RemoteColorButton.BLUE, R.string.settings_remote_button_blue),
+        setting("privacy.hide_stremio_addons", SettingsCategory.PRIVACY, null, R.string.settings_hide_stremio_addons, "extensions", "addons", "visibility"),
         setting("privacy.incognito", SettingsCategory.PRIVACY, null, R.string.settings_incognito_mode, "private viewing", "history"),
         setting("privacy.clear_history", SettingsCategory.PRIVACY, null, R.string.settings_clear_history, "watch progress", "recents"),
         setting("privacy.protection_level", SettingsCategory.PRIVACY, null, R.string.settings_protection_level, "parental controls", "lock"),

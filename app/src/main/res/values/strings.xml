@@ -10,7 +10,8 @@
     <string name="nav_epg">Guide</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_plugins">Plugins</string>
-<string name="nav_addons">Addons</string>
+    <string name="nav_addons">Stremio-compatible Add-ons</string>
+    <string name="nav_extensions">Extensions</string>
     <string name="nav_close_app">Close app</string>
 
     

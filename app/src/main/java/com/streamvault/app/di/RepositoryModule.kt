@@ -98,6 +98,9 @@ abstract class RepositoryModule {
     abstract fun bindStremioAddonRepository(impl: StremioAddonRepositoryImpl): StremioAddonRepository
 
     @Binds @Singleton
+    abstract fun bindStremioPlaybackHistoryRepository(impl: StremioPlaybackHistoryRepositoryImpl): StremioPlaybackHistoryRepository
+
+    @Binds @Singleton
     abstract fun bindExternalRatingsRepository(impl: ExternalRatingsRepositoryImpl): ExternalRatingsRepository
 
     @Binds @Singleton

@@ -14,6 +14,7 @@ internal class PlayerDataSourceReadStatsFactory(
     private val upstream: DataSource.Factory,
     private val resolvedStreamType: ResolvedStreamType,
     private val initialTargetUrl: String,
+    private val sensitiveTargetOrigin: String? = null,
     private val clockMs: () -> Long = SystemClock::elapsedRealtime
 ) : DataSource.Factory {
     override fun createDataSource(): DataSource =
@@ -21,6 +22,7 @@ internal class PlayerDataSourceReadStatsFactory(
             upstream = upstream.createDataSource(),
             resolvedStreamType = resolvedStreamType,
             initialTargetUrl = initialTargetUrl,
+            sensitiveTargetOrigin = sensitiveTargetOrigin,
             clockMs = clockMs
         )
 }
@@ -34,10 +36,11 @@ private class PlayerDataSourceReadStatsDataSource(
     private val upstream: DataSource,
     private val resolvedStreamType: ResolvedStreamType,
     initialTargetUrl: String,
+    private val sensitiveTargetOrigin: String?,
     private val clockMs: () -> Long
 ) : DataSource {
     private val tracker = PlayerDataSourceReadStatsTracker()
-    private var target = PlaybackLogSanitizer.sanitizeUrl(initialTargetUrl)
+    private var target = sanitizeTarget(initialTargetUrl)
     private var opened = false
 
     override fun addTransferListener(transferListener: TransferListener) {
@@ -46,7 +49,7 @@ private class PlayerDataSourceReadStatsDataSource(
 
     @Throws(IOException::class)
     override fun open(dataSpec: DataSpec): Long {
-        target = PlaybackLogSanitizer.sanitizeUrl(dataSpec.uri.toString())
+        target = sanitizeTarget(dataSpec.uri.toString())
         val length = upstream.open(dataSpec)
         tracker.open(clockMs())
         opened = true
@@ -103,6 +106,9 @@ private class PlayerDataSourceReadStatsDataSource(
     }
 
     private fun readStatsLoggingEnabled(): Boolean = Log.isLoggable(TAG, Log.DEBUG)
+
+    private fun sanitizeTarget(url: String): String =
+        PlaybackLogSanitizer.sanitizeUrl(sensitiveTargetOrigin ?: url)
 
     private companion object {
         const val TAG = "PlayerDataReadStats"

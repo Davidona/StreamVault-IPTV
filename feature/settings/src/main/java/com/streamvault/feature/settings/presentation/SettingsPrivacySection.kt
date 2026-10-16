@@ -13,6 +13,7 @@ import com.streamvault.feature.settings.R
 public fun LazyListScope.settingsPrivacySection(
     uiState: SettingsUiState,
     onToggleIncognitoMode: () -> Unit,
+    onHideStremioAddonsChange: (Boolean) -> Unit,
     onToggleXtreamTextClassification: () -> Unit,
     onToggleXtreamBase64TextCompatibility: () -> Unit,
     onPendingProtectionLevelChange: (Int?) -> Unit,
@@ -25,6 +26,15 @@ public fun LazyListScope.settingsPrivacySection(
     targetItemId: String? = null,
     targetFocusModifier: Modifier = Modifier,
 ) {
+    item {
+        SwitchSettingsRow(
+            label = stringResource(R.string.settings_hide_stremio_addons),
+            value = stringResource(R.string.settings_hide_stremio_addons_subtitle),
+            checked = uiState.hideStremioAddons,
+            onCheckedChange = onHideStremioAddonsChange,
+            modifier = if (targetItemId == "privacy.hide_stremio_addons") targetFocusModifier else firstFocusModifier,
+        )
+    }
     item {
         ParentalControlCard(
             level = uiState.parentalControlLevel,
@@ -53,7 +63,7 @@ public fun LazyListScope.settingsPrivacySection(
             firstActionModifier = if (targetItemId == "privacy.protection_level") {
                 targetFocusModifier
             } else {
-                firstFocusModifier
+                Modifier
             },
             secondActionModifier = if (targetItemId == "privacy.pin") targetFocusModifier else Modifier,
         )

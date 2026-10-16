@@ -40,6 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,19 +61,23 @@ import com.streamvault.feature.system.api.PluginConfigurationSection
 import com.streamvault.feature.system.api.owner
 import com.streamvault.feature.system.api.toBundleSafeKey
 import com.streamvault.feature.system.api.SystemScaffoldContent
+import com.streamvault.feature.system.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.shell.StatusPill
+import com.streamvault.core.ui.components.shell.ExtensionsEmptyState
+import com.streamvault.core.ui.components.shell.ExtensionsSectionTabs
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.interaction.TvPrimaryButton
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.Primary
 
 @Composable
 fun PluginsScreen(
     scaffold: SystemScaffoldContent,
+    onNavigateToStremioAddons: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: PluginsViewModel = hiltViewModel()
 ) {
@@ -110,6 +115,7 @@ fun PluginsScreen(
     PluginsContent(
         uiState = uiState,
         scaffold = scaffold,
+        onNavigateToStremioAddons = onNavigateToStremioAddons,
         showInstallUrlDialog = showInstallUrlDialog,
         onShowInstallUrlDialog = { showInstallUrlDialog = true },
         onDismissInstallUrlDialog = { showInstallUrlDialog = false },
@@ -147,6 +153,7 @@ internal data class PluginsActions(
 internal fun PluginsContent(
     uiState: PluginsUiState,
     scaffold: SystemScaffoldContent,
+    onNavigateToStremioAddons: () -> Unit = {},
     showInstallUrlDialog: Boolean,
     onShowInstallUrlDialog: () -> Unit,
     onDismissInstallUrlDialog: () -> Unit,
@@ -157,8 +164,8 @@ internal fun PluginsContent(
 ) {
     scaffold(
         AppDestination.Plugins,
-        "Plugins",
-        "Install companion APKs, activate capabilities, and sync plugin providers.",
+        stringResource(R.string.extensions_title),
+        null,
         true,
         true
     ) {
@@ -166,6 +173,14 @@ internal fun PluginsContent(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            ExtensionsSectionTabs(
+                selectedIndex = 0,
+                pluginsLabel = stringResource(R.string.extensions_tab_plugins),
+                stremioAddonsLabel = stringResource(R.string.extensions_tab_stremio_addons),
+                onTabSelected = { selectedIndex ->
+                    if (selectedIndex == 1) onNavigateToStremioAddons()
+                }
+            )
             val configuration = uiState.configuration
             if (configuration != null) {
                 PluginConfigurationPanel(
@@ -177,6 +192,10 @@ internal fun PluginsContent(
                     onRunAction = actions.onRunConfigurationAction
                 )
             } else {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.extensions_tab_plugins), style = MaterialTheme.typography.titleLarge, color = AppColors.TextPrimary)
+                    Text(stringResource(R.string.plugins_section_description), style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary)
+                }
                 PluginInstallPanel(
                     isInstalling = uiState.isInstalling,
                     onInstallFromUrl = onShowInstallUrlDialog,
@@ -210,19 +229,16 @@ internal fun PluginsContent(
                     )
                 }
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                if (uiState.plugins.isEmpty() && !uiState.isLoading) {
+                    ExtensionsEmptyState(
+                        title = stringResource(R.string.plugins_empty_title),
+                        description = stringResource(R.string.plugins_empty_description),
+                        modifier = Modifier.weight(1f)
+                    )
+                } else LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (uiState.plugins.isEmpty() && !uiState.isLoading) {
-                        item {
-                            Text(
-                                text = "No compatible StreamVault plugins are installed.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = AppColors.TextSecondary
-                            )
-                        }
-                    }
                     items(uiState.plugins, key = { it.owner.toBundleSafeKey() }) { plugin ->
                         PluginCard(
                             plugin = plugin,
@@ -255,45 +271,40 @@ private fun PluginButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
-    val colors = when (tone) {
-        PluginButtonTone.Primary -> ButtonDefaults.colors(
-            containerColor = Primary,
-            contentColor = Color.White,
-            focusedContainerColor = Primary.copy(alpha = 0.88f),
-            focusedContentColor = Color.White,
-            disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
-            disabledContentColor = AppColors.TextDisabled
+    if (tone == PluginButtonTone.Primary) {
+        TvPrimaryButton(
+            onClick = onClick,
+            modifier = modifier,
+            enabled = enabled,
+            content = content,
         )
-        PluginButtonTone.Secondary -> ButtonDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = OnSurface,
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedContentColor = OnSurface,
-            disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
-            disabledContentColor = AppColors.TextDisabled
+    } else {
+        TvButton(
+            onClick = onClick,
+            modifier = modifier.heightIn(min = 44.dp),
+            enabled = enabled,
+            shape = ButtonDefaults.shape(shape),
+            colors = ButtonDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = OnSurface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedContentColor = OnSurface,
+                disabledContainerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.56f),
+                disabledContentColor = AppColors.TextDisabled
+            ),
+            border = ButtonDefaults.border(
+                focusedBorder = Border(
+                    border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
+                    shape = shape
+                )
+            ),
+            scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                horizontal = 20.dp,
+                vertical = 7.dp
+            ),
+            content = content,
         )
-    }
-
-    TvButton(
-        onClick = onClick,
-        modifier = modifier
-            .heightIn(min = 44.dp),
-        enabled = enabled,
-        shape = ButtonDefaults.shape(shape),
-        colors = colors,
-        border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, FocusBorder),
-                shape = shape
-            )
-        ),
-        scale = ButtonDefaults.scale(focusedScale = FocusSpec.FocusedScale),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            horizontal = 20.dp,
-            vertical = 7.dp
-        )
-    ) {
-        content()
     }
 }
 
@@ -321,20 +332,20 @@ private fun PluginInstallPanel(
                 onClick = onInstallFromUrl,
                 tone = PluginButtonTone.Primary
             ) {
-                Text("Install URL")
+                Text(stringResource(R.string.plugins_install_url))
             }
             PluginButton(
                 enabled = !isInstalling,
                 onClick = onInstallFromFile
             ) {
-                Text("Install file")
+                Text(stringResource(R.string.plugins_install_file))
             }
             PluginButton(onClick = onRefresh) {
-                Text("Refresh")
+                Text(stringResource(R.string.plugins_refresh))
             }
         }
         Text(
-            text = "Manual installs are detected when this screen refreshes. Compatible plugins expose the StreamVault plugin service.",
+            text = stringResource(R.string.plugins_install_hint),
             style = MaterialTheme.typography.bodySmall,
             color = AppColors.TextTertiary
         )

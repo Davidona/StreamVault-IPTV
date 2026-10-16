@@ -36,6 +36,7 @@ class SystemRouteGraphBehaviorTest {
                         actions = recordingActions(),
                         startupReady = true,
                         onStartupNavigationRequested = {},
+                        onTopLevelDestinationRequested = {},
                         scaffold = testScaffold,
                     )
                 }

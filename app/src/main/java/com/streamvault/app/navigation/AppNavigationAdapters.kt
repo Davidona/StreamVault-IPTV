@@ -25,7 +25,6 @@ internal fun AppTopLevelDestination.toAppRoute(): String = when (this) {
     AppTopLevelDestination.DOWNLOADS -> Routes.DOWNLOADS
     AppTopLevelDestination.GUIDE -> Routes.EPG
     AppTopLevelDestination.SEARCH -> Routes.SEARCH
-    AppTopLevelDestination.PLUGINS -> Routes.PLUGINS
-    AppTopLevelDestination.ADDONS -> Routes.ADDONS
+    AppTopLevelDestination.EXTENSIONS -> Routes.PLUGINS
     AppTopLevelDestination.SETTINGS -> Routes.SETTINGS
 }

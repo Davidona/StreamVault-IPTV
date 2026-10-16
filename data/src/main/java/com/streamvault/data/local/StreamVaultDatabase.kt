@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
 
-internal const val STREAM_VAULT_DATABASE_VERSION = 79
+internal const val STREAM_VAULT_DATABASE_VERSION = 80
 
 @Database(
     entities = [
@@ -73,7 +73,8 @@ internal const val STREAM_VAULT_DATABASE_VERSION = 79
         ProviderWorkflowPhaseEntity::class,
         M3uClassificationOverrideEntity::class,
         M3uCategoryClassificationRuleEntity::class,
-        StremioAddonEntity::class
+        StremioAddonEntity::class,
+        StremioPlaybackHistoryEntity::class
     ],
     version = STREAM_VAULT_DATABASE_VERSION,
     exportSchema = true   // ← was false; schema JSON now tracked in version control
@@ -129,6 +130,7 @@ abstract class StreamVaultDatabase : RoomDatabase() {
     abstract fun providerWorkflowDao(): ProviderWorkflowDao
     abstract fun m3uClassificationDao(): M3uClassificationDao
     abstract fun stremioAddonDao(): StremioAddonDao
+    abstract fun stremioPlaybackHistoryDao(): StremioPlaybackHistoryDao
 
     companion object {
         val MIGRATION_1_2 = LegacyMigrationsV1To24.MIGRATION_1_2
@@ -209,5 +211,6 @@ abstract class StreamVaultDatabase : RoomDatabase() {
         val MIGRATION_76_77 = FeatureMigrationsV76To77.MIGRATION_76_77
         val MIGRATION_77_78 = FeatureMigrationsV77To78.MIGRATION_77_78
         val MIGRATION_78_79 = FeatureMigrationsV78To79.MIGRATION_78_79
+        val MIGRATION_79_80 = FeatureMigrationsV79To80.MIGRATION_79_80
     }
 }

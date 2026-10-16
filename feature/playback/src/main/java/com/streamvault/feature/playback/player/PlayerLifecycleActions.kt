@@ -67,12 +67,21 @@ internal fun isUsableTokenRenewalExpiry(
 /** Captures the old content before prepare mutates the shared playback context. */
 internal fun PlayerViewModel.queueContentSwitchProgressFlush(): Job? {
     if (currentContentType == ContentType.LIVE) return null
-    val history = buildPlaybackHistorySnapshot(
+    val stremioHistory = buildStremioPlaybackHistorySnapshot(
         positionMs = playerEngine.currentPosition.value,
         durationMs = playerEngine.duration.value
     )
+    val history = buildPlaybackHistorySnapshot(
+        positionMs = playerEngine.currentPosition.value,
+        durationMs = playerEngine.duration.value
+    ).takeIf { currentStremioPlaybackReference == null }
     return viewModelScope.launch {
-        if (history != null) {
+        if (stremioHistory != null) {
+            logRepositoryFailure(
+                operation = "Flush Stremio progress for content switch",
+                result = playbackHistoryCoordinator.saveStremioPlaybackHistory(stremioHistory)
+            )
+        } else if (history != null) {
             val result = playbackHistoryCoordinator.updateResumePosition(history)
             logRepositoryFailure(
                 operation = "Flush playback progress for content switch",
@@ -96,9 +105,21 @@ internal fun PlayerViewModel.queueContentSwitchProgressFlush(): Job? {
  */
 internal fun PlayerViewModel.queueForcedProgressFlush(): Job? {
     if (currentContentType == ContentType.LIVE) return null
-    val history = buildPlaybackHistorySnapshot(playerEngine.currentPosition.value, playerEngine.duration.value)
+    val stremioHistory = buildStremioPlaybackHistorySnapshot(
+        playerEngine.currentPosition.value,
+        playerEngine.duration.value
+    )
+    val history = buildPlaybackHistorySnapshot(
+        playerEngine.currentPosition.value,
+        playerEngine.duration.value
+    ).takeIf { currentStremioPlaybackReference == null }
     return viewModelScope.launch {
-        if (history != null) {
+        if (stremioHistory != null) {
+            logRepositoryFailure(
+                "Persist Stremio playback progress",
+                playbackHistoryCoordinator.saveStremioPlaybackHistory(stremioHistory)
+            )
+        } else if (history != null) {
             val result = playbackHistoryCoordinator.updateResumePosition(history)
             logRepositoryFailure("Persist playback resume position", result)
             if (result.isSuccess) playbackHistoryCoordinator.updateWatchNextProgress(history)
@@ -129,6 +150,14 @@ internal suspend fun PlayerViewModel.persistPlaybackProgress() {
     val dur = playerEngine.duration.value
 
     if (pos > 0 && dur > 0) {
+        if (currentStremioPlaybackReference != null) {
+            val history = buildStremioPlaybackHistorySnapshot(pos, dur) ?: return
+            logRepositoryFailure(
+                "Persist Stremio playback progress",
+                playbackHistoryCoordinator.saveStremioPlaybackHistory(history)
+            )
+            return
+        }
         val history = buildPlaybackHistorySnapshot(pos, dur) ?: return
         val result = playbackHistoryCoordinator.updateResumePosition(history)
         logRepositoryFailure(

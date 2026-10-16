@@ -106,6 +106,7 @@ internal data class StremioStreamDto(
     val fileIdx: Int? = null,
     val externalUrl: String? = null,
     val sources: List<String>? = null,
+    val subtitles: List<StremioSubtitleDto>? = null,
     val behaviorHints: StremioStreamBehaviorHintsDto? = null
 )
 

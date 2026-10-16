@@ -3,6 +3,7 @@ package com.streamvault.data.remote.stremio
 import com.streamvault.domain.model.stremio.StremioMediaType
 import java.net.URI
 import java.net.URLEncoder
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 data class StremioAddonLocation(
     val baseUrl: String,
@@ -19,22 +20,32 @@ object StremioAddonUrl {
     private const val MANIFEST_SUFFIX = "/manifest.json"
 
     fun parse(raw: String): StremioAddonLocation? {
-        val trimmed = raw.trim()
+        val trimmed = raw.trimPastedUrlBoundaryCharacters()
         if (trimmed.isEmpty()) return null
         val upgraded = if (trimmed.startsWith("stremio://", ignoreCase = true)) {
             "https://" + trimmed.substring("stremio://".length)
         } else {
             trimmed
         }
-        val uri = runCatching { URI(upgraded) }.getOrNull() ?: return null
-        val scheme = uri.scheme?.lowercase() ?: return null
+        val httpUrl = upgraded.toHttpUrlOrNull() ?: return null
+        val uri = runCatching { URI(upgraded) }.getOrNull()
+        if (uri != null && uri.rawAuthority.isNullOrBlank()) return null
+        val scheme = (uri?.scheme ?: httpUrl.scheme).lowercase()
         if (scheme != "http" && scheme != "https") return null
-        val host = uri.host?.takeIf { it.isNotBlank() } ?: return null
-        val authority = if (uri.port == -1) host else "$host:${uri.port}"
-        val basePath = normalizedBasePath(uri.path.orEmpty())
+        val uriHost = uri?.host?.takeIf { it.isNotBlank() }
+        val authority = if (uriHost != null) {
+            if (uri.port == -1) uriHost else "$uriHost:${uri.port}"
+        } else {
+            val isDefaultPort = (httpUrl.scheme == "https" && httpUrl.port == 443) ||
+                (httpUrl.scheme == "http" && httpUrl.port == 80)
+            if (isDefaultPort) httpUrl.host else "${httpUrl.host}:${httpUrl.port}"
+        }
+        // Configured addon URLs can encode tenant/configuration bytes in the path.
+        // Preserve those bytes so endpoints and install identity round-trip exactly.
+        val basePath = normalizedBasePath(uri?.rawPath ?: httpUrl.encodedPath)
         return StremioAddonLocation(
             baseUrl = "$scheme://$authority$basePath",
-            query = uri.rawQuery.orEmpty()
+            query = uri?.rawQuery ?: httpUrl.encodedQuery.orEmpty()
         )
     }
 
@@ -79,3 +90,24 @@ object StremioAddonUrl {
             .replace("+", "%20")
             .replace("%3A", ":")
 }
+
+private fun String.trimPastedUrlBoundaryCharacters(): String {
+    var start = 0
+    var end = length
+    while (start < end) {
+        val codePoint = codePointAt(start)
+        if (!codePoint.isPastedUrlBoundaryCharacter()) break
+        start += Character.charCount(codePoint)
+    }
+    while (start < end) {
+        val codePoint = codePointBefore(end)
+        if (!codePoint.isPastedUrlBoundaryCharacter()) break
+        end -= Character.charCount(codePoint)
+    }
+    return substring(start, end)
+}
+
+private fun Int.isPastedUrlBoundaryCharacter(): Boolean =
+    Character.isWhitespace(this) ||
+        Character.isSpaceChar(this) ||
+        Character.getType(this) == Character.FORMAT.toInt()

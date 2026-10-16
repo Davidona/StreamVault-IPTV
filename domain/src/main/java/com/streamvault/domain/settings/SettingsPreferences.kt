@@ -32,6 +32,10 @@ import kotlinx.coroutines.flow.Flow
 
 /** Preference streams and commands consumed by settings; persistence remains in the data layer. */
 interface SettingsPreferences {
+    val hideStremioAddons: Flow<Boolean>
+
+    suspend fun setHideStremioAddons(hidden: Boolean)
+
     val isIncognitoMode: Flow<Boolean>
 
     val useXtreamTextClassification: Flow<Boolean>

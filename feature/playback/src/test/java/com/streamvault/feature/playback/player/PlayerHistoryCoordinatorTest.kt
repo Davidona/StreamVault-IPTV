@@ -5,6 +5,7 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.repository.PlaybackHistoryRepository
+import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.domain.usecase.MarkAsWatched
 import com.streamvault.feature.playback.api.PlaybackSurfaceRefreshPort
 import kotlinx.coroutines.test.runTest
@@ -32,6 +33,7 @@ class PlayerHistoryCoordinatorTest {
         whenever(repository.markAsWatched(history)).thenReturn(expected)
         val coordinator = PlayerHistoryCoordinator(
             repository = repository,
+            stremioRepository = mock<StremioPlaybackHistoryRepository>(),
             playbackSurfaceRefreshPort = mock<PlaybackSurfaceRefreshPort>(),
             markAsWatched = MarkAsWatched(repository)
         )

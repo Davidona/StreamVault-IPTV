@@ -59,6 +59,7 @@ internal fun AppNavHost(
             actions = actions,
             startupReady = startupReady,
             onStartupNavigationRequested = onStartupNavigationRequested,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
             scaffold = appSystemScaffold(onTopLevelDestinationRequested),
         )
         registerProviderGraph(
@@ -83,7 +84,12 @@ internal fun AppNavHost(
             }
         )
         registerLiveGraph(actions, onTopLevelDestinationRequested)
-        registerStremioGraph(scaffold = appStremioScaffold(onTopLevelDestinationRequested))
+        registerStremioGraph(
+            navController = navController,
+            actions = actions,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
+            scaffold = appStremioScaffold(onTopLevelDestinationRequested)
+        )
         registerCatalogGraph(
             actions = actions,
             platformHost = catalogPlatformHost,

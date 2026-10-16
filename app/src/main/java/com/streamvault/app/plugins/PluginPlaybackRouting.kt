@@ -40,3 +40,24 @@ private fun StreamVaultPluginManifest.ownsPlaybackUrl(scheme: String, host: Stri
     // Hostless schemes (for example, a custom URI) can be owned by scheme alone.
     return host == null || playbackUrlHosts.any { it.equals("*", true) || it.equals(host, true) }
 }
+
+internal fun isMagnetPlaybackUrl(url: String): Boolean =
+    url.trimStart().startsWith("magnet:", ignoreCase = true)
+
+internal fun isSafeMagnetPlaybackOutputUrl(url: String): Boolean = runCatching {
+    val uri = URI(url)
+    uri.scheme.equals("http", ignoreCase = true) &&
+        uri.host.equals("127.0.0.1", ignoreCase = true) &&
+        uri.port in 1..65535 &&
+        uri.rawUserInfo == null &&
+        uri.rawFragment == null
+}.getOrDefault(false)
+
+internal const val MAGNET_PLUGIN_REQUIRED_MESSAGE =
+    "Magnet playback requires the StreamVault Torrent plugin. Install and enable it from Extensions > Plugins."
+
+internal const val MAGNET_PLUGIN_UNAVAILABLE_MESSAGE =
+    "No enabled plugin could resolve this magnet link. Install and enable the StreamVault Torrent plugin from Extensions > Plugins."
+
+internal const val MAGNET_PLUGIN_INVALID_OUTPUT_MESSAGE =
+    "The torrent plugin did not return a playable loopback stream."

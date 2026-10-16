@@ -20,6 +20,9 @@
       "name": "Premium",
       "title": "1080p direct",
       "url": "https://cdn.example.test/movies/shawshank/1080p.mp4",
+      "subtitles": [
+        {"id": "inline-eng", "url": "https://cdn.example.test/subtitles/eng.srt", "lang": "eng"}
+      ],
       "behaviorHints": {
         "proxyHeaders": {
           "request": {

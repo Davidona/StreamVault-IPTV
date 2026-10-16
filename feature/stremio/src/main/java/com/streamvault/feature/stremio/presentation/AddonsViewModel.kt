@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.stremio.StremioAddon
+import com.streamvault.domain.model.stremio.StremioPlaybackHistory
 import com.streamvault.domain.model.stremio.StremioCatalogRef
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.feature.stremio.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,7 +20,9 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AddonsViewModel @Inject constructor(
-    private val repository: StremioAddonRepository
+    private val repository: StremioAddonRepository,
+    private val historyRepository: StremioPlaybackHistoryRepository,
+    private val contentAccess: StremioContentAccess
 ) : ViewModel() {
 
     data class AddonEntry(
@@ -29,11 +33,12 @@ class AddonsViewModel @Inject constructor(
     data class UiState(
         val loading: Boolean = true,
         val addons: List<AddonEntry> = emptyList(),
+        val continueWatching: List<StremioPlaybackHistory> = emptyList(),
         val installDialogVisible: Boolean = false,
         val installUrl: String = "",
         val installing: Boolean = false,
         val expandedAddonId: Long? = null,
-        @StringRes val statusMessageRes: Int? = null,
+        @param:StringRes val statusMessageRes: Int? = null,
         val errorMessage: String? = null
     )
 
@@ -52,9 +57,15 @@ class AddonsViewModel @Inject constructor(
                 _state.update { it.copy(loading = false, addons = entries) }
             }
         }
+        viewModelScope.launch {
+            historyRepository.observeContinueWatching().collect { history ->
+                _state.update { it.copy(continueWatching = history) }
+            }
+        }
     }
 
     fun showInstallDialog() {
+        if (!contentAccess.canAccessContentNow()) return
         _state.update { it.copy(installDialogVisible = true, errorMessage = null) }
     }
 
@@ -67,10 +78,15 @@ class AddonsViewModel @Inject constructor(
     }
 
     fun install() {
+        if (!contentAccess.canAccessContentNow()) return
         val url = _state.value.installUrl.trim()
         if (url.isEmpty() || _state.value.installing) return
         _state.update { it.copy(installing = true, errorMessage = null) }
         viewModelScope.launch {
+            if (!contentAccess.canAccessContentNow()) {
+                _state.update { it.copy(installing = false) }
+                return@launch
+            }
             when (val result = repository.installAddon(url)) {
                 is Result.Success -> _state.update {
                     it.copy(

@@ -13,7 +13,6 @@ import com.streamvault.domain.model.stremio.StremioProxyHeaders
 import com.streamvault.domain.model.stremio.StremioResourceKind
 import com.streamvault.domain.model.stremio.StremioStream
 import com.streamvault.domain.model.stremio.StremioStreamBehaviorHints
-import com.streamvault.domain.model.stremio.StremioStreamKind
 import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.model.stremio.StremioVideo
 import kotlinx.serialization.json.JsonArray
@@ -26,11 +25,6 @@ import kotlinx.serialization.json.contentOrNull
 internal fun StremioManifestDto.toDomain(): StremioManifest? {
     val manifestId = id?.trim().orEmpty()
     if (manifestId.isEmpty()) return null
-    val manifestTypes = types.orEmpty()
-        .map(StremioMediaType::fromTypeName)
-        .filter { it != StremioMediaType.UNKNOWN }
-        .distinct()
-    val parsedResources = parseResources(resources)
     return StremioManifest(
         id = manifestId,
         name = name?.trim()?.takeIf { it.isNotEmpty() } ?: manifestId,
@@ -38,16 +32,12 @@ internal fun StremioManifestDto.toDomain(): StremioManifest? {
         description = description?.trim()?.takeIf { it.isNotEmpty() },
         logo = logo?.trim()?.takeIf { it.isNotEmpty() },
         background = background?.trim()?.takeIf { it.isNotEmpty() },
-        types = manifestTypes,
-        resources = parsedResources.map { resource ->
-            if (resource.types.isEmpty() && manifestTypes.isNotEmpty()) {
-                resource.copy(types = manifestTypes)
-            } else {
-                resource
-            }
-        },
+        types = types?.map(StremioMediaType::fromTypeName)
+            ?.filter { it != StremioMediaType.UNKNOWN }
+            ?.distinct(),
+        resources = parseResources(resources),
         catalogs = parseCatalogs(catalogs),
-        idPrefixes = idPrefixes.orEmpty().mapNotNull { it.trim().takeIf(String::isNotEmpty) }.distinct(),
+        idPrefixes = idPrefixes?.mapNotNull { it.trim().takeIf(String::isNotEmpty) }?.distinct(),
         behaviorHints = behaviorHints?.toDomain() ?: StremioManifestBehaviorHints()
     )
 }
@@ -61,7 +51,8 @@ internal fun StremioManifestBehaviorHintsDto.toDomain(): StremioManifestBehavior
 internal fun StremioCatalogResponseDto.toDomain(): StremioCatalogPage =
     StremioCatalogPage(
         metas = metas.orEmpty().mapNotNull { it.toDomain() },
-        hasMore = hasMore ?: false
+        hasMore = hasMore,
+        rawItemCount = metas.orEmpty().size
     )
 
 internal fun StremioMetaPreviewDto.toDomain(): StremioMetaPreview? {
@@ -128,9 +119,11 @@ internal fun StremioStreamDto.toDomain(): StremioStream? {
         fileIdx = fileIdx?.takeIf { it >= 0 },
         externalUrl = externalUrl?.trim()?.takeIf { it.isNotEmpty() },
         sources = sources.orEmpty().mapNotNull { it.trim().takeIf(String::isNotEmpty) },
+        subtitles = subtitles.orEmpty().mapNotNull { it.toDomain() },
         behaviorHints = behaviorHints?.toDomain()
     )
-    return stream.takeIf { it.kind != StremioStreamKind.UNKNOWN }
+    // Keep recognizable-but-unsupported protocol rows visible to the picker as disabled entries.
+    return stream
 }
 
 internal fun StremioStreamBehaviorHintsDto.toDomain(): StremioStreamBehaviorHints =
@@ -164,7 +157,7 @@ private fun parseResources(resources: List<JsonElement>?): List<StremioManifestR
             is JsonPrimitive -> element.contentOrNull
                 ?.let(StremioResourceKind::fromResourceName)
                 ?.takeIf { it != StremioResourceKind.UNKNOWN }
-                ?.let { StremioManifestResource(kind = it) }
+                ?.let { StremioManifestResource(kind = it, isStringResource = true) }
             is JsonObject -> {
                 val kind = StremioResourceKind.fromResourceName(element["name"].asString())
                 if (kind == StremioResourceKind.UNKNOWN) {
@@ -172,11 +165,11 @@ private fun parseResources(resources: List<JsonElement>?): List<StremioManifestR
                 } else {
                     StremioManifestResource(
                         kind = kind,
-                        types = element["types"].asStringList()
-                            .map(StremioMediaType::fromTypeName)
-                            .filter { it != StremioMediaType.UNKNOWN }
-                            .distinct(),
-                        idPrefixes = element["idPrefixes"].asStringList().distinct()
+                        types = element["types"].asStringListOrNull()
+                            ?.map(StremioMediaType::fromTypeName)
+                            ?.filter { it != StremioMediaType.UNKNOWN }
+                            ?.distinct(),
+                        idPrefixes = element["idPrefixes"].asStringListOrNull()?.distinct()
                     )
                 }
             }
@@ -225,8 +218,8 @@ private fun parseCatalogExtras(extra: JsonElement?): List<StremioCatalogExtraDef
 private fun JsonElement?.asString(): String? =
     (this as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf { it.isNotEmpty() }
 
-private fun JsonElement?.asStringList(): List<String> =
-    (this as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf(String::isNotEmpty) }
+private fun JsonElement?.asStringListOrNull(): List<String>? =
+    (this as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf(String::isNotEmpty) }
 
 private fun JsonElement?.asBoolean(): Boolean = (this as? JsonPrimitive)?.booleanOrNull ?: false
 

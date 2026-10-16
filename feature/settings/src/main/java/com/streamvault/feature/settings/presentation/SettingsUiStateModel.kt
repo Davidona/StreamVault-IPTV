@@ -153,6 +153,7 @@ data class SettingsUiState(
     val wifiOnlyRecording: Boolean = false,
     val recordingPaddingBeforeMinutes: Int = 0,
     val recordingPaddingAfterMinutes: Int = 0,
+    val hideStremioAddons: Boolean = false,
     val isIncognitoMode: Boolean = false,
     val useXtreamTextClassification: Boolean = true,
     val xtreamBase64TextCompatibility: Boolean = false,

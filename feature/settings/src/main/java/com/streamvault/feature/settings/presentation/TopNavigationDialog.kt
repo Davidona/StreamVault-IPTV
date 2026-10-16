@@ -243,7 +243,6 @@ private fun AppTopLevelDestination.labelResId(): Int = when (this) {
     AppTopLevelDestination.DOWNLOADS -> R.string.nav_downloads
     AppTopLevelDestination.GUIDE -> R.string.nav_epg
     AppTopLevelDestination.SEARCH -> R.string.search_title
-    AppTopLevelDestination.PLUGINS -> R.string.nav_plugins
-    AppTopLevelDestination.ADDONS -> R.string.nav_addons
+    AppTopLevelDestination.EXTENSIONS -> R.string.nav_extensions
     AppTopLevelDestination.SETTINGS -> R.string.nav_settings
 }

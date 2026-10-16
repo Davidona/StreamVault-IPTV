@@ -1065,6 +1065,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setHideStremioAddons(hidden: Boolean) {
+        viewModelScope.launch { preferencesRepository.setHideStremioAddons(hidden) }
+    }
+
     fun toggleIncognitoMode() {
         viewModelScope.launch {
             val current = _uiState.value.isIncognitoMode

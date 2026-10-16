@@ -6,6 +6,8 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Clarified Extensions navigation and plugin installation actions, added Stremio onboarding, and replaced its blanket parental gate with an independent Hide Stremio Add-ons option under Privacy (off by default).
+- Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, and resume history. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.
 - Added temporary automatic quality reduction for supported adaptive streams when decoding struggles, with gradual restoration and respect for manual quality choices.
 - Added AVC/H.264 fallback for eligible HEVC episodes, preserving playback position, audio, subtitles, and episode history.
 

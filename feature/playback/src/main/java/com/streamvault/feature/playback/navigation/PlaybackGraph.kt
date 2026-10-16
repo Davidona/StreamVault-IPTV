@@ -62,6 +62,9 @@ fun NavGraphBuilder.registerPlaybackGraph(
                 seasonNumber = safePlayerRequest.seasonNumber,
                 episodeNumber = safePlayerRequest.episodeNumber,
                 episodeId = safePlayerRequest.episodeId,
+                stremioPlaybackReference = safePlayerRequest.stremioPlaybackReference,
+                stremioMediaRequestHeaders = safePlayerRequest.stremioMediaRequestHeaders,
+                stremioInlineSubtitles = safePlayerRequest.stremioInlineSubtitles,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
                 playbackPlatformHost = platformHost,
                 splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->

@@ -101,7 +101,7 @@ interface PlayerEngine {
     fun selectAudioTrack(trackId: String)
     fun selectVideoTrack(trackId: String)
     fun selectSubtitleTrack(trackId: String?) // null to disable subtitles
-    fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String)
+    fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String? = null)
     fun setInjectedSubtitleText(text: String?)
     fun setLiveAudioTap(tap: LiveAudioTap?)
     fun clearLiveAudioTap() = setLiveAudioTap(null)

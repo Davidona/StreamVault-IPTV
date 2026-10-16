@@ -2024,6 +2024,48 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate79To80_createsUrlFreeStremioProgressTable() {
+        val name = "streamvault-79-80-stremio-progress"
+        migrationTestHelper.createDatabase(name, 79).close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            80,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.v79To80.toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_playback_history'"))
+        assertEquals(12, countRows(migrated, "SELECT COUNT(*) FROM pragma_table_info('stremio_playback_history')"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_table_info('stremio_playback_history') WHERE name IN ('stream_url','headers','response_body')"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_list('stremio_playback_history')"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    @Test
+    fun migrate78To80_preservesAddonRegistryAndValidatesHistorySchema() {
+        val name = "streamvault-78-80-stremio-progress-chain"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            execSQL("INSERT INTO search_history (query, content_scope, provider_id, used_at, use_count) VALUES ('foundation', 'MOVIE', 0, 100, 1)")
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            80,
+            true,
+            *(StreamVaultDatabaseMigrationRegistry.v78To79 + StreamVaultDatabaseMigrationRegistry.v79To80).toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM search_history WHERE query='foundation'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_addons'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_playback_history'"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """

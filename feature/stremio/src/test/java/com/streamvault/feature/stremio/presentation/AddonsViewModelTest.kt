@@ -3,12 +3,20 @@ package com.streamvault.feature.stremio.presentation
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.stremio.StremioAddon
+import com.streamvault.domain.model.stremio.StremioCatalogPage
+import com.streamvault.domain.model.stremio.StremioCatalogQuery
 import com.streamvault.domain.model.stremio.StremioCatalogRef
 import com.streamvault.domain.model.stremio.StremioManifest
 import com.streamvault.domain.model.stremio.StremioManifestResource
 import com.streamvault.domain.model.stremio.StremioMediaType
+import com.streamvault.domain.model.stremio.StremioMetaResolution
+import com.streamvault.domain.model.stremio.StremioPlaybackHistory
+import com.streamvault.domain.model.stremio.StremioResourceResolution
 import com.streamvault.domain.model.stremio.StremioResourceKind
+import com.streamvault.domain.model.stremio.StremioStream
+import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.feature.stremio.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,7 +52,7 @@ class AddonsViewModelTest {
         repository.addons.value = listOf(addon(id = 1L, name = "Cinemeta"))
         repository.manifests[1L] = manifestWithOneCatalog()
 
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
 
         val state = viewModel.state.value
@@ -58,7 +66,7 @@ class AddonsViewModelTest {
     fun `install success closes the dialog and reports status`() = runTest(dispatcher) {
         val repository = FakeStremioAddonRepository()
         repository.installResult = Result.success(addon(id = 5L, name = "New Addon"))
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
 
         viewModel.showInstallDialog()
@@ -75,10 +83,28 @@ class AddonsViewModelTest {
     }
 
     @Test
+    fun `hidden Stremio addons cannot be installed`() = runTest(dispatcher) {
+        val repository = FakeStremioAddonRepository()
+        val access = FakeStremioContentAccess(
+            StremioVisibilityState(hidden = true)
+        )
+        val viewModel = createViewModel(repository, access)
+        advanceUntilIdle()
+
+        viewModel.showInstallDialog()
+        viewModel.updateInstallUrl("https://example.test/manifest.json")
+        viewModel.install()
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.installDialogVisible).isFalse()
+        assertThat(repository.installCalls).isEmpty()
+    }
+
+    @Test
     fun `install failure keeps the dialog and shows the error`() = runTest(dispatcher) {
         val repository = FakeStremioAddonRepository()
         repository.installResult = Result.error("Addon request failed with HTTP 500")
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
 
         viewModel.showInstallDialog()
@@ -95,7 +121,7 @@ class AddonsViewModelTest {
     @Test
     fun `blank install urls are ignored`() = runTest(dispatcher) {
         val repository = FakeStremioAddonRepository()
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
 
         viewModel.showInstallDialog()
@@ -111,7 +137,7 @@ class AddonsViewModelTest {
     fun `remove collapses the expanded card and reports status`() = runTest(dispatcher) {
         val repository = FakeStremioAddonRepository()
         repository.addons.value = listOf(addon(id = 3L, name = "Cinemeta"))
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
 
         viewModel.toggleExpanded(3L)
@@ -128,7 +154,7 @@ class AddonsViewModelTest {
     fun `enabled move and catalog toggles reach the repository`() = runTest(dispatcher) {
         val repository = FakeStremioAddonRepository()
         repository.addons.value = listOf(addon(id = 7L, name = "Cinemeta"))
-        val viewModel = AddonsViewModel(repository)
+        val viewModel = createViewModel(repository)
         advanceUntilIdle()
         val entry = viewModel.state.value.addons.single()
 
@@ -162,6 +188,22 @@ class AddonsViewModelTest {
     )
 }
 
+private fun createViewModel(
+    repository: StremioAddonRepository,
+    contentAccess: StremioContentAccess = FakeStremioContentAccess()
+) = AddonsViewModel(repository, FakeStremioPlaybackHistoryRepository(), contentAccess)
+
+private class FakeStremioPlaybackHistoryRepository : StremioPlaybackHistoryRepository {
+    override fun observeContinueWatching(limit: Int): Flow<List<StremioPlaybackHistory>> =
+        MutableStateFlow(emptyList())
+
+    override suspend fun get(contentKey: String): StremioPlaybackHistory? = null
+
+    override suspend fun save(history: StremioPlaybackHistory): Result<Unit> = Result.success(Unit)
+
+    override suspend fun delete(contentKey: String): Result<Unit> = Result.success(Unit)
+}
+
 private class FakeStremioAddonRepository : StremioAddonRepository {
     val addons = MutableStateFlow<List<StremioAddon>>(emptyList())
     val manifests = mutableMapOf<Long, StremioManifest>()
@@ -178,6 +220,33 @@ private class FakeStremioAddonRepository : StremioAddonRepository {
         addons.value.firstOrNull { it.id == id }
 
     override suspend fun getManifest(addonId: Long): StremioManifest? = manifests[addonId]
+
+    override suspend fun fetchCatalog(
+        addonId: Long,
+        catalog: StremioCatalogRef,
+        query: StremioCatalogQuery
+    ): Result<StremioCatalogPage> = Result.success(StremioCatalogPage(emptyList()))
+
+    override suspend fun resolveMeta(
+        catalogOriginAddonId: Long,
+        type: StremioMediaType,
+        exactId: String
+    ): StremioMetaResolution = StremioMetaResolution()
+
+    override suspend fun resolveStreams(
+        type: StremioMediaType,
+        exactId: String,
+        addonIds: Set<Long>?
+    ): StremioResourceResolution<StremioStream> = StremioResourceResolution()
+
+    override suspend fun resolveSubtitles(
+        type: StremioMediaType,
+        exactVideoId: String,
+        videoHash: String?,
+        videoSize: Long?,
+        filename: String?,
+        addonIds: Set<Long>?
+    ): StremioResourceResolution<StremioSubtitle> = StremioResourceResolution()
 
     override suspend fun installAddon(installUrl: String): Result<StremioAddon> {
         installCalls += installUrl

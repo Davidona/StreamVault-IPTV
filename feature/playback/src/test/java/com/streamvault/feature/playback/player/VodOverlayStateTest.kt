@@ -59,6 +59,25 @@ class VodOverlayStateTest {
     }
 
     @Test
+    fun `stremio subtitle source exposes picker without built in text tracks`() {
+        val state = buildVodOverlayState(
+            contentType = "MOVIE",
+            isCatchUpPlayback = false,
+            chapters = emptyList(),
+            currentPositionMs = 0L,
+            showEpisodesAction = false,
+            subtitleTrackCount = 0,
+            showStremioSubtitleAction = true,
+            audioTrackCount = 0,
+            videoQualityCount = 0,
+            showExternalPlayerAction = false,
+            isCastConnected = false
+        )
+
+        assertThat(state.showSubtitleAction).isTrue()
+    }
+
+    @Test
     fun `cast hides chapter action while preserving navigation state`() {
         val state = buildVodOverlayState(
             contentType = "MOVIE",

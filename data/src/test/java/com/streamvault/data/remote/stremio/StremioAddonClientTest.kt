@@ -8,6 +8,9 @@ import com.streamvault.domain.model.stremio.StremioStreamKind
 import java.io.InputStreamReader
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -66,8 +69,7 @@ class StremioAddonClientTest {
         assertThat(metaResource.types)
             .containsExactly(StremioMediaType.MOVIE, StremioMediaType.SERIES)
         val catalogResource = manifest.resources.first { it.kind == StremioResourceKind.CATALOG }
-        assertThat(catalogResource.types)
-            .containsExactly(StremioMediaType.MOVIE, StremioMediaType.SERIES)
+        assertThat(catalogResource.types).isNull()
         assertThat(manifest.supportsResource(StremioResourceKind.STREAM, StremioMediaType.SERIES)).isTrue()
         assertThat(manifest.supportsResource(StremioResourceKind.STREAM, StremioMediaType.CHANNEL)).isFalse()
         assertThat(manifest.idPrefixes).containsExactly("tt")
@@ -92,6 +94,99 @@ class StremioAddonClientTest {
     }
 
     @Test
+    fun `addon requests do not inherit app logging or cookies`() = runTest {
+        server.enqueue(MockResponse().setBody(fixture("stremio/fixtures/cinemeta_manifest.json")))
+        val inheritedRequests = mutableListOf<String>()
+        val appClient = OkHttpClient.Builder()
+            .addInterceptor(Interceptor { chain ->
+                inheritedRequests += chain.request().url.toString()
+                chain.proceed(chain.request())
+            })
+            .cookieJar(object : CookieJar {
+                override fun loadForRequest(url: okhttp3.HttpUrl): List<Cookie> = listOf(
+                    Cookie.Builder().name("session").value("provider-secret")
+                        .domain(url.host).path("/").build()
+                )
+
+                override fun saveFromResponse(url: okhttp3.HttpUrl, cookies: List<Cookie>) = Unit
+            })
+            .build()
+        val addonClient = StremioAddonClient(
+            okHttpClient = appClient,
+            json = Json { ignoreUnknownKeys = true; isLenient = true; explicitNulls = false }
+        )
+
+        val result = addonClient.fetchManifest(baseUrl())
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(inheritedRequests).isEmpty()
+        assertThat(server.takeRequest().getHeader("Cookie")).isNull()
+    }
+
+    @Test
+    fun `manifest preserves omitted and explicitly empty resource filters`() {
+        val manifest = client.parseManifest(
+            """
+            {
+              "id":"filter-fixture",
+              "types":["movie"],
+              "idPrefixes":[],
+              "resources":[
+                "stream",
+                {"name":"meta","types":[],"idPrefixes":[]},
+                {"name":"subtitles","types":["series"],"idPrefixes":["custom:"]}
+              ]
+            }
+            """.trimIndent()
+        )!!
+
+        val stringResource = manifest.resources.first { it.kind == StremioResourceKind.STREAM }
+        val emptyResource = manifest.resources.first { it.kind == StremioResourceKind.META }
+        val overriddenResource = manifest.resources.first { it.kind == StremioResourceKind.SUBTITLES }
+        assertThat(stringResource.types).isNull()
+        assertThat(stringResource.idPrefixes).isNull()
+        assertThat(emptyResource.types).isEmpty()
+        assertThat(emptyResource.idPrefixes).isEmpty()
+        assertThat(overriddenResource.types).containsExactly(StremioMediaType.SERIES)
+        assertThat(overriddenResource.idPrefixes).containsExactly("custom:")
+        assertThat(manifest.idPrefixes).isEmpty()
+        assertThat(manifest.supportsResource(StremioResourceKind.STREAM, StremioMediaType.MOVIE, "custom:1"))
+            .isFalse()
+        assertThat(manifest.supportsResource(StremioResourceKind.META, StremioMediaType.MOVIE, "tt123"))
+            .isFalse()
+        assertThat(manifest.supportsResource(StremioResourceKind.SUBTITLES, StremioMediaType.SERIES, "custom:1"))
+            .isTrue()
+    }
+
+    @Test
+    fun `object resource uses its own omitted prefix filter`() {
+        val manifest = client.parseManifest(
+            """
+            {
+              "id":"object-filter-fixture",
+              "types":["movie"],
+              "idPrefixes":["tt"],
+              "resources":[{"name":"meta","types":["movie"]}]
+            }
+            """.trimIndent()
+        )!!
+
+        assertThat(manifest.supportsResource(StremioResourceKind.META, StremioMediaType.MOVIE, "custom:1"))
+            .isTrue()
+    }
+
+    @Test
+    fun `unknown stream rows remain available for disabled picker presentation`() = runTest {
+        server.enqueue(MockResponse().setBody("""{"streams":[{"name":"Unsupported"}]}"""))
+
+        val result = client.fetchStreams(baseUrl(), StremioMediaType.MOVIE, "custom:1")
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).hasSize(1)
+        assertThat(result.getOrNull()!!.single().kind).isEqualTo(StremioStreamKind.UNKNOWN)
+    }
+
+    @Test
     fun `catalog page parses metas and hasMore`() = runTest {
         server.enqueue(MockResponse().setBody(fixture("stremio/fixtures/catalog_movies_top.json")))
 
@@ -101,6 +196,7 @@ class StremioAddonClientTest {
         assertThat(server.takeRequest().path).isEqualTo("/catalog/movie/top.json")
         val page = result.getOrNull()!!
         assertThat(page.hasMore).isTrue()
+        assertThat(page.rawItemCount).isEqualTo(3)
         assertThat(page.metas).hasSize(2)
         val first = page.metas.first()
         assertThat(first.id).isEqualTo("tt0111161")
@@ -109,6 +205,19 @@ class StremioAddonClientTest {
         assertThat(first.releaseInfo).isEqualTo("1994")
         assertThat(first.imdbRating).isEqualTo("9.3")
         assertThat(first.genres).containsExactly("Drama")
+    }
+
+    @Test
+    fun `catalog page preserves omitted hasMore and raw item count`() = runTest {
+        server.enqueue(MockResponse().setBody("""
+            {"metas":[{"id":"tt001","type":"movie"},{"type":"movie"}]}
+        """.trimIndent()))
+
+        val page = client.fetchCatalog(baseUrl(), StremioMediaType.MOVIE, "top").getOrNull()!!
+
+        assertThat(page.hasMore).isNull()
+        assertThat(page.rawItemCount).isEqualTo(2)
+        assertThat(page.metas).hasSize(1)
     }
 
     @Test
@@ -171,12 +280,13 @@ class StremioAddonClientTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(server.takeRequest().path).isEqualTo("/stream/movie/tt0111161.json")
         val streams = result.getOrNull()!!
-        assertThat(streams).hasSize(4)
+        assertThat(streams).hasSize(5)
         assertThat(streams.map { it.kind }).containsExactly(
             StremioStreamKind.TORRENT,
             StremioStreamKind.DIRECT,
             StremioStreamKind.YOUTUBE,
-            StremioStreamKind.EXTERNAL
+            StremioStreamKind.EXTERNAL,
+            StremioStreamKind.UNKNOWN
         ).inOrder()
         val torrent = streams[0]
         assertThat(torrent.infoHash).isEqualTo("abcdef1234567890abcdef1234567890abcdef12")
@@ -188,6 +298,13 @@ class StremioAddonClientTest {
         assertThat(torrent.behaviorHints?.bingeGroup).isEqualTo("torrentio-1080p")
         val direct = streams[1]
         assertThat(direct.url).isEqualTo("https://cdn.example.test/movies/shawshank/1080p.mp4")
+        assertThat(direct.subtitles).containsExactly(
+            com.streamvault.domain.model.stremio.StremioSubtitle(
+                id = "inline-eng",
+                url = "https://cdn.example.test/subtitles/eng.srt",
+                lang = "eng"
+            )
+        )
         assertThat(direct.behaviorHints?.proxyHeaders?.request?.get("Authorization"))
             .isEqualTo("Bearer token123")
         assertThat(streams[2].ytId).isEqualTo("6hB3S9bIaco")
@@ -214,12 +331,13 @@ class StremioAddonClientTest {
             StremioMediaType.MOVIE,
             "tt0111161",
             videoHash = "abc123",
+            videoSize = 1234L,
             filename = "The Shawshank Redemption.mkv"
         )
 
         assertThat(result.isSuccess).isTrue()
         assertThat(server.takeRequest().path).isEqualTo(
-            "/subtitles/movie/tt0111161/videoHash=abc123&filename=The%20Shawshank%20Redemption.mkv.json"
+            "/subtitles/movie/tt0111161/videoHash=abc123&videoSize=1234&filename=The%20Shawshank%20Redemption.mkv.json"
         )
         val subtitles = result.getOrNull()!!
         assertThat(subtitles).hasSize(2)

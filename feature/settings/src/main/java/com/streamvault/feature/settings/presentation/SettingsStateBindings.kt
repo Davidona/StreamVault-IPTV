@@ -231,6 +231,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(lastSpeedTestRecommendedHeight = lastSpeedTestRecommendedHeight)
     }.combine(preferencesRepository.lastSpeedTestEstimated) { snapshot, lastSpeedTestEstimated ->
         snapshot.copy(lastSpeedTestEstimated = lastSpeedTestEstimated)
+    }.combine(preferencesRepository.hideStremioAddons) { snapshot, hidden ->
+        snapshot.copy(hideStremioAddons = hidden)
     }.combine(preferencesRepository.isIncognitoMode) { snapshot, incognito ->
         snapshot.copy(isIncognitoMode = incognito)
     }.combine(preferencesRepository.useXtreamTextClassification) { snapshot, useTextClass ->

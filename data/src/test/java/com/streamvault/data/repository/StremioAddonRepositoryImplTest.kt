@@ -4,14 +4,19 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.dao.StremioAddonDao
 import com.streamvault.data.local.entity.StremioAddonEntity
 import com.streamvault.data.remote.stremio.StremioAddonClient
+import com.streamvault.domain.model.stremio.StremioCatalogQuery
+import com.streamvault.domain.model.stremio.StremioMediaType
+import com.streamvault.domain.repository.StremioResourceResolver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -37,7 +42,8 @@ class StremioAddonRepositoryImplTest {
                     explicitNulls = false
                     coerceInputValues = true
                 }
-            )
+            ),
+            resourceResolver = StremioResourceResolver()
         )
     }
 
@@ -101,6 +107,200 @@ class StremioAddonRepositoryImplTest {
 
         assertThat(result.isError).isTrue()
         assertThat(result.errorMessageOrNull()).contains("500")
+    }
+
+    @Test
+    fun `catalog fetch sends zero skip when supported`() = runTest {
+        server.enqueue(manifestResponse("com.one", "One"))
+        val addon = repository.installAddon("${baseUrl()}/one").getOrNull()!!
+        server.enqueue(MockResponse().setBody("""{"metas":[]}"""))
+
+        val result = repository.fetchCatalog(
+            addonId = addon.id,
+            catalog = repository.getManifest(addon.id)!!.catalogs.single(),
+            query = StremioCatalogQuery(skip = 0)
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(server.takeRequest().path).isEqualTo("/one/manifest.json")
+        assertThat(server.takeRequest().path).isEqualTo("/one/catalog/movie/top/skip=0.json")
+    }
+
+    @Test
+    fun `cross addon resolution keeps catalog origin and partial stream results`() = runTest {
+        server.enqueue(
+            manifestWithResources(
+                "catalog",
+                "Catalog",
+                "\"catalog\",{\"name\":\"meta\",\"types\":[\"movie\"],\"idPrefixes\":[\"tt\"]}",
+                catalog = true
+            )
+        )
+        server.enqueue(
+            manifestWithResources(
+                "streamer",
+                "Streamer",
+                "{\"name\":\"stream\",\"types\":[\"movie\"],\"idPrefixes\":[\"tt\"]}"
+            )
+        )
+        server.enqueue(
+            manifestWithResources(
+                "broken-streamer",
+                "Broken Streamer",
+                "{\"name\":\"stream\",\"types\":[\"movie\"],\"idPrefixes\":[\"tt\"]}"
+            )
+        )
+        server.enqueue(
+            manifestWithResources(
+                "unrelated",
+                "Unrelated",
+                "{\"name\":\"stream\",\"types\":[\"movie\"],\"idPrefixes\":[\"kitsu\"]}"
+            )
+        )
+        server.enqueue(
+            manifestWithResources(
+                "disabled",
+                "Disabled",
+                "{\"name\":\"stream\",\"types\":[\"movie\"],\"idPrefixes\":[\"tt\"]}"
+            )
+        )
+
+        val catalog = repository.installAddon("${baseUrl()}/catalog").getOrNull()!!
+        val streamer = repository.installAddon("${baseUrl()}/streamer").getOrNull()!!
+        val brokenStreamer = repository.installAddon("${baseUrl()}/broken-streamer").getOrNull()!!
+        repository.installAddon("${baseUrl()}/unrelated")
+        val disabled = repository.installAddon("${baseUrl()}/disabled").getOrNull()!!
+        repository.setAddonEnabled(disabled.id, false)
+        repository.setCatalogEnabled(catalog.id, "movie:top", false)
+
+        val requestPaths = mutableListOf<String?>()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                requestPaths += request.path
+                return when (request.path) {
+                    "/catalog/meta/movie/tt123.json" -> MockResponse().setBody(
+                        """{"meta":{"id":"tt123","type":"movie","name":"Catalog metadata"}}"""
+                    )
+                    "/streamer/stream/movie/tt123.json" -> MockResponse().setBody(
+                        """{"streams":[{"name":"Direct","url":"https://media.example/video.mp4"}]}"""
+                    )
+                    "/broken-streamer/stream/movie/tt123.json" -> MockResponse().setResponseCode(503)
+                    else -> MockResponse().setResponseCode(404)
+                }
+            }
+        }
+
+        val metadata = repository.resolveMeta(catalog.id, StremioMediaType.MOVIE, "tt123")
+        val streams = repository.resolveStreams(StremioMediaType.MOVIE, "tt123")
+
+        assertThat(metadata.result?.source?.addonId).isEqualTo(catalog.id)
+        assertThat(metadata.result?.resource?.name).isEqualTo("Catalog metadata")
+        assertThat(streams.candidateCount).isEqualTo(2)
+        assertThat(streams.results.map { it.source.addonId }).containsExactly(streamer.id)
+        assertThat(streams.failures.map { it.source.addonId }).containsExactly(brokenStreamer.id)
+        assertThat(requestPaths).containsExactly(
+            "/catalog/meta/movie/tt123.json",
+            "/streamer/stream/movie/tt123.json",
+            "/broken-streamer/stream/movie/tt123.json"
+        )
+    }
+
+    @Test
+    fun `subtitle routing uses the exact episode id and video extras`() = runTest {
+        server.enqueue(
+            manifestWithResources(
+                "subtitle-addon",
+                "Subtitle Addon",
+                "{\"name\":\"subtitles\",\"types\":[\"series\"],\"idPrefixes\":[\"series:\"]}"
+            )
+        )
+        val subtitleAddon = repository.installAddon("${baseUrl()}/subtitle-addon").getOrNull()!!
+        server.takeRequest() // Consume the install request before inspecting the subtitle endpoint.
+        val exactVideoId = "series:custom:episode-04"
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setBody(
+                """{"subtitles":[{"id":"eng-1","url":"https://subs.example/episode.vtt","lang":"eng"}]}"""
+            )
+        }
+
+        val result = repository.resolveSubtitles(
+            type = StremioMediaType.SERIES,
+            exactVideoId = exactVideoId,
+            videoHash = "hash-1",
+            videoSize = 99L,
+            filename = "Episode One.mkv"
+        )
+
+        val request = server.takeRequest()
+        assertThat(request.path).isEqualTo(
+            "/subtitle-addon/subtitles/series/series:custom:episode-04/videoHash=hash-1&videoSize=99&filename=Episode%20One.mkv.json"
+        )
+        assertThat(result.results.single().source.addonId).isEqualTo(subtitleAddon.id)
+        assertThat(result.results.single().resource.lang).isEqualTo("eng")
+    }
+
+    @Test
+    fun `catalog fetch rejects missing required extras before network request`() = runTest {
+        server.enqueue(
+            MockResponse().setBody(
+                """
+                {
+                  "id":"com.search.only","version":"1","name":"Search Only",
+                  "resources":["catalog"],"types":["movie"],
+                  "catalogs":[{"type":"movie","id":"search","extra":[{"name":"search","isRequired":true}]}]
+                }
+                """.trimIndent()
+            )
+        )
+        val addon = repository.installAddon("${baseUrl()}/search").getOrNull()!!
+        val catalog = repository.getManifest(addon.id)!!.catalogs.single()
+
+        val result = repository.fetchCatalog(addon.id, catalog, StremioCatalogQuery())
+
+        assertThat(result.isError).isTrue()
+        assertThat(result.errorMessageOrNull()).contains("Enter a search")
+        assertThat(server.requestCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `catalog fetch rejects unsupported required extras before network request`() = runTest {
+        server.enqueue(
+            MockResponse().setBody(
+                """
+                {
+                  "id":"com.date.only","version":"1","name":"Date Only",
+                  "resources":["catalog"],"types":["movie"],
+                  "catalogs":[{"type":"movie","id":"date","extra":[{"name":"date","isRequired":true}]}]
+                }
+                """.trimIndent()
+            )
+        )
+        val addon = repository.installAddon("${baseUrl()}/date").getOrNull()!!
+        val catalog = repository.getManifest(addon.id)!!.catalogs.single()
+
+        val result = repository.fetchCatalog(addon.id, catalog, StremioCatalogQuery())
+
+        assertThat(result.isError).isTrue()
+        assertThat(result.errorMessageOrNull()).contains("unsupported 'date'")
+        assertThat(server.requestCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `disabled addons cannot fetch catalogs`() = runTest {
+        server.enqueue(manifestResponse("com.one", "One"))
+        val addon = repository.installAddon("${baseUrl()}/one").getOrNull()!!
+        val catalog = repository.getManifest(addon.id)!!.catalogs.single()
+        repository.setAddonEnabled(addon.id, false)
+
+        val result = repository.fetchCatalog(
+            addon.id,
+            catalog,
+            StremioCatalogQuery(search = "film", skip = 0)
+        )
+
+        assertThat(result.isError).isTrue()
+        assertThat(result.errorMessageOrNull()).contains("disabled")
+        assertThat(server.requestCount).isEqualTo(1)
     }
 
     @Test
@@ -211,6 +411,24 @@ class StremioAddonRepositoryImplTest {
             }
             """.trimIndent()
         )
+
+    private fun manifestWithResources(
+        id: String,
+        name: String,
+        resourcesJson: String,
+        catalog: Boolean = false
+    ): MockResponse = MockResponse().setBody(
+        """
+        {
+          "id":"$id",
+          "name":"$name",
+          "version":"1.0.0",
+          "types":["movie","series"],
+          "resources":[$resourcesJson],
+          "catalogs":${if (catalog) "[{\"type\":\"movie\",\"id\":\"top\",\"name\":\"Popular\"}]" else "[]"}
+        }
+        """.trimIndent()
+    )
 }
 
 private class FakeStremioAddonDao : StremioAddonDao {

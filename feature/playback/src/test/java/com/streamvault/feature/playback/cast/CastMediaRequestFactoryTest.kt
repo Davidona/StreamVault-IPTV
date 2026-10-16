@@ -50,6 +50,22 @@ class CastMediaRequestFactoryTest {
     }
 
     @Test
+    fun `rejects unresolved magnets before building a cast request`() {
+        val result = factory.buildFromStreamInfo(
+            streamInfo = StreamInfo(url = "magnet:?xt=urn:btih:0123456789abcdef"),
+            title = "Torrent",
+            subtitle = null,
+            artworkUrl = null,
+            isLive = false,
+            startPositionMs = 0L
+        )
+
+        assertThat(result).isEqualTo(
+            CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.UNSUPPORTED_PROTOCOL)
+        )
+    }
+
+    @Test
     fun `reports DRM protected streams as unsupported`() {
         val result = factory.buildFromStreamInfo(
             streamInfo = StreamInfo(
@@ -89,6 +105,45 @@ class CastMediaRequestFactoryTest {
             .isEqualTo(CastRewriteRequiredReason.CUSTOM_HEADERS)
         assertThat(request?.requiresCastRewrite).isTrue()
         assertThat(request?.headers).containsEntry("Cookie", "session=abc")
+    }
+
+    @Test
+    fun `blocks addon origin scoped headers from cast requests`() {
+        val result = factory.buildFromStreamInfo(
+            streamInfo = StreamInfo(
+                url = "https://media.example.test/movie.m3u8",
+                headers = mapOf("Authorization" to "Bearer private"),
+                requestHeadersOrigin = "https://media.example.test:443"
+            ),
+            title = "Movie",
+            subtitle = null,
+            artworkUrl = null,
+            isLive = false,
+            startPositionMs = 0L
+        )
+
+        assertThat(result).isEqualTo(
+            CastMediaRequestBuildResult.Unsupported(CastMediaRequestUnsupportedReason.SCOPED_HEADERS_UNSUPPORTED)
+        )
+    }
+
+    @Test
+    fun `allows headerless addon media to use the normal cast path`() {
+        val result = factory.buildFromStreamInfo(
+            streamInfo = StreamInfo(
+                url = "https://media.example.test/movie.m3u8",
+                requestHeadersOrigin = "https://media.example.test:443"
+            ),
+            title = "Movie",
+            subtitle = null,
+            artworkUrl = null,
+            isLive = false,
+            startPositionMs = 0L
+        )
+
+        assertThat(result).isInstanceOf(CastMediaRequestBuildResult.Success::class.java)
+        assertThat((result as CastMediaRequestBuildResult.Success).request.headers).isEmpty()
+        assertThat(result.request.rewriteRequiredReason).isNull()
     }
 
     @Test

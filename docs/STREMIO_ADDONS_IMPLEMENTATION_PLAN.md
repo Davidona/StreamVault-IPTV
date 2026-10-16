@@ -1,7 +1,64 @@
 # Stremio addon support implementation plan
 
-Status: P0 and P1 implemented; P1 unit and emulator smoke verification complete. Plan reviewed
-2026-10-11; see `STREMIO_ADDONS_PLAN_REVIEW.md` for required additions and gates.
+Status (2026-10-16): P0–P6 implementation and required P7 polish are complete;
+P6 real-torrent playback acceptance is pending the user. The companion source
+and debug APK live in the separate `D:\antigravity-scratch\streamvault-torrent-plugin`
+repository. P1–P6 code/build verification is recorded in
+`STREMIO_ADDONS_HANDOFF.md`. P4 MP4/history and provider fixture
+playback checks passed. The synthetic HLS VOD fixture initially failed around
+68 seconds over local HTTP/1.0; the same asset completed over HTTP/1.1 on the
+same host port. A public Mux HLS sample passed 61 screenshots at a two-second
+cadence through the local Stremio fixture, with unique frames and a healthy
+media session. The provider HLS fixture then passed a 145-second advancing
+playback hold, with 61 screenshots across 120.26 seconds (60 unique hashes
+because the fixture loops at 120 seconds), healthy media-session state, and no
+retry/fatal/stuck/fallback logs. These local fixtures do not close the external
+real third-party addon HLS/DASH child-resource qualification. Scoped addon
+headers are intentionally rejected for casting, while headerless direct streams
+use the normal cast path; external-player handoff is outside v1. P5 inline and
+independent subtitle-addon playback smoke passed on the isolated API 36 emulator;
+the German WebVTT cue rendered from the subtitle-only addon.
+The parental PIN gate is now smoke-tested at all four levels on TV, and D-pad
+focus through Extensions and its Plugins/Stremio Add-ons tabs passes. Credential
+storage/export/removal policy is documented, and Manage shows only addon server
+origins. No suitable public-domain third-party HLS addon was found: the official
+catalog returns torrents, the Archive.org addon returns direct files, and the
+community Foreign Movies manifest host is down and its source has no HLS
+playlist references. All direct/debrid v1 implementation and local regression
+gates are complete. A real-addon HLS/DASH child-request smoke remains external
+qualification. Scoped-header cast rejection is unit-tested; headerless direct
+streams use the normal cast path. External-player handoff is outside v1.
+Plan reviewed 2026-10-11; see `STREMIO_ADDONS_PLAN_REVIEW.md` for external
+qualification and user acceptance.
+
+## Current handoff status (2026-10-16)
+
+- **User acceptance correction (2026-10-14), implemented; user acceptance pending:** UI/UX
+  cleanup makes Stremio Add-ons open by default, independently of the
+  global parental-control level. Uses a separate Settings → Privacy →
+  "Hide Stremio Add-ons" option, off by default. This supersedes the blanket
+  Stremio parental gate described below; those sections record the prior
+  implementation and its historical verification. The user owns manual UI/UX
+  acceptance testing; agent checks should be limited to builds and code tests.
+- [x] P0–P5 direct/debrid Stremio support is implemented; required P7 polish is
+  implemented. Verification details are in `STREMIO_ADDONS_HANDOFF.md`.
+- [x] P6 implementation is complete: the host routes validated magnet URIs to
+  an enabled scheme-owning plugin, restricts plugin output to loopback, and
+  sends best-effort playback-stop IPC. The separate companion repository
+  contains the libtorrent engine, byte-range server, configuration Activity,
+  and debug APK. Unit tests and APK build pass; real-torrent emulator acceptance
+  is pending the user. See `STREMIO_TORRENT_P6_ACCEPTANCE.md`.
+- [x] Debug APK `1.0.19-debug` was built from this worktree, installed with
+  replace/retain-data on `emulator-5558`, and `MainActivity` was launched on the
+  dedicated Android TV API 36 AVD `Codex_StremioProvider_Validation_20261013`.
+- [ ] User UI/UX and normal-use acceptance pass is pending; use
+  `STREMIO_ADDONS_ACCEPTANCE_CHECKLIST.md` and leave its items unchecked until
+  the user exercises them.
+- [ ] Real third-party addon HLS/DASH child-request qualification remains open.
+- [ ] User end-to-end torrent playback acceptance is pending; use
+  `STREMIO_TORRENT_P6_ACCEPTANCE.md`. The agent has not installed the companion
+  APK or tested a real torrent.
+
 Prepared 2026-10-10 against source
 revision `540ec30c` (`develop`), branch `feature/stremio-addons`, worktree
 `.worktrees/stremio-addons`.
@@ -148,18 +205,21 @@ companion APK in its own repository, not in this repo or the main APK. The host
 learns nothing about torrents beyond "a `magnet:` URL may be resolved by an
 enabled plugin".
 
-### AD-4: New top-level "Addons" destination
+### AD-4: One top-level "Extensions" destination
 
-Add `AppDestination.Addons`, `AppTopLevelDestination.ADDONS` ("addons",
-`AppLandingDestination.ADDONS`), route constant, shell nav item, and startup
-landing mapping. Users can reorder/hide it like existing tabs
-(`AppTopLevelDestination.defaultOrder`), and redirect startup to it. The addon
-manager UI is part of the Addons surface, not the APK Plugins screen; the torrent
-plugin is still managed as an APK plugin under Plugins.
+Keep separate `AppDestination.Plugins` and `AppDestination.Addons` routes and
+startup landing options, but show one `AppTopLevelDestination.EXTENSIONS`
+destination in the global navigation. Its screen has focusable in-page tabs for
+native APK Plugins and Stremio Add-ons, so both features remain distinct without
+using two top-level slots. Migrate saved `plugins` and `addons` top-level
+navigation values to `extensions`; retain Plugins and Stremio Add-ons as
+separate startup choices while Extensions is visible. The addon manager remains
+inside Stremio Add-ons, and torrent plugins remain managed as APK plugins.
 Files: `domain/.../model/AppTopLevelDestination.kt`,
 `domain/.../model/AppLandingDestination.kt`,
 `app/.../navigation/AppRouteCodec.kt`, `app/.../navigation/AppNavigationAdapters.kt`,
 `app/.../ui/components/shell/AppShellNavigation.kt`,
+`core/ui/.../components/shell/ExtensionsSectionTabs.kt`,
 `app/.../navigation/StartupNavigationResolver.kt`, `app/.../navigation/AppNavHost.kt`.
 
 ### AD-5: Dedicated addon-stream ingress policy
@@ -184,7 +244,12 @@ and never forward addon-supplied headers to non-addon hosts.
   loopback URLs — without a cast-capable plugin the cast attempt fails as
   `UNSUPPORTED`, which is acceptable and should surface a clear message.
 - External player handoff: only resolved http(s) URLs are offered; the external
-  launcher allowlist already excludes `magnet`.
+  launcher allowlist already excludes `magnet`. Stremio external-player handoff
+  is outside direct/debrid v1 because the launcher cannot preserve origin-scoped
+  request headers.
+- Casting rejects Stremio media with addon-supplied request headers, since the
+  receiver cannot preserve their origin scope. Headerless direct streams use the
+  normal cast path. This behavior is covered by unit tests.
 
 ### AD-7: Phase gating — direct/debrid first, torrents at P6
 
@@ -195,10 +260,99 @@ main repository for as long as possible.
 
 ### AD-8: Content identity, resume, and history
 
-Use a stable identity: `stremio:{type}:{id}` (e.g. `stremio:series:tt1234:1:2` for
-episodes). This keeps resume/history working across addons and re-installs and is
-the future key for Watch Next integration. Do not map addon items onto synced
-catalog ids.
+Do not use `PlaybackHistory` for addon items. That table requires a real provider
+row through a foreign key, numeric `contentId`/`providerId`, and its replay
+navigation currently reuses the stored `streamUrl`. Those assumptions do not fit
+remote Stremio IDs, and a stored direct/debrid URL may expire.
+
+Add a `StremioPlaybackHistory` model/repository and a Room table keyed by a
+canonical string `contentKey`. The table stores the exact Stremio item/video ID,
+type, parent series ID where applicable, display metadata, resume position,
+duration, watched state, and catalog-origin namespace. It does not store a
+playable URL, stream headers, or addon response bodies. A selected stream's addon
+namespace may be kept as a preference hint, but never as content identity.
+
+Identity rules:
+
+- Preserve protocol IDs byte-for-byte after the existing trim validation; do
+  not synthesize episode IDs from season/episode numbers. The `meta.videos[].id`
+  value is the episode's request ID; retain the parent `meta.id` separately.
+- Recognize only validated IMDb IDs (`tt` followed by digits) as cross-addon
+  identities: `stremio:global:{type}:{exact-id}`. Episode keys use the exact
+  `video.id` under `series-episode`; the parent series key remains separate.
+- Namespace every other ID by the catalog-origin install identity:
+  `stremio:addon:{source-key}:{type}:{exact-id}`. `source-key` is a
+  domain-separated SHA-256 fingerprint of the persisted configured manifest
+  URL (preserving raw encoded path and query bytes), never a numeric playback
+  ID. This survives uninstall/reinstall of that
+  same configured addon without storing a credential-bearing URL in history;
+  do not log the fingerprint or configured URL. Different addon installs with
+  colliding custom IDs remain separate.
+- Keep `catalogOrigin`, `metaOrigin`, and selected `streamOrigin` distinct.
+  Switching stream providers for a global ID preserves progress. A custom ID
+  stays scoped to its catalog origin even when another addon can answer the
+  same prefix.
+
+Add an optional typed Stremio playback reference to `PlayerNavigationRequest`.
+The player uses it to read/write addon progress through the Stremio history
+repository; it does not fabricate numeric provider/content IDs. History replay
+routes back through the Addons feature, resolves fresh metadata and streams, and
+shows the picker unless a prior stream choice can be safely revalidated. For a
+global IMDb ID, reinstalled/other eligible addons may provide fresh streams. For
+a custom ID, try its origin first and keep the item unavailable until that
+source is reinstalled if no eligible metadata/stream source can resolve it.
+Keep an Addons-owned Continue Watching row in v1; integrating the existing
+provider-only Watch Next/history surfaces is a later explicit project.
+
+### AD-9: Resource routing across installed addons
+
+Use a single `StremioResourceResolver` for meta, stream, and subtitle requests.
+Its candidate input is the enabled installed-addon snapshot, resource kind,
+Stremio type, exact requested ID, and optional preferred origin. Catalog
+selection controls only which catalog rows are shown; disabling a catalog does
+not suppress that addon's meta/stream/subtitle capability. A disabled addon is
+never a candidate.
+
+Match manifests using protocol filters, preserving missing versus explicitly
+empty arrays in the parsed model. A string resource uses manifest-level `types`
+and optional `idPrefixes`; an object resource uses its resource-level type
+filter (falling back to manifest-level types only when omitted) and its own
+optional `idPrefixes`. Omitted prefixes mean any ID; an explicitly empty prefix
+list matches no IDs. `catalog` is routed only through the catalog declaration,
+not by ID-prefix matching. Compare prefixes against the exact request ID.
+
+For meta, query the eligible catalog-origin addon first, then remaining eligible
+addons in installed order. Empty and failed responses fall through; cancellation
+propagates. If no meta succeeds, keep the catalog preview usable. A movie may
+still request streams using its item ID; a series without `videos` stays
+preview-only and cannot invent episode IDs.
+
+For streams and subtitles, fan out to eligible enabled addons with bounded
+concurrency (maximum four in flight). Preserve installed order while merging
+results, attach addon attribution to each row, expose partial errors/retry per
+addon, and cancel the fan-out when item or screen scope changes. Apply
+`idPrefixes` to the exact movie ID or exact episode `video.id`, never to the
+parent series ID by assumption. Subtitle requests use the protocol's video ID
+and carry available hash/size/filename separately.
+
+### AD-10: Catalog page and cache contract
+
+Preserve optional `hasMore` as nullable and retain raw response count before
+filtering/deduplication. A catalog advertises `skip` before the UI offers
+pagination. Request 100 raw items per page; when `hasMore` is absent, continue
+only after a full raw page. When present, honor it, but guard against repeated
+page fingerprints and impose a per-session page cap. Advance `skip` by raw
+response count, not the number of renderable cards. Never paginate a catalog
+without `skip`.
+
+Required extras must be satisfied before making a request. V1 supports `search`,
+`genre`, and `skip`; a required unknown extra disables that catalog row with a
+clear unsupported-requirement message. Search-only catalogs wait for a nonblank
+query. Reset pagination and stale-request ownership on query/filter changes.
+Keep the P2 cache bounded to 200 pages with a five-minute TTL; key it by
+configured-addon fingerprint, catalog type/id, normalized search/genre, and
+skip. Invalidate affected entries on addon removal, manifest refresh, or catalog
+setting changes.
 
 ## Phases
 
@@ -206,12 +360,12 @@ catalog ids.
 | --- | --- | --- | --- |
 | P0 | Protocol client + models | Done | Domain models (manifest/catalog/meta/stream/subtitle), lenient DTO mapping, URL normalization (`stremio://` → https, configured paths, query preservation) and endpoint builders, `StremioAddonClient` with bounded responses and fixture-based tests — 22 tests passing (`StremioAddonClientTest`, `StremioAddonUrlTest`) |
 | P1 | Persistence + addon manager | Implemented and verified | Room migration 78 → 79 (`stremio_addons`) with `MigrationTestHelper` coverage and schema export per `docs/DATABASE_MIGRATION_INVARIANTS.md`; add/remove/enable/reorder/catalog-select; configuration-required manifests rejected with a clear message; unit tests and emulator install smoke pass. Remaining release concerns are tracked in `docs/STREMIO_ADDONS_PLAN_REVIEW.md`. |
-| P2 | Catalog browsing | Planned | Addons screen with per-addon catalog rows, pagination (`skip`), genre filter, catalog search, loading/empty/error states, D-pad focus pass on TV |
-| P3 | Meta + stream picker | Planned | Movie and series meta pages (videos → seasons/episodes), stream list rendering name/title/description/behaviorHints, unsupported-kind rows marked, selection hands a play request to the player |
-| P4 | Playback integration | Planned | Direct http/https streams play through `PlayerPreparationCoordinator` with headers/UA from the addon when declared; resume/history on `stremio:` ids; cast guard for magnet; clear "needs torrent plugin" state |
-| P5 | Subtitles | Planned | Addon subtitles fetched lazily in the player, language mapping from 3-letter codes, wired via `PlayerEngine.addExternalSubtitle` (`player/.../PlayerEngine.kt:104`), respects existing subtitle style/preferences |
-| P6 | Torrent companion plugin | Planned | Separate repo/APK: libtorrent4j engine + loopback HTTP streaming server; `playbackUrlSchemes: ["magnet"]`; `MSG_PREPARE_PLAYBACK` resolves `magnet:` → `http://127.0.0.1:<port>/...`; config Activity with buffer/speed/status; end-to-end emulator validation with real torrent-backed addon |
-| P7 | Polish + integration options | Planned | Parental filtering stance for addon content, startup destination wiring, optional Home row / global search fan-out, docs (`docs/PLUGIN_API.md` magnet appendix, this plan updated to Done), CHANGELOG entries |
+| P2 | Catalog browsing | Implemented and verified | Browse/Manage tabs with enabled per-addon catalog rows; nullable `hasMore`, raw-count 100-item pagination only when `skip` is advertised, required `search`/`genre` gating and unsupported-extra states, stale-request cancellation, refresh-aware bounded cache, loading/empty/error states, and visible D-pad focus on TV. Seven browse ViewModel tests pass; Cinemeta catalog fetch and TV card-focus smoke pass on API 36. |
+| P3 | Meta + stream picker | Implemented and verified | Catalog cards open a detail page with provenance-first metadata fallback, preview-only behavior, exact episode IDs, attributed cross-addon stream rows, bounded partial fan-out and per-addon retry, visible unsupported stream kinds, and a typed player handoff. Focused domain, data, and feature tests plus app unit tests and debug assembly pass. API 36 TV smoke verified Cinemeta detail/provenance and the no-stream-provider state; it did not validate playback. |
+| P4 | Playback integration | Implemented; fixture playback verified | Direct/debrid streams use the existing player preparation path with media headers scoped to playback requests; Room v80 stores Stremio progress without URLs or headers; resume/history reopening resolves fresh streams; magnet cast/playback states are explicit. Tests, MP4/history smoke, and all 45 migration instrumentation tests pass on isolated API 36, including 79→80. Synthetic HLS completed at 120 seconds over HTTP/1.1; HTTP/1.0 serving produced transient EOFs. Remote Mux HLS passed through the local Stremio fixture. On a clean dedicated API 36 AVD, a provider HLS fixture passed a 145-second advancing hold and 61 screenshots over 120.26 seconds (60 unique frames due to the fixture loop); progressive MP4 reached first frame. This is fixture VOD coverage. A real third-party addon HLS/DASH and child-resource smoke remains external qualification because no suitable public-domain addon was found. Same-origin scoped headers are applied by the playback policy, and cross-origin redirect removal is integration-tested. Cast rejects scoped addon headers but allows headerless direct streams; external-player handoff is outside v1. |
+| P5 | Subtitles | Implemented; partial emulator verification | Inline and addon subtitles are carried to the player, addon resources load lazily, request extras include hash/size/filename, language codes map to Android locales, and external tracks use `PlayerEngine.addExternalSubtitle`. The CC picker remains available for Stremio subtitles even when the stream has no embedded text track. Tests/build and independent subtitle-only addon playback smoke pass. |
+| P6 | Torrent companion plugin | Implementation complete; user acceptance pending | Host: validated `infoHash`/tracker/file-index conversion, scheme-owned plugin prepare, clear missing/unhandled plugin errors, loopback-only output validation, and best-effort `MSG_STOP_PLAYBACK`. Separate repo/APK: libtorrent engine, loopback HTTP range streaming server, `playbackUrlSchemes: ["magnet"]`, and configuration Activity with buffer/speed/status/stop/clear controls. Unit tests and debug build pass. User still needs to verify real torrent playback, seeking, replay, and teardown with a torrent-backed addon. |
+| P7 | Required polish + optional integrations | Implemented; optional Home/global search deferred | Conservative parental gate is implemented, unit-tested, and smoke-tested on TV at Off/Locked/Private/Hidden; Private omits Stremio continue-watching from the aggregate. Extensions and the Plugins/Stremio Add-ons landing destinations are wired. README, handoff, plan review, changelog, and the user acceptance checklist document the feature and its limitations. Optional Home/global search remains deferred. |
 
 Effort estimate: P0–P5 ≈ 5–6 weeks for a shippable direct/debrid v1; P6 adds
 ≈ 4–8 weeks (torrent engine quality on TV hardware is the dominant risk); P7
@@ -230,8 +384,8 @@ New module `feature:stremio` (add to `settings.gradle.kts`), following the
 
 Data layer:
 
-- `data/.../local/` — `stremio_addons` entity, DAO, database version bump
-  (`STREAM_VAULT_DATABASE_VERSION` → 79) and `78 → 79` migration, schema export.
+- `data/.../local/` — `stremio_addons` and `stremio_playback_history` entities,
+  Room version 80, migrations `78 → 79` and `79 → 80`, and schema exports.
 - `data/.../stremio/` — `StremioAddonRepository`, `StremioCatalogClient` (HTTP),
   response models, bounded cache.
 
@@ -302,10 +456,23 @@ existing plugin API; the host needs zero torrent-specific code.
   schema JSON export committed, `PRAGMA foreign_key_check` on the new table.
 - P2–P3: viewmodel/repository tests with a fake client; D-pad focus checks on
   emulator for the new screens (TV-first).
-- P4: playback validation on emulator with screenshots — direct stream from a
-  fixture addon plays to first frame and keeps progressing; resume restores
-  position; magnet without plugin shows the explicit state (no engine start).
-- P5: subtitle selection test using `ExternalSubtitlePlayback` paths.
+- P4: emulator smoke confirmed direct MP4 playback and history/resume. The
+  synthetic HLS asset completed for 120 seconds over HTTP/1.1 on the same host
+  port; local HTTP/1.0 serving produced transient network EOFs. A remote Mux HLS
+  sample played through the local Stremio fixture for 61 screenshots at a
+  two-second cadence (61 unique hashes), with HLS prepare/first-frame logs and a
+  healthy session. A separate provider HLS fixture reached first frame and
+  advanced for 145 seconds; 61 screenshots over 120.26 seconds had 60 unique
+  hashes because the synthetic source loops at 120 seconds. Media session was
+  PLAYING with `error=null`; logs showed HLS playlist/segment reads without retry,
+  fatal error, stuck timeout, or MPEG-TS fallback. Progressive fixture MP4 also
+  reached first frame. This remains fixture VOD evidence. Verify a real
+  third-party addon endpoint and its redirect/header behavior before closing
+  that gate. Confirm magnet-without-plugin does not start the engine.
+- P5: tests cover inline/addon subtitle conversion and external playback paths.
+  Emulator smoke confirmed inline English discovery and selected a German track
+  from an independent subtitle-only addon; its WebVTT cue rendered during playback.
+  Episode-switching subtitle isolation remains a regression check.
 - P6: end-to-end on emulator with the torrent plugin APK: magnet → plugin prepare
   → first frame; seek forward/back; plugin stop tears the session down; capture
   log evidence analogous to the AGENTS.md live playback validation discipline
@@ -321,23 +488,31 @@ existing plugin API; the host needs zero torrent-specific code.
 | Legal exposure for torrent support | Takedown/abuse reports | Engine only in separate plugin APK/repo; main repo has no torrent code; document posture |
 | TV hardware limits for torrent streaming | Poor playback | Buffer/peer caps, file selection heuristics, clear errors; validate on 4K TV emulator and real device before calling P6 done |
 | Room migration mistakes | Data loss | Follow `DATABASE_MIGRATION_INVARIANTS.md`; migration tests + schema export as a hard gate |
-| Adult content via addon catalogs | Parental controls bypass | P7 filtering stance: per-addon disable + adult catalog/meta flag handling; decide before enabling Home/search integration |
+| Adult content via addon catalogs | Parental controls bypass | Treat all unrated Stremio content as protected; gate install, catalogs, details, playback, and history through the existing parental PIN policy; deny all at Hidden |
 | Cast expectations | User confusion | Cast hidden for magnet; resolved loopback streams surface the existing `UNSUPPORTED` path with a clear message |
-| Scope creep (config webviews, Home integration early) | Slips v1 | Phase gate: P0–P5 is the product; P6/P7 are explicit follow-ons |
+| Scope creep (config webviews, Home integration early) | Slips v1 | Phase gate: P0–P5 plus required P7 polish is direct/debrid v1; P6 torrents and optional Home/search integration are follow-ons |
 
-## Open questions
+## Resolved implementation decisions
 
-- Do we ship an in-app "not supported (YouTube/external)" stream row, or hide
-  unsupported kinds per addon? (P3 decision, default: show a disabled row with
-  reason.)
-- Subtitle language mapping from Stremio 3-letter codes to Android locales — do we
-  reuse `VodTrackPreference` or add a Stremio-specific preference? (P5.)
-- Persistent response caching (disk) — worth it, or session cache only? (Defer
-  unless browsing performance proves it necessary.)
-- `stremio://` deep-link registration on the host manifest — required for browser
-  install buttons, or is copy/paste enough for TV? (P1 decision; manifest change
-  is cheap.)
-- Per-addon account/config flows for addons whose manifest is
-  `configurationRequired` — v1 rejects with a clear message; revisit in P7.
-- Debrid API keys: plan assumes addons (e.g. Torrentio) return already-resolved
-  direct URLs; no in-app debrid credential UI. Confirm desired.
+- Stremio metadata has no dependable age-rating coverage, so the entire feature
+  is treated as protected: Off allows access, Locked/Private require a PIN once
+  per process session, and Hidden blocks the feature. Private omits the Stremio
+  continue-watching aggregate. Route gates prevent protected screens and their
+  requests from starting before unlock; view-model entry points fail closed.
+- Unsupported YouTube/external stream kinds stay visible as disabled rows with a
+  reason.
+- Subtitle language codes map through the existing player locale/preferences
+  path; no Stremio-specific preference was added.
+- Catalog responses use a bounded in-memory cache; disk persistence is deferred
+  unless browsing performance requires it.
+- V1 accepts copy/paste install links; `stremio://` intent registration is
+  optional.
+- V1 rejects `configurationRequired` addons with a clear configure-in-browser
+  message.
+
+## Deferred follow-ups
+
+- V1 assumes configured addons return playable direct/debrid HTTP(S) URLs. In-app
+  debrid credentials and API-key UI are outside the current scope.
+- Manifest refresh with last-known-good fallback, capability changes, and
+  catalog-setting reconciliation is post-v1 work.

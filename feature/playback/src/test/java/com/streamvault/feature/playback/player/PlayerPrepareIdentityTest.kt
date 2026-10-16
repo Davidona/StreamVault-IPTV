@@ -1,6 +1,7 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.core.navigation.StremioPlaybackReference
 import org.junit.Test
 
 class PlayerPrepareIdentityTest {
@@ -69,6 +70,35 @@ class PlayerPrepareIdentityTest {
         )
 
         assertThat(changedWindow).isNotEqualTo(baseline)
+    }
+
+    @Test
+    fun `buildPlayerPrepareIdentity changes when Stremio content identity changes`() {
+        fun identity(exactVideoId: String) = buildPlayerPrepareIdentity(
+            streamUrl = "https://example.com/stream.mp4",
+            epgChannelId = null,
+            internalChannelId = -1L,
+            categoryId = null,
+            providerId = null,
+            isVirtual = false,
+            combinedProfileId = null,
+            combinedSourceFilterProviderId = null,
+            contentType = "SERIES_EPISODE",
+            archiveStartMs = null,
+            archiveEndMs = null,
+            stremioPlaybackReference = StremioPlaybackReference(
+                mediaType = "series",
+                exactVideoId = exactVideoId,
+                parentSeriesId = "series-id",
+                catalogOriginKey = "catalog-key",
+                streamOriginKey = "stream-key"
+            )
+        )
+
+        val baseline = identity("episode-one")
+        val nextEpisode = identity("episode-two")
+
+        assertThat(nextEpisode).isNotEqualTo(baseline)
     }
 
     @Test

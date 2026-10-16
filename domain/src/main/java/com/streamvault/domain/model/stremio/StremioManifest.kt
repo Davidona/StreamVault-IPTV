@@ -32,8 +32,12 @@ enum class StremioResourceKind(val resourceName: String) {
 
 data class StremioManifestResource(
     val kind: StremioResourceKind,
-    val types: List<StremioMediaType> = emptyList(),
-    val idPrefixes: List<String> = emptyList()
+    /** String declarations inherit manifest-level filters; object declarations use their own. */
+    val isStringResource: Boolean = false,
+    /** `null` means omitted; an empty list is an explicit match-none filter. */
+    val types: List<StremioMediaType>? = null,
+    /** `null` means omitted; an empty list is an explicit match-none filter. */
+    val idPrefixes: List<String>? = null
 )
 
 data class StremioCatalogExtraDef(
@@ -52,8 +56,7 @@ data class StremioCatalogRef(
     val settingsKey: String get() = "${type.typeName}:$id"
     val supportsSearch: Boolean get() = extras.any { it.name.equals("search", ignoreCase = true) }
     val supportsSkip: Boolean get() = extras.any { it.name.equals("skip", ignoreCase = true) }
-    val supportsGenre: Boolean
-        get() = genres.isNotEmpty() || extras.any { it.name.equals("genre", ignoreCase = true) }
+    val supportsGenre: Boolean get() = extras.any { it.name.equals("genre", ignoreCase = true) }
 }
 
 data class StremioManifestBehaviorHints(
@@ -68,14 +71,33 @@ data class StremioManifest(
     val description: String? = null,
     val logo: String? = null,
     val background: String? = null,
-    val types: List<StremioMediaType> = emptyList(),
+    /** `null` means omitted; an empty list is an explicit match-none filter. */
+    val types: List<StremioMediaType>? = null,
     val resources: List<StremioManifestResource> = emptyList(),
     val catalogs: List<StremioCatalogRef> = emptyList(),
-    val idPrefixes: List<String> = emptyList(),
+    /** `null` means omitted; an empty list is an explicit match-none filter. */
+    val idPrefixes: List<String>? = null,
     val behaviorHints: StremioManifestBehaviorHints = StremioManifestBehaviorHints()
 ) {
-    fun supportsResource(kind: StremioResourceKind, type: StremioMediaType): Boolean =
+    fun supportsResource(
+        kind: StremioResourceKind,
+        type: StremioMediaType,
+        exactId: String? = null
+    ): Boolean =
         resources.any { resource ->
-            resource.kind == kind && (resource.types.isEmpty() || type in resource.types)
+            if (resource.kind != kind) {
+                false
+            } else {
+                val effectiveTypes = resource.types ?: types
+                val typeMatches = effectiveTypes == null || type in effectiveTypes
+                val effectivePrefixes = if (resource.isStringResource) idPrefixes else resource.idPrefixes
+                val prefixMatches = when {
+                    effectivePrefixes == null -> true
+                    effectivePrefixes.isEmpty() -> false
+                    exactId == null -> true
+                    else -> effectivePrefixes.any(exactId::startsWith)
+                }
+                typeMatches && prefixMatches
+            }
         }
 }

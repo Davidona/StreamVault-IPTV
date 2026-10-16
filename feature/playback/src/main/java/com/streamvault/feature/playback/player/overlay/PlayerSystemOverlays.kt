@@ -86,6 +86,8 @@ import com.streamvault.domain.model.Season
 import com.streamvault.player.PlayerError
 import com.streamvault.player.PlayerTrack
 import com.streamvault.player.TrackType
+import com.streamvault.feature.playback.player.StremioPlayerSubtitleOption
+import com.streamvault.feature.playback.player.StremioSubtitlePickerState
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
 import java.util.Locale
@@ -258,11 +260,14 @@ fun PlayerTrackSelectionDialog(
     videoTracks: List<PlayerTrack>,
     liveTranslationAvailable: Boolean = false,
     liveTranslationActive: Boolean = false,
+    stremioSubtitlePicker: StremioSubtitlePickerState = StremioSubtitlePickerState(),
     onDismiss: () -> Unit,
     onSelectAudio: (String) -> Unit,
     onSelectVideo: (String) -> Unit,
     onSelectSubtitle: (String?) -> Unit,
-    onSelectLiveTranslation: () -> Unit = {}
+    onSelectLiveTranslation: () -> Unit = {},
+    onSelectStremioSubtitle: (StremioPlayerSubtitleOption) -> Unit = {},
+    onRetryStremioSubtitles: () -> Unit = {}
 ) {
     if (trackType == null) return
 
@@ -366,6 +371,59 @@ fun PlayerTrackSelectionDialog(
                                 isSelected = liveTranslationActive,
                                 onClick = {
                                     onSelectLiveTranslation()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT && stremioSubtitlePicker.enabled) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.player_stremio_subtitles_heading),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            )
+                        }
+                        if (stremioSubtitlePicker.loading) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_loading),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        if (stremioSubtitlePicker.failed) {
+                            item {
+                                TrackSelectionItem(
+                                    name = stringResource(R.string.player_stremio_subtitles_retry),
+                                    isSelected = false,
+                                    onClick = onRetryStremioSubtitles
+                                )
+                            }
+                        }
+                        if (!stremioSubtitlePicker.loading &&
+                            !stremioSubtitlePicker.failed &&
+                            stremioSubtitlePicker.options.isEmpty()
+                        ) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_empty),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        items(stremioSubtitlePicker.options, key = { it.key }) { option ->
+                            TrackSelectionItem(
+                                name = option.label,
+                                isSelected = false,
+                                onClick = {
+                                    onSelectStremioSubtitle(option)
                                     onDismiss()
                                 }
                             )

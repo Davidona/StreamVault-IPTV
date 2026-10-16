@@ -19,7 +19,25 @@ class PlayerNavigationRequestTest {
             seriesId = 12L,
             seasonNumber = 3,
             episodeNumber = 4,
-            episodeId = 77L
+            episodeId = 77L,
+            stremioPlaybackReference = StremioPlaybackReference(
+                mediaType = "series",
+                exactVideoId = "tt123:custom:episode-id",
+                parentSeriesId = "tt123",
+                catalogOriginKey = "catalog-fingerprint",
+                metaOriginKey = "meta-fingerprint",
+                streamOriginKey = "stream-fingerprint",
+                videoHash = "abc123",
+                videoSize = 1024L,
+                filename = "episode.mkv"
+            ),
+            stremioInlineSubtitles = listOf(
+                StremioSubtitlePlaybackSource(
+                    url = "https://subtitles.example.test/episode.srt?token=temporary",
+                    language = "eng",
+                    id = "inline-eng"
+                )
+            )
         )
 
         val bytes = ByteArrayOutputStream()

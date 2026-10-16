@@ -51,10 +51,13 @@ import com.streamvault.feature.system.api.owner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -87,6 +90,8 @@ class StreamVaultPluginManager @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val json: Json
 ) : ProviderSourceRegistry {
+    private val playbackCleanupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val preparedPlaybackOwners = ConcurrentHashMap<String, InstalledStreamVaultPlugin>()
     private val prefs = context.getSharedPreferences("streamvault_plugins", Context.MODE_PRIVATE)
     private val discoveryLock = Any()
     private val pluginMutationMutex = Mutex()
@@ -481,10 +486,14 @@ class StreamVaultPluginManager @Inject constructor(
     suspend fun preparePlaybackStreamInfo(streamInfo: StreamInfo): Result<StreamInfo> = withContext(Dispatchers.IO) {
         val url = streamInfo.url
         if (url.isBlank()) return@withContext Result.success(streamInfo)
+        val isMagnet = isMagnetPlaybackUrl(url)
         val prepared = withPluginPlaybackDeadline(PLAYBACK_TOTAL_TIMEOUT_MILLIS) {
             val plugins = playbackCandidates(
                 discoverPlugins(), url, StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE
             )
+            if (isMagnet && plugins.isEmpty()) {
+                return@withPluginPlaybackDeadline Result.error(MAGNET_PLUGIN_REQUIRED_MESSAGE)
+            }
             coroutineScope {
                 val requests = plugins.associateWith { plugin -> async {
                     runPluginCallOrNull {
@@ -502,16 +511,45 @@ class StreamVaultPluginManager @Inject constructor(
                     if (!response.getBoolean(StreamVaultPluginContract.KEY_HANDLED, false)) continue
                     requests.values.forEach { it.cancel() }
                     return@coroutineScope if (response.getBoolean(StreamVaultPluginContract.KEY_SUCCESS, false)) {
-                        Result.success(applyPlaybackPreparationResponse(streamInfo, response))
+                        val preparedInfo = applyPlaybackPreparationResponse(streamInfo, response)
+                        if (isMagnet && !isSafeMagnetPlaybackOutputUrl(preparedInfo.url)) {
+                            Result.error(MAGNET_PLUGIN_INVALID_OUTPUT_MESSAGE)
+                        } else {
+                            if (isMagnet) preparedPlaybackOwners[preparedInfo.url] = plugin
+                            Result.success(preparedInfo)
+                        }
                     } else {
                         Result.error(response.getString(StreamVaultPluginContract.KEY_MESSAGE).orEmpty()
                             .ifBlank { "${plugin.displayName} could not prepare playback" })
                     }
                 }
-                Result.success(streamInfo)
+                if (isMagnet) Result.error(MAGNET_PLUGIN_UNAVAILABLE_MESSAGE)
+                else Result.success(streamInfo)
             }
         }
-        prepared ?: Result.success(streamInfo)
+        prepared ?: if (isMagnet) Result.error(MAGNET_PLUGIN_UNAVAILABLE_MESSAGE)
+        else Result.success(streamInfo)
+    }
+
+    /** Stops a plugin session previously associated with the prepared output URL. */
+    fun stopPreparedPlayback(streamInfo: StreamInfo) {
+        val outputUrl = streamInfo.url
+        val plugin = preparedPlaybackOwners.remove(outputUrl) ?: return
+        playbackCleanupScope.launch {
+            runCatching {
+                withPluginPlaybackDeadline(PLAYBACK_HANDLER_TIMEOUT_MILLIS) {
+                    messengerClient.send(
+                        packageName = plugin.packageName,
+                        serviceClassName = plugin.serviceClassName,
+                        what = StreamVaultPluginContract.MSG_STOP_PLAYBACK,
+                        data = Bundle().apply {
+                            putString(StreamVaultPluginContract.KEY_OUTPUT_URL, outputUrl)
+                        },
+                        timeoutMillis = PLAYBACK_HANDLER_TIMEOUT_MILLIS
+                    )
+                }
+            }
+        }
     }
 
     suspend fun rewriteCastUrl(request: CastMediaRequest): String? = withContext(Dispatchers.IO) {

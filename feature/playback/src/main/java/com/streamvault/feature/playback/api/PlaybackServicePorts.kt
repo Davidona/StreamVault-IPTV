@@ -36,6 +36,9 @@ enum class CastRewriteRequiredReason {
 
 interface PlaybackStreamPreparer {
     suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo>
+
+    /** Gives the owning plugin a chance to release resources for a prepared stream. */
+    fun stop(streamInfo: StreamInfo) = Unit
 }
 
 interface CastUrlRewriter {

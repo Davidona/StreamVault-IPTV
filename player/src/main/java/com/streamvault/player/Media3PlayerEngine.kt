@@ -60,13 +60,13 @@ import com.streamvault.player.playback.PlaybackCodecSelector
 import com.streamvault.player.playback.PlaybackCompatibilityProfile
 import com.streamvault.player.playback.PlaybackBufferPolicies
 import com.streamvault.player.playback.PlaybackBufferPolicy
+import com.streamvault.player.playback.PlaybackLogSanitizer
 import com.streamvault.player.playback.PlaybackLoadControl
 import com.streamvault.player.playback.LiveVideoStallRecovery
 import com.streamvault.player.playback.PlaybackErrorCategory
 import com.streamvault.player.playback.FfmpegAudioFallbackRequest
 import com.streamvault.player.playback.FfmpegExtensionSupport
 import com.streamvault.player.playback.InitialBitratePolicy
-import com.streamvault.player.playback.PlaybackLogSanitizer
 import com.streamvault.player.playback.PlaybackPreparationPlan
 import com.streamvault.player.playback.PlaybackRetryContext
 import com.streamvault.player.playback.PlayerDataSourceFactoryProvider
@@ -885,7 +885,7 @@ class Media3PlayerEngine @Inject constructor(
         liveAudioTap = tap
     }
 
-    override fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String) {
+    override fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String?) {
         val player = exoPlayer ?: return
         val streamInfo = lastStreamInfo ?: return
         val retryPolicy = currentRetryPolicy ?: return
@@ -901,7 +901,7 @@ class Media3PlayerEngine @Inject constructor(
             vodHttpProtocolMode = requestedVodHttpProtocolMode,
             preload = false
         )
-        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language)
+        val subtitleConfig = buildExternalSubtitleConfiguration(subtitleUri, language, label)
         val subtitleSource = buildExternalSubtitleMediaSource(
             dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
             configuration = subtitleConfig
@@ -913,7 +913,11 @@ class Media3PlayerEngine @Inject constructor(
         player.prepare()
         transition.resumePositionMs.takeIf { it > 0L }?.let(player::seekTo)
         player.playWhenReady = transition.playWhenReady
-        Log.i(TAG, "addExternalSubtitle language=$language uri=$subtitleUri")
+        Log.i(
+            TAG,
+            "addExternalSubtitle language=$language " +
+                "target=${PlaybackLogSanitizer.sanitizeOrigin(subtitleUri.toString())}"
+        )
     }
 
     override fun toggleMute() {
