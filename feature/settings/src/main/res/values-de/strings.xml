@@ -839,4 +839,15 @@
     <item quantity="one">Jede %d Stunde</item>
     <item quantity="other">Alle %d Stunden</item>
 </plurals>
+    <string name="settings_quality_profile_title">Wiedergabequalitätsprofil</string>
+    <string name="settings_quality_profile_data_saver">Datensparmodus</string>
+    <string name="settings_quality_profile_balanced">Ausgewogen</string>
+    <string name="settings_quality_profile_custom">Benutzerdefiniert</string>
+    <string name="settings_quality_custom_height">Maximale Videohöhe</string>
+    <string name="settings_quality_custom_bitrate">Maximale Videobitrate</string>
+    <string name="settings_quality_cap_no_limit">Unbegrenzt</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbit/s</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maximale Videobitrate über WLAN</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maximale Videobitrate über Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Keine zusätzliche Begrenzung</string>
 </resources>

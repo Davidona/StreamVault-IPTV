@@ -843,4 +843,15 @@
         <item quantity="one">Κάθε %d ώρα</item>
         <item quantity="other">Κάθε %d ώρες</item>
 </plurals>
+    <string name="settings_quality_profile_title">Προφίλ ποιότητας αναπαραγωγής</string>
+    <string name="settings_quality_profile_data_saver">Εξοικονόμηση δεδομένων</string>
+    <string name="settings_quality_profile_balanced">Ισορροπημένο</string>
+    <string name="settings_quality_profile_custom">Προσαρμοσμένο</string>
+    <string name="settings_quality_custom_height">Μέγιστο ύψος βίντεο</string>
+    <string name="settings_quality_custom_bitrate">Μέγιστος ρυθμός μετάδοσης βίντεο</string>
+    <string name="settings_quality_cap_no_limit">Χωρίς όριο</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Μέγιστος ρυθμός μετάδοσης βίντεο μέσω Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Μέγιστος ρυθμός μετάδοσης βίντεο μέσω Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Χωρίς πρόσθετο όριο</string>
 </resources>

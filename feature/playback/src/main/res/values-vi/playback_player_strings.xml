@@ -259,4 +259,40 @@
     <string name="player_diagnostics_frame_rate">Tốc độ khung hình</string>
     <string name="player_diagnostics_stream_bitrate">Tốc độ bit luồng</string>
     <string name="player_diagnostics_bandwidth_estimate">Băng thông mạng</string>
+    <string name="player_quality_save_as_limit">Lưu độ phân giải hiện tại làm giới hạn thích ứng</string>
+    <string name="player_quality_remove_saved_limit">Xóa giới hạn độ phân giải đã lưu</string>
+    <string name="player_quality_use_session_limit">Giới hạn lần phát này ở độ phân giải hiện tại</string>
+    <string name="player_quality_clear_session_limit">Xóa giới hạn chất lượng tạm thời</string>
+
+    <string name="player_quality_gate_title">Đã tạm dừng phát do giới hạn chất lượng</string>
+    <string name="player_quality_gate_message">Không có chất lượng video khả dụng nào phù hợp với giới hạn của bạn. Hãy xem chất lượng được đề xuất và chi tiết trước khi tiếp tục.</string>
+    <string name="player_quality_gate_offer">Chất lượng video được đề xuất: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Chiều cao %1$d p vượt quá giới hạn %2$d p của bạn.</string>
+    <string name="player_quality_gate_height_unknown">Không xác định được chiều cao video; giới hạn của bạn là %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Tốc độ bit %1$s Mbps vượt quá giới hạn %2$s Mbps của bạn.</string>
+    <string name="player_quality_gate_bitrate_unknown">Không xác định được tốc độ bit video; giới hạn của bạn là %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Tiếp tục một lần</string>
+
+    <string name="player_diagnostics_quality_limits">Giới hạn chất lượng</string>
+    <string name="player_diagnostics_quality_reasons">Yếu tố giới hạn</string>
+    <string name="player_diagnostics_quality_source_preferences">Tùy chọn phát</string>
+    <string name="player_diagnostics_quality_source_device">Khả năng tương thích của thiết bị</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Tải bộ giải mã</string>
+
+    <string name="player_diagnostics_quality_capability">Khả năng của nguồn video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Chất lượng thích ứng</string>
+    <string name="player_diagnostics_quality_capability_single">Chất lượng đơn hoặc cố định</string>
+    <string name="player_diagnostics_quality_capability_unknown">Không xác định</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Nguồn phát dịch thời gian</string>
+    <string name="player_quality_save_bitrate_as_limit">Lưu tốc độ bit video hiện tại làm mức tối đa</string>
+    <string name="player_quality_inherit_height_limit">Dùng giới hạn chiều cao được kế thừa</string>
+    <string name="player_quality_inherit_bitrate_limit">Dùng giới hạn tốc độ bit được kế thừa</string>
+    <string name="player_quality_no_additional_height_limit">Không thêm giới hạn chiều cao cho nội dung này</string>
+    <string name="player_quality_no_additional_bitrate_limit">Không thêm giới hạn tốc độ bit cho nội dung này</string>
+    <string name="player_quality_mode_auto">Tự động (thích ứng)</string>
+    <string name="player_quality_mode_fixed">Bản cố định</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Bộ nhận Cast chọn chất lượng; các giới hạn này không được áp dụng.</string>
+    <string name="player_video_quality_selection_blocked">Chất lượng video này không phù hợp với giới hạn phát của bạn.</string>
+    <string name="player_diagnostics_quality_height_summary">Độ phân giải: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Tốc độ bit: %1$s Mbps</string>
 </resources>

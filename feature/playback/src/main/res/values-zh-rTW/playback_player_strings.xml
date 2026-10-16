@@ -258,4 +258,40 @@
     <string name="series_seasons">季</string>
     <string name="settings_recording_status_recording">錄影中</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">將目前解析度儲存為自動調整上限</string>
+    <string name="player_quality_remove_saved_limit">移除已儲存的解析度上限</string>
+    <string name="player_quality_use_session_limit">將本次播放限制為目前解析度</string>
+    <string name="player_quality_clear_session_limit">清除暫時畫質上限</string>
+
+    <string name="player_quality_gate_title">因畫質限制已暫停播放</string>
+    <string name="player_quality_gate_message">沒有符合限制條件的可用影片畫質。繼續前請查看提供的畫質和詳細資料。</string>
+    <string name="player_quality_gate_offer">提供的影片畫質：%1$s</string>
+    <string name="player_quality_gate_height_exceeded">%1$d p 的高度超過了 %2$d p 的限制。</string>
+    <string name="player_quality_gate_height_unknown">影片高度未知；限制為 %1$d p。</string>
+    <string name="player_quality_gate_bitrate_exceeded">%1$s Mbps 的位元率超過了 %2$s Mbps 的限制。</string>
+    <string name="player_quality_gate_bitrate_unknown">影片位元率未知；限制為 %1$s Mbps。</string>
+    <string name="player_quality_gate_continue_once">僅繼續一次</string>
+
+    <string name="player_diagnostics_quality_limits">畫質限制</string>
+    <string name="player_diagnostics_quality_reasons">限制因素</string>
+    <string name="player_diagnostics_quality_source_preferences">播放偏好設定</string>
+    <string name="player_diagnostics_quality_source_device">裝置相容性</string>
+    <string name="player_diagnostics_quality_decoder_pressure">解碼器負載</string>
+
+    <string name="player_diagnostics_quality_capability">影片來源能力</string>
+    <string name="player_diagnostics_quality_capability_adaptive">自適應畫質</string>
+    <string name="player_diagnostics_quality_capability_single">單一或固定畫質</string>
+    <string name="player_diagnostics_quality_capability_unknown">未知</string>
+    <string name="player_diagnostics_quality_capability_timeshift">時移來源</string>
+    <string name="player_quality_save_bitrate_as_limit">將目前視訊位元率儲存為上限</string>
+    <string name="player_quality_inherit_height_limit">使用繼承的高度限制</string>
+    <string name="player_quality_inherit_bitrate_limit">使用繼承的位元率限制</string>
+    <string name="player_quality_no_additional_height_limit">此內容不新增額外高度限制</string>
+    <string name="player_quality_no_additional_bitrate_limit">此內容不新增額外位元率限制</string>
+    <string name="player_quality_mode_auto">自動（自動調適）</string>
+    <string name="player_quality_mode_fixed">固定音軌</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast 接收器會自行選擇畫質；這些限制不會生效。</string>
+    <string name="player_video_quality_selection_blocked">此影片畫質不符合您的播放限制。</string>
+    <string name="player_diagnostics_quality_height_summary">解析度：%1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">位元率：%1$s Mbps</string>
 </resources>

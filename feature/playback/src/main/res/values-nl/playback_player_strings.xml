@@ -259,4 +259,40 @@
     <string name="player_subtitle_delay_action">Ondertitelvertraging (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Sluiten</string>
     <string name="player_diagnostics_video_decoder_mode">Videodecodermodus</string>
+    <string name="player_quality_save_as_limit">Huidige resolutie opslaan als adaptieve limiet</string>
+    <string name="player_quality_remove_saved_limit">Opgeslagen resolutielimiet verwijderen</string>
+    <string name="player_quality_use_session_limit">Beperk deze weergave tot de huidige resolutie</string>
+    <string name="player_quality_clear_session_limit">Tijdelijke kwaliteitslimiet wissen</string>
+
+    <string name="player_quality_gate_title">Afspelen gepauzeerd vanwege kwaliteitslimieten</string>
+    <string name="player_quality_gate_message">Geen beschikbare videokwaliteit voldoet aan je limieten. Bekijk de aangeboden kwaliteit en details voordat je doorgaat.</string>
+    <string name="player_quality_gate_offer">Aangeboden videokwaliteit: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">De hoogte van %1$d p overschrijdt je limiet van %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">De videohoogte is onbekend; je limiet is %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">De bitrate van %1$s Mbps overschrijdt je limiet van %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">De videobitrate is onbekend; je limiet is %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Eenmalig doorgaan</string>
+
+    <string name="player_diagnostics_quality_limits">Kwaliteitslimieten</string>
+    <string name="player_diagnostics_quality_reasons">Beperkende factoren</string>
+    <string name="player_diagnostics_quality_source_preferences">Afspeelvoorkeuren</string>
+    <string name="player_diagnostics_quality_source_device">Apparaatcompatibiliteit</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Decoderbelasting</string>
+
+    <string name="player_diagnostics_quality_capability">Mogelijkheden van videobron</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptieve kwaliteiten</string>
+    <string name="player_diagnostics_quality_capability_single">Enkele of vaste kwaliteit</string>
+    <string name="player_diagnostics_quality_capability_unknown">Onbekend</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Timeshiftbron</string>
+    <string name="player_quality_save_bitrate_as_limit">Huidige videobitsnelheid opslaan als maximum</string>
+    <string name="player_quality_inherit_height_limit">Overgenomen hoogtelimiet gebruiken</string>
+    <string name="player_quality_inherit_bitrate_limit">Overgenomen bitsnelheidslimiet gebruiken</string>
+    <string name="player_quality_no_additional_height_limit">Geen extra hoogtelimiet voor deze content</string>
+    <string name="player_quality_no_additional_bitrate_limit">Geen extra bitsnelheidslimiet voor deze content</string>
+    <string name="player_quality_mode_auto">Automatisch (adaptief)</string>
+    <string name="player_quality_mode_fixed">Vaste track</string>
+    <string name="player_diagnostics_quality_cast_unavailable">De Cast-ontvanger kiest de kwaliteit; deze limieten worden niet afgedwongen.</string>
+    <string name="player_video_quality_selection_blocked">Deze videokwaliteit past niet binnen je afspeellimieten.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolutie: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitsnelheid: %1$s Mbps</string>
 </resources>

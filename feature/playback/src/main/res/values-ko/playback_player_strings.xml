@@ -259,4 +259,40 @@
     <string name="player_diagnostics_audio_decoder_mode">오디오 디코더 모드</string>
     <string name="player_diagnostics_video_decoder_mode">비디오 디코더 모드</string>
     <string name="player_track_live_translation">실시간 번역</string>
+    <string name="player_quality_save_as_limit">현재 해상도를 적응형 제한으로 저장</string>
+    <string name="player_quality_remove_saved_limit">저장된 해상도 제한 삭제</string>
+    <string name="player_quality_use_session_limit">이번 재생을 현재 해상도로 제한</string>
+    <string name="player_quality_clear_session_limit">임시 화질 제한 해제</string>
+
+    <string name="player_quality_gate_title">화질 제한으로 재생이 일시중지되었습니다</string>
+    <string name="player_quality_gate_message">설정한 제한에 맞는 동영상 화질이 없습니다. 계속하기 전에 제안된 화질과 세부정보를 확인하세요.</string>
+    <string name="player_quality_gate_offer">제안된 동영상 화질: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">%1$d p 해상도가 %2$d p 제한을 초과합니다.</string>
+    <string name="player_quality_gate_height_unknown">동영상 높이를 알 수 없습니다. 제한은 %1$d p입니다.</string>
+    <string name="player_quality_gate_bitrate_exceeded">%1$s Mbps 비트 전송률이 %2$s Mbps 제한을 초과합니다.</string>
+    <string name="player_quality_gate_bitrate_unknown">동영상 비트 전송률을 알 수 없습니다. 제한은 %1$s Mbps입니다.</string>
+    <string name="player_quality_gate_continue_once">한 번만 계속</string>
+
+    <string name="player_diagnostics_quality_limits">화질 제한</string>
+    <string name="player_diagnostics_quality_reasons">제한 요인</string>
+    <string name="player_diagnostics_quality_source_preferences">재생 설정</string>
+    <string name="player_diagnostics_quality_source_device">기기 호환성</string>
+    <string name="player_diagnostics_quality_decoder_pressure">디코더 부하</string>
+
+    <string name="player_diagnostics_quality_capability">동영상 소스 기능</string>
+    <string name="player_diagnostics_quality_capability_adaptive">적응형 화질</string>
+    <string name="player_diagnostics_quality_capability_single">단일 또는 고정 화질</string>
+    <string name="player_diagnostics_quality_capability_unknown">알 수 없음</string>
+    <string name="player_diagnostics_quality_capability_timeshift">타임시프트 소스</string>
+    <string name="player_quality_save_bitrate_as_limit">현재 동영상 비트레이트를 최댓값으로 저장</string>
+    <string name="player_quality_inherit_height_limit">상속된 높이 제한 사용</string>
+    <string name="player_quality_inherit_bitrate_limit">상속된 비트레이트 제한 사용</string>
+    <string name="player_quality_no_additional_height_limit">이 콘텐츠에 높이 제한 추가 안 함</string>
+    <string name="player_quality_no_additional_bitrate_limit">이 콘텐츠에 비트레이트 제한 추가 안 함</string>
+    <string name="player_quality_mode_auto">자동(적응형)</string>
+    <string name="player_quality_mode_fixed">고정 트랙</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast 수신기가 화질을 선택하므로 이 제한은 적용되지 않습니다.</string>
+    <string name="player_video_quality_selection_blocked">이 화질은 재생 제한에 맞지 않습니다.</string>
+    <string name="player_diagnostics_quality_height_summary">해상도: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">비트레이트: %1$s Mbps</string>
 </resources>

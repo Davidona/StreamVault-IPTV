@@ -259,4 +259,40 @@
     <string name="player_close_playback_desc">Detta stoppar uppspelningen och återgår till föregående skärm.</string>
     <string name="player_close_playback_confirm">Ja</string>
     <string name="player_close_playback_cancel">Nej</string>
+    <string name="player_quality_save_as_limit">Spara aktuell upplösning som en adaptiv gräns</string>
+    <string name="player_quality_remove_saved_limit">Ta bort sparad upplösningsgräns</string>
+    <string name="player_quality_use_session_limit">Begränsa den här uppspelningen till aktuell upplösning</string>
+    <string name="player_quality_clear_session_limit">Ta bort tillfällig kvalitetsgräns</string>
+
+    <string name="player_quality_gate_title">Uppspelningen pausades på grund av kvalitetsgränser</string>
+    <string name="player_quality_gate_message">Ingen tillgänglig videokvalitet passar dina gränser. Granska den erbjudna kvaliteten och detaljerna innan du fortsätter.</string>
+    <string name="player_quality_gate_offer">Erbjuden videokvalitet: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Höjden %1$d p överskrider din gräns på %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Videons höjd är okänd; din gräns är %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Bithastigheten %1$s Mbps överskrider din gräns på %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Videons bithastighet är okänd; din gräns är %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Fortsätt en gång</string>
+
+    <string name="player_diagnostics_quality_limits">Kvalitetsgränser</string>
+    <string name="player_diagnostics_quality_reasons">Begränsande faktorer</string>
+    <string name="player_diagnostics_quality_source_preferences">Uppspelningsinställningar</string>
+    <string name="player_diagnostics_quality_source_device">Enhetskompatibilitet</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Avkodarbelastning</string>
+
+    <string name="player_diagnostics_quality_capability">Videokällans funktion</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptiva kvaliteter</string>
+    <string name="player_diagnostics_quality_capability_single">Enkel eller fast kvalitet</string>
+    <string name="player_diagnostics_quality_capability_unknown">Okänd</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Tidsförskjuten källa</string>
+    <string name="player_quality_save_bitrate_as_limit">Spara aktuell videobithastighet som maxgräns</string>
+    <string name="player_quality_inherit_height_limit">Använd den ärvda höjdgränsen</string>
+    <string name="player_quality_inherit_bitrate_limit">Använd den ärvda bithastighetsgränsen</string>
+    <string name="player_quality_no_additional_height_limit">Ingen extra höjdgräns för detta innehåll</string>
+    <string name="player_quality_no_additional_bitrate_limit">Ingen extra bithastighetsgräns för detta innehåll</string>
+    <string name="player_quality_mode_auto">Automatiskt (adaptivt) val</string>
+    <string name="player_quality_mode_fixed">Fast spår</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast-mottagaren väljer kvaliteten; dessa gränser tillämpas inte.</string>
+    <string name="player_video_quality_selection_blocked">Den här videokvaliteten ryms inte inom dina uppspelningsgränser.</string>
+    <string name="player_diagnostics_quality_height_summary">Upplösning: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bithastighet: %1$s Mbit/s</string>
 </resources>

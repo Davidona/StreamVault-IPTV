@@ -6,6 +6,8 @@ import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result as DomainResult
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.playback.ResolvedStreamType
 import com.streamvault.player.playback.StreamTypeResolver
@@ -39,6 +41,8 @@ class PlayerPreparationCoordinator @Inject constructor(
         val probeBeforePlayback: Boolean,
         val audioVideoOffsetMs: Int,
         val vodTrackPreferences: VodTrackPreferences? = null,
+        val playbackQualityScope: PlaybackQualityPreferenceScope? = null,
+        val temporaryPlaybackQualityPreference: ScopedPlaybackQualityPreference? = null,
         val requiredSourceType: ResolvedStreamType? = null
     )
 
@@ -104,6 +108,9 @@ class PlayerPreparationCoordinator @Inject constructor(
         applyPlaybackPreferences(
             engine = playerEngineCoordinator.currentEngine,
             contentType = request.contentType,
+            providerId = request.providerId,
+            playbackQualityScope = request.playbackQualityScope,
+            temporaryPlaybackQualityPreference = request.temporaryPlaybackQualityPreference,
             audioVideoOffsetMs = request.audioVideoOffsetMs,
             vodTrackPreferences = request.vodTrackPreferences
         )
@@ -145,6 +152,9 @@ class PlayerPreparationCoordinator @Inject constructor(
         engine: PlayerEngine,
         contentType: ContentType,
         audioVideoOffsetMs: Int,
+        providerId: Long = -1L,
+        playbackQualityScope: PlaybackQualityPreferenceScope? = null,
+        temporaryPlaybackQualityPreference: ScopedPlaybackQualityPreference? = null,
         vodTrackPreferences: VodTrackPreferences? = null
     ) {
         engine.setMuted(playerPreferencesCoordinator.playerMuted.first())
@@ -163,9 +173,17 @@ class PlayerPreparationCoordinator @Inject constructor(
         )
         engine.setPinnedSubtitleLanguages(playerPreferencesCoordinator.pinnedSubtitleLanguages.first())
         engine.setVodTrackPreferences(vodTrackPreferences)
-        engine.setNetworkQualityPreferences(
-            wifiMaxHeight = playerPreferencesCoordinator.playerWifiMaxVideoHeight.first(),
-            ethernetMaxHeight = playerPreferencesCoordinator.playerEthernetMaxVideoHeight.first()
+        engine.setPlaybackQualityPreferences(playerPreferencesCoordinator.playbackQualityPreferences.first())
+        val providerQualityPreference = providerId.takeIf { it > 0L }
+            ?.let(PlaybackQualityPreferenceScope::providerDefault)
+            ?.let { scope -> playerPreferencesCoordinator.getPlaybackQualityPreference(scope).first() }
+        val contentQualityPreference = playbackQualityScope
+            ?.takeIf { it.providerId == providerId }
+            ?.let { scope -> playerPreferencesCoordinator.getPlaybackQualityPreference(scope).first() }
+        engine.setScopedPlaybackQualityPreferences(
+            providerDefault = providerQualityPreference,
+            contentPreference = contentQualityPreference,
+            temporarySelection = temporaryPlaybackQualityPreference
         )
         engine.setSurfaceMode(playerPreferencesCoordinator.playerSurfaceMode.first())
         engine.setPlaybackBufferMode(playerPreferencesCoordinator.playerPlaybackBufferMode.first())

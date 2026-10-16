@@ -843,4 +843,15 @@
     <item quantity="one">Elk uur</item>
     <item quantity="other">Elke %d uur</item>
 </plurals>
+    <string name="settings_quality_profile_title">Profiel voor afspeelkwaliteit</string>
+    <string name="settings_quality_profile_data_saver">Databesparing</string>
+    <string name="settings_quality_profile_balanced">Gebalanceerd</string>
+    <string name="settings_quality_profile_custom">Aangepast</string>
+    <string name="settings_quality_custom_height">Maximale videohoogte</string>
+    <string name="settings_quality_custom_bitrate">Maximale videobitsnelheid</string>
+    <string name="settings_quality_cap_no_limit">Geen limiet</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maximale videobitsnelheid via wifi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maximale videobitsnelheid via ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Geen extra limiet</string>
 </resources>

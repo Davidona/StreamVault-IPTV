@@ -263,4 +263,40 @@
     <string name="player_diagnostics_bandwidth_estimate">عرض النطاق للشبكة</string>
     <string name="player_diagnostics_audio_decoder_mode">وضع فك ترميز الصوت</string>
     <string name="player_diagnostics_video_decoder_mode">وضع فك ترميز الفيديو</string>
+    <string name="player_quality_save_as_limit">حفظ الدقة الحالية كحد تكيفي</string>
+    <string name="player_quality_remove_saved_limit">إزالة حد الدقة المحفوظ</string>
+    <string name="player_quality_use_session_limit">تقييد هذا التشغيل بالدقة الحالية</string>
+    <string name="player_quality_clear_session_limit">إزالة حد الجودة المؤقت</string>
+
+    <string name="player_quality_gate_title">تم إيقاف التشغيل بسبب حدود الجودة</string>
+    <string name="player_quality_gate_message">لا توجد جودة فيديو متاحة ضمن الحدود المحددة. راجع الجودة المعروضة والتفاصيل قبل المتابعة.</string>
+    <string name="player_quality_gate_offer">جودة الفيديو المقترحة: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">يتجاوز الارتفاع %1$d بكسل حدك البالغ %2$d بكسل.</string>
+    <string name="player_quality_gate_height_unknown">ارتفاع الفيديو غير معروف؛ الحد هو %1$d بكسل.</string>
+    <string name="player_quality_gate_bitrate_exceeded">يتجاوز معدل البت %1$s ميغابت/ث الحد البالغ %2$s ميغابت/ث.</string>
+    <string name="player_quality_gate_bitrate_unknown">معدل بت الفيديو غير معروف؛ الحد هو %1$s ميغابت/ث.</string>
+    <string name="player_quality_gate_continue_once">المتابعة مرة واحدة</string>
+
+    <string name="player_diagnostics_quality_limits">حدود الجودة</string>
+    <string name="player_diagnostics_quality_reasons">عوامل التقييد</string>
+    <string name="player_diagnostics_quality_source_preferences">تفضيلات التشغيل</string>
+    <string name="player_diagnostics_quality_source_device">توافق الجهاز</string>
+    <string name="player_diagnostics_quality_decoder_pressure">ضغط وحدة فك الترميز</string>
+
+    <string name="player_diagnostics_quality_capability">إمكانات مصدر الفيديو</string>
+    <string name="player_diagnostics_quality_capability_adaptive">جودات فيديو متكيفة</string>
+    <string name="player_diagnostics_quality_capability_single">جودة واحدة أو ثابتة</string>
+    <string name="player_diagnostics_quality_capability_unknown">غير معروف</string>
+    <string name="player_diagnostics_quality_capability_timeshift">مصدر إرجاع زمني</string>
+    <string name="player_quality_save_bitrate_as_limit">حفظ معدل بت الفيديو الحالي كحد أقصى</string>
+    <string name="player_quality_inherit_height_limit">استخدام حد الارتفاع الموروث</string>
+    <string name="player_quality_inherit_bitrate_limit">استخدام حد معدل البت الموروث</string>
+    <string name="player_quality_no_additional_height_limit">لا يوجد حد إضافي للارتفاع لهذا المحتوى</string>
+    <string name="player_quality_no_additional_bitrate_limit">لا يوجد حد إضافي لمعدل البت لهذا المحتوى</string>
+    <string name="player_quality_mode_auto">تلقائي (متكيف)</string>
+    <string name="player_quality_mode_fixed">مسار ثابت</string>
+    <string name="player_diagnostics_quality_cast_unavailable">يختار جهاز Cast الجودة بنفسه ولا يفرض هذه الحدود.</string>
+    <string name="player_video_quality_selection_blocked">جودة الفيديو هذه لا تتوافق مع حدود التشغيل.</string>
+    <string name="player_diagnostics_quality_height_summary">الدقة: %1$d بكسل</string>
+    <string name="player_diagnostics_quality_bitrate_summary">معدل البت: %1$s ميغابت/ث</string>
 </resources>

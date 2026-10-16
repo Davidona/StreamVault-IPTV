@@ -108,6 +108,23 @@ interface SettingsPreferences {
 
     val playerDiagnosticsTimeoutSeconds: Flow<Int>
 
+    val playbackQualityPreferences: Flow<PlaybackQualityPreferences>
+
+    fun getPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope
+    ): Flow<ScopedPlaybackQualityPreference?> = kotlinx.coroutines.flow.flowOf(null)
+
+    suspend fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        throw UnsupportedOperationException("Scoped playback quality preferences are unavailable")
+    }
+
+    suspend fun clearPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) {
+        throw UnsupportedOperationException("Scoped playback quality preferences are unavailable")
+    }
+
     val playerWifiMaxVideoHeight: Flow<Int?>
 
     val playerEthernetMaxVideoHeight: Flow<Int?>
@@ -285,6 +302,8 @@ interface SettingsPreferences {
     suspend fun setPlayerNoticeTimeoutSeconds(seconds: Int)
 
     suspend fun setPlayerDiagnosticsTimeoutSeconds(seconds: Int)
+
+    suspend fun setPlaybackQualityPreferences(preferences: PlaybackQualityPreferences)
 
     suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?)
 

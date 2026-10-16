@@ -261,4 +261,40 @@
     <string name="player_subtitle_delay_action">Zpoždění titulků (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Zavřít</string>
     <string name="player_diagnostics_video_decoder_mode">Režim video dekodéru</string>
+    <string name="player_quality_save_as_limit">Uložit aktuální rozlišení jako adaptivní limit</string>
+    <string name="player_quality_remove_saved_limit">Odebrat uložený limit rozlišení</string>
+    <string name="player_quality_use_session_limit">Omezit toto přehrávání na aktuální rozlišení</string>
+    <string name="player_quality_clear_session_limit">Zrušit dočasný limit kvality</string>
+
+    <string name="player_quality_gate_title">Přehrávání pozastaveno kvůli limitům kvality</string>
+    <string name="player_quality_gate_message">Žádná dostupná kvalita videa neodpovídá vašim limitům. Před pokračováním zkontrolujte nabízenou kvalitu a podrobnosti.</string>
+    <string name="player_quality_gate_offer">Nabízená kvalita videa: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Výška %1$d p překračuje váš limit %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Výška videa není známa; váš limit je %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Datový tok %1$s Mbps překračuje váš limit %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Datový tok videa není znám; váš limit je %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Pokračovat jednou</string>
+
+    <string name="player_diagnostics_quality_limits">Limity kvality</string>
+    <string name="player_diagnostics_quality_reasons">Důvody omezení</string>
+    <string name="player_diagnostics_quality_source_preferences">Předvolby přehrávání</string>
+    <string name="player_diagnostics_quality_source_device">Kompatibilita zařízení</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Zatížení dekodéru</string>
+
+    <string name="player_diagnostics_quality_capability">Možnosti zdroje videa</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptivní kvality</string>
+    <string name="player_diagnostics_quality_capability_single">Jedna nebo pevná kvalita</string>
+    <string name="player_diagnostics_quality_capability_unknown">Neznámé</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Zdroj časového posunu</string>
+    <string name="player_quality_save_bitrate_as_limit">Uložit aktuální datový tok videa jako maximum</string>
+    <string name="player_quality_inherit_height_limit">Použít zděděný limit výšky</string>
+    <string name="player_quality_inherit_bitrate_limit">Použít zděděný limit datového toku</string>
+    <string name="player_quality_no_additional_height_limit">Pro tento obsah nepřidávat limit výšky</string>
+    <string name="player_quality_no_additional_bitrate_limit">Pro tento obsah nepřidávat limit datového toku</string>
+    <string name="player_quality_mode_auto">Automatický (adaptivní) výběr</string>
+    <string name="player_quality_mode_fixed">Pevná stopa</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Kvalitu vybírá přijímač Cast; tyto limity se neuplatní.</string>
+    <string name="player_video_quality_selection_blocked">Tato kvalita videa nevyhovuje vašim limitům přehrávání.</string>
+    <string name="player_diagnostics_quality_height_summary">Rozlišení: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Datový tok: %1$s Mb/s</string>
 </resources>

@@ -843,4 +843,15 @@
         <item quantity="one">हर %d घंटा</item>
         <item quantity="other">हर %d घंटे</item>
     </plurals>
+    <string name="settings_quality_profile_title">प्लेबैक गुणवत्ता प्रोफ़ाइल</string>
+    <string name="settings_quality_profile_data_saver">डेटा बचत</string>
+    <string name="settings_quality_profile_balanced">संतुलित</string>
+    <string name="settings_quality_profile_custom">कस्टम</string>
+    <string name="settings_quality_custom_height">अधिकतम वीडियो ऊँचाई</string>
+    <string name="settings_quality_custom_bitrate">अधिकतम वीडियो बिटरेट</string>
+    <string name="settings_quality_cap_no_limit">कोई सीमा नहीं</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi पर अधिकतम वीडियो बिटरेट</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Ethernet पर अधिकतम वीडियो बिटरेट</string>
+    <string name="settings_quality_cap_no_additional_limit">कोई अतिरिक्त सीमा नहीं</string>
 </resources>

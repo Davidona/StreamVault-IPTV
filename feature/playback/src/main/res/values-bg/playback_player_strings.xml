@@ -259,4 +259,40 @@
     <string name="series_seasons">Сезони</string>
     <string name="settings_recording_status_recording">Записва се</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Запази текущата резолюция като адаптивен лимит</string>
+    <string name="player_quality_remove_saved_limit">Премахни запазения лимит за резолюция</string>
+    <string name="player_quality_use_session_limit">Ограничи това възпроизвеждане до текущата резолюция</string>
+    <string name="player_quality_clear_session_limit">Изчисти временния лимит за качество</string>
+
+    <string name="player_quality_gate_title">Възпроизвеждането е спряно заради ограниченията за качество</string>
+    <string name="player_quality_gate_message">Няма налично видео качество, което да отговаря на ограниченията ви. Проверете предложеното качество и подробностите преди да продължите.</string>
+    <string name="player_quality_gate_offer">Предложено качество на видеото: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Височината %1$d p надвишава ограничението ви от %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Височината на видеото е неизвестна; ограничението ви е %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Битрейтът %1$s Mbps надвишава ограничението ви от %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Битрейтът на видеото е неизвестен; ограничението ви е %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Продължи еднократно</string>
+
+    <string name="player_diagnostics_quality_limits">Ограничения за качество</string>
+    <string name="player_diagnostics_quality_reasons">Причини за ограничението</string>
+    <string name="player_diagnostics_quality_source_preferences">Предпочитания за възпроизвеждане</string>
+    <string name="player_diagnostics_quality_source_device">Съвместимост с устройството</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Натоварване на декодера</string>
+
+    <string name="player_diagnostics_quality_capability">Възможности на видеоизточника</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Адаптивни качества</string>
+    <string name="player_diagnostics_quality_capability_single">Едно или фиксирано качество</string>
+    <string name="player_diagnostics_quality_capability_unknown">Неизвестно</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Източник с изместване във времето</string>
+    <string name="player_quality_save_bitrate_as_limit">Запазване на текущия видео битрейт като максимум</string>
+    <string name="player_quality_inherit_height_limit">Използване на наследения лимит за височина</string>
+    <string name="player_quality_inherit_bitrate_limit">Използване на наследения лимит за битрейт</string>
+    <string name="player_quality_no_additional_height_limit">Без допълнителен лимит за височината на това съдържание</string>
+    <string name="player_quality_no_additional_bitrate_limit">Без допълнителен лимит за битрейта на това съдържание</string>
+    <string name="player_quality_mode_auto">Автоматичен (адаптивен) избор</string>
+    <string name="player_quality_mode_fixed">Фиксирана писта</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Приемникът на Cast избира качеството; тези ограничения не се прилагат.</string>
+    <string name="player_video_quality_selection_blocked">Това качество на видеото не отговаря на ограниченията ви за възпроизвеждане.</string>
+    <string name="player_diagnostics_quality_height_summary">Разделителна способност: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Битрейт: %1$s Mbps</string>
 </resources>

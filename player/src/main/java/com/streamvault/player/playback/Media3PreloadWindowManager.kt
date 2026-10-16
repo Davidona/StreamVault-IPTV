@@ -10,6 +10,7 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.RenderersFactory
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.preload.DefaultPreloadManager
 import androidx.media3.exoplayer.source.preload.PreloadException
@@ -31,13 +32,18 @@ internal fun playerPreloadTargetStatus(
     currentIndex: Int?,
     rankingIndex: Int,
     readsAllowed: Boolean = true,
-    completed: Boolean = false
+    completed: Boolean = false,
+    sourcePrepareOnly: Boolean = false
 ): DefaultPreloadManager.PreloadStatus? {
     return if ((readsAllowed || completed) && currentIndex != null && abs(rankingIndex - currentIndex) == 1) {
-        DefaultPreloadManager.PreloadStatus.specifiedRangeLoaded(
-            0L,
-            PLAYER_PRELOAD_RANGE_MS
-        )
+        if (sourcePrepareOnly) {
+            DefaultPreloadManager.PreloadStatus.PRELOAD_STATUS_SOURCE_PREPARED
+        } else {
+            DefaultPreloadManager.PreloadStatus.specifiedRangeLoaded(
+                0L,
+                PLAYER_PRELOAD_RANGE_MS
+            )
+        }
     } else {
         null
     }
@@ -115,12 +121,13 @@ internal class Media3PreloadWindowManager(
     private val candidatesByRanking = mutableMapOf<Int, ManagedCandidate>()
     private val foregroundMediaItems = mutableSetOf<MediaItem>()
     private var readsAllowed = false
+    private var qualityPolicyAllowsVideoPreload = true
     private var providerLimitBlocked = false
 
     private val listener = object : PreloadManagerListener {
         override fun onCompleted(mediaItem: MediaItem) {
             val candidate = candidatesByKey.values.firstOrNull { it.mediaItem == mediaItem }
-            if (candidate != null && mediaItem !in foregroundMediaItems && readsAllowed &&
+            if (candidate != null && mediaItem !in foregroundMediaItems && readsAllowed && qualityPolicyAllowsVideoPreload &&
                 currentIndex?.let { abs(candidate.rankingIndex - it) == 1 } == true
             ) {
                 completedMediaItems += mediaItem
@@ -165,8 +172,12 @@ internal class Media3PreloadWindowManager(
             TargetPreloadStatusControl<Int, DefaultPreloadManager.PreloadStatus> {
             override fun getTargetPreloadStatus(index: Int): DefaultPreloadManager.PreloadStatus =
                 playerPreloadTargetStatus(
-                    currentIndex, index, readsAllowed,
-                    candidatesByRanking[index]?.mediaItem in completedMediaItems
+                    currentIndex,
+                    index,
+                    readsAllowed = readsAllowed,
+                    completed = qualityPolicyAllowsVideoPreload &&
+                        candidatesByRanking[index]?.mediaItem in completedMediaItems,
+                    sourcePrepareOnly = !qualityPolicyAllowsVideoPreload
                 )
                     ?: DefaultPreloadManager.PreloadStatus.PRELOAD_STATUS_NOT_PRELOADED
         }
@@ -178,6 +189,13 @@ internal class Media3PreloadWindowManager(
             .setDataSourceFactory(preloadDataSourceFactory)
             .setRenderersFactory(renderersFactory)
             .setLoadControl(loadControl)
+            .setTrackSelectorFactory { selectorContext ->
+                DefaultTrackSelector(selectorContext).apply {
+                    parameters = parameters.buildUpon()
+                        .setExceedVideoConstraintsIfNecessary(false)
+                        .build()
+                }
+            }
             .setBandwidthMeter(bandwidthMeter)
 
         preloadManager = builder.build().also { it.addListener(listener) }
@@ -260,6 +278,17 @@ internal class Media3PreloadWindowManager(
                 "preload-window accepted currentIndex=$stableCurrentIndex " +
                 "sourceCount=${candidatesByKey.size}"
         )
+    }
+
+    fun setQualityPolicyAllowsVideoPreload(allowed: Boolean) {
+        if (qualityPolicyAllowsVideoPreload == allowed) return
+        qualityPolicyAllowsVideoPreload = allowed
+        if (!allowed) {
+            clearWindow()
+        } else {
+            preloadManager?.invalidate()
+        }
+        safeLog("preload-window quality-policy videoPreloadAllowed=$allowed")
     }
 
     fun getMediaSource(streamInfo: StreamInfo): ManagedMediaSource? {

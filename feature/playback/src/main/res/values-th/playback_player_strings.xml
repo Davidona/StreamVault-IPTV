@@ -258,4 +258,40 @@
     <string name="series_seasons">ซีซัน</string>
     <string name="settings_recording_status_recording">กำลังบันทึก</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">บันทึกความละเอียดปัจจุบันเป็นขีดจำกัดแบบปรับตามการเล่น</string>
+    <string name="player_quality_remove_saved_limit">นำขีดจำกัดความละเอียดที่บันทึกไว้ออก</string>
+    <string name="player_quality_use_session_limit">จำกัดการเล่นนี้ไว้ที่ความละเอียดปัจจุบัน</string>
+    <string name="player_quality_clear_session_limit">ล้างขีดจำกัดคุณภาพชั่วคราว</string>
+
+    <string name="player_quality_gate_title">หยุดเล่นชั่วคราวเนื่องจากข้อจำกัดด้านคุณภาพ</string>
+    <string name="player_quality_gate_message">ไม่มีคุณภาพวิดีโอที่ตรงกับข้อจำกัดของคุณ โปรดตรวจสอบคุณภาพที่เสนอและรายละเอียดก่อนดำเนินการต่อ</string>
+    <string name="player_quality_gate_offer">คุณภาพวิดีโอที่เสนอ: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">ความสูง %1$d p เกินขีดจำกัด %2$d p ของคุณ</string>
+    <string name="player_quality_gate_height_unknown">ไม่ทราบความสูงของวิดีโอ ขีดจำกัดของคุณคือ %1$d p</string>
+    <string name="player_quality_gate_bitrate_exceeded">บิตเรต %1$s Mbps เกินขีดจำกัด %2$s Mbps ของคุณ</string>
+    <string name="player_quality_gate_bitrate_unknown">ไม่ทราบบิตเรตของวิดีโอ ขีดจำกัดของคุณคือ %1$s Mbps</string>
+    <string name="player_quality_gate_continue_once">ดำเนินการต่อหนึ่งครั้ง</string>
+
+    <string name="player_diagnostics_quality_limits">ขีดจำกัดคุณภาพ</string>
+    <string name="player_diagnostics_quality_reasons">ปัจจัยที่จำกัด</string>
+    <string name="player_diagnostics_quality_source_preferences">การตั้งค่าการเล่น</string>
+    <string name="player_diagnostics_quality_source_device">ความเข้ากันได้ของอุปกรณ์</string>
+    <string name="player_diagnostics_quality_decoder_pressure">ภาระของตัวถอดรหัส</string>
+
+    <string name="player_diagnostics_quality_capability">ความสามารถของแหล่งวิดีโอ</string>
+    <string name="player_diagnostics_quality_capability_adaptive">คุณภาพแบบปรับได้</string>
+    <string name="player_diagnostics_quality_capability_single">คุณภาพเดียวหรือคุณภาพคงที่</string>
+    <string name="player_diagnostics_quality_capability_unknown">ไม่ทราบ</string>
+    <string name="player_diagnostics_quality_capability_timeshift">แหล่งไทม์ชิฟต์</string>
+    <string name="player_quality_save_bitrate_as_limit">บันทึกบิตเรตวิดีโอปัจจุบันเป็นค่าสูงสุด</string>
+    <string name="player_quality_inherit_height_limit">ใช้ขีดจำกัดความสูงที่สืบทอดมา</string>
+    <string name="player_quality_inherit_bitrate_limit">ใช้ขีดจำกัดบิตเรตที่สืบทอดมา</string>
+    <string name="player_quality_no_additional_height_limit">ไม่เพิ่มขีดจำกัดความสูงสำหรับเนื้อหานี้</string>
+    <string name="player_quality_no_additional_bitrate_limit">ไม่เพิ่มขีดจำกัดบิตเรตสำหรับเนื้อหานี้</string>
+    <string name="player_quality_mode_auto">เลือกอัตโนมัติ (ปรับตามเงื่อนไข)</string>
+    <string name="player_quality_mode_fixed">แทร็กคงที่</string>
+    <string name="player_diagnostics_quality_cast_unavailable">อุปกรณ์รับ Cast เป็นผู้เลือกคุณภาพ จึงไม่มีการบังคับใช้ขีดจำกัดเหล่านี้</string>
+    <string name="player_video_quality_selection_blocked">คุณภาพวิดีโอนี้ไม่อยู่ในขีดจำกัดการเล่นของคุณ</string>
+    <string name="player_diagnostics_quality_height_summary">ความละเอียด: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">บิตเรต: %1$s Mbps</string>
 </resources>

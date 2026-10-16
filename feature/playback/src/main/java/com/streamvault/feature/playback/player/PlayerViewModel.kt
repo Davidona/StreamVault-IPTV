@@ -27,6 +27,8 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.usecase.DownloadExternalSubtitle
 import com.streamvault.domain.usecase.GetExternalSubtitleLanguages
@@ -387,11 +389,33 @@ class PlayerViewModel @Inject constructor(
             playerPlaybackContextCoordinator.currentTitle = value
         }
     internal var currentSeriesId: Long? = null
+    internal var currentRemoteContentId: String? = null
+    internal var currentRemoteSeriesId: String? = null
+    private val currentPlaybackQualityScopeFlow = MutableStateFlow<PlaybackQualityPreferenceScope?>(null)
+    private val currentPlaybackQualityProviderIdFlow = MutableStateFlow<Long?>(null)
+    internal val temporaryPlaybackQualityPreferenceFlow = MutableStateFlow<ScopedPlaybackQualityPreference?>(null)
+    val temporaryPlaybackQualityPreference: StateFlow<ScopedPlaybackQualityPreference?> =
+        temporaryPlaybackQualityPreferenceFlow.asStateFlow()
+    val playbackQualityPreferenceScope: StateFlow<PlaybackQualityPreferenceScope?> =
+        currentPlaybackQualityScopeFlow.asStateFlow()
+    val savedPlaybackQualityPreference: StateFlow<ScopedPlaybackQualityPreference?> =
+        currentPlaybackQualityScopeFlow.flatMapLatest { scope ->
+            if (scope == null) flowOf(null)
+            else playerPreferencesCoordinator.getPlaybackQualityPreference(scope)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), null)
+    val savedProviderPlaybackQualityPreference: StateFlow<ScopedPlaybackQualityPreference?> =
+        currentPlaybackQualityProviderIdFlow.flatMapLatest { providerId ->
+            providerId?.takeIf { it > 0L }
+                ?.let(PlaybackQualityPreferenceScope::providerDefault)
+                ?.let(playerPreferencesCoordinator::getPlaybackQualityPreference)
+                ?: flowOf(null)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), null)
     internal var currentSeasonNumber: Int? = null
     internal var currentEpisodeNumber: Int? = null
     internal var currentStableEpisodeId: Long? = null
     internal var activeVodTrackPreferences: VodTrackPreferences? = null
     internal val vodTrackPreferenceSaveMutex = Mutex()
+    internal val playbackQualityPreferenceSaveMutex = Mutex()
     internal var isVirtualCategory: Boolean = false
     internal var currentCombinedProfileMembers: List<CombinedM3uProfileMember> = emptyList()
     internal var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
@@ -524,6 +548,42 @@ class PlayerViewModel @Inject constructor(
 
     init {
         observeCastPlaybackEvents()
+        viewModelScope.launch {
+            currentChannelFlow.collect { refreshCurrentPlaybackQualityPreferenceScope() }
+        }
+        viewModelScope.launch {
+            _currentSeries.collect { refreshCurrentPlaybackQualityPreferenceScope() }
+        }
+        viewModelScope.launch {
+            combine(
+                currentPlaybackQualityProviderIdFlow,
+                currentPlaybackQualityScopeFlow
+            ) { providerId, contentScope -> providerId to contentScope }
+                .flatMapLatest { (providerId, contentScope) ->
+                    val providerPreference = providerId
+                        ?.takeIf { it > 0L }
+                        ?.let(PlaybackQualityPreferenceScope::providerDefault)
+                        ?.let(playerPreferencesCoordinator::getPlaybackQualityPreference)
+                        ?: flowOf(null)
+                    val contentPreference = contentScope
+                        ?.takeIf { it.providerId == providerId }
+                        ?.let(playerPreferencesCoordinator::getPlaybackQualityPreference)
+                        ?: flowOf(null)
+                    combine(providerPreference, contentPreference) { provider, content ->
+                        provider to content
+                    }.combine(temporaryPlaybackQualityPreferenceFlow) { (provider, content), temporary ->
+                        Triple(provider, content, temporary)
+                    }
+                }
+                .combine(activePlayerEngineFlow) { preferences, engine -> engine to preferences }
+                .collect { (engine, preferences) ->
+                    engine.setScopedPlaybackQualityPreferences(
+                        providerDefault = preferences.first,
+                        contentPreference = preferences.second,
+                        temporarySelection = preferences.third
+                    )
+                }
+        }
         viewModelScope.launch {
             openSubtitlesAccountManager.account.collect { account ->
                 externalSubtitleSearchStateFlow.update { it.copy(account = account) }
@@ -825,6 +885,13 @@ class PlayerViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
+            playerPreferencesCoordinator.playbackQualityPreferences
+                .combine(activePlayerEngineFlow) { preferences, engine -> engine to preferences }
+                .collect { (engine, preferences) ->
+                    engine.setPlaybackQualityPreferences(preferences)
+                }
+        }
+        viewModelScope.launch {
             playerPreferencesCoordinator.playerAudioOutputPreference
                 .combine(activePlayerEngineFlow) { preference, engine -> engine to preference }
                 .collect { (engine, preference) ->
@@ -868,7 +935,13 @@ class PlayerViewModel @Inject constructor(
                         activeDecoderPolicy = stats.activeDecoderPolicy,
                         renderSurfaceType = stats.renderSurfaceType,
                         videoStallCount = stats.videoStallCount,
-                        lastVideoFrameAgoMs = stats.lastVideoFrameAgoMs
+                        lastVideoFrameAgoMs = stats.lastVideoFrameAgoMs,
+                        qualityPolicySources = stats.qualityPolicySources +
+                            if (stats.decoderPressureHeight != null || stats.decoderPressureBitrateBps != null) {
+                                setOf(com.streamvault.domain.settings.PlaybackQualityConstraintSource.DECODER_PRESSURE)
+                            } else {
+                                emptySet()
+                            }
                     )
                 }
                 if (!playerEngine.isPlaying.value || currentContentType != ContentType.LIVE) {
@@ -893,6 +966,34 @@ class PlayerViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    internal fun refreshCurrentPlaybackQualityPreferenceScope() {
+        val liveChannel = if (currentContentType == ContentType.LIVE) {
+            currentChannelFlow.value?.takeIf { channel ->
+                channel.providerId > 0L &&
+                    (channel.id == currentContentId || channel.selectedVariantId == currentContentId)
+            } ?: channelList.firstOrNull { channel ->
+                channel.providerId > 0L && channel.id == currentContentId
+            }
+        } else {
+            null
+        }
+        val series = _currentSeries.value
+        val providerId = liveChannel?.providerId?.takeIf { it > 0L } ?: currentProviderId
+        val seriesRemoteId = currentRemoteSeriesId
+            ?: series?.providerSeriesId?.trim()?.takeIf(String::isNotBlank)
+            ?: series?.seriesId?.takeIf { it > 0L }?.toString()
+        val scope = buildPlaybackQualityPreferenceScope(
+            providerId = providerId,
+            contentType = currentContentType,
+            remoteContentId = currentRemoteContentId,
+            remoteSeriesId = seriesRemoteId,
+            liveLogicalGroupId = liveChannel?.logicalGroupId,
+            liveRemoteStreamId = liveChannel?.streamId
+        )
+        currentPlaybackQualityProviderIdFlow.value = providerId.takeIf { it > 0L }
+        currentPlaybackQualityScopeFlow.value = scope
     }
 
     private fun handlePlaybackError(error: PlayerError) {
@@ -1298,6 +1399,20 @@ class PlayerViewModel @Inject constructor(
         requireAutoVideoSelection: Boolean = false,
         videoSelectionRevision: Long = episodeSourceState.manualVideoRevision
     ): Boolean {
+        if (currentContentType == ContentType.MOVIE && currentRemoteContentId.isNullOrBlank() &&
+            currentProviderId > 0L && currentContentId > 0L
+        ) {
+            val movieId = currentContentId
+            val providerId = currentProviderId
+            val movie = playerContentResolver.getMovie(movieId)
+            if (!isActivePlaybackSession(requestVersion)) return false
+            currentRemoteContentId = movie
+                ?.takeIf { it.id == movieId && it.providerId == providerId }
+                ?.streamId
+                ?.takeIf { it > 0L }
+                ?.toString()
+        }
+        refreshCurrentPlaybackQualityPreferenceScope()
         fun isCurrent() = isEpisodePreparationCurrent(episodeSourceState, episodeToken,
             isActivePlaybackSession(requestVersion), hasManualVideoTrackChoice(playerEngine.availableVideoTracks.value),
             videoSelectionRevision, requireAutoVideoSelection)
@@ -1322,6 +1437,8 @@ class PlayerViewModel @Inject constructor(
                 probeBeforePlayback = probeBeforePlayback,
                 audioVideoOffsetMs = _audioVideoOffsetUiState.value.effectiveOffsetMs,
                 vodTrackPreferences = activeVodTrackPreferences,
+                playbackQualityScope = currentPlaybackQualityScopeFlow.value,
+                temporaryPlaybackQualityPreference = temporaryPlaybackQualityPreferenceFlow.value,
                 requiredSourceType = requiredSourceType ?: episodeSourceState.source(episodeToken)?.let {
                     com.streamvault.player.playback.ResolvedStreamType.PROGRESSIVE
                 }
@@ -1373,6 +1490,8 @@ class PlayerViewModel @Inject constructor(
         seasonNumber: Int? = null,
         episodeNumber: Int? = null,
         episodeId: Long? = null,
+        remoteContentId: String? = null,
+        remoteSeriesId: String? = null,
         showResumePrompt: Boolean = true
     ) {
         val hasArchiveRequest = hasArchivePlaybackIdentity(
@@ -1403,6 +1522,8 @@ class PlayerViewModel @Inject constructor(
             seasonNumber = seasonNumber,
             episodeNumber = episodeNumber,
             episodeId = episodeId,
+            remoteContentId = remoteContentId,
+            remoteSeriesId = remoteSeriesId,
             hasArchiveRequest = hasArchiveRequest,
             preferredAudioDecoderMode = preferredAudioDecoderMode,
             preferredVideoDecoderMode = preferredVideoDecoderMode,

@@ -843,4 +843,15 @@
 <string name="settings_provider_diagnostics_show">Vis diagnostikk</string>
 <string name="settings_provider_diagnostics_hide">Skjul diagnostikk</string>
 <string name="settings_backup_credentials_notice">Sikkerhetskopifiler inneholder leverandørpassord i lesbar form, slik at gjenopprettede kontoer kan koble til på nytt. Oppbevar og del dem bare med folk du stoler på.</string>
+    <string name="settings_quality_profile_title">Profil for avspillingskvalitet</string>
+    <string name="settings_quality_profile_data_saver">Datasparing</string>
+    <string name="settings_quality_profile_balanced">Balansert</string>
+    <string name="settings_quality_profile_custom">Egendefinert</string>
+    <string name="settings_quality_custom_height">Maksimal videohøyde</string>
+    <string name="settings_quality_custom_bitrate">Maksimal videobithastighet</string>
+    <string name="settings_quality_cap_no_limit">Ingen grense</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maksimal videobithastighet på Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maksimal videobithastighet på Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Ingen ekstra grense</string>
 </resources>

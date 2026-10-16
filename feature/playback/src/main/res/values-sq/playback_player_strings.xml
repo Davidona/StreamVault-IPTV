@@ -259,4 +259,40 @@
     <string name="series_seasons">Sezonet</string>
     <string name="settings_recording_status_recording">Duke regjistruar</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Ruaj rezolucionin aktual si kufi përshtatës</string>
+    <string name="player_quality_remove_saved_limit">Hiq kufirin e ruajtur të rezolucionit</string>
+    <string name="player_quality_use_session_limit">Kufizoje këtë riprodhim në rezolucionin aktual</string>
+    <string name="player_quality_clear_session_limit">Hiq kufirin e përkohshëm të cilësisë</string>
+
+    <string name="player_quality_gate_title">Luajtja u vendos në pauzë për shkak të kufijve të cilësisë</string>
+    <string name="player_quality_gate_message">Asnjë cilësi e disponueshme videoje nuk përputhet me kufijtë tuaj. Kontrolloni cilësinë e ofruar dhe hollësitë para se të vazhdoni.</string>
+    <string name="player_quality_gate_offer">Cilësia e ofruar e videos: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Lartësia %1$d p tejkalon kufirin tuaj prej %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Lartësia e videos nuk dihet; kufiri juaj është %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Shpejtësia e biteve %1$s Mbps tejkalon kufirin tuaj prej %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Shpejtësia e biteve të videos nuk dihet; kufiri juaj është %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Vazhdo një herë</string>
+
+    <string name="player_diagnostics_quality_limits">Kufijtë e cilësisë</string>
+    <string name="player_diagnostics_quality_reasons">Faktorët kufizues</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferencat e luajtjes</string>
+    <string name="player_diagnostics_quality_source_device">Përputhshmëria e pajisjes</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Ngarkesa e dekoderit</string>
+
+    <string name="player_diagnostics_quality_capability">Aftësia e burimit të videos</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Cilësi përshtatëse</string>
+    <string name="player_diagnostics_quality_capability_single">Cilësi e vetme ose fikse</string>
+    <string name="player_diagnostics_quality_capability_unknown">E panjohur</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Burim me zhvendosje kohore</string>
+    <string name="player_quality_save_bitrate_as_limit">Ruaj shpejtësinë aktuale të videos si maksimum</string>
+    <string name="player_quality_inherit_height_limit">Përdor kufirin e trashëguar të lartësisë</string>
+    <string name="player_quality_inherit_bitrate_limit">Përdor kufirin e trashëguar të shpejtësisë</string>
+    <string name="player_quality_no_additional_height_limit">Pa kufi shtesë lartësie për këtë përmbajtje</string>
+    <string name="player_quality_no_additional_bitrate_limit">Pa kufi shtesë shpejtësie për këtë përmbajtje</string>
+    <string name="player_quality_mode_auto">Zgjedhje automatike (përshtatëse)</string>
+    <string name="player_quality_mode_fixed">Gjurmë fikse</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Marrësi Cast zgjedh cilësinë; këto kufizime nuk zbatohen.</string>
+    <string name="player_video_quality_selection_blocked">Kjo cilësi videoje nuk përputhet me kufijtë e riprodhimit.</string>
+    <string name="player_diagnostics_quality_height_summary">Rezolucioni: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Shpejtësia e biteve: %1$s Mbps</string>
 </resources>

@@ -28,6 +28,7 @@ internal enum class PlayerBackAction {
     CLOSE_LIVE_OVERLAYS,
     TOGGLE_CONTROLS,
     CANCEL_CLOSE_PLAYBACK,
+    QUALITY_GATE_ACTIVE,
     NAVIGATE_BACK
 }
 
@@ -36,6 +37,7 @@ internal data class PlayerBackNavigationState(
     val hasPendingNumericChannelInput: Boolean = false,
     val hasAutoPlayCountdown: Boolean = false,
     val hasPlayerNotice: Boolean = false,
+    val hasPlaybackQualityGate: Boolean = false,
     val showProgramHistory: Boolean = false,
     val showSplitDialog: Boolean = false,
     val showEpisodePicker: Boolean = false,
@@ -59,6 +61,7 @@ internal data class PlayerBackNavigationState(
 
 internal fun playerBackAction(state: PlayerBackNavigationState): PlayerBackAction = when {
     state.showClosePlaybackConfirmation -> PlayerBackAction.CANCEL_CLOSE_PLAYBACK
+    state.hasPlaybackQualityGate -> PlayerBackAction.QUALITY_GATE_ACTIVE
     state.hasPendingNumericChannelInput -> PlayerBackAction.CLEAR_NUMERIC_CHANNEL_INPUT
     state.hasAutoPlayCountdown -> PlayerBackAction.CANCEL_AUTO_PLAY
     state.hasPlayerNotice -> PlayerBackAction.DISMISS_PLAYER_NOTICE

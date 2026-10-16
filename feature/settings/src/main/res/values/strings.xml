@@ -369,6 +369,16 @@
     <string name="settings_level_hidden_desc">HIDDEN - Content hidden from all lists</string>
     <string name="settings_level_hidden_subtitle">Adult categories not shown anywhere.</string>
     <string name="settings_quality_cap_auto">Auto</string>
+    <string name="settings_quality_profile_title">Playback quality profile</string>
+    <string name="settings_quality_profile_data_saver">Data Saver</string>
+    <string name="settings_quality_profile_balanced">Balanced</string>
+    <string name="settings_quality_profile_custom">Custom</string>
+    <string name="settings_quality_custom_height">Maximum video height</string>
+    <string name="settings_quality_custom_bitrate">Maximum video bitrate</string>
+    <string name="settings_quality_cap_no_limit">No limit</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi Maximum Video Bitrate</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Ethernet Maximum Video Bitrate</string>
     <string name="settings_category_sort_live">Live TV Categories</string>
     <string name="settings_category_sort_movies">Movie Categories</string>
     <string name="settings_category_sort_series">Series Categories</string>
@@ -849,4 +859,5 @@
         <item quantity="one">Every %d hour</item>
         <item quantity="other">Every %d hours</item>
     </plurals>
+    <string name="settings_quality_cap_no_additional_limit">No additional limit</string>
 </resources>

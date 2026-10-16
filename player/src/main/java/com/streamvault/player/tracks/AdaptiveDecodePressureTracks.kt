@@ -11,6 +11,7 @@ import com.streamvault.player.playback.DecodePressureRendition
 internal data class DecodePressureTrackContext(val group: TrackGroup, val indices: List<Int>, val renditions: List<DecodePressureRendition>)
 internal class AdaptiveDecodePressureTracks {
     private var ownedOverride: TrackSelectionOverride? = null
+    val hasActiveOverride: Boolean get() = ownedOverride != null
 
     fun context(tracks: Tracks, selected: Format?, parameters: TrackSelectionParameters, automatic: Boolean): DecodePressureTrackContext? {
         if (!automatic || selected == null || parameters.disabledTrackTypes.contains(C.TRACK_TYPE_VIDEO)) return null

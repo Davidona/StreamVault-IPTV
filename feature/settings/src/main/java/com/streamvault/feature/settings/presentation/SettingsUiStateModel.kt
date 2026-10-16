@@ -46,6 +46,7 @@ import com.streamvault.domain.model.RecordingStorageState
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodVariantPreferenceMode
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 
 data class CrashReportUiModel(
     val timestamp: String = "",
@@ -121,6 +122,7 @@ data class SettingsUiState(
     val openSubtitlesError: String? = null,
     val wifiMaxVideoHeight: Int? = null,
     val ethernetMaxVideoHeight: Int? = null,
+    val playbackQualityPreferences: PlaybackQualityPreferences = PlaybackQualityPreferences(),
     val playerTimeshiftEnabled: Boolean = false,
     val playerTimeshiftDepthMinutes: Int = 30,
     val playerTimeshiftBackend: TimeshiftBackendPreference = TimeshiftBackendPreference.AUTOMATIC,

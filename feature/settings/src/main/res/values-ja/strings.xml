@@ -841,4 +841,15 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">%d 時間ごと</item>
     </plurals>
+    <string name="settings_quality_profile_title">再生画質プロファイル</string>
+    <string name="settings_quality_profile_data_saver">データセーバー</string>
+    <string name="settings_quality_profile_balanced">バランス</string>
+    <string name="settings_quality_profile_custom">カスタム</string>
+    <string name="settings_quality_custom_height">最大映像高さ</string>
+    <string name="settings_quality_custom_bitrate">最大映像ビットレート</string>
+    <string name="settings_quality_cap_no_limit">制限なし</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fiの最大映像ビットレート</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Ethernetの最大映像ビットレート</string>
+    <string name="settings_quality_cap_no_additional_limit">追加の上限なし</string>
 </resources>

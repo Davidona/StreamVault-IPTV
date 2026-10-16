@@ -261,4 +261,40 @@
     <string name="player_close_playback_desc">Це зупинить відтворення та поверне до попереднього екрана.</string>
     <string name="player_close_playback_confirm">Так</string>
     <string name="player_close_playback_cancel">Ні</string>
+    <string name="player_quality_save_as_limit">Зберегти поточну роздільну здатність як адаптивне обмеження</string>
+    <string name="player_quality_remove_saved_limit">Вилучити збережене обмеження роздільної здатності</string>
+    <string name="player_quality_use_session_limit">Обмежити це відтворення поточною роздільною здатністю</string>
+    <string name="player_quality_clear_session_limit">Зняти тимчасове обмеження якості</string>
+
+    <string name="player_quality_gate_title">Відтворення призупинено через обмеження якості</string>
+    <string name="player_quality_gate_message">Немає доступної якості відео, що відповідає вашим обмеженням. Перевірте запропоновану якість і подробиці перед продовженням.</string>
+    <string name="player_quality_gate_offer">Запропонована якість відео: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Висота %1$d p перевищує обмеження %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Висота відео невідома; обмеження — %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Бітрейт %1$s Mbps перевищує обмеження %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Бітрейт відео невідомий; обмеження — %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Продовжити один раз</string>
+
+    <string name="player_diagnostics_quality_limits">Обмеження якості</string>
+    <string name="player_diagnostics_quality_reasons">Чинники обмеження</string>
+    <string name="player_diagnostics_quality_source_preferences">Налаштування відтворення</string>
+    <string name="player_diagnostics_quality_source_device">Сумісність пристрою</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Навантаження декодера</string>
+
+    <string name="player_diagnostics_quality_capability">Можливості джерела відео</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Адаптивні якості</string>
+    <string name="player_diagnostics_quality_capability_single">Єдина або фіксована якість</string>
+    <string name="player_diagnostics_quality_capability_unknown">Невідомо</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Джерело зі зсувом часу</string>
+    <string name="player_quality_save_bitrate_as_limit">Зберегти поточний бітрейт відео як максимум</string>
+    <string name="player_quality_inherit_height_limit">Використовувати успадковане обмеження висоти</string>
+    <string name="player_quality_inherit_bitrate_limit">Використовувати успадковане обмеження бітрейту</string>
+    <string name="player_quality_no_additional_height_limit">Без додаткового обмеження висоти для цього вмісту</string>
+    <string name="player_quality_no_additional_bitrate_limit">Без додаткового обмеження бітрейту для цього вмісту</string>
+    <string name="player_quality_mode_auto">Автоматичний (адаптивний) вибір</string>
+    <string name="player_quality_mode_fixed">Фіксована доріжка</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Якість вибирає приймач Cast; ці обмеження не застосовуються.</string>
+    <string name="player_video_quality_selection_blocked">Ця якість відео не відповідає вашим обмеженням відтворення.</string>
+    <string name="player_diagnostics_quality_height_summary">Роздільна здатність: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Бітрейт: %1$s Мбіт/с</string>
 </resources>

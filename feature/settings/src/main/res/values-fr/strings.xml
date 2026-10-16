@@ -843,4 +843,15 @@
         <item quantity="one">Toutes les %d heures</item>
         <item quantity="other">Toutes les %d heures</item>
     </plurals>
+    <string name="settings_quality_profile_title">Profil de qualité de lecture</string>
+    <string name="settings_quality_profile_data_saver">Économie de données</string>
+    <string name="settings_quality_profile_balanced">Équilibré</string>
+    <string name="settings_quality_profile_custom">Personnalisé</string>
+    <string name="settings_quality_custom_height">Hauteur vidéo maximale</string>
+    <string name="settings_quality_custom_bitrate">Débit vidéo maximal</string>
+    <string name="settings_quality_cap_no_limit">Aucune limite</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbit/s</string>
+    <string name="settings_wifi_quality_bitrate_cap">Débit vidéo maximal en Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Débit vidéo maximal en Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Aucune limite supplémentaire</string>
 </resources>

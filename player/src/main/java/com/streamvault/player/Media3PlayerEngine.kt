@@ -2,6 +2,9 @@ package com.streamvault.player
 
 import android.app.ActivityManager
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.SystemClock
@@ -21,6 +24,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
@@ -225,7 +229,18 @@ class Media3PlayerEngine @Inject constructor(
     private var currentResolvedStreamType: ResolvedStreamType = ResolvedStreamType.UNKNOWN
     private var currentTimeoutProfile: PlayerTimeoutProfile = PlayerTimeoutProfile.VOD
     private var currentRetryPolicy: PlayerRetryPolicy? = null
+    private var lastQualityPolicyDiagnostic: String? = null
+    private var decoderPressureMaxHeight: Int? = null
+    private var decoderPressureMaxBitrate: Int? = null
     private val preloadPriorityHandler = Handler(context.mainLooper)
+    private val qualityConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+    private var qualityNetworkCallbackRegistered = false
+    private val qualityNetworkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) = scheduleQualityPolicyRefresh()
+        override fun onLost(network: Network) = scheduleQualityPolicyRefresh()
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) =
+            scheduleQualityPolicyRefresh()
+    }
     private var currentRetryContext: PlaybackRetryContext? = null
     private var playbackStarted = false
     private var liveBufferingRecoveryArmed = false
@@ -313,6 +328,10 @@ class Media3PlayerEngine @Inject constructor(
     override val availableAudioTracks: StateFlow<List<PlayerTrack>> = trackController.availableAudioTracks
     override val availableSubtitleTracks: StateFlow<List<PlayerTrack>> = trackController.availableSubtitleTracks
     override val availableVideoTracks: StateFlow<List<PlayerTrack>> = trackController.availableVideoTracks
+    private val _playbackQualityGate = MutableStateFlow<PlaybackQualityGateState?>(null)
+    override val playbackQualityGate: StateFlow<PlaybackQualityGateState?> = _playbackQualityGate.asStateFlow()
+    private var qualityGateResumeIntent = false
+    private var deferredQualityGateError: PlaybackException? = null
 
     private val _audioFocusDenied = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     override val audioFocusDenied: Flow<Unit> = _audioFocusDenied.asSharedFlow()
@@ -386,6 +405,8 @@ class Media3PlayerEngine @Inject constructor(
 
     private fun clearAdaptiveDecodePressure() {
         adaptiveDecodePressurePolicy.reset()
+        decoderPressureMaxHeight = null
+        decoderPressureMaxBitrate = null
         exoPlayer?.let { player ->
             val parameters = adaptiveDecodePressureTracks.clear(player.trackSelectionParameters)
             if (parameters != player.trackSelectionParameters) player.trackSelectionParameters = parameters
@@ -416,6 +437,8 @@ class Media3PlayerEngine @Inject constructor(
             height = format.height, bitrate = format.bitrate, renditions = context.renditions
         )) ?: return
         val parameters = adaptiveDecodePressureTracks.constrain(player.trackSelectionParameters, context, change.maxHeight, change.maxBitrate ?: Int.MAX_VALUE)
+        decoderPressureMaxHeight = change.maxHeight
+        decoderPressureMaxBitrate = change.maxHeight?.let { change.maxBitrate }
         if (parameters != player.trackSelectionParameters) player.trackSelectionParameters = parameters
         if (Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
             Log.d("PlaybackPerf", "decode-pressure maxHeight=${change.maxHeight ?: "auto"} " +
@@ -478,6 +501,26 @@ class Media3PlayerEngine @Inject constructor(
                             lastStreamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN
                         )
                 )
+                val qualityPolicy = trackController.qualityPolicySnapshot(
+                    constrainResolutionForMultiView = constrainResolutionForMultiView,
+                    compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+                )
+                val videoRenditionCount = trackController.availableVideoTracks.value
+                    .count { it.id != PLAYER_TRACK_AUTO_ID }
+                val renditionCapability = when {
+                    currentResolvedStreamType in setOf(
+                        ResolvedStreamType.HLS,
+                        ResolvedStreamType.DASH,
+                        ResolvedStreamType.SMOOTH_STREAMING
+                    ) && videoRenditionCount > 1 -> VideoRenditionCapability.ADAPTIVE_RENDITIONS
+                    currentResolvedStreamType in setOf(
+                        ResolvedStreamType.PROGRESSIVE,
+                        ResolvedStreamType.MPEG_TS_LIVE,
+                        ResolvedStreamType.RTSP
+                    ) -> VideoRenditionCapability.SINGLE_RENDITION
+                    videoRenditionCount == 1 -> VideoRenditionCapability.SINGLE_RENDITION
+                    else -> VideoRenditionCapability.UNKNOWN
+                }
                 _playerStats.value = _playerStats.value.copy(
                     lastVideoFrameAgoMs = videoStallDetector.lastVideoFrameAgoMs(),
                     videoStallCount = videoStallCount,
@@ -490,7 +533,18 @@ class Media3PlayerEngine @Inject constructor(
                     activeDecoderPolicy = activeDecoderPolicySummary(),
                     renderSurfaceType = _renderSurfaceType.value.name,
                     audioVideoSyncEnabled = _audioVideoSyncEnabled.value,
-                    audioVideoSyncSinkActive = audioVideoSyncSinkActive
+                    audioVideoSyncSinkActive = audioVideoSyncSinkActive,
+                    qualityLimitHeight = qualityPolicy.limit.maxVideoHeight,
+                    qualityLimitBitrateBps = qualityPolicy.limit.maxVideoBitrateBps,
+                    qualityPolicySources = qualityPolicy.constraints
+                        .filter { it.limit.maxVideoHeight != null || it.limit.maxVideoBitrateBps != null }
+                        .map { it.source }
+                        .toSet(),
+                    decoderPressureHeight = decoderPressureMaxHeight,
+                    decoderPressureBitrateBps = decoderPressureMaxBitrate,
+                    videoRenditionCapability = renditionCapability,
+                    isTimeshiftPlayback = activeLiveTimeshiftStreamInfo != null || isPlayingTimeshiftSnapshot,
+                    isVideoTrackFixed = !trackController.isVideoAutoSelected
                 )
                 if (shouldRefreshPlaybackSupportSnapshot()) {
                     val now = System.currentTimeMillis()
@@ -583,6 +637,10 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun play() {
         if (exoPlayer != null && lastStreamInfo != null) com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
+        if (_playbackQualityGate.value != null) {
+            qualityGateResumeIntent = true
+            return
+        }
         if (audioFocusController.requestAudioFocusIfNeeded()) {
             exoPlayer?.playWhenReady = true
             syncTimeshiftState()
@@ -590,6 +648,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun pause() {
+        if (_playbackQualityGate.value != null) qualityGateResumeIntent = false
         retryJob?.cancel()
         exoPlayer?.playWhenReady = false
         audioFocusController.onPauseOrStop()
@@ -601,6 +660,9 @@ class Media3PlayerEngine @Inject constructor(
         retryJob?.cancel()
         retryJob = null
         retryGeneration++
+        _playbackQualityGate.value = null
+        qualityGateResumeIntent = false
+        deferredQualityGateError = null
         pendingRetrySeekPositionOverrideMs = null
         _retryStatus.value = null
         exoPlayer?.stop()
@@ -723,8 +785,22 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun setResolutionConstrainedForMultiView(constrained: Boolean) {
+        if (constrainResolutionForMultiView != constrained) {
+            clearAdaptiveDecodePressure()
+            trackController.clearQualityConsent()
+        }
         constrainResolutionForMultiView = constrained
         playbackLoadControl?.setMultiview(constrained)
+        exoPlayer?.let { player ->
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrained,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+        }
+        refreshPlaybackQualityGate()
+        updatePreloadQualityPolicy()
+        logQualityPolicy("multiview")
     }
 
     override fun setFastRetryOnTransientFailures(enabled: Boolean) {
@@ -887,9 +963,52 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?) {
+        if (!trackController.setNetworkQualityPreferences(wifiMaxHeight, ethernetMaxHeight)) return
         clearAdaptiveDecodePressure()
-        trackController.setNetworkQualityPreferences(wifiMaxHeight, ethernetMaxHeight)
-        exoPlayer?.let { player -> trackController.applyInitialParameters(player, constrainResolutionForMultiView) }
+        exoPlayer?.let { player ->
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+        }
+        refreshPlaybackQualityGate()
+        updatePreloadQualityPolicy()
+        logQualityPolicy("global-preferences")
+    }
+
+    override fun setPlaybackQualityPreferences(preferences: com.streamvault.domain.settings.PlaybackQualityPreferences) {
+        if (!trackController.setPlaybackQualityPreferences(preferences)) return
+        clearAdaptiveDecodePressure()
+        exoPlayer?.let { player ->
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+        }
+        refreshPlaybackQualityGate()
+        updatePreloadQualityPolicy()
+        logQualityPolicy("global-preferences")
+    }
+
+    override fun setScopedPlaybackQualityPreferences(
+        providerDefault: com.streamvault.domain.settings.ScopedPlaybackQualityPreference?,
+        contentPreference: com.streamvault.domain.settings.ScopedPlaybackQualityPreference?,
+        temporarySelection: com.streamvault.domain.settings.ScopedPlaybackQualityPreference?
+    ) {
+        if (!trackController.setScopedPlaybackQualityPreferences(providerDefault, contentPreference, temporarySelection)) return
+        clearAdaptiveDecodePressure()
+        exoPlayer?.let { player ->
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+        }
+        refreshPlaybackQualityGate()
+        updatePreloadQualityPolicy()
+        logQualityPolicy("scoped-preferences")
     }
 
     override fun selectAudioTrack(trackId: String) {
@@ -897,8 +1016,65 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun selectVideoTrack(trackId: String) {
+        trySelectVideoTrack(trackId)
+    }
+
+    override fun trySelectVideoTrack(trackId: String): Boolean {
+        val player = exoPlayer ?: return false
+        val compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+        if (!trackController.canSelectVideoTrack(
+                player = player,
+                trackId = trackId,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = compatibilityMode
+            )
+        ) return false
+
         clearAdaptiveDecodePressure()
-        exoPlayer?.let { trackController.selectVideoTrack(it, trackId) }
+        if (!trackController.selectVideoTrack(
+                player = player,
+                trackId = trackId,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = compatibilityMode
+            )
+        ) return false
+
+        if (trackId == PLAYER_TRACK_AUTO_ID) {
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = compatibilityMode
+            )
+            updatePreloadQualityPolicy()
+        }
+        refreshPlaybackQualityGate()
+        return true
+    }
+
+    override fun continuePlaybackQualityOnce(candidateTrackId: String): Boolean {
+        val player = exoPlayer ?: return false
+        val gate = _playbackQualityGate.value ?: return false
+        if (!gate.canContinueOnce || !trackController.continueVideoTrackOnce(
+                player = player,
+                trackId = candidateTrackId,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+        ) return false
+
+        _playbackQualityGate.value = null
+        val resumePlayback = qualityGateResumeIntent
+        qualityGateResumeIntent = false
+        updatePreloadQualityPolicy()
+        Log.i(TAG, "quality-gate continued once resume=$resumePlayback")
+        val deferredError = deferredQualityGateError
+        deferredQualityGateError = null
+        if (deferredError != null) {
+            handlePlaybackError(deferredError)
+        } else if (resumePlayback) {
+            play()
+        }
+        return true
     }
 
     override fun selectSubtitleTrack(trackId: String?) {
@@ -1030,6 +1206,7 @@ class Media3PlayerEngine @Inject constructor(
         com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         if (isDisposed) return
         isDisposed = true
+        unregisterQualityNetworkCallback()
         liveTimeshiftManager.detachComponentCallbacks()
         resetEngineState(restartCollectors = false)
     }
@@ -1136,6 +1313,11 @@ class Media3PlayerEngine @Inject constructor(
         lastStreamInfo = streamInfo
         val mediaId = mediaSourceFactory.mediaIdFor(streamInfo)
         val mediaChanged = lastMediaId != mediaId
+        if (!preserveRetryState || mediaChanged) {
+            _playbackQualityGate.value = null
+            qualityGateResumeIntent = false
+            deferredQualityGateError = null
+        }
         val armPlaybackStartedRecovery = shouldArmPlaybackStartedRecovery(
             preserveRetryState = preserveRetryState,
             mediaChanged = mediaChanged,
@@ -1148,6 +1330,7 @@ class Media3PlayerEngine @Inject constructor(
             _retryStatus.value = null
         }
         if (mediaChanged) {
+            lastQualityPolicyDiagnostic = null
             audioDecoderPreferencePolicy.resetForMedia(mediaId)
             videoDecoderPreferencePolicy.resetForMedia(mediaId)
             clearDecoderRecoveryOverrides()
@@ -1168,7 +1351,7 @@ class Media3PlayerEngine @Inject constructor(
         _error.tryEmit(null)
         _mediaTitle.value = null
         _chapters.value = emptyList()
-        trackController.resetSelections()
+        trackController.resetSelections(preserveVideoSelection = preserveRetryState && !mediaChanged)
         statsCollector.reset()
         videoStallDetector.reset()
         if (!preserveRetryState) {
@@ -1241,6 +1424,7 @@ class Media3PlayerEngine @Inject constructor(
             requestedVideoDecoderMode == DecoderMode.COMPATIBILITY
         activeAudioDecoderMode = preferredAudioDecoderMode
         activeVideoDecoderMode = preferredVideoDecoderMode
+        if (previousVideoDecoderPolicy != nextVideoDecoderPolicy) trackController.clearQualityConsent()
         activeAudioDecoderPolicy = nextAudioDecoderPolicy
         activeVideoDecoderPolicy = nextVideoDecoderPolicy
         currentBufferIsLive = isLiveBuffer
@@ -1259,13 +1443,11 @@ class Media3PlayerEngine @Inject constructor(
 
         try {
             val player = getOrCreatePlayer()
-            trackController.applyInitialParameters(player, constrainResolutionForMultiView)
-            if (activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY) {
-                player.trackSelectionParameters = player.trackSelectionParameters
-                    .buildUpon()
-                    .setMaxVideoSize(Int.MAX_VALUE, 720)
-                    .build()
-            }
+            trackController.applyInitialParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
             player.playbackParameters = PlaybackParameters(_playbackSpeed.value)
 
             val managedSource = preloadWindowManager?.getMediaSource(streamInfo)
@@ -1306,7 +1488,13 @@ class Media3PlayerEngine @Inject constructor(
                 false
             )
             val focusGranted = audioFocusController.requestAudioFocusIfNeeded(osContentType)
-            player.playWhenReady = autoPlay && focusGranted
+            val shouldPlay = autoPlay && focusGranted
+            if (_playbackQualityGate.value != null) {
+                qualityGateResumeIntent = shouldPlay
+                player.playWhenReady = false
+            } else {
+                player.playWhenReady = shouldPlay
+            }
             if (autoPlay && !focusGranted) {
                 _audioFocusDenied.tryEmit(Unit)
             }
@@ -1334,6 +1522,7 @@ class Media3PlayerEngine @Inject constructor(
 
     private fun getOrCreatePlayer(): ExoPlayer {
         check(!isDisposed) { "Cannot create a player after terminal release" }
+        registerQualityNetworkCallback()
         return exoPlayer ?: createPlayer().also { player ->
             exoPlayer = player
             statsCollector.bind { exoPlayer }
@@ -1345,6 +1534,96 @@ class Media3PlayerEngine @Inject constructor(
                     .build()
             }
         }
+    }
+
+    private fun registerQualityNetworkCallback() {
+        val manager = qualityConnectivityManager ?: return
+        if (qualityNetworkCallbackRegistered) return
+        runCatching { manager.registerDefaultNetworkCallback(qualityNetworkCallback) }
+            .onSuccess { qualityNetworkCallbackRegistered = true }
+            .onFailure { error ->
+                Log.w(TAG, "quality-network-monitor registration failed: ${PlaybackLogSanitizer.sanitizeMessage(error.message)}")
+            }
+    }
+
+    private fun unregisterQualityNetworkCallback() {
+        val manager = qualityConnectivityManager ?: return
+        if (!qualityNetworkCallbackRegistered) return
+        runCatching { manager.unregisterNetworkCallback(qualityNetworkCallback) }
+        qualityNetworkCallbackRegistered = false
+    }
+
+    private fun scheduleQualityPolicyRefresh() {
+        preloadPriorityHandler.post {
+            if (isDisposed) return@post
+            val player = exoPlayer ?: return@post
+            clearAdaptiveDecodePressure()
+            trackController.clearQualityConsent()
+            trackController.applyVideoQualityParameters(
+                player = player,
+                constrainResolutionForMultiView = constrainResolutionForMultiView,
+                compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+            )
+            refreshPlaybackQualityGate()
+            updatePreloadQualityPolicy()
+            logQualityPolicy("network-change")
+        }
+    }
+
+    private fun refreshPlaybackQualityGate() {
+        val player = exoPlayer ?: return
+        val gate = trackController.playbackQualityGateState(
+            constrainResolutionForMultiView = constrainResolutionForMultiView,
+            compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+        )?.let { gate ->
+            gate.copy(canContinueOnce = gate.canContinueOnce && !adaptiveDecodePressureTracks.hasActiveOverride)
+        }
+        val wasWaiting = _playbackQualityGate.value != null
+        if (gate != null) {
+            if (!wasWaiting) qualityGateResumeIntent = player.playWhenReady
+            if (player.playWhenReady) player.playWhenReady = false
+            _playbackQualityGate.value = gate
+            return
+        }
+
+        if (!wasWaiting) return
+        _playbackQualityGate.value = null
+        val resumePlayback = qualityGateResumeIntent
+        qualityGateResumeIntent = false
+        val deferredError = deferredQualityGateError
+        deferredQualityGateError = null
+        if (deferredError != null) {
+            handlePlaybackError(deferredError)
+        } else if (resumePlayback) {
+            play()
+        }
+    }
+
+    private fun updatePreloadQualityPolicy() {
+        val qualityIsConstrained = trackController.hasActiveQualityLimit(
+            constrainResolutionForMultiView = constrainResolutionForMultiView,
+            compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+        )
+        preloadWindowManager?.setQualityPolicyAllowsVideoPreload(!qualityIsConstrained)
+    }
+
+    private fun logQualityPolicy(reason: String) {
+        val currentVideo = _videoFormat.value
+        val actualVideo = if (currentVideo.isEmpty) {
+            "unknown"
+        } else {
+            "${currentVideo.width}x${currentVideo.height}:advertisedBitrateBps=" +
+                (currentVideo.bitrate.takeIf { it > 0 }?.toString() ?: "unknown")
+        }
+        val diagnosticState = trackController.qualityPolicyDiagnostic(
+            constrainResolutionForMultiView = constrainResolutionForMultiView,
+            compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+        ) + " actualVideo=$actualVideo " +
+            "decoderPressureHeight=${decoderPressureMaxHeight ?: "none"} " +
+            "decoderPressureBitrateBps=${decoderPressureMaxBitrate ?: "none"}"
+        if (diagnosticState == lastQualityPolicyDiagnostic) return
+        lastQualityPolicyDiagnostic = diagnosticState
+        Log.i(TAG, "quality-policy reason=$reason $diagnosticState")
     }
 
     private fun createPlayer(): ExoPlayer {
@@ -1374,6 +1653,7 @@ class Media3PlayerEngine @Inject constructor(
             playbackStarted = { isEffectivelyPlaybackStarted() }
         )
         preloadWindowManager = preloadManager
+        updatePreloadQualityPolicy()
         return preloadManager.createPlayer(
             renderersFactory = renderersFactory,
             loadControl = loadControl,
@@ -1383,6 +1663,13 @@ class Media3PlayerEngine @Inject constructor(
                     .setLivePlaybackSpeedControl(livePlaybackSpeedControl)
                     .setSeekBackIncrementMs(10_000)
                     .setSeekForwardIncrementMs(10_000)
+                .setTrackSelector(
+                    DefaultTrackSelector(context).apply {
+                        parameters = parameters.buildUpon()
+                            .setExceedVideoConstraintsIfNecessary(false)
+                            .build()
+                    }
+                )
                     .setAudioAttributes(
                         Media3AudioAttributes.Builder()
                             .setUsage(C.USAGE_MEDIA)
@@ -1732,6 +2019,15 @@ class Media3PlayerEngine @Inject constructor(
             }
 
             override fun onPlayerError(error: PlaybackException) {
+                if (_playbackQualityGate.value != null) {
+                    if (deferredQualityGateError == null) deferredQualityGateError = error
+                    Log.w(
+                        TAG,
+                        "quality-gate deferred playback error category=${PlayerErrorClassifier.classify(error)} " +
+                            "message=${PlaybackLogSanitizer.sanitizeMessage(error.message)}"
+                    )
+                    return
+                }
                 handlePlaybackError(error)
             }
 
@@ -1755,9 +2051,18 @@ class Media3PlayerEngine @Inject constructor(
 
             override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                 trackController.onTracksChanged(tracks)
+                exoPlayer?.let { player ->
+                    trackController.reapplyVideoSelection(
+                        player = player,
+                        constrainResolutionForMultiView = constrainResolutionForMultiView,
+                        compatibilityMode = activeVideoDecoderPolicy == ActiveDecoderPolicy.COMPATIBILITY
+                    )
+                }
                 exoPlayer?.let(trackController::applyVodTrackPreferences)
                 exoPlayer?.let(trackController::applyPendingExternalSubtitleAutoSelect)
+                refreshPlaybackQualityGate()
                 refreshChapters(tracks)
+                logQualityPolicy("tracks-changed")
                 // Detect the silent failure: the stream contains audio groups but no track
                 // is decodable on this device (e.g. EAC3/AC3 without passthrough or a
                 // software decoder). ExoPlayer simply skips the audio renderer without

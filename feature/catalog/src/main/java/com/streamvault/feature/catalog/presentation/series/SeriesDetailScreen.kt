@@ -90,7 +90,7 @@ private const val EPISODE_DETAIL_PAGE_SIZE = 100
 
 @Composable
 fun SeriesDetailScreen(
-    onEpisodeClick: (Episode) -> Unit,
+    onEpisodeClick: (Episode, Series) -> Unit,
     onResumeClick: ((Episode) -> Unit)? = null,
     onBack: () -> Unit,
     platformHost: CatalogPlatformHost? = null,
@@ -151,8 +151,8 @@ fun SeriesDetailScreen(
         onToggleFavorite = viewModel::toggleFavorite,
         onSelectVariant = viewModel::selectSeriesVariant,
         onSeasonSelected = viewModel::selectSeason,
-        onEpisodeClick = onEpisodeClick,
-        onResumeClick = onResumeClick ?: onEpisodeClick,
+        onEpisodeClick = { episode -> onEpisodeClick(episode, series) },
+        onResumeClick = onResumeClick ?: { episode -> onEpisodeClick(episode, series) },
         onCopyEpisodeUrl = { episode ->
             when (val result = viewModel.resolveCopyStreamUrl(episode)) {
                 is Result.Success -> result.data

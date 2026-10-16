@@ -840,4 +840,15 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">每 %d 小時</item>
     </plurals>
+    <string name="settings_quality_profile_title">播放畫質設定檔</string>
+    <string name="settings_quality_profile_data_saver">節省數據</string>
+    <string name="settings_quality_profile_balanced">平衡</string>
+    <string name="settings_quality_profile_custom">自訂</string>
+    <string name="settings_quality_custom_height">最高影片高度</string>
+    <string name="settings_quality_custom_bitrate">最高影片位元率</string>
+    <string name="settings_quality_cap_no_limit">不限</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi 最高影片位元率</string>
+    <string name="settings_ethernet_quality_bitrate_cap">乙太網路最高影片位元率</string>
+    <string name="settings_quality_cap_no_additional_limit">無額外限制</string>
 </resources>

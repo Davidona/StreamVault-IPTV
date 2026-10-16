@@ -840,4 +840,15 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">Setiap %d jam</item>
     </plurals>
+    <string name="settings_quality_profile_title">Profil kualiti main balik</string>
+    <string name="settings_quality_profile_data_saver">Jimat data</string>
+    <string name="settings_quality_profile_balanced">Seimbang</string>
+    <string name="settings_quality_profile_custom">Tersuai</string>
+    <string name="settings_quality_custom_height">Ketinggian video maksimum</string>
+    <string name="settings_quality_custom_bitrate">Kadar bit video maksimum</string>
+    <string name="settings_quality_cap_no_limit">Tiada had</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Kadar bit video maksimum melalui Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Kadar bit video maksimum melalui Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Tiada had tambahan</string>
 </resources>

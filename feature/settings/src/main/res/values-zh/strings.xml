@@ -839,4 +839,15 @@
 <string name="settings_recording_smb_password_hint">留空以复用同一 URL 和用户名已保存的密码</string>
 <string name="settings_recording_smb_save">验证并保存</string>
 <string name="settings_recording_smb_saving">正在验证…</string>
+    <string name="settings_quality_profile_title">播放画质配置</string>
+    <string name="settings_quality_profile_data_saver">节省流量</string>
+    <string name="settings_quality_profile_balanced">均衡</string>
+    <string name="settings_quality_profile_custom">自定义</string>
+    <string name="settings_quality_custom_height">最大视频高度</string>
+    <string name="settings_quality_custom_bitrate">最大视频比特率</string>
+    <string name="settings_quality_cap_no_limit">不限</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi 最大视频比特率</string>
+    <string name="settings_ethernet_quality_bitrate_cap">以太网最大视频比特率</string>
+    <string name="settings_quality_cap_no_additional_limit">无额外限制</string>
 </resources>

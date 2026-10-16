@@ -259,4 +259,40 @@
     <string name="series_seasons">فصلها</string>
     <string name="settings_recording_status_recording">در حال ضبط</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">ذخیره وضوح فعلی به‌عنوان محدودیت تطبیقی</string>
+    <string name="player_quality_remove_saved_limit">حذف محدودیت وضوح ذخیره‌شده</string>
+    <string name="player_quality_use_session_limit">محدود کردن این پخش به وضوح فعلی</string>
+    <string name="player_quality_clear_session_limit">حذف محدودیت موقت کیفیت</string>
+
+    <string name="player_quality_gate_title">پخش به‌دلیل محدودیت کیفیت مکث شد</string>
+    <string name="player_quality_gate_message">هیچ کیفیت ویدیویی با محدودیت‌های شما سازگار نیست. پیش از ادامه، کیفیت پیشنهادی و جزئیات را بررسی کنید.</string>
+    <string name="player_quality_gate_offer">کیفیت ویدیوی پیشنهادی: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">ارتفاع %1$d p از محدودیت %2$d p شما بیشتر است.</string>
+    <string name="player_quality_gate_height_unknown">ارتفاع ویدیو نامشخص است؛ محدودیت شما %1$d p است.</string>
+    <string name="player_quality_gate_bitrate_exceeded">نرخ بیت %1$s Mbps از محدودیت %2$s Mbps شما بیشتر است.</string>
+    <string name="player_quality_gate_bitrate_unknown">نرخ بیت ویدیو نامشخص است؛ محدودیت شما %1$s Mbps است.</string>
+    <string name="player_quality_gate_continue_once">یک‌بار ادامه</string>
+
+    <string name="player_diagnostics_quality_limits">محدودیت‌های کیفیت</string>
+    <string name="player_diagnostics_quality_reasons">عوامل محدودکننده</string>
+    <string name="player_diagnostics_quality_source_preferences">تنظیمات پخش</string>
+    <string name="player_diagnostics_quality_source_device">سازگاری دستگاه</string>
+    <string name="player_diagnostics_quality_decoder_pressure">فشار رمزگشا</string>
+
+    <string name="player_diagnostics_quality_capability">قابلیت منبع ویدیو</string>
+    <string name="player_diagnostics_quality_capability_adaptive">کیفیت‌های تطبیقی</string>
+    <string name="player_diagnostics_quality_capability_single">کیفیت تکی یا ثابت</string>
+    <string name="player_diagnostics_quality_capability_unknown">نامشخص</string>
+    <string name="player_diagnostics_quality_capability_timeshift">منبع پخش با تأخیر زمانی</string>
+    <string name="player_quality_save_bitrate_as_limit">ذخیره نرخ بیت ویدیوی فعلی به‌عنوان بیشینه</string>
+    <string name="player_quality_inherit_height_limit">استفاده از محدودیت ارتفاع به‌ارث‌رسیده</string>
+    <string name="player_quality_inherit_bitrate_limit">استفاده از محدودیت نرخ بیت به‌ارث‌رسیده</string>
+    <string name="player_quality_no_additional_height_limit">بدون محدودیت ارتفاع اضافی برای این محتوا</string>
+    <string name="player_quality_no_additional_bitrate_limit">بدون محدودیت نرخ بیت اضافی برای این محتوا</string>
+    <string name="player_quality_mode_auto">خودکار (تطبیقی)</string>
+    <string name="player_quality_mode_fixed">کیفیت ثابت</string>
+    <string name="player_diagnostics_quality_cast_unavailable">گیرنده Cast کیفیت را انتخاب می‌کند؛ این محدودیت‌ها اعمال نمی‌شوند.</string>
+    <string name="player_video_quality_selection_blocked">این کیفیت ویدیو با محدودیت‌های پخش شما سازگار نیست.</string>
+    <string name="player_diagnostics_quality_height_summary">وضوح تصویر: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">نرخ بیت: %1$s مگابیت/ث</string>
 </resources>

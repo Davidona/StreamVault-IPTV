@@ -4,21 +4,55 @@
 
 Expand [issue #263](https://github.com/Davidona/StreamVault-IPTV/issues/263) into a coherent playback preference system. Users should be able to set quality limits, save meaningful preferences for particular content, understand the quality currently playing, and trust that recovery and restarts preserve their choices.
 
-This document specifies future implementation. The release covers profiles, connection limits, provider defaults, saved live-channel/movie/series ceilings, temporary choices, backup/restore, and playback lifecycle integration.
+This document specifies the agreed release and tracks implementation progress. The release covers profiles, connection limits, provider defaults, saved live-channel/movie/series ceilings, temporary choices, backup/restore, and playback lifecycle integration.
+
+## Implementation status
+
+Updated while implementation is in progress. Completed items below describe code currently present; unchecked items remain planned or incomplete.
+
+Latest verification: `:app:compileDebugKotlin` succeeds with quality consent, policy diagnostics, fixed-track status, Cast messaging, source-only constrained preloads, and per-field player controls. All 30 strings added in the playback module exist in all 38 advertised locales; XML parses, no translation is an English placeholder, and positional formatting contracts match. `git diff --check` reports no whitespace errors. Runtime playback, migration/restore behavior, and automated test coverage have not been validated yet.
+
+- [x] Added domain profile, limit, scope override, candidate, and resolver models.
+- [x] Added global profile/custom/Wi-Fi/Ethernet bitrate preferences to the DataStore contract and implementation, preserving the existing Wi-Fi/Ethernet height keys.
+- [x] Added global backup export/import and classified the new setting as a global preference.
+- [x] Added localized Settings > Playback controls for Auto, Data Saver, Balanced, Custom, custom height/bitrate, and connection bitrate limits in all configured locales.
+- [x] Exposed video height and advertised bitrate metadata on player tracks.
+- [x] Applied profile, connection, provider-default, multiview, and compatibility limits through the current player track controller; made constrained selection strict and validated manual video choices before application and on policy updates.
+- [x] Observed global quality preference changes in playback; constrained neighbor preloads stop at source/manifest preparation, and already-buffered windows are cleared when a quality limit tightens.
+- [x] Added provider/content-scoped Room storage, a domain-facing read/write contract, provider-delete cascade, migration 82 → 83, and exported schema 83.
+- [x] Added portable backup/restore for scoped quality preferences using portable provider identity, validation, per-provider replacement behavior, and restore checkpoint rollback.
+- [x] Pass stable provider-supplied live/movie/series identifiers into playback; resolve saved provider and content preferences during foreground prepare.
+- [x] Added player actions to save the current resolution as an adaptive ceiling and remove a saved ceiling. Saving returns selection to Auto, so it stays adaptive under the saved limit.
+- [x] Added localized save/remove actions for every advertised locale.
+- [x] Added temporary adaptive ceilings to the shared resolver and player selector; Auto clears the temporary ceiling, and content changes discard it.
+- [x] Added player quality-menu actions to save the current resolution as a provider-wide adaptive ceiling and remove that provider default.
+- [x] Added provider settings controls for per-field inherited height/bitrate limits, no additional limit, and explicit maxima.
+- [x] Observe provider-default and content-scope preference flows during playback; scope switches cancel stale observations and apply updates to the active player without waiting for another prepare.
+- [x] Keep a manual fixed-track choice session-local across same-media retries; reject choices outside current policy limits and reapply only after availability and policy revalidation.
+- [x] Add sanitized logs and player diagnostics for effective limits, contributing policy sources, observed video format, and decoder-pressure ceilings.
+- [x] Expose per-dimension Save maximum, Inherit, and content-scoped No additional limit actions in the player; saving one dimension preserves the other.
+- [x] Gate no-match/unknown-metadata playback with explicit consent, preserve play intent, and defer player recovery while intentionally waiting. The gate offers one candidate, a source alternative when available, and stop; Continue once relaxes only the violating user dimensions and remains bounded to the current source/policy. Compatibility and multiview constraints still apply; decoder-pressure state disables the exception.
+- [x] Effective limits, contributing sources, observed format, and decoder-pressure ceilings are logged and shown in the diagnostics UI.
+- [x] Constrained neighbor preloads stop at source/manifest preparation, and tighter limits clear existing ranges; candidate-specific selector enforcement remains an optimization. Internal adaptive/single-rendition, timeshift, and fixed-track capability/status are reported. Cast reports that the receiver controls quality; external-player launch/handoff integration remains open.
+- [ ] Complete migration/restore/lifecycle validation and emulator playback validation. Migration and restore test coverage is still pending.
+
+Current implementation boundary: Settings edits the global profile, connection policy, and provider-wide height/bitrate defaults with per-field Inherit/No additional limit/maximum choices. Playback can save current height or advertised bitrate ceilings per dimension for content or provider scope, restore inherited fields, opt a content scope out of a provider default per dimension, use temporary adaptive ceilings, and gate no-match/unknown-metadata playback pending explicit consent. Diagnostics report effective limits, policy sources, decoder pressure, adaptive versus single-rendition capability, timeshift, Auto versus Fixed track mode, and unavailable Cast enforcement; current-quality save actions are disabled during Cast playback. Consent is source-scoped and invalidated on policy, connection, multiview, compatibility, or source changes while same-media retries retain it. Candidate-specific preloading, external-player launch/handoff integration, migration/restore validation, and runtime playback validation remain open.
 
 ## What exists today
 
-- Playback settings persist Wi-Fi and Ethernet maximum video heights in DataStore.
-- `PlayerTrackController` applies the active network height to Media3 track selection.
-- The player can list and manually select video tracks, but the video selection is session-local.
+- Playback settings persist Auto/Data Saver/Balanced/Custom profile values, connection bitrate limits, and the existing Wi-Fi/Ethernet height caps in DataStore.
+- Provider settings expose independent height and bitrate overrides with Inherit, No additional limit, and maximum choices; an existing saved maximum outside the preset list remains selectable.
+- `PlayerTrackController` combines global profile, active network, provider-default, multiview, and compatibility constraints; unknown constrained metadata is ineligible and automatic exceedance is disabled.
+- The player can list and manually select video tracks, save height and advertised-bitrate ceilings per dimension for content or provider scope, restore inherited fields, opt content out of provider ceilings per dimension, and set a temporary adaptive ceiling that clears on Auto or content change.
 - VOD audio and subtitle choices persist globally and by movie or series scope.
 - Live channel variant selections are remembered by provider and logical channel group.
 - Adaptive HLS/DASH playback can temporarily restrict renditions when decoder pressure is detected.
 - Multiview can impose a 720p ceiling.
-- Compatibility decoder mode separately writes a 720p maximum after initial parameters, which can replace a stricter user maximum.
+- Compatibility decoder mode contributes a 720p maximum to the same resolved policy, so it cannot replace a stricter user maximum.
+- Room schema 83 adds sparse provider/content preference rows with provider-delete cascade. Portable backup/restore resolves provider identities and retains stable remote scope keys; migration/restore runtime validation remains pending.
 - Room already stores channel aspect ratio and AV offset, with deletion cascades and portable backup support. Migration 12 to 13 moved per-channel state out of DataStore. Its raw-channel row identity is different from a logical channel group's lifetime.
 - `applyInitialParameters` clears audio, text, and video overrides; reactive quality updates must not call it unchanged.
-- `PlayerTrack` needs structured height/bitrate metadata for semantic saves. Preloaded sources need policy enforcement before background video loading as well as foreground promotion.
+- `PlayerTrack` exposes numeric height and advertised bitrate metadata for semantic saves. With an active quality limit, neighbor preloading prepares only the source/manifest and does not load a video range; tighter limits clear existing preload windows. Candidate-specific selector enforcement remains an optimization.
 
 These mechanisms are useful, but they have separate inputs and do not give the user one view of the effective quality rule or why a rendition was selected.
 
@@ -70,7 +104,7 @@ Keep provider-source choice distinct from adaptive tracks; offer a lower source 
 ### Player and settings experience
 
 - Put profile and connection limits in Settings > Playback, alongside the existing network quality caps.
-- Add provider-default controls to provider settings using Inherit/No additional limit/maximum choices.
+- [x] Add provider-default controls to provider settings using Inherit/No additional limit/maximum choices.
 - Extend the player quality panel with Auto within policy, adaptive ceilings, Fixed track, provider sources, Save for this channel/movie/series, and Remove saved preference. Cover TV remote focus and mobile layouts.
 - Show requested policy and observed playback quality together, such as “Balanced · up to 720p · playing 480p.”
 - In player diagnostics, explain which constraint is active: profile, connection, saved content choice, decoder protection, multiview, or source availability.
@@ -106,7 +140,7 @@ Timeshift snapshots cannot supply a lower rendition never captured. Check snapsh
 
 ## Delivery stages
 
-### Stage 0: Identity and integration design
+### Stage 0: Identity and integration design (partially complete)
 
 - Map live/raw/movie/series identities to storage and portable references, including concrete provider-specific fallbacks.
 - Specify Room schema/inherited-field encoding and trace all selector writers and preload setup.
@@ -115,45 +149,51 @@ Timeshift snapshots cannot supply a lower rendition never captured. Check snapsh
 
 Gate: identity lifetime, schema, and single selector ownership cover existing playback paths.
 
-### Stage 1: Shared policy and migration
+### Stage 1: Shared policy and migration (implementation complete; validation pending)
 
-- Add the domain preference types and a pure resolver for profile, network, saved scope, source capability, and runtime constraints.
-- Add policy tests for field inheritance, unknown/malformed metadata, mixed limits, no match, and exceptions; expose numeric candidate metadata in player models.
-- Read existing Wi-Fi and Ethernet height caps as equivalent constraints so the user's current settings retain their meaning.
-- Add preference repository flows and update operations with validation and default behavior.
-- Implement scoped Room persistence, migration, provider cascade, portable backup and pending restore together, before exposing saved settings.
+- [x] Add the domain preference types and a pure resolver for profile, network, saved scope, source capability, and runtime constraints.
+- [ ] Add policy tests for field inheritance, unknown/malformed metadata, mixed limits, no match, and exceptions; numeric candidate metadata is exposed in player models.
+- [x] Read existing Wi-Fi and Ethernet height caps as equivalent constraints so the user's current settings retain their meaning.
+- [x] Add preference repository flows and update operations for global and scoped preferences with validation and default behavior.
+- [x] Implement scoped Room persistence, migration, provider cascade, and portable backup/restore with provider identity remapping and checkpoint rollback.
 
 Gate: legacy caps round-trip, scoped settings survive restart/portable restore, and no preference attaches to ambiguous content.
 
-### Stage 2: Apply policy to playback
+### Stage 2: Apply policy to playback (in progress)
 
-- Route adaptive HLS/DASH rendition selection through the resolved policy.
-- Integrate the resolver with decoder-pressure and multiview constraints without allowing temporary automatic changes to overwrite user preferences.
-- Keep provider SD/HD stream switching available and report it distinctly from an adaptive rendition.
-- Report actual selected resolution/bitrate and the effective limiting reason to the playback UI and diagnostics.
-- Introduce single video-policy ownership, strict selector behavior, capability gating, fixed-mode validation, and temporary consent.
-- Integrate settings/network observation, session revisions, retry/recreation, preload, compatibility mode, and timeshift checks.
+- [x] Apply global, connection, provider-default, content-scope, multiview, and compatibility limits through the player track controller; constrained automatic selection is strict.
+- [x] Carry a temporary adaptive ceiling through preparation/retry, return to Auto on set/clear, and discard it when content changes.
+- [x] Re-resolve active playback when global preferences, connection class, or the current provider/content scoped preference changes; cancel stale scoped observers when playback identity changes.
+- [x] Retain and revalidate a manual video-track override through same-media retries; new media resets the selection and unavailable or newly disallowed tracks return to Auto.
+- [x] Scope consent to the current source; invalidate it for global/scoped/temporary policy, connection, multiview, compatibility, and media changes, while retaining it through same-media retries. Runtime recreation/source transitions remain to be validated.
+- [x] Integrate the resolver with decoder-pressure and multiview constraints without allowing temporary automatic changes to overwrite user preferences.
+- [x] Keep provider SD/HD stream switching available and report provider variants distinctly from adaptive rendition capability.
+- [x] Diagnostics show actual resolution/bitrate, effective quality limits, grouped limiting sources, and active decoder-pressure ceilings; sanitized logs include the same policy and pressure information.
+- [x] Strict selector behavior and manual override revalidation; gate no-match and unverifiable candidates; report fixed mode, internal source capability, timeshift, and temporary consent.
+- [x] Integrate settings/network observation, policy/source consent expiry, same-media retry retention, and compatibility changes. Runtime recreation, timeshift, and external-source transitions remain to be checked.
 
 Gate: all supported internal playback paths respect policy; gated waiting causes no recovery loop and video updates preserve other track choices.
 
-### Stage 3: Settings and saved choices
+### Stage 3: Settings and saved choices (in progress)
 
-- Replace or regroup the existing Wi-Fi/Ethernet quality-cap controls under the profile model while preserving their values.
-- Add profile selection and Custom controls for height and maximum video bitrate.
-- Add in-player save, reset, and temporary selection actions for supported live channels and VOD items.
-- Ensure a manual action is persisted only when the user chooses a saved scope.
-- Add provider-default controls, fixed-mode labels, inherited states, source capability explanations, and scoped consent.
+- [x] Add profile selection and Custom controls for height and maximum video bitrate alongside the existing Wi-Fi/Ethernet height controls.
+- [x] Add in-player save-as-adaptive-ceiling and remove-saved-ceiling actions for supported live channels and VOD items.
+- [x] Add a session-only adaptive ceiling that returns playback to Auto; Auto/content changes clear the temporary ceiling.
+- [x] Manual fixed-track selection remains temporary and survives same-media retry after revalidation; provider settings expose Inherit/No additional limit controls for both quality dimensions.
+- [x] Persist manual quality changes only after a user chooses a saved content or provider scope; temporary limits and exceptions remain session-only.
+- [x] Add player-menu provider-default save/remove actions, per-field reset controls, provider-settings controls, fixed-mode labels, source capability explanations, and scoped consent.
 
 Gate: users can save/reset a ceiling and recognize a temporary exception through TV/mobile controls.
 
-### Stage 4: Backup, compatibility, and release readiness
+### Stage 4: Backup, compatibility, and release readiness (in progress)
 
-- Validate versioned backup parsing, invalid-entry handling, and older backups that lack quality sections.
-- Verify provider deletion and playlist refresh do not attach a preference to a different logical channel.
-- Verify older installs retain their network caps and receive a safe Auto default for new profile settings.
-- Add or update UI and runtime tests at the domain, repository, player, and playback integration boundaries.
-- Verify backup classification, checkpoint rollback, deferred identity remapping, and preloading restrictions introduced in earlier stages.
-- Document metadata-based limits and stricter legacy no-match behavior: previous caps could permissively fall back above the selected height.
+- [ ] Validate versioned backup parsing, invalid-entry handling, and older backups that lack quality sections.
+- [ ] Verify provider deletion and playlist refresh do not attach a preference to a different logical channel.
+- [ ] Verify older installs retain their network caps and receive a safe Auto default for new profile settings.
+- [ ] Add or update UI and runtime tests at the domain, repository, player, and playback integration boundaries.
+- [x] Implement backup classification, checkpoint rollback, and portable provider identity remapping for the scoped quality section.
+- [ ] Validate backup classification, checkpoint rollback, deferred catalog identity remapping, and preloading restrictions introduced in earlier stages.
+- [x] Document metadata-based limits and stricter legacy no-match behavior: previous caps could permissively fall back above the selected height.
 
 Gate: release the complete vertical feature after storage, enforcement, diagnostics, UI, and playback validation pass.
 

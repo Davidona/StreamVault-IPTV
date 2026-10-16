@@ -259,4 +259,40 @@
     <string name="series_seasons">Mga Season</string>
     <string name="settings_recording_status_recording">Naka-record</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">I-save ang kasalukuyang resolusyon bilang adaptive na limitasyon</string>
+    <string name="player_quality_remove_saved_limit">Alisin ang naka-save na limitasyon ng resolusyon</string>
+    <string name="player_quality_use_session_limit">Limitahan ang playback na ito sa kasalukuyang resolusyon</string>
+    <string name="player_quality_clear_session_limit">Alisin ang pansamantalang limitasyon ng kalidad</string>
+
+    <string name="player_quality_gate_title">Naka-pause ang playback dahil sa mga limitasyon ng kalidad</string>
+    <string name="player_quality_gate_message">Walang available na kalidad ng video ang pasok sa mga limitasyon mo. Suriin ang iniaalok na kalidad at mga detalye bago magpatuloy.</string>
+    <string name="player_quality_gate_offer">Iniaalok na kalidad ng video: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Lampas sa limitasyong %2$d p mo ang taas na %1$d p.</string>
+    <string name="player_quality_gate_height_unknown">Hindi alam ang taas ng video; %1$d p ang limitasyon mo.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Lampas sa limitasyong %2$s Mbps mo ang bitrate na %1$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Hindi alam ang bitrate ng video; %1$s Mbps ang limitasyon mo.</string>
+    <string name="player_quality_gate_continue_once">Magpatuloy nang isang beses</string>
+
+    <string name="player_diagnostics_quality_limits">Mga limitasyon ng kalidad</string>
+    <string name="player_diagnostics_quality_reasons">Mga salik na naglilimita</string>
+    <string name="player_diagnostics_quality_source_preferences">Mga kagustuhan sa playback</string>
+    <string name="player_diagnostics_quality_source_device">Compatibility ng device</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Load ng decoder</string>
+
+    <string name="player_diagnostics_quality_capability">Kakayahan ng video source</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Mga adaptive na kalidad</string>
+    <string name="player_diagnostics_quality_capability_single">Iisang o nakapirming kalidad</string>
+    <string name="player_diagnostics_quality_capability_unknown">Hindi alam</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Pinagmulan ng timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">I-save ang kasalukuyang bitrate ng video bilang pinakamataas na limitasyon</string>
+    <string name="player_quality_inherit_height_limit">Gamitin ang minanang limitasyon sa taas</string>
+    <string name="player_quality_inherit_bitrate_limit">Gamitin ang minanang limitasyon sa bitrate</string>
+    <string name="player_quality_no_additional_height_limit">Walang karagdagang limitasyon sa taas para sa content na ito</string>
+    <string name="player_quality_no_additional_bitrate_limit">Walang karagdagang limitasyon sa bitrate para sa content na ito</string>
+    <string name="player_quality_mode_auto">Awtomatiko (adaptive)</string>
+    <string name="player_quality_mode_fixed">Nakapirming track</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Ang Cast receiver ang pumipili ng kalidad; hindi ipinapatupad ang mga limitasyong ito.</string>
+    <string name="player_video_quality_selection_blocked">Hindi akma ang kalidad ng video na ito sa mga limitasyon mo sa playback.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolusyon: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
 </resources>

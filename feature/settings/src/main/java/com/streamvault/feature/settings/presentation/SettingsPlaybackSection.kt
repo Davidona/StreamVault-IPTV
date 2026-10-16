@@ -23,6 +23,7 @@ import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
 import com.streamvault.domain.model.LiveClockSize
 import com.streamvault.domain.model.PlayerBackButtonVisibility
+import com.streamvault.domain.settings.PlaybackQualityProfile
 
 public fun LazyListScope.settingsPlaybackSection(
     uiState: SettingsUiState,
@@ -87,6 +88,118 @@ public fun LazyListScope.settingsPlaybackSection(
     item {
         val context = LocalContext.current
         val liveStreamFormatMode by viewModel.playerLiveStreamFormatMode.collectAsStateWithLifecycle()
+        var showQualityProfileDialog by rememberSaveable { mutableStateOf(false) }
+        var showCustomQualityHeightDialog by rememberSaveable { mutableStateOf(false) }
+        var showCustomQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
+        var showWifiQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
+        var showEthernetQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
+        val qualityProfileOptions = remember { PlaybackQualityProfile.entries }
+        val customQualityHeightOptions = remember { listOf(null, 480, 720, 1080, 2160) }
+        val customQualityBitrateOptions = remember { listOf(null, 2_000_000L, 4_000_000L, 8_000_000L) }
+
+        if (showQualityProfileDialog) {
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_quality_profile_title),
+                onDismiss = { showQualityProfileDialog = false }
+            ) {
+                qualityProfileOptions.forEachIndexed { index, profile ->
+                    val label = when (profile) {
+                        PlaybackQualityProfile.AUTO -> stringResource(R.string.settings_quality_cap_auto)
+                        PlaybackQualityProfile.DATA_SAVER -> stringResource(R.string.settings_quality_profile_data_saver)
+                        PlaybackQualityProfile.BALANCED -> stringResource(R.string.settings_quality_profile_balanced)
+                        PlaybackQualityProfile.CUSTOM -> stringResource(R.string.settings_quality_profile_custom)
+                    }
+                    LevelOption(
+                        level = index,
+                        text = label,
+                        currentLevel = if (uiState.playbackQualityPreferences.profile == profile) index else -1,
+                        onSelect = {
+                            viewModel.setPlaybackQualityProfile(profile)
+                            showQualityProfileDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showCustomQualityHeightDialog) {
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_quality_custom_height),
+                onDismiss = { showCustomQualityHeightDialog = false }
+            ) {
+                customQualityHeightOptions.forEachIndexed { index, height ->
+                    LevelOption(
+                        level = index,
+                        text = formatQualityCapLabel(
+                            height,
+                            context.getString(R.string.settings_quality_cap_auto)
+                        ),
+                        currentLevel = if (uiState.playbackQualityPreferences.customLimit.maxVideoHeight == height) index else -1,
+                        onSelect = {
+                            viewModel.setCustomPlaybackMaxVideoHeight(height)
+                            showCustomQualityHeightDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showCustomQualityBitrateDialog) {
+            PremiumSelectionDialog(
+                title = stringResource(R.string.settings_quality_custom_bitrate),
+                onDismiss = { showCustomQualityBitrateDialog = false }
+            ) {
+                customQualityBitrateOptions.forEachIndexed { index, bitrate ->
+                    val label = bitrate?.let { context.getString(R.string.settings_quality_cap_mbps, (it / 1_000_000L).toInt()) }
+                        ?: stringResource(R.string.settings_quality_cap_no_limit)
+                    LevelOption(
+                        level = index,
+                        text = label,
+                        currentLevel = if (uiState.playbackQualityPreferences.customLimit.maxVideoBitrateBps == bitrate) index else -1,
+                        onSelect = {
+                            viewModel.setCustomPlaybackMaxVideoBitrate(bitrate)
+                            showCustomQualityBitrateDialog = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (showWifiQualityBitrateDialog || showEthernetQualityBitrateDialog) {
+            val isWifi = showWifiQualityBitrateDialog
+            val currentBitrate = if (isWifi) {
+                uiState.playbackQualityPreferences.wifiLimit.maxVideoBitrateBps
+            } else {
+                uiState.playbackQualityPreferences.ethernetLimit.maxVideoBitrateBps
+            }
+            PremiumSelectionDialog(
+                title = stringResource(
+                    if (isWifi) R.string.settings_wifi_quality_bitrate_cap
+                    else R.string.settings_ethernet_quality_bitrate_cap
+                ),
+                onDismiss = {
+                    showWifiQualityBitrateDialog = false
+                    showEthernetQualityBitrateDialog = false
+                }
+            ) {
+                customQualityBitrateOptions.forEachIndexed { index, bitrate ->
+                    val label = bitrate?.let {
+                        context.getString(R.string.settings_quality_cap_mbps, (it / 1_000_000L).toInt())
+                    } ?: stringResource(R.string.settings_quality_cap_no_limit)
+                    LevelOption(
+                        level = index,
+                        text = label,
+                        currentLevel = if (currentBitrate == bitrate) index else -1,
+                        onSelect = {
+                            if (isWifi) viewModel.setWifiQualityBitrateCap(bitrate)
+                            else viewModel.setEthernetQualityBitrateCap(bitrate)
+                            showWifiQualityBitrateDialog = false
+                            showEthernetQualityBitrateDialog = false
+                        }
+                    )
+                }
+            }
+        }
         var showLiveStreamFormatDialog by rememberSaveable { mutableStateOf(false) }
         var showPlayerBackButtonVisibilityDialog by rememberSaveable { mutableStateOf(false) }
         val backButtonVisibilityOptions = remember { PlayerBackButtonVisibility.entries }
@@ -351,6 +464,36 @@ public fun LazyListScope.settingsPlaybackSection(
                 )
             }
             if (page == null || page == SettingsPage.NETWORK) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_quality_profile_title),
+                    value = when (uiState.playbackQualityPreferences.profile) {
+                        PlaybackQualityProfile.AUTO -> stringResource(R.string.settings_quality_cap_auto)
+                        PlaybackQualityProfile.DATA_SAVER -> stringResource(R.string.settings_quality_profile_data_saver)
+                        PlaybackQualityProfile.BALANCED -> stringResource(R.string.settings_quality_profile_balanced)
+                        PlaybackQualityProfile.CUSTOM -> stringResource(R.string.settings_quality_profile_custom)
+                    },
+                    onClick = { showQualityProfileDialog = true },
+                    modifier = if (targetItemId == "playback.quality_profile") targetFocusModifier else Modifier
+                )
+                if (uiState.playbackQualityPreferences.profile == PlaybackQualityProfile.CUSTOM) {
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_quality_custom_height),
+                        value = formatQualityCapLabel(
+                            uiState.playbackQualityPreferences.customLimit.maxVideoHeight,
+                            context.getString(R.string.settings_quality_cap_auto)
+                        ),
+                        onClick = { showCustomQualityHeightDialog = true },
+                        modifier = if (targetItemId == "playback.quality_custom_height") targetFocusModifier else Modifier
+                    )
+                    ClickableSettingsRow(
+                        label = stringResource(R.string.settings_quality_custom_bitrate),
+                        value = uiState.playbackQualityPreferences.customLimit.maxVideoBitrateBps
+                            ?.let { context.getString(R.string.settings_quality_cap_mbps, (it / 1_000_000L).toInt()) }
+                            ?: stringResource(R.string.settings_quality_cap_no_limit),
+                        onClick = { showCustomQualityBitrateDialog = true },
+                        modifier = if (targetItemId == "playback.quality_custom_bitrate") targetFocusModifier else Modifier
+                    )
+                }
                 SwitchSettingsRow(
                     label = stringResource(R.string.settings_fast_retry_on_transient_failures),
                     value = stringResource(R.string.settings_fast_retry_on_transient_failures_subtitle),
@@ -371,11 +514,27 @@ public fun LazyListScope.settingsPlaybackSection(
                 ,
                     modifier = if (targetItemId == "playback.wifi_cap") targetFocusModifier else Modifier,)
                 ClickableSettingsRow(
+                    label = stringResource(R.string.settings_wifi_quality_bitrate_cap),
+                    value = uiState.playbackQualityPreferences.wifiLimit.maxVideoBitrateBps
+                        ?.let { context.getString(R.string.settings_quality_cap_mbps, (it / 1_000_000L).toInt()) }
+                        ?: stringResource(R.string.settings_quality_cap_no_limit),
+                    onClick = { showWifiQualityBitrateDialog = true },
+                    modifier = if (targetItemId == "playback.wifi_bitrate_cap") targetFocusModifier else Modifier
+                )
+                ClickableSettingsRow(
                     label = stringResource(R.string.settings_ethernet_quality_cap),
                     value = ethernetQualityLabel,
                     onClick = { onShowEthernetQualityDialogChange(true) }
                 ,
                     modifier = if (targetItemId == "playback.ethernet_cap") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_ethernet_quality_bitrate_cap),
+                    value = uiState.playbackQualityPreferences.ethernetLimit.maxVideoBitrateBps
+                        ?.let { context.getString(R.string.settings_quality_cap_mbps, (it / 1_000_000L).toInt()) }
+                        ?: stringResource(R.string.settings_quality_cap_no_limit),
+                    onClick = { showEthernetQualityBitrateDialog = true },
+                    modifier = if (targetItemId == "playback.ethernet_bitrate_cap") targetFocusModifier else Modifier
+                )
             }
             if (page == null || page == SettingsPage.SUBTITLES) {
                 OpenSubtitlesAccountSettings(

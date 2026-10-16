@@ -31,6 +31,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.TimeshiftBackendPreference
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 
 enum class ProviderWarningAction {
     EPG,
@@ -92,6 +93,7 @@ data class SettingsPreferenceSnapshot(
     val playerLiveTranslationEndpoint: String,
     val wifiMaxVideoHeight: Int?,
     val ethernetMaxVideoHeight: Int?,
+    val playbackQualityPreferences: PlaybackQualityPreferences = PlaybackQualityPreferences(),
     val playerTimeshiftEnabled: Boolean,
     val playerTimeshiftDepthMinutes: Int,
     val playerTimeshiftBackend: TimeshiftBackendPreference,

@@ -260,4 +260,40 @@
     <string name="player_skip_recap">Săriți recapitularea</string>
     <string name="player_skip_outro">Săriți finalul</string>
     <string name="player_track_live_translation">Traducere în timp real</string>
+    <string name="player_quality_save_as_limit">Salvează rezoluția actuală ca limită adaptivă</string>
+    <string name="player_quality_remove_saved_limit">Elimină limita de rezoluție salvată</string>
+    <string name="player_quality_use_session_limit">Limitează această redare la rezoluția actuală</string>
+    <string name="player_quality_clear_session_limit">Elimină limita temporară de calitate</string>
+
+    <string name="player_quality_gate_title">Redarea a fost întreruptă din cauza limitelor de calitate</string>
+    <string name="player_quality_gate_message">Nicio calitate video disponibilă nu se încadrează în limitele tale. Verifică nivelul oferit și detaliile înainte de a continua.</string>
+    <string name="player_quality_gate_offer">Calitate video oferită: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Înălțimea de %1$d p depășește limita ta de %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Înălțimea videoclipului este necunoscută; limita ta este %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Rata de biți de %1$s Mbps depășește limita ta de %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Rata de biți a videoclipului este necunoscută; limita ta este %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Continuă o dată</string>
+
+    <string name="player_diagnostics_quality_limits">Limite de calitate</string>
+    <string name="player_diagnostics_quality_reasons">Factori de limitare</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferințe de redare</string>
+    <string name="player_diagnostics_quality_source_device">Compatibilitatea dispozitivului</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Încărcarea decodorului</string>
+
+    <string name="player_diagnostics_quality_capability">Capacitatea sursei video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Calități adaptive</string>
+    <string name="player_diagnostics_quality_capability_single">Calitate unică sau fixă</string>
+    <string name="player_diagnostics_quality_capability_unknown">Necunoscută</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Sursă cu decalaj temporal</string>
+    <string name="player_quality_save_bitrate_as_limit">Salvează rata de biți video actuală ca limită maximă</string>
+    <string name="player_quality_inherit_height_limit">Folosește limita de înălțime moștenită</string>
+    <string name="player_quality_inherit_bitrate_limit">Folosește limita de rată de biți moștenită</string>
+    <string name="player_quality_no_additional_height_limit">Fără limită suplimentară de înălțime pentru acest conținut</string>
+    <string name="player_quality_no_additional_bitrate_limit">Fără limită suplimentară de rată de biți pentru acest conținut</string>
+    <string name="player_quality_mode_auto">Selectare automată (adaptivă)</string>
+    <string name="player_quality_mode_fixed">Pistă fixă</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Receptorul Cast alege calitatea; aceste limite nu sunt aplicate.</string>
+    <string name="player_video_quality_selection_blocked">Această calitate video nu se încadrează în limitele de redare.</string>
+    <string name="player_diagnostics_quality_height_summary">Rezoluție: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Rată de biți: %1$s Mbps</string>
 </resources>

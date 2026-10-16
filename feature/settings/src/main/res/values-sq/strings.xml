@@ -843,4 +843,15 @@
         <item quantity="one">Çdo %d orë</item>
         <item quantity="other">Çdo %d orë</item>
     </plurals>
+    <string name="settings_quality_profile_title">Profili i cilësisë së riprodhimit</string>
+    <string name="settings_quality_profile_data_saver">Kursim të dhënash</string>
+    <string name="settings_quality_profile_balanced">I balancuar</string>
+    <string name="settings_quality_profile_custom">I personalizuar</string>
+    <string name="settings_quality_custom_height">Lartësia maksimale e videos</string>
+    <string name="settings_quality_custom_bitrate">Bitrati maksimal i videos</string>
+    <string name="settings_quality_cap_no_limit">Pa kufi</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Bitrati maksimal i videos përmes Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Bitrati maksimal i videos përmes Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Pa kufi shtesë</string>
 </resources>

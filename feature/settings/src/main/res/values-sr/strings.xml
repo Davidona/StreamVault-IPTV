@@ -846,4 +846,15 @@
         <item quantity="few">Свака %d сата</item>
         <item quantity="other">Сваких %d сати</item>
     </plurals>
+    <string name="settings_quality_profile_title">Профил квалитета репродукције</string>
+    <string name="settings_quality_profile_data_saver">Уштеда података</string>
+    <string name="settings_quality_profile_balanced">Уравнотежено</string>
+    <string name="settings_quality_profile_custom">Прилагођено</string>
+    <string name="settings_quality_custom_height">Максимална висина видеа</string>
+    <string name="settings_quality_custom_bitrate">Максимални битрејт видеа</string>
+    <string name="settings_quality_cap_no_limit">Без ограничења</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Максимални битрејт видеа преко Wi-Fi мреже</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Максимални битрејт видеа преко Ethernet мреже</string>
+    <string name="settings_quality_cap_no_additional_limit">Без додатног ограничења</string>
 </resources>

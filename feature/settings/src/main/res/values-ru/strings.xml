@@ -849,4 +849,15 @@
         <item quantity="many">Каждые %d часов</item>
         <item quantity="other">Каждые %d часов</item>
     </plurals>
+    <string name="settings_quality_profile_title">Профиль качества воспроизведения</string>
+    <string name="settings_quality_profile_data_saver">Экономия трафика</string>
+    <string name="settings_quality_profile_balanced">Сбалансированный</string>
+    <string name="settings_quality_profile_custom">Настраиваемый</string>
+    <string name="settings_quality_custom_height">Максимальная высота видео</string>
+    <string name="settings_quality_custom_bitrate">Максимальный битрейт видео</string>
+    <string name="settings_quality_cap_no_limit">Без ограничений</string>
+    <string name="settings_quality_cap_mbps">%1$d Мбит/с</string>
+    <string name="settings_wifi_quality_bitrate_cap">Максимальный битрейт видео по Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Максимальный битрейт видео по Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Без дополнительного ограничения</string>
 </resources>

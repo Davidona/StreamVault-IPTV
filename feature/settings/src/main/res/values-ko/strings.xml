@@ -839,4 +839,15 @@
         <item quantity="one">%d시간마다</item>
         <item quantity="other">%d시간마다</item>
     </plurals>
+    <string name="settings_quality_profile_title">재생 화질 프로필</string>
+    <string name="settings_quality_profile_data_saver">데이터 절약</string>
+    <string name="settings_quality_profile_balanced">균형</string>
+    <string name="settings_quality_profile_custom">맞춤</string>
+    <string name="settings_quality_custom_height">최대 동영상 높이</string>
+    <string name="settings_quality_custom_bitrate">최대 동영상 비트 전송률</string>
+    <string name="settings_quality_cap_no_limit">제한 없음</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi 최대 동영상 비트 전송률</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Ethernet 최대 동영상 비트 전송률</string>
+    <string name="settings_quality_cap_no_additional_limit">추가 제한 없음</string>
 </resources>

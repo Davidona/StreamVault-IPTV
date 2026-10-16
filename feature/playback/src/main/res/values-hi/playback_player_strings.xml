@@ -259,4 +259,40 @@
     <string name="series_seasons">सीज़न</string>
     <string name="settings_recording_status_recording">रिकॉर्डिंग</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">मौजूदा रिज़ॉल्यूशन को अनुकूली सीमा के रूप में सहेजें</string>
+    <string name="player_quality_remove_saved_limit">सहेजी गई रिज़ॉल्यूशन सीमा हटाएँ</string>
+    <string name="player_quality_use_session_limit">इस प्लेबैक को मौजूदा रिज़ॉल्यूशन तक सीमित करें</string>
+    <string name="player_quality_clear_session_limit">अस्थायी गुणवत्ता सीमा हटाएँ</string>
+
+    <string name="player_quality_gate_title">गुणवत्ता सीमाओं के कारण प्लेबैक रुका हुआ है</string>
+    <string name="player_quality_gate_message">कोई भी उपलब्ध वीडियो गुणवत्ता आपकी सीमाओं में फिट नहीं होती। जारी रखने से पहले दी गई गुणवत्ता और विवरण देखें।</string>
+    <string name="player_quality_gate_offer">प्रस्तावित वीडियो गुणवत्ता: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">%1$d p की ऊँचाई आपकी %2$d p सीमा से अधिक है।</string>
+    <string name="player_quality_gate_height_unknown">वीडियो की ऊँचाई अज्ञात है; आपकी सीमा %1$d p है।</string>
+    <string name="player_quality_gate_bitrate_exceeded">%1$s Mbps की बिटरेट आपकी %2$s Mbps सीमा से अधिक है।</string>
+    <string name="player_quality_gate_bitrate_unknown">वीडियो की बिटरेट अज्ञात है; आपकी सीमा %1$s Mbps है।</string>
+    <string name="player_quality_gate_continue_once">एक बार जारी रखें</string>
+
+    <string name="player_diagnostics_quality_limits">गुणवत्ता सीमाएँ</string>
+    <string name="player_diagnostics_quality_reasons">सीमित करने वाले कारक</string>
+    <string name="player_diagnostics_quality_source_preferences">प्लेबैक प्राथमिकताएँ</string>
+    <string name="player_diagnostics_quality_source_device">डिवाइस संगतता</string>
+    <string name="player_diagnostics_quality_decoder_pressure">डिकोडर पर दबाव</string>
+
+    <string name="player_diagnostics_quality_capability">वीडियो स्रोत की क्षमता</string>
+    <string name="player_diagnostics_quality_capability_adaptive">अनुकूली गुणवत्ता</string>
+    <string name="player_diagnostics_quality_capability_single">एकल या निश्चित गुणवत्ता</string>
+    <string name="player_diagnostics_quality_capability_unknown">अज्ञात</string>
+    <string name="player_diagnostics_quality_capability_timeshift">टाइमशिफ्ट स्रोत</string>
+    <string name="player_quality_save_bitrate_as_limit">मौजूदा वीडियो बिटरेट को अधिकतम सीमा के रूप में सहेजें</string>
+    <string name="player_quality_inherit_height_limit">विरासत में मिली ऊँचाई सीमा इस्तेमाल करें</string>
+    <string name="player_quality_inherit_bitrate_limit">विरासत में मिली बिटरेट सीमा इस्तेमाल करें</string>
+    <string name="player_quality_no_additional_height_limit">इस सामग्री के लिए ऊँचाई की कोई अतिरिक्त सीमा नहीं</string>
+    <string name="player_quality_no_additional_bitrate_limit">इस सामग्री के लिए बिटरेट की कोई अतिरिक्त सीमा नहीं</string>
+    <string name="player_quality_mode_auto">स्वचालित (अनुकूली)</string>
+    <string name="player_quality_mode_fixed">निश्चित ट्रैक</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast रिसीवर गुणवत्ता चुनता है; ये सीमाएँ लागू नहीं होतीं।</string>
+    <string name="player_video_quality_selection_blocked">यह वीडियो गुणवत्ता आपकी प्लेबैक सीमाओं के अनुरूप नहीं है।</string>
+    <string name="player_diagnostics_quality_height_summary">रिज़ॉल्यूशन: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">बिटरेट: %1$s Mbps</string>
 </resources>

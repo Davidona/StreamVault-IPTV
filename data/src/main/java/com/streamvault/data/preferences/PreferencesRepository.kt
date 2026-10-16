@@ -18,9 +18,18 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.streamvault.data.local.dao.ChannelPreferenceDao
+import com.streamvault.data.local.dao.PlaybackQualityPreferenceDao
 import com.streamvault.data.local.dao.SearchHistoryDao
+import com.streamvault.data.local.entity.PlaybackQualityPreferenceEntity
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.PlaybackQualityLimit
+import com.streamvault.domain.settings.PlaybackQualityPreferences
+import com.streamvault.domain.settings.PlaybackQualityProfile
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScopeType
+import com.streamvault.domain.settings.QualityLimitOverride
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.settings.SubtitleLanguageOrdering
 import com.streamvault.domain.model.GroupedChannelLabelMode
@@ -69,6 +78,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -166,6 +176,7 @@ internal fun parseAppThemePreference(saved: String?): AppTheme = AppTheme.fromSt
 class PreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val channelPreferenceDao: ChannelPreferenceDao,
+    private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
 ) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences {
@@ -325,6 +336,11 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS = intPreferencesKey("player_diagnostics_timeout_seconds")
         val PLAYER_WIFI_MAX_VIDEO_HEIGHT = intPreferencesKey("player_wifi_max_video_height")
         val PLAYER_ETHERNET_MAX_VIDEO_HEIGHT = intPreferencesKey("player_ethernet_max_video_height")
+        val PLAYER_QUALITY_PROFILE = stringPreferencesKey("player_quality_profile")
+        val PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT = intPreferencesKey("player_quality_custom_max_video_height")
+        val PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_quality_custom_max_video_bitrate_bps")
+        val PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_wifi_max_video_bitrate_bps")
+        val PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_ethernet_max_video_bitrate_bps")
         val PLAYER_TIMESHIFT_ENABLED = booleanPreferencesKey("player_timeshift_enabled")
         val PLAYER_TIMESHIFT_DEPTH_MINUTES = intPreferencesKey("player_timeshift_depth_minutes")
         val PLAYER_TIMESHIFT_BACKEND = stringPreferencesKey("player_timeshift_backend")
@@ -711,6 +727,40 @@ class PreferencesRepository @Inject constructor(
 
     override val playerEthernetMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
+    }
+
+    override val playbackQualityPreferences: Flow<PlaybackQualityPreferences> = context.dataStore.data.map { preferences ->
+        val profile = preferences[PreferencesKeys.PLAYER_QUALITY_PROFILE]
+            ?.let { saved -> PlaybackQualityProfile.entries.firstOrNull { it.name == saved } }
+            ?: PlaybackQualityProfile.AUTO
+        PlaybackQualityPreferences(
+            profile = profile,
+            customLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS]
+            ),
+            wifiLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS]
+            ),
+            ethernetLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS]
+            )
+        ).normalized()
+    }.distinctUntilChanged()
+
+    override fun getPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope
+    ): Flow<ScopedPlaybackQualityPreference?> {
+        if (!scope.isValid()) return flowOf(null)
+        return playbackQualityPreferenceDao.observe(
+            providerId = scope.providerId,
+            scopeType = scope.type.storageValue,
+            scopeKey = scope.key
+        ).map { entity ->
+            entity?.takeIf { it.identityVersion == scope.identityVersion }?.toDomainPreference()
+        }.distinctUntilChanged()
     }
 
     override val playerTimeshiftEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -1454,6 +1504,64 @@ class PreferencesRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
+    }
+
+    override suspend fun setPlaybackQualityPreferences(preferences: PlaybackQualityPreferences) {
+        val normalized = preferences.normalized()
+        context.dataStore.edit { values ->
+            values[PreferencesKeys.PLAYER_QUALITY_PROFILE] = normalized.profile.name
+            normalized.customLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT)
+            normalized.customLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS)
+            normalized.wifiLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT)
+            normalized.wifiLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS)
+            normalized.ethernetLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT)
+            normalized.ethernetLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS)
+        }
+    }
+
+    override suspend fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        if (!scope.isValid()) return
+        val normalized = preference.normalizedForStorage()
+        if (normalized == null) {
+            clearPlaybackQualityPreference(scope)
+            return
+        }
+        playbackQualityPreferenceDao.upsert(
+            PlaybackQualityPreferenceEntity(
+                providerId = scope.providerId,
+                scopeType = scope.type.storageValue,
+                scopeKey = scope.key,
+                identityVersion = scope.identityVersion,
+                heightOverride = normalized.heightOverride,
+                maxVideoHeight = normalized.maxVideoHeight,
+                bitrateOverride = normalized.bitrateOverride,
+                maxVideoBitrateBps = normalized.maxVideoBitrateBps
+            )
+        )
+    }
+
+    override suspend fun clearPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) {
+        if (!scope.isValid()) return
+        playbackQualityPreferenceDao.delete(
+            providerId = scope.providerId,
+            scopeType = scope.type.storageValue,
+            scopeKey = scope.key
+        )
     }
 
     override suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?) {
@@ -2850,6 +2958,54 @@ class PreferencesRepository @Inject constructor(
 
     private fun xtreamTextImportAppliedGenerationKey(providerId: Long): String =
         "xtream_text_import_applied_generation_$providerId"
+}
+
+private data class StoredPlaybackQualityPreference(
+    val heightOverride: String,
+    val maxVideoHeight: Int?,
+    val bitrateOverride: String,
+    val maxVideoBitrateBps: Long?
+)
+
+private fun ScopedPlaybackQualityPreference.normalizedForStorage(): StoredPlaybackQualityPreference? {
+    fun height(value: QualityLimitOverride<Int>): Pair<String, Int?> = when (value) {
+        QualityLimitOverride.Inherit -> "INHERIT" to null
+        QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT" to null
+        is QualityLimitOverride.Maximum -> value.value.takeIf { it > 0 }
+            ?.let { "MAXIMUM" to it }
+            ?: ("INHERIT" to null)
+    }
+
+    fun bitrate(value: QualityLimitOverride<Long>): Pair<String, Long?> = when (value) {
+        QualityLimitOverride.Inherit -> "INHERIT" to null
+        QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT" to null
+        is QualityLimitOverride.Maximum -> value.value.takeIf { it > 0L }
+            ?.let { "MAXIMUM" to it }
+            ?: ("INHERIT" to null)
+    }
+
+    val (heightMode, heightValue) = height(maxVideoHeight)
+    val (bitrateMode, bitrateValue) = bitrate(maxVideoBitrateBps)
+    if (heightMode == "INHERIT" && bitrateMode == "INHERIT") return null
+    return StoredPlaybackQualityPreference(heightMode, heightValue, bitrateMode, bitrateValue)
+}
+
+internal fun PlaybackQualityPreferenceEntity.toDomainPreference(): ScopedPlaybackQualityPreference {
+    val height = when (heightOverride) {
+        "NO_ADDITIONAL_LIMIT" -> QualityLimitOverride.NoAdditionalLimit
+        "MAXIMUM" -> maxVideoHeight?.takeIf { it > 0 }
+            ?.let { QualityLimitOverride.Maximum(it) }
+            ?: QualityLimitOverride.Inherit
+        else -> QualityLimitOverride.Inherit
+    }
+    val bitrate = when (bitrateOverride) {
+        "NO_ADDITIONAL_LIMIT" -> QualityLimitOverride.NoAdditionalLimit
+        "MAXIMUM" -> maxVideoBitrateBps?.takeIf { it > 0L }
+            ?.let { QualityLimitOverride.Maximum(it) }
+            ?: QualityLimitOverride.Inherit
+        else -> QualityLimitOverride.Inherit
+    }
+    return ScopedPlaybackQualityPreference(height, bitrate)
 }
 
 data class ParentalPinBackupData(

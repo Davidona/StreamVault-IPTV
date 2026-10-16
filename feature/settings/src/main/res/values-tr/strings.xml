@@ -843,4 +843,15 @@
         <item quantity="one">Her %d saat</item>
         <item quantity="other">Her %d saat</item>
     </plurals>
+    <string name="settings_quality_profile_title">Oynatma kalitesi profili</string>
+    <string name="settings_quality_profile_data_saver">Veri tasarrufu</string>
+    <string name="settings_quality_profile_balanced">Dengeli</string>
+    <string name="settings_quality_profile_custom">Özel</string>
+    <string name="settings_quality_custom_height">En yüksek video yüksekliği</string>
+    <string name="settings_quality_custom_bitrate">En yüksek video bit hızı</string>
+    <string name="settings_quality_cap_no_limit">Sınır yok</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Wi-Fi için en yüksek video bit hızı</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Ethernet için en yüksek video bit hızı</string>
+    <string name="settings_quality_cap_no_additional_limit">Ek sınır yok</string>
 </resources>

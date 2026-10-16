@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
@@ -30,6 +32,7 @@ import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
 
 public fun LazyListScope.providerSection(
     uiState: SettingsUiState,
@@ -97,6 +100,13 @@ public fun LazyListScope.providerSection(
             }
             val selectedProvider = uiState.providers.firstOrNull { it.id == selectedProviderId }
                 ?: uiState.providers.first()
+            val qualityPreferenceScope = remember(selectedProvider.id) {
+                PlaybackQualityPreferenceScope.providerDefault(selectedProvider.id)
+            }
+            val qualityPreferenceFlow = remember(viewModel, qualityPreferenceScope) {
+                viewModel.playbackQualityPreference(qualityPreferenceScope)
+            }
+            val providerQualityPreference by qualityPreferenceFlow.collectAsStateWithLifecycle(initialValue = null)
 
             if (uiState.providers.size > 1 || targetItemId == "sources.active_provider") {
                 Text(
@@ -152,6 +162,16 @@ public fun LazyListScope.providerSection(
                 },
                 targetItemId = targetItemId,
                 targetFocusModifier = targetFocusModifier,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            SettingsProviderQualityControls(
+                providerId = selectedProvider.id,
+                preference = providerQualityPreference,
+                globalProfileLimit = uiState.playbackQualityPreferences.profileLimit(),
+                onChange = { preference ->
+                    viewModel.setPlaybackQualityPreference(qualityPreferenceScope, preference)
+                }
             )
 
             Spacer(modifier = Modifier.height(18.dp))

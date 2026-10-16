@@ -54,6 +54,7 @@
 -keep class com.streamvault.domain.manager.BackupData { *; }
 -keep class com.streamvault.domain.manager.ProviderBackupSnapshot { *; }
 -keep class com.streamvault.domain.manager.PortableProviderPreferencesBackup { *; }
+-keep class com.streamvault.domain.manager.PortablePlaybackQualityPreferenceBackup { *; }
 -keep class com.streamvault.domain.manager.BackupProviderReference { *; }
 -keep class com.streamvault.domain.manager.PortableCategoryReference { *; }
 -keep class com.streamvault.domain.manager.PortableVirtualGroupReference { *; }

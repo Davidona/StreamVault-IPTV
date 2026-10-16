@@ -14,6 +14,9 @@ import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.LiveTvQuickFilterVisibilityMode
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.settings.PlaybackQualityProfile
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -1081,6 +1084,70 @@ class SettingsViewModel @Inject constructor(
     fun setEthernetQualityCap(maxHeight: Int?) {
         viewModelScope.launch {
             preferencesRepository.setPlayerEthernetMaxVideoHeight(maxHeight)
+        }
+    }
+
+    fun setPlaybackQualityProfile(profile: PlaybackQualityProfile) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            val customLimit = if (
+                profile == PlaybackQualityProfile.CUSTOM && current.profile != PlaybackQualityProfile.CUSTOM
+            ) current.profileLimit() else current.customLimit
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(profile = profile, customLimit = customLimit)
+            )
+        }
+    }
+
+    fun setCustomPlaybackMaxVideoHeight(maxHeight: Int?) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(customLimit = current.customLimit.copy(maxVideoHeight = maxHeight?.takeIf { it > 0 }))
+            )
+        }
+    }
+
+    fun setCustomPlaybackMaxVideoBitrate(maxBitrateBps: Long?) {
+        viewModelScope.launch {
+            val current = preferencesRepository.playbackQualityPreferences.first()
+            preferencesRepository.setPlaybackQualityPreferences(
+                current.copy(customLimit = current.customLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+            )
+        }
+    }
+
+    fun setWifiQualityBitrateCap(maxBitrateBps: Long?) {
+        updatePlaybackQualityPreferences { current ->
+            current.copy(wifiLimit = current.wifiLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+        }
+    }
+
+    fun setEthernetQualityBitrateCap(maxBitrateBps: Long?) {
+        updatePlaybackQualityPreferences { current ->
+            current.copy(ethernetLimit = current.ethernetLimit.copy(maxVideoBitrateBps = maxBitrateBps?.takeIf { it > 0L }))
+        }
+    }
+
+    fun playbackQualityPreference(scope: PlaybackQualityPreferenceScope): Flow<ScopedPlaybackQualityPreference?> =
+        preferencesRepository.getPlaybackQualityPreference(scope)
+
+    fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        viewModelScope.launch {
+            preferencesRepository.setPlaybackQualityPreference(scope, preference)
+        }
+    }
+
+    private fun updatePlaybackQualityPreferences(
+        transform: (com.streamvault.domain.settings.PlaybackQualityPreferences) -> com.streamvault.domain.settings.PlaybackQualityPreferences
+    ) {
+        viewModelScope.launch {
+            preferencesRepository.setPlaybackQualityPreferences(
+                transform(preferencesRepository.playbackQualityPreferences.first())
+            )
         }
     }
 

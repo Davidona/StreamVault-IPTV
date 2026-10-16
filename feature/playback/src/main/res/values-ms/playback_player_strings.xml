@@ -258,4 +258,40 @@
     <string name="series_seasons">Musim</string>
     <string name="settings_recording_status_recording">Merakam</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Simpan resolusi semasa sebagai had adaptif</string>
+    <string name="player_quality_remove_saved_limit">Alih keluar had resolusi yang disimpan</string>
+    <string name="player_quality_use_session_limit">Hadkan main balik ini kepada resolusi semasa</string>
+    <string name="player_quality_clear_session_limit">Kosongkan had kualiti sementara</string>
+
+    <string name="player_quality_gate_title">Main balik dijeda kerana had kualiti</string>
+    <string name="player_quality_gate_message">Tiada kualiti video tersedia yang memenuhi had anda. Semak kualiti yang ditawarkan dan butiran sebelum meneruskan.</string>
+    <string name="player_quality_gate_offer">Kualiti video yang ditawarkan: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Ketinggian %1$d p melebihi had %2$d p anda.</string>
+    <string name="player_quality_gate_height_unknown">Ketinggian video tidak diketahui; had anda ialah %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Kadar bit %1$s Mbps melebihi had %2$s Mbps anda.</string>
+    <string name="player_quality_gate_bitrate_unknown">Kadar bit video tidak diketahui; had anda ialah %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Teruskan sekali</string>
+
+    <string name="player_diagnostics_quality_limits">Had kualiti</string>
+    <string name="player_diagnostics_quality_reasons">Faktor yang mengehadkan</string>
+    <string name="player_diagnostics_quality_source_preferences">Keutamaan main balik</string>
+    <string name="player_diagnostics_quality_source_device">Keserasian peranti</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Beban penyahkod</string>
+
+    <string name="player_diagnostics_quality_capability">Keupayaan sumber video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Kualiti adaptif</string>
+    <string name="player_diagnostics_quality_capability_single">Kualiti tunggal atau tetap</string>
+    <string name="player_diagnostics_quality_capability_unknown">Tidak diketahui</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Sumber timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">Simpan kadar bit video semasa sebagai maksimum</string>
+    <string name="player_quality_inherit_height_limit">Gunakan had ketinggian yang diwarisi</string>
+    <string name="player_quality_inherit_bitrate_limit">Gunakan had kadar bit yang diwarisi</string>
+    <string name="player_quality_no_additional_height_limit">Tiada had ketinggian tambahan untuk kandungan ini</string>
+    <string name="player_quality_no_additional_bitrate_limit">Tiada had kadar bit tambahan untuk kandungan ini</string>
+    <string name="player_quality_mode_auto">Automatik (adaptif)</string>
+    <string name="player_quality_mode_fixed">Trek tetap</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Penerima Cast memilih kualiti; had ini tidak dikuatkuasakan.</string>
+    <string name="player_video_quality_selection_blocked">Kualiti video ini tidak memenuhi had main balik anda.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolusi: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Kadar bit: %1$s Mbps</string>
 </resources>

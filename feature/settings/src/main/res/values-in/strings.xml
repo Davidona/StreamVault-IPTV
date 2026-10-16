@@ -843,4 +843,15 @@
     <item quantity="one">Setiap %d jam</item>
     <item quantity="other">Setiap %d jam</item>
 </plurals>
+    <string name="settings_quality_profile_title">Profil kualitas pemutaran</string>
+    <string name="settings_quality_profile_data_saver">Hemat data</string>
+    <string name="settings_quality_profile_balanced">Seimbang</string>
+    <string name="settings_quality_profile_custom">Kustom</string>
+    <string name="settings_quality_custom_height">Tinggi video maksimum</string>
+    <string name="settings_quality_custom_bitrate">Bitrate video maksimum</string>
+    <string name="settings_quality_cap_no_limit">Tanpa batas</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Bitrate video maksimum melalui Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Bitrate video maksimum melalui Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Tidak ada batas tambahan</string>
 </resources>

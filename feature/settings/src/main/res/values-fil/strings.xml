@@ -843,4 +843,15 @@
         <item quantity="one">Bawat %d oras</item>
         <item quantity="other">Bawat %d oras</item>
     </plurals>
+    <string name="settings_quality_profile_title">Profile ng kalidad ng playback</string>
+    <string name="settings_quality_profile_data_saver">Tipid-data</string>
+    <string name="settings_quality_profile_balanced">Balanseng</string>
+    <string name="settings_quality_profile_custom">Custom</string>
+    <string name="settings_quality_custom_height">Pinakamataas na taas ng video</string>
+    <string name="settings_quality_custom_bitrate">Pinakamataas na bitrate ng video</string>
+    <string name="settings_quality_cap_no_limit">Walang limitasyon</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Pinakamataas na bitrate ng video sa Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Pinakamataas na bitrate ng video sa Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Walang karagdagang limitasyon</string>
 </resources>

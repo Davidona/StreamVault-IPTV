@@ -259,4 +259,40 @@
     <string name="player_track_live_translation">Gerçek zamanlı çeviri</string>
     <string name="epg_catchup_available_unknown">Geri sarma mevcut</string>
     <string name="cast_disconnected">Cast oturumu kesildi.</string>
+    <string name="player_quality_save_as_limit">Geçerli çözünürlüğü uyarlanabilir sınır olarak kaydet</string>
+    <string name="player_quality_remove_saved_limit">Kaydedilen çözünürlük sınırını kaldır</string>
+    <string name="player_quality_use_session_limit">Bu oynatmayı geçerli çözünürlükle sınırla</string>
+    <string name="player_quality_clear_session_limit">Geçici kalite sınırını kaldır</string>
+
+    <string name="player_quality_gate_title">Kalite sınırları nedeniyle oynatma duraklatıldı</string>
+    <string name="player_quality_gate_message">Sınırlarınıza uyan kullanılabilir bir video kalitesi yok. Devam etmeden önce sunulan kaliteyi ve ayrıntıları inceleyin.</string>
+    <string name="player_quality_gate_offer">Sunulan video kalitesi: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">%1$d p yüksekliği, %2$d p sınırınızı aşıyor.</string>
+    <string name="player_quality_gate_height_unknown">Video yüksekliği bilinmiyor; sınırınız %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">%1$s Mbps bit hızı, %2$s Mbps sınırınızı aşıyor.</string>
+    <string name="player_quality_gate_bitrate_unknown">Video bit hızı bilinmiyor; sınırınız %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Bir kez devam et</string>
+
+    <string name="player_diagnostics_quality_limits">Kalite sınırları</string>
+    <string name="player_diagnostics_quality_reasons">Sınırlayıcı etkenler</string>
+    <string name="player_diagnostics_quality_source_preferences">Oynatma tercihleri</string>
+    <string name="player_diagnostics_quality_source_device">Cihaz uyumluluğu</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Kod çözücü yükü</string>
+
+    <string name="player_diagnostics_quality_capability">Video kaynağı özelliği</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Uyarlanabilir kaliteler</string>
+    <string name="player_diagnostics_quality_capability_single">Tek veya sabit kalite</string>
+    <string name="player_diagnostics_quality_capability_unknown">Bilinmiyor</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Zaman kaydırmalı kaynak</string>
+    <string name="player_quality_save_bitrate_as_limit">Geçerli video bit hızını üst sınır olarak kaydet</string>
+    <string name="player_quality_inherit_height_limit">Devralınan yükseklik sınırını kullan</string>
+    <string name="player_quality_inherit_bitrate_limit">Devralınan bit hızı sınırını kullan</string>
+    <string name="player_quality_no_additional_height_limit">Bu içerik için ek yükseklik sınırı yok</string>
+    <string name="player_quality_no_additional_bitrate_limit">Bu içerik için ek bit hızı sınırı yok</string>
+    <string name="player_quality_mode_auto">Otomatik (uyarlanabilir) seçim</string>
+    <string name="player_quality_mode_fixed">Sabit parça</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Kaliteyi Cast alıcısı seçer; bu sınırlar uygulanmaz.</string>
+    <string name="player_video_quality_selection_blocked">Bu video kalitesi oynatma sınırlarınıza uymuyor.</string>
+    <string name="player_diagnostics_quality_height_summary">Çözünürlük: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bit hızı: %1$s Mbps</string>
 </resources>

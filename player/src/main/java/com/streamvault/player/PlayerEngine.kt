@@ -11,6 +11,11 @@ import com.streamvault.domain.model.DrmScheme
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferences
+import com.streamvault.domain.settings.PlaybackQualityLimit
+import com.streamvault.domain.settings.PlaybackQualityConstraintSource
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
+import com.streamvault.domain.settings.VideoQualityIssue
 import androidx.media3.common.PlaybackException
 import androidx.media3.datasource.HttpDataSource
 import com.streamvault.player.playback.PlaybackErrorCategory
@@ -21,7 +26,18 @@ import java.net.UnknownHostException
 import com.streamvault.player.timeshift.LiveTimeshiftState
 import com.streamvault.player.timeshift.TimeshiftConfig
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+data class PlaybackQualityGateState(
+    val candidate: PlayerTrack,
+    val limit: PlaybackQualityLimit,
+    val issues: Set<VideoQualityIssue>,
+    val canContinueOnce: Boolean = true
+)
+
+private val emptyPlaybackQualityGateState = MutableStateFlow<PlaybackQualityGateState?>(null)
 
 const val AUDIO_VIDEO_OFFSET_MIN_MS = -2_000
 const val AUDIO_VIDEO_OFFSET_MAX_MS = 2_000
@@ -36,6 +52,12 @@ enum class PlayerRenderSurfaceType {
     AUTO,
     SURFACE_VIEW,
     TEXTURE_VIEW
+}
+
+enum class VideoRenditionCapability {
+    ADAPTIVE_RENDITIONS,
+    SINGLE_RENDITION,
+    UNKNOWN
 }
 
 /**
@@ -57,6 +79,8 @@ interface PlayerEngine {
     val availableAudioTracks: StateFlow<List<PlayerTrack>>
     val availableSubtitleTracks: StateFlow<List<PlayerTrack>>
     val availableVideoTracks: StateFlow<List<PlayerTrack>>
+    val playbackQualityGate: StateFlow<PlaybackQualityGateState?>
+        get() = emptyPlaybackQualityGateState.asStateFlow()
     val playbackSpeed: StateFlow<Float>
     val audioVideoOffsetMs: StateFlow<Int>
     val audioVideoSyncEnabled: StateFlow<Boolean>
@@ -104,8 +128,26 @@ interface PlayerEngine {
     fun setVodTrackPreferences(preferences: VodTrackPreferences?)
     fun setSubtitleStyle(style: PlayerSubtitleStyle)
     fun setNetworkQualityPreferences(wifiMaxHeight: Int?, ethernetMaxHeight: Int?)
+    fun setPlaybackQualityPreferences(preferences: PlaybackQualityPreferences) {
+        setNetworkQualityPreferences(
+            wifiMaxHeight = preferences.wifiLimit.maxVideoHeight,
+            ethernetMaxHeight = preferences.ethernetLimit.maxVideoHeight
+        )
+    }
+    fun setScopedPlaybackQualityPreferences(
+        providerDefault: ScopedPlaybackQualityPreference?,
+        contentPreference: ScopedPlaybackQualityPreference?,
+        temporarySelection: ScopedPlaybackQualityPreference? = null
+    ) {}
+    /** Applies one candidate-specific, source-session quality exception after explicit consent. */
+    fun continuePlaybackQualityOnce(candidateTrackId: String): Boolean = false
     fun selectAudioTrack(trackId: String)
     fun selectVideoTrack(trackId: String)
+    /** Returns false when the requested rendition is unavailable or violates an active limit. */
+    fun trySelectVideoTrack(trackId: String): Boolean {
+        selectVideoTrack(trackId)
+        return true
+    }
     fun selectSubtitleTrack(trackId: String?) // null to disable subtitles
     fun addExternalSubtitle(subtitleUri: android.net.Uri, language: String, label: String? = null)
     fun setInjectedSubtitleText(text: String?)
@@ -195,6 +237,14 @@ data class PlayerStats(
     val width: Int = 0,
     val height: Int = 0,
     val bandwidthEstimate: Long = 0,
+    val qualityLimitHeight: Int? = null,
+    val qualityLimitBitrateBps: Long? = null,
+    val qualityPolicySources: Set<PlaybackQualityConstraintSource> = emptySet(),
+    val decoderPressureHeight: Int? = null,
+    val decoderPressureBitrateBps: Int? = null,
+    val videoRenditionCapability: VideoRenditionCapability = VideoRenditionCapability.UNKNOWN,
+    val isTimeshiftPlayback: Boolean = false,
+    val isVideoTrackFixed: Boolean = false,
     val bufferedDurationMs: Long = 0,
     val rebufferCount: Int = 0,
     val ttffMs: Long = 0

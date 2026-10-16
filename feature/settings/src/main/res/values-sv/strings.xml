@@ -843,4 +843,15 @@
     <item quantity="one">Varje timme</item>
     <item quantity="other">Var %d:e timme</item>
 </plurals>
+    <string name="settings_quality_profile_title">Profil för uppspelningskvalitet</string>
+    <string name="settings_quality_profile_data_saver">Datasparläge</string>
+    <string name="settings_quality_profile_balanced">Balanserad</string>
+    <string name="settings_quality_profile_custom">Anpassad</string>
+    <string name="settings_quality_custom_height">Maximal videohöjd</string>
+    <string name="settings_quality_custom_bitrate">Maximal videobithastighet</string>
+    <string name="settings_quality_cap_no_limit">Ingen gräns</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maximal videobithastighet via Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maximal videobithastighet via Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Ingen ytterligare gräns</string>
 </resources>

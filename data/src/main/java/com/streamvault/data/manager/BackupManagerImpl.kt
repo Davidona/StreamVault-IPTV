@@ -27,6 +27,7 @@ import com.streamvault.data.local.dao.EpgSourceDao
 import com.streamvault.data.local.dao.FavoriteDao
 import com.streamvault.data.local.dao.MovieDao
 import com.streamvault.data.local.dao.PlaybackHistoryDao
+import com.streamvault.data.local.dao.PlaybackQualityPreferenceDao
 import com.streamvault.data.local.dao.ProviderDao
 import com.streamvault.data.local.dao.ProviderEpgSourceDao
 import com.streamvault.data.local.dao.ProviderSnapshotDao
@@ -43,6 +44,7 @@ import com.streamvault.data.local.entity.BackupRestoreItemEntity
 import com.streamvault.data.local.entity.BackupRestoreJobEntity
 import com.streamvault.data.local.entity.ChannelPreferenceEntity
 import com.streamvault.data.local.entity.ChannelEpgMappingEntity
+import com.streamvault.data.local.entity.PlaybackQualityPreferenceEntity
 import com.streamvault.data.local.entity.ProviderEpgSourceEntity
 import com.streamvault.data.local.entity.M3uClassificationOverrideEntity
 import com.streamvault.data.local.entity.M3uCategoryClassificationRuleEntity
@@ -53,6 +55,7 @@ import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.mapper.toEntity
 import com.streamvault.data.preferences.ParentalPinBackupData
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.preferences.toDomainPreference
 import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.data.provider.toLegacyProvider
@@ -83,6 +86,7 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.manager.ProtectedCategoryBackup
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.ProviderBackupSnapshot
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 import com.streamvault.domain.manager.CombinedM3uProfileBackup
 import com.streamvault.domain.manager.CombinedM3uProfileMemberBackup
 import com.streamvault.domain.manager.PortableCategoryReference
@@ -96,6 +100,7 @@ import com.streamvault.domain.manager.PortableHiddenContentBackup
 import com.streamvault.domain.manager.PortableContentPreferenceBackup
 import com.streamvault.domain.manager.PortableContentReference
 import com.streamvault.domain.manager.PortableVodTrackPreferenceBackup
+import com.streamvault.domain.manager.PortablePlaybackQualityPreferenceBackup
 import com.streamvault.domain.manager.PortableVariantChoiceBackup
 import com.streamvault.domain.manager.PortableManualEpgMappingV14Backup
 import com.streamvault.domain.manager.PortableMultiViewPresetV14Backup
@@ -122,6 +127,10 @@ import com.streamvault.domain.model.ProviderAccountRuntime
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScopeType
+import com.streamvault.domain.settings.QualityLimitOverride
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.repository.ProviderSnapshotRepository
 import com.streamvault.domain.model.StalkerBootstrapRecipe
@@ -191,7 +200,8 @@ class BackupManagerImpl @Inject constructor(
     private val m3uClassificationDao: M3uClassificationDao? = null,
     private val programReminderManager: ProgramReminderManager? = null,
     private val searchHistoryDao: SearchHistoryDao? = null,
-    private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null
+    private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null,
+    private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao? = null
 ) : BackupManager {
 
     internal suspend fun automaticSyncPreferenceBackup(providerEntities: List<ProviderEntity>): Map<String, String> {
@@ -294,6 +304,7 @@ class BackupManagerImpl @Inject constructor(
                 put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
                 put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
                 put("playerEthernetMaxVideoHeight", (preferencesRepository.playerEthernetMaxVideoHeight.first() ?: 0).toString())
+                put("playbackQualityPreferences", gson.toJson(preferencesRepository.playbackQualityPreferences.first()))
                 put("playerTimeshiftEnabled", preferencesRepository.playerTimeshiftEnabled.first().toString())
                 put("playerTimeshiftDepthMinutes", preferencesRepository.playerTimeshiftDepthMinutes.first().toString())
                 put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
@@ -2267,6 +2278,7 @@ class BackupManagerImpl @Inject constructor(
         var homeDefaultVirtualCategoryId: Long? = null
         var homeDefaultCategorySpecified = false
         var vodTrackPreferences: List<PortableVodTrackPreferenceBackup>? = null
+        var playbackQualityPreferences: List<PortablePlaybackQualityPreferenceBackup>? = null
         val seenFields = hashSetOf<String>()
 
         reader.beginObject()
@@ -2380,6 +2392,12 @@ class BackupManagerImpl @Inject constructor(
                     MAX_SECTION_ITEMS,
                     "VOD track preferences"
                 )
+                "playbackQualityPreferences" -> playbackQualityPreferences = readLimitedArray(
+                    reader,
+                    PORTABLE_PLAYBACK_QUALITY_PREFERENCE_TYPE,
+                    MAX_SECTION_ITEMS,
+                    "playback quality preferences"
+                )
                 "i" -> {
                     val element = gson.fromJson<JsonElement>(reader, JsonElement::class.java)
                     if (element?.isJsonArray == true && element.asJsonArray.any { it.isJsonObject }) {
@@ -2427,7 +2445,8 @@ class BackupManagerImpl @Inject constructor(
             homeDefaultCategory = homeDefaultCategory,
             homeDefaultVirtualCategoryId = homeDefaultVirtualCategoryId,
             homeDefaultCategorySpecified = homeDefaultCategorySpecified,
-            vodTrackPreferences = vodTrackPreferences
+            vodTrackPreferences = vodTrackPreferences,
+            playbackQualityPreferences = playbackQualityPreferences
         )
     }
 
@@ -2459,6 +2478,9 @@ class BackupManagerImpl @Inject constructor(
         }
         require(data.portableProviderPreferences?.vodTrackPreferences.orEmpty().size <= MAX_SECTION_ITEMS) {
             "Backup has too many VOD track preferences"
+        }
+        require(data.portableProviderPreferences?.playbackQualityPreferences.orEmpty().size <= MAX_SECTION_ITEMS) {
+            "Backup has too many playback quality preferences"
         }
         require(data.epgSources.orEmpty().size <= MAX_EPG_SOURCES) { "Backup has too many EPG sources" }
         require(data.providerEpgAssignments.orEmpty().size <= MAX_SECTION_ITEMS) {
@@ -3181,6 +3203,39 @@ class BackupManagerImpl @Inject constructor(
                 PortableVodTrackPreferenceBackup(contentReference, trackPreferences)
             }
             .distinctBy { it.content.provider to it.content.contentType to it.content.remoteContentId }
+        val playbackQualityPreferences = playbackQualityPreferenceDao?.getAllSync().orEmpty().mapNotNull { entity ->
+            val providerReference = referencesById[entity.providerId]
+                ?: run {
+                    unresolved += "Playback quality preference for provider ${entity.providerId} was not found during export"
+                    return@mapNotNull null
+                }
+            val scopeType = PlaybackQualityPreferenceScopeType.fromStorage(entity.scopeType)
+                ?: run {
+                    unresolved += "Playback quality preference has an unknown scope type"
+                    return@mapNotNull null
+                }
+            val scope = PlaybackQualityPreferenceScope(
+                providerId = entity.providerId,
+                type = scopeType,
+                key = entity.scopeKey,
+                identityVersion = entity.identityVersion
+            )
+            if (!scope.isValid()) {
+                unresolved += "Playback quality preference has an invalid stable scope key"
+                return@mapNotNull null
+            }
+            val preference = entity.toDomainPreference()
+            PortablePlaybackQualityPreferenceBackup(
+                provider = providerReference,
+                scopeType = scopeType.storageValue,
+                scopeKey = entity.scopeKey,
+                identityVersion = entity.identityVersion,
+                heightOverride = preference.maxVideoHeight.portableHeightMode(),
+                maxVideoHeight = preference.maxVideoHeight.portableHeight(),
+                bitrateOverride = preference.maxVideoBitrateBps.portableBitrateMode(),
+                maxVideoBitrateBps = preference.maxVideoBitrateBps.portableBitrate()
+            )
+        }.distinctBy { it.provider to it.scopeType to it.scopeKey to it.identityVersion }
         return PortableProviderPreferencesBackup(
             providers = referencesById.values.toList(),
             activeProvider = activeProvider,
@@ -3206,7 +3261,8 @@ class BackupManagerImpl @Inject constructor(
             homeDefaultCategory = homeDefaultCategory,
             homeDefaultVirtualCategoryId = homeDefaultId?.takeIf { it in PORTABLE_VIRTUAL_CATEGORY_IDS },
             homeDefaultCategorySpecified = homeDefaultId != null,
-            vodTrackPreferences = vodTrackPreferences
+            vodTrackPreferences = vodTrackPreferences,
+            playbackQualityPreferences = playbackQualityPreferences.takeIf { playbackQualityPreferenceDao != null }
         )
     }
 
@@ -3364,6 +3420,7 @@ class BackupManagerImpl @Inject constructor(
             put("playerDiagnosticsTimeoutSeconds", preferencesRepository.playerDiagnosticsTimeoutSeconds.first().toString())
             put("playerWifiMaxVideoHeight", (preferencesRepository.playerWifiMaxVideoHeight.first() ?: 0).toString())
             put("playerEthernetMaxVideoHeight", (preferencesRepository.playerEthernetMaxVideoHeight.first() ?: 0).toString())
+            put("playbackQualityPreferences", gson.toJson(preferencesRepository.playbackQualityPreferences.first()))
             put("playerTimeshiftEnabled", preferencesRepository.playerTimeshiftEnabled.first().toString())
             put("playerTimeshiftDepthMinutes", preferencesRepository.playerTimeshiftDepthMinutes.first().toString())
             put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
@@ -3394,6 +3451,12 @@ class BackupManagerImpl @Inject constructor(
             put(RESTORE_SNAPSHOT_PRESET_3, preferencesRepository.getMultiViewPreset(2).first().joinToString(","))
             channelPreferenceDao?.getAllSync()?.let { preferences ->
                 put(RESTORE_SNAPSHOT_CHANNEL_PREFERENCES, gson.toJson(preferences, CHANNEL_PREFERENCE_ENTITY_LIST_TYPE))
+            }
+            playbackQualityPreferenceDao?.getAllSync()?.let { preferences ->
+                put(
+                    RESTORE_SNAPSHOT_PLAYBACK_QUALITY_PREFERENCES,
+                    gson.toJson(preferences, PLAYBACK_QUALITY_PREFERENCE_ENTITY_LIST_TYPE)
+                )
             }
             providerEntities.forEach { provider ->
                 put(
@@ -3449,6 +3512,9 @@ class BackupManagerImpl @Inject constructor(
         snapshot[RESTORE_SNAPSHOT_CHANNEL_PREFERENCES]?.let { encoded ->
             restoreChannelPreferenceSnapshot(encoded)
         }
+        snapshot[RESTORE_SNAPSHOT_PLAYBACK_QUALITY_PREFERENCES]?.let { encoded ->
+            restorePlaybackQualityPreferenceSnapshot(encoded)
+        }
         snapshot["lastActiveProviderId"]?.toLongOrNull()?.let {
             preferencesRepository.setLastActiveProviderId(it)
         }
@@ -3463,6 +3529,16 @@ class BackupManagerImpl @Inject constructor(
         ).orEmpty()
         dao.deleteAll()
         preferences.forEach { preference -> dao.upsert(preference) }
+    }
+
+    private suspend fun restorePlaybackQualityPreferenceSnapshot(encoded: String) {
+        val dao = playbackQualityPreferenceDao ?: return
+        val preferences = gson.fromJson<List<PlaybackQualityPreferenceEntity>>(
+            encoded,
+            PLAYBACK_QUALITY_PREFERENCE_ENTITY_LIST_TYPE
+        ).orEmpty()
+        dao.deleteAll()
+        preferences.forEach { dao.upsert(it) }
     }
 
     private suspend fun restoreCheckpointMultiViewPresets(snapshot: Map<String, String>) {
@@ -3535,6 +3611,7 @@ class BackupManagerImpl @Inject constructor(
             portable.liveVariantSelections.forEach { add(it.provider) }
             portable.vodVariantSelections.forEach { add(it.provider) }
             portable.channelPreferences.forEach { add(it.channel.provider) }
+            portable.playbackQualityPreferences.orEmpty().forEach { add(it.provider) }
         }
         val resolvedProviders = referencedProviders.mapNotNull { reference ->
             resolveProvider(reference)?.let { reference to it }
@@ -3732,6 +3809,89 @@ class BackupManagerImpl @Inject constructor(
                     preferenceDao.deleteAll()
                     resolvedPreferences.forEach { preference -> preferenceDao.upsert(preference) }
                 }
+            }
+        }
+        portable.playbackQualityPreferences?.let { qualityPreferences ->
+            unresolved += restorePortablePlaybackQualityPreferences(
+                providerReferences = portable.providers,
+                entries = qualityPreferences,
+                storedProviders = storedProviders
+            )
+        }
+        return unresolved.distinct()
+    }
+
+    private suspend fun restorePortablePlaybackQualityPreferences(
+        providerReferences: List<BackupProviderReference>,
+        entries: List<PortablePlaybackQualityPreferenceBackup>,
+        storedProviders: List<Provider>
+    ): List<String> {
+        val dao = playbackQualityPreferenceDao
+            ?: return listOf("Scoped playback quality preference storage is unavailable")
+        val unresolved = mutableListOf<String>()
+        val allProviderReferences = (providerReferences + entries.map { it.provider }).distinct()
+        val resolvedProviders = allProviderReferences.associateWith { reference ->
+            storedProviders.findUnambiguousPortableProvider(reference)
+        }
+        val invalidProviders = mutableSetOf<BackupProviderReference>()
+        resolvedProviders.forEach { (reference, provider) ->
+            if (provider == null) {
+                unresolved += reference.unresolvedLabel("Playback quality preference provider")
+                invalidProviders += reference
+            }
+        }
+
+        val duplicateEntries = entries.groupBy { entry ->
+            listOf(entry.provider, entry.scopeType, entry.scopeKey, entry.identityVersion)
+        }.filterValues { it.size > 1 }.values.flatten().toSet()
+        duplicateEntries.map { it.provider }.distinct().forEach { provider ->
+            invalidProviders += provider
+            unresolved += provider.unresolvedLabel("Duplicate playback quality preference scope")
+        }
+
+        val validEntries = mutableMapOf<BackupProviderReference, MutableList<Pair<PlaybackQualityPreferenceScope, com.streamvault.domain.settings.ScopedPlaybackQualityPreference>>>()
+        entries.forEach { entry ->
+            val provider = resolvedProviders[entry.provider]
+            if (provider == null) return@forEach
+            if (entry in duplicateEntries) {
+                return@forEach
+            }
+            val scopeType = entry.scopeType?.let { value ->
+                PlaybackQualityPreferenceScopeType.fromStorage(value)
+                    ?: PlaybackQualityPreferenceScopeType.entries.firstOrNull { it.name == value }
+            }
+            val scopeKey = entry.scopeKey
+            if (scopeType == null || scopeKey == null) {
+                invalidProviders += entry.provider
+                unresolved += entry.provider.unresolvedLabel("Invalid playback quality preference scope")
+                return@forEach
+            }
+            val scope = PlaybackQualityPreferenceScope(
+                providerId = provider.id,
+                type = scopeType,
+                key = scopeKey,
+                identityVersion = entry.identityVersion
+            )
+            if (!scope.isValid()) {
+                invalidProviders += entry.provider
+                unresolved += entry.provider.unresolvedLabel("Invalid playback quality preference scope")
+                return@forEach
+            }
+            val preference = entry.toDomainPreferenceOrNull()
+            if (preference == null) {
+                invalidProviders += entry.provider
+                unresolved += entry.provider.unresolvedLabel("Invalid playback quality preference values")
+                return@forEach
+            }
+            validEntries.getOrPut(entry.provider) { mutableListOf() } += scope to preference
+        }
+
+        allProviderReferences.forEach { reference ->
+            val provider = resolvedProviders[reference] ?: return@forEach
+            if (reference in invalidProviders) return@forEach
+            dao.deleteByProvider(provider.id)
+            validEntries[reference].orEmpty().forEach { (scope, preference) ->
+                preferencesRepository.setPlaybackQualityPreference(scope, preference)
             }
         }
         return unresolved.distinct()
@@ -4007,8 +4167,17 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setPlayerNoticeTimeoutSeconds(it) }
         prefs["playerDiagnosticsTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerDiagnosticsTimeoutSeconds(it) }
-        preferencesRepository.setPlayerWifiMaxVideoHeight(prefs["playerWifiMaxVideoHeight"]?.toIntOrNull()?.takeIf { it > 0 })
-        preferencesRepository.setPlayerEthernetMaxVideoHeight(prefs["playerEthernetMaxVideoHeight"]?.toIntOrNull()?.takeIf { it > 0 })
+        prefs["playbackQualityPreferences"]?.let { encoded ->
+            runCatching { gson.fromJson(encoded, PlaybackQualityPreferences::class.java)?.normalized() }
+                .getOrNull()
+                ?.let { preferencesRepository.setPlaybackQualityPreferences(it) }
+        }
+        prefs["playerWifiMaxVideoHeight"]?.toIntOrNull()?.let { savedHeight ->
+            preferencesRepository.setPlayerWifiMaxVideoHeight(savedHeight.takeIf { it > 0 })
+        }
+        prefs["playerEthernetMaxVideoHeight"]?.toIntOrNull()?.let { savedHeight ->
+            preferencesRepository.setPlayerEthernetMaxVideoHeight(savedHeight.takeIf { it > 0 })
+        }
         prefs["playerTimeshiftEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerTimeshiftEnabled(it) }
         prefs["playerTimeshiftDepthMinutes"]?.toIntOrNull()
@@ -5906,6 +6075,40 @@ private val RAW_CHECKSUM_FIELD_PATTERN = Regex("\\\"checksum\\\"\\s*:\\s*\\\"[^\
     is com.streamvault.domain.model.JellyfinConfig -> ProviderBackupSnapshot(provider, accountRuntime, jellyfinConfig = this)
 }
 
+private fun QualityLimitOverride<Int>.portableHeightMode(): String = when (this) {
+    QualityLimitOverride.Inherit -> "INHERIT"
+    QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT"
+    is QualityLimitOverride.Maximum -> "MAXIMUM"
+}
+
+private fun QualityLimitOverride<Int>.portableHeight(): Int? =
+    (this as? QualityLimitOverride.Maximum)?.value?.takeIf { it > 0 }
+
+private fun QualityLimitOverride<Long>.portableBitrateMode(): String = when (this) {
+    QualityLimitOverride.Inherit -> "INHERIT"
+    QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT"
+    is QualityLimitOverride.Maximum -> "MAXIMUM"
+}
+
+private fun QualityLimitOverride<Long>.portableBitrate(): Long? =
+    (this as? QualityLimitOverride.Maximum)?.value?.takeIf { it > 0L }
+
+private fun PortablePlaybackQualityPreferenceBackup.toDomainPreferenceOrNull(): ScopedPlaybackQualityPreference? {
+    val height = when (heightOverride) {
+        "INHERIT" -> if (maxVideoHeight == null) QualityLimitOverride.Inherit else null
+        "NO_ADDITIONAL_LIMIT" -> if (maxVideoHeight == null) QualityLimitOverride.NoAdditionalLimit else null
+        "MAXIMUM" -> maxVideoHeight?.takeIf { it > 0 }?.let { QualityLimitOverride.Maximum(it) }
+        else -> null
+    } ?: return null
+    val bitrate = when (bitrateOverride) {
+        "INHERIT" -> if (maxVideoBitrateBps == null) QualityLimitOverride.Inherit else null
+        "NO_ADDITIONAL_LIMIT" -> if (maxVideoBitrateBps == null) QualityLimitOverride.NoAdditionalLimit else null
+        "MAXIMUM" -> maxVideoBitrateBps?.takeIf { it > 0L }?.let { QualityLimitOverride.Maximum(it) }
+        else -> null
+    } ?: return null
+    return ScopedPlaybackQualityPreference(height, bitrate)
+}
+
 private const val RESTORE_STATE_RUNNING = "RUNNING"
 private const val RESTORE_STATE_COMPLETE = "COMPLETE"
 private const val RESTORE_STATE_PARTIAL = "PARTIAL"
@@ -5915,7 +6118,8 @@ private const val RESTORE_SNAPSHOT_PRESET_1 = "__restore_snapshot_preset_1"
 private const val RESTORE_SNAPSHOT_PRESET_2 = "__restore_snapshot_preset_2"
 private const val RESTORE_SNAPSHOT_PRESET_3 = "__restore_snapshot_preset_3"
 private const val RESTORE_SNAPSHOT_CHANNEL_PREFERENCES = "__restore_snapshot_channel_preferences"
-private const val CURRENT_BACKUP_VERSION = 15
+private const val RESTORE_SNAPSHOT_PLAYBACK_QUALITY_PREFERENCES = "__restore_snapshot_playback_quality_preferences"
+private const val CURRENT_BACKUP_VERSION = 16
 private const val RESTORE_SECTION_FAVORITES = "FAVORITES"
 private const val RESTORE_SECTION_CUSTOM_GROUPS = "CUSTOM_GROUPS"
 private const val RESTORE_SECTION_PLAYBACK_HISTORY = "PLAYBACK_HISTORY"
@@ -5955,6 +6159,7 @@ private val PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE: Type = PortableChannelPr
 private val PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE: Type = PortableEpgTimeShiftReference::class.java
 private val PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE: Type = PortableVariantSelectionReference::class.java
 private val PORTABLE_VOD_TRACK_PREFERENCE_TYPE: Type = PortableVodTrackPreferenceBackup::class.java
+private val PORTABLE_PLAYBACK_QUALITY_PREFERENCE_TYPE: Type = PortablePlaybackQualityPreferenceBackup::class.java
 private val COMBINED_M3U_PROFILE_TYPE: Type = CombinedM3uProfileBackup::class.java
 private val COMBINED_M3U_PROFILE_LIST_TYPE: Type = object : TypeToken<List<CombinedM3uProfileBackup>>() {}.type
 private val ACTIVE_LIVE_SOURCE_BACKUP_TYPE: Type = ActiveLiveSourceBackup::class.java
@@ -6013,3 +6218,5 @@ private val PORTABLE_MULTIVIEW_PRESETS_TYPE: Type = object : TypeToken<Map<Strin
 private val PROTECTED_CATEGORY_LIST_TYPE: Type = object : TypeToken<List<ProtectedCategoryBackup>>() {}.type
 private val SCHEDULED_RECORDING_LIST_TYPE: Type = object : TypeToken<List<ScheduledRecordingBackup>>() {}.type
 private val CHANNEL_PREFERENCE_ENTITY_LIST_TYPE: Type = object : TypeToken<List<ChannelPreferenceEntity>>() {}.type
+private val PLAYBACK_QUALITY_PREFERENCE_ENTITY_LIST_TYPE: Type =
+    object : TypeToken<List<PlaybackQualityPreferenceEntity>>() {}.type

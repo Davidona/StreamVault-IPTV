@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
 
-internal const val STREAM_VAULT_DATABASE_VERSION = 82
+internal const val STREAM_VAULT_DATABASE_VERSION = 83
 
 @Database(
     entities = [
@@ -21,6 +21,7 @@ internal const val STREAM_VAULT_DATABASE_VERSION = 82
         ProviderAccountRuntimeEntity::class,
         ChannelEntity::class,
         ChannelPreferenceEntity::class,
+        PlaybackQualityPreferenceEntity::class,
         ChannelFtsEntity::class,
         MovieEntity::class,
         MovieFtsEntity::class,
@@ -84,6 +85,7 @@ abstract class StreamVaultDatabase : RoomDatabase() {
     abstract fun providerSnapshotDao(): ProviderSnapshotDao
     abstract fun channelDao(): ChannelDao
     abstract fun channelPreferenceDao(): ChannelPreferenceDao
+    abstract fun playbackQualityPreferenceDao(): PlaybackQualityPreferenceDao
     abstract fun movieDao(): MovieDao
     abstract fun seriesDao(): SeriesDao
     abstract fun episodeDao(): EpisodeDao
@@ -212,5 +214,6 @@ abstract class StreamVaultDatabase : RoomDatabase() {
         val MIGRATION_79_80 = FeatureMigrationsV79To80.MIGRATION_79_80
         val MIGRATION_80_81 = FeatureMigrationsV80To81.MIGRATION_80_81
         val MIGRATION_81_82 = FeatureMigrationsV81To82.MIGRATION_81_82
+        val MIGRATION_82_83 = FeatureMigrationsV82To83.MIGRATION_82_83
     }
 }

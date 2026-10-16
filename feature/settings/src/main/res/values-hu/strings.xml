@@ -843,4 +843,15 @@
         <item quantity="one">Minden %d órában</item>
         <item quantity="other">Minden %d órában</item>
     </plurals>
+    <string name="settings_quality_profile_title">Lejátszási minőségi profil</string>
+    <string name="settings_quality_profile_data_saver">Adattakarékos</string>
+    <string name="settings_quality_profile_balanced">Kiegyensúlyozott</string>
+    <string name="settings_quality_profile_custom">Egyéni</string>
+    <string name="settings_quality_custom_height">Maximális videómagasság</string>
+    <string name="settings_quality_custom_bitrate">Maximális videó bitráta</string>
+    <string name="settings_quality_cap_no_limit">Nincs korlát</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maximális videó bitráta Wi-Fi-hálózaton</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maximális videó bitráta Ethernet-hálózaton</string>
+    <string name="settings_quality_cap_no_additional_limit">Nincs további korlát</string>
 </resources>

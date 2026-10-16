@@ -214,6 +214,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(wifiMaxVideoHeight = wifiMaxVideoHeight)
     }.combine(preferencesRepository.playerEthernetMaxVideoHeight) { snapshot, ethernetMaxVideoHeight ->
         snapshot.copy(ethernetMaxVideoHeight = ethernetMaxVideoHeight)
+    }.combine(preferencesRepository.playbackQualityPreferences) { snapshot, playbackQualityPreferences ->
+        snapshot.copy(playbackQualityPreferences = playbackQualityPreferences)
     }.combine(preferencesRepository.playerTimeshiftEnabled) { snapshot, enabled ->
         snapshot.copy(playerTimeshiftEnabled = enabled)
     }.combine(preferencesRepository.playerTimeshiftDepthMinutes) { snapshot, depthMinutes ->

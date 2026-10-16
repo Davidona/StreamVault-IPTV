@@ -259,4 +259,40 @@
     <string name="series_seasons">Seasons</string>
     <string name="settings_recording_status_recording">Recording</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Save current resolution as an adaptive limit</string>
+    <string name="player_quality_remove_saved_limit">Remove saved resolution limit</string>
+    <string name="player_quality_use_session_limit">Limit this playback to the current resolution</string>
+    <string name="player_quality_clear_session_limit">Clear temporary quality limit</string>
+
+    <string name="player_quality_gate_title">Playback paused by quality limits</string>
+    <string name="player_quality_gate_message">No available video quality fits your limits. Review the offered quality and details before continuing.</string>
+    <string name="player_quality_gate_offer">Offered video quality: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Height %1$d p exceeds your %2$d p limit.</string>
+    <string name="player_quality_gate_height_unknown">Video height is unknown; your limit is %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Bitrate %1$s Mbps exceeds your %2$s Mbps limit.</string>
+    <string name="player_quality_gate_bitrate_unknown">Video bitrate is unknown; your limit is %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Continue once</string>
+    <string name="player_video_quality_selection_blocked">This video quality does not fit your playback limits.</string>
+
+    <string name="player_diagnostics_quality_limits">Quality limits</string>
+    <string name="player_diagnostics_quality_reasons">Limiting factors</string>
+    <string name="player_diagnostics_quality_source_preferences">Playback preferences</string>
+    <string name="player_diagnostics_quality_source_device">Device compatibility</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Decoder pressure</string>
+    <string name="player_diagnostics_quality_height_summary">Resolution: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
+
+    <string name="player_diagnostics_quality_capability">Video source capability</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptive renditions</string>
+    <string name="player_diagnostics_quality_capability_single">Single or fixed rendition</string>
+    <string name="player_diagnostics_quality_capability_unknown">Unknown</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Timeshift source</string>
+    <string name="player_quality_save_bitrate_as_limit">Save current video bitrate as a maximum</string>
+    <string name="player_quality_inherit_height_limit">Use inherited height limit</string>
+    <string name="player_quality_inherit_bitrate_limit">Use inherited bitrate limit</string>
+    <string name="player_quality_no_additional_height_limit">No additional height limit for this content</string>
+    <string name="player_quality_no_additional_bitrate_limit">No additional bitrate limit for this content</string>
+    <string name="player_quality_mode_auto">Automatic (adaptive)</string>
+    <string name="player_quality_mode_fixed">Fixed track</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast receiver selects quality; these limits are not enforced.</string>
 </resources>

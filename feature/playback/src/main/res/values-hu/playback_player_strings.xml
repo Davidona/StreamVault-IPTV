@@ -259,4 +259,40 @@
     <string name="player_diagnostics_stream_bitrate">Stream bitráta</string>
     <string name="player_diagnostics_bandwidth_estimate">Hálózati sávszélesség</string>
     <string name="player_diagnostics_frame_rate">Képkockasebesség</string>
+    <string name="player_quality_save_as_limit">Aktuális felbontás mentése adaptív korlátként</string>
+    <string name="player_quality_remove_saved_limit">Mentett felbontási korlát eltávolítása</string>
+    <string name="player_quality_use_session_limit">Lejátszás korlátozása az aktuális felbontásra</string>
+    <string name="player_quality_clear_session_limit">Ideiglenes minőségi korlát eltávolítása</string>
+
+    <string name="player_quality_gate_title">A lejátszás szünetel a minőségi korlátok miatt</string>
+    <string name="player_quality_gate_message">Egyik elérhető videóminőség sem felel meg a korlátoknak. Folytatás előtt ellenőrizd a felajánlott minőséget és a részleteket.</string>
+    <string name="player_quality_gate_offer">Felajánlott videóminőség: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">A %1$d p magasság meghaladja a %2$d p korlátot.</string>
+    <string name="player_quality_gate_height_unknown">A videó magassága ismeretlen; a korlát %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">A %1$s Mbps bitráta meghaladja a %2$s Mbps korlátot.</string>
+    <string name="player_quality_gate_bitrate_unknown">A videó bitrátája ismeretlen; a korlát %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Folytatás egyszer</string>
+
+    <string name="player_diagnostics_quality_limits">Minőségi korlátok</string>
+    <string name="player_diagnostics_quality_reasons">Korlátozó tényezők</string>
+    <string name="player_diagnostics_quality_source_preferences">Lejátszási beállítások</string>
+    <string name="player_diagnostics_quality_source_device">Eszközkompatibilitás</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Dekóderterhelés</string>
+
+    <string name="player_diagnostics_quality_capability">Videoforrás képessége</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptív minőségek</string>
+    <string name="player_diagnostics_quality_capability_single">Egyetlen vagy rögzített minőség</string>
+    <string name="player_diagnostics_quality_capability_unknown">Ismeretlen</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Időeltolásos forrás</string>
+    <string name="player_quality_save_bitrate_as_limit">Jelenlegi videóbitráta mentése felső határként</string>
+    <string name="player_quality_inherit_height_limit">Örökölt magasságkorlát használata</string>
+    <string name="player_quality_inherit_bitrate_limit">Örökölt bitrátakorlát használata</string>
+    <string name="player_quality_no_additional_height_limit">Nincs további magasságkorlát ennél a tartalomnál</string>
+    <string name="player_quality_no_additional_bitrate_limit">Nincs további bitrátakorlát ennél a tartalomnál</string>
+    <string name="player_quality_mode_auto">Automatikus (adaptív) választás</string>
+    <string name="player_quality_mode_fixed">Rögzített sáv</string>
+    <string name="player_diagnostics_quality_cast_unavailable">A Cast-vevő választja ki a minőséget; ezek a korlátok nem érvényesülnek.</string>
+    <string name="player_video_quality_selection_blocked">Ez a videóminőség nem felel meg a lejátszási korlátozásaidnak.</string>
+    <string name="player_diagnostics_quality_height_summary">Felbontás: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitráta: %1$s Mbps</string>
 </resources>

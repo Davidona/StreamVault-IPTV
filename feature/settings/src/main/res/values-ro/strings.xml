@@ -846,4 +846,15 @@
 <string name="settings_vod_portal_search_off">Folosiți catalogul VOD indexat local pentru căutare.</string>
 <string name="settings_vod_portal_search_on">Cere portalurilor Stalker să caute VOD înainte ca întregul catalog să fie indexat.</string>
 <string name="settings_backup_credentials_notice">Fișierele de backup includ parolele furnizorilor în formă lizibilă, astfel încât conturile restaurate să se poată reconecta. Păstrați-le și partajați-le doar cu persoane de încredere.</string>
+    <string name="settings_quality_profile_title">Profil de calitate a redării</string>
+    <string name="settings_quality_profile_data_saver">Economisire de date</string>
+    <string name="settings_quality_profile_balanced">Echilibrat</string>
+    <string name="settings_quality_profile_custom">Personalizat</string>
+    <string name="settings_quality_custom_height">Înălțime video maximă</string>
+    <string name="settings_quality_custom_bitrate">Rată maximă de biți video</string>
+    <string name="settings_quality_cap_no_limit">Fără limită</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Rată maximă de biți video prin Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Rată maximă de biți video prin Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Fără limită suplimentară</string>
 </resources>

@@ -843,4 +843,15 @@
         <item quantity="one">هر %d ساعت</item>
         <item quantity="other">هر %d ساعت</item>
     </plurals>
+    <string name="settings_quality_profile_title">نمایه کیفیت پخش</string>
+    <string name="settings_quality_profile_data_saver">صرفه‌جویی در داده</string>
+    <string name="settings_quality_profile_balanced">متعادل</string>
+    <string name="settings_quality_profile_custom">سفارشی</string>
+    <string name="settings_quality_custom_height">بیشترین ارتفاع ویدیو</string>
+    <string name="settings_quality_custom_bitrate">بیشترین نرخ بیت ویدیو</string>
+    <string name="settings_quality_cap_no_limit">بدون محدودیت</string>
+    <string name="settings_quality_cap_mbps">%1$d مگابیت‌برثانیه</string>
+    <string name="settings_wifi_quality_bitrate_cap">بیشترین نرخ بیت ویدیو در Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">بیشترین نرخ بیت ویدیو در Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">بدون محدودیت اضافی</string>
 </resources>

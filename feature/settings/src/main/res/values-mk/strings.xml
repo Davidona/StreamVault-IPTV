@@ -843,4 +843,15 @@
         <item quantity="one">На секој %d час</item>
         <item quantity="other">На секои %d часа</item>
     </plurals>
+    <string name="settings_quality_profile_title">Профил за квалитет на репродукција</string>
+    <string name="settings_quality_profile_data_saver">Заштеда на податоци</string>
+    <string name="settings_quality_profile_balanced">Балансирано</string>
+    <string name="settings_quality_profile_custom">Прилагодено</string>
+    <string name="settings_quality_custom_height">Максимална висина на видеото</string>
+    <string name="settings_quality_custom_bitrate">Максимална бит-стапка на видеото</string>
+    <string name="settings_quality_cap_no_limit">Без ограничување</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Максимална бит-стапка на видеото преку Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Максимална бит-стапка на видеото преку Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Нема дополнително ограничување</string>
 </resources>

@@ -50,6 +50,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         playerLiveTranslationEndpoint = snapshot.playerLiveTranslationEndpoint,
         wifiMaxVideoHeight = snapshot.wifiMaxVideoHeight,
         ethernetMaxVideoHeight = snapshot.ethernetMaxVideoHeight,
+        playbackQualityPreferences = snapshot.playbackQualityPreferences,
         playerTimeshiftEnabled = snapshot.playerTimeshiftEnabled,
         playerTimeshiftDepthMinutes = snapshot.playerTimeshiftDepthMinutes,
         playerTimeshiftBackend = snapshot.playerTimeshiftBackend,

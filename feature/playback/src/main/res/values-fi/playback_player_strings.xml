@@ -259,4 +259,40 @@
     <string name="player_subtitle_delay_action">Tekstityksen viive (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Sulje</string>
     <string name="player_diagnostics_video_decoder_mode">Videodekooderin tila</string>
+    <string name="player_quality_save_as_limit">Tallenna nykyinen tarkkuus mukautuvaksi rajaksi</string>
+    <string name="player_quality_remove_saved_limit">Poista tallennettu tarkkuusraja</string>
+    <string name="player_quality_use_session_limit">Rajoita tämä toisto nykyiseen tarkkuuteen</string>
+    <string name="player_quality_clear_session_limit">Poista väliaikainen laaturaja</string>
+
+    <string name="player_quality_gate_title">Toisto keskeytetty laaturajojen vuoksi</string>
+    <string name="player_quality_gate_message">Mikään saatavilla oleva videolaatu ei sovi rajoihisi. Tarkista tarjottu laatu ja tiedot ennen jatkamista.</string>
+    <string name="player_quality_gate_offer">Tarjottu videolaatu: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Korkeus %1$d p ylittää rajasi %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Videon korkeus ei ole tiedossa; rajasi on %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Bittinopeus %1$s Mbps ylittää rajasi %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Videon bittinopeus ei ole tiedossa; rajasi on %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Jatka kerran</string>
+
+    <string name="player_diagnostics_quality_limits">Laaturajat</string>
+    <string name="player_diagnostics_quality_reasons">Rajoittavat tekijät</string>
+    <string name="player_diagnostics_quality_source_preferences">Toistoasetukset</string>
+    <string name="player_diagnostics_quality_source_device">Laitteen yhteensopivuus</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Dekooderin kuormitus</string>
+
+    <string name="player_diagnostics_quality_capability">Videolähteen ominaisuudet</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Mukautuvat laadut</string>
+    <string name="player_diagnostics_quality_capability_single">Yksi tai kiinteä laatu</string>
+    <string name="player_diagnostics_quality_capability_unknown">Tuntematon</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Aikasiirto lähde</string>
+    <string name="player_quality_save_bitrate_as_limit">Tallenna nykyinen videon bittinopeus enimmäisarvoksi</string>
+    <string name="player_quality_inherit_height_limit">Käytä perittyä korkeusrajaa</string>
+    <string name="player_quality_inherit_bitrate_limit">Käytä perittyä bittinopeusrajaa</string>
+    <string name="player_quality_no_additional_height_limit">Ei lisäkorkeusrajaa tälle sisällölle</string>
+    <string name="player_quality_no_additional_bitrate_limit">Ei lisäbittinopeusrajaa tälle sisällölle</string>
+    <string name="player_quality_mode_auto">Automaattinen (mukautuva) valinta</string>
+    <string name="player_quality_mode_fixed">Kiinteä raita</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast-vastaanotin valitsee laadun; näitä rajoja ei valvota.</string>
+    <string name="player_video_quality_selection_blocked">Tämä videon laatu ei sovi toiston rajoituksiisi.</string>
+    <string name="player_diagnostics_quality_height_summary">Tarkkuus: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bittinopeus: %1$s Mbit/s</string>
 </resources>

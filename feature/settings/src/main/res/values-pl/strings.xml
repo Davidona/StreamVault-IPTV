@@ -849,4 +849,15 @@
     <item quantity="many">Co %d godzin</item>
     <item quantity="other">Co %d godziny</item>
 </plurals>
+    <string name="settings_quality_profile_title">Profil jakości odtwarzania</string>
+    <string name="settings_quality_profile_data_saver">Oszczędzanie danych</string>
+    <string name="settings_quality_profile_balanced">Zrównoważony</string>
+    <string name="settings_quality_profile_custom">Niestandardowy</string>
+    <string name="settings_quality_custom_height">Maksymalna wysokość wideo</string>
+    <string name="settings_quality_custom_bitrate">Maksymalna przepływność wideo</string>
+    <string name="settings_quality_cap_no_limit">Bez limitu</string>
+    <string name="settings_quality_cap_mbps">%1$d Mb/s</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maksymalna przepływność wideo przez Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maksymalna przepływność wideo przez Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Brak dodatkowego limitu</string>
 </resources>

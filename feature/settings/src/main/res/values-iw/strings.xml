@@ -846,4 +846,15 @@
 <string name="settings_live_clock_position">מיקום השעון</string>
 <string name="settings_theme_classic_blue">כחול קלאסי</string>
 <string name="settings_title">הגדרות</string>
+    <string name="settings_quality_profile_title">פרופיל איכות הפעלה</string>
+    <string name="settings_quality_profile_data_saver">חיסכון בנתונים</string>
+    <string name="settings_quality_profile_balanced">מאוזן</string>
+    <string name="settings_quality_profile_custom">מותאם אישית</string>
+    <string name="settings_quality_custom_height">גובה וידאו מרבי</string>
+    <string name="settings_quality_custom_bitrate">קצב סיביות מרבי של וידאו</string>
+    <string name="settings_quality_cap_no_limit">ללא הגבלה</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">קצב סיביות מרבי של וידאו ב-Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">קצב סיביות מרבי של וידאו ב-Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">ללא מגבלה נוספת</string>
 </resources>

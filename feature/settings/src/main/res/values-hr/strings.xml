@@ -846,4 +846,15 @@
         <item quantity="few">Svaka %d sata</item>
         <item quantity="other">Svakih %d sati</item>
     </plurals>
+    <string name="settings_quality_profile_title">Profil kvalitete reprodukcije</string>
+    <string name="settings_quality_profile_data_saver">Ušteda podataka</string>
+    <string name="settings_quality_profile_balanced">Uravnoteženo</string>
+    <string name="settings_quality_profile_custom">Prilagođeno</string>
+    <string name="settings_quality_custom_height">Maksimalna visina videozapisa</string>
+    <string name="settings_quality_custom_bitrate">Maksimalna brzina prijenosa videozapisa</string>
+    <string name="settings_quality_cap_no_limit">Bez ograničenja</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maksimalna brzina prijenosa videozapisa putem Wi-Fi mreže</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maksimalna brzina prijenosa videozapisa putem Ethernet mreže</string>
+    <string name="settings_quality_cap_no_additional_limit">Bez dodatnog ograničenja</string>
 </resources>

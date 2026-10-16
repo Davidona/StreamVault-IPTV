@@ -259,4 +259,40 @@
     <string name="player_skip_recap">Rückblick überspringen</string>
     <string name="player_skip_outro">Abspann überspringen</string>
     <string name="player_track_live_translation">Echtzeit-Übersetzung</string>
+    <string name="player_quality_save_as_limit">Aktuelle Auflösung als adaptive Grenze speichern</string>
+    <string name="player_quality_remove_saved_limit">Gespeicherte Auflösungsgrenze entfernen</string>
+    <string name="player_quality_use_session_limit">Diese Wiedergabe auf die aktuelle Auflösung begrenzen</string>
+    <string name="player_quality_clear_session_limit">Temporäre Qualitätsgrenze entfernen</string>
+
+    <string name="player_quality_gate_title">Wiedergabe wegen Qualitätsgrenzen pausiert</string>
+    <string name="player_quality_gate_message">Keine verfügbare Videoqualität entspricht deinen Grenzen. Prüfe das angebotene Video und die Details, bevor du fortfährst.</string>
+    <string name="player_quality_gate_offer">Angebotene Videoqualität: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Die Höhe von %1$d p überschreitet dein Limit von %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Die Videohöhe ist unbekannt; dein Limit beträgt %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Die Bitrate von %1$s Mbps überschreitet dein Limit von %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Die Videobitrate ist unbekannt; dein Limit beträgt %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Einmal fortfahren</string>
+
+    <string name="player_diagnostics_quality_limits">Qualitätsgrenzen</string>
+    <string name="player_diagnostics_quality_reasons">Begrenzende Faktoren</string>
+    <string name="player_diagnostics_quality_source_preferences">Wiedergabeeinstellungen</string>
+    <string name="player_diagnostics_quality_source_device">Gerätekompatibilität</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Decoderbelastung</string>
+
+    <string name="player_diagnostics_quality_capability">Fähigkeit der Videoquelle</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Adaptive Qualitätsstufen</string>
+    <string name="player_diagnostics_quality_capability_single">Einzelne oder feste Qualität</string>
+    <string name="player_diagnostics_quality_capability_unknown">Unbekannt</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Timeshift-Quelle</string>
+    <string name="player_quality_save_bitrate_as_limit">Aktuelle Videobitrate als Maximum speichern</string>
+    <string name="player_quality_inherit_height_limit">Geerbte Höhenbegrenzung verwenden</string>
+    <string name="player_quality_inherit_bitrate_limit">Geerbte Bitratenbegrenzung verwenden</string>
+    <string name="player_quality_no_additional_height_limit">Keine zusätzliche Höhenbegrenzung für diesen Inhalt</string>
+    <string name="player_quality_no_additional_bitrate_limit">Keine zusätzliche Bitratenbegrenzung für diesen Inhalt</string>
+    <string name="player_quality_mode_auto">Automatisch (adaptiv)</string>
+    <string name="player_quality_mode_fixed">Feste Spur</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Der Cast-Empfänger wählt die Qualität; diese Limits werden nicht durchgesetzt.</string>
+    <string name="player_video_quality_selection_blocked">Diese Videoqualität passt nicht zu deinen Wiedergabelimits.</string>
+    <string name="player_diagnostics_quality_height_summary">Auflösung: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbit/s</string>
 </resources>

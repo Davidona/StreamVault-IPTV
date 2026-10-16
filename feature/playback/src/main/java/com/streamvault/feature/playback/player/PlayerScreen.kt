@@ -121,6 +121,8 @@ fun PlayerScreen(
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
     episodeId: Long? = null,
+    remoteContentId: String? = null,
+    remoteSeriesId: String? = null,
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
@@ -156,6 +158,7 @@ fun PlayerScreen(
         ?: false
     val playerEngine by viewModel.activePlayerEngine.collectAsStateWithLifecycle()
     val playbackState by playerEngine.playbackState.collectAsStateWithLifecycle()
+    val playbackQualityGate by playerEngine.playbackQualityGate.collectAsStateWithLifecycle()
     val isPlaying by playerEngine.isPlaying.collectAsStateWithLifecycle()
     val renderSurfaceType by playerEngine.renderSurfaceType.collectAsStateWithLifecycle()
     val showControls by viewModel.showControls.collectAsStateWithLifecycle()
@@ -223,6 +226,7 @@ fun PlayerScreen(
             PlaybackPictureInPictureState(
                 enabled = streamUrl.isNotBlank()
                     && playbackState != PlaybackState.ERROR
+                    && playbackQualityGate == null
                     && (isPlaying || playbackState == PlaybackState.READY || playbackState == PlaybackState.BUFFERING),
                 isPlaying = isPlaying,
                 videoWidth = videoFormat.width,
@@ -353,7 +357,9 @@ fun PlayerScreen(
             seriesId = seriesId,
             seasonNumber = seasonNumber,
             episodeNumber = episodeNumber,
-            episodeId = episodeId
+            episodeId = episodeId,
+            remoteContentId = remoteContentId,
+            remoteSeriesId = remoteSeriesId
         )
     }
 
@@ -448,6 +454,7 @@ fun PlayerScreen(
                     hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
                     hasAutoPlayCountdown = autoPlayCountdown != null,
                     hasPlayerNotice = playerNotice != null,
+                    hasPlaybackQualityGate = playbackQualityGate != null,
                     showProgramHistory = modalState.showProgramHistory,
                     showSplitDialog = modalState.showSplitDialog,
                     showEpisodePicker = modalState.showEpisodePicker,
@@ -496,6 +503,7 @@ fun PlayerScreen(
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
                 PlayerBackAction.CANCEL_CLOSE_PLAYBACK -> dismissClosePlaybackConfirmation()
+                PlayerBackAction.QUALITY_GATE_ACTIVE -> Unit
                 PlayerBackAction.NAVIGATE_BACK -> {
                     if (playerPreferences.confirmClosePlayback) {
                         openClosePlaybackConfirmation()
@@ -1015,6 +1023,21 @@ fun PlayerScreen(
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
                 onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
                 onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
+            )
+        }
+        playbackQualityGate?.let { gate ->
+            PlayerQualityGateOverlay(
+                state = gate,
+                hasAlternateSource = viewModel.hasAlternateStream(),
+                onContinueOnce = playerEngine::continuePlaybackQualityOnce,
+                onTryAlternateSource = {
+                    viewModel.runPlayerNoticeAction(PlayerNoticeAction.ALTERNATE_STREAM)
+                },
+                onStop = {
+                    playerEngine.stop()
+                    onBack()
+                },
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

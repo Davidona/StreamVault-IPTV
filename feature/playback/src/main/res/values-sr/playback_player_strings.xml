@@ -260,4 +260,40 @@
     <string name="series_seasons">Сезоне</string>
     <string name="settings_recording_status_recording">Снимање</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">Сачувај тренутну резолуцију као прилагодљиво ограничење</string>
+    <string name="player_quality_remove_saved_limit">Уклони сачувано ограничење резолуције</string>
+    <string name="player_quality_use_session_limit">Ограничи ову репродукцију на тренутну резолуцију</string>
+    <string name="player_quality_clear_session_limit">Уклони привремено ограничење квалитета</string>
+
+    <string name="player_quality_gate_title">Репродукција је паузирана због ограничења квалитета</string>
+    <string name="player_quality_gate_message">Ниједан доступан видео квалитет не одговара вашим ограничењима. Проверите понуђени квалитет и детаље пре наставка.</string>
+    <string name="player_quality_gate_offer">Понуђени видео квалитет: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Висина од %1$d p премашује ограничење од %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Висина видеа није позната; ограничење је %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Брзина преноса од %1$s Mbps премашује ограничење од %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Брзина преноса видеа није позната; ограничење је %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Настави једном</string>
+
+    <string name="player_diagnostics_quality_limits">Ограничења квалитета</string>
+    <string name="player_diagnostics_quality_reasons">Ограничавајући фактори</string>
+    <string name="player_diagnostics_quality_source_preferences">Подешавања репродукције</string>
+    <string name="player_diagnostics_quality_source_device">Компатибилност уређаја</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Оптерећење декодера</string>
+
+    <string name="player_diagnostics_quality_capability">Могућности видео извора</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Адаптивни квалитети</string>
+    <string name="player_diagnostics_quality_capability_single">Један или фиксни квалитет</string>
+    <string name="player_diagnostics_quality_capability_unknown">Непознато</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Извор са временским помаком</string>
+    <string name="player_quality_save_bitrate_as_limit">Сачувај тренутни проток видео-садржаја као максимум</string>
+    <string name="player_quality_inherit_height_limit">Користи наслеђено ограничење висине</string>
+    <string name="player_quality_inherit_bitrate_limit">Користи наслеђено ограничење протока</string>
+    <string name="player_quality_no_additional_height_limit">Без додатног ограничења висине за овај садржај</string>
+    <string name="player_quality_no_additional_bitrate_limit">Без додатног ограничења протока за овај садржај</string>
+    <string name="player_quality_mode_auto">Аутоматски (прилагодљиви) избор</string>
+    <string name="player_quality_mode_fixed">Фиксна нумера</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Cast пријемник бира квалитет; ова ограничења се не примењују.</string>
+    <string name="player_video_quality_selection_blocked">Ovaj kvalitet video-snimka ne odgovara ograničenjima reprodukcije.</string>
+    <string name="player_diagnostics_quality_height_summary">Rezolucija: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Brzina protoka: %1$s Mbps</string>
 </resources>

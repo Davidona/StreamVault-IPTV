@@ -295,6 +295,29 @@ data class ChannelPreferenceEntity(
 )
 
 @Entity(
+    tableName = "playback_quality_preferences",
+    primaryKeys = ["provider_id", "scope_type", "scope_key"],
+    foreignKeys = [ForeignKey(
+        entity = ProviderEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["provider_id"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(value = ["provider_id"])]
+)
+data class PlaybackQualityPreferenceEntity(
+    @ColumnInfo(name = "provider_id") val providerId: Long,
+    @ColumnInfo(name = "scope_type") val scopeType: String,
+    @ColumnInfo(name = "scope_key") val scopeKey: String,
+    @ColumnInfo(name = "identity_version", defaultValue = "1") val identityVersion: Int = 1,
+    @ColumnInfo(name = "height_override") val heightOverride: String,
+    @ColumnInfo(name = "max_video_height") val maxVideoHeight: Int?,
+    @ColumnInfo(name = "bitrate_override") val bitrateOverride: String,
+    @ColumnInfo(name = "max_video_bitrate_bps") val maxVideoBitrateBps: Long?,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis()
+)
+
+@Entity(
     tableName = "playback_compatibility_records",
     indices = [
         Index(

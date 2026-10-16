@@ -840,4 +840,15 @@
 <plurals name="settings_auto_sync_hours">
         <item quantity="other">Mỗi %d giờ</item>
     </plurals>
+    <string name="settings_quality_profile_title">Hồ sơ chất lượng phát</string>
+    <string name="settings_quality_profile_data_saver">Tiết kiệm dữ liệu</string>
+    <string name="settings_quality_profile_balanced">Cân bằng</string>
+    <string name="settings_quality_profile_custom">Tùy chỉnh</string>
+    <string name="settings_quality_custom_height">Chiều cao video tối đa</string>
+    <string name="settings_quality_custom_bitrate">Tốc độ bit video tối đa</string>
+    <string name="settings_quality_cap_no_limit">Không giới hạn</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Tốc độ bit video tối đa qua Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Tốc độ bit video tối đa qua Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Không có giới hạn bổ sung</string>
 </resources>

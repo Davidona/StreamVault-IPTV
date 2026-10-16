@@ -14,11 +14,12 @@ Every schema change must satisfy this checklist before the database version is a
 
 ## Current verification requirements
 
-- Current schema: v81.
-- Exported historical origins: v1 and v3-v80; v2 has no committed Room schema export.
-- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v81 plus populated direct/multi-hop preservation fixtures.
+- Current schema: v83.
+- Exported historical origins: v1 and v3-v83; v2 has no committed Room schema export.
+- Required migration coverage: `StreamVaultDatabaseMigrationTest` must validate exported origins through v83 plus populated direct/multi-hop preservation fixtures.
 - Migration 78 → 79 scopes episode uniqueness to the owning series and expires hydrated series detail timestamps.
 - Migration 79 → 80 adds the four Xtream live receipt columns; migration 80 → 81 creates the durable Stalker live-category retry table and its provider index.
+- Migration 82 → 83 adds sparse provider/content playback-quality preference storage with provider-delete cascade. Schema 83 is exported; migration test coverage for this hop remains pending.
 - Versions 79 and 80 were reordered during branch integration. The discarded branch schemas have no upgrade users and are not supported migration origins; their episode-index repair is intentionally omitted.
 
 ## Validation (2026-10-10)

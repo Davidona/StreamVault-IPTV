@@ -39,7 +39,7 @@ fun NavGraphBuilder.registerCatalogGraph(
     onOpenSeriesDetail: (Series, AppDestination) -> Unit,
     onPlayChannel: (Channel, CatalogChannelPlaybackContext) -> Unit,
     onPlayMovie: (Movie, AppDestination) -> Unit,
-    onPlayEpisode: (Episode, AppDestination) -> Unit,
+    onPlayEpisode: (Episode, Series, AppDestination) -> Unit,
     onPlayHistory: (PlaybackHistory, AppDestination) -> Unit,
     consumeMoviePresentationHint: (NavBackStackEntry) -> Unit,
     consumeSeriesPresentationHint: (NavBackStackEntry) -> Unit,
@@ -187,9 +187,10 @@ fun NavGraphBuilder.registerCatalogGraph(
             ?.let(decodeDestination)
         val seriesId = backStackEntry.arguments?.getLong("seriesId") ?: -1L
         SeriesDetailScreen(
-            onEpisodeClick = { episode ->
+            onEpisodeClick = { episode, series ->
                 onPlayEpisode(
                     episode,
+                    series,
                     AppDestination.SeriesDetail(
                         seriesId = episode.seriesId.takeIf { it > 0L } ?: seriesId,
                         returnDestination = returnDestination,

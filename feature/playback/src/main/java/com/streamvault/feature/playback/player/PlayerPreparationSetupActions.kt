@@ -57,6 +57,8 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     seasonNumber: Int?,
     episodeNumber: Int?,
     episodeId: Long?,
+    remoteContentId: String? = null,
+    remoteSeriesId: String? = null,
     hasArchiveRequest: Boolean,
     preferredAudioDecoderMode: DecoderMode,
     preferredVideoDecoderMode: DecoderMode,
@@ -99,6 +101,10 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     currentSeasonNumber = seasonNumber
     currentEpisodeNumber = episodeNumber
     currentStableEpisodeId = episodeId?.takeIf { it > 0L }
+    currentRemoteContentId = remoteContentId?.trim()?.takeIf(String::isNotBlank)
+    currentRemoteSeriesId = remoteSeriesId?.trim()?.takeIf(String::isNotBlank)
+    temporaryPlaybackQualityPreferenceFlow.value = null
+    refreshCurrentPlaybackQualityPreferenceScope()
     activeVodTrackPreferences = null
     val streamClassLabel = if (hasArchiveRequest) "Catch-up" else "Primary"
     applyDefaultPlaybackTimersIfNeeded()

@@ -741,6 +741,27 @@ interface ChannelPreferenceDao {
 }
 
 @Dao
+interface PlaybackQualityPreferenceDao {
+    @Query("SELECT * FROM playback_quality_preferences WHERE provider_id = :providerId AND scope_type = :scopeType AND scope_key = :scopeKey LIMIT 1")
+    fun observe(providerId: Long, scopeType: String, scopeKey: String): Flow<PlaybackQualityPreferenceEntity?>
+
+    @Query("SELECT * FROM playback_quality_preferences ORDER BY provider_id, scope_type, scope_key")
+    suspend fun getAllSync(): List<PlaybackQualityPreferenceEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(preference: PlaybackQualityPreferenceEntity)
+
+    @Query("DELETE FROM playback_quality_preferences WHERE provider_id = :providerId AND scope_type = :scopeType AND scope_key = :scopeKey")
+    suspend fun delete(providerId: Long, scopeType: String, scopeKey: String)
+
+    @Query("DELETE FROM playback_quality_preferences WHERE provider_id = :providerId")
+    suspend fun deleteByProvider(providerId: Long)
+
+    @Query("DELETE FROM playback_quality_preferences")
+    suspend fun deleteAll()
+}
+
+@Dao
 interface PlaybackCompatibilityDao {
     @Query(
         """

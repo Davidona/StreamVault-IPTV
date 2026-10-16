@@ -855,4 +855,15 @@
     <item quantity="many">كل %d ساعة</item>
     <item quantity="other">كل %d ساعة</item>
 </plurals>
+    <string name="settings_quality_profile_title">ملف جودة التشغيل</string>
+    <string name="settings_quality_profile_data_saver">توفير البيانات</string>
+    <string name="settings_quality_profile_balanced">متوازن</string>
+    <string name="settings_quality_profile_custom">مخصص</string>
+    <string name="settings_quality_custom_height">أقصى ارتفاع للفيديو</string>
+    <string name="settings_quality_custom_bitrate">أقصى معدل بت للفيديو</string>
+    <string name="settings_quality_cap_no_limit">بلا حد</string>
+    <string name="settings_quality_cap_mbps">%1$d ميغابت/ث</string>
+    <string name="settings_wifi_quality_bitrate_cap">أقصى معدل بت للفيديو عبر Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">أقصى معدل بت للفيديو عبر Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">لا يوجد حد إضافي</string>
 </resources>

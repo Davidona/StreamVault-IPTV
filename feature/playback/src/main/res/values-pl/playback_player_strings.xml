@@ -261,4 +261,40 @@
     <string name="player_skip_recap">Pomiń podsumowanie</string>
     <string name="player_skip_outro">Pomiń outro</string>
     <string name="player_track_live_translation">Tłumaczenie w czasie rzeczywistym</string>
+    <string name="player_quality_save_as_limit">Zapisz bieżącą rozdzielczość jako limit adaptacyjny</string>
+    <string name="player_quality_remove_saved_limit">Usuń zapisany limit rozdzielczości</string>
+    <string name="player_quality_use_session_limit">Ogranicz to odtwarzanie do bieżącej rozdzielczości</string>
+    <string name="player_quality_clear_session_limit">Usuń tymczasowy limit jakości</string>
+
+    <string name="player_quality_gate_title">Odtwarzanie wstrzymano z powodu limitów jakości</string>
+    <string name="player_quality_gate_message">Żadna dostępna jakość wideo nie mieści się w Twoich limitach. Przed kontynuowaniem sprawdź oferowaną jakość i szczegóły.</string>
+    <string name="player_quality_gate_offer">Oferowana jakość wideo: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Wysokość %1$d p przekracza limit %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Wysokość wideo jest nieznana; limit wynosi %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Przepływność %1$s Mbps przekracza limit %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Przepływność wideo jest nieznana; limit wynosi %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Kontynuuj raz</string>
+
+    <string name="player_diagnostics_quality_limits">Limity jakości</string>
+    <string name="player_diagnostics_quality_reasons">Czynniki ograniczające</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferencje odtwarzania</string>
+    <string name="player_diagnostics_quality_source_device">Zgodność urządzenia</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Obciążenie dekodera</string>
+
+    <string name="player_diagnostics_quality_capability">Możliwości źródła wideo</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Jakości adaptacyjne</string>
+    <string name="player_diagnostics_quality_capability_single">Jakość pojedyncza lub stała</string>
+    <string name="player_diagnostics_quality_capability_unknown">Nieznane</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Źródło z przesunięciem czasu</string>
+    <string name="player_quality_save_bitrate_as_limit">Zapisz bieżącą przepływność wideo jako maksimum</string>
+    <string name="player_quality_inherit_height_limit">Użyj odziedziczonego limitu wysokości</string>
+    <string name="player_quality_inherit_bitrate_limit">Użyj odziedziczonego limitu przepływności</string>
+    <string name="player_quality_no_additional_height_limit">Bez dodatkowego limitu wysokości dla tych treści</string>
+    <string name="player_quality_no_additional_bitrate_limit">Bez dodatkowego limitu przepływności dla tych treści</string>
+    <string name="player_quality_mode_auto">Automatyczny (adaptacyjny) wybór</string>
+    <string name="player_quality_mode_fixed">Stały wariant</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Odbiornik Cast wybiera jakość; te limity nie są egzekwowane.</string>
+    <string name="player_video_quality_selection_blocked">Ta jakość wideo nie mieści się w limitach odtwarzania.</string>
+    <string name="player_diagnostics_quality_height_summary">Rozdzielczość: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Szybkość transmisji: %1$s Mb/s</string>
 </resources>

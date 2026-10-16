@@ -259,4 +259,40 @@
     <string name="player_subtitle_delay_action">Penundaan subtitle (%1$+d ms)</string>
     <string name="player_subtitle_search_close">Tutup</string>
     <string name="player_diagnostics_video_decoder_mode">Mode Dekoder Video</string>
+    <string name="player_quality_save_as_limit">Simpan resolusi saat ini sebagai batas adaptif</string>
+    <string name="player_quality_remove_saved_limit">Hapus batas resolusi tersimpan</string>
+    <string name="player_quality_use_session_limit">Batasi pemutaran ini ke resolusi saat ini</string>
+    <string name="player_quality_clear_session_limit">Hapus batas kualitas sementara</string>
+
+    <string name="player_quality_gate_title">Pemutaran dijeda karena batas kualitas</string>
+    <string name="player_quality_gate_message">Tidak ada kualitas video yang tersedia sesuai dengan batas Anda. Periksa kualitas yang ditawarkan dan detailnya sebelum melanjutkan.</string>
+    <string name="player_quality_gate_offer">Kualitas video yang ditawarkan: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Tinggi %1$d p melebihi batas %2$d p Anda.</string>
+    <string name="player_quality_gate_height_unknown">Tinggi video tidak diketahui; batas Anda %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Bitrate %1$s Mbps melebihi batas %2$s Mbps Anda.</string>
+    <string name="player_quality_gate_bitrate_unknown">Bitrate video tidak diketahui; batas Anda %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Lanjutkan sekali</string>
+
+    <string name="player_diagnostics_quality_limits">Batas kualitas</string>
+    <string name="player_diagnostics_quality_reasons">Faktor pembatas</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferensi pemutaran</string>
+    <string name="player_diagnostics_quality_source_device">Kompatibilitas perangkat</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Beban dekoder</string>
+
+    <string name="player_diagnostics_quality_capability">Kemampuan sumber video</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Kualitas adaptif</string>
+    <string name="player_diagnostics_quality_capability_single">Kualitas tunggal atau tetap</string>
+    <string name="player_diagnostics_quality_capability_unknown">Tidak diketahui</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Sumber timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">Simpan bitrate video saat ini sebagai batas maksimum</string>
+    <string name="player_quality_inherit_height_limit">Gunakan batas tinggi yang diwariskan</string>
+    <string name="player_quality_inherit_bitrate_limit">Gunakan batas bitrate yang diwariskan</string>
+    <string name="player_quality_no_additional_height_limit">Tanpa batas tinggi tambahan untuk konten ini</string>
+    <string name="player_quality_no_additional_bitrate_limit">Tanpa batas bitrate tambahan untuk konten ini</string>
+    <string name="player_quality_mode_auto">Otomatis (adaptif)</string>
+    <string name="player_quality_mode_fixed">Track tetap</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Penerima Cast memilih kualitas; batas ini tidak diterapkan.</string>
+    <string name="player_video_quality_selection_blocked">Kualitas video ini tidak sesuai dengan batas pemutaran Anda.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolusi: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Bitrate: %1$s Mbps</string>
 </resources>

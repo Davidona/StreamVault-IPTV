@@ -843,4 +843,15 @@
         <item quantity="one">%d tallennettu palveluntarjoaja</item>
         <item quantity="other">%d tallennettua palveluntarjoajaa</item>
     </plurals>
+    <string name="settings_quality_profile_title">Toiston laatuprofiili</string>
+    <string name="settings_quality_profile_data_saver">Säästä dataa</string>
+    <string name="settings_quality_profile_balanced">Tasapainotettu</string>
+    <string name="settings_quality_profile_custom">Mukautettu</string>
+    <string name="settings_quality_custom_height">Videon enimmäiskorkeus</string>
+    <string name="settings_quality_custom_bitrate">Videon enimmäisbittinopeus</string>
+    <string name="settings_quality_cap_no_limit">Ei rajaa</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Videon enimmäisbittinopeus Wi-Fi-yhteydellä</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Videon enimmäisbittinopeus Ethernet-yhteydellä</string>
+    <string name="settings_quality_cap_no_additional_limit">Ei lisärajoitusta</string>
 </resources>

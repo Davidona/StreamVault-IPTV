@@ -72,7 +72,11 @@ import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
+import com.streamvault.domain.settings.PlaybackQualityConstraintSource
 import com.streamvault.player.PlayerStats
+import com.streamvault.player.VideoRenditionCapability
+import java.text.NumberFormat
+import java.util.Locale
 import java.util.Date
 import kotlinx.coroutines.launch
 import com.streamvault.core.ui.design.AppColors.Brand as Primary
@@ -788,6 +792,7 @@ fun EpgOverlay(
 fun DiagnosticsOverlay(
     stats: PlayerStats,
     diagnostics: PlayerDiagnosticsUiState,
+    isCastConnected: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -846,6 +851,69 @@ fun DiagnosticsOverlay(
                     diagnostics.audioVideoSyncSinkActive -> stringResource(R.string.player_diagnostics_av_sync_custom)
                     else -> stringResource(R.string.player_diagnostics_av_sync_waiting)
                 }
+                val qualityNumberFormat = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+                    maximumFractionDigits = 1
+                    minimumFractionDigits = 0
+                }
+                val qualityLimitSummary = listOfNotNull(
+                    stats.qualityLimitHeight?.let {
+                        stringResource(R.string.player_diagnostics_quality_height_summary, it)
+                    },
+                    stats.qualityLimitBitrateBps?.let {
+                        stringResource(
+                            R.string.player_diagnostics_quality_bitrate_summary,
+                            qualityNumberFormat.format(it / 1_000_000.0)
+                        )
+                    }
+                ).joinToString(" · ")
+                val decoderPressureSummary = listOfNotNull(
+                    stats.decoderPressureHeight?.let {
+                        stringResource(R.string.player_diagnostics_quality_height_summary, it)
+                    },
+                    stats.decoderPressureBitrateBps?.let {
+                        stringResource(
+                            R.string.player_diagnostics_quality_bitrate_summary,
+                            qualityNumberFormat.format(it / 1_000_000.0)
+                        )
+                    }
+                ).joinToString(" · ")
+                val preferenceSources = setOf(
+                    PlaybackQualityConstraintSource.PROFILE,
+                    PlaybackQualityConstraintSource.CONNECTION,
+                    PlaybackQualityConstraintSource.PROVIDER_DEFAULT,
+                    PlaybackQualityConstraintSource.CONTENT_PREFERENCE,
+                    PlaybackQualityConstraintSource.TEMPORARY_SELECTION
+                )
+                val deviceSources = setOf(
+                    PlaybackQualityConstraintSource.MULTIVIEW,
+                    PlaybackQualityConstraintSource.COMPATIBILITY_MODE
+                )
+                val preferenceReason = if (diagnostics.qualityPolicySources.any { it in preferenceSources }) {
+                    stringResource(R.string.player_diagnostics_quality_source_preferences)
+                } else null
+                val deviceReason = if (diagnostics.qualityPolicySources.any { it in deviceSources }) {
+                    stringResource(R.string.player_diagnostics_quality_source_device)
+                } else null
+                val decoderPressureReason = if (
+                    PlaybackQualityConstraintSource.DECODER_PRESSURE in diagnostics.qualityPolicySources
+                ) {
+                    stringResource(R.string.player_diagnostics_quality_decoder_pressure)
+                } else null
+                val qualityReasons = listOfNotNull(preferenceReason, deviceReason, decoderPressureReason)
+                    .joinToString(" · ")
+                val renditionCapabilityLabel = when (stats.videoRenditionCapability) {
+                    VideoRenditionCapability.ADAPTIVE_RENDITIONS ->
+                        stringResource(R.string.player_diagnostics_quality_capability_adaptive)
+                    VideoRenditionCapability.SINGLE_RENDITION ->
+                        stringResource(R.string.player_diagnostics_quality_capability_single)
+                    VideoRenditionCapability.UNKNOWN ->
+                        stringResource(R.string.player_diagnostics_quality_capability_unknown)
+                }
+                val capabilityText = if (stats.isTimeshiftPlayback) {
+                    "$renditionCapabilityLabel · ${stringResource(R.string.player_diagnostics_quality_capability_timeshift)}"
+                } else {
+                    renditionCapabilityLabel
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
@@ -882,6 +950,35 @@ fun DiagnosticsOverlay(
                             PlayerMetaRow(stringResource(R.string.player_diagnostics_channel_errors), diagnostics.channelErrorCount.toString())
                         }
                         PlayerOverlaySectionLabel(stringResource(R.string.player_diagnostics_section_video))
+                        PlayerMetaRow(
+                            stringResource(R.string.player_diagnostics_quality_capability),
+                            capabilityText
+                        )
+                        PlayerMetaRow(
+                            stringResource(R.string.player_video_quality),
+                            stringResource(
+                                if (stats.isVideoTrackFixed) R.string.player_quality_mode_fixed
+                                else R.string.player_quality_mode_auto
+                            )
+                        )
+                        if (qualityLimitSummary.isNotBlank()) {
+                            PlayerMetaRow(stringResource(R.string.player_diagnostics_quality_limits), qualityLimitSummary)
+                        }
+                        if (qualityReasons.isNotBlank()) {
+                            PlayerMetaRow(stringResource(R.string.player_diagnostics_quality_reasons), qualityReasons)
+                        }
+                        if (isCastConnected) {
+                            PlayerMetaRow(
+                                stringResource(R.string.player_diagnostics_quality_limits),
+                                stringResource(R.string.player_diagnostics_quality_cast_unavailable)
+                            )
+                        }
+                        if (decoderPressureSummary.isNotBlank()) {
+                            PlayerMetaRow(
+                                stringResource(R.string.player_diagnostics_quality_decoder_pressure),
+                                decoderPressureSummary
+                            )
+                        }
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_resolution), "${stats.width}x${stats.height}")
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_video_codec), stats.videoCodec)
                         PlayerMetaRow(stringResource(R.string.player_diagnostics_frame_rate), formatDiagnosticsFrameRateLabel(stats))

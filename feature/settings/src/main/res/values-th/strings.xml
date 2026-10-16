@@ -840,4 +840,15 @@
     <plurals name="settings_auto_sync_hours">
         <item quantity="other">ทุก %d ชั่วโมง</item>
     </plurals>
+    <string name="settings_quality_profile_title">โปรไฟล์คุณภาพการเล่น</string>
+    <string name="settings_quality_profile_data_saver">ประหยัดอินเทอร์เน็ต</string>
+    <string name="settings_quality_profile_balanced">สมดุล</string>
+    <string name="settings_quality_profile_custom">กำหนดเอง</string>
+    <string name="settings_quality_custom_height">ความสูงวิดีโอสูงสุด</string>
+    <string name="settings_quality_custom_bitrate">บิตเรตวิดีโอสูงสุด</string>
+    <string name="settings_quality_cap_no_limit">ไม่จำกัด</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">บิตเรตวิดีโอสูงสุดผ่าน Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">บิตเรตวิดีโอสูงสุดผ่าน Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">ไม่มีขีดจำกัดเพิ่มเติม</string>
 </resources>

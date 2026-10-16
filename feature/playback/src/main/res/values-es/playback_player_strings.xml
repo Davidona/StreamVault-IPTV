@@ -259,4 +259,40 @@
     <string name="player_skip_recap">Saltar resumen</string>
     <string name="player_skip_outro">Saltar cierre</string>
     <string name="player_track_live_translation" tools:ignore="MissingTranslation">Traducción en tiempo real</string>
+    <string name="player_quality_save_as_limit">Guardar la resolución actual como límite adaptable</string>
+    <string name="player_quality_remove_saved_limit">Quitar el límite de resolución guardado</string>
+    <string name="player_quality_use_session_limit">Limitar esta reproducción a la resolución actual</string>
+    <string name="player_quality_clear_session_limit">Quitar el límite de calidad temporal</string>
+
+    <string name="player_quality_gate_title">Reproducción pausada por los límites de calidad</string>
+    <string name="player_quality_gate_message">Ninguna calidad de vídeo disponible cumple tus límites. Revisa la calidad ofrecida y los detalles antes de continuar.</string>
+    <string name="player_quality_gate_offer">Calidad de vídeo ofrecida: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">La altura de %1$d p supera tu límite de %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Se desconoce la altura del vídeo; tu límite es %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">La tasa de bits de %1$s Mbps supera tu límite de %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Se desconoce la tasa de bits del vídeo; tu límite es %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Continuar una vez</string>
+
+    <string name="player_diagnostics_quality_limits">Límites de calidad</string>
+    <string name="player_diagnostics_quality_reasons">Factores limitantes</string>
+    <string name="player_diagnostics_quality_source_preferences">Preferencias de reproducción</string>
+    <string name="player_diagnostics_quality_source_device">Compatibilidad del dispositivo</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Carga del decodificador</string>
+
+    <string name="player_diagnostics_quality_capability">Capacidad de la fuente de vídeo</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Calidades adaptativas</string>
+    <string name="player_diagnostics_quality_capability_single">Calidad única o fija</string>
+    <string name="player_diagnostics_quality_capability_unknown">Desconocida</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Fuente con timeshift</string>
+    <string name="player_quality_save_bitrate_as_limit">Guardar la tasa de bits de vídeo actual como máximo</string>
+    <string name="player_quality_inherit_height_limit">Usar el límite de altura heredado</string>
+    <string name="player_quality_inherit_bitrate_limit">Usar el límite de tasa de bits heredado</string>
+    <string name="player_quality_no_additional_height_limit">Sin límite adicional de altura para este contenido</string>
+    <string name="player_quality_no_additional_bitrate_limit">Sin límite adicional de tasa de bits para este contenido</string>
+    <string name="player_quality_mode_auto">Selección automática (adaptativa)</string>
+    <string name="player_quality_mode_fixed">Pista fija</string>
+    <string name="player_diagnostics_quality_cast_unavailable">El receptor Cast elige la calidad; estos límites no se aplican.</string>
+    <string name="player_video_quality_selection_blocked">Esta calidad de video no se ajusta a tus límites de reproducción.</string>
+    <string name="player_diagnostics_quality_height_summary">Resolución: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Tasa de bits: %1$s Mbps</string>
 </resources>

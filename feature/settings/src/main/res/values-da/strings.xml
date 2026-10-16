@@ -843,4 +843,15 @@
 <string name="settings_opensubtitles_connect">Tilslut konto (valgfrit)</string>
 <string name="settings_live_clock_position">Urposition</string>
 <string name="settings_theme_classic_blue">Klassisk blå</string>
+    <string name="settings_quality_profile_title">Profil for afspilningskvalitet</string>
+    <string name="settings_quality_profile_data_saver">Datasparer</string>
+    <string name="settings_quality_profile_balanced">Balanceret</string>
+    <string name="settings_quality_profile_custom">Brugerdefineret</string>
+    <string name="settings_quality_custom_height">Maksimal videohøjde</string>
+    <string name="settings_quality_custom_bitrate">Maksimal videobithastighed</string>
+    <string name="settings_quality_cap_no_limit">Ingen grænse</string>
+    <string name="settings_quality_cap_mbps">%1$d Mbps</string>
+    <string name="settings_wifi_quality_bitrate_cap">Maksimal videobithastighed via Wi-Fi</string>
+    <string name="settings_ethernet_quality_bitrate_cap">Maksimal videobithastighed via Ethernet</string>
+    <string name="settings_quality_cap_no_additional_limit">Ingen yderligere begrænsning</string>
 </resources>

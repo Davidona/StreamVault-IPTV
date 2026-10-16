@@ -260,4 +260,40 @@
     <string name="player_skip_opening">דלג על הפתיחה</string>
     <string name="player_skip_recap">דלג על התקציר</string>
     <string name="player_skip_outro">דלג על הסיום</string>
+    <string name="player_quality_save_as_limit">שמירת הרזולוציה הנוכחית כמגבלה אדפטיבית</string>
+    <string name="player_quality_remove_saved_limit">הסרת מגבלת הרזולוציה השמורה</string>
+    <string name="player_quality_use_session_limit">הגבלת ההפעלה הזו לרזולוציה הנוכחית</string>
+    <string name="player_quality_clear_session_limit">הסרת מגבלת האיכות הזמנית</string>
+
+    <string name="player_quality_gate_title">ההפעלה הושהתה בגלל מגבלות האיכות</string>
+    <string name="player_quality_gate_message">אין איכות וידאו זמינה שמתאימה למגבלות שלך. בדוק את האיכות המוצעת ואת הפרטים לפני שממשיכים.</string>
+    <string name="player_quality_gate_offer">איכות הווידאו המוצעת: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">הגובה %1$d p חורג מהמגבלה שלך, %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">גובה הווידאו לא ידוע; המגבלה שלך היא %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">קצב הנתונים %1$s Mbps חורג מהמגבלה שלך, %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">קצב הנתונים של הווידאו לא ידוע; המגבלה שלך היא %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">המשך פעם אחת</string>
+
+    <string name="player_diagnostics_quality_limits">מגבלות איכות</string>
+    <string name="player_diagnostics_quality_reasons">גורמים מגבילים</string>
+    <string name="player_diagnostics_quality_source_preferences">העדפות הפעלה</string>
+    <string name="player_diagnostics_quality_source_device">תאימות המכשיר</string>
+    <string name="player_diagnostics_quality_decoder_pressure">עומס על המפענח</string>
+
+    <string name="player_diagnostics_quality_capability">יכולת מקור הווידאו</string>
+    <string name="player_diagnostics_quality_capability_adaptive">איכויות אדפטיביות</string>
+    <string name="player_diagnostics_quality_capability_single">איכות יחידה או קבועה</string>
+    <string name="player_diagnostics_quality_capability_unknown">לא ידוע</string>
+    <string name="player_diagnostics_quality_capability_timeshift">מקור בהשהיית זמן</string>
+    <string name="player_quality_save_bitrate_as_limit">שמירת קצב הסיביות הנוכחי של הווידאו כמקסימום</string>
+    <string name="player_quality_inherit_height_limit">שימוש במגבלת הגובה שעברה בירושה</string>
+    <string name="player_quality_inherit_bitrate_limit">שימוש במגבלת קצב הסיביות שעברה בירושה</string>
+    <string name="player_quality_no_additional_height_limit">ללא מגבלת גובה נוספת עבור התוכן הזה</string>
+    <string name="player_quality_no_additional_bitrate_limit">ללא מגבלת קצב סיביות נוספת עבור התוכן הזה</string>
+    <string name="player_quality_mode_auto">אוטומטי (מותאם)</string>
+    <string name="player_quality_mode_fixed">רצועה קבועה</string>
+    <string name="player_diagnostics_quality_cast_unavailable">מקלט Cast בוחר את האיכות; המגבלות האלה אינן נאכפות.</string>
+    <string name="player_video_quality_selection_blocked">איכות הווידאו הזו אינה עומדת במגבלות ההפעלה שלך.</string>
+    <string name="player_diagnostics_quality_height_summary">רזולוציה: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">קצב סיביות: %1$s Mbps</string>
 </resources>

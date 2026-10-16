@@ -7,6 +7,8 @@ data class PlayerTrack(
     val type: TrackType,
     val isSelected: Boolean,
     val subtitleSource: SubtitleTrackSource = SubtitleTrackSource.PROVIDER,
+    val videoHeight: Int? = null,
+    val videoBitrateBps: Long? = null,
 )
 
 enum class SubtitleTrackSource { PROVIDER, ONLINE, DEVICE }

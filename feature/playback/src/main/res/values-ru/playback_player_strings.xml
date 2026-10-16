@@ -261,4 +261,40 @@
     <string name="player_subtitle_delay_action">Задержка субтитров (%1$+d мс)</string>
     <string name="player_subtitle_search_close">Закрыть</string>
     <string name="player_diagnostics_video_decoder_mode">Режим видеодекодера</string>
+    <string name="player_quality_save_as_limit">Сохранить текущее разрешение как адаптивное ограничение</string>
+    <string name="player_quality_remove_saved_limit">Удалить сохранённое ограничение разрешения</string>
+    <string name="player_quality_use_session_limit">Ограничить это воспроизведение текущим разрешением</string>
+    <string name="player_quality_clear_session_limit">Снять временное ограничение качества</string>
+
+    <string name="player_quality_gate_title">Воспроизведение приостановлено из-за ограничений качества</string>
+    <string name="player_quality_gate_message">Нет доступного качества видео, подходящего под ваши ограничения. Перед продолжением проверьте предложенное качество и сведения.</string>
+    <string name="player_quality_gate_offer">Предлагаемое качество видео: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">Высота %1$d p превышает ограничение %2$d p.</string>
+    <string name="player_quality_gate_height_unknown">Высота видео неизвестна; ограничение — %1$d p.</string>
+    <string name="player_quality_gate_bitrate_exceeded">Битрейт %1$s Mbps превышает ограничение %2$s Mbps.</string>
+    <string name="player_quality_gate_bitrate_unknown">Битрейт видео неизвестен; ограничение — %1$s Mbps.</string>
+    <string name="player_quality_gate_continue_once">Продолжить один раз</string>
+
+    <string name="player_diagnostics_quality_limits">Ограничения качества</string>
+    <string name="player_diagnostics_quality_reasons">Ограничивающие факторы</string>
+    <string name="player_diagnostics_quality_source_preferences">Настройки воспроизведения</string>
+    <string name="player_diagnostics_quality_source_device">Совместимость устройства</string>
+    <string name="player_diagnostics_quality_decoder_pressure">Нагрузка на декодер</string>
+
+    <string name="player_diagnostics_quality_capability">Возможности источника видео</string>
+    <string name="player_diagnostics_quality_capability_adaptive">Адаптивные качества</string>
+    <string name="player_diagnostics_quality_capability_single">Единственное или фиксированное качество</string>
+    <string name="player_diagnostics_quality_capability_unknown">Неизвестно</string>
+    <string name="player_diagnostics_quality_capability_timeshift">Источник со сдвигом во времени</string>
+    <string name="player_quality_save_bitrate_as_limit">Сохранить текущий битрейт видео как максимум</string>
+    <string name="player_quality_inherit_height_limit">Использовать унаследованное ограничение высоты</string>
+    <string name="player_quality_inherit_bitrate_limit">Использовать унаследованное ограничение битрейта</string>
+    <string name="player_quality_no_additional_height_limit">Без дополнительного ограничения высоты для этого контента</string>
+    <string name="player_quality_no_additional_bitrate_limit">Без дополнительного ограничения битрейта для этого контента</string>
+    <string name="player_quality_mode_auto">Автоматический (адаптивный) выбор</string>
+    <string name="player_quality_mode_fixed">Фиксированная дорожка</string>
+    <string name="player_diagnostics_quality_cast_unavailable">Качество выбирает приемник Cast; эти ограничения не применяются.</string>
+    <string name="player_video_quality_selection_blocked">Это качество видео не соответствует ограничениям воспроизведения.</string>
+    <string name="player_diagnostics_quality_height_summary">Разрешение: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">Битрейт: %1$s Мбит/с</string>
 </resources>

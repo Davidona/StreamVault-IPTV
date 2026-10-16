@@ -17,6 +17,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.DecoderMode
+import com.streamvault.domain.settings.PlaybackQualityConstraintSource
 import com.streamvault.player.timeshift.LiveTimeshiftState
 import java.util.Locale
 
@@ -93,6 +94,7 @@ data class PlayerDiagnosticsUiState(
     val renderSurfaceType: String = "SURFACE_VIEW",
     val videoStallCount: Int = 0,
     val lastVideoFrameAgoMs: Long = 0,
+    val qualityPolicySources: Set<PlaybackQualityConstraintSource> = emptySet(),
     val streamClassLabel: String = "Primary",
     val playbackStateLabel: String = "Idle",
     val audioVideoOffsetMs: Int = 0,

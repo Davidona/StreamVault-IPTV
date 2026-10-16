@@ -107,7 +107,9 @@ data class PortableProviderPreferencesBackup(
     val homeDefaultVirtualCategoryId: Long? = null,
     val homeDefaultCategorySpecified: Boolean = false,
     /** Per-movie and per-series VOD track selections, stored without local catalog ids. */
-    val vodTrackPreferences: List<PortableVodTrackPreferenceBackup>? = null
+    val vodTrackPreferences: List<PortableVodTrackPreferenceBackup>? = null,
+    /** Sparse quality overrides identified by stable provider/content keys, never local row ids. */
+    val playbackQualityPreferences: List<PortablePlaybackQualityPreferenceBackup>? = null
 )
 
 data class BackupProviderReference(
@@ -188,6 +190,18 @@ data class PortableContentReference(
 data class PortableVodTrackPreferenceBackup(
     val content: PortableContentReference,
     val preferences: VodTrackPreferences
+)
+
+data class PortablePlaybackQualityPreferenceBackup(
+    val provider: BackupProviderReference,
+    val scopeType: String? = null,
+    val scopeKey: String? = null,
+    val identityVersion: Int = 1,
+    /** String modes keep this portable wire type independent of Kotlin sealed-class serialization. */
+    val heightOverride: String? = null,
+    val maxVideoHeight: Int? = null,
+    val bitrateOverride: String? = null,
+    val maxVideoBitrateBps: Long? = null
 )
 
 data class PortableFavoriteBackup(
