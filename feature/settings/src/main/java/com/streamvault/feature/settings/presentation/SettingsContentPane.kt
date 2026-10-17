@@ -68,6 +68,7 @@ public fun SettingsContentPane(
     restorePageRequestId: Long = 0L,
     onPageChanged: (SettingsPage?) -> Unit = {},
     categorySelectionId: Long = 0L,
+    openOpenSubtitlesSignIn: Boolean = false,
     onCloseApp: () -> Unit = {}
 ) {
     val category = SettingsCategory.fromId(dialogState.selectedCategory)
@@ -285,6 +286,7 @@ public fun SettingsContentPane(
                             providerState = providerState,
                             targetItemId = activeSearchTarget?.itemId,
                             targetFocusModifier = searchTargetModifier,
+                            openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                         )
                     }
                     if (dialogState.selectedCategory == 1 || page in listOf(SettingsPage.CLOCK, SettingsPage.TIMESHIFT, SettingsPage.MULTIVIEW, SettingsPage.VOD_PLAYBACK)) {

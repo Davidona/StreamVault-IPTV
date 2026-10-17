@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.streamvault.data.local.entity.StremioAddonEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -27,11 +28,23 @@ interface StremioAddonDao {
     @Insert
     suspend fun insert(entity: StremioAddonEntity): Long
 
+    @Update
+    suspend fun update(entity: StremioAddonEntity)
+
     @Query(
         "UPDATE stremio_addons SET manifest_id = :manifestId, name = :name, version = :version, " +
-            "manifest_json = :manifestJson, updated_at = :updatedAt WHERE id = :id"
+            "manifest_json = :manifestJson, updated_at = :updatedAt, " +
+            "manifest_refreshed_at = :manifestRefreshedAt WHERE id = :id"
     )
-    suspend fun updateManifest(id: Long, manifestId: String, name: String, version: String, manifestJson: String, updatedAt: Long)
+    suspend fun updateManifest(
+        id: Long,
+        manifestId: String,
+        name: String,
+        version: String,
+        manifestJson: String,
+        updatedAt: Long,
+        manifestRefreshedAt: Long
+    )
 
     @Query("UPDATE stremio_addons SET enabled = :enabled, updated_at = :updatedAt WHERE id = :id")
     suspend fun setEnabled(id: Long, enabled: Boolean, updatedAt: Long)

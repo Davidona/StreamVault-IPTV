@@ -13,7 +13,8 @@ data class StremioAddon(
     val sortOrder: Int = 0,
     val catalogSettings: Map<String, Boolean> = emptyMap(),
     val createdAt: Long = 0L,
-    val updatedAt: Long = 0L
+    val updatedAt: Long = 0L,
+    val manifestRefreshedAt: Long = 0L
 ) {
     init {
         require(installUrl.isNotBlank()) { "installUrl must not be blank" }

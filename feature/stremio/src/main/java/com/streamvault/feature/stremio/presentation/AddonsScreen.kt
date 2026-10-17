@@ -51,6 +51,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.streamvault.core.navigation.AppDestination
@@ -92,6 +94,9 @@ fun AddonsScreen(
     viewModel: AddonsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        viewModel.refreshStaleManifests()
+    }
     var pendingRemoval by remember { mutableStateOf<AddonsViewModel.AddonEntry?>(null) }
     var pendingFocusRestore by remember { mutableStateOf<AddonFocusRestore?>(null) }
     val addonIds = state.addons.map { it.addon.id }

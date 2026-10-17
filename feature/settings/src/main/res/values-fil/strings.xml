@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">Kasaysayan ng Playback</string>
     <string name="settings_backup_section_multiview">Mga Split Screen Preset</string>
     <string name="settings_backup_section_recordings">Mga Iskedyul ng Recording</string>
+    <string name="settings_backup_section_stremio_addons">Mga add-on ng Stremio</string>
     <string name="settings_backup_conflict_count">%1$d conflict</string>
     <string name="settings_backup_no_conflicts">Walang conflict</string>
     <string name="settings_backup_item_count">%1$d item</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">Magsimula ng manual na recording mula sa live playback o mag-iskedyul mula sa player.</string>
     <string name="settings_recording_pattern_hint">Gumamit ng mga token tulad ng ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">I-export o i-import ang mga paborito, grupo, at kagustuhan.</string>
-    <string name="settings_backup_credentials_notice">Kasama sa mga backup file ang mga password ng provider sa nababasang anyo para makakonekta muli ang na-restore na account. Itago at ibahagi lamang ang mga ito sa mga pinagkakatiwalaan mo.</string>
+    <string name="settings_backup_credentials_notice">Nasa backup file ang mga password ng provider at naka-configure na URL ng mga Stremio add-on sa nababasang anyo. Maaaring may access token ang mga URL na ito. Panatilihing pribado ang mga backup at ibahagi lamang sa mga pinagkakatiwalaan mo.</string>
     <string name="settings_backup_data">I-export ang Data</string>
     <string name="settings_backup_share_data">Ibahagi ang Backup</string>
     <string name="settings_backup_share_subtitle">Magpadala ng backup file sa TV file manager o ibang app.</string>

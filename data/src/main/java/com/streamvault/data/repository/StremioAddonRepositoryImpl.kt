@@ -182,7 +182,8 @@ class StremioAddonRepositoryImpl @Inject constructor(
             sortOrder = dao.maxSortOrder() + 1,
             catalogSettingsJson = "",
             createdAt = now,
-            updatedAt = now
+            updatedAt = now,
+            manifestRefreshedAt = now
         )
         val id = dao.insert(entity)
         return Result.success(entity.copy(id = id).toDomain())
@@ -205,7 +206,8 @@ class StremioAddonRepositoryImpl @Inject constructor(
             name = snapshot.manifest.name,
             version = snapshot.manifest.version,
             manifestJson = snapshot.manifestJson,
-            updatedAt = now
+            updatedAt = now,
+            manifestRefreshedAt = now
         )
         val refreshed = dao.getById(id) ?: return Result.error("Addon disappeared during refresh")
         return Result.success(refreshed.toDomain())
@@ -264,5 +266,6 @@ private fun StremioAddonEntity.toDomain(): StremioAddon = StremioAddon(
     sortOrder = sortOrder,
     catalogSettings = StremioCatalogSettingsCodec.decode(catalogSettingsJson),
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    manifestRefreshedAt = manifestRefreshedAt
 )

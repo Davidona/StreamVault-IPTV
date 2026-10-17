@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Lịch sử phát</string>
     <string name="settings_backup_section_multiview">Cài đặt chia màn hình</string>
     <string name="settings_backup_section_recordings">Lịch ghi hình</string>
+    <string name="settings_backup_section_stremio_addons">Tiện ích Stremio</string>
     <string name="settings_backup_conflict_count">%1$d xung đột</string>
     <string name="settings_backup_no_conflicts">Không có xung đột</string>
     <string name="settings_backup_item_count">%1$d mục</string>
@@ -804,7 +805,7 @@
     <string name="settings_provider_in_use">Đang sử dụng</string>
     <string name="settings_provider_diagnostics_show">Hiện chẩn đoán</string>
     <string name="settings_provider_diagnostics_hide">Ẩn chẩn đoán</string>
-    <string name="settings_backup_credentials_notice">Tệp sao lưu chứa mật khẩu nhà cung cấp ở dạng đọc được để tài khoản khôi phục có thể kết nối lại. Chỉ lưu trữ và chia sẻ với người bạn tin tưởng.</string>
+    <string name="settings_backup_credentials_notice">Tệp sao lưu chứa mật khẩu nhà cung cấp và URL tiện ích Stremio đã cấu hình ở dạng có thể đọc được. Các URL này có thể chứa mã truy cập. Hãy giữ riêng tư bản sao lưu và chỉ chia sẻ với người bạn tin tưởng.</string>
     <string name="settings_pinned_subtitle_languages">Ngôn ngữ phụ đề đã ghim</string>
     <string name="settings_pinned_subtitle_languages_subtitle">Chọn ngôn ngữ phụ đề xuất hiện trước. Không có gì bị ẩn.</string>
     <string name="settings_pinned_subtitle_languages_note">Các ngôn ngữ đã ghim được liệt kê trước phần còn lại trong trình chọn phụ đề. Ngôn ngữ không ghim vẫn xuất hiện sau đó, và ngôn ngữ ghim bị thiếu đơn giản là không thêm gì lên đầu.</string>

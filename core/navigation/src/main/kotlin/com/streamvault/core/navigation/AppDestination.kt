@@ -15,7 +15,10 @@ sealed interface AppDestination : Serializable {
         val anchorTimeMs: Long? = null,
         val favoritesOnly: Boolean = false
     ) : AppDestination
-    data class Settings(val backupUri: String? = null) : AppDestination
+    data class Settings(
+        val backupUri: String? = null,
+        val openOpenSubtitlesSignIn: Boolean = false,
+    ) : AppDestination
     data object Plugins : AppDestination
     data object Addons : AppDestination
     data class Search(val query: String? = null) : AppDestination

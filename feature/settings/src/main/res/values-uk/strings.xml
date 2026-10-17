@@ -384,6 +384,7 @@
     <string name="settings_backup_section_history">Історія відтворення</string>
     <string name="settings_backup_section_multiview">Пресети розділеного екрана</string>
     <string name="settings_backup_section_recordings">Розклади запису</string>
+    <string name="settings_backup_section_stremio_addons">Доповнення Stremio</string>
     <string name="settings_backup_conflict_count">%1$d конфліктів</string>
     <string name="settings_backup_no_conflicts">Немає конфліктів</string>
     <string name="settings_backup_item_count">%1$d елементів</string>
@@ -813,7 +814,7 @@
     <string name="settings_auto_sync_sections_heading">Що оновлювати</string>
     <string name="settings_select_live_clock_size">Виберіть розмір годинника</string>
     <string name="settings_opensubtitles_daily_allowance">%1$d завантажень на день</string>
-    <string name="settings_backup_credentials_notice">Файли резервних копій містять паролі провайдерів у читабельному вигляді, щоб відновлені облікові записи могли повторно підключитися. Зберігайте та передавайте їх лише людям, яким довіряєте.</string>
+    <string name="settings_backup_credentials_notice">Файли резервних копій містять паролі провайдерів і налаштовані URL доповнень Stremio у читабельному вигляді. Ці URL можуть містити токени доступу. Зберігайте копії приватно та діліться ними лише з тими, кому довіряєте.</string>
     <string name="settings_theme_m3_purple">M3 фіолетова</string>
     <string name="settings_auto_sync_status_network">Очікування відповідної мережі</string>
     <string name="settings_sync_section_queued">Оновлення %1$s поставлено в чергу</string>

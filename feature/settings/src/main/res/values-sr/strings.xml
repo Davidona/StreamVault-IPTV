@@ -422,6 +422,7 @@
     <string name="settings_backup_section_history">Историја репродукције</string>
     <string name="settings_backup_section_multiview">Пресети за подељени екран</string>
     <string name="settings_backup_section_recordings">Распореди снимања</string>
+    <string name="settings_backup_section_stremio_addons">Stremio додаци</string>
     <string name="settings_backup_conflict_count">%1$d сукоба</string>
     <string name="settings_backup_no_conflicts">Нема сукоба</string>
     <string name="settings_backup_item_count">%1$d ставки</string>
@@ -670,7 +671,7 @@
     <string name="settings_recording_empty_subtitle">Покрените ручно снимање током гледања уживо или закажите снимање из плејера.</string>
     <string name="settings_recording_pattern_hint">Користите ознаке попут ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Извезите или увезите фаворите, групе и поставке.</string>
-    <string name="settings_backup_credentials_notice">Датотеке резервне копије садрже лозинке провајдера у читљивом облику како би враћени налози могли поново да се повежу. Чувајте их и делите само са људима од поверења.</string>
+    <string name="settings_backup_credentials_notice">Датотеке резервних копија садрже лозинке провајдера и конфигурисане URL адресе Stremio додатака у читљивом облику. Ове адресе могу садржати приступне токене. Чувајте резервне копије приватно и делите их само са људима којима верујете.</string>
     <string name="settings_backup_data">Извези податке</string>
     <string name="settings_backup_share_data">Подели резервну копију</string>
     <string name="settings_backup_share_subtitle">Пошаљите датотеку резервне копије ТВ менаџеру датотека или другој апликацији.</string>

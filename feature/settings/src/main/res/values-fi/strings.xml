@@ -382,6 +382,7 @@
     <string name="settings_backup_section_history">Toistohistoria</string>
     <string name="settings_backup_section_multiview">Jaetun näytön esiasetukset</string>
     <string name="settings_backup_section_recordings">Tallennusaikataulut</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-lisäosat</string>
     <string name="settings_backup_conflict_count">%1$d ristiriitoja</string>
     <string name="settings_backup_no_conflicts">Ei konflikteja</string>
     <string name="settings_backup_item_count">%1$d kohdetta</string>
@@ -755,7 +756,7 @@
     <string name="settings_provider_inventory_title">Palveluntarjoajasi</string>
     <string name="settings_provider_in_use">Käytössä</string>
     <string name="settings_recording_use_smb_storage">Käytä SMB-jakoa</string>
-    <string name="settings_backup_credentials_notice">Varmuuskopiotiedostot sisältävät palveluntarjoajien salasanat luettavassa muodossa, jotta palautetut tilit voivat yhdistää uudelleen. Säilytä ja jaa niitä vain luotettaville henkilöille.</string>
+    <string name="settings_backup_credentials_notice">Varmuuskopiot sisältävät palveluntarjoajien salasanat ja määritetyt Stremio-lisäosien URL-osoitteet luettavassa muodossa. URL-osoitteet voivat sisältää käyttöoikeustunnuksia. Pidä varmuuskopiot yksityisinä ja jaa niitä vain luotettavien kanssa.</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
     <string name="settings_opensubtitles_description">Anonyymi käyttö riippuu tämän sovelluksen OpenSubtitles-asetuksista. Kirjaudu halutessasi sisään käyttääksesi tilisi latauskiintiötä.</string>
     <string name="settings_opensubtitles_connect">Yhdistä tili (valinnainen)</string>

@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Ιστορικό αναπαραγωγής</string>
     <string name="settings_backup_section_multiview">Προεπιλογές διαίρεσης οθόνης</string>
     <string name="settings_backup_section_recordings">Προγραμματισμένες εγγραφές</string>
+    <string name="settings_backup_section_stremio_addons">Πρόσθετα Stremio</string>
     <string name="settings_backup_conflict_count">%1$d συγκρούσεις</string>
     <string name="settings_backup_no_conflicts">Χωρίς συγκρούσεις</string>
     <string name="settings_backup_item_count">%1$d στοιχεία</string>
@@ -802,7 +803,7 @@
     <string name="settings_provider_inventory_title">Οι πάροχοί σας</string>
     <string name="settings_provider_in_use">Σε χρήση</string>
     <string name="settings_recording_use_smb_storage">Χρήση κοινόχρηστου φακέλου SMB</string>
-    <string name="settings_backup_credentials_notice">Τα αρχεία αντιγράφου ασφαλείας περιλαμβάνουν τους κωδικούς των παρόχων σε αναγνώσιμη μορφή, ώστε οι επαναφερόμενοι λογαριασμοί να μπορούν να επανασυνδεθούν. Αποθηκεύστε τα και μοιραστείτε τα μόνο με άτομα που εμπιστεύεστε.</string>
+    <string name="settings_backup_credentials_notice">Τα αρχεία αντιγράφων ασφαλείας περιλαμβάνουν κωδικούς παρόχων και διαμορφωμένες διευθύνσεις URL πρόσθετων Stremio σε αναγνώσιμη μορφή. Αυτές οι διευθύνσεις μπορεί να περιέχουν διακριτικά πρόσβασης. Κρατήστε τα αντίγραφα ιδιωτικά και μοιραστείτε τα μόνο με άτομα που εμπιστεύεστε.</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
     <string name="settings_opensubtitles_description">Η ανώνυμη πρόσβαση εξαρτάται από τις ρυθμίσεις OpenSubtitles αυτής της εφαρμογής. Συνδεθείτε προαιρετικά για να χρησιμοποιήσετε το όριο λήψεων του λογαριασμού σας.</string>
     <string name="settings_opensubtitles_connect">Σύνδεση λογαριασμού (προαιρετικό)</string>

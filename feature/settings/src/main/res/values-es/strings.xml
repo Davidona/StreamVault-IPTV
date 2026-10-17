@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Historial de reproducción</string>
     <string name="settings_backup_section_multiview">Ajustes preestablecidos de pantalla dividida</string>
     <string name="settings_backup_section_recordings">Programaciones de grabación</string>
+    <string name="settings_backup_section_stremio_addons">Complementos de Stremio</string>
     <string name="settings_backup_conflict_count">%1$d conflictos</string>
     <string name="settings_backup_no_conflicts">Sin conflictos</string>
     <string name="settings_backup_item_count">%1$d elementos</string>
@@ -751,7 +752,7 @@
     <string name="settings_provider_inventory_title">Tus proveedores</string>
     <string name="settings_provider_in_use">En uso</string>
     <string name="settings_recording_use_smb_storage">Usar recurso compartido SMB</string>
-    <string name="settings_backup_credentials_notice">Los archivos de copia de seguridad incluyen las contraseñas de los proveedores en formato legible para que las cuentas restauradas puedan reconectarse. Guárdalos y compártelos solo con personas de confianza.</string>
+    <string name="settings_backup_credentials_notice">Las copias de seguridad incluyen las contraseñas de los proveedores y las URL configuradas de complementos de Stremio en formato legible. Esas URL pueden contener tokens de acceso. Mantén las copias en privado y compártelas solo con personas de confianza.</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
     <string name="settings_opensubtitles_description">El acceso anónimo depende de la configuración de OpenSubtitles de esta app. Inicia sesión opcionalmente para usar la cuota de descargas de tu cuenta.</string>
     <string name="settings_opensubtitles_connect">Conectar cuenta (opcional)</string>

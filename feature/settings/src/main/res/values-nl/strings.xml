@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Afspeelgeschiedenis</string>
     <string name="settings_backup_section_multiview">Voorinstellingen voor gesplitst scherm</string>
     <string name="settings_backup_section_recordings">Opnameschema\'s</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-add-ons</string>
     <string name="settings_backup_conflict_count">%1$d conflicten</string>
     <string name="settings_backup_no_conflicts">Geen conflicten</string>
     <string name="settings_backup_item_count">%1$d artikelen</string>
@@ -801,7 +802,7 @@
     <string name="settings_auto_sync_sections_heading">Inhoud om te vernieuwen</string>
     <string name="settings_select_live_clock_size">Klokgrootte selecteren</string>
     <string name="settings_opensubtitles_daily_allowance">%1$d downloads per dag</string>
-    <string name="settings_backup_credentials_notice">Back-upbestanden bevatten providerwachtwoorden in leesbare vorm zodat herstelde accounts opnieuw kunnen verbinden. Bewaar en deel ze alleen met mensen die u vertrouwt.</string>
+    <string name="settings_backup_credentials_notice">Back-ups bevatten providerwachtwoorden en ingestelde Stremio-add-on-URL's in leesbare vorm. Deze URL's kunnen toegangstokens bevatten. Houd back-ups privé en deel ze alleen met mensen die u vertrouwt.</string>
     <string name="settings_theme_m3_purple">M3-paars</string>
     <string name="settings_auto_sync_status_network">Wachten op een geschikt netwerk</string>
     <string name="settings_sync_section_queued">%1$s vernieuwing in wachtrij geplaatst</string>

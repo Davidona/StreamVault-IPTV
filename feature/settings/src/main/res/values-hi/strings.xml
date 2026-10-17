@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">प्लेबैक इतिहास</string>
     <string name="settings_backup_section_multiview">स्प्लिट स्क्रीन प्रीसेट</string>
     <string name="settings_backup_section_recordings">रिकॉर्डिंग शेड्यूल</string>
+    <string name="settings_backup_section_stremio_addons">Stremio ऐड-ऑन</string>
     <string name="settings_backup_conflict_count">%1$d टकराव</string>
     <string name="settings_backup_no_conflicts">कोई टकराव नहीं</string>
     <string name="settings_backup_item_count">%1$d आइटम</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">लाइव प्लेबैक से मैन्युअल रिकॉर्डिंग शुरू करें या प्लेयर से इसका शेड्यूल बनाएँ।</string>
     <string name="settings_recording_pattern_hint">ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm जैसे टोकन इस्तेमाल करें</string>
     <string name="settings_backup_subtitle">पसंदीदा, समूह और प्राथमिकताएँ एक्सपोर्ट या इंपोर्ट करें।</string>
-    <string name="settings_backup_credentials_notice">बैकअप फ़ाइलों में प्रोवाइडर पासवर्ड पढ़ने योग्य रूप में होते हैं ताकि पुनर्स्थापित खाते फिर से कनेक्ट हो सकें। इन्हें केवल उन लोगों के साथ रखें और साझा करें जिन पर आप भरोसा करते हैं।</string>
+    <string name="settings_backup_credentials_notice">बैकअप फ़ाइलों में प्रोवाइडर पासवर्ड और कॉन्फ़िगर किए गए Stremio ऐड-ऑन URL पढ़ने योग्य रूप में शामिल होते हैं। इन URL में एक्सेस टोकन हो सकते हैं। बैकअप को निजी रखें और केवल भरोसेमंद लोगों के साथ साझा करें।</string>
     <string name="settings_backup_data">डेटा एक्सपोर्ट करें</string>
     <string name="settings_backup_share_data">बैकअप साझा करें</string>
     <string name="settings_backup_share_subtitle">बैकअप फ़ाइल टीवी फ़ाइल मैनेजर या किसी अन्य ऐप को भेजें।</string>

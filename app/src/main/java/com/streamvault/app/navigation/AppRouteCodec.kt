@@ -23,7 +23,7 @@ internal object AppRoutePatterns {
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
-    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
+    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}"
     const val PLUGINS = SystemRoutePatterns.PLUGINS
     const val ADDONS = StremioRoutePatterns.ADDONS
     const val PLAYER = PlaybackRoutePatterns.PLAYER
@@ -53,9 +53,16 @@ internal object AppRouteCodec {
             "${AppRoutePatterns.EPG}?categoryId=$categoryId" +
                 "&anchorTime=$anchorTime&favoritesOnly=${destination.favoritesOnly}"
         }
-        is AppDestination.Settings -> destination.backupUri?.takeIf(String::isNotBlank)?.let { uri ->
-            "${AppRoutePatterns.SETTINGS}?backupUri=${Uri.encode(uri)}"
-        } ?: AppRoutePatterns.SETTINGS
+        is AppDestination.Settings -> buildList {
+            destination.backupUri?.takeIf(String::isNotBlank)?.let { uri ->
+                add("backupUri=${Uri.encode(uri)}")
+            }
+            if (destination.openOpenSubtitlesSignIn) {
+                add("openOpenSubtitlesSignIn=true")
+            }
+        }.takeIf { it.isNotEmpty() }
+            ?.joinToString(prefix = "${AppRoutePatterns.SETTINGS}?")
+            ?: AppRoutePatterns.SETTINGS
         AppDestination.Plugins -> AppRoutePatterns.PLUGINS
         AppDestination.Addons -> AppRoutePatterns.ADDONS
         is AppDestination.Search -> destination.query?.takeIf(String::isNotBlank)?.let { query ->
@@ -103,7 +110,8 @@ internal object AppRouteCodec {
             path == AppRoutePatterns.DOWNLOADS -> AppDestination.Downloads
             path == AppRoutePatterns.EPG -> decodeGuide(query)
             path == AppRoutePatterns.SETTINGS -> AppDestination.Settings(
-                backupUri = query["backupUri"]?.takeIf(String::isNotBlank)
+                backupUri = query["backupUri"]?.takeIf(String::isNotBlank),
+                openOpenSubtitlesSignIn = query["openOpenSubtitlesSignIn"]?.toBooleanStrictOrNull() ?: false,
             )
             path == AppRoutePatterns.PLUGINS -> AppDestination.Plugins
             path == AppRoutePatterns.ADDONS -> AppDestination.Addons

@@ -3,6 +3,7 @@ package com.streamvault.feature.settings.presentation
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
 import com.streamvault.domain.manager.BackupRestoreOutcome
+import com.streamvault.domain.manager.BACKUP_SECTION_STREMIO_ADDONS
 import com.streamvault.domain.usecase.ExportBackup
 import com.streamvault.domain.usecase.ExportBackupCommand
 import com.streamvault.domain.usecase.ExportBackupResult
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 class SettingsBackupActions(
     private val exportBackup: ExportBackup,
     private val importBackup: ImportBackup,
-    private val uiState: MutableStateFlow<SettingsUiState>
+    private val uiState: MutableStateFlow<SettingsUiState>,
+    private val stremioAddonSectionLabel: (() -> String)? = null
 ) {
     fun exportConfig(
         scope: CoroutineScope,
@@ -133,6 +135,10 @@ class SettingsBackupActions(
         uiState.update { it.copy(backupImportPlan = it.backupImportPlan.copy(importRecordingSchedules = enabled)) }
     }
 
+    fun setImportStremioAddons(enabled: Boolean) {
+        uiState.update { it.copy(backupImportPlan = it.backupImportPlan.copy(importStremioAddons = enabled)) }
+    }
+
     fun confirmBackupImport(
         scope: CoroutineScope,
         onSuccess: (suspend () -> Unit)? = null,
@@ -146,7 +152,8 @@ class SettingsBackupActions(
             if (state.isImportingBackup || state.pendingBackupUri == null) return@update state
             val plan = state.backupImportPlan
             if (!plan.importPreferences && !plan.importProviders && !plan.importSavedLibrary &&
-                !plan.importPlaybackHistory && !plan.importMultiViewPresets && !plan.importRecordingSchedules
+                !plan.importPlaybackHistory && !plan.importMultiViewPresets && !plan.importRecordingSchedules &&
+                !plan.importStremioAddons
             ) {
                 return@update state.copy(userMessage = "Select at least one section to import")
             }
@@ -168,7 +175,11 @@ class SettingsBackupActions(
                     userMessage = if (result is ImportBackupResult.Error) {
                         "Import failed: ${result.message}"
                     } else {
-                        "Configuration imported: ${(result as ImportBackupResult.Success).importedSummary}"
+                        val success = result as ImportBackupResult.Success
+                        val summary = stremioAddonSectionLabel?.let { label ->
+                            success.importedSummary.replace(BACKUP_SECTION_STREMIO_ADDONS, label())
+                        } ?: success.importedSummary
+                        "Configuration imported: $summary"
                     },
                     // Preserve the source and plan after partial/failed-before-commit outcomes so
                     // the user can retry the same durable checkpoint instead of starting over.

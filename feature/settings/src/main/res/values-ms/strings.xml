@@ -420,6 +420,7 @@
     <string name="settings_backup_section_history">Sejarah Main Balik</string>
     <string name="settings_backup_section_multiview">Pratetap Skrin Berpisah</string>
     <string name="settings_backup_section_recordings">Jadual Rakaman</string>
+    <string name="settings_backup_section_stremio_addons">Add-on Stremio</string>
     <string name="settings_backup_conflict_count">%1$d konflik</string>
     <string name="settings_backup_no_conflicts">Tiada konflik</string>
     <string name="settings_backup_item_count">%1$d item</string>
@@ -666,7 +667,7 @@
     <string name="settings_recording_empty_subtitle">Mulakan rakaman manual daripada main balik langsung atau jadualkannya daripada pemain.</string>
     <string name="settings_recording_pattern_hint">Guna token seperti ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Eksport atau import kegemaran, kumpulan dan keutamaan.</string>
-    <string name="settings_backup_credentials_notice">Fail sandaran mengandungi kata laluan penyedia dalam bentuk boleh dibaca supaya akaun yang dipulihkan boleh menyambung semula. Simpan dan kongsi hanya dengan orang yang anda percayai.</string>
+    <string name="settings_backup_credentials_notice">Fail sandaran mengandungi kata laluan penyedia dan URL add-on Stremio yang dikonfigurasikan dalam bentuk yang boleh dibaca. URL ini mungkin mengandungi token akses. Simpan sandaran secara peribadi dan kongsi hanya dengan orang yang anda percayai.</string>
     <string name="settings_backup_data">Eksport Data</string>
     <string name="settings_backup_share_data">Kongsi Sandaran</string>
     <string name="settings_backup_share_subtitle">Hantar fail sandaran ke pengurus fail TV atau aplikasi lain.</string>

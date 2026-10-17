@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">재생 기록</string>
     <string name="settings_backup_section_multiview">분할 화면 프리셋</string>
     <string name="settings_backup_section_recordings">녹화 일정</string>
+    <string name="settings_backup_section_stremio_addons">Stremio 애드온</string>
     <string name="settings_backup_conflict_count">충돌 %1$d개</string>
     <string name="settings_backup_no_conflicts">충돌 없음</string>
     <string name="settings_backup_item_count">항목 %1$d개</string>
@@ -754,7 +755,7 @@
     <string name="settings_recording_smb_save">검증 후 저장</string>
     <string name="settings_recording_smb_saving">검증 중…</string>
     <string name="settings_recording_use_smb_storage">SMB 공유 사용</string>
-    <string name="settings_backup_credentials_notice">백업 파일에는 복원된 계정이 다시 연결할 수 있도록 공급자 비밀번호가 읽을 수 있는 형식으로 포함됩니다. 신뢰하는 사람에게만 보관하고 공유하세요.</string>
+    <string name="settings_backup_credentials_notice">백업 파일에는 공급자 비밀번호와 설정된 Stremio 애드온 URL이 읽을 수 있는 형식으로 포함됩니다. URL에는 액세스 토큰이 들어 있을 수 있습니다. 백업을 비공개로 보관하고 신뢰하는 사람과만 공유하세요.</string>
     <string name="settings_vod_portal_search">포털 기반 VOD 검색</string>
     <string name="settings_vod_portal_search_off">검색에 로컬로 색인된 VOD 카탈로그를 사용합니다.</string>
     <string name="settings_vod_portal_search_on">전체 카탈로그가 색인되기 전에 Stalker 포털에 VOD 검색을 요청합니다.</string>

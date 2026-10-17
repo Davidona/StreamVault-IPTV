@@ -78,6 +78,7 @@ internal fun AppNavHost(
                     onImportPlaybackHistoryChanged = request.onImportPlaybackHistoryChanged,
                     onImportMultiViewChanged = request.onImportMultiViewChanged,
                     onImportRecordingSchedulesChanged = request.onImportRecordingSchedulesChanged,
+                    onImportStremioAddonsChanged = request.onImportStremioAddonsChanged,
                     isImporting = request.isImporting,
                     onConfirm = request.onConfirm
                 )
@@ -144,7 +145,7 @@ internal fun AppNavHost(
             actions = actions,
             platformHost = settingsPlatformHost,
             navigationDestinations = navigationDestinations,
-            settingsContent = { backupUri, platformHost, destinations, onBack ->
+            settingsContent = { backupUri, openOpenSubtitlesSignIn, platformHost, destinations, onBack ->
                 SettingsScreen(
                     onNavigate = { route ->
                         AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
@@ -169,6 +170,7 @@ internal fun AppNavHost(
                         )
                     },
                     initialBackupImportUri = backupUri,
+                    openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                     onCloseApp = onCloseApp
                 )
             },

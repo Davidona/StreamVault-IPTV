@@ -423,6 +423,7 @@
     <string name="settings_backup_section_history">História prehrávania</string>
     <string name="settings_backup_section_multiview">Predvoľby rozdelenej obrazovky</string>
     <string name="settings_backup_section_recordings">Plány nahrávania</string>
+    <string name="settings_backup_section_stremio_addons">Doplnky Stremio</string>
     <string name="settings_backup_conflict_count">%1$d konfliktov</string>
     <string name="settings_backup_no_conflicts">Žiadne konflikty</string>
     <string name="settings_backup_item_count">%1$d položiek</string>
@@ -672,7 +673,7 @@
     <string name="settings_recording_empty_subtitle">Spustite ručné nahrávanie počas živého prehrávania alebo naplánujte nahrávanie v prehrávači.</string>
     <string name="settings_recording_pattern_hint">Používajte tokeny ako ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Exportujte alebo importujte obľúbené položky, skupiny a preferencie.</string>
-    <string name="settings_backup_credentials_notice">Záložné súbory obsahujú heslá poskytovateľov v čitateľnej podobe, aby sa obnovené účty mohli znova pripojiť. Uchovávajte ich a zdieľajte len s ľuďmi, ktorým dôverujete.</string>
+    <string name="settings_backup_credentials_notice">Zálohy obsahujú heslá poskytovateľov a nakonfigurované adresy URL doplnkov Stremio v čitateľnej podobe. Tieto adresy môžu obsahovať prístupové tokeny. Zálohy uchovávajte v súkromí a zdieľajte ich iba s ľuďmi, ktorým dôverujete.</string>
     <string name="settings_backup_data">Exportovať údaje</string>
     <string name="settings_backup_share_data">Zdieľať zálohu</string>
     <string name="settings_backup_share_subtitle">Odoslať záložný súbor do správcu súborov TV alebo do inej aplikácie.</string>

@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">Historiku i shikimit</string>
     <string name="settings_backup_section_multiview">Paravendosjet e ekranit të ndarë</string>
     <string name="settings_backup_section_recordings">Programimet e regjistrimit</string>
+    <string name="settings_backup_section_stremio_addons">Shtesa për Stremio</string>
     <string name="settings_backup_conflict_count">%1$d konflikte</string>
     <string name="settings_backup_no_conflicts">Pa konflikte</string>
     <string name="settings_backup_item_count">%1$d elemente</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">Nis një regjistrim manual nga luajtja drejtpërdrejt ose planifiko një nga luajtësi.</string>
     <string name="settings_recording_pattern_hint">Përdor token si ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Eksporto ose importo të preferuarat, grupet dhe preferencat.</string>
-    <string name="settings_backup_credentials_notice">Skedarët e kopjes rezervë përmbajnë fjalëkalimet e ofruesve në formë të lexueshme, që llogaritë e rikthyera të rilidhen. Ruaji dhe ndaji vetëm me njerëz që i beson.</string>
+    <string name="settings_backup_credentials_notice">Skedarët rezervë përmbajnë fjalëkalimet e ofruesve dhe URL-të e konfiguruara të shtesave Stremio në formë të lexueshme. Këto URL mund të përmbajnë tokenë hyrjeje. Mbaji kopjet rezervë private dhe ndajini vetëm me njerëz që u beson.</string>
     <string name="settings_backup_data">Eksporto të dhënat</string>
     <string name="settings_backup_share_data">Nda kopjen rezervë</string>
     <string name="settings_backup_share_subtitle">Dërgo një skedar kopjeje rezervë te një menaxher skedarësh të TV-së ose një aplikacion tjetër.</string>

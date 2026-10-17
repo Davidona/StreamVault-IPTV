@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">Историја на репродукција</string>
     <string name="settings_backup_section_multiview">Пресети за поделен екран</string>
     <string name="settings_backup_section_recordings">Распореди за снимање</string>
+    <string name="settings_backup_section_stremio_addons">Додатоци за Stremio</string>
     <string name="settings_backup_conflict_count">%1$d конфликти</string>
     <string name="settings_backup_no_conflicts">Нема конфликти</string>
     <string name="settings_backup_item_count">%1$d ставки</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">Започнете рачно снимање од репродукцијата во живо или закажете снимање од плеерот.</string>
     <string name="settings_recording_pattern_hint">Користете токени како ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Извезете или увезете омилени, групи и преференции.</string>
-    <string name="settings_backup_credentials_notice">Датотеките со резервни копии ги содржат лозинките на провајдерите во читлива форма, за да можат обновените сметки повторно да се поврзат. Чувајте ги и споделувајте ги само со луѓе на кои им верувате.</string>
+    <string name="settings_backup_credentials_notice">Датотеките за резервна копија содржат лозинки за провајдерите и конфигурирани URL-адреси на додатоците за Stremio во читлива форма. Овие адреси може да содржат токени за пристап. Чувајте ги резервните копии приватни и споделувајте ги само со луѓе на кои им верувате.</string>
     <string name="settings_backup_data">Извези податоци</string>
     <string name="settings_backup_share_data">Сподели резервна копија</string>
     <string name="settings_backup_share_subtitle">Испратете датотека со резервна копија до датотечен менаџер на телевизорот или до друга апликација.</string>

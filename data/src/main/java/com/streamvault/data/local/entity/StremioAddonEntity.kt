@@ -21,5 +21,6 @@ data class StremioAddonEntity(
     @ColumnInfo(name = "sort_order") val sortOrder: Int,
     @ColumnInfo(name = "catalog_settings_json") val catalogSettingsJson: String,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    @ColumnInfo(name = "updated_at") val updatedAt: Long
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    @ColumnInfo(name = "manifest_refreshed_at", defaultValue = "0") val manifestRefreshedAt: Long = 0L
 )

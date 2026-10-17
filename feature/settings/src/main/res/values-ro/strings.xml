@@ -383,6 +383,7 @@
     <string name="settings_backup_section_history">Istoricul redării</string>
     <string name="settings_backup_section_multiview">Presetări pentru ecran împărțit</string>
     <string name="settings_backup_section_recordings">Programe de înregistrare</string>
+    <string name="settings_backup_section_stremio_addons">Suplimente Stremio</string>
     <string name="settings_backup_conflict_count">%1$d conflicte</string>
     <string name="settings_backup_no_conflicts">Fără conflicte</string>
     <string name="settings_backup_item_count">%1$d articole</string>
@@ -845,7 +846,7 @@
     <string name="settings_vod_portal_search">Căutare VOD prin portal</string>
     <string name="settings_vod_portal_search_off">Folosiți catalogul VOD indexat local pentru căutare.</string>
     <string name="settings_vod_portal_search_on">Cere portalurilor Stalker să caute VOD înainte ca întregul catalog să fie indexat.</string>
-    <string name="settings_backup_credentials_notice">Fișierele de backup includ parolele furnizorilor în formă lizibilă, astfel încât conturile restaurate să se poată reconecta. Păstrați-le și partajați-le doar cu persoane de încredere.</string>
+    <string name="settings_backup_credentials_notice">Fișierele de backup includ parolele furnizorilor și URL-urile configurate ale suplimentelor Stremio în formă lizibilă. Aceste URL-uri pot conține tokenuri de acces. Păstrați copiile private și partajați-le doar cu persoane de încredere.</string>
     <string name="settings_quality_profile_title">Profil de calitate a redării</string>
     <string name="settings_quality_profile_data_saver">Economisire de date</string>
     <string name="settings_quality_profile_balanced">Echilibrat</string>

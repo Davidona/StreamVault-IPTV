@@ -19,6 +19,7 @@ data class ProviderBackupPreviewRequest(
     val onImportPlaybackHistoryChanged: (Boolean) -> Unit,
     val onImportMultiViewChanged: (Boolean) -> Unit,
     val onImportRecordingSchedulesChanged: (Boolean) -> Unit,
+    val onImportStremioAddonsChanged: (Boolean) -> Unit = {},
     val isImporting: Boolean,
     val onConfirm: () -> Unit,
 )

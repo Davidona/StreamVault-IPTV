@@ -291,6 +291,7 @@ public fun SettingsScreenDialogs(
             onImportPlaybackHistoryChanged = { viewModel.setImportPlaybackHistory(it) },
             onImportMultiViewChanged = { viewModel.setImportMultiViewPresets(it) },
             onImportRecordingSchedulesChanged = { viewModel.setImportRecordingSchedules(it) },
+            onImportStremioAddonsChanged = { viewModel.setImportStremioAddons(it) },
             isImporting = uiState.isImportingBackup,
             onConfirm = { viewModel.confirmBackupImport() }
         )

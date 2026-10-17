@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">再生履歴</string>
     <string name="settings_backup_section_multiview">分割画面プリセット</string>
     <string name="settings_backup_section_recordings">録画スケジュール</string>
+    <string name="settings_backup_section_stremio_addons">Stremio アドオン</string>
     <string name="settings_backup_conflict_count">競合 %1$d 件</string>
     <string name="settings_backup_no_conflicts">競合なし</string>
     <string name="settings_backup_item_count">%1$d アイテム</string>
@@ -750,7 +751,7 @@
     <string name="settings_provider_diagnostics_hide">診断を非表示</string>
     <string name="settings_provider_inventory_title">プロバイダー一覧</string>
     <string name="settings_provider_in_use">使用中</string>
-    <string name="settings_backup_credentials_notice">バックアップファイルには、復元したアカウントが再接続できるよう、プロバイダーのパスワードが読み取り可能な形式で含まれます。信頼できる人にのみ保存・共有してください。</string>
+    <string name="settings_backup_credentials_notice">バックアップファイルには、プロバイダーのパスワードと設定済み Stremio アドオンの URL が読み取り可能な形式で含まれます。URL にはアクセストークンが含まれる場合があります。バックアップは非公開にし、信頼できる人とのみ共有してください。</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
     <string name="settings_opensubtitles_description">匿名アクセスはこのアプリの OpenSubtitles 設定に依存します。任意でサインインすると、アカウント固有のダウンロード枠を使用できます。</string>
     <string name="settings_opensubtitles_connect">アカウントを接続（任意）</string>

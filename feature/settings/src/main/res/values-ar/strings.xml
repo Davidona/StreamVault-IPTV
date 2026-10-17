@@ -372,6 +372,7 @@
     <string name="settings_backup_section_history">سجل التشغيل</string>
     <string name="settings_backup_section_multiview">إعدادات تقسيم الشاشة</string>
     <string name="settings_backup_section_recordings">جداول التسجيل</string>
+    <string name="settings_backup_section_stremio_addons">إضافات Stremio</string>
     <string name="settings_backup_conflict_count">%1$d تعارضات</string>
     <string name="settings_backup_no_conflicts">لا توجد تعارضات</string>
     <string name="settings_backup_item_count">%1$d عناصر</string>
@@ -812,7 +813,7 @@
     <string name="settings_manage_drive_backups_subtitle">راجع لقطات Drive المحفوظة أو احذفها.</string>
     <string name="settings_drive_unknown_backup_date">التاريخ غير متاح</string>
     <string name="settings_drive_backup_size_unknown">الحجم غير متاح</string>
-    <string name="settings_backup_credentials_notice">تتضمن ملفات النسخ الاحتياطي كلمات مرور المزوّدين بصيغة مقروءة حتى تتمكن الحسابات المستعادة من الاتصال مجددًا. احتفظ بها وشاركها فقط مع من تثق بهم.</string>
+    <string name="settings_backup_credentials_notice">تتضمن ملفات النسخ الاحتياطي كلمات مرور المزوّدين وروابط إضافات Stremio المُهيأة بصيغة مقروءة. وقد تحتوي هذه الروابط على رموز وصول. احتفظ بنسخك خاصة وشاركها فقط مع من تثق بهم.</string>
     <string name="settings_startup_first_favorite_live">تشغيل أول قناة مفضلة</string>
     <string name="settings_startup_last_watched_live">تشغيل آخر قناة مباشرة شوهدت</string>
     <string name="settings_backup_choose_file_title">اختر ملف نسخ احتياطي</string>

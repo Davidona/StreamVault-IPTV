@@ -382,6 +382,7 @@
     <string name="settings_backup_section_history">Avspillingshistorikk</string>
     <string name="settings_backup_section_multiview">Forhåndsinnstillinger for delt skjerm</string>
     <string name="settings_backup_section_recordings">Innspillingsplaner</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-tillegg</string>
     <string name="settings_backup_conflict_count">%1$d konflikter</string>
     <string name="settings_backup_no_conflicts">Ingen konflikter</string>
     <string name="settings_backup_item_count">%1$d varer</string>
@@ -842,7 +843,7 @@
     <string name="settings_provider_in_use">I bruk</string>
     <string name="settings_provider_diagnostics_show">Vis diagnostikk</string>
     <string name="settings_provider_diagnostics_hide">Skjul diagnostikk</string>
-    <string name="settings_backup_credentials_notice">Sikkerhetskopifiler inneholder leverandørpassord i lesbar form, slik at gjenopprettede kontoer kan koble til på nytt. Oppbevar og del dem bare med folk du stoler på.</string>
+    <string name="settings_backup_credentials_notice">Sikkerhetskopier inneholder leverandørpassord og konfigurerte Stremio-tilleggsadresser i lesbar form. Disse adressene kan inneholde tilgangstokener. Hold sikkerhetskopiene private, og del dem bare med personer du stoler på.</string>
     <string name="settings_quality_profile_title">Profil for avspillingskvalitet</string>
     <string name="settings_quality_profile_data_saver">Datasparing</string>
     <string name="settings_quality_profile_balanced">Balansert</string>

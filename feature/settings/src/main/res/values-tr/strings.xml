@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Oynatma Geçmişi</string>
     <string name="settings_backup_section_multiview">Bölünmüş Ekran Hazır Ayarları</string>
     <string name="settings_backup_section_recordings">Kayıt Programları</string>
+    <string name="settings_backup_section_stremio_addons">Stremio eklentileri</string>
     <string name="settings_backup_conflict_count">%1$d çakışma</string>
     <string name="settings_backup_no_conflicts">Çakışma yok</string>
     <string name="settings_backup_item_count">%1$d öğe</string>
@@ -830,7 +831,7 @@
     <string name="settings_auto_sync_save_failed">Otomatik senkronizasyon ayarları kaydedilemedi. Tekrar deneyin.</string>
     <string name="settings_auto_sync_defer_hint">Oynatma ve kayıt artık etkin olmadığında otomatik işlem devam eder. Duraklatılmış oynatma da sayılır.</string>
     <string name="settings_auto_sync_idle_hint">Android cihaz boşta durumu, uygulamayı kullanmamaktan farklıdır; yenilemeleri önemli ölçüde geciktirebilir.</string>
-    <string name="settings_backup_credentials_notice">Yedek dosyaları, geri yüklenen hesapların yeniden bağlanabilmesi için sağlayıcı parolalarını okunabilir biçimde içerir. Bunları yalnızca güvendiğiniz kişilerle saklayın ve paylaşın.</string>
+    <string name="settings_backup_credentials_notice">Yedek dosyaları, sağlayıcı parolalarını ve yapılandırılmış Stremio eklenti URL'lerini okunabilir biçimde içerir. Bu URL'ler erişim belirteçleri içerebilir. Yedekleri gizli tutun ve yalnızca güvendiğiniz kişilerle paylaşın.</string>
     <plurals name="settings_live_tv_quick_filters_count">
         <item quantity="one">%1$d kaydedildi</item>
         <item quantity="other">%1$d kaydedildi</item>

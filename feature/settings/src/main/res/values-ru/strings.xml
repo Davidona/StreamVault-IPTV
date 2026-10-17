@@ -384,6 +384,7 @@
     <string name="settings_backup_section_history">История воспроизведения</string>
     <string name="settings_backup_section_multiview">Пресеты разделённого экрана</string>
     <string name="settings_backup_section_recordings">Расписания записи</string>
+    <string name="settings_backup_section_stremio_addons">Дополнения Stremio</string>
     <string name="settings_backup_conflict_count">%1$d конфликтов</string>
     <string name="settings_backup_no_conflicts">Нет конфликтов</string>
     <string name="settings_backup_item_count">%1$d элементов</string>
@@ -842,7 +843,7 @@
     <string name="settings_sync_background_note">Остановка этого обновления не остановит уже поставленные в очередь задачи библиотеки и гида.</string>
     <string name="settings_sync_section_queued">Обновление %1$s в очереди</string>
     <string name="settings_sync_stopped_queued">Обновление остановлено. Уже поставленные в очередь задачи библиотеки и гида продолжатся.</string>
-    <string name="settings_backup_credentials_notice">Файлы резервных копий содержат пароли провайдеров в читаемом виде, чтобы восстановленные аккаунты могли подключиться. Храните и передавайте их только доверенным людям.</string>
+    <string name="settings_backup_credentials_notice">Файлы резервных копий содержат пароли провайдеров и настроенные URL дополнений Stremio в читаемом виде. Эти URL могут содержать токены доступа. Храните резервные копии в тайне и делитесь ими только с теми, кому доверяете.</string>
     <plurals name="settings_auto_sync_hours">
         <item quantity="one">Каждый %d час</item>
         <item quantity="few">Каждые %d часа</item>

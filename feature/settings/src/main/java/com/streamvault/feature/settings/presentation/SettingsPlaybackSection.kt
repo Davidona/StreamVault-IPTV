@@ -84,6 +84,7 @@ public fun LazyListScope.settingsPlaybackSection(
     onShowEthernetQualityDialogChange: (Boolean) -> Unit,
     targetItemId: String? = null,
     targetFocusModifier: Modifier = Modifier,
+    openOpenSubtitlesSignIn: Boolean = false,
 ) {
     item {
         val context = LocalContext.current
@@ -541,6 +542,7 @@ public fun LazyListScope.settingsPlaybackSection(
                     uiState = uiState,
                     viewModel = viewModel,
                     targetFocusModifier = if (targetItemId == "playback.subtitles_provider") targetFocusModifier else Modifier,
+                    openSignInOnStart = openOpenSubtitlesSignIn,
                 )
                 SwitchSettingsRow(
                     label = stringResource(R.string.settings_live_translation_enabled),

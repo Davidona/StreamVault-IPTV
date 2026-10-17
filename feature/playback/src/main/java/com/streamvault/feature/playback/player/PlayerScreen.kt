@@ -1031,7 +1031,9 @@ fun PlayerScreen(
             onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },
             onOpenSubtitleOffset = { modalState = modalState.open(PlayerModal.SubtitleOffset) },
             onPickLocalSubtitle = pickLocalSubtitle,
-            onOpenSettings = { onNavigate?.invoke(AppDestination.Settings()) },
+            onOpenSettings = {
+                onNavigate?.invoke(AppDestination.Settings(openOpenSubtitlesSignIn = true))
+            },
             onDismissModal = { modalState = modalState.dismiss() }
         )
 

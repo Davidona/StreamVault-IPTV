@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">تاریخچه پخش</string>
     <string name="settings_backup_section_multiview">پیش‌تنظیم‌های صفحه تقسیم‌شده</string>
     <string name="settings_backup_section_recordings">زمان‌بندی‌های ضبط</string>
+    <string name="settings_backup_section_stremio_addons">افزونه‌های Stremio</string>
     <string name="settings_backup_conflict_count">%1$d تعارض</string>
     <string name="settings_backup_no_conflicts">بدون تعارض</string>
     <string name="settings_backup_item_count">%1$d مورد</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">از پخش زنده یک ضبط دستی شروع کنید یا از پخش‌کننده یکی زمان‌بندی کنید.</string>
     <string name="settings_recording_pattern_hint">از نشانه‌هایی مانند ChannelName، ProgramTitle، yyyy-MM-dd_HH-mm استفاده کنید</string>
     <string name="settings_backup_subtitle">صادر یا وارد کردن موردعلاقه‌ها، گروه‌ها و ترجیحات.</string>
-    <string name="settings_backup_credentials_notice">فایل‌های پشتیبان شامل رمزهای ارائه‌دهنده به صورت خوانا هستند تا حساب‌های بازیابی‌شده بتوانند دوباره متصل شوند. آن‌ها را فقط با افراد مورد اعتماد نگهداری و به اشتراک بگذارید.</string>
+    <string name="settings_backup_credentials_notice">فایل‌های پشتیبان گذرواژه‌های ارائه‌دهندگان و نشانی‌های پیکربندی‌شدهٔ افزونه‌های Stremio را به شکل خوانا در بر می‌گیرند. این نشانی‌ها ممکن است حاوی توکن دسترسی باشند. نسخه‌های پشتیبان را خصوصی نگه دارید و فقط با افراد مورد اعتماد به اشتراک بگذارید.</string>
     <string name="settings_backup_data">صادر کردن داده‌ها</string>
     <string name="settings_backup_share_data">اشتراک‌گذاری پشتیبان</string>
     <string name="settings_backup_share_subtitle">ارسال فایل پشتیبان به مدیر فایل تلویزیون یا برنامه دیگر.</string>

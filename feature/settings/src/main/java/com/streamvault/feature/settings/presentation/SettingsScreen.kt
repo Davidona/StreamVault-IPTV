@@ -59,6 +59,7 @@ public fun SettingsScreen(
     onEditProvider: (Provider) -> Unit = {},
     onNavigateToParentalControl: (Long) -> Unit = {},
     initialBackupImportUri: String? = null,
+    openOpenSubtitlesSignIn: Boolean = false,
     onCloseApp: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -88,19 +89,35 @@ public fun SettingsScreen(
         context = context,
         officialBuildStatus = platformHost.officialBuildStatus()
     )
-    val dialogState = rememberSettingsScreenDialogState()
+    val initialCategory = if (openOpenSubtitlesSignIn) {
+        SettingsCategory.PLAYBACK.legacyId
+    } else {
+        SettingsCategory.SOURCES.legacyId
+    }
+    val dialogState = rememberSettingsScreenDialogState(initialCategory)
     val providerState = rememberSettingsProviderSectionState(dialogState)
-    var compactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
+    var compactPane by rememberSaveable {
+        mutableStateOf(
+            if (openOpenSubtitlesSignIn) SettingsCompactPane.CONTENT else SettingsCompactPane.CATEGORIES
+        )
+    }
     var searchVisible by rememberSaveable { mutableStateOf(false) }
     var settingsSearchQuery by rememberSaveable { mutableStateOf("") }
     var searchRequestId by rememberSaveable { mutableLongStateOf(0L) }
     var categorySelectionId by rememberSaveable { mutableLongStateOf(0L) }
     var currentSettingsPage by remember { mutableStateOf<SettingsPage?>(null) }
+    var openOpenSubtitlesSignInPending by rememberSaveable {
+        mutableStateOf(openOpenSubtitlesSignIn)
+    }
     var searchOriginCategoryId by rememberSaveable { mutableIntStateOf(SettingsCategory.SOURCES.legacyId) }
     var searchOriginPageName by rememberSaveable { mutableStateOf<String?>(null) }
     var searchOriginCompactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
-    var restoredPage by remember { mutableStateOf<SettingsPage?>(null) }
-    var restorePageRequestId by rememberSaveable { mutableLongStateOf(0L) }
+    var restoredPage by remember {
+        mutableStateOf(if (openOpenSubtitlesSignIn) SettingsPage.SUBTITLES else null)
+    }
+    var restorePageRequestId by rememberSaveable {
+        mutableLongStateOf(if (openOpenSubtitlesSignIn) 1L else 0L)
+    }
     var requestedDestination by remember { mutableStateOf<SettingsSearchTarget?>(null) }
     var searchReturnResultId by rememberSaveable { mutableStateOf<String?>(null) }
     val searchResultsListState = rememberLazyListState()
@@ -109,6 +126,12 @@ public fun SettingsScreen(
     val searchButtonModifier = Modifier
         .focusRequester(settingsSearchFocusRequester)
         .onGloballyPositioned { searchButtonPlaced = true }
+
+    LaunchedEffect(openOpenSubtitlesSignIn, currentSettingsPage) {
+        if (openOpenSubtitlesSignIn && currentSettingsPage == SettingsPage.SUBTITLES) {
+            openOpenSubtitlesSignInPending = false
+        }
+    }
 
     fun openSettingsSearch() {
         searchOriginCategoryId = dialogState.selectedCategory
@@ -553,6 +576,7 @@ public fun SettingsScreen(
                     context = context,
                     appVersionLabel = "${platformHost.buildInfo.versionName} (${platformHost.buildInfo.versionCode})",
                     onCloseApp = onCloseApp,
+                    openOpenSubtitlesSignIn = openOpenSubtitlesSignInPending,
                     screenLabels = screenLabels,
                     dialogState = dialogState,
                     providerState = providerState,

@@ -493,7 +493,8 @@ private class FakeStremioAddonDao : StremioAddonDao {
         name: String,
         version: String,
         manifestJson: String,
-        updatedAt: Long
+        updatedAt: Long,
+        manifestRefreshedAt: Long
     ) {
         addons.value = addons.value.map { entity ->
             if (entity.id == id) entity.copy(
@@ -501,7 +502,8 @@ private class FakeStremioAddonDao : StremioAddonDao {
                 name = name,
                 version = version,
                 manifestJson = manifestJson,
-                updatedAt = updatedAt
+                updatedAt = updatedAt,
+                manifestRefreshedAt = manifestRefreshedAt
             ) else entity
         }
     }

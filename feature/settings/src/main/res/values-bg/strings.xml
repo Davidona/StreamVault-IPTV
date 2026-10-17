@@ -421,6 +421,7 @@
     <string name="settings_backup_section_history">История на възпроизвеждане</string>
     <string name="settings_backup_section_multiview">Шаблони за разделен екран</string>
     <string name="settings_backup_section_recordings">Графици за запис</string>
+    <string name="settings_backup_section_stremio_addons">Добавки на Stremio</string>
     <string name="settings_backup_conflict_count">%1$d конфликта</string>
     <string name="settings_backup_no_conflicts">Няма конфликти</string>
     <string name="settings_backup_item_count">%1$d елемента</string>
@@ -668,7 +669,7 @@
     <string name="settings_recording_empty_subtitle">Стартирайте ръчен запис от възпроизвеждането на живо или планирайте запис от плейъра.</string>
     <string name="settings_recording_pattern_hint">Използвайте токени като ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Експортирайте или импортирайте любими, групи и предпочитания.</string>
-    <string name="settings_backup_credentials_notice">Файловете за архив съдържат паролите на доставчиците в четима форма, за да могат възстановените профили да се свържат отново. Съхранявайте и споделяйте ги само с хора, на които имате доверие.</string>
+    <string name="settings_backup_credentials_notice">Архивните файлове съдържат пароли за доставчици и конфигурирани адреси на добавки на Stremio в четим вид. Тези адреси може да съдържат токени за достъп. Пазете архивите поверителни и ги споделяйте само с хора, на които имате доверие.</string>
     <string name="settings_backup_data">Експортиране на данни</string>
     <string name="settings_backup_share_data">Споделяне на архив</string>
     <string name="settings_backup_share_subtitle">Изпратете файл за архив към файлов мениджър на телевизора или друго приложение.</string>

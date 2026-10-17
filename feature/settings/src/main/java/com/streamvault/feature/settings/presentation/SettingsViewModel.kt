@@ -159,7 +159,8 @@ class SettingsViewModel @Inject constructor(
     private val backupActions = SettingsBackupActions(
         exportBackup = exportBackup,
         importBackup = importBackup,
-        uiState = _uiState
+        uiState = _uiState,
+        stremioAddonSectionLabel = { appContext.getString(R.string.settings_backup_section_stremio_addons) }
     )
     private val driveBackupActions = SettingsDriveBackupActions(
         driveManager = driveBackupSyncManager,

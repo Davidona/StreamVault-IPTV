@@ -383,6 +383,7 @@
     <string name="settings_backup_section_history">היסטוריית השמעה</string>
     <string name="settings_backup_section_multiview">הגדרות מראש של מסך מפוצל</string>
     <string name="settings_backup_section_recordings">לוחות זמנים להקלטה</string>
+    <string name="settings_backup_section_stremio_addons">תוספים של Stremio</string>
     <string name="settings_backup_conflict_count">%1$d קונפליקטים</string>
     <string name="settings_backup_no_conflicts">אין קונפליקטים</string>
     <string name="settings_backup_item_count">%1$d פריטים</string>
@@ -815,7 +816,7 @@
     <string name="settings_auto_sync_sections_heading">תוכן לרענון</string>
     <string name="settings_select_live_clock_size">בחר גודל שעון</string>
     <string name="settings_opensubtitles_daily_allowance">%1$d הורדות ביום</string>
-    <string name="settings_backup_credentials_notice">קובצי גיבוי כוללים סיסמאות ספק בצורה קריאה כדי שחשבונות משוחזרים יוכלו להתחבר מחדש. שמור ושתף אותם רק עם אנשים שאתה סומך עליהם.</string>
+    <string name="settings_backup_credentials_notice">קובצי גיבוי כוללים סיסמאות של ספקים וכתובות URL מוגדרות של תוספי Stremio בצורה קריאה. כתובות אלה עשויות להכיל אסימוני גישה. שמור את הגיבויים פרטיים ושתף אותם רק עם אנשים שאתה סומך עליהם.</string>
     <string name="settings_theme_m3_purple">סגול M3</string>
     <string name="settings_auto_sync_status_network">ממתין לרשת מתאימה</string>
     <string name="settings_sync_section_queued">רענון של %1$s בתור</string>

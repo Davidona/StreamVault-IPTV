@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Uppspelningshistorik</string>
     <string name="settings_backup_section_multiview">Förinställningar för delad skärm</string>
     <string name="settings_backup_section_recordings">Inspelningsscheman</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-tillägg</string>
     <string name="settings_backup_conflict_count">%1$d konflikter</string>
     <string name="settings_backup_no_conflicts">Inga konflikter</string>
     <string name="settings_backup_item_count">%1$d objekt</string>
@@ -751,7 +752,7 @@
     <string name="settings_provider_inventory_title">Dina leverantörer</string>
     <string name="settings_provider_in_use">Används</string>
     <string name="settings_recording_use_smb_storage">Använd SMB-delning</string>
-    <string name="settings_backup_credentials_notice">Säkerhetskopior innehåller leverantörslösenord i läsbar form så att återställda konton kan återansluta. Lagra och dela dem endast med personer du litar på.</string>
+    <string name="settings_backup_credentials_notice">Säkerhetskopior innehåller leverantörslösenord och konfigurerade URL:er för Stremio-tillägg i läsbar form. URL:erna kan innehålla åtkomsttoken. Förvara säkerhetskopior privat och dela dem bara med personer du litar på.</string>
     <string name="settings_opensubtitles_title">OpenSubtitles</string>
     <string name="settings_opensubtitles_description">Anonym åtkomst beror på den här appens OpenSubtitles-inställningar. Logga in valfritt för att använda kontots nedladdningskvot.</string>
     <string name="settings_opensubtitles_connect">Anslut konto (valfritt)</string>

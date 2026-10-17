@@ -420,6 +420,7 @@
     <string name="settings_backup_section_history">播放記錄</string>
     <string name="settings_backup_section_multiview">分割畫面預設集</string>
     <string name="settings_backup_section_recordings">錄影排程</string>
+    <string name="settings_backup_section_stremio_addons">Stremio 外掛程式</string>
     <string name="settings_backup_conflict_count">%1$d 個衝突</string>
     <string name="settings_backup_no_conflicts">沒有衝突</string>
     <string name="settings_backup_item_count">%1$d 個項目</string>
@@ -666,7 +667,7 @@
     <string name="settings_recording_empty_subtitle">從直播播放中開始手動錄影，或在播放器中排定錄影。</string>
     <string name="settings_recording_pattern_hint">使用 ChannelName、ProgramTitle、yyyy-MM-dd_HH-mm 等標記</string>
     <string name="settings_backup_subtitle">匯出或匯入我的最愛、群組及偏好設定。</string>
-    <string name="settings_backup_credentials_notice">備份檔案以可讀形式包含供應商密碼，以便還原後的帳號可以重新連線。請僅與您信任的人存放及分享這些檔案。</string>
+    <string name="settings_backup_credentials_notice">備份檔案以可讀形式包含供應商密碼和已設定的 Stremio 外掛程式網址。這些網址可能含有存取權杖。請妥善保管備份，僅與信任的人分享。</string>
     <string name="settings_backup_data">匯出資料</string>
     <string name="settings_backup_share_data">分享備份</string>
     <string name="settings_backup_share_subtitle">將備份檔案傳送至電視檔案管理員或其他應用程式。</string>

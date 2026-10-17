@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val ADDON_MANIFEST_REFRESH_INTERVAL_MS = 24L * 60L * 60L * 1000L
+private const val ADDON_MANIFEST_AUTO_RETRY_INTERVAL_MS = 15L * 60L * 1000L
+
 @HiltViewModel
 class AddonsViewModel @Inject constructor(
     private val repository: StremioAddonRepository,
@@ -53,6 +56,8 @@ class AddonsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
+    private var refreshStaleManifestsRequested = false
+    private val lastAutomaticRefreshAttemptAt = mutableMapOf<Long, Long>()
 
     init {
         viewModelScope.launch {
@@ -75,6 +80,10 @@ class AddonsViewModel @Inject constructor(
                         AddonEntry(addon, manifest?.catalogs.orEmpty(), manifest)
                     }
                     _state.update { it.copy(loading = false, addons = entries) }
+                    if (refreshStaleManifestsRequested) {
+                        refreshStaleManifestsRequested = false
+                        scheduleStaleManifestRefresh(entries)
+                    }
                 }
         }
         viewModelScope.launch {
@@ -83,6 +92,47 @@ class AddonsViewModel @Inject constructor(
                 .collect { history -> _state.update { it.copy(continueWatching = history) } }
         }
     }
+
+    fun refreshStaleManifests() {
+        if (!contentAccess.canAccessContentNow()) return
+        if (_state.value.loading) {
+            refreshStaleManifestsRequested = true
+            return
+        }
+        scheduleStaleManifestRefresh(_state.value.addons)
+    }
+
+    private fun scheduleStaleManifestRefresh(entries: List<AddonEntry>) {
+        val now = System.currentTimeMillis()
+        val busyAddonIds = _state.value.busyAddonIds
+        val staleEntries = entries.filter { entry ->
+            val id = entry.addon.id
+            val lastAttemptAt = lastAutomaticRefreshAttemptAt[id] ?: 0L
+            id !in busyAddonIds &&
+                isManifestStale(entry.addon.manifestRefreshedAt, now) &&
+                (lastAttemptAt == 0L || now - lastAttemptAt >= ADDON_MANIFEST_AUTO_RETRY_INTERVAL_MS)
+        }
+        if (staleEntries.isEmpty()) return
+        staleEntries.forEach { lastAutomaticRefreshAttemptAt[it.addon.id] = now }
+
+        viewModelScope.launch {
+            for (entry in staleEntries) {
+                if (!contentAccess.canAccessContentNow()) return@launch
+                try {
+                    val latestAddon = repository.getAddon(entry.addon.id) ?: continue
+                    if (!isManifestStale(latestAddon.manifestRefreshedAt, System.currentTimeMillis())) continue
+                    performAddonRefresh(entry.copy(addon = latestAddon), showFeedback = false)
+                } catch (cancellation: kotlinx.coroutines.CancellationException) {
+                    throw cancellation
+                } catch (_: Exception) {
+                    // A background refresh keeps the saved manifest and is retried on a later visit.
+                }
+            }
+        }
+    }
+
+    private fun isManifestStale(refreshedAt: Long, now: Long): Boolean =
+        refreshedAt <= 0L || now - refreshedAt >= ADDON_MANIFEST_REFRESH_INTERVAL_MS
 
     fun showInstallDialog() {
         if (!contentAccess.canAccessContentNow()) return
@@ -135,25 +185,41 @@ class AddonsViewModel @Inject constructor(
     fun refreshAddon(entry: AddonEntry) {
         val id = entry.addon.id
         if (id in _state.value.busyAddonIds) return
+        viewModelScope.launch { performAddonRefresh(entry, showFeedback = true) }
+    }
+
+    private suspend fun performAddonRefresh(entry: AddonEntry, showFeedback: Boolean) {
+        val id = entry.addon.id
+        if (id in _state.value.busyAddonIds) return
         _state.update {
-            it.copy(refreshingAddonId = id, busyAddonIds = it.busyAddonIds + id, errorMessage = null)
+            it.copy(
+                refreshingAddonId = id,
+                busyAddonIds = it.busyAddonIds + id,
+                errorMessage = if (showFeedback) null else it.errorMessage
+            )
         }
-        viewModelScope.launch {
-            try {
-                when (val result = repository.refreshAddon(id)) {
-                    is Result.Success -> _state.update { it.copy(statusMessageRes = R.string.stremio_status_refreshed) }
-                    is Result.Error -> _state.update { it.copy(errorMessage = safeAddonError(result.message, entry.addon.installUrl)) }
-                    Result.Loading -> _state.update { it.copy(errorMessage = context.getString(R.string.stremio_error_generic)) }
+        try {
+            when (val result = repository.refreshAddon(id)) {
+                is Result.Success -> if (showFeedback) {
+                    _state.update { it.copy(statusMessageRes = R.string.stremio_status_refreshed) }
                 }
-            } catch (cancellation: kotlinx.coroutines.CancellationException) {
-                throw cancellation
-            } catch (error: Exception) {
+                is Result.Error -> if (showFeedback) {
+                    _state.update { it.copy(errorMessage = safeAddonError(result.message, entry.addon.installUrl)) }
+                }
+                Result.Loading -> if (showFeedback) {
+                    _state.update { it.copy(errorMessage = context.getString(R.string.stremio_error_generic)) }
+                }
+            }
+        } catch (cancellation: kotlinx.coroutines.CancellationException) {
+            throw cancellation
+        } catch (error: Exception) {
+            if (showFeedback) {
                 _state.update {
                     it.copy(errorMessage = safeAddonError(error.message ?: context.getString(R.string.stremio_error_generic), entry.addon.installUrl))
                 }
-            } finally {
-                _state.update { it.copy(refreshingAddonId = null, busyAddonIds = it.busyAddonIds - id) }
             }
+        } finally {
+            _state.update { it.copy(refreshingAddonId = null, busyAddonIds = it.busyAddonIds - id) }
         }
     }
 

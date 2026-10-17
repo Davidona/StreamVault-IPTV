@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Lejátszási előzmények</string>
     <string name="settings_backup_section_multiview">Osztott képernyő előbeállítások</string>
     <string name="settings_backup_section_recordings">Felvételi ütemezések</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-bővítmények</string>
     <string name="settings_backup_conflict_count">%1$d ütközés</string>
     <string name="settings_backup_no_conflicts">Nincsenek konfliktusok</string>
     <string name="settings_backup_item_count">%1$d elem</string>
@@ -801,7 +802,7 @@
     <string name="settings_auto_sync_sections_heading">Frissítendő tartalom</string>
     <string name="settings_select_live_clock_size">Óraméret kiválasztása</string>
     <string name="settings_opensubtitles_daily_allowance">Napi %1$d letöltés</string>
-    <string name="settings_backup_credentials_notice">A biztonsági mentési fájlok olvasható formában tartalmazzák a szolgáltatói jelszavakat, hogy a visszaállított fiókok újra tudjanak csatlakozni. Csak megbízható személyekkel tárolja és ossza meg őket.</string>
+    <string name="settings_backup_credentials_notice">A biztonsági mentések olvasható formában tartalmazzák a szolgáltatói jelszavakat és a beállított Stremio-bővítmények URL-címeit. Ezek az URL-ek hozzáférési tokeneket tartalmazhatnak. A mentéseket tartsa bizalmasan, és csak megbízható személyekkel ossza meg.</string>
     <string name="settings_theme_m3_purple">M3 lila</string>
     <string name="settings_auto_sync_status_network">Várakozás megfelelő hálózatra</string>
     <string name="settings_sync_section_queued">%1$s frissítés sorba állítva</string>

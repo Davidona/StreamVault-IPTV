@@ -420,6 +420,7 @@
     <string name="settings_backup_section_history">ประวัติการเล่น</string>
     <string name="settings_backup_section_multiview">พรีเซ็ตหน้าจอแยก</string>
     <string name="settings_backup_section_recordings">ตารางการบันทึก</string>
+    <string name="settings_backup_section_stremio_addons">ส่วนเสริม Stremio</string>
     <string name="settings_backup_conflict_count">ความขัดแย้ง %1$d รายการ</string>
     <string name="settings_backup_no_conflicts">ไม่มีความขัดแย้ง</string>
     <string name="settings_backup_item_count">%1$d รายการ</string>
@@ -666,7 +667,7 @@
     <string name="settings_recording_empty_subtitle">เริ่มบันทึกด้วยตนเองจากการเล่นสด หรือตั้งเวลาจากเครื่องเล่น</string>
     <string name="settings_recording_pattern_hint">ใช้โทเคนเช่น ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">ส่งออกหรือนำเข้ารายการโปรด กลุ่ม และการตั้งค่า</string>
-    <string name="settings_backup_credentials_notice">ไฟล์สำรองมีรหัสผ่านผู้ให้บริการในรูปแบบที่อ่านได้ เพื่อให้บัญชีที่กู้คืนเชื่อมต่อได้อีกครั้ง เก็บและแชร์ไฟล์เหล่านี้เฉพาะกับคนที่คุณไว้ใจ</string>
+    <string name="settings_backup_credentials_notice">ไฟล์สำรองมีรหัสผ่านผู้ให้บริการและ URL ของส่วนเสริม Stremio ที่ตั้งค่าไว้ในรูปแบบที่อ่านได้ URL เหล่านี้อาจมีโทเค็นเข้าถึง เก็บไฟล์สำรองไว้เป็นส่วนตัวและแชร์เฉพาะกับคนที่คุณไว้ใจ</string>
     <string name="settings_backup_data">ส่งออกข้อมูล</string>
     <string name="settings_backup_share_data">แชร์ข้อมูลสำรอง</string>
     <string name="settings_backup_share_subtitle">ส่งไฟล์สำรองไปยังแอปจัดการไฟล์ของทีวีหรือแอปอื่น</string>

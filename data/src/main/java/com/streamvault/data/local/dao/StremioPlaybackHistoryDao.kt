@@ -15,6 +15,9 @@ interface StremioPlaybackHistoryDao {
     @Query("SELECT * FROM stremio_playback_history WHERE content_key = :contentKey LIMIT 1")
     suspend fun get(contentKey: String): StremioPlaybackHistoryEntity?
 
+    @Query("SELECT * FROM stremio_playback_history ORDER BY last_watched_at DESC, content_key ASC")
+    suspend fun getAll(): List<StremioPlaybackHistoryEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: StremioPlaybackHistoryEntity)
 

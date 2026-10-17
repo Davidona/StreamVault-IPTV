@@ -15,6 +15,8 @@ import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.model.JellyfinConfig
 import com.streamvault.domain.settings.VodTrackPreferences
 
+const val BACKUP_SECTION_STREMIO_ADDONS = "Stremio Add-ons"
+
 data class BackupData(
     val version: Int = 13,
     val checksum: String? = null,
@@ -53,7 +55,40 @@ data class BackupData(
     val portableContentPreferences: List<PortableContentPreferenceBackup>? = null,
     val portableVariantChoices: List<PortableVariantChoiceBackup>? = null,
     val portableManualEpgMappings: List<PortableManualEpgMappingV14Backup>? = null,
-    val portableMultiViewPresetsV14: List<PortableMultiViewPresetV14Backup>? = null
+    val portableMultiViewPresetsV14: List<PortableMultiViewPresetV14Backup>? = null,
+    /** v17 portable Stremio configuration; local Room row IDs are deliberately omitted. */
+    val stremioAddons: List<StremioAddonBackup>? = null,
+    /** v17 Stremio playback progress, keyed by stable content identity. */
+    val stremioPlaybackHistory: List<StremioPlaybackHistoryBackup>? = null
+)
+
+data class StremioAddonBackup(
+    val installUrl: String,
+    val manifestId: String,
+    val name: String,
+    val version: String,
+    val manifestJson: String,
+    val enabled: Boolean,
+    val sortOrder: Int,
+    val catalogSettingsJson: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val manifestRefreshedAt: Long = 0L
+)
+
+data class StremioPlaybackHistoryBackup(
+    val contentKey: String,
+    val mediaType: String,
+    val exactVideoId: String,
+    val parentSeriesId: String?,
+    val title: String,
+    val posterUrl: String?,
+    val resumePositionMs: Long,
+    val totalDurationMs: Long,
+    val isWatched: Boolean,
+    val lastWatchedAt: Long,
+    val catalogOriginKey: String,
+    val streamOriginKeyHint: String?
 )
 
 data class ProviderBackupSnapshot(
@@ -399,7 +434,9 @@ data class BackupPreview(
     val groupConflicts: Int,
     val historyConflicts: Int,
     val protectedCategoryConflicts: Int,
-    val recordingConflicts: Int
+    val recordingConflicts: Int,
+    val stremioAddonCount: Int = 0,
+    val stremioAddonConflicts: Int = 0
 )
 
 data class BackupImportPlan(
@@ -409,6 +446,7 @@ data class BackupImportPlan(
     val importPlaybackHistory: Boolean = true,
     val importMultiViewPresets: Boolean = true,
     val importRecordingSchedules: Boolean = true,
+    val importStremioAddons: Boolean = importPreferences,
     val conflictStrategy: BackupConflictStrategy = BackupConflictStrategy.KEEP_EXISTING
 )
 

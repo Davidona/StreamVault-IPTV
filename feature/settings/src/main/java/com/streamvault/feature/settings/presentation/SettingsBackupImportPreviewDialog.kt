@@ -53,11 +53,13 @@ fun BackupImportPreviewDialog(
     onImportPlaybackHistoryChanged: (Boolean) -> Unit,
     onImportMultiViewChanged: (Boolean) -> Unit,
     onImportRecordingSchedulesChanged: (Boolean) -> Unit,
+    onImportStremioAddonsChanged: (Boolean) -> Unit = {},
     isImporting: Boolean = false,
     onConfirm: () -> Unit
 ) {
     val anyEnabled = plan.importPreferences || plan.importProviders || plan.importSavedLibrary ||
-        plan.importPlaybackHistory || plan.importMultiViewPresets || plan.importRecordingSchedules
+        plan.importPlaybackHistory || plan.importMultiViewPresets || plan.importRecordingSchedules ||
+        plan.importStremioAddons
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val firstBodyFocusRequester = remember { FocusRequester() }
 
@@ -77,6 +79,11 @@ fun BackupImportPreviewDialog(
             BackupPreviewRow(stringResource(R.string.settings_backup_section_history), preview.playbackHistoryCount, preview.historyConflicts)
             BackupPreviewRow(stringResource(R.string.settings_backup_section_multiview), preview.multiViewPresetCount, 0)
             BackupPreviewRow(stringResource(R.string.settings_backup_section_recordings), preview.scheduledRecordingCount, preview.recordingConflicts)
+            BackupPreviewRow(
+                stringResource(R.string.settings_backup_section_stremio_addons),
+                preview.stremioAddonCount,
+                preview.stremioAddonConflicts
+            )
             Text(
                 text = stringResource(R.string.settings_backup_conflict_strategy),
                 style = MaterialTheme.typography.titleSmall,
@@ -106,6 +113,11 @@ fun BackupImportPreviewDialog(
             BackupToggleRow(stringResource(R.string.settings_backup_section_history), plan.importPlaybackHistory, onImportPlaybackHistoryChanged)
             BackupToggleRow(stringResource(R.string.settings_backup_section_multiview), plan.importMultiViewPresets, onImportMultiViewChanged)
             BackupToggleRow(stringResource(R.string.settings_backup_section_recordings), plan.importRecordingSchedules, onImportRecordingSchedulesChanged)
+            BackupToggleRow(
+                stringResource(R.string.settings_backup_section_stremio_addons),
+                plan.importStremioAddons,
+                onImportStremioAddonsChanged
+            )
         },
         footer = {
             PremiumDialogFooterButton(

@@ -422,6 +422,7 @@
     <string name="settings_backup_section_history">Povijest reprodukcije</string>
     <string name="settings_backup_section_multiview">Predlošci podijeljenog zaslona</string>
     <string name="settings_backup_section_recordings">Rasporedi snimanja</string>
+    <string name="settings_backup_section_stremio_addons">Dodaci za Stremio</string>
     <string name="settings_backup_conflict_count">%1$d sukoba</string>
     <string name="settings_backup_no_conflicts">Nema sukoba</string>
     <string name="settings_backup_item_count">%1$d stavki</string>
@@ -670,7 +671,7 @@
     <string name="settings_recording_empty_subtitle">Pokrenite ručno snimanje tijekom reprodukcije uživo ili zakažite snimanje u playeru.</string>
     <string name="settings_recording_pattern_hint">Koristite oznake kao ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Izvezite ili uvezite favorite, grupe i postavke.</string>
-    <string name="settings_backup_credentials_notice">Datoteke sigurnosne kopije sadrže lozinke izvora u čitljivom obliku kako bi se vraćeni računi mogli ponovno povezati. Čuvajte ih i dijelite samo s osobama od povjerenja.</string>
+    <string name="settings_backup_credentials_notice">Datoteke sigurnosne kopije sadrže lozinke pružatelja i konfigurirane URL-ove dodataka za Stremio u čitljivom obliku. Ti URL-ovi mogu sadržavati pristupne tokene. Čuvajte sigurnosne kopije privatnima i dijelite ih samo s osobama kojima vjerujete.</string>
     <string name="settings_backup_data">Izvezi podatke</string>
     <string name="settings_backup_share_data">Podijeli sigurnosnu kopiju</string>
     <string name="settings_backup_share_subtitle">Pošaljite datoteku sigurnosne kopije u TV upravitelj datoteka ili drugu aplikaciju.</string>

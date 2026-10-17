@@ -378,6 +378,7 @@
     <string name="settings_backup_section_history">Riwayat Pemutaran</string>
     <string name="settings_backup_section_multiview">Preset Layar Terpisah</string>
     <string name="settings_backup_section_recordings">Jadwal Perekaman</string>
+    <string name="settings_backup_section_stremio_addons">Add-on Stremio</string>
     <string name="settings_backup_conflict_count">%1$d konflik</string>
     <string name="settings_backup_no_conflicts">Tidak ada konflik</string>
     <string name="settings_backup_item_count">%1$d item</string>
@@ -830,7 +831,7 @@
     <string name="settings_opensubtitles_daily_allowance">%1$d unduhan per hari</string>
     <string name="settings_opensubtitles_quota_unknown">Kuota harian dikelola oleh OpenSubtitles.</string>
     <string name="settings_opensubtitles_signing_out">Keluar…</string>
-    <string name="settings_backup_credentials_notice">File cadangan menyertakan kata sandi penyedia dalam bentuk yang dapat dibaca agar akun yang dipulihkan dapat terhubung kembali. Simpan dan bagikan hanya kepada orang yang Anda percaya.</string>
+    <string name="settings_backup_credentials_notice">File cadangan menyertakan kata sandi penyedia dan URL add-on Stremio yang dikonfigurasi dalam bentuk yang dapat dibaca. URL tersebut mungkin berisi token akses. Simpan cadangan secara pribadi dan bagikan hanya kepada orang yang Anda percaya.</string>
     <plurals name="settings_live_tv_quick_filters_count">
         <item quantity="one">%1$d tersimpan</item>
         <item quantity="other">%1$d tersimpan</item>

@@ -449,6 +449,7 @@
     <string name="settings_backup_section_history">Playback History</string>
     <string name="settings_backup_section_multiview">Split Screen Presets</string>
     <string name="settings_backup_section_recordings">Recording Schedules</string>
+    <string name="settings_backup_section_stremio_addons">Stremio Add-ons</string>
     <string name="settings_backup_conflict_count">%1$d conflicts</string>
     <string name="settings_backup_no_conflicts">No conflicts</string>
     <string name="settings_backup_item_count">%1$d items</string>
@@ -698,7 +699,7 @@
     <string name="settings_recording_empty_subtitle">Start a manual recording from live playback or schedule one from the player.</string>
     <string name="settings_recording_pattern_hint">Use tokens like ChannelName, ProgramTitle, yyyy-MM-dd_HH-mm</string>
     <string name="settings_backup_subtitle">Export or import favorites, groups, and preferences.</string>
-    <string name="settings_backup_credentials_notice">Backup files include provider passwords in readable form so restored accounts can reconnect. Store and share them only with people you trust.</string>
+    <string name="settings_backup_credentials_notice">Backup files include provider passwords and configured Stremio add-on URLs in readable form. Those URLs may contain access tokens. Keep backups private and share them only with people you trust.</string>
     <string name="settings_backup_data">Export Data</string>
     <string name="settings_backup_share_data">Share Backup</string>
     <string name="settings_backup_share_subtitle">Send a backup file to a TV file manager or another app.</string>

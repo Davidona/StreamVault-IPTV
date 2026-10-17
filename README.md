@@ -11,9 +11,9 @@
 	<a href="LICENSE"><img src="https://img.shields.io/badge/License-StreamVault_OSL-0284c7?style=for-the-badge" alt="License" /></a>
 </p>
 
-StreamVault is a TV-first IPTV player for Android TV built with Kotlin, Jetpack Compose, Room, Hilt, and Media3.
+StreamVault is a TV-first media player for Android TV built with Kotlin, Jetpack Compose, Room, Hilt, and Media3.
 
-It is designed for large playlists, remote-friendly browsing, fast provider switching, and a polished living-room playback experience. StreamVault supports `M3U` playlists, `Xtream Codes`, `Stalker Portal`, and `Jellyfin` providers, with dedicated flows for `Live TV`, `Movies`, and `Series`.
+It is designed for large playlists, remote-friendly browsing, fast provider switching, and a polished living-room playback experience. StreamVault supports `M3U` playlists, `Xtream Codes`, `Stalker Portal`, and `Jellyfin` providers, plus Stremio-compatible add-ons, with dedicated flows for `Live TV`, `Movies`, and `Series`.
 
 Built for Android TV first, StreamVault focuses on the things generic IPTV apps usually get wrong: D-pad navigation, quick channel movement, large-library organization, and a player that still feels good to use from the couch. Phone and tablet installs are also supported, but the primary UX target is TV.
 
@@ -53,7 +53,10 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Built-in DVR with scheduled recording, background capture, recording playback, and app-managed default storage
 - Multi-view split-screen playback for watching multiple channels at once
 - Plugin API for creating companion Android APKs that extend providers, playback, Cast URL handling, or configuration flows
-- Native Stremio add-on catalogs, metadata, direct/debrid playback, subtitles, and resume history
+- Native Stremio add-on catalogs, metadata, direct/debrid playback, subtitles, resume history, and offline downloads
+- Trakt scrobbling, watched-history sync, watchlists, ratings, custom lists, and Trending or Popular discovery
+- Local and Google Drive backups for provider setup, favorites, groups, and playback history
+- Selectable app themes, subtitle search and customization, and quality controls for VOD playback
 - Strong parental controls with PIN-protected categories and automatic adult-category detection
 - TV integrations including Watch Next, launcher recommendations, TV input sync, Cast support, external-player handoff, and in-app update delivery
 
@@ -65,9 +68,13 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - `Stalker Portal`
 - `Jellyfin` media servers with direct library sync and TV-friendly Quick Connect support
 - `M3U` playlists from URLs plus local files
+- Play supported adaptive and DRM-protected streams from M3U playlists
+- Expanded Stalker and Ministra compatibility for Live TV, Movies, and Series
+- Quick Stalker setup from supported playback or export links
 - Separate onboarding and sync flows for live channels, movies, series, and guide data
 - Fast switching between providers with provider-scoped settings
 - Combined M3U profiles for merging multiple M3U providers into a single Live TV source
+- Scheduled background refreshes keep saved provider catalogs and guide data up to date
 - QR-based provider pairing from a phone on the same LAN for faster TV setup
 
 ### Navigation And TV UX
@@ -77,6 +84,7 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Numeric remote input for direct channel entry
 - Configurable startup landing screen so the app can open Home, Live TV, Movies, Series, Guide, Downloads, Plugins, Stremio-compatible Add-ons, or Settings first
 - Colored remote button remapping with global defaults plus playback and live-browse overrides
+- Customizable Home shelves and primary navigation tabs
 - Preview mode while browsing channels
 - TV-friendly search and text-entry flows
 
@@ -85,7 +93,9 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Favorites and recently watched channels
 - Custom groups for personal channel collections
 - Pinned categories surfaced near the top of the live guide rail
+- Hide or restore individual channels and categories
 - Optional Live TV provider or source browser for M3U-based setups
+- Optional category-sidebar auto-hide and a configurable Live TV clock
 - Long-press live categories for actions like pin, hide, lock or unlock, and custom-group management
 - Channel reordering for favorites and custom groups
 - Channel numbering modes by group or across the full provider lineup
@@ -100,20 +110,24 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Manual EPG match overrides and source-priority controls from inside Settings and Guide flows
 - Provider archive or catch-up support when the source exposes replay streams
 - Live rewind or timeshift playback with up to 30 minutes of buffer, even when provider catch-up is unavailable
+- Optional real-time translation subtitles while watching supported live streams
 - Global search across live TV, movies, and series
 - Multi-view for watching multiple live streams at once
-- Player controls for subtitles, audio tracks, aspect ratio, playback speed, video quality, Cast, and external-player handoff
+- Player controls for subtitles, audio tracks, aspect ratio, playback speed, quality profiles, Cast, and external-player handoff
+- Quality limits by connection or title, with automatic adjustment for supported adaptive streams
 
 ### Recording And Playback
 
 - Scheduled and background DVR recording for live channels
+- Record a live stream while watching and save DVR recordings to shared network folders
 - Offline VOD downloads with grouped episode handling and completed-file local playback
 - Program reminders from guide entries when you want a notification without scheduling a recording
-- Conflict detection, persistence, and repair support for recording jobs
+- Recording schedules account for conflicts and recover from interrupted jobs
 - App-managed default recording folder with optional custom storage selection
 - In-app playback for completed recordings with a visible on-player recording indicator during active capture
-- Playback troubleshooting controls for decoder mode, media session behavior, and timeout tuning
-- Bundled Media3 FFmpeg audio fallback for unsupported audio codecs such as AC-3, E-AC-3, DTS, MP2, and TrueHD, with diagnostics and expert compatibility controls
+- Fine-tune decoder and timeout settings for device compatibility
+- Extra audio-codec support for streams some devices cannot play, with playback diagnostics
+- When a stream fails, automatically try a compatible version and resume with track choices intact
 
 ### Movies And Series
 
@@ -122,8 +136,14 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 	- Classic left-sidebar category browsing
 - Detailed info pages for movies and series
 - Continue watching, playback history, and detail-screen resume actions with saved position context
+- Search OpenSubtitles, load local SRT files, and customize subtitle timing and appearance
+- Navigate chapters, skip intros and recaps, and start the next episode at the credits
+- Group alternate versions and choose which movie or series version to play
+- Organize M3U entries into Movies or Series, with editable episode groups
+- Pin favorite VOD categories and search Stalker Movies and Series catalogs
 - Long-press VOD categories and custom groups for actions like hide, rename, delete, or reorder when applicable
 - In-player episode switching for series
+- Previous and Next episode controls in the playback overlay
 - Automatic next-episode playback when another episode is available
 
 ### Parental Controls
@@ -135,9 +155,14 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 
 ### Languages And Device Support
 
-- English plus 25 translated locale packs currently ship with the app
+- English plus 37 translated locale packs currently ship with the app
 - Locale coverage is broader and rendering is more reliable across supported languages
 - Built for TV first; phones and tablets are supported, but not the primary design target
+
+### Appearance
+
+- Choose from Classic blue, M3 purple, Light, Forest, Sunset, Ocean, Rose, AMOLED Black, and Vintage themes
+- Modern, theme-aware screens across Live TV, VOD details, search, split screen, and Settings
 
 ### Platform Integrations
 
@@ -145,6 +170,7 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 - Launcher recommendations and TV entry points
 - Android TV Input Framework channel sync
 - Google Cast sender support
+- Cast a movie, the resume episode, or a selected episode from its detail page
 
 ### Plugins
 
@@ -155,11 +181,21 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 ### Stremio-compatible Add-ons
 
 - Install Stremio-compatible add-ons from a manifest URL and browse their catalogs from the Extensions area.
-- Resolve metadata, streams, and subtitles across enabled add-ons, including when the catalog and stream come from different add-ons.
-- Play direct and debrid HTTP(S) streams with add-on request headers scoped to the selected media origin.
-- Save progress and resume by resolving a fresh stream when reopening Stremio playback history.
+- Browse catalogs and find metadata, streams, and subtitles across enabled add-ons.
+- Play direct or debrid streams.
+- Save progress, continue watching, and download supported streams for offline playback from Downloads.
 - Plugins and Stremio-compatible Add-ons are grouped under one Extensions navigation item with separate, focusable tabs.
 - Stremio-compatible Add-ons are open by default. Use Settings → Privacy → Hide Stremio-compatible add-ons to hide them independently of IPTV parental controls.
+
+### Trakt
+
+- Sign in to sync watched history and scrobble playback; manage watchlists, ratings, and custom lists, and browse Trending or Popular titles.
+
+### Backup And Restore
+
+- Create and manage local Android TV backups or Google Drive snapshots, then restore providers, favorites, groups, and playback history.
+- New backup exports can include provider credentials so restored providers can sync without entering passwords again.
+- Exported backup files contain provider passwords in readable form; keep them private.
 
 ## Quick TV Tips
 

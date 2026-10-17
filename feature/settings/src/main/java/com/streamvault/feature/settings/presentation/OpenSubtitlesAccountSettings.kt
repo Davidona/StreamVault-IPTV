@@ -29,8 +29,11 @@ internal fun OpenSubtitlesAccountSettings(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
     targetFocusModifier: Modifier = Modifier,
+    openSignInOnStart: Boolean = false,
 ) {
-    var showSignIn by rememberSaveable { mutableStateOf(false) }
+    var showSignIn by rememberSaveable {
+        mutableStateOf(openSignInOnStart && uiState.openSubtitlesAccount == null)
+    }
     var showSignOut by rememberSaveable { mutableStateOf(false) }
     val account = uiState.openSubtitlesAccount
     val remainingDownloads = account?.remainingDownloads

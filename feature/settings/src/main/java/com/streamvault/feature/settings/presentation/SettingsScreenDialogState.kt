@@ -210,7 +210,7 @@ fun rememberSettingsProviderSectionState(
 }
 
 @Composable
-fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
+fun rememberSettingsScreenDialogState(initialSelectedCategory: Int = 0): SettingsScreenDialogState {
     val showPinDialogState = rememberSaveable { mutableStateOf(false) }
     val showLevelDialogState = rememberSaveable { mutableStateOf(false) }
     val showLanguageDialogState = rememberSaveable { mutableStateOf(false) }
@@ -280,7 +280,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
     val selectedRemoteShortcutTargetKeyState = rememberSaveable { mutableStateOf<String?>(null) }
     val selectedRecordingIdState = rememberSaveable { mutableStateOf<String?>(null) }
     val categorySortDialogTypeState = rememberSaveable { mutableStateOf<String?>(null) }
-    val selectedCategoryState = rememberSaveable { mutableStateOf(0) }
+    val selectedCategoryState = rememberSaveable { mutableStateOf(initialSelectedCategory) }
     val pinErrorState = rememberSaveable { mutableStateOf<String?>(null) }
     val pendingActionState = remember { mutableStateOf<ParentalAction?>(null) }
     val pendingProtectionLevelState = rememberSaveable { mutableStateOf<Int?>(null) }

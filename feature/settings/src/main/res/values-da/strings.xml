@@ -382,6 +382,7 @@
     <string name="settings_backup_section_history">Afspilningshistorik</string>
     <string name="settings_backup_section_multiview">Opdelte skærm-forudindstillinger</string>
     <string name="settings_backup_section_recordings">Optagelsesplaner</string>
+    <string name="settings_backup_section_stremio_addons">Stremio-tilføjelser</string>
     <string name="settings_backup_conflict_count">%1$d konflikter</string>
     <string name="settings_backup_no_conflicts">Ingen konflikter</string>
     <string name="settings_backup_item_count">%1$d varer</string>
@@ -813,7 +814,7 @@
     <string name="settings_auto_sync_sections_heading">Indhold, der skal opdateres</string>
     <string name="settings_select_live_clock_size">Vælg urstørrelse</string>
     <string name="settings_opensubtitles_daily_allowance">%1$d downloads pr. dag</string>
-    <string name="settings_backup_credentials_notice">Sikkerhedskopifiler indeholder udbyderadgangskoder i læsbar form, så gendannede konti kan oprette forbindelse igen. Opbevar og del dem kun med personer, du har tillid til.</string>
+    <string name="settings_backup_credentials_notice">Sikkerhedskopier indeholder udbyderadgangskoder og konfigurerede Stremio-tilføjelseswebadresser i læsbar form. Disse adresser kan indeholde adgangstokens. Hold sikkerhedskopier private, og del dem kun med personer, du har tillid til.</string>
     <string name="settings_theme_m3_purple">M3-lilla</string>
     <string name="settings_auto_sync_status_network">Venter på et egnet netværk</string>
     <string name="settings_sync_section_queued">%1$s-opdatering i kø</string>
