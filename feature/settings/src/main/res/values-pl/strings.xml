@@ -874,4 +874,10 @@
     <string name="nav_extensions">Rozszerzenia</string>
     <string name="dashboard_trakt_watchlist_movies">Filmy na Twojej liście obserwowanych Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Programy telewizyjne na Twojej liście obserwowanych Trakt</string>
+
+    <string name="settings_sports_event_source">Źródło wydarzeń sportowych</string>
+    <string name="settings_sports_event_source_automatic">Automatycznie</string>
+    <string name="settings_sports_event_source_epg">Przewodnik TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">Identyfikatory lig</string>
+    <string name="settings_sports_provider_league_ids_hint">Opcjonalnie. Dodaj identyfikatory lig tylko wtedy, gdy wymaga ich ten dostawca.</string>
 </resources>

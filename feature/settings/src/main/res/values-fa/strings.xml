@@ -866,4 +866,10 @@
     <string name="settings_theme_rose">رز</string>
     <string name="settings_theme_amoled_black">مشکی AMOLED</string>
     <string name="settings_theme_vintage">وینتیج</string>
+
+    <string name="settings_sports_event_source">منبع رویدادهای ورزشی</string>
+    <string name="settings_sports_event_source_automatic">خودکار</string>
+    <string name="settings_sports_event_source_epg">راهنمای تلویزیون / EPG</string>
+    <string name="settings_sports_provider_league_ids">شناسه‌های لیگ</string>
+    <string name="settings_sports_provider_league_ids_hint">اختیاری. فقط اگر این ارائه‌دهنده نیاز دارد، شناسه لیگ وارد کنید.</string>
 </resources>

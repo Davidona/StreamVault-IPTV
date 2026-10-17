@@ -102,4 +102,7 @@
     <string name="setup_password">Пароль</string>
     <string name="setup_name">Название</string>
     <string name="setup_name_placeholder">Мой сервер Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Безопасность: При сопряжении данные для входа передаются по локальной сети без шифрования. Используйте только доверенную частную сеть Wi-Fi.</string>
+    <string name="setup_phone_pairing_error_help">Не удалось завершить сопряжение. Проверьте данные провайдера и попробуйте снова. Если срок действия QR-сеанса истёк, запустите новый на телевизоре.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-адрес</string>
 </resources>

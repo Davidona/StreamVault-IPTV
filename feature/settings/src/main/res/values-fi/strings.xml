@@ -868,4 +868,10 @@
     <string name="nav_extensions">Laajennukset</string>
     <string name="dashboard_trakt_watchlist_movies">Elokuvat Trakt-katselulistallasi</string>
     <string name="dashboard_trakt_watchlist_series">TV-ohjelmat Trakt-katselulistallasi</string>
+
+    <string name="settings_sports_event_source">Urheilutapahtumien lähde</string>
+    <string name="settings_sports_event_source_automatic">Automaattinen</string>
+    <string name="settings_sports_event_source_epg">TV-opas / EPG</string>
+    <string name="settings_sports_provider_league_ids">Liigatunnukset</string>
+    <string name="settings_sports_provider_league_ids_hint">Valinnainen. Lisää liigatunnuksia vain, jos tämä palveluntarjoaja niitä vaatii.</string>
 </resources>

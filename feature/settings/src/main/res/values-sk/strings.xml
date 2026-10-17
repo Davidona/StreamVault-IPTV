@@ -872,4 +872,10 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Doplnky Stremio</string>
     <string name="nav_extensions">Rozšírenia</string>
+
+    <string name="settings_sports_event_source">Zdroj športových udalostí</string>
+    <string name="settings_sports_event_source_automatic">Automaticky</string>
+    <string name="settings_sports_event_source_epg">TV program / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID ligy</string>
+    <string name="settings_sports_provider_league_ids_hint">Voliteľné. ID ligy zadajte iba vtedy, ak ich tento poskytovateľ vyžaduje.</string>
 </resources>

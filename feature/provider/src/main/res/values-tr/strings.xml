@@ -102,4 +102,7 @@
     <string name="setup_password">Parola</string>
     <string name="setup_name">Ad</string>
     <string name="setup_name_placeholder">Jellyfin Sunucum</string>
+    <string name="setup_phone_pairing_security_warning">Güvenlik: Eşleştirme, oturum açma bilgilerini yerel ağınız üzerinden şifrelemeden gönderir. Yalnızca güvendiğiniz özel bir Wi-Fi ağı kullanın.</string>
+    <string name="setup_phone_pairing_error_help">Eşleştirme tamamlanamadı. Sağlayıcı bilgilerini kontrol edip yeniden deneyin. QR oturumunun süresi dolduysa TV’de yeni bir oturum başlatın.</string>
+    <string name="setup_phone_pairing_mac_label">MAC adresi</string>
 </resources>

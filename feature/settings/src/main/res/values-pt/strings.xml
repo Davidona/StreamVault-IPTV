@@ -864,4 +864,10 @@
     <string name="nav_extensions">Extensões</string>
     <string name="dashboard_trakt_watchlist_movies">Filmes em sua lista de observação Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Programas de TV em sua lista de observação Trakt</string>
+
+    <string name="settings_sports_event_source">Origem dos eventos desportivos</string>
+    <string name="settings_sports_event_source_automatic">Automático</string>
+    <string name="settings_sports_event_source_epg">Guia de TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">IDs das ligas</string>
+    <string name="settings_sports_provider_league_ids_hint">Opcional. Adicione IDs das ligas apenas se este fornecedor os exigir.</string>
 </resources>

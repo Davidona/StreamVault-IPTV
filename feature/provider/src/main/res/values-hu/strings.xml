@@ -102,4 +102,7 @@
     <string name="setup_password">Jelszó</string>
     <string name="setup_name">Név</string>
     <string name="setup_name_placeholder">Saját Jellyfin-szerver</string>
+    <string name="setup_phone_pairing_security_warning">Biztonság: A párosítás titkosítás nélkül küldi a bejelentkezési adatokat a helyi hálózaton. Csak megbízható, privát Wi-Fi-hálózatot használj.</string>
+    <string name="setup_phone_pairing_error_help">A párosítást nem sikerült befejezni. Ellenőrizd a szolgáltató adatait, majd próbáld újra. Ha lejárt a QR-munkamenet, indíts újat a tévén.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-cím</string>
 </resources>

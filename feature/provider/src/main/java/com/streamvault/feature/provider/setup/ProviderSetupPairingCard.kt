@@ -105,6 +105,11 @@ internal fun PhonePairingCard(
                             style = MaterialTheme.typography.bodyMedium,
                             color = OnBackground
                         )
+                        Text(
+                            text = stringResource(R.string.setup_phone_pairing_security_warning),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ErrorColor
+                        )
                         pairingState.url?.let { url ->
                             Text(
                                 text = url,

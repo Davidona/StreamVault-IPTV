@@ -102,4 +102,7 @@
     <string name="setup_password">סיסמה</string>
     <string name="setup_name">שם</string>
     <string name="setup_name_placeholder">שרת Jellyfin שלי</string>
+    <string name="setup_phone_pairing_security_warning">אבטחה: הצימוד שולח פרטי התחברות ללא הצפנה דרך הרשת המקומית. יש להשתמש רק ברשת Wi-Fi פרטית ומהימנה.</string>
+    <string name="setup_phone_pairing_error_help">לא ניתן להשלים את הצימוד. יש לבדוק את פרטי הספק ולנסות שוב. אם פג תוקף הפעלת ה-QR, יש להתחיל הפעלה חדשה בטלוויזיה.</string>
+    <string name="setup_phone_pairing_mac_label">כתובת MAC</string>
 </resources>

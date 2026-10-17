@@ -866,4 +866,10 @@
     <string name="settings_theme_vintage">विंटेज</string>
     <string name="nav_addons">Stremio ऐड-ऑन</string>
     <string name="nav_extensions">एक्सटेंशन</string>
+
+    <string name="settings_sports_event_source">खेल आयोजनों का स्रोत</string>
+    <string name="settings_sports_event_source_automatic">स्वचालित</string>
+    <string name="settings_sports_event_source_epg">टीवी गाइड / EPG</string>
+    <string name="settings_sports_provider_league_ids">लीग आईडी</string>
+    <string name="settings_sports_provider_league_ids_hint">वैकल्पिक। लीग आईडी केवल तभी जोड़ें जब यह प्रदाता उन्हें मांगता है।</string>
 </resources>

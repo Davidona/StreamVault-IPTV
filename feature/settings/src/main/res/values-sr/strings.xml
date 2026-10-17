@@ -869,4 +869,10 @@
     <string name="settings_theme_vintage">Винтаж</string>
     <string name="nav_addons">Stremio додаци</string>
     <string name="nav_extensions">Проширења</string>
+
+    <string name="settings_sports_event_source">Извор спортских догађаја</string>
+    <string name="settings_sports_event_source_automatic">Аутоматски</string>
+    <string name="settings_sports_event_source_epg">ТВ водич / EPG</string>
+    <string name="settings_sports_provider_league_ids">ИД-јеви лига</string>
+    <string name="settings_sports_provider_league_ids_hint">Опционално. Унесите ИД-јеве лига само ако их овај добављач захтева.</string>
 </resources>

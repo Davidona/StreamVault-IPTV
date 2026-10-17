@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.streamvault.feature.provider.R
@@ -81,7 +83,9 @@ internal fun JellyfinProviderForm(
                 ) {
                     Image(
                         bitmap = qrCodeBitmap.asImageBitmap(),
-                        contentDescription = "Quick Connect QR Code",
+                        contentDescription = stringResource(
+                            R.string.setup_jellyfin_quick_connect_code_instructions
+                        ),
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -122,7 +126,7 @@ internal fun JellyfinProviderForm(
 
 internal fun generateJellyfinQuickConnectQrCode(serverUrl: String, code: String): Bitmap? {
     return try {
-        val qrUrl = "${serverUrl.trimEnd('/')}/web/index.html#!/quickconnect.html?code=$code"
+        val qrUrl = buildJellyfinQuickConnectUrl(serverUrl, code)
         val writer = QRCodeWriter()
         val bitMatrix = writer.encode(qrUrl, BarcodeFormat.QR_CODE, 512, 512)
         val bitmap = Bitmap.createBitmap(512, 512, Bitmap.Config.RGB_565)
@@ -135,4 +139,10 @@ internal fun generateJellyfinQuickConnectQrCode(serverUrl: String, code: String)
     } catch (e: Exception) {
         null
     }
+}
+
+internal fun buildJellyfinQuickConnectUrl(serverUrl: String, code: String): String {
+    val normalizedServerUrl = serverUrl.trim().trimEnd('/')
+    val encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8.name())
+    return "$normalizedServerUrl/web/#/quickconnect?code=$encodedCode"
 }

@@ -117,4 +117,7 @@
     <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
     <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">सुरक्षा: पेयरिंग के दौरान लॉगिन जानकारी आपके स्थानीय नेटवर्क पर बिना एन्क्रिप्शन भेजी जाती है। केवल भरोसेमंद निजी Wi-Fi नेटवर्क का उपयोग करें।</string>
+    <string name="setup_phone_pairing_error_help">पेयरिंग पूरी नहीं हो सकी। प्रदाता की जानकारी जाँचकर फिर कोशिश करें। QR सत्र समाप्त हो गया हो, तो टीवी पर नया सत्र शुरू करें।</string>
+    <string name="setup_phone_pairing_mac_label">MAC पता</string>
 </resources>

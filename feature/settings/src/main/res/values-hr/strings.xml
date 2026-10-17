@@ -869,4 +869,10 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Stremio dodaci</string>
     <string name="nav_extensions">Proširenja</string>
+
+    <string name="settings_sports_event_source">Izvor sportskih događaja</string>
+    <string name="settings_sports_event_source_automatic">Automatski</string>
+    <string name="settings_sports_event_source_epg">TV vodič / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID-jevi liga</string>
+    <string name="settings_sports_provider_league_ids_hint">Neobavezno. Dodajte ID-jeve liga samo ako ih ovaj pružatelj zahtijeva.</string>
 </resources>

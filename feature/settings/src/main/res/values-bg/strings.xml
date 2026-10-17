@@ -866,4 +866,10 @@
     <string name="settings_theme_vintage">Винтидж</string>
     <string name="nav_addons">Добавки за Stremio</string>
     <string name="nav_extensions">Разширения</string>
+
+    <string name="settings_sports_event_source">Източник на спортни събития</string>
+    <string name="settings_sports_event_source_automatic">Автоматично</string>
+    <string name="settings_sports_event_source_epg">ТВ справочник / EPG</string>
+    <string name="settings_sports_provider_league_ids">Идентификатори на лиги</string>
+    <string name="settings_sports_provider_league_ids_hint">По избор. Добавете идентификатори на лиги само ако доставчикът ги изисква.</string>
 </resources>

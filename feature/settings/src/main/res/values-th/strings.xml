@@ -863,4 +863,10 @@
     <string name="settings_theme_vintage">วินเทจ</string>
     <string name="nav_addons">ส่วนเสริม Stremio</string>
     <string name="nav_extensions">ส่วนขยาย</string>
+
+    <string name="settings_sports_event_source">แหล่งข้อมูลการแข่งขันกีฬา</string>
+    <string name="settings_sports_event_source_automatic">อัตโนมัติ</string>
+    <string name="settings_sports_event_source_epg">ผังรายการทีวี / EPG</string>
+    <string name="settings_sports_provider_league_ids">รหัสลีก</string>
+    <string name="settings_sports_provider_league_ids_hint">ไม่บังคับ เพิ่มรหัสลีกเฉพาะเมื่อผู้ให้บริการนี้กำหนดให้ใช้</string>
 </resources>

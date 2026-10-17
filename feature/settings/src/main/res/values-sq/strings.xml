@@ -866,4 +866,10 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Shtesa Stremio</string>
     <string name="nav_extensions">Zgjerimet</string>
+
+    <string name="settings_sports_event_source">Burimi i ngjarjeve sportive</string>
+    <string name="settings_sports_event_source_automatic">Automatike</string>
+    <string name="settings_sports_event_source_epg">Udhëzuesi TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID-të e ligave</string>
+    <string name="settings_sports_provider_league_ids_hint">Opsionale. Shtoni ID-të e ligave vetëm nëse i kërkon ky ofrues.</string>
 </resources>

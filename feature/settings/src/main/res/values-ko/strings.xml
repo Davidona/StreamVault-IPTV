@@ -864,4 +864,10 @@
     <string name="nav_extensions">확장 기능</string>
     <string name="dashboard_trakt_watchlist_movies">Trakt 관심 목록에 있는 영화</string>
     <string name="dashboard_trakt_watchlist_series">Trakt 관심 목록의 TV 프로그램</string>
+
+    <string name="settings_sports_event_source">스포츠 이벤트 소스</string>
+    <string name="settings_sports_event_source_automatic">자동</string>
+    <string name="settings_sports_event_source_epg">TV 편성표 / EPG</string>
+    <string name="settings_sports_provider_league_ids">리그 ID</string>
+    <string name="settings_sports_provider_league_ids_hint">선택사항입니다. 이 제공업체에서 필요한 경우에만 리그 ID를 입력하세요.</string>
 </resources>

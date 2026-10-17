@@ -286,7 +286,6 @@ public fun SettingsContentPane(
                             providerState = providerState,
                             targetItemId = activeSearchTarget?.itemId,
                             targetFocusModifier = searchTargetModifier,
-                            openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                         )
                     }
                     if (dialogState.selectedCategory == 1 || page in listOf(SettingsPage.CLOCK, SettingsPage.TIMESHIFT, SettingsPage.MULTIVIEW, SettingsPage.VOD_PLAYBACK)) {
@@ -347,6 +346,7 @@ public fun SettingsContentPane(
                             onShowLiveTranslationEndpointDialogChange = { dialogState.showLiveTranslationEndpointDialog = it },
                             onShowWifiQualityDialogChange = { dialogState.showWifiQualityDialog = it },
                             onShowEthernetQualityDialogChange = { dialogState.showEthernetQualityDialog = it },
+                            openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                             targetItemId = activeSearchTarget?.itemId,
                             targetFocusModifier = searchTargetModifier,
                         )

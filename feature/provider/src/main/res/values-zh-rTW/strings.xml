@@ -117,4 +117,7 @@
     <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
     <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">安全性：配對會透過本機網路以未加密方式傳送登入憑證。請只使用可信任的私人 Wi-Fi 網路。</string>
+    <string name="setup_phone_pairing_error_help">無法完成配對。請檢查服務提供者資料並重試。如果 QR 工作階段已逾期，請在電視上重新開始。</string>
+    <string name="setup_phone_pairing_mac_label">MAC 位址</string>
 </resources>

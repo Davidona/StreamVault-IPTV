@@ -102,4 +102,7 @@
     <string name="setup_password">Hasło</string>
     <string name="setup_name">Nazwa</string>
     <string name="setup_name_placeholder">Mój serwer Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Bezpieczeństwo: Parowanie wysyła dane logowania bez szyfrowania przez sieć lokalną. Korzystaj tylko z zaufanej, prywatnej sieci Wi-Fi.</string>
+    <string name="setup_phone_pairing_error_help">Nie udało się ukończyć parowania. Sprawdź dane dostawcy i spróbuj ponownie. Jeśli sesja QR wygasła, rozpocznij nową na telewizorze.</string>
+    <string name="setup_phone_pairing_mac_label">Adres MAC</string>
 </resources>

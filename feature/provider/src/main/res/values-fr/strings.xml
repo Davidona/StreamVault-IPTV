@@ -102,4 +102,7 @@
     <string name="setup_password">Mot de passe</string>
     <string name="setup_name">Nom</string>
     <string name="setup_name_placeholder">Mon serveur Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Sécurité : l’association envoie les identifiants sans chiffrement sur votre réseau local. Utilisez uniquement un réseau Wi-Fi privé de confiance.</string>
+    <string name="setup_phone_pairing_error_help">Impossible de terminer l’association. Vérifiez les informations du fournisseur et réessayez. Si la session QR a expiré, démarrez-en une nouvelle sur le téléviseur.</string>
+    <string name="setup_phone_pairing_mac_label">Adresse MAC</string>
 </resources>

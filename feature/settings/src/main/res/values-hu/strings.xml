@@ -868,4 +868,10 @@
     <string name="nav_extensions">Kiterjesztések</string>
     <string name="dashboard_trakt_watchlist_movies">Filmek a Trakt figyelőlistán</string>
     <string name="dashboard_trakt_watchlist_series">TV-műsorok a Trakt figyelőlistádon</string>
+
+    <string name="settings_sports_event_source">Sportesemények forrása</string>
+    <string name="settings_sports_event_source_automatic">Automatikus</string>
+    <string name="settings_sports_event_source_epg">TV-műsorújság / EPG</string>
+    <string name="settings_sports_provider_league_ids">Bajnokságazonosítók</string>
+    <string name="settings_sports_provider_league_ids_hint">Nem kötelező. Csak akkor adjon meg bajnokságazonosítókat, ha ez a szolgáltató kéri őket.</string>
 </resources>

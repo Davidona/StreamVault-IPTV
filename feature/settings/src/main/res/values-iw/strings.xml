@@ -871,4 +871,10 @@
     <string name="nav_extensions">הרחבות</string>
     <string name="dashboard_trakt_watchlist_movies">סרטים ברשימת המעקב שלך Trakt</string>
     <string name="dashboard_trakt_watchlist_series">תוכניות טלוויזיה ברשימת המעקב שלך Trakt</string>
+
+    <string name="settings_sports_event_source">מקור אירועי ספורט</string>
+    <string name="settings_sports_event_source_automatic">אוטומטי</string>
+    <string name="settings_sports_event_source_epg">מדריך טלוויזיה / EPG</string>
+    <string name="settings_sports_provider_league_ids">מזהי ליגות</string>
+    <string name="settings_sports_provider_league_ids_hint">לא חובה. יש להוסיף מזהי ליגות רק אם הספק הזה דורש זאת.</string>
 </resources>

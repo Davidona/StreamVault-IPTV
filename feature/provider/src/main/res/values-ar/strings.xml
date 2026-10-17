@@ -102,4 +102,7 @@
     <string name="setup_password">كلمة المرور</string>
     <string name="setup_name">الاسم</string>
     <string name="setup_name_placeholder">خادم Jellyfin الخاص بي</string>
+    <string name="setup_phone_pairing_security_warning">تنبيه أمني: يرسل الاقتران بيانات تسجيل الدخول عبر شبكتك المحلية دون تشفير. استخدم شبكة Wi-Fi خاصة وموثوقة فقط.</string>
+    <string name="setup_phone_pairing_error_help">تعذر إكمال الاقتران. تحقق من بيانات المزوّد وحاول مجددًا. إذا انتهت صلاحية جلسة QR، فابدأ جلسة جديدة على التلفاز.</string>
+    <string name="setup_phone_pairing_mac_label">عنوان MAC</string>
 </resources>

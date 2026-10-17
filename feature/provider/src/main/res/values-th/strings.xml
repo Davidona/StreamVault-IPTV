@@ -117,4 +117,7 @@
     <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
     <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">ความปลอดภัย: การจับคู่จะส่งข้อมูลเข้าสู่ระบบผ่านเครือข่ายท้องถิ่นโดยไม่มีการเข้ารหัส ใช้เฉพาะเครือข่าย Wi-Fi ส่วนตัวที่เชื่อถือได้เท่านั้น</string>
+    <string name="setup_phone_pairing_error_help">จับคู่ไม่สำเร็จ ตรวจสอบรายละเอียดผู้ให้บริการแล้วลองอีกครั้ง หากเซสชัน QR หมดอายุ ให้เริ่มเซสชันใหม่บนทีวี</string>
+    <string name="setup_phone_pairing_mac_label">ที่อยู่ MAC</string>
 </resources>

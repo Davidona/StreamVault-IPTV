@@ -102,4 +102,7 @@
     <string name="setup_password">Heslo</string>
     <string name="setup_name">Název</string>
     <string name="setup_name_placeholder">Můj server Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Zabezpečení: Při párování se přihlašovací údaje odesílají přes místní síť bez šifrování. Používejte pouze důvěryhodnou soukromou Wi-Fi síť.</string>
+    <string name="setup_phone_pairing_error_help">Párování se nepodařilo dokončit. Zkontrolujte údaje poskytovatele a zkuste to znovu. Pokud platnost QR relace vypršela, spusťte na televizoru novou.</string>
+    <string name="setup_phone_pairing_mac_label">MAC adresa</string>
 </resources>

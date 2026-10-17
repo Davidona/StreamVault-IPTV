@@ -871,4 +871,10 @@
     <string name="nav_extensions">Extensii</string>
     <string name="dashboard_trakt_watchlist_movies">Filme din lista dvs. de urmărire Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Emisiuni TV din lista dvs. de urmărire Trakt</string>
+
+    <string name="settings_sports_event_source">Sursa evenimentelor sportive</string>
+    <string name="settings_sports_event_source_automatic">Automat</string>
+    <string name="settings_sports_event_source_epg">Ghid TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID-uri de ligi</string>
+    <string name="settings_sports_provider_league_ids_hint">Opțional. Adăugați ID-uri de ligi doar dacă acest furnizor le solicită.</string>
 </resources>

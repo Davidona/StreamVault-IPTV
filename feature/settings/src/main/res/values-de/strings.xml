@@ -864,4 +864,10 @@
     <string name="nav_extensions">Erweiterungen</string>
     <string name="dashboard_trakt_watchlist_movies">Filme in Ihrer Trakt-Beobachtungsliste</string>
     <string name="dashboard_trakt_watchlist_series">TV-Sendungen in Ihrer Trakt-Beobachtungsliste</string>
+
+    <string name="settings_sports_event_source">Quelle für Sportereignisse</string>
+    <string name="settings_sports_event_source_automatic">Automatisch</string>
+    <string name="settings_sports_event_source_epg">TV-Programm / EPG</string>
+    <string name="settings_sports_provider_league_ids">Liga-IDs</string>
+    <string name="settings_sports_provider_league_ids_hint">Optional. Gib Liga-IDs nur ein, wenn dieser Anbieter sie benötigt.</string>
 </resources>

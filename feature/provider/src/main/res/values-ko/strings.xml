@@ -102,4 +102,7 @@
     <string name="setup_password">비밀번호</string>
     <string name="setup_name">이름</string>
     <string name="setup_name_placeholder">내 Jellyfin 서버</string>
+    <string name="setup_phone_pairing_security_warning">보안: 페어링 중 로그인 정보가 로컬 네트워크를 통해 암호화되지 않은 상태로 전송됩니다. 신뢰할 수 있는 개인 Wi-Fi만 사용하세요.</string>
+    <string name="setup_phone_pairing_error_help">페어링을 완료하지 못했습니다. 제공업체 정보를 확인하고 다시 시도하세요. QR 세션이 만료되었다면 TV에서 새 세션을 시작하세요.</string>
+    <string name="setup_phone_pairing_mac_label">MAC 주소</string>
 </resources>

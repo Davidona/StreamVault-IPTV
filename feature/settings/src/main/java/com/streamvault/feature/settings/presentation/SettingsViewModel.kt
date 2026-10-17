@@ -1408,6 +1408,10 @@ class SettingsViewModel @Inject constructor(
         backupActions.setImportRecordingSchedules(enabled)
     }
 
+    fun setImportStremioAddons(enabled: Boolean) {
+        backupActions.setImportStremioAddons(enabled)
+    }
+
     fun confirmBackupImport() {
         backupActions.confirmBackupImport(viewModelScope) {
             driveBackupActions.applyPendingCredentials(viewModelScope)

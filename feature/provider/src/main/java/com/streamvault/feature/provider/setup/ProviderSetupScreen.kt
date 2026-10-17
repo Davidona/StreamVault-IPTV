@@ -131,6 +131,10 @@ fun ProviderSetupScreen(
     val fileImportFailedMessage = stringResource(R.string.setup_file_import_failed)
     val coroutineScope = rememberCoroutineScope()
 
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.stopPhonePairing() }
+    }
+
     // ?? Local form state ??????????????????????????????????????????????????????
     var selectedTab by rememberSaveable { mutableStateOf(0) }
     var name by rememberSaveable { mutableStateOf("") }
@@ -559,12 +563,21 @@ fun ProviderSetupScreen(
         }
     }
 
-    if (uiState.syncProgress != null) {
+    val isPhonePairingSubmitting = pairingState.status == ProviderQrPairingStatus.RECEIVING
+    if (uiState.syncProgress != null || isPhonePairingSubmitting) {
         SyncProgressDialog(
-            message = uiState.syncProgress!!,
-            quickConnectCode = if (uiState.jellyfinQuickConnectCode.isNotBlank()) uiState.jellyfinQuickConnectCode else null,
-            serverUrl = serverUrl,
-            onCancel = when {
+            message = if (isPhonePairingSubmitting) {
+                pairingState.message ?: stringResource(R.string.setup_phone_pairing_receiving)
+            } else {
+                uiState.syncProgress.orEmpty()
+            },
+            quickConnectCode = if (!isPhonePairingSubmitting && uiState.jellyfinQuickConnectCode.isNotBlank()) {
+                uiState.jellyfinQuickConnectCode
+            } else {
+                null
+            },
+            serverUrl = serverUrl.takeIf { !isPhonePairingSubmitting },
+            onCancel = if (isPhonePairingSubmitting) null else when {
                 uiState.jellyfinQuickConnectCode.isNotBlank() ->
                     ({ viewModel.cancelJellyfinQuickConnect() })
                 uiState.selectedTab == 1 && uiState.isLoading ->

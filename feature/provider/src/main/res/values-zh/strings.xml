@@ -102,4 +102,7 @@
     <string name="setup_password">密码</string>
     <string name="setup_name">名称</string>
     <string name="setup_name_placeholder">我的 Jellyfin 服务器</string>
+    <string name="setup_phone_pairing_security_warning">安全提示：配对会通过本地网络以未加密的方式发送登录凭据。请仅使用可信的私人 Wi-Fi 网络。</string>
+    <string name="setup_phone_pairing_error_help">无法完成配对。请检查服务提供商信息并重试。如果二维码会话已过期，请在电视上重新开始。</string>
+    <string name="setup_phone_pairing_mac_label">MAC 地址</string>
 </resources>

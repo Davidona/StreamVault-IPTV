@@ -874,4 +874,10 @@
     <string name="nav_extensions">Розширення</string>
     <string name="dashboard_trakt_watchlist_movies">Фільми у вашому списку перегляду Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Телешоу у вашому списку перегляду Trakt</string>
+
+    <string name="settings_sports_event_source">Джерело спортивних подій</string>
+    <string name="settings_sports_event_source_automatic">Автоматично</string>
+    <string name="settings_sports_event_source_epg">Телепрограма / EPG</string>
+    <string name="settings_sports_provider_league_ids">Ідентифікатори ліг</string>
+    <string name="settings_sports_provider_league_ids_hint">Необов’язково. Додавайте ідентифікатори ліг, лише якщо вони потрібні цьому провайдеру.</string>
 </resources>

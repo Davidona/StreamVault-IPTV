@@ -1,237 +1,353 @@
 package com.streamvault.feature.provider.pairing
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.wifi.WifiManager
-import android.text.format.Formatter
 import android.util.Log
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
 import com.streamvault.domain.model.GuideSourcePolicy
+import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.StalkerAuthMode
-import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.JellyfinProviderSetupCommand
 import com.streamvault.domain.usecase.M3uProviderSetupCommand
 import com.streamvault.domain.usecase.StalkerProviderSetupCommand
 import com.streamvault.domain.usecase.ValidateAndAddProvider
 import com.streamvault.domain.usecase.ValidateAndAddProviderResult
 import com.streamvault.domain.usecase.XtreamProviderSetupCommand
+import com.streamvault.feature.provider.R
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.io.OutputStream
 import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.ServerSocket
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.util.EnumMap
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Semaphore
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 private const val PAIRING_SESSION_MS = 5 * 60 * 1_000L
 private const val PAIRING_QR_SIZE = 384
-private const val MAX_FORM_BYTES = 24 * 1024
+private const val CLIENT_READ_TIMEOUT_MS = 5_000
+private const val CLIENT_REQUEST_DEADLINE_MS = 20_000L
+private const val MAX_CONCURRENT_PAIRING_CLIENTS = 4
 private const val TAG = "ProviderQrPairing"
 
 @Singleton
 class ProviderQrPairingManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val validateAndAddProvider: ValidateAndAddProvider,
-    private val providerRepository: ProviderRepository
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val secureRandom = SecureRandom()
+    private val lifecycleMutex = Mutex()
+    private val stateLock = Any()
+    private val clientSlots = Semaphore(MAX_CONCURRENT_PAIRING_CLIENTS)
     private val _state = MutableStateFlow(ProviderQrPairingState())
     val state: StateFlow<ProviderQrPairingState> = _state.asStateFlow()
 
-    private var serverSocket: ServerSocket? = null
-    private var acceptJob: Job? = null
-    private var timeoutJob: Job? = null
-    private var activeToken: String? = null
-    private var activeExpiresAtMs: Long = 0L
+    @Volatile
+    private var activeSession: PairingSession? = null
 
     suspend fun startPairing() {
-        stopPairing()
-        val host = resolveLanIpv4Address()
-        if (host.isNullOrBlank()) {
-            _state.value = ProviderQrPairingState(
-                status = ProviderQrPairingStatus.ERROR,
-                message = "Could not find a Wi-Fi/LAN IP address. Make sure the TV is connected to your network."
-            )
-            return
-        }
+        var unclaimedSocket: ServerSocket? = null
+        try {
+            lifecycleMutex.withLock {
+                val previousSession = synchronized(stateLock) {
+                    activeSession.also {
+                        activeSession = null
+                        _state.value = ProviderQrPairingState()
+                    }
+                }
+                previousSession?.let(::cancelSessionWork)
 
-        val socket = runCatching { ServerSocket(0, 8) }.getOrElse { error ->
-            _state.value = ProviderQrPairingState(
-                status = ProviderQrPairingStatus.ERROR,
-                message = "Could not start pairing server: ${error.message ?: "unknown error"}"
-            )
-            return
-        }
-        val token = generateToken()
-        val port = socket.localPort
-        val url = "http://$host:$port/pair?t=$token"
-        val expiresAt = System.currentTimeMillis() + PAIRING_SESSION_MS
+                try {
+                    val host = withContext(Dispatchers.IO) { resolveLanIpv4Address() }
+                    if (host.isNullOrBlank()) {
+                        setErrorState()
+                        return@withLock
+                    }
 
-        serverSocket = socket
-        activeToken = token
-        activeExpiresAtMs = expiresAt
-        _state.value = ProviderQrPairingState(
-            status = ProviderQrPairingStatus.READY,
-            url = url,
-            qrBitmap = createQrBitmap(url),
-            expiresAtMs = expiresAt,
-            message = "Scan from a phone on the same Wi-Fi."
-        )
+                    val socket = withContext(Dispatchers.IO) {
+                        ServerSocket().apply {
+                            bind(InetSocketAddress(InetAddress.getByName(host), 0), 8)
+                        }
+                    }
+                    unclaimedSocket = socket
 
-        acceptJob = scope.launch {
-            acceptLoop(socket)
+                    val token = generateToken()
+                    val url = "http://$host:${socket.localPort}/pair?t=$token"
+                    val expiresAt = System.currentTimeMillis() + PAIRING_SESSION_MS
+                    val qrBitmap = withContext(Dispatchers.IO) { createQrBitmap(url) }
+                    val session = PairingSession(
+                        token = token,
+                        expiresAtMs = expiresAt,
+                        serverSocket = socket,
+                    )
+                    unclaimedSocket = null
+                    synchronized(stateLock) {
+                        activeSession = session
+                        _state.value = ProviderQrPairingState(
+                            status = ProviderQrPairingStatus.READY,
+                            url = url,
+                            qrBitmap = qrBitmap,
+                            expiresAtMs = expiresAt,
+                            message = context.getString(R.string.setup_phone_pairing_same_wifi),
+                        )
+                    }
+
+                    session.acceptJob = scope.launch { acceptLoop(session) }
+                    session.timeoutJob = scope.launch {
+                        delay(PAIRING_SESSION_MS)
+                        stopSession(session, errorState())
+                    }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    Log.w(TAG, "Could not start provider pairing")
+                    runCatching { unclaimedSocket?.close() }
+                    unclaimedSocket = null
+                    setErrorState()
+                }
+            }
+        } finally {
+            runCatching { unclaimedSocket?.close() }
         }
-        timeoutJob = scope.launch {
-            kotlinx.coroutines.delay(PAIRING_SESSION_MS)
-            if (_state.value.status == ProviderQrPairingStatus.READY ||
-                _state.value.status == ProviderQrPairingStatus.RECEIVING
-            ) {
-                stopPairing("Pairing expired. Start a new QR session to try again.")
+    }
+
+    fun stopPairing() {
+        scope.launch { stopPairingSession() }
+    }
+
+    private suspend fun stopPairingSession() {
+        val oldSession = lifecycleMutex.withLock {
+            synchronized(stateLock) {
+                activeSession.also {
+                    activeSession = null
+                    _state.value = ProviderQrPairingState()
+                }
             }
         }
+        oldSession?.let(::cancelSessionWork)
     }
 
-    suspend fun stopPairing(message: String? = null) {
-        val oldAcceptJob = acceptJob
-        val oldTimeoutJob = timeoutJob
-        acceptJob = null
-        timeoutJob = null
-        runCatching { serverSocket?.close() }
-        serverSocket = null
-        activeToken = null
-        activeExpiresAtMs = 0L
-        if (oldAcceptJob != null && oldAcceptJob !== kotlinx.coroutines.currentCoroutineContext()[Job]) {
-            runCatching { oldAcceptJob.cancelAndJoin() }
+    private suspend fun stopSession(session: PairingSession, finalState: ProviderQrPairingState) {
+        val stopped = lifecycleMutex.withLock {
+            synchronized(stateLock) {
+                if (activeSession !== session) {
+                    false
+                } else {
+                    activeSession = null
+                    _state.value = finalState
+                    true
+                }
+            }
         }
-        if (oldTimeoutJob != null && oldTimeoutJob !== kotlinx.coroutines.currentCoroutineContext()[Job]) {
-            runCatching { oldTimeoutJob.cancelAndJoin() }
-        }
-        _state.value = ProviderQrPairingState(
-            status = if (message == null) ProviderQrPairingStatus.IDLE else ProviderQrPairingStatus.ERROR,
-            message = message
-        )
+        if (stopped) cancelSessionWork(session)
     }
 
-    private suspend fun acceptLoop(socket: ServerSocket) {
-        while (!socket.isClosed) {
-            val client = runCatching { socket.accept() }.getOrNull() ?: break
-            scope.launch {
+    private fun cancelSessionWork(session: PairingSession) {
+        session.lease.invalidate()
+        runCatching { session.serverSocket.close() }
+        session.clientSockets.toList().forEach { client -> runCatching { client.close() } }
+        session.acceptJob?.cancel()
+        session.timeoutJob?.cancel()
+        session.clientJobs.toList().forEach { it.cancel() }
+    }
+
+    private suspend fun acceptLoop(session: PairingSession) {
+        while (isCurrentSession(session) && !session.serverSocket.isClosed) {
+            val client = runCatching { session.serverSocket.accept() }.getOrNull() ?: break
+            if (!clientSlots.tryAcquire()) {
                 runCatching {
-                    handleClient(client)
-                }.onFailure { error ->
-                    Log.w(TAG, "Pairing client request failed without stopping the app", error)
+                    client.soTimeout = CLIENT_READ_TIMEOUT_MS
+                    writeResponse(client.getOutputStream(), 503, "text/plain; charset=utf-8", "")
+                }
+                runCatching { client.close() }
+                continue
+            }
+
+            session.clientSockets.add(client)
+            val clientJob = scope.launch(start = CoroutineStart.LAZY) {
+                try {
+                    handleClient(session, client)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    Log.w(TAG, "Pairing client request failed")
                     runCatching { client.close() }
                 }
             }
+            session.clientJobs.add(clientJob)
+            clientJob.invokeOnCompletion {
+                runCatching { client.close() }
+                session.clientSockets.remove(client)
+                session.clientJobs.remove(clientJob)
+                clientSlots.release()
+            }
+            val started = synchronized(stateLock) {
+                activeSession === session && !session.serverSocket.isClosed && clientJob.start()
+            }
+            if (!started) clientJob.cancel()
         }
+        if (isActiveSession(session)) stopSession(session, errorState())
     }
 
-    private suspend fun handleClient(socket: Socket) {
+    private suspend fun handleClient(session: PairingSession, socket: Socket) {
         socket.use { client ->
-            val reader = BufferedReader(InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8))
-            val firstLine = reader.readLine() ?: return
-            val parts = firstLine.split(' ')
-            if (parts.size < 2) {
-                writeResponse(client.getOutputStream(), 400, "text/plain", "Bad request")
-                return
+            client.soTimeout = CLIENT_READ_TIMEOUT_MS
+            val requestDeadline = scope.launch {
+                delay(CLIENT_REQUEST_DEADLINE_MS)
+                runCatching { client.close() }
             }
-            val method = parts[0].uppercase(Locale.US)
-            val pathAndQuery = parts[1]
-            val headers = mutableMapOf<String, String>()
-            while (true) {
-                val line = reader.readLine() ?: break
-                if (line.isEmpty()) break
-                val key = line.substringBefore(':', "").trim().lowercase(Locale.US)
-                val value = line.substringAfter(':', "").trim()
-                if (key.isNotBlank()) headers[key] = value
+            val request = try {
+                ProviderPairingHttpParser.read(client.getInputStream())
+            } catch (error: ProviderPairingRequestException) {
+                writeResponse(client.getOutputStream(), error.statusCode, "text/plain; charset=utf-8", "")
+                return
+            } catch (error: SocketTimeoutException) {
+                writeResponse(client.getOutputStream(), 408, "text/plain; charset=utf-8", "")
+                return
+            } finally {
+                requestDeadline.cancel()
+            }
+            val phoneContext = localizedContext(request.headers["accept-language"])
+            val path = request.pathAndQuery.substringBefore('?')
+
+            if (!isCurrentSession(session)) {
+                writeResponse(client.getOutputStream(), 403, "text/plain; charset=utf-8", "")
+                return
             }
 
             when {
-                method == "GET" && pathAndQuery.startsWith("/pair") -> {
-                    val token = queryParams(pathAndQuery)["t"]
-                    if (!isTokenValid(token)) {
-                        writeHtml(client.getOutputStream(), 403, errorPage("Pairing link expired or invalid. Start a new QR session on the TV."))
+                request.method == "GET" && path == "/pair" -> {
+                    val token = queryParams(request.pathAndQuery)?.get("t")
+                    if (!isTokenValid(session, token)) {
+                        writeHtml(client.getOutputStream(), 403, errorPage(phoneContext))
                     } else {
-                        writeHtml(client.getOutputStream(), 200, formPage(token.orEmpty()))
+                        writeHtml(client.getOutputStream(), 200, formPage(session.token, phoneContext))
                     }
                 }
-                method == "POST" && pathAndQuery.startsWith("/submit") -> {
-                    val length = headers["content-length"]?.toIntOrNull()?.coerceAtMost(MAX_FORM_BYTES) ?: 0
-                    val body = CharArray(length)
-                    var read = 0
-                    while (read < length) {
-                        val count = reader.read(body, read, length - read)
-                        if (count <= 0) break
-                        read += count
-                    }
-                    val form = parseForm(String(body, 0, read))
-                    val token = form["token"]
-                    if (!isTokenValid(token)) {
-                        writeHtml(client.getOutputStream(), 403, errorPage("Pairing session expired. Start a new QR session on the TV."))
+
+                request.method == "POST" && path == "/submit" -> {
+                    val contentType = request.headers["content-type"]
+                        ?.substringBefore(';')
+                        ?.trim()
+                        ?.lowercase(Locale.US)
+                    if (contentType != "application/x-www-form-urlencoded") {
+                        writeResponse(client.getOutputStream(), 415, "text/plain; charset=utf-8", "")
                         return
                     }
-                    _state.value = _state.value.copy(
-                        status = ProviderQrPairingStatus.RECEIVING,
-                        message = "Phone submitted provider details. Validating..."
+
+                    val form = parseForm(request.body)
+                    if (form == null) {
+                        writeHtml(client.getOutputStream(), 400, errorPage(phoneContext))
+                        return
+                    }
+                    when (beginSubmission(session, form["token"], System.currentTimeMillis())) {
+                        null -> {
+                            writeHtml(client.getOutputStream(), 403, errorPage(phoneContext))
+                            return
+                        }
+                        false -> {
+                            writeHtml(client.getOutputStream(), 409, errorPage(phoneContext))
+                            return
+                        }
+                        true -> Unit
+                    }
+
+                    updateSessionState(
+                        session,
+                        ProviderQrPairingStatus.RECEIVING,
+                        context.getString(R.string.setup_phone_pairing_receiving),
                     )
-                    val saveResult = addProviderFromForm(form)
-                    when (saveResult) {
-                        is ProviderPairingSubmitResult.Success -> {
-                            writeHtml(client.getOutputStream(), 200, successPage(saveResult.providerName))
-                            invalidateAfterSuccess(saveResult.providerName)
+                    try {
+                        val result = try {
+                            addProviderFromForm(form, session)
+                        } catch (error: CancellationException) {
+                            throw error
+                        } catch (error: Exception) {
+                            Log.w(TAG, "Provider setup from phone failed")
+                            ProviderPairingSubmitResult.Error
                         }
-                        is ProviderPairingSubmitResult.Error -> {
-                            _state.value = _state.value.copy(
-                                status = ProviderQrPairingStatus.READY,
-                                message = saveResult.message
-                            )
-                            writeHtml(client.getOutputStream(), 400, errorPage(saveResult.message))
+
+                        when (result) {
+                            ProviderPairingSubmitResult.Success -> {
+                                writeHtml(client.getOutputStream(), 200, successPage(phoneContext))
+                                stopSession(
+                                    session,
+                                    ProviderQrPairingState(
+                                        status = ProviderQrPairingStatus.COMPLETE,
+                                        message = context.getString(R.string.setup_phone_pairing_complete),
+                                    ),
+                                )
+                            }
+
+                            ProviderPairingSubmitResult.Error -> {
+                                updateSessionState(
+                                    session,
+                                    ProviderQrPairingStatus.READY,
+                                    context.getString(R.string.setup_phone_pairing_error_help),
+                                )
+                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext))
+                            }
                         }
+                    } finally {
+                        session.lease.endSubmission()
                     }
                 }
-                else -> writeResponse(client.getOutputStream(), 404, "text/plain", "Not found")
+
+                request.method != "GET" && request.method != "POST" ->
+                    writeResponse(client.getOutputStream(), 405, "text/plain; charset=utf-8", "")
+
+                else -> writeResponse(client.getOutputStream(), 404, "text/plain; charset=utf-8", "")
             }
         }
     }
 
-
-    private suspend fun addProviderFromForm(form: Map<String, String>): ProviderPairingSubmitResult {
+    private suspend fun addProviderFromForm(
+        form: Map<String, String>,
+        session: PairingSession,
+    ): ProviderPairingSubmitResult {
         val type = form["type"].orEmpty().lowercase(Locale.US)
-        val name = form["name"].orEmpty().ifBlank {
-            when (type) {
-                "m3u" -> "Phone M3U Playlist"
-                "stalker" -> "Phone Stalker Portal"
-                "jellyfin" -> "Phone Jellyfin"
-                else -> "Phone Xtream Provider"
-            }
+        val name = form["name"].orEmpty().trim()
+        val onProgress: (String) -> Unit = { progress ->
+            updateSessionState(
+                session,
+                ProviderQrPairingStatus.RECEIVING,
+                progress.ifBlank { context.getString(R.string.setup_phone_pairing_receiving) },
+            )
         }
+
         val result = when (type) {
             "m3u" -> validateAndAddProvider.addM3u(
                 M3uProviderSetupCommand(
@@ -239,10 +355,11 @@ class ProviderQrPairingManager @Inject constructor(
                     name = name,
                     epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
                     guideSourcePolicy = GuideSourcePolicy.AUTO,
-                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED
+                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
                 ),
-                onProgress = ::updateProgress
+                onProgress = onProgress,
             )
+
             "stalker" -> validateAndAddProvider.loginStalker(
                 StalkerProviderSetupCommand(
                     portalUrl = form["serverUrl"].orEmpty(),
@@ -253,20 +370,22 @@ class ProviderQrPairingManager @Inject constructor(
                     name = name,
                     epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
                     guideSourcePolicy = GuideSourcePolicy.AUTO,
-                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED
+                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
                 ),
-                onProgress = ::updateProgress
+                onProgress = onProgress,
             )
+
             "jellyfin" -> validateAndAddProvider.loginJellyfin(
                 JellyfinProviderSetupCommand(
                     serverUrl = form["serverUrl"].orEmpty(),
                     username = form["username"].orEmpty(),
                     password = form["password"].orEmpty(),
-                    name = name
+                    name = name,
                 ),
-                onProgress = ::updateProgress
+                onProgress = onProgress,
             )
-            else -> validateAndAddProvider.loginXtream(
+
+            "xtream" -> validateAndAddProvider.loginXtream(
                 XtreamProviderSetupCommand(
                     serverUrl = form["serverUrl"].orEmpty(),
                     username = form["username"].orEmpty(),
@@ -275,62 +394,76 @@ class ProviderQrPairingManager @Inject constructor(
                     epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
                     xtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
                     guideSourcePolicy = GuideSourcePolicy.AUTO,
-                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED
+                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
                 ),
-                onProgress = ::updateProgress
+                onProgress = onProgress,
             )
+
+            else -> return ProviderPairingSubmitResult.Error
         }
+
         return when (result) {
-            is ValidateAndAddProviderResult.Success ->
-                ProviderPairingSubmitResult.Success(result.provider.name)
-            is ValidateAndAddProviderResult.SavedWithWarning ->
-                ProviderPairingSubmitResult.Success(result.provider.name)
-            is ValidateAndAddProviderResult.ValidationError ->
-                ProviderPairingSubmitResult.Error(result.message)
-            is ValidateAndAddProviderResult.TransportConsentRequired ->
-                ProviderPairingSubmitResult.Error(
-                    "Open StreamVault on the TV to review this provider's connection warning."
-                )
-            is ValidateAndAddProviderResult.VerificationInconclusive ->
-                ProviderPairingSubmitResult.Error(
-                    "Open StreamVault on the TV to decide whether to save this provider with verification pending."
-                )
-            is ValidateAndAddProviderResult.Error ->
-                ProviderPairingSubmitResult.Error(result.message)
+            is ValidateAndAddProviderResult.Success,
+            is ValidateAndAddProviderResult.SavedWithWarning -> ProviderPairingSubmitResult.Success
+
+            is ValidateAndAddProviderResult.ValidationError,
+            is ValidateAndAddProviderResult.TransportConsentRequired,
+            is ValidateAndAddProviderResult.VerificationInconclusive,
+            is ValidateAndAddProviderResult.Error -> ProviderPairingSubmitResult.Error
         }
     }
 
-    private fun updateProgress(message: String) {
-        _state.value = _state.value.copy(
-            status = ProviderQrPairingStatus.RECEIVING,
-            message = message
-        )
+    private fun updateSessionState(
+        session: PairingSession,
+        status: ProviderQrPairingStatus,
+        message: String,
+    ) {
+        synchronized(stateLock) {
+            if (activeSession === session) {
+                _state.value = _state.value.copy(status = status, message = message)
+            }
+        }
     }
 
-    private fun invalidateAfterSuccess(providerName: String) {
-        runCatching { serverSocket?.close() }
-        activeToken = null
-        activeExpiresAtMs = 0L
-        _state.value = ProviderQrPairingState(
-            status = ProviderQrPairingStatus.COMPLETE,
-            message = "Provider added from phone: $providerName"
-        )
+    private fun isCurrentSession(session: PairingSession): Boolean =
+        isActiveSession(session) && !session.serverSocket.isClosed
+
+    private fun isActiveSession(session: PairingSession): Boolean =
+        synchronized(stateLock) { activeSession === session }
+
+    private fun isTokenValid(session: PairingSession, token: String?): Boolean =
+        synchronized(stateLock) {
+            activeSession === session && session.lease.isValid(token, System.currentTimeMillis())
+        }
+
+    /** Returns null for an invalid/stale token, false for an in-flight submit, or true if acquired. */
+    private fun beginSubmission(session: PairingSession, token: String?, nowMs: Long): Boolean? =
+        synchronized(stateLock) {
+            if (activeSession !== session || !session.lease.isValid(token, nowMs)) {
+                null
+            } else {
+                session.lease.tryBeginSubmission(token, nowMs)
+            }
+        }
+
+    private fun setErrorState() {
+        synchronized(stateLock) { _state.value = errorState() }
     }
 
-    private fun isTokenValid(token: String?): Boolean =
-        token != null &&
-            token == activeToken &&
-            System.currentTimeMillis() < activeExpiresAtMs
+    private fun errorState(): ProviderQrPairingState = ProviderQrPairingState(
+        status = ProviderQrPairingStatus.ERROR,
+        message = context.getString(R.string.setup_phone_pairing_error_help),
+    )
 
     private fun generateToken(): String {
-        val bytes = ByteArray(12)
+        val bytes = ByteArray(16)
         secureRandom.nextBytes(bytes)
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
     private fun createQrBitmap(value: String): Bitmap {
         val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
-        hints[EncodeHintType.MARGIN] = 1
+        hints[EncodeHintType.MARGIN] = 4
         val matrix = QRCodeWriter().encode(value, BarcodeFormat.QR_CODE, PAIRING_QR_SIZE, PAIRING_QR_SIZE, hints)
         val pixels = IntArray(PAIRING_QR_SIZE * PAIRING_QR_SIZE)
         for (y in 0 until PAIRING_QR_SIZE) {
@@ -347,41 +480,89 @@ class ProviderQrPairingManager @Inject constructor(
         val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         val activeNetwork = connectivity?.activeNetwork
         val capabilities = activeNetwork?.let(connectivity::getNetworkCapabilities)
-        val isWifi = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
-        if (isWifi) {
-            val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-            val ip = wifi?.connectionInfo?.ipAddress?.takeIf { it != 0 }
-            if (ip != null) return Formatter.formatIpAddress(ip)
+        val isLanTransport = capabilities?.let {
+            it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                it.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        } == true
+        if (isLanTransport) {
+            val activeAddress = connectivity?.getLinkProperties(activeNetwork)
+                ?.linkAddresses
+                ?.asSequence()
+                ?.mapNotNull { it.address as? Inet4Address }
+                ?.firstOrNull(::isUsableLanAddress)
+                ?.hostAddress
+            if (!activeAddress.isNullOrBlank()) return activeAddress
         }
-        return NetworkInterface.getNetworkInterfaces().toList()
+        return NetworkInterface.getNetworkInterfaces()
+            ?.toList()
+            .orEmpty()
             .asSequence()
-            .filter { it.isUp && !it.isLoopback }
-            .flatMap { it.inetAddresses.toList().asSequence() }
-            .filterIsInstance<Inet4Address>()
-            .mapNotNull { it.hostAddress }
-            .firstOrNull { !it.startsWith("127.") }
+            .filter { networkInterface ->
+                networkInterface.name.startsWith("wlan", ignoreCase = true) ||
+                    networkInterface.name.startsWith("eth", ignoreCase = true) ||
+                    networkInterface.name.startsWith("en", ignoreCase = true) ||
+                    networkInterface.name.startsWith("p2p", ignoreCase = true)
+            }
+            .filter { runCatching { it.isUp && !it.isLoopback }.getOrDefault(false) }
+            .flatMap { networkInterface ->
+                val priority = when {
+                    networkInterface.name.startsWith("wlan", ignoreCase = true) -> 0
+                    networkInterface.name.startsWith("eth", ignoreCase = true) -> 1
+                    networkInterface.name.startsWith("en", ignoreCase = true) -> 2
+                    else -> 3
+                }
+                networkInterface.inetAddresses.toList().asSequence()
+                    .filterIsInstance<Inet4Address>()
+                    .filter(::isUsableLanAddress)
+                    .map { priority to it }
+            }
+            .sortedBy { it.first }
+            .firstOrNull()
+            ?.second
+            ?.hostAddress
     }
 
-    private fun queryParams(pathAndQuery: String): Map<String, String> =
-        pathAndQuery.substringAfter('?', "")
-            .takeIf { it.isNotBlank() }
-            ?.let(::parseForm)
-            ?: emptyMap()
+    private fun isUsableLanAddress(address: Inet4Address): Boolean =
+        !address.isLoopbackAddress && !address.isLinkLocalAddress && !address.isAnyLocalAddress
 
-    private fun parseForm(body: String): Map<String, String> =
-        body.split('&')
-            .mapNotNull { part ->
-                if (part.isBlank()) return@mapNotNull null
-                val key = decode(part.substringBefore('=', ""))
-                val value = decode(part.substringAfter('=', ""))
-                key to value
-            }
-            .toMap()
+    private fun queryParams(pathAndQuery: String): Map<String, String>? =
+        pathAndQuery.substringAfter('?', "").let(::parseForm)
 
-    private fun decode(value: String): String = try {
+    private fun parseForm(body: String): Map<String, String>? {
+        if (body.isBlank()) return emptyMap()
+        val values = LinkedHashMap<String, String>()
+        body.split('&').forEach { part ->
+            if (part.isBlank()) return@forEach
+            val separator = part.indexOf('=')
+            val key = decode(part.substring(0, separator.takeIf { it >= 0 } ?: part.length))
+                ?: return null
+            val value = decode(if (separator >= 0) part.substring(separator + 1) else "")
+                ?: return null
+            if (key.isBlank() || key.any(Char::isISOControl) || value.any(Char::isISOControl)) return null
+            if (key in values) return null
+            values[key] = value
+        }
+        return values
+    }
+
+    private fun decode(value: String): String? = try {
         URLDecoder.decode(value, StandardCharsets.UTF_8.name())
-    } catch (e: IllegalArgumentException) {
-        value
+    } catch (_: IllegalArgumentException) {
+        null
+    }
+
+    private fun localizedContext(acceptLanguage: String?): Context {
+        val languageTag = acceptLanguage
+            ?.split(',')
+            ?.firstOrNull()
+            ?.substringBefore(';')
+            ?.trim()
+            ?.takeIf(String::isNotBlank)
+            ?: return context
+        val locale = Locale.forLanguageTag(languageTag)
+        if (locale.language.isBlank()) return context
+        val configuration = Configuration(context.resources.configuration).apply { setLocale(locale) }
+        return context.createConfigurationContext(configuration)
     }
 
     private fun writeHtml(output: OutputStream, status: Int, html: String) {
@@ -394,7 +575,15 @@ class ProviderQrPairingManager @Inject constructor(
             400 -> "Bad Request"
             403 -> "Forbidden"
             404 -> "Not Found"
-            else -> "OK"
+            405 -> "Method Not Allowed"
+            408 -> "Request Timeout"
+            409 -> "Conflict"
+            411 -> "Length Required"
+            413 -> "Content Too Large"
+            415 -> "Unsupported Media Type"
+            431 -> "Request Header Fields Too Large"
+            503 -> "Service Unavailable"
+            else -> "Error"
         }
         val bytes = body.toByteArray(StandardCharsets.UTF_8)
         val header = (
@@ -402,95 +591,180 @@ class ProviderQrPairingManager @Inject constructor(
                 "Content-Type: $contentType\r\n" +
                 "Content-Length: ${bytes.size}\r\n" +
                 "Cache-Control: no-store\r\n" +
+                "X-Content-Type-Options: nosniff\r\n" +
+                "Referrer-Policy: no-referrer\r\n" +
+                "Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'\r\n" +
                 "Connection: close\r\n\r\n"
             ).toByteArray(StandardCharsets.UTF_8)
         runCatching {
             output.write(header)
             output.write(bytes)
             output.flush()
-        }.onFailure { error ->
-            Log.w(TAG, "Pairing client disconnected before response was written", error)
+        }.onFailure {
+            Log.w(TAG, "Pairing client disconnected before response was written")
         }
     }
 
-    private fun formPage(token: String): String = """
-        <!doctype html>
-        <html lang="en">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>StreamVault Pairing</title>
-          <style>
-            body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101820;color:#f8fafc;margin:0;padding:24px}
-            main{max-width:560px;margin:0 auto;background:#172635;border:1px solid #2b4258;border-radius:22px;padding:22px;box-shadow:0 18px 60px rgba(0,0,0,.35)}
-            h1{margin:0 0 8px;font-size:26px} p{color:#b9c6d3;line-height:1.45}
-            label{display:block;margin-top:14px;font-weight:700}
-            input,select{width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border-radius:12px;border:1px solid #39546d;background:#0c1620;color:#fff;font-size:16px}
-            button{width:100%;margin-top:20px;padding:15px;border:0;border-radius:14px;background:#32d6a0;color:#06110d;font-weight:900;font-size:17px}
-            .hint{font-size:13px;color:#93a4b5}.field-group{display:none}.field-group.active{display:block}
-          </style>
-        </head>
-        <body>
-        <main>
-          <h1>Add provider to StreamVault</h1>
-          <p>Enter details on your phone. They are sent directly to your TV over your local Wi-Fi only.</p>
-          <form method="post" action="/submit">
-            <input type="hidden" name="token" value="${token.escapeHtml()}">
-            <label>Provider type</label>
-            <select name="type" id="type" onchange="updateType()">
-              <option value="xtream">Xtream Codes</option>
-              <option value="m3u">M3U Playlist URL</option>
-              <option value="stalker">Stalker / MAG Portal</option>
-              <option value="jellyfin">Jellyfin</option>
-            </select>
-            <label>Provider name</label>
-            <input name="name" placeholder="Provider Name">
-            <div id="serverFields" class="field-group active">
-              <label>Server / portal URL</label>
-              <input name="serverUrl" placeholder="https://example.com">
-              <label>Username</label>
-              <input name="username" autocomplete="username">
-              <label>Password</label>
-              <input name="password" type="password" autocomplete="current-password">
-            </div>
-            <div id="m3uFields" class="field-group">
-              <label>M3U playlist URL</label>
-              <input name="m3uUrl" placeholder="https://example.com/get.php?...">
-            </div>
-            <div id="stalkerFields" class="field-group">
-              <label>MAC address</label>
-              <input name="macAddress" placeholder="00:1A:79:AA:BB:CC">
-              <p class="hint">For credential-only portals, leave MAC blank and fill username/password above.</p>
-            </div>
-            <div id="jellyfinFields" class="field-group">
-              <p class="hint">Enter your Jellyfin server details below, then press Quick Connect in the app.</p>
-            </div>
-            <button type="submit">Send to TV</button>
-          </form>
-        </main>
-        <script>
-          function updateType(){
-            const t=document.getElementById('type').value;
-            const showServer = t !== 'm3u';
-            document.getElementById('serverFields').classList.toggle('active', showServer);
-            document.getElementById('m3uFields').classList.toggle('active', t === 'm3u');
-            document.getElementById('stalkerFields').classList.toggle('active', t === 'stalker');
-          }
-        </script>
-        </body>
-        </html>
+    private fun formPage(token: String, strings: Context): String {
+        fun text(resourceId: Int): String = strings.getString(resourceId).escapeHtml()
+        val language = strings.resources.configuration.locales[0].toLanguageTag().escapeHtml()
+        return """
+            <!doctype html>
+            <html lang="$language" dir="${pageDirection(strings)}">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>${text(R.string.setup_phone_pairing_title)}</title>
+              <meta name="color-scheme" content="dark">
+              <meta name="theme-color" content="#0b0e14">
+              <style>${pageStyles()}</style>
+            </head>
+            <body>
+            <main>
+              ${pageBrand(strings)}
+              <header>
+                <span class="eyebrow"><span class="status-dot" aria-hidden="true"></span>${text(R.string.setup_phone_pairing_idle)}</span>
+                <h1>${text(R.string.setup_provider_title)}</h1>
+                <p>${text(R.string.setup_form_subtitle)}</p>
+              </header>
+              <div class="form-card">
+              <form method="post" action="/submit" accept-charset="utf-8">
+                <input type="hidden" name="token" value="${token.escapeHtml()}">
+                <div class="source-section">
+                <label for="type">${text(R.string.setup_source_type_label)}</label>
+                <select name="type" id="type" onchange="updateType()">
+                  <option value="xtream">${text(R.string.setup_xtream)}</option>
+                  <option value="m3u">${text(R.string.setup_m3u)}</option>
+                  <option value="stalker">${text(R.string.setup_stalker)}</option>
+                  <option value="jellyfin">${text(R.string.setup_tab_jellyfin)}</option>
+                </select>
+                </div>
+                <div class="details-section">
+                <label for="name">${text(R.string.setup_name)}</label>
+                <input id="name" name="name" autocomplete="off">
+                <div id="serverFields" class="field-group active">
+                  <label for="serverUrl">${text(R.string.setup_server_url)}</label>
+                  <input id="serverUrl" name="serverUrl" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" dir="ltr">
+                  <div class="credentials-row"><div>
+                  <label for="username">${text(R.string.setup_username)}</label>
+                  <input id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false">
+                  </div><div>
+                  <label for="password">${text(R.string.setup_password)}</label>
+                  <input id="password" name="password" type="password" autocomplete="current-password">
+                  </div></div>
+                </div>
+                <div id="m3uFields" class="field-group">
+                  <label for="m3uUrl">${text(R.string.setup_m3u_hint)}</label>
+                  <input id="m3uUrl" name="m3uUrl" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" dir="ltr" disabled>
+                </div>
+                <div id="stalkerFields" class="field-group">
+                  <label for="macAddress">${text(R.string.setup_phone_pairing_mac_label)}</label>
+                  <input id="macAddress" name="macAddress" autocomplete="off" autocapitalize="none" spellcheck="false" dir="ltr" disabled>
+                  <p>${text(R.string.setup_info_stalker_body)}</p>
+                </div>
+                </div>
+                <div class="submit-section">
+                  <button type="submit"><span>${text(R.string.setup_provider_title)}</span><span class="button-arrow" aria-hidden="true">&rarr;</span></button>
+                </div>
+              </form>
+              </div>
+              <aside class="warning"><span class="warning-icon" aria-hidden="true">!</span><p>${text(R.string.setup_phone_pairing_security_warning)}</p></aside>
+              <footer>${text(R.string.setup_phone_pairing_same_wifi)}</footer>
+            </main>
+            <script>
+              function setGroup(id, active){
+                const group=document.getElementById(id);
+                group.classList.toggle('active', active);
+                group.querySelectorAll('input,select').forEach(input => input.disabled = !active);
+              }
+              function updateType(){
+                const type=document.getElementById('type').value;
+                setGroup('serverFields', type !== 'm3u');
+                setGroup('m3uFields', type === 'm3u');
+                setGroup('stalkerFields', type === 'stalker');
+              }
+              updateType();
+            </script>
+            </body>
+            </html>
+        """.trimIndent()
+    }
+
+    private fun successPage(strings: Context): String = resultPage(strings, success = true)
+
+    private fun errorPage(strings: Context): String = resultPage(strings, success = false)
+
+    private fun pageDirection(strings: Context): String =
+        if (strings.resources.configuration.layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL) "rtl" else "ltr"
+
+    private fun pageBrand(strings: Context): String = """
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M8 9h16v11H8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m14 12 6 3.5-6 3.5v-7Z" fill="currentColor"/><path d="M12 24h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+          <span>${strings.getString(R.string.setup_title_streamvault).escapeHtml()}</span>
+        </div>
     """.trimIndent()
 
-    private fun successPage(providerName: String): String = """
-        <!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101820;color:#f8fafc;padding:28px}main{max-width:520px;margin:auto;background:#172635;border-radius:22px;padding:24px}h1{color:#32d6a0}</style>
-        </head><body><main><h1>Sent to TV</h1><p>${providerName.escapeHtml()} was added to StreamVault. You can close this page.</p></main></body></html>
-    """.trimIndent()
+    private fun resultPage(strings: Context, success: Boolean): String {
+        val title = strings.getString(
+            if (success) R.string.setup_phone_pairing_complete else R.string.setup_phone_pairing_error,
+        ).escapeHtml()
+        val help = if (success) "" else "<p>${strings.getString(R.string.setup_phone_pairing_error_help).escapeHtml()}</p>"
+        return """
+            <!doctype html><html lang="${strings.resources.configuration.locales[0].toLanguageTag().escapeHtml()}" dir="${pageDirection(strings)}">
+            <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0e14">
+            <title>$title</title><style>${pageStyles()}</style></head>
+            <body><main>${pageBrand(strings)}
+              <section class="form-card result" role="status">
+                <span class="result-icon ${if (success) "success" else "failure"}" aria-hidden="true">${if (success) "&#10003;" else "!"}</span>
+                <h1>$title</h1>$help
+              </section>
+            </main></body></html>
+        """.trimIndent()
+    }
 
-    private fun errorPage(message: String): String = """
-        <!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101820;color:#f8fafc;padding:28px}main{max-width:520px;margin:auto;background:#2a1720;border-radius:22px;padding:24px}h1{color:#ff8b8b}</style>
-        </head><body><main><h1>Could not add provider</h1><p>${message.escapeHtml()}</p><p>Go back and check the details, or start a new QR session on the TV.</p></main></body></html>
+    private fun pageStyles(): String = """
+        *{box-sizing:border-box}
+        :root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eff2f8;background:#0b0e14}
+        body{margin:0;min-height:100vh;min-height:100svh;padding:48px 24px;background:radial-gradient(ellipse at 50% 0,rgba(101,85,211,.14),transparent 65%);-webkit-font-smoothing:antialiased}
+        main{max-width:600px;margin:0 auto}
+        .brand{display:flex;align-items:center;gap:11px;font-size:20px;font-weight:750;letter-spacing:-.6px;margin-bottom:46px}
+        .brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:#d7cfff;background:linear-gradient(140deg,#7660d1,#493381);box-shadow:0 4px 20px #7960d122}
+        .brand-mark svg{width:30px;height:30px}
+        header{margin-bottom:28px}
+        .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#aba2d5;margin-bottom:15px}
+        .status-dot{height:6px;width:6px;border-radius:50%;background:#aa97ef;box-shadow:0 0 10px #aa97ef66}
+        h1{font-size:clamp(28px,5vw,36px);line-height:1.2;letter-spacing:-1.2px;margin:0 0 12px;font-weight:750;overflow-wrap:anywhere}
+        p{font-size:14px;line-height:1.65;color:#9ca4b6;margin:0}
+        .form-card{background:linear-gradient(145deg,#191c28,#131620);border:1px solid #2b2e3f;border-radius:22px;box-shadow:0 24px 80px #00000035;overflow:hidden}
+        .source-section{padding:24px 28px;background:#ffffff02;border-bottom:1px solid #2b2e3f}
+        .details-section{padding:8px 28px 6px}
+        label{display:block;margin:19px 0 9px;font-size:12px;font-weight:600;color:#c4c8d5;letter-spacing:.2px}
+        .source-section label{margin-top:0}
+        input,select{display:block;width:100%;min-width:0;min-height:50px;padding:13px 14px;border-radius:10px;border:1px solid #333747;background:#0f121c;color:#f0f1f6;font:inherit;font-size:16px;transition:border-color .15s,box-shadow .15s}
+        select{cursor:pointer;padding-inline-end:32px}
+        input:hover,select:hover{border-color:#515368}
+        input:focus-visible,select:focus-visible{outline:0;border-color:#ac96f3;box-shadow:0 0 0 3px #a68be51c}
+        input:autofill{box-shadow:0 0 0 100px #191c28 inset}
+        .credentials-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .credentials-row>div{min-width:0}
+        .field-group{display:none}.field-group.active{display:block}
+        .field-group p{font-size:12px;margin-top:10px}
+        .submit-section{padding:24px 28px 28px}
+        button{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;min-height:52px;padding:14px 20px;border:1px solid #c4b5f6;border-radius:11px;background:linear-gradient(110deg,#c0acf6,#a98aeb);color:#1d1236;font:inherit;font-weight:750;font-size:15px;cursor:pointer;box-shadow:0 4px 20px #a98aeb16;transition:filter .15s,transform .15s}
+        button:hover{filter:brightness(1.09)}button:active{transform:translateY(1px)}
+        button:focus-visible{outline:2px solid #e0d6ff;outline-offset:4px}
+        .button-arrow{font-size:21px;line-height:1}[dir=rtl] .button-arrow{transform:scaleX(-1)}
+        .warning{display:flex;align-items:flex-start;gap:11px;border:1px solid #d4a76526;border-radius:12px;background:#d4a76507;padding:14px 16px;margin-top:20px}
+        .warning p{font-size:12px;line-height:1.6;color:#b9a789}
+        .warning-icon{display:grid;place-items:center;flex-shrink:0;width:17px;height:17px;border:1px solid #b9a789;border-radius:50%;font-size:11px;font-weight:700;color:#b9a789;margin-top:2px}
+        footer{padding:20px 20px 0;color:#828a9e;font-size:11px;line-height:1.7;text-align:center}
+        .result{text-align:center;padding:48px 28px}.result p{max-width:420px;margin:auto}
+        .result-icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 24px;border-radius:50%;font-size:30px}
+        .success{color:#9cd6bc;background:#9cd6bc12;border:1px solid #9cd6bc40}
+        .failure{color:#e6ad9b;background:#e6ad9b12;border:1px solid #e6ad9b40}
+        @media(max-width:480px){body{padding:28px 20px}.brand{margin-bottom:34px}.source-section{padding:20px}.details-section{padding:4px 20px}.submit-section{padding:22px 20px}.credentials-row{grid-template-columns:1fr;gap:0}.form-card{border-radius:18px}}
+        @media(prefers-reduced-motion:reduce){*{transition:none!important}}
     """.trimIndent()
 
     private fun String.escapeHtml(): String =
@@ -498,6 +772,25 @@ class ProviderQrPairingManager @Inject constructor(
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+
+    private class PairingSession(
+        token: String,
+        val expiresAtMs: Long,
+        val serverSocket: ServerSocket,
+    ) {
+        val lease = ProviderPairingSessionLease(token, expiresAtMs)
+        val token: String = token
+        val clientJobs = ConcurrentHashMap.newKeySet<Job>()
+        val clientSockets = ConcurrentHashMap.newKeySet<Socket>()
+        @Volatile var acceptJob: Job? = null
+        @Volatile var timeoutJob: Job? = null
+    }
+
+    private enum class ProviderPairingSubmitResult {
+        Success,
+        Error,
+    }
 }
 
 data class ProviderQrPairingState(
@@ -505,7 +798,7 @@ data class ProviderQrPairingState(
     val url: String? = null,
     val qrBitmap: Bitmap? = null,
     val expiresAtMs: Long = 0L,
-    val message: String? = null
+    val message: String? = null,
 )
 
 enum class ProviderQrPairingStatus {
@@ -513,10 +806,5 @@ enum class ProviderQrPairingStatus {
     READY,
     RECEIVING,
     COMPLETE,
-    ERROR
-}
-
-private sealed interface ProviderPairingSubmitResult {
-    data class Success(val providerName: String) : ProviderPairingSubmitResult
-    data class Error(val message: String) : ProviderPairingSubmitResult
+    ERROR,
 }

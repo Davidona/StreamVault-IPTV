@@ -102,4 +102,7 @@
     <string name="setup_password">Parolă</string>
     <string name="setup_name">Nume</string>
     <string name="setup_name_placeholder">Serverul meu Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Securitate: Asocierea trimite datele de conectare necriptate prin rețeaua locală. Folosiți numai o rețea Wi-Fi privată și de încredere.</string>
+    <string name="setup_phone_pairing_error_help">Asocierea nu a putut fi finalizată. Verificați datele furnizorului și încercați din nou. Dacă sesiunea QR a expirat, porniți una nouă pe televizor.</string>
+    <string name="setup_phone_pairing_mac_label">Adresă MAC</string>
 </resources>

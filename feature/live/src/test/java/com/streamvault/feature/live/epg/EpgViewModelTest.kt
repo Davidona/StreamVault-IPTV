@@ -155,6 +155,93 @@ class EpgViewModelTest {
         clearMethod.invoke(viewModel)
     }
 
+    private fun configureGuide(provider: Provider, channels: List<Channel>) {
+        whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
+        whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
+        whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getCategorySortMode(provider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
+        whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
+        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(ChannelRepository.ALL_CHANNELS_ID))
+        whenever(preferencesRepository.guideFavoritesOnly).thenReturn(flowOf(false))
+        whenever(preferencesRepository.guideScheduledOnly).thenReturn(flowOf(false))
+        whenever(preferencesRepository.guideAnchorTime).thenReturn(flowOf(null))
+    }
+
+    @Test
+    fun `guide retains enriched schedules across empty database emissions but not a different window`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
+        val channel = Channel(id = 1L, name = "One", providerId = provider.id, streamId = 101L, epgChannelId = "one")
+        configureGuide(provider, listOf(channel))
+        val emissions = MutableStateFlow(listOf(channel))
+        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(emissions)
+        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(emissions)
+        val program = Program(id = 1L, channelId = "one", title = "Headline", startTime = System.currentTimeMillis() - 60_000L,
+            endTime = System.currentTimeMillis() + 60_000L, providerId = provider.id)
+        whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any()))
+            .thenReturn(mapOf("101" to listOf(program)))
+        val viewModel = createViewModel()
+        waitForUiState { viewModel.uiState.value.programsByChannel["101"] == listOf(program) }
+
+        whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any())).thenReturn(emptyMap())
+        emissions.value = listOf(channel.copy(name = "Updated channel"))
+        waitForUiState { viewModel.uiState.value.channels.firstOrNull()?.name == "Updated channel" }
+        assertThat(viewModel.uiState.value.programsByChannel["101"]).containsExactly(program)
+        assertThat(viewModel.uiState.value.channelsWithSchedule).isEqualTo(1)
+        assertThat(viewModel.uiState.value.failedScheduleCount).isEqualTo(0)
+
+        viewModel.jumpForward()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.programsByChannel).isEmpty()
+    }
+
+    @Test
+    fun `guide discards retained schedules when provider guide source policy changes`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
+        val channel = Channel(id = 1L, name = "One", providerId = provider.id, streamId = 101L)
+        configureGuide(provider, listOf(channel))
+        val activeProvider = MutableStateFlow(provider)
+        whenever(providerRepository.getActiveProvider()).thenReturn(activeProvider)
+        val program = Program(id = 1L, channelId = "101", title = "Headline", startTime = System.currentTimeMillis() - 60_000L,
+            endTime = System.currentTimeMillis() + 60_000L, providerId = provider.id)
+        whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any()))
+            .thenReturn(mapOf("101" to listOf(program)))
+        val viewModel = createViewModel()
+        waitForUiState { viewModel.uiState.value.programsByChannel["101"] == listOf(program) }
+
+        whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any())).thenReturn(emptyMap())
+        activeProvider.value = provider.copy(guideSourcePolicy = com.streamvault.domain.model.GuideSourcePolicy.DISABLED)
+        waitForUiState { viewModel.uiState.value.programsByChannel.isEmpty() }
+        assertThat(viewModel.uiState.value.channelsWithSchedule).isEqualTo(0)
+    }
+
+    @Test
+    fun `guide enriches schedules for channels loaded after the first page`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.XTREAM_CODES, serverUrl = "https://provider.example.com")
+        val channels = (1L..61L).map { Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it, epgChannelId = "epg.$it") }
+        configureGuide(provider, channels.take(EpgViewModel.MAX_CHANNELS))
+        whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
+        whenever(preferencesRepository.getEmptyGuideKeys(provider.id)).thenReturn(emptyMap())
+        whenever(channelRepository.getChannelsWithoutErrorsPageOffset(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS, EpgViewModel.MAX_CHANNELS)).thenReturn(channels.drop(EpgViewModel.MAX_CHANNELS))
+        whenever(providerRepository.getProgramsForLiveStreams(eq(provider.id), any(), any())).thenAnswer { invocation ->
+            val requests: List<LiveStreamProgramRequest> = invocation.getArgument(1)
+            requests.associateWith { request ->
+                com.streamvault.domain.model.Result.success(listOf(Program(id = request.streamId, channelId = request.epgChannelId.orEmpty(), title = "Program ${request.streamId}",
+                    startTime = System.currentTimeMillis() - 60_000L, endTime = System.currentTimeMillis() + 60_000L, providerId = provider.id)))
+            }
+        }
+        val viewModel = createViewModel()
+        waitForUiState { viewModel.uiState.value.channelsWithSchedule == 60 }
+        viewModel.requestMoreChannels()
+        waitForUiState { viewModel.uiState.value.channels.size == 61 }
+        waitForUiState { viewModel.uiState.value.programsByChannel["61"].orEmpty().isNotEmpty() }
+        assertThat(viewModel.uiState.value.channelsWithSchedule).isEqualTo(61)
+        assertThat(viewModel.uiState.value.failedScheduleCount).isEqualTo(0)
+    }
+
     @Test
     fun `guide loads programs with one batched repository call and omits empty channels`() = runTest {
         val provider = Provider(

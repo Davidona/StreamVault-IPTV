@@ -102,4 +102,7 @@
     <string name="setup_password">Password</string>
     <string name="setup_name">Nome</string>
     <string name="setup_name_placeholder">Il mio server Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Sicurezza: L’associazione invia le credenziali senza crittografia sulla rete locale. Usa solo una rete Wi-Fi privata e affidabile.</string>
+    <string name="setup_phone_pairing_error_help">Impossibile completare l’associazione. Controlla i dati del provider e riprova. Se la sessione QR è scaduta, avviane una nuova sulla TV.</string>
+    <string name="setup_phone_pairing_mac_label">Indirizzo MAC</string>
 </resources>

@@ -102,4 +102,7 @@
     <string name="setup_password">Salasana</string>
     <string name="setup_name">Nimi</string>
     <string name="setup_name_placeholder">Oma Jellyfin-palvelin</string>
+    <string name="setup_phone_pairing_security_warning">Tietoturva: Pariliitos lähettää kirjautumistiedot salaamattomina lähiverkkosi kautta. Käytä vain luotettua yksityistä Wi-Fi-verkkoa.</string>
+    <string name="setup_phone_pairing_error_help">Pariliitosta ei voitu viimeistellä. Tarkista palveluntarjoajan tiedot ja yritä uudelleen. Jos QR-istunto on vanhentunut, aloita televisiossa uusi.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-osoite</string>
 </resources>

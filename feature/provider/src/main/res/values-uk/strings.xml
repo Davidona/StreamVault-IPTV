@@ -102,4 +102,7 @@
     <string name="setup_password">Пароль</string>
     <string name="setup_name">Назва</string>
     <string name="setup_name_placeholder">Мій сервер Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Безпека: Під час сполучення дані для входу передаються локальною мережею без шифрування. Використовуйте лише довірену приватну мережу Wi-Fi.</string>
+    <string name="setup_phone_pairing_error_help">Не вдалося завершити сполучення. Перевірте дані постачальника й повторіть спробу. Якщо термін дії QR-сеансу минув, запустіть новий на телевізорі.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-адреса</string>
 </resources>

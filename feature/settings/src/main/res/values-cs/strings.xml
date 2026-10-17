@@ -874,4 +874,10 @@
     <string name="nav_extensions">Rozšíření</string>
     <string name="dashboard_trakt_watchlist_movies">Filmy ve vašem seznamu sledovaných Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Televizní pořady ve vašem seznamu sledovaných Trakt</string>
+
+    <string name="settings_sports_event_source">Zdroj sportovních událostí</string>
+    <string name="settings_sports_event_source_automatic">Automaticky</string>
+    <string name="settings_sports_event_source_epg">TV průvodce / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID lig</string>
+    <string name="settings_sports_provider_league_ids_hint">Volitelné. ID lig zadejte pouze tehdy, když je tento poskytovatel vyžaduje.</string>
 </resources>

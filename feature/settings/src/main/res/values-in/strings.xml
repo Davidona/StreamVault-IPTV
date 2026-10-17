@@ -868,4 +868,10 @@
     <string name="nav_extensions">Ekstensi</string>
     <string name="dashboard_trakt_watchlist_movies">Film dalam daftar pantauan Trakt Anda</string>
     <string name="dashboard_trakt_watchlist_series">Acara TV di daftar tontonan Trakt Anda</string>
+
+    <string name="settings_sports_event_source">Sumber acara olahraga</string>
+    <string name="settings_sports_event_source_automatic">Otomatis</string>
+    <string name="settings_sports_event_source_epg">Panduan TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID liga</string>
+    <string name="settings_sports_provider_league_ids_hint">Opsional. Tambahkan ID liga hanya jika penyedia ini memerlukannya.</string>
 </resources>

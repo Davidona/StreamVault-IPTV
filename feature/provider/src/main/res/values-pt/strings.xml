@@ -102,4 +102,7 @@
     <string name="setup_password">Senha</string>
     <string name="setup_name">Nome</string>
     <string name="setup_name_placeholder">Meu servidor Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Segurança: O emparelhamento envia as credenciais sem encriptação pela rede local. Utilize apenas uma rede Wi-Fi privada e de confiança.</string>
+    <string name="setup_phone_pairing_error_help">Não foi possível concluir o emparelhamento. Verifique os dados do fornecedor e tente novamente. Se a sessão QR expirou, inicie outra na TV.</string>
+    <string name="setup_phone_pairing_mac_label">Endereço MAC</string>
 </resources>

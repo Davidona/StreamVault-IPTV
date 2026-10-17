@@ -868,4 +868,10 @@
     <string name="nav_extensions">Udvidelser</string>
     <string name="dashboard_trakt_watchlist_movies">Film på din Trakt-overvågningsliste</string>
     <string name="dashboard_trakt_watchlist_series">Tv-udsendelser på din Trakt-overvågningsliste</string>
+
+    <string name="settings_sports_event_source">Kilde til sportsbegivenheder</string>
+    <string name="settings_sports_event_source_automatic">Automatisk</string>
+    <string name="settings_sports_event_source_epg">TV-guide / EPG</string>
+    <string name="settings_sports_provider_league_ids">Liga-ID</string>
+    <string name="settings_sports_provider_league_ids_hint">Valgfrit. Angiv kun liga-ID, hvis udbyderen kræver det.</string>
 </resources>

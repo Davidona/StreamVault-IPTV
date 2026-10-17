@@ -943,4 +943,10 @@
         <item quantity="one">%1$d local item imported.</item>
         <item quantity="other">%1$d local items imported.</item>
     </plurals>
+
+    <string name="settings_sports_event_source">Sports event source</string>
+    <string name="settings_sports_event_source_automatic">Automatic</string>
+    <string name="settings_sports_event_source_epg">TV Guide / EPG</string>
+    <string name="settings_sports_provider_league_ids">League IDs</string>
+    <string name="settings_sports_provider_league_ids_hint">Optional. Add league IDs only when this provider requires them.</string>
 </resources>

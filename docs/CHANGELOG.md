@@ -6,6 +6,7 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added a localized security warning to QR phone pairing that explains provider credentials are sent unencrypted over the local network.
 - Clarified Extensions navigation and plugin installation actions, added Stremio onboarding, and replaced its blanket parental gate with an independent Hide Stremio Add-ons option under Privacy (off by default).
 - Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, resume history, and downloads for offline playback managed from the Downloads tab. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.
 - Added Trakt account integration with secure sign-in, playback scrobbling, watched-history sync, watchlist and rating actions, custom lists, and Trending and Popular discovery matched by TMDB ID, with translated UI across supported locales.
@@ -28,6 +29,9 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed Guide schedules briefly appearing and disappearing during background updates, and missing provider EPG requests for channels loaded after the first page.
+- Fixed Jellyfin Quick Connect QR links to use the Web Quick Connect route and safely encode the pairing code.
+- Fixed QR provider pairing session cleanup and request validation, including expired sessions, malformed or oversized submissions, slow clients, and duplicate submissions.
 - Fixed the VOD playback settings sheet remaining visible over picture-in-picture playback.
 - Fixed live channels in custom groups showing **Add** instead of **Remove** in the channel options dialog.
 - Fixed provider observation crashes on devices where saved credentials cannot be decrypted by skipping unnecessary credential decryption in public provider projections.
@@ -57,6 +61,8 @@ All notable product changes are recorded in this document.
 
 ### Changed
 
+- Redesigned the QR phone setup website with a modern dark theme, violet accents, responsive provider forms, matching success and error screens, and right-to-left layout support.
+- Reused the standard provider setup progress dialog for QR-based additions and displayed live setup progress; localized the phone pairing form to the browser language.
 - Improved the VOD UI with consistent subtitle, audio, and OpenSubtitles side panels matching playback settings, separate Sources and Settings tabs, immediate access to provider, online, and device subtitles, and clearer remote navigation and track selection.
 - Modernized the visual design across Live TV, Movies & Series details and episode lists, search, split-screen setup and controls, and Settings detail pages and selection dialogs. Unified surfaces, spacing, shapes, and theme-aware colors while preserving the blue default, alternate themes, navigation, and feature placement; selection focus now uses a steady outline without scaling.
 - Raised M3U admission ceilings to 500,000 entries and 400,000 live channels or movies per provider.

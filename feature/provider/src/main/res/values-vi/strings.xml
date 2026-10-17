@@ -102,4 +102,7 @@
     <string name="setup_password">Mật khẩu</string>
     <string name="setup_name">Tên</string>
     <string name="setup_name_placeholder">Máy chủ Jellyfin của tôi</string>
+    <string name="setup_phone_pairing_security_warning">Bảo mật: Quá trình ghép nối gửi thông tin đăng nhập qua mạng cục bộ mà không mã hóa. Chỉ sử dụng mạng Wi-Fi riêng tư đáng tin cậy.</string>
+    <string name="setup_phone_pairing_error_help">Không thể hoàn tất ghép nối. Hãy kiểm tra thông tin nhà cung cấp rồi thử lại. Nếu phiên QR đã hết hạn, hãy bắt đầu phiên mới trên TV.</string>
+    <string name="setup_phone_pairing_mac_label">Địa chỉ MAC</string>
 </resources>

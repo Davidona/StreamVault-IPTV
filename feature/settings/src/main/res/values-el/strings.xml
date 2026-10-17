@@ -868,4 +868,10 @@
     <string name="settings_theme_vintage">Βίνταζ</string>
     <string name="dashboard_trakt_watchlist_movies">Ταινίες στη λίστα παρακολούθησης Trakt</string>
     <string name="dashboard_trakt_watchlist_series">Τηλεοπτικές εκπομπές στη λίστα παρακολούθησης Trakt</string>
+
+    <string name="settings_sports_event_source">Πηγή αθλητικών γεγονότων</string>
+    <string name="settings_sports_event_source_automatic">Αυτόματα</string>
+    <string name="settings_sports_event_source_epg">Τηλεοπτικός οδηγός / EPG</string>
+    <string name="settings_sports_provider_league_ids">Αναγνωριστικά πρωταθλημάτων</string>
+    <string name="settings_sports_provider_league_ids_hint">Προαιρετικό. Προσθέστε αναγνωριστικά πρωταθλημάτων μόνο αν τα απαιτεί αυτός ο πάροχος.</string>
 </resources>

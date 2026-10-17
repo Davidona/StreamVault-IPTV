@@ -863,4 +863,10 @@
     <string name="settings_theme_vintage">復古</string>
     <string name="nav_addons">Stremio 擴充套件</string>
     <string name="nav_extensions">擴充功能</string>
+
+    <string name="settings_sports_event_source">體育賽事來源</string>
+    <string name="settings_sports_event_source_automatic">自動</string>
+    <string name="settings_sports_event_source_epg">電視節目指南 / EPG</string>
+    <string name="settings_sports_provider_league_ids">聯賽 ID</string>
+    <string name="settings_sports_provider_league_ids_hint">選填。只有此供應商要求時才新增聯賽 ID。</string>
 </resources>

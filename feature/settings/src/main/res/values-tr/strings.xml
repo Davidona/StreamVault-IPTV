@@ -831,7 +831,7 @@
     <string name="settings_auto_sync_save_failed">Otomatik senkronizasyon ayarları kaydedilemedi. Tekrar deneyin.</string>
     <string name="settings_auto_sync_defer_hint">Oynatma ve kayıt artık etkin olmadığında otomatik işlem devam eder. Duraklatılmış oynatma da sayılır.</string>
     <string name="settings_auto_sync_idle_hint">Android cihaz boşta durumu, uygulamayı kullanmamaktan farklıdır; yenilemeleri önemli ölçüde geciktirebilir.</string>
-    <string name="settings_backup_credentials_notice">Yedek dosyaları, sağlayıcı parolalarını ve yapılandırılmış Stremio eklenti URL'lerini okunabilir biçimde içerir. Bu URL'ler erişim belirteçleri içerebilir. Yedekleri gizli tutun ve yalnızca güvendiğiniz kişilerle paylaşın.</string>
+    <string name="settings_backup_credentials_notice">Yedek dosyaları, sağlayıcı parolalarını ve yapılandırılmış Stremio eklenti URL\'lerini okunabilir biçimde içerir. Bu URL\'ler erişim belirteçleri içerebilir. Yedekleri gizli tutun ve yalnızca güvendiğiniz kişilerle paylaşın.</string>
     <plurals name="settings_live_tv_quick_filters_count">
         <item quantity="one">%1$d kaydedildi</item>
         <item quantity="other">%1$d kaydedildi</item>
@@ -868,4 +868,10 @@
     <string name="nav_extensions">Eklentiler</string>
     <string name="dashboard_trakt_watchlist_movies">Trakt izleme listenizdeki filmler</string>
     <string name="dashboard_trakt_watchlist_series">Trakt izleme listenizdeki TV şovları</string>
+
+    <string name="settings_sports_event_source">Spor etkinliği kaynağı</string>
+    <string name="settings_sports_event_source_automatic">Otomatik</string>
+    <string name="settings_sports_event_source_epg">TV rehberi / EPG</string>
+    <string name="settings_sports_provider_league_ids">Lig kimlikleri</string>
+    <string name="settings_sports_provider_league_ids_hint">İsteğe bağlı. Lig kimliklerini yalnızca bu sağlayıcı gerektiriyorsa ekleyin.</string>
 </resources>

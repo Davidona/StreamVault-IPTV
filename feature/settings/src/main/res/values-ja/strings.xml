@@ -866,4 +866,10 @@
     <string name="nav_extensions">拡張機能</string>
     <string name="dashboard_trakt_watchlist_movies">Trakt ウォッチリスト内の映画</string>
     <string name="dashboard_trakt_watchlist_series">Trakt ウォッチリストのテレビ番組</string>
+
+    <string name="settings_sports_event_source">スポーツイベントの情報源</string>
+    <string name="settings_sports_event_source_automatic">自動</string>
+    <string name="settings_sports_event_source_epg">テレビ番組表 / EPG</string>
+    <string name="settings_sports_provider_league_ids">リーグ ID</string>
+    <string name="settings_sports_provider_league_ids_hint">任意。このプロバイダーで必要な場合にのみリーグ ID を入力してください。</string>
 </resources>

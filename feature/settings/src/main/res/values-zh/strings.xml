@@ -864,4 +864,10 @@
     <string name="nav_extensions">扩展功能</string>
     <string name="dashboard_trakt_watchlist_movies">Trakt 观看列表中的电影</string>
     <string name="dashboard_trakt_watchlist_series">Trakt 观看列表中的电视节目</string>
+
+    <string name="settings_sports_event_source">体育赛事来源</string>
+    <string name="settings_sports_event_source_automatic">自动</string>
+    <string name="settings_sports_event_source_epg">电视节目指南 / EPG</string>
+    <string name="settings_sports_provider_league_ids">联赛 ID</string>
+    <string name="settings_sports_provider_league_ids_hint">可选。仅当此提供商要求时才添加联赛 ID。</string>
 </resources>

@@ -102,4 +102,7 @@
     <string name="setup_password">Kata sandi</string>
     <string name="setup_name">Nama</string>
     <string name="setup_name_placeholder">Server Jellyfin Saya</string>
+    <string name="setup_phone_pairing_security_warning">Keamanan: Proses pemasangan mengirim kredensial tanpa enkripsi melalui jaringan lokal Anda. Gunakan hanya Wi-Fi pribadi yang tepercaya.</string>
+    <string name="setup_phone_pairing_error_help">Pemasangan tidak dapat diselesaikan. Periksa detail penyedia lalu coba lagi. Jika sesi QR telah kedaluwarsa, mulai sesi baru di TV.</string>
+    <string name="setup_phone_pairing_mac_label">Alamat MAC</string>
 </resources>

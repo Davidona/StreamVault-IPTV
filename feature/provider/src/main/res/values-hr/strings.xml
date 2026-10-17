@@ -117,4 +117,7 @@
     <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
     <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Sigurnost: Uparivanje šalje podatke za prijavu nešifrirane putem vaše lokalne mreže. Koristite samo pouzdanu privatnu Wi-Fi mrežu.</string>
+    <string name="setup_phone_pairing_error_help">Uparivanje nije dovršeno. Provjerite podatke pružatelja usluge i pokušajte ponovno. Ako je QR sesija istekla, pokrenite novu na TV-u.</string>
+    <string name="setup_phone_pairing_mac_label">MAC adresa</string>
 </resources>

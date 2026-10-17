@@ -866,4 +866,10 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Mga add-on ng Stremio</string>
     <string name="nav_extensions">Mga extension</string>
+
+    <string name="settings_sports_event_source">Pinagmumulan ng mga kaganapang pampalakasan</string>
+    <string name="settings_sports_event_source_automatic">Awtomatiko</string>
+    <string name="settings_sports_event_source_epg">Gabay sa TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">Mga ID ng liga</string>
+    <string name="settings_sports_provider_league_ids_hint">Opsyonal. Maglagay lang ng mga ID ng liga kung kailangan ito ng provider na ito.</string>
 </resources>

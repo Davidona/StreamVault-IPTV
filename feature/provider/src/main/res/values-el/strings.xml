@@ -102,4 +102,7 @@
     <string name="setup_password">Κωδικός πρόσβασης</string>
     <string name="setup_name">Όνομα</string>
     <string name="setup_name_placeholder">Ο διακομιστής Jellyfin μου</string>
+    <string name="setup_phone_pairing_security_warning">Ασφάλεια: Η σύζευξη στέλνει στοιχεία σύνδεσης χωρίς κρυπτογράφηση μέσω του τοπικού δικτύου σας. Χρησιμοποιήστε μόνο ιδιωτικό δίκτυο Wi-Fi που εμπιστεύεστε.</string>
+    <string name="setup_phone_pairing_error_help">Δεν ήταν δυνατή η ολοκλήρωση της σύζευξης. Ελέγξτε τα στοιχεία του παρόχου και δοκιμάστε ξανά. Αν έληξε η συνεδρία QR, ξεκινήστε νέα από την τηλεόραση.</string>
+    <string name="setup_phone_pairing_mac_label">Διεύθυνση MAC</string>
 </resources>

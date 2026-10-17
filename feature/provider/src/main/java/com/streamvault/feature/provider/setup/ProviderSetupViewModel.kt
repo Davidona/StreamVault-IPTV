@@ -130,9 +130,7 @@ class ProviderSetupViewModel @Inject constructor(
     }
 
     fun stopPhonePairing() {
-        viewModelScope.launch {
-            providerQrPairingManager.stopPairing()
-        }
+        providerQrPairingManager.stopPairing()
     }
 
     fun completeDriveSignIn(intentData: android.content.Intent?) {

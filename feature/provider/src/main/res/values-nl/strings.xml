@@ -102,4 +102,7 @@
     <string name="setup_password">Wachtwoord</string>
     <string name="setup_name">Naam</string>
     <string name="setup_name_placeholder">Mijn Jellyfin-server</string>
+    <string name="setup_phone_pairing_security_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
+    <string name="setup_phone_pairing_error_help">Koppelen is niet voltooid. Controleer de providergegevens en probeer het opnieuw. Als de QR-sessie is verlopen, start je een nieuwe op de tv.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-adres</string>
 </resources>

@@ -102,4 +102,7 @@
     <string name="setup_password">Lösenord</string>
     <string name="setup_name">Namn</string>
     <string name="setup_name_placeholder">Min Jellyfin-server</string>
+    <string name="setup_phone_pairing_security_warning">Säkerhet: Parkopplingen skickar inloggningsuppgifter okrypterade via ditt lokala nätverk. Använd endast ett privat Wi-Fi-nätverk som du litar på.</string>
+    <string name="setup_phone_pairing_error_help">Det gick inte att slutföra parkopplingen. Kontrollera leverantörsuppgifterna och försök igen. Om QR-sessionen har gått ut startar du en ny på tv:n.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-adress</string>
 </resources>

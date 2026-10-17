@@ -102,4 +102,7 @@
     <string name="setup_password">Passwort</string>
     <string name="setup_name">Name</string>
     <string name="setup_name_placeholder">Mein Jellyfin-Server</string>
+    <string name="setup_phone_pairing_security_warning">Sicherheit: Bei der Kopplung werden Zugangsdaten unverschlüsselt über dein lokales Netzwerk gesendet. Verwende nur ein vertrauenswürdiges privates WLAN.</string>
+    <string name="setup_phone_pairing_error_help">Die Kopplung konnte nicht abgeschlossen werden. Prüfe die Anbieterdaten und versuche es erneut. Wenn die QR-Sitzung abgelaufen ist, starte am Fernseher eine neue.</string>
+    <string name="setup_phone_pairing_mac_label">MAC-Adresse</string>
 </resources>

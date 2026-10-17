@@ -863,4 +863,10 @@
     <string name="settings_theme_vintage">Vintage</string>
     <string name="nav_addons">Alat tambah Stremio</string>
     <string name="nav_extensions">Sambungan</string>
+
+    <string name="settings_sports_event_source">Sumber acara sukan</string>
+    <string name="settings_sports_event_source_automatic">Automatik</string>
+    <string name="settings_sports_event_source_epg">Panduan TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID liga</string>
+    <string name="settings_sports_provider_league_ids_hint">Pilihan. Masukkan ID liga hanya jika diperlukan oleh penyedia ini.</string>
 </resources>

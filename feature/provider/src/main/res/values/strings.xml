@@ -117,4 +117,7 @@
     <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
     <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Security: Pairing sends credentials without encryption over your local network. Use a trusted private Wi-Fi network only.</string>
+    <string name="setup_phone_pairing_error_help">Could not complete pairing. Check the provider details and try again. If the QR session expired, start a new one on the TV.</string>
+    <string name="setup_phone_pairing_mac_label">MAC address</string>
 </resources>

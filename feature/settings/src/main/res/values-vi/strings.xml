@@ -865,4 +865,10 @@
     <string name="nav_extensions">Tiện ích mở rộng</string>
     <string name="dashboard_trakt_watchlist_movies">Phim trong danh sách theo dõi Trakt của bạn</string>
     <string name="dashboard_trakt_watchlist_series">Chương trình truyền hình trong danh sách theo dõi Trakt của bạn</string>
+
+    <string name="settings_sports_event_source">Nguồn sự kiện thể thao</string>
+    <string name="settings_sports_event_source_automatic">Tự động</string>
+    <string name="settings_sports_event_source_epg">Hướng dẫn TV / EPG</string>
+    <string name="settings_sports_provider_league_ids">ID giải đấu</string>
+    <string name="settings_sports_provider_league_ids_hint">Không bắt buộc. Chỉ thêm ID giải đấu nếu nhà cung cấp này yêu cầu.</string>
 </resources>

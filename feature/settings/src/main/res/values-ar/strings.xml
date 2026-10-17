@@ -880,4 +880,10 @@
     <string name="nav_extensions">التمديدات</string>
     <string name="dashboard_trakt_watchlist_movies">الأفلام في قائمة مراقبتك Trakt</string>
     <string name="dashboard_trakt_watchlist_series">البرامج التلفزيونية في قائمة مراقبتك Trakt</string>
+
+    <string name="settings_sports_event_source">مصدر الأحداث الرياضية</string>
+    <string name="settings_sports_event_source_automatic">تلقائي</string>
+    <string name="settings_sports_event_source_epg">دليل التلفاز / EPG</string>
+    <string name="settings_sports_provider_league_ids">معرّفات الدوريات</string>
+    <string name="settings_sports_provider_league_ids_hint">اختياري. أضف معرّفات الدوريات فقط إذا كان هذا المزوّد يتطلبها.</string>
 </resources>
