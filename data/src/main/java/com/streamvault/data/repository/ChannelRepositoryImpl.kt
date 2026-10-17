@@ -509,15 +509,20 @@ class ChannelRepositoryImpl @Inject constructor(
         unlockedCats: Set<Long>,
         stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
+        // Resolve once per provider for this presentation pass, including absent portal configs.
+        // The callback may query Room, so invoking it for every channel is very expensive.
+        val portalRoots = entities.map { it.providerId }.distinct()
+            .associateWith(stalkerPortalUrlForProvider)
+        val portalRootForProvider: (Long) -> String? = { portalRoots[it] }
         val base = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             entities.map { entity ->
                 entity.toPresentedRawChannel(
                     settings.observedQualities[entity.id],
-                    stalkerPortalUrlForProvider(entity.providerId)
+                    portalRootForProvider(entity.providerId)
                 )
             }
         } else {
-            buildGroupedChannels(entities, settings, stalkerPortalUrlForProvider)
+            buildGroupedChannels(entities, settings, portalRootForProvider)
         }
         return base.map { channel ->
             if (channel.categoryId != null && unlockedCats.contains(channel.categoryId)) {

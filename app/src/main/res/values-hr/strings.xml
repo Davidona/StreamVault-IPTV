@@ -345,4 +345,5 @@
     <string name="torrent_storage_check_failed">Nije moguće provjeriti dostupnu pohranu. Reprodukcija torrenta ne može se sigurno nastaviti.</string>
     <string name="nav_addons">Stremio dodaci</string>
     <string name="nav_extensions">Proširenja</string>
+    <string name="nav_sports">Sport</string>
 </resources>

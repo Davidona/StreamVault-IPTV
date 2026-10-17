@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "team": { "id": 19, "display_name": "New York Yankees", "name": "Yankees" },
+      "league_name": "American League",
+      "division_name": "American League East",
+      "games_played": 162,
+      "wins": 94,
+      "losses": 68,
+      "ties": 0,
+      "win_percent": 0.5802469,
+      "points_for": 815,
+      "points_against": 668,
+      "season": 2026
+    },
+    {
+      "team": { "id": 2, "display_name": "Baltimore Orioles", "name": "Orioles" },
+      "league_name": "American League",
+      "division_name": "American League East",
+      "games_played": 162,
+      "wins": 91,
+      "losses": 71,
+      "ties": 0,
+      "win_percent": 0.5617284,
+      "points_for": 786,
+      "points_against": 698,
+      "season": 2026
+    }
+  ],
+  "meta": { "next_cursor": null, "per_page": 100 }
+}

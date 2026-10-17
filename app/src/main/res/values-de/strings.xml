@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Der verfügbare Speicher konnte nicht geprüft werden. Die Torrent-Wiedergabe kann nicht sicher fortgesetzt werden.</string>
     <string name="nav_addons">Stremio-Add-ons</string>
     <string name="nav_extensions">Erweiterungen</string>
+    <string name="nav_sports">Sport</string>
 </resources>

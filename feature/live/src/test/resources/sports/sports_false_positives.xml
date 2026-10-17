@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="tnt-ultimate"><display-name>TNT Sports Ultimate</display-name></channel>
+  <channel id="bein-max"><display-name>beIN SPORTS MAX</display-name></channel>
+  <channel id="sky-sport"><display-name>Sky Sports</display-name></channel>
+  <channel id="bundesliga-weekly"><display-name>Sky Sports Football</display-name></channel>
+  <channel id="inside-serie-a"><display-name>DAZN Sports</display-name></channel>
+  <channel id="league-label"><display-name>Sports Channel</display-name></channel>
+  <channel id="canal-promo"><display-name>Canal+ Sport</display-name></channel>
+  <channel id="generic-match"><display-name>ESPN Sports</display-name></channel>
+  <channel id="local-news"><display-name>KTVN 2 News Nevada</display-name></channel>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="tnt-ultimate">
+    <title lang="en">This is TNT Sports Ultimate</title>
+    <desc lang="en">Premier League, Champions League and Europa League coverage all season.</desc>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="bein-max">
+    <title lang="en">beIN SPORTS MAX</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="sky-sport">
+    <title lang="en">HotelPlanner Tour Series</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="bundesliga-weekly">
+    <title lang="en">Bundesliga Weekly</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="inside-serie-a">
+    <title lang="en">Inside Serie A</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="league-label">
+    <title lang="en">Copa Libertadores</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="canal-promo">
+    <title lang="en">La Premier League sur Canal+</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016170000 +0000" channel="generic-match">
+    <title lang="en">The Match</title>
+    <category lang="en">Sports</category>
+  </programme>
+  <programme start="20261017000000 +0000" stop="20261017003000 +0000" channel="local-news">
+    <title lang="en">2 News Nevada vs 5:00p</title>
+    <desc lang="en">Local news, weather, traffic, and sports updates for Nevada.</desc>
+    <category lang="en">News</category>
+  </programme>
+</tv>

@@ -39,6 +39,7 @@ class LiveGraphBehaviorTest {
                     }
                 }
                 registerLiveGraph(
+                    sportsContent = {},
                     liveTvContent = { initialCategoryId, _, _ ->
                         receivedCategoryId = initialCategoryId
                     },
@@ -90,6 +91,7 @@ class LiveGraphBehaviorTest {
                     }
                 }
                 registerLiveGraph(
+                    sportsContent = {},
                     liveTvContent = { _, _, _ -> },
                     epgContent = { categoryId, anchorTime, favoritesOnly, onPlayChannel, onPlayArchive, _ ->
                         receivedCategoryId = categoryId

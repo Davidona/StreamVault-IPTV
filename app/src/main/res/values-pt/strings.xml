@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Não foi possível verificar o armazenamento disponível. A reprodução do torrent não pode continuar com segurança.</string>
     <string name="nav_addons">Complementos do Stremio</string>
     <string name="nav_extensions">Extensões</string>
+    <string name="nav_sports">Desporto</string>
 </resources>

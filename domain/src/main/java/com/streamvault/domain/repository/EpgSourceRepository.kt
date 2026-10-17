@@ -65,6 +65,8 @@ interface EpgSourceRepository {
 
     suspend fun getChannelMapping(providerId: Long, channelId: Long): ChannelEpgMapping?
 
+    suspend fun getChannelMappingConfidences(providerId: Long, channelIds: List<Long>): Map<Long, Float>
+
     suspend fun getOverrideCandidates(
         providerId: Long,
         query: String,

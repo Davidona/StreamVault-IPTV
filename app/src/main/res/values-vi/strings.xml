@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Không thể kiểm tra dung lượng lưu trữ còn trống. Không thể tiếp tục phát torrent một cách an toàn.</string>
     <string name="nav_addons">Tiện ích Stremio</string>
     <string name="nav_extensions">Tiện ích mở rộng</string>
+    <string name="nav_sports">Thể thao</string>
 </resources>

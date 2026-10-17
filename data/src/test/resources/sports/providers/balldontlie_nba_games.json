@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": 15907925,
+      "date": "2026-10-17",
+      "datetime": "2026-10-17T23:00:00.000Z",
+      "season": 2026,
+      "status": "3rd Qtr",
+      "status_state": "in_progress",
+      "period": 3,
+      "time": "5:21",
+      "home_team_score": 88,
+      "visitor_team_score": 79,
+      "home_team": { "id": 6, "full_name": "Cleveland Cavaliers", "abbreviation": "CLE" },
+      "visitor_team": { "id": 4, "full_name": "Charlotte Hornets", "abbreviation": "CHA" }
+    }
+  ],
+  "meta": { "per_page": 100, "next_cursor": null }
+}

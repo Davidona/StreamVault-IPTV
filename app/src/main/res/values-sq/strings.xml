@@ -345,4 +345,5 @@
     <string name="torrent_storage_check_failed">Nuk mund të kontrollohej hapësira e disponueshme. Luajtja e torrentit nuk mund të vazhdojë në mënyrë të sigurt.</string>
     <string name="nav_addons">Shtesa Stremio</string>
     <string name="nav_extensions">Zgjerimet</string>
+    <string name="nav_sports">Sport</string>
 </resources>

@@ -1,0 +1,28 @@
+[
+  {
+    "teamInfoId": 40,
+    "teamName": "Bayern München",
+    "teamIconUrl": "https://images.example.invalid/bayern.png",
+    "points": 18,
+    "opponentGoals": 7,
+    "goals": 21,
+    "matches": 8,
+    "won": 6,
+    "lost": 2,
+    "draw": 0,
+    "goalDiff": 14
+  },
+  {
+    "teamInfoId": 7,
+    "teamName": "Borussia Dortmund",
+    "teamIconUrl": "https://images.example.invalid/dortmund.png",
+    "points": 16,
+    "opponentGoals": 8,
+    "goals": 17,
+    "matches": 8,
+    "won": 5,
+    "lost": 2,
+    "draw": 1,
+    "goalDiff": 9
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "process": "32455",
+  "onNowScreenshots": 61,
+  "onNowCaptureSeconds": 149.4,
+  "todayScreenshots": 31,
+  "todayCaptureSeconds": 83.1,
+  "fatalLogLines": 0,
+  "idleHealth": {
+    "idleSeconds": 81.0,
+    "windowLoadsBefore": 3,
+    "windowLoadsAfter": 3
+  }
+}

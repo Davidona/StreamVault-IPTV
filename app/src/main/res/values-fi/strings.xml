@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Vapaata tallennustilaa ei voitu tarkistaa. Torrentin toistoa ei voida jatkaa turvallisesti.</string>
     <string name="nav_addons">Stremio-lisäosat</string>
     <string name="nav_extensions">Laajennukset</string>
+    <string name="nav_sports">Urheilu</string>
 </resources>

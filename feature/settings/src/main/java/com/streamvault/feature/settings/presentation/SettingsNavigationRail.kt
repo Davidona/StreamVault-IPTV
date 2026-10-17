@@ -45,6 +45,7 @@ internal val SettingsCategory.icon: ImageVector get() = when (this) {
     SettingsCategory.GUIDE -> Icons.Rounded.CalendarMonth
     SettingsCategory.ABOUT -> Icons.Rounded.Info
     SettingsCategory.TRAKT -> Icons.Rounded.AccountCircle
+    SettingsCategory.SPORTS -> Icons.Rounded.SportsSoccer
 }
 
 @Composable

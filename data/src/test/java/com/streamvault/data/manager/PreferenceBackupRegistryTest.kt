@@ -20,6 +20,7 @@ class PreferenceBackupRegistryTest {
             "xtream_text_import_applied_generation_42",
             "last_live_category_id_42",
             "last_split_catalog_type_42",
+            "sports_event_channel_pick_42",
             "remote_shortcut_live_red",
             "hidden_categories_42_LIVE",
             "hidden_channels_42",
@@ -34,7 +35,7 @@ class PreferenceBackupRegistryTest {
             "hiddenCategoriesKey(providerId, type",
             "hiddenChannelsKey(providerId",
             "pinnedCategoriesKey(providerId, type",
-            "categorySortModeKey(providerId, type"
+            "categorySortModeKey(providerId, type", "sportsEventChannelPickKeyName(eventId", "keyName"
         )
         val unknownDynamicFactories = Regex("(?:boolean|int|long|float|double|string)PreferencesKey\\(([^)\\r\\n]+)")
             .findAll(source)

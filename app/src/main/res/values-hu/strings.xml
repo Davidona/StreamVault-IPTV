@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">A szabad tárhely nem ellenőrizhető. A torrent lejátszása nem folytatható biztonságosan.</string>
     <string name="nav_addons">Stremio-kiegészítők</string>
     <string name="nav_extensions">Kiterjesztések</string>
+    <string name="nav_sports">Sport</string>
 </resources>

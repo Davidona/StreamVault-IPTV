@@ -304,4 +304,5 @@
     <string name="torrent_storage_check_failed">Impossible de vérifier le stockage disponible. La lecture du torrent ne peut pas continuer en toute sécurité.</string>
     <string name="nav_addons">Extensions Stremio</string>
     <string name="nav_extensions">Extensions</string>
+    <string name="nav_sports">Sports</string>
 </resources>

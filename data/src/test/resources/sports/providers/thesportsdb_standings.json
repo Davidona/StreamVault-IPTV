@@ -1,0 +1,6 @@
+{
+  "table": [
+    {"idLeague":"4328","strLeague":"English Premier League","strSeason":"2026-2027","idTeam":"133604","strTeam":"Arsenal","intRank":"2","intPlayed":"10","intWin":"7","intDraw":"2","intLoss":"1","intGoalsFor":"22","intGoalsAgainst":"8","intGoalDifference":"14","intPoints":"23","strBadge":"https://image.invalid/logo"},
+    {"idLeague":"4328","strLeague":"English Premier League","strSeason":"2026-2027","idTeam":"133602","strTeam":"Liverpool","intRank":"1","intPlayed":"10","intWin":"8","intDraw":"0","intLoss":"2","intGoalsFor":"25","intGoalsAgainst":"10","intGoalDifference":"15","intPoints":"24","dateUpdated":"2026-10-17 18:00:00"}
+  ]
+}

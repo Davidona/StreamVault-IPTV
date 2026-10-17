@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="spanish-fixture"><display-name>Sports Main</display-name></channel>
+  <channel id="french-fixture"><display-name>Sports Main</display-name></channel>
+  <channel id="bundesliga-fixture"><display-name>Sports Main</display-name></channel>
+  <channel id="tennis-session"><display-name>Events 4</display-name></channel>
+  <programme start="20261016180000 +0000" stop="20261016200000 +0000" channel="spanish-fixture">
+    <title lang="sr">Fudbal - Španska liga: Deportivo - Levante</title>
+  </programme>
+  <programme start="20261016200000 +0000" stop="20261016220000 +0000" channel="french-fixture">
+    <title lang="sr">Fudbal - Francuska liga: Le Mans - Toulouse</title>
+  </programme>
+  <programme start="20261016220000 +0000" stop="20261017000000 +0000" channel="bundesliga-fixture">
+    <title lang="de">Live Bundesliga: Eintracht Frankfurt-Koln Etapa 6</title>
+  </programme>
+  <programme start="20261017000000 +0000" stop="20261017020000 +0000" channel="tennis-session">
+    <title lang="en">ATP1000 '26: Shanghai Masters QF4</title>
+  </programme>
+</tv>

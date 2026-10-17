@@ -1,0 +1,35 @@
+--------- beginning of main
+10-16 21:53:34.215 D/SportsPerf(29833): stage=classification elapsedMs=5392 items=353 groups=28398
+10-16 21:53:34.320 D/SportsPerf(29833): stage=event-assembly elapsedMs=104 items=121 groups=353
+10-16 21:53:34.379 D/SportsPerf(29833): stage=fallback-index elapsedMs=59 items=28398
+10-16 21:53:34.380 D/SportsPerf(29833): stage=window-cold elapsedMs=21553 items=121
+10-16 21:54:27.876 D/SportsPerf(29833): stage=visible-channels elapsedMs=15045 items=28398
+10-16 21:54:28.851 D/SportsPerf(29833): stage=resolved-programs elapsedMs=679 items=6409 groups=6409
+10-16 21:54:34.458 D/SportsPerf(29833): stage=classification elapsedMs=5608 items=353 groups=28398
+10-16 21:54:34.538 D/SportsPerf(29833): stage=event-assembly elapsedMs=80 items=121 groups=353
+10-16 21:54:34.556 D/SportsPerf(29833): stage=fallback-index elapsedMs=17 items=28398
+10-16 21:54:34.556 D/SportsPerf(29833): stage=window-cold elapsedMs=21726 items=121
+10-16 21:55:27.917 D/SportsPerf(29833): stage=visible-channels elapsedMs=15084 items=28398
+10-16 21:55:28.846 D/SportsPerf(29833): stage=resolved-programs elapsedMs=702 items=6408 groups=6408
+10-16 21:55:34.451 D/SportsPerf(29833): stage=classification elapsedMs=5606 items=353 groups=28398
+10-16 21:55:34.572 D/SportsPerf(29833): stage=event-assembly elapsedMs=120 items=121 groups=353
+10-16 21:55:34.615 D/SportsPerf(29833): stage=fallback-index elapsedMs=44 items=28398
+10-16 21:55:34.616 D/SportsPerf(29833): stage=window-cold elapsedMs=21784 items=121
+10-16 21:56:27.755 D/SportsPerf(29833): stage=visible-channels elapsedMs=14921 items=28398
+10-16 21:56:28.663 D/SportsPerf(29833): stage=resolved-programs elapsedMs=653 items=6408 groups=6408
+10-16 21:56:33.978 D/SportsPerf(29833): stage=classification elapsedMs=5315 items=353 groups=28398
+10-16 21:56:34.084 D/SportsPerf(29833): stage=event-assembly elapsedMs=105 items=121 groups=353
+10-16 21:56:34.134 D/SportsPerf(29833): stage=fallback-index elapsedMs=50 items=28398
+10-16 21:56:34.135 D/SportsPerf(29833): stage=window-cold elapsedMs=21301 items=121
+10-16 21:57:27.943 D/SportsPerf(29833): stage=visible-channels elapsedMs=15107 items=28398
+10-16 21:57:28.865 D/SportsPerf(29833): stage=resolved-programs elapsedMs=681 items=6408 groups=6408
+10-16 21:57:34.359 D/SportsPerf(29833): stage=classification elapsedMs=5494 items=353 groups=28398
+10-16 21:57:34.468 D/SportsPerf(29833): stage=event-assembly elapsedMs=107 items=121 groups=353
+10-16 21:57:34.503 D/SportsPerf(29833): stage=fallback-index elapsedMs=35 items=28398
+10-16 21:57:34.504 D/SportsPerf(29833): stage=window-cold elapsedMs=21667 items=121
+10-16 21:58:27.995 D/SportsPerf(29833): stage=visible-channels elapsedMs=15156 items=28398
+10-16 21:58:28.931 D/SportsPerf(29833): stage=resolved-programs elapsedMs=657 items=6408 groups=6408
+10-16 21:58:34.347 D/SportsPerf(29833): stage=classification elapsedMs=5416 items=353 groups=28398
+10-16 21:58:34.449 D/SportsPerf(29833): stage=event-assembly elapsedMs=101 items=121 groups=353
+10-16 21:58:34.467 D/SportsPerf(29833): stage=fallback-index elapsedMs=19 items=28398
+10-16 21:58:34.467 D/SportsPerf(29833): stage=window-cold elapsedMs=21629 items=121

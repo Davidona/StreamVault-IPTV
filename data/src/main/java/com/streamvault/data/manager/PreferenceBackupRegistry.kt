@@ -52,7 +52,13 @@ internal object PreferenceBackupRegistry {
         "recording_wifi_only", "recording_padding_before_minutes", "recording_padding_after_minutes",
         "max_concurrent_streams", "automatic_sync_defaults"
     )
-    private val deviceBoundStorageKeys = setOf("download_tree_uri")
+    private val deviceBoundStorageKeys = setOf(
+        "download_tree_uri",
+        "sports_event_source_mode", "sports_event_source_instance_id",
+        "sports_score_source_mode", "sports_score_source_instance_id",
+        "sports_standings_source_mode", "sports_standings_source_instance_id",
+        "sports_metadata_source_mode", "sports_metadata_source_instance_id",
+    )
     private val runtimeStorageKeys = setOf(
         "parental_v2_migrated", "parental_pin", "live_variant_observations", "vod_variant_observations",
         "player_decoder_mode", "player_movie_http_protocol_mode", "last_speed_test_megabits",
@@ -78,7 +84,8 @@ internal object PreferenceBackupRegistry {
     private val globalStoragePrefixes = setOf("remote_shortcut_")
     private val runtimeStoragePrefixes = setOf(
         "xtream_text_import_applied_generation_", "last_live_category_id_",
-        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_", "automatic_sync_status_"
+        "last_split_catalog_type_", "aspect_ratio_", "guide_empty_keys_v1_", "automatic_sync_status_",
+        "sports_event_channel_pick_"
     )
 
     private val providerKeys = setOf(

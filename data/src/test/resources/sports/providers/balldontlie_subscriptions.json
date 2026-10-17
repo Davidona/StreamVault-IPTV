@@ -1,0 +1,9 @@
+{
+  "data": [
+    { "sport": "nba", "tier": "free", "status": null },
+    { "sport": "nfl", "tier": "free", "status": null },
+    { "sport": "mlb", "tier": "free", "status": null },
+    { "sport": "epl", "tier": "free", "status": null },
+    { "sport": "nhl", "tier": "paid", "status": "canceled" }
+  ]
+}

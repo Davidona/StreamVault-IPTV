@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">无法检查可用存储空间，无法安全地继续播放种子内容。</string>
     <string name="nav_addons">Stremio 扩展</string>
     <string name="nav_extensions">扩展功能</string>
+    <string name="nav_sports">体育</string>
 </resources>

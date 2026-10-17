@@ -1,0 +1,14 @@
+{
+  "leagueName": "NBA",
+  "year": 2026,
+  "data": [
+    {
+      "team": { "id": 1610612738, "name": "Boston Celtics", "displayName": "Boston Celtics" },
+      "statistics": [
+        { "abbreviation": "W", "displayValue": "7" },
+        { "abbreviation": "L", "displayValue": "1" },
+        { "abbreviation": "PCT", "displayValue": ".875" }
+      ]
+    }
+  ]
+}

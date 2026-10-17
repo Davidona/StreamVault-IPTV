@@ -36,6 +36,10 @@ import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.trakt.TraktFeaturePreferences
+import com.streamvault.domain.sports.provider.SportsEventSourceSettings
+import com.streamvault.domain.sports.provider.SportsScoreSourceSettings
+import com.streamvault.domain.sports.provider.SportsStandingsSourceSettings
+import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
 import com.streamvault.app.playback.AppPlayerPlaybackResolver
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import dagger.Binds
@@ -149,6 +153,18 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindPlayerPreferences(impl: PreferencesRepository): PlayerPreferences
+
+    @Binds @Singleton
+    abstract fun bindSportsEventSourceSettings(impl: PreferencesRepository): SportsEventSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsScoreSourceSettings(impl: PreferencesRepository): SportsScoreSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsStandingsSourceSettings(impl: PreferencesRepository): SportsStandingsSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsMetadataSourceSettings(impl: PreferencesRepository): SportsMetadataSourceSettings
 
     @Binds @Singleton
     abstract fun bindPlayerPlaybackResolver(impl: AppPlayerPlaybackResolver): PlayerPlaybackResolver

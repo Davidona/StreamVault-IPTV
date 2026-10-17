@@ -134,6 +134,8 @@ fun EpgSourceTextField(
     modifier: Modifier = Modifier,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
+    singleLine: Boolean = true,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
 ) {
     val settingsColors = SettingsDesignTokens.colors(com.streamvault.core.ui.design.AppColors.current)
     val isTelevisionDevice = com.streamvault.core.ui.device.rememberIsTelevisionDevice()
@@ -268,7 +270,8 @@ fun EpgSourceTextField(
                     }
                 },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = settingsColors.searchText),
-                singleLine = true,
+                singleLine = singleLine,
+                maxLines = maxLines,
                 cursorBrush = SolidColor(settingsColors.cursor),
                 visualTransformation = visualTransformation,
                 modifier = Modifier

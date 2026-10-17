@@ -20,6 +20,8 @@ object ChannelNormalizer {
     private val heightRegex = Regex("""(?<!\d)(4320|2160|1440|1080|720|576|540|480|360|240)\s*p?(?!\d)""", RegexOption.IGNORE_CASE)
     private val plusRegex = Regex("""\+""")
     private val colonOrPipeRegex = Regex("""[:|]""")
+    private val dvRegex = Regex("""(?<![a-z0-9])dv(?![a-z0-9])""")
+    private val combiningMarksRegex = Regex("\\p{InCombiningDiacriticalMarks}+")
 
     private val resolutionTags = linkedMapOf(
         "8k" to 4320,
@@ -99,6 +101,12 @@ object ChannelNormalizer {
         "ara" to "AR",
         "arabic" to "AR"
     )
+    private val standaloneTagRegexes = (
+        resolutionTags.keys + codecTags.keys + transportTags.keys + sourceHintTags.keys + languageTags.keys +
+            listOf("m3u8", "hls", "ts", "mpeg ts", "mpeg-ts", "dv")
+        ).distinct().associateWith { token ->
+            Regex("""(?<![a-z0-9])${Regex.escape(token)}(?![a-z0-9])""", RegexOption.IGNORE_CASE)
+        }
 
     private val removableCanonicalPhrases = (
         resolutionTags.keys +
@@ -108,7 +116,9 @@ object ChannelNormalizer {
             listOf("fps")
         )
         .sortedByDescending { it.length }
-        .map { phrase -> Regex("""(?<![a-z0-9])${Regex.escape(phrase)}(?![a-z0-9])""", RegexOption.IGNORE_CASE) }
+        .map { phrase ->
+            phrase to Regex("""(?<![a-z0-9])${Regex.escape(phrase)}(?![a-z0-9])""", RegexOption.IGNORE_CASE)
+        }
 
     fun getLogicalGroupId(channelName: String, providerId: Long): String {
         val originalName = channelName.trim().ifBlank { "Channel" }
@@ -168,7 +178,7 @@ object ChannelNormalizer {
                 codecLabel = codecLabel,
                 transportLabel = transportLabel,
                 frameRate = frameRate,
-                isHdr = lowerName.contains("hdr") || lowerName.contains("dolby vision") || Regex("""(?<![a-z0-9])dv(?![a-z0-9])""").containsMatchIn(lowerName),
+                isHdr = lowerName.contains("hdr") || lowerName.contains("dolby vision") || dvRegex.containsMatchIn(lowerName),
                 sourceHint = sourceHint,
                 regionHint = regionHint,
                 languageHint = languageHint,
@@ -200,8 +210,12 @@ object ChannelNormalizer {
             .replace(bracketRegex, " ")
             .replace(leadingRegionRegex, " ")
 
-        removableCanonicalPhrases.forEach { regex ->
-            cleaned = cleaned.replace(regex, " ")
+        removableCanonicalPhrases.forEach { (phrase, regex) ->
+            // Most catalog names contain none of these decorations. Avoid allocating a
+            // regex matcher for absent literals; retain the existing boundary rules.
+            if (cleaned.contains(phrase, ignoreCase = true)) {
+                cleaned = cleaned.replace(regex, " ")
+            }
         }
         cleaned = heightRegex.replace(cleaned, " ")
         cleaned = frameRateRegex.replace(cleaned, " ")
@@ -222,8 +236,7 @@ object ChannelNormalizer {
             return directHeight
         }
         resolutionTags.forEach { (tag, height) ->
-            val regex = Regex("""(?<![a-z0-9])${Regex.escape(tag)}(?![a-z0-9])""", RegexOption.IGNORE_CASE)
-            if (regex.containsMatchIn(lowerName)) {
+            if (containsStandalone(lowerName, tag)) {
                 return height
             }
         }
@@ -288,14 +301,16 @@ object ChannelNormalizer {
         regionHint?.let { add(it) }
         languageHint?.let { if (it != regionHint) add(it) }
         if (lowerName.contains("hdr")) add("HDR")
-        if (lowerName.contains("dolby vision") || Regex("""(?<![a-z0-9])dv(?![a-z0-9])""").containsMatchIn(lowerName)) {
+        if (lowerName.contains("dolby vision") || dvRegex.containsMatchIn(lowerName)) {
             add("Dolby Vision")
         }
     }.distinct()
 
     private fun containsStandalone(text: String, token: String): Boolean {
-        val regex = Regex("""(?<![a-z0-9])${Regex.escape(token)}(?![a-z0-9])""", RegexOption.IGNORE_CASE)
-        return regex.containsMatchIn(text)
+        if (!text.contains(token, ignoreCase = true)) return false
+        return standaloneTagRegexes[token]?.containsMatchIn(text)
+            ?: Regex("""(?<![a-z0-9])${Regex.escape(token)}(?![a-z0-9])""", RegexOption.IGNORE_CASE)
+                .containsMatchIn(text)
     }
 
     private fun heightToResolutionLabel(height: Int): String = when {
@@ -320,5 +335,5 @@ object ChannelNormalizer {
 
     private fun String.stripAccents(): String =
         Normalizer.normalize(this, Normalizer.Form.NFD)
-            .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+            .replace(combiningMarksRegex, "")
 }

@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı denetlenemedi. Torrent oynatma güvenli biçimde sürdürülemez.</string>
     <string name="nav_addons">Stremio eklentileri</string>
     <string name="nav_extensions">Eklentiler</string>
+    <string name="nav_sports">Spor</string>
 </resources>

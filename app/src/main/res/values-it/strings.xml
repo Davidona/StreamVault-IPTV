@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Impossibile controllare lo spazio disponibile. La riproduzione del torrent non può continuare in sicurezza.</string>
     <string name="nav_addons">Componenti aggiuntivi Stremio</string>
     <string name="nav_extensions">Estensioni</string>
+    <string name="nav_sports">Sport</string>
 </resources>

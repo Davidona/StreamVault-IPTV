@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">Tilgjengelig lagringsplass kunne ikke kontrolleres. Torrentavspillingen kan ikke fortsette trygt.</string>
     <string name="nav_addons">Stremio-tillegg</string>
     <string name="nav_extensions">Utvidelser</string>
+    <string name="nav_sports">Sport</string>
 </resources>

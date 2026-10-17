@@ -1,0 +1,38 @@
+[
+  {
+    "fixtureId": "id1000001761301153",
+    "participant1Id": 35,
+    "participant2Id": 34,
+    "sportId": 10,
+    "tournamentId": 17,
+    "statusId": 1,
+    "hasOdds": true,
+    "startTime": "2026-10-17T16:00:00.000Z",
+    "trueStartTime": null,
+    "trueEndTime": null,
+    "updatedAt": "2026-10-17T16:10:00.000Z",
+    "statusName": "In-Play",
+    "participant1Name": "Liverpool FC",
+    "participant2Name": "Manchester United",
+    "sportName": "Soccer",
+    "tournamentName": "Premier League"
+  },
+  {
+    "fixtureId": "id1000001761301154",
+    "participant1Id": 37,
+    "participant2Id": 38,
+    "sportId": 10,
+    "tournamentId": 17,
+    "statusId": 0,
+    "hasOdds": false,
+    "startTime": "2026-10-17T18:30:00.000Z",
+    "trueStartTime": null,
+    "trueEndTime": null,
+    "updatedAt": "2026-10-16T11:00:00.000Z",
+    "statusName": "Pre-Game",
+    "participant1Name": "Arsenal FC",
+    "participant2Name": "Chelsea FC",
+    "sportName": "Soccer",
+    "tournamentName": "Premier League"
+  }
+]

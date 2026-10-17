@@ -1,0 +1,25 @@
+{
+  "filters": { "season": "2026" },
+  "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE" },
+  "season": { "id": 900, "startDate": "2026-08-15", "endDate": "2027-05-23", "currentMatchday": 8 },
+  "standings": [
+    {
+      "stage": "REGULAR_SEASON",
+      "type": "TOTAL",
+      "group": null,
+      "table": [
+        { "position": 1, "team": { "id": 57, "name": "Arsenal FC", "shortName": "Arsenal" }, "playedGames": 8, "won": 6, "draw": 1, "lost": 1, "points": 19, "goalsFor": 18, "goalsAgainst": 7, "goalDifference": 11 },
+        { "position": 2, "team": { "id": 61, "name": "Chelsea FC", "shortName": "Chelsea" }, "playedGames": 8, "won": 5, "draw": 2, "lost": 1, "points": 17, "goalsFor": 15, "goalsAgainst": 8, "goalDifference": 7 }
+      ]
+    },
+    {
+      "stage": "REGULAR_SEASON",
+      "type": "HOME",
+      "group": null,
+      "table": [
+        { "position": 1, "team": { "id": 57, "name": "Arsenal FC" }, "playedGames": 4, "won": 4, "draw": 0, "lost": 0, "points": 12, "goalsFor": 10, "goalsAgainst": 2, "goalDifference": 8 }
+      ]
+    }
+  ],
+  "lastUpdated": "2026-10-17T12:10:00Z"
+}

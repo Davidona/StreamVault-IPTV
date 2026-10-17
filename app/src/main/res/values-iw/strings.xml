@@ -292,4 +292,5 @@
     <string name="torrent_storage_check_failed">לא ניתן לבדוק את נפח האחסון הזמין. אי אפשר להמשיך לנגן את הטורנט בבטחה.</string>
     <string name="nav_addons">תוספי Stremio</string>
     <string name="nav_extensions">הרחבות</string>
+    <string name="nav_sports">ספורט</string>
 </resources>

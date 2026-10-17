@@ -294,4 +294,5 @@
     <string name="torrent_storage_check_failed">تعذر التحقق من مساحة التخزين المتاحة، ولا يمكن متابعة تشغيل التورنت بأمان.</string>
     <string name="nav_addons">إضافات Stremio</string>
     <string name="nav_extensions">التمديدات</string>
+    <string name="nav_sports">الرياضة</string>
 </resources>

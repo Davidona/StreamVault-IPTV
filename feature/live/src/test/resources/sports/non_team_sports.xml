@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <programme start="20261017110000 +0000" stop="20261017120000 +0000" channel="events">
+    <title lang="en">Japanese Grand Prix - Race</title>
+  </programme>
+  <programme start="20261018110000 +0000" stop="20261018120000 +0000" channel="events">
+    <title lang="en">PGA Tour The Players Championship</title>
+  </programme>
+  <programme start="20261019110000 +0000" stop="20261019120000 +0000" channel="events">
+    <title lang="en">UFC 330 Main Card</title>
+  </programme>
+  <programme start="20261020110000 +0000" stop="20261020170000 +0000" channel="events">
+    <title lang="en">World Surf League 2026 - Pro Portugal (Direto)</title>
+  </programme>
+</tv>

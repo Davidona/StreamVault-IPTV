@@ -1,0 +1,9 @@
+
+10-16 22:02:57.812 D/SportsPerf(31330): stage=visible-channels elapsedMs=16942 items=28398
+10-16 22:03:07.094 D/SportsPerf(31330): stage=resolved-programs elapsedMs=8678 items=6404 groups=6404
+10-16 22:03:16.661 D/SportsPerf(31330): stage=classification elapsedMs=9567 items=376 groups=28398
+10-16 22:03:16.951 D/SportsPerf(31330): stage=event-assembly elapsedMs=285 items=133 groups=376
+10-16 22:03:21.998 D/SportsPerf(31330): stage=fallback-index elapsedMs=5047 items=28398
+10-16 22:03:21.999 D/SportsPerf(31330): stage=window-cold elapsedMs=24187 items=133
+10-16 22:03:22.005 D/SportsPerf(31330): stage=initial-content elapsedMs=41423 items=133
+

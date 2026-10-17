@@ -6,6 +6,7 @@ sealed interface AppDestination : Serializable {
     data object Welcome : AppDestination
     data object Home : AppDestination
     data class LiveTv(val categoryId: Long? = null) : AppDestination
+    data object Sports : AppDestination
     data object Movies : AppDestination
     data object Series : AppDestination
     data object Vod : AppDestination

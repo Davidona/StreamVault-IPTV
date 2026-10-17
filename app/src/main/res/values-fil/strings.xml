@@ -345,4 +345,5 @@
     <string name="torrent_storage_check_failed">Hindi masuri ang available na storage. Hindi ligtas na maipagpapatuloy ang pag-play ng torrent.</string>
     <string name="nav_addons">Mga add-on ng Stremio</string>
     <string name="nav_extensions">Mga extension</string>
+    <string name="nav_sports">Palakasan</string>
 </resources>

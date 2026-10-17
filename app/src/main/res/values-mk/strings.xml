@@ -344,4 +344,5 @@
     <string name="torrent_storage_check_failed">Не може да се провери достапниот простор. Репродукцијата на торент не може безбедно да продолжи.</string>
     <string name="nav_addons">Додатоци за Stremio</string>
     <string name="nav_extensions">Проширувања</string>
+    <string name="nav_sports">Спорт</string>
 </resources>

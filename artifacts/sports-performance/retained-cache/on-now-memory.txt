@@ -1,0 +1,73 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 29904151 Realtime: 29904151
+
+** MEMINFO in pid 32455 [com.streamvault.app.debug] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    71042    70988       44       40    71724   123072    64890    49472
+  Dalvik Heap    62133    61784      320      138    62688    64464    39888    24576
+ Dalvik Other    17645     8192        4        1    27448                           
+        Stack     1976     1976        0        0     1984                           
+       Ashmem      275      184        0        0      416                           
+    Other dev       24       12        4        0      416                           
+     .so mmap    12431      576     7080        3    41896                           
+    .jar mmap    11386        0     5836        0    46124                           
+    .apk mmap     2416        0     1004        0     5684                           
+    .ttf mmap      380        0      272        0      488                           
+    .dex mmap       30        0       16        0      840                           
+    .oat mmap       69        0       16        0     1820                           
+    .art mmap     8797     6892     1468       96    19368                           
+   Other mmap     2585     1236      908        0     5752                           
+      Unknown   121478   121444        8        0   121716                           
+        TOTAL   312945   273284    16980      278   408364   187536   104778    74048
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    70144                          82056
+         Native Heap:    70988                          71724
+                Code:    14980                         115920
+               Stack:     1976                           1984
+            Graphics:        0                              0
+       Private Other:   132176
+              System:    22681
+             Unknown:                                  136680
+ 
+           TOTAL PSS:   312945            TOTAL RSS:   408364       TOTAL SWAP PSS:      278
+ 
+ Objects
+               Views:        8         ViewRootImpl:        1
+         AppContexts:        7           Activities:        1
+              Assets:       18        AssetManagers:        0
+       Local Binders:       72        Proxy Binders:       54
+       Parcel memory:       11         Parcel count:       45
+    Death Recipients:        0             WebViews:        0
+ 
+ Native Allocations
+                         Count                       Total(kB)
+                        ------                         ------
+   Bitmap (malloced):       22                             17
+Bitmap (nonmalloced):       16                             64
+    Other (malloced):    26641                           2548
+ Other (nonmalloced):      138                             88
+ 
+ SQL
+         MEMORY_USED:     3541
+  PAGECACHE_OVERFLOW:     2113          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4      172            108   889   314    25  /data/user/0/com.streamvault.app.debug/no_backup/androidx.work.workdb
+         4        8                    0     0     0    (attached) temp
+         4      172            117    62    27     9  /data/user/0/com.streamvault.app.debug/no_backup/androidx.work.workdb (1)
+         4   376844            114   119   316    25  /data/user/0/com.streamvault.app.debug/databases/streamvault.db
+         4       24                    0     0     0    (attached) temp
+         4   376844            123   135  1322    19  /data/user/0/com.streamvault.app.debug/databases/streamvault.db (1)
+         4   376844            103   275  1257    25  /data/user/0/com.streamvault.app.debug/databases/streamvault.db (2)
+         4   376844            123  2331   138    20  /data/user/0/com.streamvault.app.debug/databases/streamvault.db (3)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+            951           345          1296  /data/user/0/com.streamvault.app.debug/no_backup/androidx.work.workdb
+           1505           431          1936  /data/user/0/com.streamvault.app.debug/databases/streamvault.db

@@ -293,4 +293,5 @@
     <string name="torrent_storage_check_failed">空き容量を確認できませんでした。安全にトレント再生を続けられません。</string>
     <string name="nav_addons">Stremioアドオン</string>
     <string name="nav_extensions">拡張機能</string>
+    <string name="nav_sports">スポーツ</string>
 </resources>

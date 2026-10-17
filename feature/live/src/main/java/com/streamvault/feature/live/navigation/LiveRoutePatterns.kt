@@ -4,6 +4,7 @@ package com.streamvault.feature.live.navigation
 object LiveRoutePatterns {
     const val LIVE_TV = "live_tv"
     const val LIVE_TV_DESTINATION = "live_tv?categoryId={categoryId}"
+    const val SPORTS = "sports"
     const val EPG = "epg"
     const val EPG_DESTINATION =
         "epg?categoryId={categoryId}&anchorTime={anchorTime}&favoritesOnly={favoritesOnly}"

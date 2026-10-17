@@ -345,4 +345,5 @@
     <string name="torrent_storage_check_failed">उपलब्ध स्टोरेज की जाँच नहीं हो सकी। टोरेंट प्लेबैक सुरक्षित रूप से जारी नहीं रह सकता।</string>
     <string name="nav_addons">Stremio ऐड-ऑन</string>
     <string name="nav_extensions">एक्सटेंशन</string>
+    <string name="nav_sports">खेल</string>
 </resources>

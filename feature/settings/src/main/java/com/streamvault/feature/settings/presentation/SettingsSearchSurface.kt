@@ -204,6 +204,7 @@ private fun resolvedSettingsCatalog(
         setting("sources.m3u_vod_classification", SettingsCategory.SOURCES, SettingsPage.SOURCE_COMPATIBILITY, R.string.settings_m3u_vod_classification_title, "movies", "series"),
         setting("sources.xtream_text_classification", SettingsCategory.SOURCES, SettingsPage.SOURCE_COMPATIBILITY, R.string.settings_xtream_text_classification),
         setting("sources.xtream_base64", SettingsCategory.SOURCES, SettingsPage.SOURCE_COMPATIBILITY, R.string.settings_xtream_base64_compatibility),
+        setting("sports.providers", SettingsCategory.SPORTS, SettingsPage.SPORTS_DATA_PROVIDERS, R.string.settings_sports_data_providers_title, "sports data", "sports api"),
         setting("guide.source.add", SettingsCategory.GUIDE, null, R.string.settings_epg_sources_title, "add XMLTV", "guide source"),
         setting("guide.source.enabled", SettingsCategory.GUIDE, null, R.string.settings_epg_sources_title, "enable guide source"),
         setting("guide.source.refresh", SettingsCategory.GUIDE, null, R.string.settings_epg_refresh, "refresh XMLTV"),
