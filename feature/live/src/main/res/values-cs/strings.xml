@@ -258,7 +258,7 @@
     <string name="live_sports_upcoming">Nadcházející</string>
     <string name="live_sports_filter_football">Fotbal</string>
     <string name="live_sports_filter_basketball">Basketbal</string>
-    <string name="live_sports_filter_motorsport">Motorsport</string>
+    <string name="live_sports_filter_motorsport">Motoristický sport</string>
     <string name="live_sports_filter_other">Ostatní</string>
     <string name="live_sports_filter_all_leagues">Všechny ligy</string>
     <string name="live_sports_channel_choices">Dostupné kanály: %1$d</string>

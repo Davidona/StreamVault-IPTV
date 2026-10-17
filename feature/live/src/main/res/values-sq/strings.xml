@@ -258,7 +258,7 @@
     <string name="live_sports_upcoming">Të ardhshme</string>
     <string name="live_sports_filter_football">Futboll</string>
     <string name="live_sports_filter_basketball">Basketboll</string>
-    <string name="live_sports_filter_motorsport">Motorsport</string>
+    <string name="live_sports_filter_motorsport">Sportet me motor</string>
     <string name="live_sports_filter_other">Të tjera</string>
     <string name="live_sports_filter_all_leagues">Të gjitha ligat</string>
     <string name="live_sports_channel_choices">Kanale të disponueshme: %1$d</string>

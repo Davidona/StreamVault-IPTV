@@ -269,7 +269,7 @@
     <string name="live_sports_league_efl_championship">Kampioenschap van de Engelse voetbalcompetitie</string>
     <string name="live_sports_standings">Stand</string>
     <string name="live_sports_standings_rank">Positie</string>
-    <string name="live_sports_standings_team">Team</string>
+    <string name="live_sports_standings_team">Ploeg</string>
     <string name="live_sports_standings_load">Stand laden</string>
     <string name="live_sports_standings_loading">Stand wordt geladen…</string>
     <string name="live_sports_standings_unavailable">Stand niet beschikbaar</string>

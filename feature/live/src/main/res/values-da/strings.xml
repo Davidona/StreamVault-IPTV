@@ -248,7 +248,7 @@
     <string name="home_show_categories">Vis kategorier</string>
     <string name="nav_sports">Sport</string>
     <string name="live_sports_on_now">Lige nu</string>
-    <string name="live_sports_live_badge">LIVE</string>
+    <string name="live_sports_live_badge">DIREKTE</string>
     <string name="live_sports_empty_title">Der er ingen sportsbegivenheder i denne guide</string>
     <string name="live_sports_empty_message">Sportsbegivenheder, der passer til denne visning, vises her.</string>
     <string name="live_sports_loading">Finder sportsbegivenheder…</string>

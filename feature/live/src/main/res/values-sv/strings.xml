@@ -248,7 +248,7 @@
     <string name="settings_parental_control">Föräldrakontroll</string>
     <string name="nav_sports">Sport</string>
     <string name="live_sports_on_now">Nu</string>
-    <string name="live_sports_live_badge">LIVE</string>
+    <string name="live_sports_live_badge">DIREKT</string>
     <string name="live_sports_empty_title">Inga sportevenemang i den här guiden</string>
     <string name="live_sports_empty_message">Sportevenemang som matchar den här vyn visas här.</string>
     <string name="live_sports_loading">Söker efter sportevenemang…</string>

@@ -269,7 +269,7 @@
     <string name="live_sports_league_efl_championship">Meisterschaft der englischen Fußballliga</string>
     <string name="live_sports_standings">Tabelle</string>
     <string name="live_sports_standings_rank">Rang</string>
-    <string name="live_sports_standings_team">Team</string>
+    <string name="live_sports_standings_team">Mannschaft</string>
     <string name="live_sports_standings_load">Tabelle laden</string>
     <string name="live_sports_standings_loading">Tabelle wird geladen…</string>
     <string name="live_sports_standings_unavailable">Tabelle nicht verfügbar</string>

@@ -248,7 +248,7 @@
     <string name="settings_parental_control">Lapsilukko</string>
     <string name="nav_sports">Urheilu</string>
     <string name="live_sports_on_now">Nyt</string>
-    <string name="live_sports_live_badge">LIVE</string>
+    <string name="live_sports_live_badge">SUORANA</string>
     <string name="live_sports_empty_title">Tässä ohjelmaoppaassa ei ole urheilutapahtumia</string>
     <string name="live_sports_empty_message">Tähän näkymään sopivat urheilutapahtumat näkyvät täällä.</string>
     <string name="live_sports_loading">Etsitään urheilutapahtumia…</string>

@@ -248,7 +248,7 @@
     <string name="settings_parental_control">Kontrol ng Magulang</string>
     <string name="nav_sports">Palakasan</string>
     <string name="live_sports_on_now">Ngayon</string>
-    <string name="live_sports_live_badge">LIVE</string>
+    <string name="live_sports_live_badge">NASA ERE</string>
     <string name="live_sports_empty_title">Walang mga sports event sa gabay na ito</string>
     <string name="live_sports_empty_message">Lalabas dito ang mga sports event na tugma sa view na ito.</string>
     <string name="live_sports_loading">Hinahanap ang mga sports event…</string>
@@ -256,9 +256,9 @@
     <string name="live_sports_retry">Subukan muli</string>
     <string name="live_sports_play_channel_content_description">Panoorin sa %1$s</string>
     <string name="live_sports_upcoming">Paparating</string>
-    <string name="live_sports_filter_football">Football</string>
-    <string name="live_sports_filter_basketball">Basketball</string>
-    <string name="live_sports_filter_motorsport">Motorsport</string>
+    <string name="live_sports_filter_football">Putbol</string>
+    <string name="live_sports_filter_basketball">Basketbol</string>
+    <string name="live_sports_filter_motorsport">Karera sa motor</string>
     <string name="live_sports_filter_other">Iba pa</string>
     <string name="live_sports_filter_all_leagues">Lahat ng liga</string>
     <string name="live_sports_channel_choices">Mga available na channel: %1$d</string>
@@ -276,7 +276,7 @@
     <string name="live_sports_standings_attribution">Data mula sa %1$s</string>
     <string name="live_sports_team_metadata">Detalye ng koponan: %1$s</string>
     <string name="live_sports_league_metadata">Detalye ng liga: %1$s</string>
-    <string name="live_sports_standings_season">Season: %1$s</string>
+    <string name="live_sports_standings_season">Panahon: %1$s</string>
     <string name="live_sports_table_played">Laro</string>
     <string name="live_sports_table_won">Panalo</string>
     <string name="live_sports_table_drawn">Tabla</string>
