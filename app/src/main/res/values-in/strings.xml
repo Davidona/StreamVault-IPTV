@@ -287,4 +287,5 @@
     <string name="downloads_empty">Belum ada unduhan</string>
     <string name="downloads_delete_confirm">Hapus unduhan ini?</string>
     <string name="download_play_local">Putar</string>
+    <string name="nav_sports">Olahraga</string>
 </resources>

@@ -340,4 +340,5 @@
     <string name="downloads_delete_confirm">ลบการดาวน์โหลดนี้หรือไม่?</string>
     <string name="download_play_local">เล่น</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">กีฬา</string>
 </resources>

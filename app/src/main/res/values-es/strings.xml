@@ -287,4 +287,5 @@
     <string name="download_play_local">Reproducir</string>
     <string name="nav_vod">VOD</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="nav_sports">Deportes</string>
 </resources>

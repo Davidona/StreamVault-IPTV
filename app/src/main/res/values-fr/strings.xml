@@ -299,4 +299,5 @@
     <string name="downloads_empty">Aucun téléchargement pour le moment</string>
     <string name="downloads_delete_confirm">Supprimer ce téléchargement ?</string>
     <string name="download_play_local">Lire</string>
+    <string name="nav_sports">Sports</string>
 </resources>

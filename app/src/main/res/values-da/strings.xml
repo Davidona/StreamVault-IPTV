@@ -287,4 +287,5 @@
     <string name="m3u_episode_unresolved">Episodenummer ikke afklaret – det forbliver markeret til rettelse.</string>
     <string name="m3u_series_review_title">Organisér serier i %1$s</string>
     <string name="m3u_series_review_subtitle">Gennemgå de automatiske forslag, eller tildel hver post en serie, sæson og episode.</string>
+    <string name="nav_sports">Sport</string>
 </resources>

@@ -340,4 +340,5 @@
     <string name="downloads_delete_confirm">Të fshihet ky shkarkim?</string>
     <string name="download_play_local">Luaj</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">Sport</string>
 </resources>

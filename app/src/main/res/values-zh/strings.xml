@@ -287,4 +287,5 @@
     <string name="m3u_episode_unresolved">剧集编号未解析——将保留标记以便修正。</string>
     <string name="m3u_series_review_title">在 %1$s 中整理剧集</string>
     <string name="m3u_series_review_subtitle">查看自动建议，或将每个条目指定到剧集、季和集。</string>
+    <string name="nav_sports">体育</string>
 </resources>

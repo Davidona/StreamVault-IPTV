@@ -340,4 +340,5 @@
     <string name="downloads_delete_confirm">Burahin ang download na ito?</string>
     <string name="download_play_local">I-play</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">Palakasan</string>
 </resources>

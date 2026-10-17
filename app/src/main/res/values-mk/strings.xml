@@ -339,4 +339,5 @@
     <string name="downloads_delete_confirm">Да се избрише ова преземање?</string>
     <string name="download_play_local">Репродуцирај</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">Спорт</string>
 </resources>

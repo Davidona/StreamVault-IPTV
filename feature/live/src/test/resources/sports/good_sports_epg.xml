@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="sports-main">
+    <display-name>Sports Main</display-name>
+  </channel>
+  <channel id="sports-news">
+    <display-name>Sports News</display-name>
+  </channel>
+  <channel id="basketball-fr">
+    <display-name>Sports Main</display-name>
+  </channel>
+  <programme start="20261016190000 +0000" stop="20261016210000 +0000" channel="sports-main">
+    <title lang="en">Barcelona vs Real Madrid</title>
+    <desc>League match from Madrid.</desc>
+    <category>Football</category>
+    <category>Sports</category>
+  </programme>
+  <programme start="20261016210000 +0000" stop="20261016220000 +0000" channel="sports-news">
+    <title lang="en">SportsCenter</title>
+    <desc>Daily sports news and analysis.</desc>
+    <category>Sports</category>
+  </programme>
+  <programme start="20261017000000 +0000" stop="20261017020000 +0000" channel="basketball-fr">
+    <title lang="fr">Asvel vs Roanne</title>
+    <desc lang="fr">Championnat du plus haut niveau de basket-ball en France, la LNB Pro A.</desc>
+    <category lang="fr">Sports</category>
+  </programme>
+</tv>

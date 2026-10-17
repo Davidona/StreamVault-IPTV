@@ -13,7 +13,8 @@ enum class SettingsCategory(val legacyId: Int, val title: Int, val description: 
     RECORDING(4, R.string.settings_recording_title, R.string.settings_recording_description),
     BACKUP(5, R.string.settings_backup_restore, R.string.settings_backup_description),
     GUIDE(6, R.string.settings_domain_guide, R.string.settings_guide_description),
-    ABOUT(7, R.string.settings_about, R.string.settings_about_description);
+    ABOUT(7, R.string.settings_about, R.string.settings_about_description),
+    SPORTS(10, R.string.nav_sports, R.string.settings_sports_settings_description);
 
     val pages: List<SettingsPage> get() = SettingsPage.entries.filter { it.categoryId == legacyId }
     companion object {
@@ -32,6 +33,7 @@ enum class SettingsPage(val categoryId: Int, val title: Int, val description: In
     RECORDING_DEFAULTS(4, R.string.settings_page_recording_defaults, R.string.settings_page_recording_defaults_description),
     PROVIDERS(0, R.string.settings_providers, R.string.settings_page_providers_description),
     SOURCE_COMPATIBILITY(0, R.string.settings_page_source_compatibility, R.string.settings_page_source_compatibility_description),
+    SPORTS_DATA_PROVIDERS(10, R.string.settings_sports_data_providers_title, R.string.settings_sports_settings_description),
     GENERAL(1, R.string.settings_page_general, R.string.settings_page_general_description),
     AUDIO(1, R.string.settings_page_audio, R.string.settings_page_audio_description),
     SUBTITLES(1, R.string.settings_page_subtitles, R.string.settings_page_subtitles_description),

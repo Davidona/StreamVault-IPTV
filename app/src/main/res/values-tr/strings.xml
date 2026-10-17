@@ -287,4 +287,5 @@
     <string name="m3u_category_rule_subtitle">Bu M3U grubu için bir varsayılan seçin. Tek tek kanallar yine de geçersiz kılınabilir.</string>
     <string name="m3u_classification_saved">M3U sınıflandırması kaydedildi</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Drive yedekleme işlemlerine geri dönün.</string>
+    <string name="nav_sports">Spor</string>
 </resources>

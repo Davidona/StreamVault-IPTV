@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <programme start="20261016100000 +0000" stop="20261016110000 +0000" channel="sports-shows">
+    <title lang="en">Sports News Tonight</title>
+    <category>Sports</category>
+  </programme>
+  <programme start="20261016110000 +0000" stop="20261016120000 +0000" channel="sports-shows">
+    <title lang="en">Football Highlights</title>
+    <category>Football</category>
+  </programme>
+  <programme start="20261016120000 +0000" stop="20261016130000 +0000" channel="sports-shows">
+    <title lang="en">Premier League Preview</title>
+    <category>Football</category>
+  </programme>
+  <programme start="20261016130000 +0000" stop="20261016140000 +0000" channel="sports-shows">
+    <title lang="en">Postgame Analysis</title>
+    <category>Sports</category>
+  </programme>
+</tv>

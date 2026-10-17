@@ -288,4 +288,5 @@
     <string name="downloads_delete_confirm">このダウンロードを削除しますか？</string>
     <string name="download_play_local">再生</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">スポーツ</string>
 </resources>

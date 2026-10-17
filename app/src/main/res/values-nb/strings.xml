@@ -287,4 +287,5 @@
     <string name="m3u_episode_unresolved">Episodenummeret er ikke avklart – det vil forbli flagget for korrigering.</string>
     <string name="nav_vod">VOD</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Gå tilbake til Drive-sikkerhetskopihandlingene.</string>
+    <string name="nav_sports">Sport</string>
 </resources>

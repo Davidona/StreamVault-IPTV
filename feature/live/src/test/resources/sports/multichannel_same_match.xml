@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <programme start="20261016200000 +0000" stop="20261016220000 +0000" channel="event-main">
+    <title lang="en">Arsenal vs Liverpool</title>
+    <category>Football</category>
+  </programme>
+  <programme start="20261016200500 +0000" stop="20261016220500 +0000" channel="event-alt">
+    <title lang="en">Liverpool @ Arsenal</title>
+    <category>Football</category>
+  </programme>
+</tv>

@@ -1,0 +1,18 @@
+
+10-16 22:04:22.607 E/AndroidRuntime(31330): FATAL EXCEPTION: main
+10-16 22:04:22.607 E/AndroidRuntime(31330): Process: com.streamvault.app.debug, PID: 31330
+10-16 22:04:22.607 E/AndroidRuntime(31330): java.lang.OutOfMemoryError: Failed to allocate a 32 byte allocation with 1376208 free bytes and 1343KB until OOM, target footprint 201326592, growth limit 201326592; giving up on allocation because <1% of heap free after GC.
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at java.util.LinkedHashMap.newNode(LinkedHashMap.java:299)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at java.util.HashMap.putVal(HashMap.java:636)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at java.util.HashMap.put(HashMap.java:617)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at com.streamvault.data.epg.EpgResolutionEngine$getResolvedProgrammes$2.invokeSuspend(EpgResolutionEngine.kt:442)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:124)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:89)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:820)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+10-16 22:04:22.607 E/AndroidRuntime(31330): 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@8e2ab14, Dispatchers.Main.immediate]
+

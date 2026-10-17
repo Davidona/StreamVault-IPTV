@@ -1,0 +1,19 @@
+[
+  {
+    "id": "event-1",
+    "title": "Club A vs Club B",
+    "sport": "football",
+    "start": "2026-10-17T21:00:00+03:00",
+    "competitors": [
+      { "id": "a", "name": "Club A", "role": "HOME" },
+      { "id": "b", "name": "Club B", "role": "AWAY" }
+    ]
+  },
+  {
+    "id": "session-2",
+    "title": "Grand Prix",
+    "sport": "motorsport",
+    "session": "Qualifying",
+    "start": "2026-10-17T15:00:00Z"
+  }
+]

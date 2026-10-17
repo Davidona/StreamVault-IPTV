@@ -343,4 +343,5 @@
     <string name="downloads_delete_confirm">این دانلود حذف شود؟</string>
     <string name="download_play_local">پخش</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">ورزش</string>
 </resources>

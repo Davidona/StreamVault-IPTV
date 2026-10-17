@@ -240,6 +240,7 @@ private fun formatAppLandingDestinationLabel(
     when (destination) {
         AppLandingDestination.HOME -> R.string.nav_home
         AppLandingDestination.LIVE_TV -> R.string.nav_live_tv
+        AppLandingDestination.SPORTS -> R.string.nav_sports
         AppLandingDestination.FIRST_FAVORITE_LIVE -> R.string.settings_startup_first_favorite_live
         AppLandingDestination.LAST_WATCHED_LIVE -> R.string.settings_startup_last_watched_live
         AppLandingDestination.MOVIES -> R.string.nav_movies

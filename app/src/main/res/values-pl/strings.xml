@@ -287,4 +287,5 @@
     <string name="settings_crash_report_share_failed">Żadna aplikacja nie mogła odebrać raportu o awarii.</string>
     <string name="settings_crash_report_missing">Brak dostępnego raportu o awarii.</string>
     <string name="settings_drive_cancel_backup_choice_subtitle">Wróć do działań kopii zapasowej Dysku.</string>
+    <string name="nav_sports">Sport</string>
 </resources>

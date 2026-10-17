@@ -51,6 +51,18 @@ import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.sports.provider.SportsEventSourceMode
+import com.streamvault.domain.sports.provider.SportsEventSourcePreference
+import com.streamvault.domain.sports.provider.SportsEventSourceSettings
+import com.streamvault.domain.sports.provider.SportsScoreSourceMode
+import com.streamvault.domain.sports.provider.SportsScoreSourcePreference
+import com.streamvault.domain.sports.provider.SportsScoreSourceSettings
+import com.streamvault.domain.sports.provider.SportsStandingsSourceMode
+import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
+import com.streamvault.domain.sports.provider.SportsStandingsSourceSettings
+import com.streamvault.domain.sports.provider.SportsMetadataSourceMode
+import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
+import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -73,9 +85,30 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLong
 
 private const val PREFERENCES_DATASTORE_NAME = "user_preferences"
+private const val SPORTS_EVENT_CHANNEL_PICK_PREFIX = "sports_event_channel_pick_"
+
+private fun sportsEventChannelPickKeyName(eventId: String): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(eventId.toByteArray(Charsets.UTF_8))
+    val hexDigits = "0123456789abcdef"
+    val suffix = buildString(digest.size * 2) {
+        digest.forEach { byte ->
+            val value = byte.toInt() and 0xff
+            append(hexDigits[value ushr 4])
+            append(hexDigits[value and 0x0f])
+        }
+    }
+    return SPORTS_EVENT_CHANNEL_PICK_PREFIX + suffix
+}
+
+data class SportsEventChannelPick(
+    val providerId: Long,
+    val channelId: Long,
+    val expiresAtMillis: Long,
+)
 
 private fun VodTrackPreferenceScope.storageKey(): String = when (this) {
     is VodTrackPreferenceScope.Movie -> "$providerId|movie|$contentId"
@@ -168,7 +201,8 @@ class PreferencesRepository @Inject constructor(
     private val channelPreferenceDao: ChannelPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
-) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences {
+) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences, SportsEventSourceSettings,
+    SportsScoreSourceSettings, SportsStandingsSourceSettings, SportsMetadataSourceSettings {
     private val preferencesDataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { cause ->
@@ -194,6 +228,106 @@ class PreferencesRepository @Inject constructor(
                 ?.removePrefix("automatic_sync_status_")?.toLongOrNull() ?: return@mapNotNull null
             runCatching { id to com.google.gson.Gson().fromJson(value as String, com.streamvault.domain.sync.AutomaticSyncStatus::class.java) }.getOrNull()
         }.toMap()
+    }
+
+    override val eventSourcePreference: Flow<SportsEventSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_EVENT_SOURCE_MODE]
+            ?.let { saved -> SportsEventSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsEventSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsEventSourceMode.PROVIDER && instanceId != null ->
+                SportsEventSourcePreference.provider(instanceId)
+            mode == SportsEventSourceMode.EPG -> SportsEventSourcePreference.EPG
+            else -> SportsEventSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setEventSourcePreference(preference: SportsEventSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_EVENT_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsEventSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val scoreSourcePreference: Flow<SportsScoreSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_SCORE_SOURCE_MODE]
+            ?.let { saved -> SportsScoreSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsScoreSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsScoreSourceMode.PROVIDER && instanceId != null ->
+                SportsScoreSourcePreference.provider(instanceId)
+            mode == SportsScoreSourceMode.OFF -> SportsScoreSourcePreference.OFF
+            else -> SportsScoreSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setScoreSourcePreference(preference: SportsScoreSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_SCORE_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsScoreSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val standingsSourcePreference: Flow<SportsStandingsSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_MODE]
+            ?.let { saved -> SportsStandingsSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsStandingsSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsStandingsSourceMode.PROVIDER && instanceId != null ->
+                SportsStandingsSourcePreference.provider(instanceId)
+            mode == SportsStandingsSourceMode.OFF -> SportsStandingsSourcePreference.OFF
+            else -> SportsStandingsSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setStandingsSourcePreference(preference: SportsStandingsSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsStandingsSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val metadataSourcePreference: Flow<SportsMetadataSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_METADATA_SOURCE_MODE]
+            ?.let { saved -> SportsMetadataSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsMetadataSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsMetadataSourceMode.PROVIDER && instanceId != null ->
+                SportsMetadataSourcePreference.provider(instanceId)
+            mode == SportsMetadataSourceMode.OFF -> SportsMetadataSourcePreference.OFF
+            else -> SportsMetadataSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setMetadataSourcePreference(preference: SportsMetadataSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_METADATA_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsMetadataSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID)
+            }
+        }
     }
 
     private fun readAutomaticSyncSettings(json: String?): com.streamvault.domain.sync.AutomaticSyncSettings =
@@ -247,6 +381,14 @@ class PreferencesRepository @Inject constructor(
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
         val APP_THEME = stringPreferencesKey("app_theme")
+        val SPORTS_EVENT_SOURCE_MODE = stringPreferencesKey("sports_event_source_mode")
+        val SPORTS_EVENT_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_event_source_instance_id")
+        val SPORTS_SCORE_SOURCE_MODE = stringPreferencesKey("sports_score_source_mode")
+        val SPORTS_SCORE_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_score_source_instance_id")
+        val SPORTS_STANDINGS_SOURCE_MODE = stringPreferencesKey("sports_standings_source_mode")
+        val SPORTS_STANDINGS_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_standings_source_instance_id")
+        val SPORTS_METADATA_SOURCE_MODE = stringPreferencesKey("sports_metadata_source_mode")
+        val SPORTS_METADATA_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_metadata_source_instance_id")
         val LIVE_TV_CHANNEL_MODE = stringPreferencesKey("live_tv_channel_mode")
         val LIVE_TV_AUTO_HIDE_CATEGORIES = booleanPreferencesKey("live_tv_auto_hide_categories")
         val SHOW_LIVE_SOURCE_SWITCHER = booleanPreferencesKey("show_live_source_switcher")
@@ -2369,6 +2511,67 @@ class PreferencesRepository @Inject constructor(
             } else {
                 preferences[key] = channelIds.sorted().joinToString(",")
             }
+        }
+    }
+
+    suspend fun getSportsEventChannelPicks(
+        eventIds: Set<String>,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): Map<String, SportsEventChannelPick> {
+        if (eventIds.isEmpty()) return emptyMap()
+        val eventIdByKeyName = eventIds.associateBy(::sportsEventChannelPickKeyName)
+        val values = context.dataStore.data.first()
+        val picks = linkedMapOf<String, SportsEventChannelPick>()
+        val keysToRemove = mutableSetOf<String>()
+        values.asMap().forEach { (key, value) ->
+            if (!key.name.startsWith(SPORTS_EVENT_CHANNEL_PICK_PREFIX)) return@forEach
+            val encoded = value as? String
+            val pick = encoded?.split('|')?.takeIf { it.size == 3 }?.let { parts ->
+                val providerId = parts[0].toLongOrNull()
+                val channelId = parts[1].toLongOrNull()
+                val expiresAtMillis = parts[2].toLongOrNull()
+                if (providerId != null && channelId != null && expiresAtMillis != null) {
+                    SportsEventChannelPick(providerId, channelId, expiresAtMillis)
+                } else {
+                    null
+                }
+            }
+            if (pick == null || pick.expiresAtMillis <= nowMillis) {
+                keysToRemove += key.name
+                return@forEach
+            }
+            eventIdByKeyName[key.name]?.let { eventId -> picks[eventId] = pick }
+        }
+        if (keysToRemove.isNotEmpty()) {
+            context.dataStore.edit { preferences ->
+                keysToRemove.forEach { keyName ->
+                    preferences.remove(stringPreferencesKey(keyName))
+                }
+            }
+        }
+        return picks
+    }
+
+    suspend fun saveSportsEventChannelPick(
+        eventId: String,
+        providerId: Long,
+        channelId: Long,
+        expiresAtMillis: Long,
+    ) {
+        require(eventId.isNotBlank())
+        require(providerId > 0L)
+        require(channelId > 0L)
+        require(expiresAtMillis > 0L)
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(sportsEventChannelPickKeyName(eventId))] =
+                "$providerId|$channelId|$expiresAtMillis"
+        }
+    }
+
+    suspend fun forgetSportsEventChannelPick(eventId: String) {
+        if (eventId.isBlank()) return
+        context.dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey(sportsEventChannelPickKeyName(eventId)))
         }
     }
 

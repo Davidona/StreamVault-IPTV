@@ -287,4 +287,5 @@
     <string name="downloads_delete_confirm">Smazat toto stahování?</string>
     <string name="download_play_local">Přehrát</string>
     <!-- M2: Google Drive backup sync -->
+    <string name="nav_sports">Sport</string>
 </resources>

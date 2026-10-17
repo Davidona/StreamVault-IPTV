@@ -287,4 +287,5 @@
     <string name="downloads_empty">Ще немає завантажень</string>
     <string name="downloads_delete_confirm">Видалити це завантаження?</string>
     <string name="download_play_local">Відтворити</string>
+    <string name="nav_sports">Спорт</string>
 </resources>

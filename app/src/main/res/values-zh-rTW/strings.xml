@@ -309,4 +309,5 @@
     <string name="downloads_delete_confirm">刪除此下載？</string>
     <string name="download_play_local">播放</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">體育</string>
 </resources>

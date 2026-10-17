@@ -340,4 +340,5 @@
     <string name="downloads_delete_confirm">Odstrániť toto sťahovanie?</string>
     <string name="download_play_local">Prehrať</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">Šport</string>
 </resources>

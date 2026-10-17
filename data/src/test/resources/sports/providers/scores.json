@@ -1,0 +1,13 @@
+[
+  {
+    "id": "event-1",
+    "scores": [
+      { "name": "Club A", "value": "213/4" },
+      { "name": "Club B" }
+    ],
+    "status": "in_progress",
+    "clock": "12:30",
+    "period": "Innings 1",
+    "updatedAt": "2026-10-17T21:10:00+03:00"
+  }
+]

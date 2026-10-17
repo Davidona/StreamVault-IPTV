@@ -18,6 +18,25 @@ class ChannelNormalizerTest {
     }
 
     @Test
+    fun `tag detection preserves boundaries and case in names and stream URLs`() {
+        val embedded = ChannelNormalizer.classify("Shadow HDSports Englishman", 1L)
+        assertThat(embedded.canonicalName).isEqualTo("Shadow HDSports Englishman")
+        assertThat(embedded.attributes.declaredHeight).isNull()
+        assertThat(embedded.attributes.languageHint).isNull()
+
+        val decorated = ChannelNormalizer.classify("Téléfilm [FR] fHd HeVc", 1L, "https://example.test/LIVE.M3U8")
+        assertThat(decorated.canonicalName).isEqualTo("Téléfilm")
+        assertThat(decorated.attributes.declaredHeight).isEqualTo(1080)
+        assertThat(decorated.attributes.codecLabel).isEqualTo("HEVC")
+        assertThat(decorated.attributes.transportLabel).isEqualTo("HLS")
+
+        val url = ChannelNormalizer.classify("Cinema", 1L, "https://example.test/HEVC/2160p/channel.ts")
+        assertThat(url.attributes.declaredHeight).isEqualTo(2160)
+        assertThat(url.attributes.codecLabel).isEqualTo("HEVC")
+        assertThat(url.attributes.transportLabel).isEqualTo("MPEG-TS")
+    }
+
+    @Test
     fun `strips HD quality tag`() {
         val id = ChannelNormalizer.getLogicalGroupId("BBC One HD", 1L)
         assertThat(id).isEqualTo("1_bbcone")

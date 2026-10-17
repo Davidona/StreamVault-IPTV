@@ -254,7 +254,9 @@ public fun SettingsContentPane(
                                     onClick = { lastPage = destination; page = destination })
                     }
                 } else {
-                    if (page == SettingsPage.SOURCE_COMPATIBILITY) {
+                    if (page == SettingsPage.SPORTS_DATA_PROVIDERS) {
+                        item { SportsDataProviderSettingsPage() }
+                    } else if (page == SettingsPage.SOURCE_COMPATIBILITY) {
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 SwitchSettingsRow(stringResource(R.string.settings_xtream_text_classification),

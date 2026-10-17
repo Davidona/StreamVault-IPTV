@@ -15,6 +15,7 @@ internal object AppRoutePatterns {
     const val HOME = CatalogRoutePatterns.HOME
     const val LIVE_TV = LiveRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = LiveRoutePatterns.LIVE_TV_DESTINATION
+    const val SPORTS = LiveRoutePatterns.SPORTS
     const val MOVIES = CatalogRoutePatterns.MOVIES
     const val SERIES = CatalogRoutePatterns.SERIES
     const val VOD = CatalogRoutePatterns.VOD
@@ -41,6 +42,7 @@ internal object AppRouteCodec {
         is AppDestination.LiveTv -> destination.categoryId?.let { categoryId ->
             "${AppRoutePatterns.LIVE_TV}?categoryId=$categoryId"
         } ?: AppRoutePatterns.LIVE_TV
+        AppDestination.Sports -> AppRoutePatterns.SPORTS
         AppDestination.Movies -> AppRoutePatterns.MOVIES
         AppDestination.Series -> AppRoutePatterns.SERIES
         AppDestination.Vod -> AppRoutePatterns.VOD
@@ -94,6 +96,7 @@ internal object AppRouteCodec {
                     }
                 }
             }
+            path == AppRoutePatterns.SPORTS -> AppDestination.Sports
             path == AppRoutePatterns.MOVIES -> AppDestination.Movies
             path == AppRoutePatterns.SERIES -> AppDestination.Series
             path == AppRoutePatterns.VOD -> AppDestination.Vod
@@ -180,6 +183,7 @@ internal object Routes {
     const val HOME = AppRoutePatterns.HOME
     const val LIVE_TV = AppRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = AppRoutePatterns.LIVE_TV_DESTINATION
+    const val SPORTS = AppRoutePatterns.SPORTS
     const val MOVIES = AppRoutePatterns.MOVIES
     const val SERIES = AppRoutePatterns.SERIES
     const val VOD = AppRoutePatterns.VOD

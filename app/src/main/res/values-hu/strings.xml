@@ -287,4 +287,5 @@
     <string name="downloads_delete_confirm">Törli ezt a letöltést?</string>
     <string name="download_play_local">Lejátszás</string>
     <string name="nav_vod">VOD</string>
+    <string name="nav_sports">Sport</string>
 </resources>

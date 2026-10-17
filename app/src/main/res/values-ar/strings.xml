@@ -289,4 +289,5 @@
     <string name="downloads_empty">لا توجد تنزيلات بعد</string>
     <string name="downloads_delete_confirm">هل تريد حذف هذا التنزيل؟</string>
     <string name="download_play_local">تشغيل</string>
+    <string name="nav_sports">الرياضة</string>
 </resources>

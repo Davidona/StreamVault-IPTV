@@ -1,0 +1,25 @@
+
+10-16 22:15:03.311 D/SportsPerf(31610): stage=classification elapsedMs=5009 items=373 groups=28398
+10-16 22:15:03.394 D/SportsPerf(31610): stage=event-assembly elapsedMs=83 items=132 groups=373
+10-16 22:15:03.395 D/SportsPerf(31610): stage=window-cold elapsedMs=5779 items=132
+10-16 22:15:58.259 D/SportsPerf(31610): stage=resolved-programs elapsedMs=475 items=6404 groups=6404
+10-16 22:16:03.350 D/SportsPerf(31610): stage=classification elapsedMs=5091 items=368 groups=28398
+10-16 22:16:03.454 D/SportsPerf(31610): stage=event-assembly elapsedMs=102 items=133 groups=368
+10-16 22:16:03.455 D/SportsPerf(31610): stage=window-cold elapsedMs=5830 items=133
+10-16 22:16:58.322 D/SportsPerf(31610): stage=resolved-programs elapsedMs=492 items=6404 groups=6404
+10-16 22:17:03.125 D/SportsPerf(31610): stage=classification elapsedMs=4803 items=368 groups=28398
+10-16 22:17:03.226 D/SportsPerf(31610): stage=event-assembly elapsedMs=101 items=133 groups=368
+10-16 22:17:03.227 D/SportsPerf(31610): stage=window-cold elapsedMs=5548 items=133
+10-16 22:17:58.333 D/SportsPerf(31610): stage=resolved-programs elapsedMs=470 items=6404 groups=6404
+10-16 22:18:03.435 D/SportsPerf(31610): stage=classification elapsedMs=5101 items=368 groups=28398
+10-16 22:18:03.537 D/SportsPerf(31610): stage=event-assembly elapsedMs=102 items=133 groups=368
+10-16 22:18:03.538 D/SportsPerf(31610): stage=window-cold elapsedMs=5834 items=133
+10-16 22:18:58.400 D/SportsPerf(31610): stage=resolved-programs elapsedMs=473 items=6404 groups=6404
+10-16 22:19:03.248 D/SportsPerf(31610): stage=classification elapsedMs=4848 items=368 groups=28398
+10-16 22:19:03.322 D/SportsPerf(31610): stage=event-assembly elapsedMs=73 items=133 groups=368
+10-16 22:19:03.322 D/SportsPerf(31610): stage=window-cold elapsedMs=5564 items=133
+10-16 22:19:58.424 D/SportsPerf(31610): stage=resolved-programs elapsedMs=465 items=6404 groups=6404
+10-16 22:20:02.823 D/SportsPerf(31610): stage=classification elapsedMs=4398 items=368 groups=28398
+10-16 22:20:02.924 D/SportsPerf(31610): stage=event-assembly elapsedMs=101 items=133 groups=368
+10-16 22:20:02.927 D/SportsPerf(31610): stage=window-cold elapsedMs=5136 items=133
+
