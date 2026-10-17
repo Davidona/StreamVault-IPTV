@@ -937,4 +937,5 @@
     <string name="settings_sports_provider_beta">Beta · netestat cu un cont activ al furnizorului.</string>
     <string name="settings_sports_custom_definition_example_action">Inserează exemplu</string>
     <string name="settings_sports_custom_definition_placeholder">Lipește JSON-ul furnizorului</string>
+    <string name="settings_open_source_licenses">Licențe și notificări pentru software open-source</string>
 </resources>

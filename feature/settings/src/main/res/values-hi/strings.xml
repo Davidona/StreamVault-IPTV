@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">बीटा · प्रदाता के सक्रिय खाते से परीक्षण नहीं किया गया है।</string>
     <string name="settings_sports_custom_definition_example_action">उदाहरण डालें</string>
     <string name="settings_sports_custom_definition_placeholder">प्रदाता JSON पेस्ट करें</string>
+    <string name="settings_open_source_licenses">ओपन-सोर्स लाइसेंस और सूचनाएँ</string>
 </resources>

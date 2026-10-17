@@ -59,8 +59,36 @@ data class BackupData(
     /** v17 portable Stremio configuration; local Room row IDs are deliberately omitted. */
     val stremioAddons: List<StremioAddonBackup>? = null,
     /** v17 Stremio playback progress, keyed by stable content identity. */
-    val stremioPlaybackHistory: List<StremioPlaybackHistoryBackup>? = null
+    val stremioPlaybackHistory: List<StremioPlaybackHistoryBackup>? = null,
+    /** v18 sports provider configurations; account IDs remain stable for source preferences. */
+    val sportsProviders: List<SportsProviderBackup>? = null,
+    /** v18 sports API credentials, keyed by sports provider instance ID. */
+    val sportsProviderCredentials: List<SportsProviderCredentialsBackup>? = null
 )
+
+data class SportsProviderBackup(
+    val instanceId: String,
+    val typeId: String,
+    val configurationVersion: Int,
+    val enabled: Boolean,
+    val priority: Int,
+    val baseUrl: String? = null,
+    val eventLeagueIds: List<String> = emptyList(),
+    val customDefinitionJson: String? = null
+) {
+    override fun toString(): String =
+        "SportsProviderBackup(instanceId=$instanceId, typeId=$typeId, enabled=$enabled)"
+}
+
+/** Credentials are carried separately from provider configuration and redact diagnostic output. */
+data class SportsProviderCredentialsBackup(
+    val instanceId: String,
+    val secret: String,
+    val username: String? = null
+) {
+    override fun toString(): String =
+        "SportsProviderCredentialsBackup(instanceId=$instanceId, credentials=[REDACTED])"
+}
 
 data class StremioAddonBackup(
     val installUrl: String,

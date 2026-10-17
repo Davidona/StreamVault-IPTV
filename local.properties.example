@@ -8,18 +8,19 @@
 #   $ cp local.properties.example local.properties
 #
 # Values declared here are read at build time by `app/build.gradle.kts` and
-# injected into `BuildConfig.*` fields, but ONLY for the `debug` build type.
-# Release builds inherit empty defaults from `defaultConfig`, so a release
-# APK can never ship a contributor's credentials regardless of what your
-# `local.properties` contains.
+# injected into `BuildConfig.*` fields for the `debug` build type only. The
+# OpenSubtitles key can also be provided through the `OPENSUBTITLES_API_KEY`
+# environment variable for beta/release CI builds. Release builds do not read
+# values from this local file.
 #
 # See `docs/DEV_SEEDING.md` for the full opt-in onboarding flow.
 # -----------------------------------------------------------------------------
 
-# --- OpenSubtitles API application key (debug builds only) --------------------
+# --- OpenSubtitles API application key (local debug builds) -------------------
 # Get a key from OpenSubtitles, then add it to your ignored `local.properties`:
 # opensubtitles.api.key=your-opensubtitles-api-key
-# Rebuild the app after changing this value.
+# Rebuild the app after changing this value. CI beta/release builds receive the
+# same app key from the GitHub Actions secret OPENSUBTITLES_API_KEY.
 
 # === Trakt app configuration (public client settings) =========================
 # Environment TRAKT_CLIENT_ID / TRAKT_REDIRECT_URI take precedence.

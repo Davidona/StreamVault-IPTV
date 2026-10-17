@@ -13,6 +13,10 @@ internal object PreferenceBackupRegistry {
         "last_active_provider_id", "active_live_source_type", "active_live_source_id",
         "default_view_mode", "parental_control_level", "parental_pin_hash", "parental_pin_salt",
         "default_category_id", "app_language", "app_landing_destination", "app_top_level_destinations",
+        "sports_event_source_mode", "sports_event_source_instance_id",
+        "sports_score_source_mode", "sports_score_source_instance_id",
+        "sports_standings_source_mode", "sports_standings_source_instance_id",
+        "sports_metadata_source_mode", "sports_metadata_source_instance_id",
         "app_home_dashboard_shelves", "app_time_format", "app_theme", "live_tv_channel_mode", "live_tv_auto_hide_categories",
         "show_live_source_switcher", "show_favorites_category", "show_all_channels_category",
         "show_recent_channels_category", "live_tv_category_filters", "live_tv_quick_filter_visibility",
@@ -54,10 +58,6 @@ internal object PreferenceBackupRegistry {
     )
     private val deviceBoundStorageKeys = setOf(
         "download_tree_uri",
-        "sports_event_source_mode", "sports_event_source_instance_id",
-        "sports_score_source_mode", "sports_score_source_instance_id",
-        "sports_standings_source_mode", "sports_standings_source_instance_id",
-        "sports_metadata_source_mode", "sports_metadata_source_instance_id",
     )
     private val runtimeStorageKeys = setOf(
         "parental_v2_migrated", "parental_pin", "live_variant_observations", "vod_variant_observations",
@@ -105,6 +105,10 @@ internal object PreferenceBackupRegistry {
     private val globalKeys = setOf(
         "automaticSyncDefaults", "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat", "appTheme",
         "defaultViewMode", "appLandingDestination", "appTopLevelDestinations", "appHomeDashboardShelves",
+        "sportsEventSourceMode", "sportsEventSourceInstanceId",
+        "sportsScoreSourceMode", "sportsScoreSourceInstanceId",
+        "sportsStandingsSourceMode", "sportsStandingsSourceInstanceId",
+        "sportsMetadataSourceMode", "sportsMetadataSourceInstanceId",
         "remoteShortcutPreferences", "liveTvCategoryFilters", "liveTvQuickFilterVisibility", "liveTvChannelMode",
         "liveTvAutoHideCategories",
         "showLiveSourceSwitcher", "showFavoritesCategory", "showAllChannelsCategory", "showRecentChannelsCategory",

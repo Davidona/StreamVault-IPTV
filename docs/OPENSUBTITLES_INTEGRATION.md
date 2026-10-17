@@ -22,13 +22,15 @@ Online search is hidden for live TV and catch-up. Search uses the movie or serie
 
 ## API key
 
-Add this line to the root `local.properties` file (already gitignored), then rebuild a debug build:
+For a local debug build, add this line to the root `local.properties` file (already gitignored), then rebuild:
 
 ```properties
 opensubtitles.api.key=YOUR_OPENSUBTITLES_API_KEY
 ```
 
-The key is injected into debug builds only; release variants currently have an empty key. The app can still compile without a key, but OpenSubtitles requests return setup guidance and the online subtitle feature cannot work. The key is required even when no user is signed in. It is packaged into the app binary and can be extracted from an APK, so this local setup prevents Git exposure but does not make the key secret from app users. Account passwords and bearer tokens remain encrypted locally.
+For GitHub Actions, add the repository Actions secret `OPENSUBTITLES_API_KEY`. The beta and release workflows pass it to Gradle when assembling their APKs, so both variants can use online subtitles. Local `local.properties` values remain debug-only. Builds without the key still compile, but OpenSubtitles requests return setup guidance and online subtitle search cannot work. The key is required even when no user is signed in.
+
+The key is packaged into the app binary and can be extracted from an APK. A GitHub Actions secret keeps it out of the repository and workflow source, but cannot hide it from people who receive the APK. Keep it in Actions Secrets and rotate it if exposed; protecting it from APK users would require routing API requests through a server. Account passwords and bearer tokens remain encrypted locally.
 
 ## Validation
 

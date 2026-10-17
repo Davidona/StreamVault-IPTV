@@ -940,4 +940,5 @@
     <string name="settings_sports_provider_beta">Beta · nie testowano z aktywnym kontem dostawcy.</string>
     <string name="settings_sports_custom_definition_example_action">Wstaw przykład</string>
     <string name="settings_sports_custom_definition_placeholder">Wklej JSON dostawcy</string>
+    <string name="settings_open_source_licenses">Licencje i informacje o oprogramowaniu open source</string>
 </resources>

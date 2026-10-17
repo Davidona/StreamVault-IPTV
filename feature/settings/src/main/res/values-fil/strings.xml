@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">Beta · hindi pa nasubukan gamit ang aktibong account ng provider.</string>
     <string name="settings_sports_custom_definition_example_action">Maglagay ng halimbawa</string>
     <string name="settings_sports_custom_definition_placeholder">I-paste ang JSON ng provider</string>
+    <string name="settings_open_source_licenses">Mga lisensya at abiso ng open source</string>
 </resources>

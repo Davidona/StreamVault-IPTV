@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">Бета · не е тестирано со активна сметка на провајдерот.</string>
     <string name="settings_sports_custom_definition_example_action">Вметни пример</string>
     <string name="settings_sports_custom_definition_placeholder">Залепете JSON од провајдерот</string>
+    <string name="settings_open_source_licenses">Лиценци и известувања за софтвер со отворен код</string>
 </resources>

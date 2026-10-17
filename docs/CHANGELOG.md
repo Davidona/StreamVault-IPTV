@@ -6,6 +6,8 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added a Sports tab populated with events from the EPG.
+  - Added support for built-in and custom sports API providers in Sports settings.
 - Added a localized security warning to QR phone pairing that explains provider credentials are sent unencrypted over the local network.
 - Clarified Extensions navigation and plugin installation actions, added Stremio onboarding, and replaced its blanket parental gate with an independent Hide Stremio Add-ons option under Privacy (off by default).
 - Added native Stremio add-on support with manifest URL installation, catalog browsing, cross-addon metadata/stream/subtitle resolution, direct and debrid HTTP(S) playback, resume history, and downloads for offline playback managed from the Downloads tab. Plugins and Stremio Add-ons are grouped under the Extensions navigation item.

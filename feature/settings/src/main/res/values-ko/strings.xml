@@ -930,4 +930,5 @@
     <string name="settings_sports_provider_beta">베타 · 실제 제공업체 계정으로 테스트되지 않았습니다.</string>
     <string name="settings_sports_custom_definition_example_action">예시 삽입</string>
     <string name="settings_sports_custom_definition_placeholder">제공업체 JSON 붙여넣기</string>
+    <string name="settings_open_source_licenses">오픈 소스 라이선스 및 고지</string>
 </resources>

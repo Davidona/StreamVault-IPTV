@@ -934,4 +934,5 @@
     <string name="settings_sports_provider_beta">Beta · belum diuji dengan akun penyedia yang aktif.</string>
     <string name="settings_sports_custom_definition_example_action">Sisipkan contoh</string>
     <string name="settings_sports_custom_definition_placeholder">Tempel JSON penyedia</string>
+    <string name="settings_open_source_licenses">Lisensi dan pemberitahuan sumber terbuka</string>
 </resources>

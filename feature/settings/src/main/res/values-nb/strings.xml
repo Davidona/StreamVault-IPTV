@@ -934,4 +934,5 @@
     <string name="settings_sports_provider_beta">Beta · ikke testet med en aktiv leverandørkonto.</string>
     <string name="settings_sports_custom_definition_example_action">Sett inn eksempel</string>
     <string name="settings_sports_custom_definition_placeholder">Lim inn leverandørens JSON</string>
+    <string name="settings_open_source_licenses">Lisenser og merknader for åpen kildekode</string>
 </resources>

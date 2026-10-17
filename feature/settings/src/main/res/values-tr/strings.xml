@@ -934,4 +934,5 @@
     <string name="settings_sports_provider_beta">Beta · sağlayıcının etkin bir hesabıyla test edilmedi.</string>
     <string name="settings_sports_custom_definition_example_action">Örneği ekle</string>
     <string name="settings_sports_custom_definition_placeholder">Sağlayıcı JSON verisini yapıştırın</string>
+    <string name="settings_open_source_licenses">Açık kaynak lisansları ve bildirimleri</string>
 </resources>

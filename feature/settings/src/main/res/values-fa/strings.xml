@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">بتا · با حساب فعال ارائه‌دهنده آزمایش نشده است.</string>
     <string name="settings_sports_custom_definition_example_action">درج نمونه</string>
     <string name="settings_sports_custom_definition_placeholder">JSON ارائه‌دهنده را جای‌گذاری کنید</string>
+    <string name="settings_open_source_licenses">مجوزها و اطلاعیه‌های نرم‌افزار متن‌باز</string>
 </resources>

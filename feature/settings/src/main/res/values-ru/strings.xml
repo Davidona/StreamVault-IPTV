@@ -940,4 +940,5 @@
     <string name="settings_sports_provider_beta">Бета · не проверено с активной учетной записью провайдера.</string>
     <string name="settings_sports_custom_definition_example_action">Вставить пример</string>
     <string name="settings_sports_custom_definition_placeholder">Вставьте JSON провайдера</string>
+    <string name="settings_open_source_licenses">Лицензии и уведомления об открытом исходном коде</string>
 </resources>

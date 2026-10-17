@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">Beta · nuk është testuar me një llogari aktive të ofruesit.</string>
     <string name="settings_sports_custom_definition_example_action">Fut shembullin</string>
     <string name="settings_sports_custom_definition_placeholder">Ngjitni JSON-in e ofruesit</string>
+    <string name="settings_open_source_licenses">Licencat dhe njoftimet e burimit të hapur</string>
 </resources>

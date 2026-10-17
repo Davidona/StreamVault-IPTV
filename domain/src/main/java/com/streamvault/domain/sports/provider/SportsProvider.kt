@@ -150,7 +150,7 @@ data class SportsProviderHealth(
     }
 }
 
-/** Storage never participates in the general preferences export or cloud backup. */
+/** Provider configurations stay separate from preferences and use dedicated portable backup records. */
 interface SportsProviderStore {
     suspend fun configurations(): List<SportsProviderConfig>
     suspend fun credentials(instanceId: String): SportsProviderCredentials?

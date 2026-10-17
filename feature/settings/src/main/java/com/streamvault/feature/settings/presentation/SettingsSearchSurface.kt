@@ -346,6 +346,7 @@ private fun resolvedSettingsCatalog(
         setting("support.crash_share", SettingsCategory.ABOUT, SettingsPage.REPORTS, R.string.settings_crash_report_share),
         setting("support.crash_delete", SettingsCategory.ABOUT, SettingsPage.REPORTS, R.string.settings_crash_report_delete),
         setting("about.github", SettingsCategory.ABOUT, SettingsPage.APP_INFO, R.string.settings_github, "source code"),
+        setting("about.open_source_licenses", SettingsCategory.ABOUT, SettingsPage.APP_INFO, R.string.settings_open_source_licenses, "license notices", "third-party"),
         setting("about.donate", SettingsCategory.ABOUT, SettingsPage.APP_INFO, R.string.settings_donate, "support"),
         setting("about.close_app", SettingsCategory.ABOUT, SettingsPage.APP_INFO, R.string.settings_close_app, "exit"),
     )

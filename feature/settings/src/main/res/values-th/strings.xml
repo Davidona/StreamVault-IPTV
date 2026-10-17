@@ -929,4 +929,5 @@
     <string name="settings_sports_provider_beta">เบต้า · ยังไม่ได้ทดสอบด้วยบัญชีผู้ให้บริการที่ใช้งานจริง</string>
     <string name="settings_sports_custom_definition_example_action">แทรกตัวอย่าง</string>
     <string name="settings_sports_custom_definition_placeholder">วาง JSON ของผู้ให้บริการ</string>
+    <string name="settings_open_source_licenses">ใบอนุญาตและประกาศเกี่ยวกับซอฟต์แวร์โอเพนซอร์ส</string>
 </resources>

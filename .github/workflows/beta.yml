@@ -79,6 +79,8 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build beta APK
+        env:
+          OPENSUBTITLES_API_KEY: ${{ secrets.OPENSUBTITLES_API_KEY }}
         run: ./gradlew --console=plain :app:assembleBeta
 
       - name: Prepare beta artifact

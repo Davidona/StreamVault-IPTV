@@ -937,4 +937,5 @@
     <string name="settings_sports_provider_beta">בטא · לא נבדק עם חשבון פעיל של הספק.</string>
     <string name="settings_sports_custom_definition_example_action">הוספת דוגמה</string>
     <string name="settings_sports_custom_definition_placeholder">הדביקו JSON של ספק</string>
+    <string name="settings_open_source_licenses">רישיונות והודעות של קוד פתוח</string>
 </resources>

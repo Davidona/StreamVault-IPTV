@@ -45,6 +45,7 @@ fun localProp(key: String): String =
 // Public app configuration; OAuth user credentials are never build inputs.
 val traktClientId = providers.environmentVariable("TRAKT_CLIENT_ID").orNull ?: localProp("trakt.client.id")
 val traktRedirectUri = providers.environmentVariable("TRAKT_REDIRECT_URI").orNull ?: localProp("trakt.redirect.uri")
+val opensubtitlesApiKey = providers.environmentVariable("OPENSUBTITLES_API_KEY").orNull
 val traktCallback = runCatching { URI(traktRedirectUri) }.getOrNull()
 fun buildStringLiteral(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
@@ -78,8 +79,8 @@ android {
         applicationId = "com.streamvault.app"
         minSdk = 25
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.0.19"
+        versionCode = 22
+        versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "TRAKT_CLIENT_ID", buildStringLiteral(traktClientId))
         buildConfigField("String", "TRAKT_REDIRECT_URI", buildStringLiteral(traktRedirectUri))
@@ -90,7 +91,7 @@ android {
         }
         buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.app\"")
         buildConfigField("String", "OFFICIAL_SIGNING_CERT_SHA256", "\"$officialSigningCertSha256\"")
-        buildConfigField("String", "OPENSUBTITLES_API_KEY", "\"\"")
+        buildConfigField("String", "OPENSUBTITLES_API_KEY", buildStringLiteral(opensubtitlesApiKey.orEmpty()))
         buildConfigField("String", "APP_UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("long", "BUILD_TIMESTAMP_UTC", "0L")
         ndk {
@@ -135,7 +136,7 @@ android {
             buildConfigField(
                 "String",
                 "OPENSUBTITLES_API_KEY",
-                "\"${localProp("opensubtitles.api.key").replace("\\", "\\\\").replace("\"", "\\\"")}\""
+                buildStringLiteral(opensubtitlesApiKey ?: localProp("opensubtitles.api.key"))
             )
         }
         create("beta") {

@@ -934,4 +934,5 @@
     <string name="settings_sports_provider_beta">Beta · δεν έχει δοκιμαστεί με ενεργό λογαριασμό παρόχου.</string>
     <string name="settings_sports_custom_definition_example_action">Εισαγωγή παραδείγματος</string>
     <string name="settings_sports_custom_definition_placeholder">Επικολλήστε το JSON του παρόχου</string>
+    <string name="settings_open_source_licenses">Άδειες και γνωστοποιήσεις λογισμικού ανοικτού κώδικα</string>
 </resources>

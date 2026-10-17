@@ -28,6 +28,9 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.domain.manager.DriveAuthState
 
+private const val OPEN_SOURCE_LICENSES_URL =
+    "https://github.com/Davidona/StreamVault-IPTV/blob/master/docs/THIRD-PARTY-LICENSES.md"
+
 public fun LazyListScope.settingsBackupSection(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
@@ -564,6 +567,12 @@ public fun LazyListScope.settingsAboutSection(
                 onClick = { onOpenUri(context.getString(R.string.settings_github_url)) }
             ,
                 modifier = if (targetItemId == "about.github") targetFocusModifier else Modifier,)
+            ClickableSettingsRow(
+                label = stringResource(R.string.settings_open_source_licenses),
+                value = "",
+                onClick = { onOpenUri(OPEN_SOURCE_LICENSES_URL) },
+                modifier = if (targetItemId == "about.open_source_licenses") targetFocusModifier else Modifier,
+            )
             ClickableSettingsRow(
                 label = stringResource(R.string.settings_donate),
                 value = stringResource(R.string.settings_donate_url),

@@ -932,4 +932,5 @@
     <string name="settings_sports_provider_beta">ベータ版・プロバイダーの有効なアカウントでは未テストです。</string>
     <string name="settings_sports_custom_definition_example_action">例を挿入</string>
     <string name="settings_sports_custom_definition_placeholder">プロバイダーのJSONを貼り付け</string>
+    <string name="settings_open_source_licenses">オープンソースライセンスと通知</string>
 </resources>

@@ -120,6 +120,8 @@ import com.streamvault.domain.manager.PortableVirtualGroupReference
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.manager.ScheduledRecordingBackup
 import com.streamvault.domain.manager.ProviderCredentials
+import com.streamvault.domain.manager.SportsProviderBackup
+import com.streamvault.domain.manager.SportsProviderCredentialsBackup
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.ActiveLiveSource
@@ -146,6 +148,17 @@ import com.streamvault.domain.model.StalkerProfileVerification
 import com.streamvault.domain.model.StalkerProtocolFamily
 import com.streamvault.domain.model.StalkerProtocolPreference
 import com.streamvault.domain.model.StalkerTransportMode
+import com.streamvault.domain.sports.provider.SportsEventSourceMode
+import com.streamvault.domain.sports.provider.SportsEventSourcePreference
+import com.streamvault.domain.sports.provider.SportsScoreSourceMode
+import com.streamvault.domain.sports.provider.SportsScoreSourcePreference
+import com.streamvault.domain.sports.provider.SportsStandingsSourceMode
+import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
+import com.streamvault.domain.sports.provider.SportsMetadataSourceMode
+import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
+import com.streamvault.domain.sports.provider.SportsProviderConfig
+import com.streamvault.domain.sports.provider.SportsProviderCredentials
+import com.streamvault.domain.sports.provider.SportsProviderStore
 import com.streamvault.data.remote.stremio.StremioAddonUrl
 import com.streamvault.domain.repository.CategoryRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -211,7 +224,8 @@ class BackupManagerImpl @Inject constructor(
     private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null,
     private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao? = null,
     private val stremioAddonDao: StremioAddonDao? = null,
-    private val stremioPlaybackHistoryDao: StremioPlaybackHistoryDao? = null
+    private val stremioPlaybackHistoryDao: StremioPlaybackHistoryDao? = null,
+    private val sportsProviderStore: SportsProviderStore? = null
 ) : BackupManager {
 
     internal suspend fun automaticSyncPreferenceBackup(providerEntities: List<ProviderEntity>): Map<String, String> {
@@ -229,6 +243,17 @@ class BackupManagerImpl @Inject constructor(
         try {
             val parentalPinBackup = preferencesRepository.exportParentalPinBackup()
             val providerEntities = providerDao.getAll().first()
+            val sportsStore = sportsProviderStore
+            val sportsProviderConfigs = sportsStore?.configurations()
+            val sportsProviderCredentials = sportsProviderConfigs.orEmpty().mapNotNull { config ->
+                sportsStore?.credentials(config.instanceId)?.let { credentials ->
+                    SportsProviderCredentialsBackup(
+                        instanceId = config.instanceId,
+                        secret = credentials.secret,
+                        username = credentials.username
+                    )
+                }
+            }
             
             // 1. Gather Data
             val prefs = buildMap<String, String> {
@@ -245,6 +270,7 @@ class BackupManagerImpl @Inject constructor(
                     "appTopLevelDestinations",
                     preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue }
                 )
+                putAll(sportsSourcePreferenceBackup())
                 put(
                     "appHomeDashboardShelves",
                     preferencesRepository.appHomeDashboardShelves.first().joinToString(",") { it.storageValue }
@@ -843,6 +869,8 @@ class BackupManagerImpl @Inject constructor(
                 portableProviderPreferences = portableProviderPreferences,
                 recordingStorage = recordingStorage,
                 providerCredentials = providerCredentials.takeIf { it.isNotEmpty() },
+                sportsProviders = sportsProviderConfigs?.map(SportsProviderConfig::toBackup),
+                sportsProviderCredentials = sportsProviderCredentials.takeIf { it.isNotEmpty() },
                 epgSources = epgSourceDao?.getAllSync()?.map { it.toDomain() },
                 providerEpgAssignments = providerEpgAssignments,
                 manualEpgMappings = null,
@@ -932,6 +960,9 @@ class BackupManagerImpl @Inject constructor(
             val existingStremioHistoryKeys = stremioPlaybackHistoryDao?.getAll()
                 ?.mapTo(hashSetOf()) { it.contentKey }
                 .orEmpty()
+            val existingSportsProviderIds = sportsProviderStore?.configurations()
+                ?.mapTo(hashSetOf()) { it.instanceId }
+                .orEmpty()
             val existingProtectedCategories = existingProviders.flatMap { provider ->
                 categoryRepository.getCategories(provider.id).first()
                     .filter { it.isUserProtected }
@@ -992,6 +1023,9 @@ class BackupManagerImpl @Inject constructor(
                 }
             }
             val providerConflicts = backupData.providers.orEmpty().count { it.backupIdentity() in providersByIdentity }
+            val sportsProviderConflicts = backupData.sportsProviders.orEmpty().count {
+                it.instanceId in existingSportsProviderIds
+            }
             val groupConflicts = if (backupData.portableCustomGroups != null) {
                 backupData.portableCustomGroups.orEmpty().count { group ->
                     val targetProviderId = existingProviders.findUnambiguousPortableProvider(group.provider)?.id
@@ -1067,7 +1101,7 @@ class BackupManagerImpl @Inject constructor(
             Result.success(
                 BackupPreview(
                     version = backupData.version,
-                    providerCount = backupData.providers.orEmpty().size,
+                    providerCount = backupData.providers.orEmpty().size + backupData.sportsProviders.orEmpty().size,
                     favoriteCount = if (
                         backupData.portableFavorites != null || backupData.portableCustomGroups != null
                     ) {
@@ -1087,7 +1121,7 @@ class BackupManagerImpl @Inject constructor(
                     preferenceCount = backupData.preferences.orEmpty().size,
                     protectedCategoryCount = backupData.protectedCategories.orEmpty().size,
                     scheduledRecordingCount = backupData.scheduledRecordings.orEmpty().normalizedRecurringBackups().size,
-                    providerConflicts = providerConflicts,
+                    providerConflicts = providerConflicts + sportsProviderConflicts,
                     favoriteConflicts = favoriteConflicts,
                     groupConflicts = groupConflicts,
                     historyConflicts = historyConflicts + backupData.stremioPlaybackHistory.orEmpty().count {
@@ -1143,6 +1177,7 @@ class BackupManagerImpl @Inject constructor(
             val skippedSections = mutableListOf<String>()
             val failedSections = mutableListOf<String>()
             val unresolvedReferences = mutableListOf<String>()
+            var restoreSportsSourceReferences = plan.importProviders
 
             if (!checkpoint.roomComplete) {
                 val roomCheckpoint = checkpoint.copy(
@@ -1186,6 +1221,26 @@ class BackupManagerImpl @Inject constructor(
                 skippedSections += skippedRoomSections(backupData, plan)
             }
 
+            if (backupData.sportsProviders != null) {
+                if (plan.importProviders) {
+                    try {
+                        restoreSportsProviders(
+                            providers = backupData.sportsProviders.orEmpty(),
+                            credentials = backupData.sportsProviderCredentials.orEmpty(),
+                            conflictStrategy = plan.conflictStrategy
+                        )
+                        importedSections += "Providers"
+                        skippedSections.remove("Providers")
+                    } catch (_: Exception) {
+                        restoreSportsSourceReferences = false
+                        failedSections += "Providers"
+                    }
+                } else {
+                    restoreSportsSourceReferences = false
+                    skippedSections += "Providers"
+                }
+            }
+
             if (plan.importPreferences) {
                 val preferences = backupData.preferences
                 val portablePreferences = backupData.portableProviderPreferences
@@ -1201,7 +1256,11 @@ class BackupManagerImpl @Inject constructor(
                             restoreCheckpointPreferenceSnapshot(snapshot)
                         }
                         preferences?.let {
-                            restorePreferences(it, skipProviderScopedReferences = portablePreferences != null)
+                            restorePreferences(
+                                it,
+                                skipProviderScopedReferences = portablePreferences != null,
+                                skipSportsProviderReferences = !restoreSportsSourceReferences
+                            )
                         }
                         val preferenceUnresolved = portablePreferences?.let { portable ->
                             restorePortableProviderPreferences(
@@ -1525,7 +1584,7 @@ class BackupManagerImpl @Inject constructor(
     }
 
     private fun importedRoomSections(backupData: BackupData, plan: BackupImportPlan): List<String> = buildList {
-        if (plan.importProviders && backupData.providers != null) add("Providers")
+        if (plan.importProviders && (backupData.providers != null || backupData.sportsProviders != null)) add("Providers")
         if (plan.importProviders && backupData.combinedM3uProfiles != null) add("Combined M3U Profiles")
         if (plan.importProviders && backupData.epgSources != null && epgSourceDao != null) add("EPG Sources")
         if (plan.importSavedLibrary) add("Saved Library")
@@ -1534,7 +1593,7 @@ class BackupManagerImpl @Inject constructor(
     }
 
     private fun skippedRoomSections(backupData: BackupData, plan: BackupImportPlan): List<String> = buildList {
-        if (!plan.importProviders || backupData.providers == null) add("Providers")
+        if (!plan.importProviders || (backupData.providers == null && backupData.sportsProviders == null)) add("Providers")
         if (!plan.importProviders || backupData.combinedM3uProfiles == null) add("Combined M3U Profiles")
         if (!plan.importProviders || backupData.epgSources == null || epgSourceDao == null) add("EPG Sources")
         if (!plan.importSavedLibrary) add("Saved Library")
@@ -1608,6 +1667,13 @@ class BackupManagerImpl @Inject constructor(
             writeNamedJsonField(jsonWriter, "providers", backupData.providers, PROVIDER_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "providerSnapshots", backupData.providerSnapshots, PROVIDER_SNAPSHOT_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "providerCredentials", backupData.providerCredentials, PROVIDER_CREDENTIALS_LIST_TYPE)
+            writeNamedJsonField(jsonWriter, "sportsProviders", backupData.sportsProviders, SPORTS_PROVIDER_BACKUP_LIST_TYPE)
+            writeNamedJsonField(
+                jsonWriter,
+                "sportsProviderCredentials",
+                backupData.sportsProviderCredentials,
+                SPORTS_PROVIDER_CREDENTIALS_BACKUP_LIST_TYPE
+            )
             writeNamedJsonField(jsonWriter, "favorites", backupData.favorites, FAVORITE_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "virtualGroups", backupData.virtualGroups, VIRTUAL_GROUP_LIST_TYPE)
             writeNamedJsonField(jsonWriter, "playbackHistory", backupData.playbackHistory, PLAYBACK_HISTORY_LIST_TYPE)
@@ -1804,6 +1870,8 @@ class BackupManagerImpl @Inject constructor(
         var providers: List<com.streamvault.domain.model.LegacyProvider>? = null
         var providerSnapshots: List<ProviderBackupSnapshot>? = null
         var providerCredentials: List<ProviderCredentials>? = null
+        var sportsProviders: List<SportsProviderBackup>? = null
+        var sportsProviderCredentials: List<SportsProviderCredentialsBackup>? = null
         var favorites: List<com.streamvault.domain.model.Favorite>? = null
         var virtualGroups: List<com.streamvault.domain.model.VirtualGroup>? = null
         var playbackHistory: List<com.streamvault.domain.model.PlaybackHistory>? = null
@@ -1869,6 +1937,14 @@ class BackupManagerImpl @Inject constructor(
                     readLimitedArray(reader, PROVIDER_SNAPSHOT_TYPE, MAX_PROVIDERS, "provider snapshots")
                 "providerCredentials" -> providerCredentials =
                     readLimitedArray(reader, PROVIDER_CREDENTIALS_TYPE, MAX_PROVIDERS, "provider credentials")
+                "sportsProviders" -> sportsProviders =
+                    readLimitedArray(reader, SPORTS_PROVIDER_BACKUP_TYPE, MAX_PROVIDERS, "providers")
+                "sportsProviderCredentials" -> sportsProviderCredentials = readLimitedArray(
+                    reader,
+                    SPORTS_PROVIDER_CREDENTIALS_BACKUP_TYPE,
+                    MAX_PROVIDERS,
+                    "provider credentials"
+                )
                 "favorites" -> favorites = readLimitedArray(reader, FAVORITE_TYPE, MAX_SECTION_ITEMS, "favorites")
                 "virtualGroups" -> virtualGroups =
                     readLimitedArray(reader, VIRTUAL_GROUP_TYPE, MAX_SECTION_ITEMS, "groups")
@@ -1983,6 +2059,8 @@ class BackupManagerImpl @Inject constructor(
             providers = providers,
             providerSnapshots = providerSnapshots,
             providerCredentials = providerCredentials,
+            sportsProviders = sportsProviders,
+            sportsProviderCredentials = sportsProviderCredentials,
             favorites = favorites,
             virtualGroups = virtualGroups,
             playbackHistory = playbackHistory,
@@ -2523,6 +2601,18 @@ class BackupManagerImpl @Inject constructor(
         require(data.providers.orEmpty().size <= MAX_PROVIDERS) { "Backup has too many providers" }
         require(data.providerSnapshots.orEmpty().size <= MAX_PROVIDERS) { "Backup has too many provider snapshots" }
         require(data.providerCredentials.orEmpty().size <= MAX_PROVIDERS) { "Backup has too many provider credentials" }
+        require(data.sportsProviders.orEmpty().size <= MAX_PROVIDERS) { "Backup has too many providers" }
+        require(data.sportsProviderCredentials.orEmpty().size <= MAX_PROVIDERS) {
+            "Backup has too many provider credentials"
+        }
+        val sportsProviderIds = data.sportsProviders.orEmpty().map { backup ->
+            backup.toSportsProviderConfig()
+            backup.instanceId
+        }
+        require(sportsProviderIds.distinct().size == sportsProviderIds.size)
+        val sportsCredentialIds = data.sportsProviderCredentials.orEmpty().map { it.instanceId }
+        require(sportsCredentialIds.distinct().size == sportsCredentialIds.size)
+        require(sportsCredentialIds.all { it in sportsProviderIds })
         data.providerSnapshots.orEmpty().forEach { it.configuration() }
         require(data.favorites.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too many favorites" }
         require(data.virtualGroups.orEmpty().size <= MAX_SECTION_ITEMS) { "Backup has too many groups" }
@@ -3389,6 +3479,8 @@ class BackupManagerImpl @Inject constructor(
             providers.isNullOrEmpty() &&
             providerSnapshots.isNullOrEmpty() &&
             providerCredentials.isNullOrEmpty() &&
+            sportsProviders.isNullOrEmpty() &&
+            sportsProviderCredentials.isNullOrEmpty() &&
             favorites.isNullOrEmpty() &&
             virtualGroups.isNullOrEmpty() &&
             playbackHistory.isNullOrEmpty() &&
@@ -3432,6 +3524,7 @@ class BackupManagerImpl @Inject constructor(
             put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
             put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
             put("appTopLevelDestinations", preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue })
+            putAll(sportsSourcePreferenceBackup())
             put("appHomeDashboardShelves", preferencesRepository.appHomeDashboardShelves.first().joinToString(",") { it.storageValue })
             put("remoteShortcutPreferences", gson.toJson(preferencesRepository.remoteShortcutPreferences.first()))
             put("liveTvCategoryFilters", preferencesRepository.liveTvCategoryFilters.first().joinToString("\n"))
@@ -3590,6 +3683,23 @@ class BackupManagerImpl @Inject constructor(
                 snapshot.keys.filterNot { it.startsWith("__restore_snapshot_") }.toSet()
             )
         }
+    }
+
+    private suspend fun sportsSourcePreferenceBackup(): Map<String, String> {
+        val events = preferencesRepository.eventSourcePreference.first()
+        val scores = preferencesRepository.scoreSourcePreference.first()
+        val standings = preferencesRepository.standingsSourcePreference.first()
+        val metadata = preferencesRepository.metadataSourcePreference.first()
+        return mapOf(
+            "sportsEventSourceMode" to events.mode.name,
+            "sportsEventSourceInstanceId" to events.providerInstanceId.orEmpty(),
+            "sportsScoreSourceMode" to scores.mode.name,
+            "sportsScoreSourceInstanceId" to scores.providerInstanceId.orEmpty(),
+            "sportsStandingsSourceMode" to standings.mode.name,
+            "sportsStandingsSourceInstanceId" to standings.providerInstanceId.orEmpty(),
+            "sportsMetadataSourceMode" to metadata.mode.name,
+            "sportsMetadataSourceInstanceId" to metadata.providerInstanceId.orEmpty()
+        )
     }
 
     private suspend fun restoreCheckpointPreferenceSnapshot(snapshot: Map<String, String>) {
@@ -4001,7 +4111,8 @@ class BackupManagerImpl @Inject constructor(
 
     private suspend fun restorePreferences(
         prefs: Map<String, String>,
-        skipProviderScopedReferences: Boolean = false
+        skipProviderScopedReferences: Boolean = false,
+        skipSportsProviderReferences: Boolean = false
     ) {
         prefs["automaticSyncDefaults"]?.let { encoded ->
             val settings = gson.fromJson(encoded, com.streamvault.domain.sync.AutomaticSyncSettings::class.java)
@@ -4053,6 +4164,7 @@ class BackupManagerImpl @Inject constructor(
                 preferencesRepository.setAppTopLevelDestinations(destinations)
             }
         }
+        if (!skipSportsProviderReferences) restoreSportsSourcePreferences(prefs)
         if (prefs.containsKey("appHomeDashboardShelves")) {
             val shelves = prefs["appHomeDashboardShelves"]
                 .orEmpty()
@@ -4413,6 +4525,100 @@ class BackupManagerImpl @Inject constructor(
                 }.toMap()
                 preferencesRepository.replacePreferredVodVariants(providerId, selections)
             }
+    }
+
+    private suspend fun restoreSportsSourcePreferences(prefs: Map<String, String>) {
+        val validId = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+        val eventMode: SportsEventSourceMode? = prefs["sportsEventSourceMode"]
+            ?.let { raw -> SportsEventSourceMode.entries.firstOrNull { it.name == raw } }
+        when (eventMode) {
+            SportsEventSourceMode.AUTOMATIC ->
+                preferencesRepository.setEventSourcePreference(SportsEventSourcePreference.AUTOMATIC)
+            SportsEventSourceMode.EPG ->
+                preferencesRepository.setEventSourcePreference(SportsEventSourcePreference.EPG)
+            SportsEventSourceMode.PROVIDER -> prefs["sportsEventSourceInstanceId"]
+                ?.takeIf(validId::matches)
+                ?.let { instanceId -> preferencesRepository.setEventSourcePreference(SportsEventSourcePreference.provider(instanceId)) }
+            null -> Unit
+        }
+
+        val scoreMode: SportsScoreSourceMode? = prefs["sportsScoreSourceMode"]
+            ?.let { raw -> SportsScoreSourceMode.entries.firstOrNull { it.name == raw } }
+        when (scoreMode) {
+            SportsScoreSourceMode.AUTOMATIC ->
+                preferencesRepository.setScoreSourcePreference(SportsScoreSourcePreference.AUTOMATIC)
+            SportsScoreSourceMode.OFF ->
+                preferencesRepository.setScoreSourcePreference(SportsScoreSourcePreference.OFF)
+            SportsScoreSourceMode.PROVIDER -> prefs["sportsScoreSourceInstanceId"]
+                ?.takeIf(validId::matches)
+                ?.let { instanceId -> preferencesRepository.setScoreSourcePreference(SportsScoreSourcePreference.provider(instanceId)) }
+            null -> Unit
+        }
+
+        val standingsMode: SportsStandingsSourceMode? = prefs["sportsStandingsSourceMode"]
+            ?.let { raw -> SportsStandingsSourceMode.entries.firstOrNull { it.name == raw } }
+        when (standingsMode) {
+            SportsStandingsSourceMode.AUTOMATIC ->
+                preferencesRepository.setStandingsSourcePreference(SportsStandingsSourcePreference.AUTOMATIC)
+            SportsStandingsSourceMode.OFF ->
+                preferencesRepository.setStandingsSourcePreference(SportsStandingsSourcePreference.OFF)
+            SportsStandingsSourceMode.PROVIDER -> prefs["sportsStandingsSourceInstanceId"]
+                ?.takeIf(validId::matches)
+                ?.let { instanceId -> preferencesRepository.setStandingsSourcePreference(SportsStandingsSourcePreference.provider(instanceId)) }
+            null -> Unit
+        }
+
+        val metadataMode: SportsMetadataSourceMode? = prefs["sportsMetadataSourceMode"]
+            ?.let { raw -> SportsMetadataSourceMode.entries.firstOrNull { it.name == raw } }
+        when (metadataMode) {
+            SportsMetadataSourceMode.AUTOMATIC ->
+                preferencesRepository.setMetadataSourcePreference(SportsMetadataSourcePreference.AUTOMATIC)
+            SportsMetadataSourceMode.OFF ->
+                preferencesRepository.setMetadataSourcePreference(SportsMetadataSourcePreference.OFF)
+            SportsMetadataSourceMode.PROVIDER -> prefs["sportsMetadataSourceInstanceId"]
+                ?.takeIf(validId::matches)
+                ?.let { instanceId -> preferencesRepository.setMetadataSourcePreference(SportsMetadataSourcePreference.provider(instanceId)) }
+            null -> Unit
+        }
+    }
+
+    private suspend fun restoreSportsProviders(
+        providers: List<SportsProviderBackup>,
+        credentials: List<SportsProviderCredentialsBackup>,
+        conflictStrategy: BackupConflictStrategy
+    ) {
+        val store = checkNotNull(sportsProviderStore)
+        val configsById = store.configurations().associateByTo(linkedMapOf()) { it.instanceId }
+        val credentialsById = credentials.associateBy { it.instanceId }
+        providers.forEach { backup ->
+            val imported = backup.toSportsProviderConfig()
+            val existing = configsById[imported.instanceId]
+            if (existing != null && conflictStrategy == BackupConflictStrategy.KEEP_EXISTING) {
+                return@forEach
+            }
+            val restoredCredentials = credentialsById[imported.instanceId]?.let { saved ->
+                SportsProviderCredentials(secret = saved.secret, username = saved.username)
+            }
+            val existingCredentials = existing?.let { store.credentials(it.instanceId) }
+            val credentialsChanged = when {
+                existingCredentials == null -> restoredCredentials != null
+                restoredCredentials == null -> true
+                else -> existingCredentials.secret != restoredCredentials.secret ||
+                    existingCredentials.username != restoredCredentials.username
+            }
+            if (existing != null && (existing.typeId != imported.typeId || restoredCredentials == null)) {
+                store.remove(imported.instanceId)
+            }
+            val cacheRevision = when {
+                existing == null -> 0L
+                existing.typeId != imported.typeId -> 0L
+                existing.toBackup() == backup && !credentialsChanged -> existing.cacheRevision
+                else -> Math.addExact(existing.cacheRevision, 1L)
+            }
+            val config = imported.copy(cacheRevision = cacheRevision)
+            store.save(config, restoredCredentials)
+            configsById[config.instanceId] = config
+        }
     }
 
     private suspend fun restoreRemoteShortcutPreferences(encoded: String) {
@@ -6174,6 +6380,28 @@ private fun com.streamvault.domain.model.LegacyProvider.toSecureEntityForBackup(
     credentialCrypto: CredentialCrypto
 ) = copy(password = credentialCrypto.encryptIfNeeded(password)).toEntity()
 
+private fun SportsProviderConfig.toBackup(): SportsProviderBackup = SportsProviderBackup(
+    instanceId = instanceId,
+    typeId = typeId,
+    configurationVersion = configurationVersion,
+    enabled = enabled,
+    priority = priority,
+    baseUrl = baseUrl,
+    eventLeagueIds = eventLeagueIds,
+    customDefinitionJson = customDefinitionJson
+)
+
+private fun SportsProviderBackup.toSportsProviderConfig(): SportsProviderConfig = SportsProviderConfig(
+    instanceId = instanceId,
+    typeId = typeId,
+    configurationVersion = configurationVersion,
+    enabled = enabled,
+    priority = priority,
+    baseUrl = baseUrl,
+    eventLeagueIds = eventLeagueIds,
+    customDefinitionJson = customDefinitionJson
+)
+
 private fun Provider.toBackupCredentials(): ProviderCredentials? {
     if (username.isBlank() || password.isBlank()) return null
     return ProviderCredentials(
@@ -6265,7 +6493,7 @@ private const val RESTORE_SNAPSHOT_PRESET_2 = "__restore_snapshot_preset_2"
 private const val RESTORE_SNAPSHOT_PRESET_3 = "__restore_snapshot_preset_3"
 private const val RESTORE_SNAPSHOT_CHANNEL_PREFERENCES = "__restore_snapshot_channel_preferences"
 private const val RESTORE_SNAPSHOT_PLAYBACK_QUALITY_PREFERENCES = "__restore_snapshot_playback_quality_preferences"
-private const val CURRENT_BACKUP_VERSION = 17
+private const val CURRENT_BACKUP_VERSION = 18
 private const val RESTORE_SECTION_FAVORITES = "FAVORITES"
 private const val RESTORE_SECTION_CUSTOM_GROUPS = "CUSTOM_GROUPS"
 private const val RESTORE_SECTION_PLAYBACK_HISTORY = "PLAYBACK_HISTORY"
@@ -6290,6 +6518,8 @@ private val MAP_STRING_STRING_TYPE: Type = object : TypeToken<Map<String, String
 private val PROVIDER_TYPE: Type = com.streamvault.domain.model.LegacyProvider::class.java
 private val PROVIDER_SNAPSHOT_TYPE: Type = ProviderBackupSnapshot::class.java
 private val PROVIDER_CREDENTIALS_TYPE: Type = ProviderCredentials::class.java
+private val SPORTS_PROVIDER_BACKUP_TYPE: Type = SportsProviderBackup::class.java
+private val SPORTS_PROVIDER_CREDENTIALS_BACKUP_TYPE: Type = SportsProviderCredentialsBackup::class.java
 private val FAVORITE_TYPE: Type = com.streamvault.domain.model.Favorite::class.java
 private val VIRTUAL_GROUP_TYPE: Type = com.streamvault.domain.model.VirtualGroup::class.java
 private val PLAYBACK_HISTORY_TYPE: Type = com.streamvault.domain.model.PlaybackHistory::class.java
@@ -6314,6 +6544,9 @@ private val STRING_TYPE: Type = String::class.java
 private val PROVIDER_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.LegacyProvider>>() {}.type
 private val PROVIDER_SNAPSHOT_LIST_TYPE: Type = object : TypeToken<List<ProviderBackupSnapshot>>() {}.type
 private val PROVIDER_CREDENTIALS_LIST_TYPE: Type = object : TypeToken<List<ProviderCredentials>>() {}.type
+private val SPORTS_PROVIDER_BACKUP_LIST_TYPE: Type = object : TypeToken<List<SportsProviderBackup>>() {}.type
+private val SPORTS_PROVIDER_CREDENTIALS_BACKUP_LIST_TYPE: Type =
+    object : TypeToken<List<SportsProviderCredentialsBackup>>() {}.type
 private val EPG_SOURCE_TYPE: Type = com.streamvault.domain.model.EpgSource::class.java
 private val EPG_SOURCE_LIST_TYPE: Type =
     object : TypeToken<List<com.streamvault.domain.model.EpgSource>>() {}.type

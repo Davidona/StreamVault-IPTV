@@ -929,4 +929,5 @@
     <string name="settings_sports_provider_beta">Beta（測試版）· 尚未使用有效的提供者帳戶進行測試。</string>
     <string name="settings_sports_custom_definition_example_action">插入範例</string>
     <string name="settings_sports_custom_definition_placeholder">貼上提供者 JSON</string>
+    <string name="settings_open_source_licenses">開放原始碼授權與聲明</string>
 </resources>

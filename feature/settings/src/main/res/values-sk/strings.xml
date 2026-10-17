@@ -938,4 +938,5 @@
     <string name="settings_sports_provider_beta">Beta · nebolo testované s aktívnym účtom poskytovateľa.</string>
     <string name="settings_sports_custom_definition_example_action">Vložiť príklad</string>
     <string name="settings_sports_custom_definition_placeholder">Vložte JSON poskytovateľa</string>
+    <string name="settings_open_source_licenses">Licencie a oznámenia o otvorenom kóde</string>
 </resources>

@@ -934,4 +934,5 @@
     <string name="settings_sports_provider_beta">Béta · nem teszteltük élő szolgáltatói fiókkal.</string>
     <string name="settings_sports_custom_definition_example_action">Példa beszúrása</string>
     <string name="settings_sports_custom_definition_placeholder">Illeszd be a szolgáltató JSON-adatait</string>
+    <string name="settings_open_source_licenses">Nyílt forráskódú licencek és közlemények</string>
 </resources>

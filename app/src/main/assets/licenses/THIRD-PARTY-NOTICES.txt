@@ -1,0 +1,51 @@
+THIRD-PARTY SOFTWARE NOTICES
+
+This app includes third-party software. Each component remains under its own license; these terms are separate from the StreamVault project license.
+
+jcifs-ng 2.1.10
+License: GNU Lesser General Public License 2.1 or later.
+License text: jcifs-ng-LGPL-2.1.txt and GPL-2.0.txt.
+Corresponding source: https://github.com/AgNO3/jcifs-ng/tree/jcifs-ng-2.1.10
+
+Bouncy Castle Provider (bcprov-jdk18on) 1.76
+Dependency: jcifs-ng 2.1.10.
+License: Bouncy Castle License.
+License text: BouncyCastle-LICENSE.html.
+Corresponding source: https://github.com/bcgit/bc-java/tree/r1rv76
+
+SLF4J API 1.7.36
+Dependency: jcifs-ng 2.1.10.
+License: MIT.
+License text: SLF4J-MIT.txt.
+Corresponding source: https://github.com/qos-ch/slf4j/tree/v_1.7.36
+
+AndroidX Media3 libraries, including the FFmpeg decoder wrapper 1.11.0
+Copyright (C) 2016 The Android Open Source Project.
+License: Apache License 2.0.
+License text: Apache-2.0.txt.
+Corresponding source: https://github.com/androidx/media/tree/2bc207851df311340767e913931ca7b28cab1794/libraries/decoder_ffmpeg
+
+Other packaged app libraries, including non-Media3 AndroidX, Kotlin/Kotlinx, Dagger/Hilt, OkHttp/Retrofit, Gson, Coil, ZXing, and core-library desugaring
+License: Apache License 2.0.
+License text: Apache-2.0.txt.
+Versions are recorded in the app's Gradle catalog and module declarations.
+
+FFmpeg decoder libraries
+License target: GNU Lesser General Public License 2.1 or later, according to the recorded LGPL-compatible build configuration.
+License text: FFmpeg-LGPL-2.1.txt and GPL-2.0.txt.
+Corresponding source: https://github.com/FFmpeg/FFmpeg/tree/ba69be84a1ceabfb39127831ad8da0fd7cb471f3
+The Media3 decoder README at the source revision above describes building the FFmpeg libraries and decoder AAR. Build provenance is recorded at https://github.com/Davidona/StreamVault-IPTV/blob/master/player/libs/media3-decoder-ffmpeg-1.11.0.properties.
+
+libtorrent4j 2.0.6-26
+License: MIT.
+License text: libtorrent4j-MIT.txt.
+Corresponding source: https://github.com/aldenml/libtorrent4j/tree/v2.0.6-26
+
+libtorrent native library
+License: BSD-3-Clause.
+License and bundled component notices: libtorrent-BSD-3-Clause.txt.
+Corresponding source: https://github.com/arvidn/libtorrent/tree/ed88357b4cdf7ae9d4b35aa77e654afbe2b7b11c
+
+The libtorrent notice bundle includes an Apple route.h notice under the Apple Public Source License 2.0. The license text is provided as APSL-2.0.txt.
+
+The source for StreamVault is published at https://github.com/Davidona/StreamVault-IPTV. For detailed source references and rebuild notes, see https://github.com/Davidona/StreamVault-IPTV/blob/master/docs/THIRD-PARTY-LICENSES.md.

@@ -946,4 +946,5 @@
     <string name="settings_sports_provider_beta">بيتا · لم يُختبر باستخدام حساب فعلي للمزوّد.</string>
     <string name="settings_sports_custom_definition_example_action">إدراج مثال</string>
     <string name="settings_sports_custom_definition_placeholder">الصق JSON الخاص بالمزوّد</string>
+    <string name="settings_open_source_licenses">تراخيص وإشعارات البرامج مفتوحة المصدر</string>
 </resources>

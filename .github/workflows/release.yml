@@ -87,6 +87,8 @@ jobs:
         run: ./gradlew --console=plain :app:assembleDebugAndroidTest :data:assembleDebugAndroidTest
 
       - name: Build release APK
+        env:
+          OPENSUBTITLES_API_KEY: ${{ secrets.OPENSUBTITLES_API_KEY }}
         run: ./gradlew --console=plain :app:assembleRelease
 
       - name: Prepare release artifact
