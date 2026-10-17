@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">פרטי הקבוצה: %1$s</string>
     <string name="live_sports_league_metadata">פרטי הליגה: %1$s</string>
     <string name="live_sports_standings_season">עונה: %1$s</string>
+    <string name="live_sports_table_played">משחקים</string>
+    <string name="live_sports_table_won">ניצחונות</string>
+    <string name="live_sports_table_drawn">תיקו</string>
+    <string name="live_sports_table_lost">הפסדים</string>
+    <string name="live_sports_table_goals_for">שערי זכות</string>
+    <string name="live_sports_table_goals_against">שערי חובה</string>
+    <string name="live_sports_table_goal_difference">הפרש שערים</string>
+    <string name="live_sports_table_points">נקודות</string>
+    <string name="live_sports_football_data_attribution">נתוני כדורגל מסופקים על ידי %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

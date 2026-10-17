@@ -1,0 +1,9 @@
+{
+  "schedule": [
+    {"idEvent":"1","idLeague":"4328","strTimestamp":"2026-10-17T18:00:00Z","strStatus":"NS"},
+    {"idEvent":"2","idLeague":"4328","strTimestamp":"2026-10-17T18:00:00Z","strStatus":"HT"},
+    {"idEvent":"3","idLeague":"4328","strTimestamp":"2026-10-17T18:00:00Z","strStatus":"FT"},
+    {"idEvent":"4","idLeague":"4328","strTimestamp":"2026-10-17T18:00:00Z","strPostponed":"yes"},
+    {"idEvent":"5","idLeague":"4328","strTimestamp":"2026-10-17T18:00:00Z","strStatus":"CANC"}
+  ]
+}

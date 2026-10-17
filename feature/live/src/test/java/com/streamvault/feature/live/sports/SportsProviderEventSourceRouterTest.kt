@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.sports
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.sports.provider.EventProvider
 import com.streamvault.domain.sports.provider.ProviderBatch
@@ -23,7 +24,7 @@ class SportsProviderEventSourceRouterTest {
     @Test
     fun `EPG selection returns no event providers`() {
         val factory = TestFactory("events")
-        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
 
         val eligible = router.eligibleProviders(
             listOf(config("account", "events")),
@@ -37,7 +38,7 @@ class SportsProviderEventSourceRouterTest {
     fun `automatic filters capabilities and orders enabled event providers`() {
         val eventFactory = TestFactory("events", setOf(SportsCapability.EVENTS))
         val metadataFactory = TestFactory("metadata", setOf(SportsCapability.STANDINGS))
-        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(eventFactory, metadataFactory)))
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(eventFactory, metadataFactory), SportsProviderReleasePolicy(development = true)))
 
         val eligible = router.eligibleProviders(
             listOf(
@@ -67,7 +68,7 @@ class SportsProviderEventSourceRouterTest {
             }
             SportsProviderResult.Success(ProviderBatch(items))
         })
-        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(failureFactory, scopedFactory)))
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(failureFactory, scopedFactory), SportsProviderReleasePolicy(development = true)))
         val providers = router.eligibleProviders(
             listOf(
                 config("primary", "failure", priority = 0),
@@ -91,7 +92,7 @@ class SportsProviderEventSourceRouterTest {
         val other = TestFactory("other", eventResponse = { _, _ ->
             SportsProviderResult.Success(ProviderBatch(listOf(ProviderEvent("unexpected"))))
         })
-        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(selected, other)))
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(selected, other), SportsProviderReleasePolicy(development = true)))
         val providers = router.eligibleProviders(
             listOf(config("selected-account", "selected"), config("other-account", "other")),
             SportsEventSourcePreference.provider("selected-account"),

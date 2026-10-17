@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">팀 정보: %1$s</string>
     <string name="live_sports_league_metadata">리그 정보: %1$s</string>
     <string name="live_sports_standings_season">시즌: %1$s</string>
+    <string name="live_sports_table_played">경기</string>
+    <string name="live_sports_table_won">승</string>
+    <string name="live_sports_table_drawn">무</string>
+    <string name="live_sports_table_lost">패</string>
+    <string name="live_sports_table_goals_for">득점</string>
+    <string name="live_sports_table_goals_against">실점</string>
+    <string name="live_sports_table_goal_difference">득실차</string>
+    <string name="live_sports_table_points">승점</string>
+    <string name="live_sports_football_data_attribution">축구 데이터 제공: %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

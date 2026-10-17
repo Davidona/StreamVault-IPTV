@@ -865,6 +865,9 @@
     <string name="settings_sports_provider_credentials_required">Introduce el nombre de usuario y el secreto necesarios.</string>
     <string name="settings_sports_provider_invalid_input">Comprueba la URL y los datos obligatorios.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Nivel del plan: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Solicitudes restantes: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Clave API prémium</string>
     <string name="settings_sports_provider_secret">Clave de API, token o contraseña</string>
     <string name="settings_sports_provider_keep_credentials">Déjalo en blanco para conservar las credenciales guardadas.</string>
@@ -890,5 +893,16 @@
     <string name="settings_sports_metadata_source">Fuente de datos de equipos y ligas</string>
     <string name="settings_sports_provider_custom_json">Proveedor JSON personalizado</string>
     <string name="settings_sports_custom_definition">Configuración (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Introduce rutas de endpoints, modo de autenticación y selectores de campos JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Introduce arriba la URL base HTTPS de tu API. Inserta el ejemplo y sustituye las rutas de los endpoints y los campos JSON para que coincidan con la documentación de tu API. Escribe la clave o el token en el campo de credenciales.</string>
+    <string name="settings_sports_provider_attribution">Datos de %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Datos de fútbol proporcionados por %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligas y temporadas</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Formato: abreviatura:temporada, separado por comas. Ejemplo: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · no se ha probado con una cuenta activa del proveedor.</string>
+    <string name="settings_sports_custom_definition_example_action">Insertar ejemplo</string>
+    <string name="settings_sports_custom_definition_placeholder">Pega el JSON del proveedor</string>
 </resources>

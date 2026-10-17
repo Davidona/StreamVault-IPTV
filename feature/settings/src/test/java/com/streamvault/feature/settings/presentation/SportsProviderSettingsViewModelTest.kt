@@ -1,5 +1,6 @@
 package com.streamvault.feature.settings.presentation
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.sports.provider.SportsProvider
 import com.streamvault.domain.sports.provider.SportsProviderAuth
@@ -12,6 +13,8 @@ import com.streamvault.domain.sports.provider.SportsProviderFactory
 import com.streamvault.domain.sports.provider.SportsProviderRegistry
 import com.streamvault.domain.sports.provider.SportsProviderResult
 import com.streamvault.domain.sports.provider.SportsProviderStore
+import com.streamvault.domain.sports.provider.SportsProviderUsageProvider
+import com.streamvault.domain.sports.provider.SportsProviderUsageSnapshot
 import com.streamvault.domain.sports.provider.EventProvider
 import com.streamvault.domain.sports.provider.LiveScoreProvider
 import com.streamvault.domain.sports.provider.ProviderBatch
@@ -55,7 +58,7 @@ class SportsProviderSettingsViewModelTest {
             val factory = TestCustomProviderFactory()
             val viewModel = SportsProviderSettingsViewModel(
                 store,
-                SportsProviderRegistry(listOf(factory)),
+                SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)),
                 TestEventSourceSettings(),
                 TestScoreSourceSettings(),
                 TestStandingsSourceSettings(),
@@ -108,7 +111,7 @@ class SportsProviderSettingsViewModelTest {
             val standingsSourceSettings = TestStandingsSourceSettings()
             val metadataSourceSettings = TestMetadataSourceSettings()
             val viewModel = SportsProviderSettingsViewModel(
-                store, SportsProviderRegistry(listOf(factory)), TestEventSourceSettings(), scoreSourceSettings,
+                store, SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)), TestEventSourceSettings(), scoreSourceSettings,
                 standingsSourceSettings, metadataSourceSettings,
             )
             advanceUntilIdle()
@@ -141,13 +144,46 @@ class SportsProviderSettingsViewModelTest {
     }
 
     @Test
+    fun `refresh exposes provider usage snapshot without exposing credentials`() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            val store = TestProviderStore()
+            val factory = TestProviderFactory()
+            val viewModel = SportsProviderSettingsViewModel(
+                store, SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)),
+                TestEventSourceSettings(), TestScoreSourceSettings(), TestStandingsSourceSettings(),
+                TestMetadataSourceSettings(),
+            )
+            advanceUntilIdle()
+            viewModel.saveProvider(factory.descriptor, null, "", "", "premium-key")
+            advanceUntilIdle()
+            val saved = store.configurations().single()
+            viewModel.testConnection(saved)
+            advanceUntilIdle()
+            assertThat(viewModel.state.value.connectionStates[saved.instanceId])
+                .isEqualTo(SportsProviderConnectionState.SUCCESS)
+            assertThat(viewModel.state.value.usageSnapshots[saved.instanceId]?.requestsRemaining).isEqualTo(97)
+
+            viewModel.refresh()
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.usageSnapshots[saved.instanceId]).isEqualTo(
+                SportsProviderUsageSnapshot(requestLimit = 100, requestsRemaining = 97, planTier = "BASIC"),
+            )
+            assertThat(viewModel.state.value.usageSnapshots.toString()).doesNotContain("premium-key")
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test
     fun `draft connection test uses entered key without persisting it`() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         try {
             val store = TestProviderStore()
             val factory = TestProviderFactory()
             val viewModel = SportsProviderSettingsViewModel(
-                store, SportsProviderRegistry(listOf(factory)), TestEventSourceSettings(), TestScoreSourceSettings(),
+                store, SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)), TestEventSourceSettings(), TestScoreSourceSettings(),
                 TestStandingsSourceSettings(), TestMetadataSourceSettings(),
             )
             advanceUntilIdle()
@@ -172,7 +208,7 @@ class SportsProviderSettingsViewModelTest {
             val eventSourceSettings = TestEventSourceSettings()
             val viewModel = SportsProviderSettingsViewModel(
                 store,
-                SportsProviderRegistry(emptyList()),
+                SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)),
                 eventSourceSettings,
                 TestScoreSourceSettings(),
                 TestStandingsSourceSettings(),
@@ -202,7 +238,7 @@ class SportsProviderSettingsViewModelTest {
             val metadataSettings = TestMetadataSourceSettings()
             val viewModel = SportsProviderSettingsViewModel(
                 store,
-                SportsProviderRegistry(listOf(factory)),
+                SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)),
                 eventSettings,
                 scoreSettings,
                 standingsSettings,
@@ -303,9 +339,14 @@ class SportsProviderSettingsViewModelTest {
 
         override fun create(config: SportsProviderConfig): SportsProvider = object : SportsProvider,
             SportsProviderConnectionTester, EventProvider, LiveScoreProvider,
-            StandingsProvider, TeamMetadataProvider, LeagueMetadataProvider {
+            StandingsProvider, TeamMetadataProvider, LeagueMetadataProvider, SportsProviderUsageProvider {
             override val descriptor = this@TestProviderFactory.descriptor
             override val instanceId = config.instanceId
+
+            override fun usageSnapshot(credentials: SportsProviderCredentials?): SportsProviderUsageSnapshot? =
+                credentials?.let {
+                    SportsProviderUsageSnapshot(requestLimit = 100, requestsRemaining = 97, planTier = "BASIC")
+                }
 
             override suspend fun testConnection(credentials: SportsProviderCredentials?): SportsProviderResult<Unit> {
                 lastTestedCredentials = credentials

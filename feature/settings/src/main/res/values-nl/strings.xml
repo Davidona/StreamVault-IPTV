@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Voer de vereiste gebruikersnaam en geheime code in.</string>
     <string name="settings_sports_provider_invalid_input">Controleer de URL en de vereiste gegevens.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Abonnement: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Resterende verzoeken: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium API-sleutel</string>
     <string name="settings_sports_provider_secret">API-sleutel, token of wachtwoord</string>
     <string name="settings_sports_provider_keep_credentials">Laat leeg om de opgeslagen aanmeldgegevens te behouden.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Bron van team- en leaguegegevens</string>
     <string name="settings_sports_provider_custom_json">Aangepaste JSON-provider</string>
     <string name="settings_sports_custom_definition">Configuratie (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Voer endpointpaden, verificatiemodus en JSON-veldselectors in.</string>
+    <string name="settings_sports_custom_definition_hint">Voer hierboven de HTTPS-basis-URL van je API in. Voeg het voorbeeld in en vervang daarna de endpointpaden en JSON-velden volgens de API-documentatie. Vul de sleutel of het token in bij de aanmeldgegevens.</string>
+    <string name="settings_sports_provider_attribution">Gegevens van %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Voetbalgegevens geleverd door %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Competities en seizoenen</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Formaat: afkorting:seizoen, gescheiden door komma’s. Voorbeeld: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Bèta · niet getest met een actief account van de provider.</string>
+    <string name="settings_sports_custom_definition_example_action">Voorbeeld invoegen</string>
+    <string name="settings_sports_custom_definition_placeholder">Plak de JSON van de provider</string>
 </resources>

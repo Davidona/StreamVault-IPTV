@@ -1,0 +1,15 @@
+{
+  "data": [
+    {
+      "team": { "id": 6, "conference": "East", "division": "Central", "full_name": "Cleveland Cavaliers" },
+      "conference_record": "5-1",
+      "conference_rank": 1,
+      "division_record": "2-0",
+      "division_rank": 1,
+      "wins": 6,
+      "losses": 1,
+      "season": 2026
+    }
+  ],
+  "meta": { "next_cursor": null, "per_page": 100 }
+}

@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Anna vaadittu käyttäjätunnus ja salaisuus.</string>
     <string name="settings_sports_provider_invalid_input">Tarkista osoite ja vaaditut tiedot.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Tilaus: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Pyyntöjä jäljellä: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium API-avain</string>
     <string name="settings_sports_provider_secret">API-avain, tunniste tai salasana</string>
     <string name="settings_sports_provider_keep_credentials">Jätä tyhjäksi, jos haluat säilyttää tallennetut kirjautumistiedot.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Joukkue- ja liigatietojen lähde</string>
     <string name="settings_sports_provider_custom_json">Mukautettu JSON-palveluntarjoaja</string>
     <string name="settings_sports_custom_definition">Asetukset (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Anna päätepisteiden polut, todennustila ja JSON-kenttien valitsimet.</string>
+    <string name="settings_sports_custom_definition_hint">Anna API:n HTTPS-perusosoite yllä. Lisää esimerkki ja korvaa sitten päätepistepolut ja JSON-kentät API:n dokumentaation mukaisilla arvoilla. Lisää avain tai tunniste kirjautumistietokenttään.</string>
+    <string name="settings_sports_provider_attribution">Tiedot: %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Jalkapallotiedot tarjoaa %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Sarjat ja kaudet</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Muoto: lyhenne:kausi, pilkuilla eroteltuna. Esimerkki: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · ei testattu toimivalla palveluntarjoajan tilillä.</string>
+    <string name="settings_sports_custom_definition_example_action">Lisää esimerkki</string>
+    <string name="settings_sports_custom_definition_placeholder">Liitä palveluntarjoajan JSON</string>
 </resources>

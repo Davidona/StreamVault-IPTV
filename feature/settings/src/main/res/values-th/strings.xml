@@ -866,6 +866,9 @@
     <string name="settings_sports_provider_credentials_required">ป้อนชื่อผู้ใช้และรหัสลับที่จำเป็น</string>
     <string name="settings_sports_provider_invalid_input">ตรวจสอบ URL และรายละเอียดที่จำเป็น</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">แพ็กเกจ: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">คำขอที่เหลือ: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">คีย์ API พรีเมียม</string>
     <string name="settings_sports_provider_secret">คีย์ API โทเค็น หรือรหัสผ่าน</string>
     <string name="settings_sports_provider_keep_credentials">เว้นว่างไว้เพื่อเก็บข้อมูลเข้าสู่ระบบที่บันทึกไว้</string>
@@ -891,5 +894,16 @@
     <string name="settings_sports_metadata_source">แหล่งข้อมูลทีมและลีก</string>
     <string name="settings_sports_provider_custom_json">ผู้ให้บริการ JSON ที่กำหนดเอง</string>
     <string name="settings_sports_custom_definition">การกำหนดค่า (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">ป้อนเส้นทางปลายทาง โหมดการตรวจสอบสิทธิ์ และตัวเลือกฟิลด์ JSON</string>
+    <string name="settings_sports_custom_definition_hint">ป้อน HTTPS base URL ของ API ด้านบน แทรกตัวอย่าง แล้วแทนที่เส้นทาง endpoint และฟิลด์ JSON ให้ตรงกับเอกสาร API ป้อนคีย์หรือโทเค็นในช่องข้อมูลรับรอง</string>
+    <string name="settings_sports_provider_attribution">ข้อมูลจาก %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">ข้อมูลฟุตบอลจัดทำโดย %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">ลีกและฤดูกาล</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">รูปแบบ: คำย่อ:ฤดูกาล โดยคั่นด้วยจุลภาค ตัวอย่าง: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">เบต้า · ยังไม่ได้ทดสอบด้วยบัญชีผู้ให้บริการที่ใช้งานจริง</string>
+    <string name="settings_sports_custom_definition_example_action">แทรกตัวอย่าง</string>
+    <string name="settings_sports_custom_definition_placeholder">วาง JSON ของผู้ให้บริการ</string>
 </resources>

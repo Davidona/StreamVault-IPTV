@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Πληροφορίες ομάδας: %1$s</string>
     <string name="live_sports_league_metadata">Πληροφορίες πρωταθλήματος: %1$s</string>
     <string name="live_sports_standings_season">Σεζόν: %1$s</string>
+    <string name="live_sports_table_played">Αγώνες</string>
+    <string name="live_sports_table_won">Νίκες</string>
+    <string name="live_sports_table_drawn">Ισοπαλίες</string>
+    <string name="live_sports_table_lost">Ήττες</string>
+    <string name="live_sports_table_goals_for">Γκολ υπέρ</string>
+    <string name="live_sports_table_goals_against">Γκολ κατά</string>
+    <string name="live_sports_table_goal_difference">Διαφορά γκολ</string>
+    <string name="live_sports_table_points">Βαθμοί</string>
+    <string name="live_sports_football_data_attribution">Δεδομένα ποδοσφαίρου παρέχονται από το %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

@@ -87,6 +87,53 @@ class SportsProviderHttpClientTest {
         }
     }
 
+    @Test fun `allow-listed request quota headers are observed on success and failure`() = runTest {
+        val observed = mutableListOf<SportsProviderResponseMetadata>()
+        server.enqueue(MockResponse().setBody("{}").setHeader("x-ratelimit-requests-limit", "100")
+            .setHeader("x-ratelimit-requests-remaining", "97"))
+        val success = client.get(
+            server.url("/"), SportsProviderAuth.ApiKeyHeader("x-rapidapi-key"), credentials,
+            allowInsecureHttp = true,
+            onResponseMetadata = observed::add,
+        ) { it }
+        assertThat(success).isEqualTo(SportsProviderResult.Success("{}"))
+
+        server.enqueue(MockResponse().setResponseCode(429).setHeader("x-ratelimit-requests-remaining", "0")
+            .setBody("private-key"))
+        val limited = client.get(
+            server.url("/"), SportsProviderAuth.ApiKeyHeader("x-rapidapi-key"), credentials,
+            allowInsecureHttp = true,
+            onResponseMetadata = observed::add,
+        ) { it }
+        assertThat(limited).isEqualTo(SportsProviderResult.Failure(SportsProviderError.RATE_LIMITED, 429))
+        assertThat(observed).containsExactly(
+            SportsProviderResponseMetadata(requestLimit = 100, requestsRemaining = 97),
+            SportsProviderResponseMetadata(requestsRemaining = 0),
+        ).inOrder()
+        assertThat(observed.toString()).doesNotContain("private-key")
+    }
+
+    @Test fun `football data quota headers are normalized and reset seconds provide retry time`() = runTest {
+        val observed = mutableListOf<SportsProviderResponseMetadata>()
+        server.enqueue(MockResponse().setResponseCode(429)
+            .setHeader("X-RequestsAvailable", "0")
+            .setHeader("X-RequestCounter-Reset", "45")
+            .setBody("private-key"))
+
+        val result = client.get(
+            server.url("/"), SportsProviderAuth.ApiKeyHeader("X-Auth-Token"), credentials,
+            allowInsecureHttp = true,
+            onResponseMetadata = observed::add,
+        ) { it }
+
+        assertThat(result).isEqualTo(SportsProviderResult.Failure(
+            SportsProviderError.RATE_LIMITED, 429, now.plusSeconds(45),
+        ))
+        assertThat(observed).containsExactly(SportsProviderResponseMetadata(
+            requestsRemaining = 0, resetAfterSeconds = 45,
+        ))
+    }
+
     @Test fun `redirect cannot forward auth to another endpoint`() = runTest {
         val destination = MockWebServer()
         destination.start()

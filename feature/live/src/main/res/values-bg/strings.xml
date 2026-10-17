@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Данни за отбора: %1$s</string>
     <string name="live_sports_league_metadata">Данни за лигата: %1$s</string>
     <string name="live_sports_standings_season">Сезон: %1$s</string>
+    <string name="live_sports_table_played">Изиграни</string>
+    <string name="live_sports_table_won">Победи</string>
+    <string name="live_sports_table_drawn">Равенства</string>
+    <string name="live_sports_table_lost">Загуби</string>
+    <string name="live_sports_table_goals_for">Вкарани</string>
+    <string name="live_sports_table_goals_against">Допуснати</string>
+    <string name="live_sports_table_goal_difference">Голова разлика</string>
+    <string name="live_sports_table_points">Точки</string>
+    <string name="live_sports_football_data_attribution">Футболни данни, предоставени от %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

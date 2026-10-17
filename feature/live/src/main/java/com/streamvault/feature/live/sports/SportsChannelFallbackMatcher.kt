@@ -125,7 +125,10 @@ internal object SportsChannelFallbackMatcher {
     private const val MAX_AUTOMATIC_EVENT_MATCHES = 8
 
     private val matchOrder = Comparator<SportsChannelMatch> { first, second ->
-        second.score.compareTo(first.score)
+        (SportsChannelMatchReason.BROADCASTER in second.reasons)
+            .compareTo(SportsChannelMatchReason.BROADCASTER in first.reasons)
+            .takeIf { it != 0 }
+            ?: second.score.compareTo(first.score)
             .takeIf { it != 0 }
             ?: first.entry.channel.name.compareTo(second.entry.channel.name, ignoreCase = true)
                 .takeIf { it != 0 }
@@ -196,6 +199,7 @@ internal object SportsChannelFallbackMatcher {
         val leagueAliases = SportsLeagueRegistry.aliasesFor(event.league)
         val eventTokens = eventSpecificTokens(event, leagueAliases)
         val broadcasterNames = event.provenance.broadcasters?.value.orEmpty()
+            .filter { it.type != com.streamvault.domain.sports.provider.ProviderBroadcastType.RADIO }
             .map { broadcaster -> broadcaster.normalizedChannelName() }
             .filter(String::isNotBlank)
             .toSet()

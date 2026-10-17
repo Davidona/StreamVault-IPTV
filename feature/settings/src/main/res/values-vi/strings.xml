@@ -866,6 +866,9 @@
     <string name="settings_sports_provider_credentials_required">Nhập tên người dùng và mã bí mật bắt buộc.</string>
     <string name="settings_sports_provider_invalid_input">Kiểm tra URL và thông tin bắt buộc.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Gói: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Số yêu cầu còn lại: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Khóa API cao cấp</string>
     <string name="settings_sports_provider_secret">Khóa API, mã thông báo hoặc mật khẩu</string>
     <string name="settings_sports_provider_keep_credentials">Để trống để giữ thông tin đăng nhập đã lưu.</string>
@@ -891,5 +894,16 @@
     <string name="settings_sports_metadata_source">Nguồn dữ liệu đội và giải đấu</string>
     <string name="settings_sports_provider_custom_json">Nhà cung cấp JSON tùy chỉnh</string>
     <string name="settings_sports_custom_definition">Cấu hình (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Nhập đường dẫn endpoint, chế độ xác thực và bộ chọn trường JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Nhập HTTPS base URL của API ở trên. Chèn ví dụ, sau đó thay các đường dẫn endpoint và trường JSON theo tài liệu API của bạn. Nhập khóa hoặc token vào trường thông tin xác thực.</string>
+    <string name="settings_sports_provider_attribution">Dữ liệu từ %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Dữ liệu bóng đá do %1$s cung cấp</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Giải đấu và mùa giải</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Định dạng: mã viết tắt:mùa giải, phân tách bằng dấu phẩy. Ví dụ: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · chưa được kiểm thử bằng tài khoản nhà cung cấp đang hoạt động.</string>
+    <string name="settings_sports_custom_definition_example_action">Chèn ví dụ</string>
+    <string name="settings_sports_custom_definition_placeholder">Dán JSON của nhà cung cấp</string>
 </resources>

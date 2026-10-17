@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Add meg a szükséges felhasználónevet és titkot.</string>
     <string name="settings_sports_provider_invalid_input">Ellenőrizd az URL-címet és a szükséges adatokat.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Csomag: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Hátralévő kérések: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Prémium API-kulcs</string>
     <string name="settings_sports_provider_secret">API-kulcs, token vagy jelszó</string>
     <string name="settings_sports_provider_keep_credentials">Hagyd üresen a mentett hitelesítő adatok megtartásához.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Csapat- és ligadatok forrása</string>
     <string name="settings_sports_provider_custom_json">Egyéni JSON-szolgáltató</string>
     <string name="settings_sports_custom_definition">Konfiguráció (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Adja meg a végpontok útvonalait, a hitelesítési módot és a JSON-mezőválasztókat.</string>
+    <string name="settings_sports_custom_definition_hint">Fent add meg az API HTTPS-alap URL-címét. Szúrd be a példát, majd cseréld le a végpontok útvonalait és a JSON-mezőket az API dokumentációja szerint. A kulcsot vagy tokent a hitelesítő adatok mezőjébe írd.</string>
+    <string name="settings_sports_provider_attribution">Adatok innen: %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Labdarúgási adatokat a(z) %1$s szolgáltatja</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligák és idények</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Formátum: rövidítés:idénnyel, vesszőkkel elválasztva. Példa: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Béta · nem teszteltük élő szolgáltatói fiókkal.</string>
+    <string name="settings_sports_custom_definition_example_action">Példa beszúrása</string>
+    <string name="settings_sports_custom_definition_placeholder">Illeszd be a szolgáltató JSON-adatait</string>
 </resources>

@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Detalles del equipo: %1$s</string>
     <string name="live_sports_league_metadata">Detalles de la liga: %1$s</string>
     <string name="live_sports_standings_season">Temporada: %1$s</string>
+    <string name="live_sports_table_played">Jugados</string>
+    <string name="live_sports_table_won">Ganados</string>
+    <string name="live_sports_table_drawn">Empatados</string>
+    <string name="live_sports_table_lost">Perdidos</string>
+    <string name="live_sports_table_goals_for">Goles a favor</string>
+    <string name="live_sports_table_goals_against">Goles en contra</string>
+    <string name="live_sports_table_goal_difference">Diferencia</string>
+    <string name="live_sports_table_points">Puntos</string>
+    <string name="live_sports_football_data_attribution">Datos de fútbol proporcionados por %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

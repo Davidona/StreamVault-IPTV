@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "team": { "id": 2, "name": "Arsenal", "short_name": "Arsenal" },
+      "season": 2026,
+      "rank": 1,
+      "group_name": "English Premier League 2026-2027",
+      "games_played": 8,
+      "wins": 6,
+      "draws": 1,
+      "losses": 1,
+      "points": 19,
+      "goals_for": 18,
+      "goals_against": 7,
+      "goal_differential": 11
+    }
+  ],
+  "meta": { "next_cursor": null, "per_page": 100 }
+}

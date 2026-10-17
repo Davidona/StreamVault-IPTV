@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Детаљи тима: %1$s</string>
     <string name="live_sports_league_metadata">Детаљи лиге: %1$s</string>
     <string name="live_sports_standings_season">Сезона: %1$s</string>
+    <string name="live_sports_table_played">Одиграно</string>
+    <string name="live_sports_table_won">Победе</string>
+    <string name="live_sports_table_drawn">Нерешено</string>
+    <string name="live_sports_table_lost">Порази</string>
+    <string name="live_sports_table_goals_for">Дати голови</string>
+    <string name="live_sports_table_goals_against">Примљени голови</string>
+    <string name="live_sports_table_goal_difference">Гол-разлика</string>
+    <string name="live_sports_table_points">Бодови</string>
+    <string name="live_sports_football_data_attribution">Фудбалске податке пружа %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

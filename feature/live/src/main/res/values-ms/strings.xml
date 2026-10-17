@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Maklumat pasukan: %1$s</string>
     <string name="live_sports_league_metadata">Maklumat liga: %1$s</string>
     <string name="live_sports_standings_season">Musim: %1$s</string>
+    <string name="live_sports_table_played">Dimainkan</string>
+    <string name="live_sports_table_won">Menang</string>
+    <string name="live_sports_table_drawn">Seri</string>
+    <string name="live_sports_table_lost">Kalah</string>
+    <string name="live_sports_table_goals_for">Gol dijaringkan</string>
+    <string name="live_sports_table_goals_against">Gol dibolosi</string>
+    <string name="live_sports_table_goal_difference">Beza gol</string>
+    <string name="live_sports_table_points">Mata</string>
+    <string name="live_sports_football_data_attribution">Data bola sepak disediakan oleh %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

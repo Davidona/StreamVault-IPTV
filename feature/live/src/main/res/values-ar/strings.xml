@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">تفاصيل الفريق: %1$s</string>
     <string name="live_sports_league_metadata">تفاصيل الدوري: %1$s</string>
     <string name="live_sports_standings_season">الموسم: %1$s</string>
+    <string name="live_sports_table_played">لعب</string>
+    <string name="live_sports_table_won">فوز</string>
+    <string name="live_sports_table_drawn">تعادل</string>
+    <string name="live_sports_table_lost">خسارة</string>
+    <string name="live_sports_table_goals_for">أهداف له</string>
+    <string name="live_sports_table_goals_against">أهداف عليه</string>
+    <string name="live_sports_table_goal_difference">فارق الأهداف</string>
+    <string name="live_sports_table_points">نقاط</string>
+    <string name="live_sports_football_data_attribution">بيانات كرة القدم مقدمة من %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

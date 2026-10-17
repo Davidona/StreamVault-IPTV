@@ -900,5 +900,19 @@
     <string name="settings_sports_metadata_source">Team and league metadata source</string>
     <string name="settings_sports_provider_custom_json">Custom JSON provider</string>
     <string name="settings_sports_custom_definition">Configuration (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Enter endpoint paths, auth mode, and JSON field selectors.</string>
+    <string name="settings_sports_custom_definition_hint">Enter the API's HTTPS base URL above. Insert the example, then replace the endpoint paths and JSON fields to match your API documentation. Put its key or token in the credential field.</string>
+    <string name="settings_sports_provider_attribution">Data from %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Football data provided by %1$s</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_plan_tier">Plan: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">%1$d requests remaining</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Leagues and seasons</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Format: shortcut:season, comma-separated. Example: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · not tested with a live provider account.</string>
+    <string name="settings_sports_custom_definition_example_action">Insert example</string>
+    <string name="settings_sports_custom_definition_placeholder">Paste provider JSON</string>
 </resources>

@@ -865,6 +865,9 @@
     <string name="settings_sports_provider_credentials_required">请输入所需的用户名和密钥。</string>
     <string name="settings_sports_provider_invalid_input">请检查网址和必填信息。</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">方案：%1$s</string>
+    <string name="settings_sports_provider_usage_remaining">剩餘請求數：%1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">高级 API 密钥</string>
     <string name="settings_sports_provider_secret">API 密钥、令牌或密码</string>
     <string name="settings_sports_provider_keep_credentials">留空以保留已保存的凭据。</string>
@@ -890,5 +893,16 @@
     <string name="settings_sports_metadata_source">球队和联赛数据来源</string>
     <string name="settings_sports_provider_custom_json">自定义 JSON 提供方</string>
     <string name="settings_sports_custom_definition">配置（JSON）</string>
-    <string name="settings_sports_custom_definition_hint">输入端点路径、身份验证模式和 JSON 字段选择器。</string>
+    <string name="settings_sports_custom_definition_hint">在上方输入 API 的 HTTPS 基础网址。插入示例，然后根据 API 文档替换端点路径和 JSON 字段。将密钥或令牌输入凭据栏。</string>
+    <string name="settings_sports_provider_attribution">数据来源：%1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">足球数据由 %1$s 提供</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">联赛和赛季</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">格式：简称:赛季，使用逗号分隔。示例：bl1:2026。</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">测试版 · 尚未使用有效的提供商账户进行测试。</string>
+    <string name="settings_sports_custom_definition_example_action">插入示例</string>
+    <string name="settings_sports_custom_definition_placeholder">粘贴提供商 JSON</string>
 </resources>

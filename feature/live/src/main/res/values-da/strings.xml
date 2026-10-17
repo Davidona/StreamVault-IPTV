@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Holdoplysninger: %1$s</string>
     <string name="live_sports_league_metadata">Ligaoplysninger: %1$s</string>
     <string name="live_sports_standings_season">Sæson: %1$s</string>
+    <string name="live_sports_table_played">Spillet</string>
+    <string name="live_sports_table_won">Vundet</string>
+    <string name="live_sports_table_drawn">Uafgjort</string>
+    <string name="live_sports_table_lost">Tabt</string>
+    <string name="live_sports_table_goals_for">Mål for</string>
+    <string name="live_sports_table_goals_against">Mål imod</string>
+    <string name="live_sports_table_goal_difference">Målforskel</string>
+    <string name="live_sports_table_points">Point</string>
+    <string name="live_sports_football_data_attribution">Fodboldata leveret af %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

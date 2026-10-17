@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Detalii echipă: %1$s</string>
     <string name="live_sports_league_metadata">Detalii ligă: %1$s</string>
     <string name="live_sports_standings_season">Sezon: %1$s</string>
+    <string name="live_sports_table_played">Jucate</string>
+    <string name="live_sports_table_won">Victorii</string>
+    <string name="live_sports_table_drawn">Egaluri</string>
+    <string name="live_sports_table_lost">Înfrângeri</string>
+    <string name="live_sports_table_goals_for">Goluri marcate</string>
+    <string name="live_sports_table_goals_against">Goluri primite</string>
+    <string name="live_sports_table_goal_difference">Golaveraj</string>
+    <string name="live_sports_table_points">Puncte</string>
+    <string name="live_sports_football_data_attribution">Datele despre fotbal sunt furnizate de %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

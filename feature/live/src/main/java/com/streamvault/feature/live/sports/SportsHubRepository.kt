@@ -25,6 +25,7 @@ import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
 import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
 import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
 import com.streamvault.domain.sports.provider.SportsProviderStore
+import com.streamvault.domain.sports.provider.SportsProviderConfig
 import com.streamvault.domain.sports.provider.SportsSourceRef
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -395,14 +396,18 @@ internal class SportsHubRepository @Inject constructor(
                 }
                 val selectedProviderId = providerEventLoad.instanceId
                 val providerResolutionStartedAt = SystemClock.elapsedRealtime()
-                val providerResolved = sportsProviderEventResolver.resolve(
-                    epgEvents = assembled,
-                    providerEvents = sourcedProviderEvents,
-                    selection = SportsEventSourceSelection(
-                        eventInstanceId = selectedProviderId,
-                        metadataInstanceId = selectedProviderId,
+                val providerResolved = sportsProviderEventSourceRouter.enrichBroadcasters(
+                    sportsProviderEventResolver.resolve(
+                        epgEvents = assembled,
+                        providerEvents = sourcedProviderEvents,
+                        selection = SportsEventSourceSelection(
+                            eventInstanceId = selectedProviderId,
+                            metadataInstanceId = selectedProviderId,
+                        ),
+                        now = Instant.ofEpochMilli(now),
                     ),
-                    now = Instant.ofEpochMilli(now),
+                    configuredProviders,
+                    Instant.ofEpochMilli(now),
                 )
                 SportsDiagnostics.performance(
                     stage = "provider-event-resolution",
@@ -489,7 +494,9 @@ internal class SportsHubRepository @Inject constructor(
                     now = Instant.ofEpochMilli(now),
                 )
             }
-            val events = sportsProviderMetadataRouter.enrichEvents(resolvedEvents, metadata)
+            val events = sportsProviderMetadataRouter.enrichEvents(resolvedEvents, metadata).map { event ->
+                event.copy(providerAttributions = sportsProviderEventSourceRouter.attributions(event.provenance))
+            }
             SportsDiagnostics.performance(
                 stage = if (cachedEvents == null) "window-cold" else "window-cache-hit",
                 elapsedMillis = SystemClock.elapsedRealtime() - loadStartedAt,

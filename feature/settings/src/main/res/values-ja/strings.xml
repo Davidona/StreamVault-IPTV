@@ -867,6 +867,9 @@
     <string name="settings_sports_provider_credentials_required">必要なユーザー名とシークレットを入力してください。</string>
     <string name="settings_sports_provider_invalid_input">URLと必須情報を確認してください。</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">プラン: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">残りのリクエスト数: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">プレミアムAPIキー</string>
     <string name="settings_sports_provider_secret">APIキー、トークン、またはパスワード</string>
     <string name="settings_sports_provider_keep_credentials">保存済みの認証情報を保持するには空欄にします。</string>
@@ -892,5 +895,16 @@
     <string name="settings_sports_metadata_source">チーム・リーグ情報の提供元</string>
     <string name="settings_sports_provider_custom_json">カスタムJSONプロバイダー</string>
     <string name="settings_sports_custom_definition">設定（JSON）</string>
-    <string name="settings_sports_custom_definition_hint">エンドポイントのパス、認証方式、JSONフィールドセレクターを入力します。</string>
+    <string name="settings_sports_custom_definition_hint">上にAPIのHTTPSベースURLを入力します。例を挿入し、APIのドキュメントに合わせてエンドポイントのパスとJSONフィールドを置き換えてください。キーまたはトークンは認証情報の欄に入力します。</string>
+    <string name="settings_sports_provider_attribution">データ提供元: %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">サッカーデータ提供元: %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">リーグとシーズン</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">形式: 略称:シーズン。カンマ区切りで入力します。例: bl1:2026。</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">ベータ版・プロバイダーの有効なアカウントでは未テストです。</string>
+    <string name="settings_sports_custom_definition_example_action">例を挿入</string>
+    <string name="settings_sports_custom_definition_placeholder">プロバイダーのJSONを貼り付け</string>
 </resources>

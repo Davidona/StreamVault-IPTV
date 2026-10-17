@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.sports
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.sports.provider.EventProvider
 import com.streamvault.domain.sports.provider.LeagueMetadataProvider
@@ -34,7 +35,7 @@ class SportsProviderMetadataRouterTest {
     @Test
     fun `selected metadata provider enriches a matched provider event with sourced data`() = runTest {
         val factory = TestFactory("generic-api")
-        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
         val providerEvent = providerEvent()
         val catalog = LoadedSportsProviderEvents("event-account", "generic-api", listOf(providerEvent))
         val config = SportsProviderConfig(instanceId = "metadata-account", typeId = "generic-api")
@@ -86,7 +87,7 @@ class SportsProviderMetadataRouterTest {
     fun `metadata requests are cached for a day and stale values survive a provider failure`() = runTest {
         val now = Instant.parse("2026-10-17T12:00:00Z")
         val factory = TestFactory("cached-api")
-        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
         val config = SportsProviderConfig(instanceId = "account", typeId = "cached-api")
         val catalogs = listOf(LoadedSportsProviderEvents("account", "cached-api", listOf(providerEvent())))
         val preference = SportsMetadataSourcePreference.AUTOMATIC
@@ -106,7 +107,7 @@ class SportsProviderMetadataRouterTest {
     @Test
     fun `metadata source is independent and does not cross provider ID namespaces`() = runTest {
         val factory = TestFactory("metadata-api")
-        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderMetadataRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
         val config = SportsProviderConfig(instanceId = "account", typeId = "metadata-api")
 
         val off = router.load(

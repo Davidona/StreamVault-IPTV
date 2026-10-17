@@ -865,6 +865,9 @@
     <string name="settings_sports_provider_credentials_required">필요한 사용자 이름과 비밀 정보를 입력하세요.</string>
     <string name="settings_sports_provider_invalid_input">URL과 필수 정보를 확인하세요.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">요금제: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">남은 요청 수: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">프리미엄 API 키</string>
     <string name="settings_sports_provider_secret">API 키, 토큰 또는 비밀번호</string>
     <string name="settings_sports_provider_keep_credentials">저장된 자격 증명을 유지하려면 비워 두세요.</string>
@@ -890,5 +893,16 @@
     <string name="settings_sports_metadata_source">팀 및 리그 정보 제공자</string>
     <string name="settings_sports_provider_custom_json">사용자 지정 JSON 제공자</string>
     <string name="settings_sports_custom_definition">구성(JSON)</string>
-    <string name="settings_sports_custom_definition_hint">엔드포인트 경로, 인증 방식, JSON 필드 선택자를 입력하세요.</string>
+    <string name="settings_sports_custom_definition_hint">위에 API의 HTTPS 기본 URL을 입력하세요. 예시를 삽입한 다음 API 문서에 맞게 엔드포인트 경로와 JSON 필드를 바꾸세요. 키 또는 토큰은 인증 정보 입력란에 입력하세요.</string>
+    <string name="settings_sports_provider_attribution">데이터 제공: %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">축구 데이터 제공: %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">리그 및 시즌</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">형식: 약칭:시즌, 쉼표로 구분합니다. 예: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">베타 · 실제 제공업체 계정으로 테스트되지 않았습니다.</string>
+    <string name="settings_sports_custom_definition_example_action">예시 삽입</string>
+    <string name="settings_sports_custom_definition_placeholder">제공업체 JSON 붙여넣기</string>
 </resources>

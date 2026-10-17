@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">球隊資訊：%1$s</string>
     <string name="live_sports_league_metadata">聯賽資訊：%1$s</string>
     <string name="live_sports_standings_season">賽季：%1$s</string>
+    <string name="live_sports_table_played">場次</string>
+    <string name="live_sports_table_won">勝</string>
+    <string name="live_sports_table_drawn">和</string>
+    <string name="live_sports_table_lost">負</string>
+    <string name="live_sports_table_goals_for">進球</string>
+    <string name="live_sports_table_goals_against">失球</string>
+    <string name="live_sports_table_goal_difference">淨勝球</string>
+    <string name="live_sports_table_points">積分</string>
+    <string name="live_sports_football_data_attribution">足球資料由 %1$s 提供</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

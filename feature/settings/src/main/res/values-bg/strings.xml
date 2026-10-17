@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Въведете необходимите потребителско име и тайна.</string>
     <string name="settings_sports_provider_invalid_input">Проверете URL адреса и нужните данни.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">План: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Оставащи заявки: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Премиум API ключ</string>
     <string name="settings_sports_provider_secret">API ключ, токен или парола</string>
     <string name="settings_sports_provider_keep_credentials">Оставете празно, за да запазите данните за вход.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Източник на данни за отбори и лиги</string>
     <string name="settings_sports_provider_custom_json">Персонализиран JSON доставчик</string>
     <string name="settings_sports_custom_definition">Конфигурация (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Въведете пътища на крайни точки, режим на удостоверяване и JSON селектори за полета.</string>
+    <string name="settings_sports_custom_definition_hint">Въведете HTTPS базовия URL адрес на API по-горе. Вмъкнете примера, след което заменете пътищата на крайните точки и JSON полетата според документацията на API. Въведете ключа или токена в полето за идентификационни данни.</string>
+    <string name="settings_sports_provider_attribution">Данни от %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Футболни данни, предоставени от %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Лиги и сезони</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Формат: съкращение:сезон, разделени със запетаи. Пример: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Бета · не е тестван с реален акаунт на доставчика.</string>
+    <string name="settings_sports_custom_definition_example_action">Вмъкване на пример</string>
+    <string name="settings_sports_custom_definition_placeholder">Поставете JSON на доставчика</string>
 </resources>

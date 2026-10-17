@@ -881,6 +881,9 @@
     <string name="settings_sports_provider_credentials_required">أدخل اسم المستخدم والسر المطلوبين.</string>
     <string name="settings_sports_provider_invalid_input">تحقق من العنوان والتفاصيل المطلوبة.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">الخطة: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">الطلبات المتبقية: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">مفتاح API المميز</string>
     <string name="settings_sports_provider_secret">مفتاح API أو رمز وصول أو كلمة مرور</string>
     <string name="settings_sports_provider_keep_credentials">اتركه فارغًا للاحتفاظ ببيانات الاعتماد المحفوظة.</string>
@@ -906,5 +909,16 @@
     <string name="settings_sports_metadata_source">مصدر بيانات الفرق والدوريات</string>
     <string name="settings_sports_provider_custom_json">موفّر JSON مخصص</string>
     <string name="settings_sports_custom_definition">الإعدادات (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">أدخل مسارات نقاط النهاية ونمط المصادقة ومحدِّدات حقول JSON.</string>
+    <string name="settings_sports_custom_definition_hint">أدخل عنوان HTTPS الأساسي لواجهة API أعلاه. أدرج المثال، ثم استبدل مسارات نقاط النهاية وحقول JSON بما يتوافق مع توثيق واجهتك. أدخل المفتاح أو الرمز في حقل بيانات الاعتماد.</string>
+    <string name="settings_sports_provider_attribution">البيانات من %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">بيانات كرة القدم مقدمة من %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">الدوريات والمواسم</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">التنسيق: اختصار الدوري:الموسم، مفصول بفواصل. مثال: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">بيتا · لم يُختبر باستخدام حساب فعلي للمزوّد.</string>
+    <string name="settings_sports_custom_definition_example_action">إدراج مثال</string>
+    <string name="settings_sports_custom_definition_placeholder">الصق JSON الخاص بالمزوّد</string>
 </resources>

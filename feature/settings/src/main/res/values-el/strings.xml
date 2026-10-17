@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Εισαγάγετε το απαιτούμενο όνομα χρήστη και μυστικό.</string>
     <string name="settings_sports_provider_invalid_input">Ελέγξτε τη διεύθυνση URL και τα απαιτούμενα στοιχεία.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Πρόγραμμα: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Αιτήματα που απομένουν: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium κλειδί API</string>
     <string name="settings_sports_provider_secret">Κλειδί API, διακριτικό ή κωδικός πρόσβασης</string>
     <string name="settings_sports_provider_keep_credentials">Αφήστε κενό για να διατηρηθούν τα αποθηκευμένα στοιχεία σύνδεσης.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Πηγή δεδομένων ομάδων και πρωταθλημάτων</string>
     <string name="settings_sports_provider_custom_json">Προσαρμοσμένος πάροχος JSON</string>
     <string name="settings_sports_custom_definition">Διαμόρφωση (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Εισαγάγετε διαδρομές τελικών σημείων, λειτουργία ελέγχου ταυτότητας και επιλογείς πεδίων JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Πληκτρολογήστε παραπάνω τη βασική διεύθυνση HTTPS του API σας. Εισαγάγετε το παράδειγμα και, στη συνέχεια, προσαρμόστε τις διαδρομές των endpoint και τα πεδία JSON σύμφωνα με την τεκμηρίωση του API. Βάλτε το κλειδί ή το token στο πεδίο διαπιστευτηρίων.</string>
+    <string name="settings_sports_provider_attribution">Δεδομένα από %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Δεδομένα ποδοσφαίρου παρέχονται από το %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Λίγκες και σεζόν</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Μορφή: συντομογραφία:σεζόν, χωρισμένα με κόμμα. Παράδειγμα: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · δεν έχει δοκιμαστεί με ενεργό λογαριασμό παρόχου.</string>
+    <string name="settings_sports_custom_definition_example_action">Εισαγωγή παραδείγματος</string>
+    <string name="settings_sports_custom_definition_placeholder">Επικολλήστε το JSON του παρόχου</string>
 </resources>

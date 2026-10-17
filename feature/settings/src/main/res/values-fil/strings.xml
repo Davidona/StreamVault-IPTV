@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Ilagay ang kinakailangang username at lihim na key.</string>
     <string name="settings_sports_provider_invalid_input">Suriin ang URL at mga kinakailangang detalye.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Plano: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Natitirang kahilingan: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium na API key</string>
     <string name="settings_sports_provider_secret">API key, token, o password</string>
     <string name="settings_sports_provider_keep_credentials">Iwanang blangko upang panatilihin ang naka-save na kredensyal.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Pinagmulan ng datos ng koponan at liga</string>
     <string name="settings_sports_provider_custom_json">Pasadyang JSON provider</string>
     <string name="settings_sports_custom_definition">Configuration (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Ilagay ang mga endpoint path, authentication mode, at JSON field selector.</string>
+    <string name="settings_sports_custom_definition_hint">Ilagay sa itaas ang HTTPS base URL ng API mo. Ilagay ang halimbawa, pagkatapos ay palitan ang mga endpoint path at JSON field ayon sa dokumentasyon ng API mo. Ilagay ang key o token sa credential field.</string>
+    <string name="settings_sports_provider_attribution">Data mula sa %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Data ng football na ibinigay ng %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Mga liga at season</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Format: shortcut:season, na pinaghihiwalay ng kuwit. Halimbawa: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · hindi pa nasubukan gamit ang aktibong account ng provider.</string>
+    <string name="settings_sports_custom_definition_example_action">Maglagay ng halimbawa</string>
+    <string name="settings_sports_custom_definition_placeholder">I-paste ang JSON ng provider</string>
 </resources>

@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">टीम का विवरण: %1$s</string>
     <string name="live_sports_league_metadata">लीग का विवरण: %1$s</string>
     <string name="live_sports_standings_season">सीज़न: %1$s</string>
+    <string name="live_sports_table_played">खेले</string>
+    <string name="live_sports_table_won">जीते</string>
+    <string name="live_sports_table_drawn">ड्रॉ</string>
+    <string name="live_sports_table_lost">हारे</string>
+    <string name="live_sports_table_goals_for">किए गए गोल</string>
+    <string name="live_sports_table_goals_against">खाए गए गोल</string>
+    <string name="live_sports_table_goal_difference">गोल अंतर</string>
+    <string name="live_sports_table_points">अंक</string>
+    <string name="live_sports_football_data_attribution">फुटबॉल डेटा %1$s द्वारा प्रदान किया गया</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

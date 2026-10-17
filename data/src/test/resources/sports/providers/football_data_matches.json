@@ -1,0 +1,32 @@
+{
+  "filters": { "dateFrom": "2026-10-17", "dateTo": "2026-10-17", "competitions": "PL" },
+  "resultSet": { "count": 2, "competitions": "PL", "first": "2026-10-17", "last": "2026-10-17", "played": 1 },
+  "matches": [
+    {
+      "id": 330299,
+      "utcDate": "2026-10-17T16:05:00Z",
+      "status": "IN_PLAY",
+      "minute": 61,
+      "injuryTime": null,
+      "lastUpdated": "2026-10-17T16:06:12Z",
+      "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE" },
+      "season": { "id": 900, "startDate": "2026-08-15", "endDate": "2027-05-23" },
+      "homeTeam": { "id": 57, "name": "Arsenal FC", "shortName": "Arsenal", "tla": "ARS" },
+      "awayTeam": { "id": 61, "name": "Chelsea FC", "shortName": "Chelsea", "tla": "CHE" },
+      "score": { "winner": "HOME_TEAM", "duration": "REGULAR", "fullTime": { "home": 2, "away": 1 }, "halfTime": { "home": 1, "away": 0 } }
+    },
+    {
+      "id": 330300,
+      "utcDate": "2026-10-17T18:30:00Z",
+      "status": "TIMED",
+      "minute": null,
+      "injuryTime": null,
+      "lastUpdated": "2026-10-16T11:00:00Z",
+      "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE" },
+      "season": { "id": 900, "startDate": "2026-08-15", "endDate": "2027-05-23" },
+      "homeTeam": { "id": 65, "name": "Manchester City FC", "shortName": "Man City", "tla": "MCI" },
+      "awayTeam": { "id": 64, "name": "Liverpool FC", "shortName": "Liverpool", "tla": "LIV" },
+      "score": { "winner": null, "duration": "REGULAR", "fullTime": { "home": null, "away": null }, "halfTime": { "home": null, "away": null } }
+    }
+  ]
+}

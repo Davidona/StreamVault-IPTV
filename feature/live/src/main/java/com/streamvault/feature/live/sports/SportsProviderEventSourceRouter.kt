@@ -9,6 +9,12 @@ import com.streamvault.domain.sports.provider.SportsEventSourcePreference
 import com.streamvault.domain.sports.provider.SportsProviderConfig
 import com.streamvault.domain.sports.provider.SportsProviderRegistry
 import com.streamvault.domain.sports.provider.SportsProviderResult
+import com.streamvault.domain.sports.provider.BroadcastProvider
+import com.streamvault.domain.sports.provider.ProviderEventDetailRequest
+import com.streamvault.domain.sports.provider.ProviderAttribution
+import com.streamvault.domain.sports.provider.SourcedValue
+import com.streamvault.domain.sports.provider.SportsSourceRef
+import com.streamvault.domain.sports.provider.SportsEventProvenance
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +31,63 @@ internal data class LoadedSportsProviderEvents(
 internal class SportsProviderEventSourceRouter @Inject constructor(
     private val registry: SportsProviderRegistry,
 ) {
+    private val broadcasterCooldowns = linkedMapOf<SportsProviderConfig, Instant>()
+
+    fun attributions(provenance: SportsEventProvenance): List<ProviderAttribution> = provenance.sources
+        .filterIsInstance<SportsSourceRef.Provider>()
+        .mapNotNull { registry.descriptor(it.typeId)?.compliance?.attribution }
+        .distinctBy(ProviderAttribution::sourceName).sortedBy(ProviderAttribution::sourceName)
+
+    /** TV metadata is only needed for events without a usable EPG broadcast. Never replace one. */
+    suspend fun enrichBroadcasters(
+        events: List<SportsResolvedEvent>,
+        configs: Collection<SportsProviderConfig>,
+        now: Instant,
+    ): List<SportsResolvedEvent> {
+        val eligible = registry.eligible(configs, SportsCapability.BROADCASTERS).associateBy { it.instanceId }
+        val candidates = events.filter { event ->
+            event.epgEvent?.broadcasts.orEmpty().none { it.channel.streamUrl.isNotBlank() } &&
+                event.provenance.broadcasters?.value.isNullOrEmpty()
+        }.sortedBy { event ->
+            event.providerEvent?.value?.eventStart?.let { java.time.Duration.between(now, it).abs() }
+                ?: java.time.Duration.ofDays(365)
+        }.take(12)
+        val enriched = mutableMapOf<String, SportsResolvedEvent>()
+        val coolingAccounts = mutableSetOf<String>()
+        for (event in candidates) {
+            val sourced = event.providerEvent ?: continue
+            val source = sourced.source as? SportsSourceRef.Provider ?: continue
+            val config = eligible[source.instanceId]?.takeIf { it.typeId == source.typeId } ?: continue
+            if (source.instanceId in coolingAccounts) continue
+            if (synchronized(broadcasterCooldowns) { broadcasterCooldowns[config]?.isAfter(now) == true }) continue
+            val result = try {
+                val provider = registry.create(config) as? BroadcastProvider ?: continue
+                provider.broadcasters(ProviderEventDetailRequest(source.externalEventId))
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) { continue }
+            when (result) {
+                is SportsProviderResult.Failure -> {
+                    coolingAccounts.add(source.instanceId)
+                    synchronized(broadcasterCooldowns) {
+                        broadcasterCooldowns[config] = result.retryAt?.takeIf { it.isAfter(now) }
+                            ?: now.plusSeconds(300)
+                        while (broadcasterCooldowns.size > 64) {
+                            broadcasterCooldowns.entries.iterator().run { next(); remove() }
+                        }
+                    }
+                }
+                is SportsProviderResult.Success -> if (result.value.items.isNotEmpty()) {
+                    enriched[event.id] = event.copy(provenance = event.provenance.copy(
+                        broadcasters = SourcedValue(result.value.items, source, now),
+                        sources = event.provenance.sources + source,
+                    ))
+                }
+            }
+        }
+        return events.map { enriched[it.id] ?: it }
+    }
+
     fun eligibleProviders(
         configs: Collection<SportsProviderConfig>,
         preference: SportsEventSourcePreference,

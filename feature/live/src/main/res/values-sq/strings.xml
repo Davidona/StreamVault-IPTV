@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Detajet e ekipit: %1$s</string>
     <string name="live_sports_league_metadata">Detajet e ligës: %1$s</string>
     <string name="live_sports_standings_season">Sezoni: %1$s</string>
+    <string name="live_sports_table_played">Ndeshje</string>
+    <string name="live_sports_table_won">Fitore</string>
+    <string name="live_sports_table_drawn">Barazime</string>
+    <string name="live_sports_table_lost">Humbje</string>
+    <string name="live_sports_table_goals_for">Gola të shënuar</string>
+    <string name="live_sports_table_goals_against">Gola të pësuar</string>
+    <string name="live_sports_table_goal_difference">Diferenca</string>
+    <string name="live_sports_table_points">Pikë</string>
+    <string name="live_sports_football_data_attribution">Të dhënat e futbollit ofrohen nga %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

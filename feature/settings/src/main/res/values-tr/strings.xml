@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Gerekli kullanıcı adını ve gizli anahtarı girin.</string>
     <string name="settings_sports_provider_invalid_input">URL’yi ve gerekli bilgileri kontrol edin.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Plan düzeyi: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Kalan istek: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium API anahtarı</string>
     <string name="settings_sports_provider_secret">API anahtarı, belirteç veya parola</string>
     <string name="settings_sports_provider_keep_credentials">Kayıtlı kimlik bilgilerini korumak için boş bırakın.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Takım ve lig bilgisi kaynağı</string>
     <string name="settings_sports_provider_custom_json">Özel JSON sağlayıcısı</string>
     <string name="settings_sports_custom_definition">Yapılandırma (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Uç nokta yollarını, kimlik doğrulama modunu ve JSON alan seçicilerini girin.</string>
+    <string name="settings_sports_custom_definition_hint">API’nizin HTTPS temel URL’sini yukarıya girin. Örneği ekleyin, ardından uç nokta yollarını ve JSON alanlarını API belgelerinize göre değiştirin. Anahtarı veya belirteci kimlik bilgisi alanına girin.</string>
+    <string name="settings_sports_provider_attribution">Veri kaynağı: %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Futbol verileri %1$s tarafından sağlanır</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligler ve sezonlar</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Biçim: kısaltma:sezon, virgülle ayrılır. Örnek: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · sağlayıcının etkin bir hesabıyla test edilmedi.</string>
+    <string name="settings_sports_custom_definition_example_action">Örneği ekle</string>
+    <string name="settings_sports_custom_definition_placeholder">Sağlayıcı JSON verisini yapıştırın</string>
 </resources>

@@ -43,6 +43,8 @@ private class TheSportsDbTestServer : AutoCloseable {
                 apiKeyHeaders += request.getHeader("X-API-KEY")
                 return when {
                     path.endsWith("/all/sports") -> MockResponse().setBody("""{"sports": []}""")
+                    path.endsWith("/schedule/next/league/4328") -> MockResponse().setBody("""{"schedule": []}""")
+                    path.endsWith("/lookup/event_tv/584911") -> MockResponse().setBody("""{"lookup": []}""")
                     path.endsWith("/list/seasons/4328") -> fixture("thesportsdb_seasons.json")
                     path.startsWith("/api/v2/json/schedule/league/4328/") -> eventResponse(path)
                     path.endsWith("/livescore/all") -> scoreResponse()
@@ -210,8 +212,11 @@ class TheSportsDbProviderTest {
         )
 
         assertThat(result).isEqualTo(SportsProviderResult.Success(Unit))
-        assertThat(server.requestedPaths()).containsExactly("/api/v2/json/all/sports")
-        assertThat(server.apiKeyHeaders()).containsExactly(EventProviderContract.SECRET_MARKER)
+        assertThat(server.requestedPaths()).containsExactly(
+            "/api/v2/json/all/sports", "/api/v2/json/schedule/next/league/4328",
+            "/api/v2/json/livescore/all", "/api/v2/json/lookup/event_tv/584911",
+        ).inOrder()
+        assertThat(server.apiKeyHeaders()).containsExactlyElementsIn(List(4) { EventProviderContract.SECRET_MARKER })
     }
 
     @Test fun `event request selects matching season filters range and uses header auth`() = runTest {

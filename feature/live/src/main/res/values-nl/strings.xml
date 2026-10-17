@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Teamgegevens: %1$s</string>
     <string name="live_sports_league_metadata">Leaguegegevens: %1$s</string>
     <string name="live_sports_standings_season">Seizoen: %1$s</string>
+    <string name="live_sports_table_played">Gespeeld</string>
+    <string name="live_sports_table_won">Gewonnen</string>
+    <string name="live_sports_table_drawn">Gelijk</string>
+    <string name="live_sports_table_lost">Verloren</string>
+    <string name="live_sports_table_goals_for">Voor</string>
+    <string name="live_sports_table_goals_against">Tegen</string>
+    <string name="live_sports_table_goal_difference">Doelsaldo</string>
+    <string name="live_sports_table_points">Punten</string>
+    <string name="live_sports_football_data_attribution">Voetbalgegevens geleverd door %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

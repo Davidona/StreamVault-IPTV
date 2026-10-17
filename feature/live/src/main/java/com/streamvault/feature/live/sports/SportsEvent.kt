@@ -3,6 +3,7 @@ package com.streamvault.feature.live.sports
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.sports.provider.SportsEventProvenance
+import com.streamvault.domain.sports.provider.ProviderAttribution
 import java.time.Instant
 
 internal enum class SportType {
@@ -120,6 +121,7 @@ internal data class SportsEvent(
     val rememberedChannelWasAdded: Boolean = false,
     val leagueInfo: SportsLeague? = null,
     val metadataAttributionName: String? = null,
+    val providerAttributions: List<ProviderAttribution> = emptyList(),
     val provenance: SportsEventProvenance = SportsEventProvenance(
         timing = com.streamvault.domain.sports.provider.SportsEventTiming(
             broadcastStart = Instant.ofEpochMilli(startTime),

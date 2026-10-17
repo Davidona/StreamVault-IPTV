@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Takım bilgileri: %1$s</string>
     <string name="live_sports_league_metadata">Lig bilgileri: %1$s</string>
     <string name="live_sports_standings_season">Sezon: %1$s</string>
+    <string name="live_sports_table_played">Oynanan</string>
+    <string name="live_sports_table_won">Galibiyet</string>
+    <string name="live_sports_table_drawn">Beraberlik</string>
+    <string name="live_sports_table_lost">Mağlubiyet</string>
+    <string name="live_sports_table_goals_for">Atılan gol</string>
+    <string name="live_sports_table_goals_against">Yenilen gol</string>
+    <string name="live_sports_table_goal_difference">Averaj</string>
+    <string name="live_sports_table_points">Puan</string>
+    <string name="live_sports_football_data_attribution">Futbol verileri %1$s tarafından sağlanır</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

@@ -1,10 +1,15 @@
 package com.streamvault.domain.sports.provider
 
 /** Adapter types and account instances remain separate. Empty registries are valid. */
-class SportsProviderRegistry(factories: Collection<SportsProviderFactory>) {
-    private val byType = factories.associateBy { it.descriptor.typeId }
+class SportsProviderRegistry(
+    factories: Collection<SportsProviderFactory>,
+    releasePolicy: SportsProviderReleasePolicy = SportsProviderReleasePolicy(),
+) {
+    init { require(factories.map { it.descriptor.typeId }.distinct().size == factories.size) }
 
-    init { require(byType.size == factories.size) }
+    // Filter factories, not just descriptors: persisted configurations cannot bypass release gates.
+    private val byType = factories.filter { releasePolicy.permits(it.descriptor) }
+        .associateBy { it.descriptor.typeId }
 
     val descriptors: List<SportsProviderDescriptor>
         get() = byType.values.map { it.descriptor }.sortedBy { it.typeId }

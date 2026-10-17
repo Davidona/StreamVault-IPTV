@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">نام کاربری و رمز لازم را وارد کنید.</string>
     <string name="settings_sports_provider_invalid_input">نشانی و اطلاعات لازم را بررسی کنید.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">طرح: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">درخواست‌های باقی‌مانده: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">کلید API پریمیوم</string>
     <string name="settings_sports_provider_secret">کلید API، توکن یا گذرواژه</string>
     <string name="settings_sports_provider_keep_credentials">برای نگه‌داشتن اطلاعات ذخیره‌شده خالی بگذارید.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">منبع اطلاعات تیم‌ها و لیگ‌ها</string>
     <string name="settings_sports_provider_custom_json">ارائه‌دهنده JSON سفارشی</string>
     <string name="settings_sports_custom_definition">پیکربندی (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">مسیرهای نقطه پایانی، حالت احراز هویت و انتخاب‌گرهای فیلد JSON را وارد کنید.</string>
+    <string name="settings_sports_custom_definition_hint">نشانی پایه HTTPS مربوط به API را در بالا وارد کنید. نمونه را درج کنید، سپس مسیرهای endpoint و فیلدهای JSON را مطابق مستندات API خود جایگزین کنید. کلید یا توکن را در کادر اطلاعات ورود وارد کنید.</string>
+    <string name="settings_sports_provider_attribution">داده‌ها از %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">داده‌های فوتبال ارائه‌شده توسط %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">لیگ‌ها و فصل‌ها</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">قالب: مخفف لیگ:فصل، جداشده با ویرگول. نمونه: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">بتا · با حساب فعال ارائه‌دهنده آزمایش نشده است.</string>
+    <string name="settings_sports_custom_definition_example_action">درج نمونه</string>
+    <string name="settings_sports_custom_definition_placeholder">JSON ارائه‌دهنده را جای‌گذاری کنید</string>
 </resources>

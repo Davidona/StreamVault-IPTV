@@ -1,0 +1,8 @@
+[
+  {
+    "id": 39,
+    "name": "Premier League",
+    "country": { "code": "GB", "name": "England" },
+    "seasons": [ { "season": 2025 }, { "season": 2026 } ]
+  }
+]

@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">チーム情報: %1$s</string>
     <string name="live_sports_league_metadata">リーグ情報: %1$s</string>
     <string name="live_sports_standings_season">シーズン: %1$s</string>
+    <string name="live_sports_table_played">試合</string>
+    <string name="live_sports_table_won">勝利</string>
+    <string name="live_sports_table_drawn">引き分け</string>
+    <string name="live_sports_table_lost">敗北</string>
+    <string name="live_sports_table_goals_for">得点</string>
+    <string name="live_sports_table_goals_against">失点</string>
+    <string name="live_sports_table_goal_difference">得失点差</string>
+    <string name="live_sports_table_points">勝点</string>
+    <string name="live_sports_football_data_attribution">サッカーデータ提供元: %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Skriv inn nødvendig brukernavn og hemmelighet.</string>
     <string name="settings_sports_provider_invalid_input">Kontroller URL-adressen og de nødvendige opplysningene.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Abonnement: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Gjenstående forespørsler: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Premium API-nøkkel</string>
     <string name="settings_sports_provider_secret">API-nøkkel, token eller passord</string>
     <string name="settings_sports_provider_keep_credentials">La feltet stå tomt for å beholde lagrede påloggingsopplysninger.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Kilde for lag- og ligadata</string>
     <string name="settings_sports_provider_custom_json">Egendefinert JSON-leverandør</string>
     <string name="settings_sports_custom_definition">Konfigurasjon (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Skriv inn endepunktstier, autentiseringsmodus og JSON-feltvelgere.</string>
+    <string name="settings_sports_custom_definition_hint">Skriv inn API-ets HTTPS-basisadresse ovenfor. Sett inn eksempelet, og bytt deretter ut endepunktstier og JSON-felt slik API-dokumentasjonen beskriver. Skriv inn nøkkelen eller tokenet i feltet for påloggingsinformasjon.</string>
+    <string name="settings_sports_provider_attribution">Data fra %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Fotballdata levert av %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligaer og sesonger</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Format: forkortelse:sesong, atskilt med komma. Eksempel: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · ikke testet med en aktiv leverandørkonto.</string>
+    <string name="settings_sports_custom_definition_example_action">Sett inn eksempel</string>
+    <string name="settings_sports_custom_definition_placeholder">Lim inn leverandørens JSON</string>
 </resources>

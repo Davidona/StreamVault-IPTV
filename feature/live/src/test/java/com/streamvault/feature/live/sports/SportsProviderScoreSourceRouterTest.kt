@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.sports
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.sports.provider.EventProvider
 import com.streamvault.domain.sports.provider.LiveScoreProvider
@@ -29,7 +30,7 @@ class SportsProviderScoreSourceRouterTest {
     fun `automatic selection prefers event account and manual selection stays independent`() {
         val first = TestFactory("first")
         val second = TestFactory("second")
-        val registry = SportsProviderRegistry(listOf(first, second))
+        val registry = SportsProviderRegistry(listOf(first, second), SportsProviderReleasePolicy(development = true))
         val eventRouter = SportsProviderEventSourceRouter(registry)
         val router = SportsProviderScoreSourceRouter(registry, eventRouter)
         val configs = listOf(config("first-account", "first", priority = 1), config("second-account", "second", priority = 0))
@@ -65,7 +66,7 @@ class SportsProviderScoreSourceRouterTest {
             },
             scoreResponse = { _, _ -> scoreResult },
         )
-        val registry = SportsProviderRegistry(listOf(factory))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
         val eventRouter = SportsProviderEventSourceRouter(registry)
         val router = SportsProviderScoreSourceRouter(registry, eventRouter)
         val config = config("scores-account", "scores")
@@ -102,7 +103,7 @@ class SportsProviderScoreSourceRouterTest {
             scoreResponse = { _, _ -> SportsProviderResult.Success(ProviderBatch(listOf(ProviderScore("working-event")))) },
             eventResponse = { _, _ -> liveEvent("working-event", now) },
         )
-        val registry = SportsProviderRegistry(listOf(failing, working))
+        val registry = SportsProviderRegistry(listOf(failing, working), SportsProviderReleasePolicy(development = true))
         val eventRouter = SportsProviderEventSourceRouter(registry)
         val router = SportsProviderScoreSourceRouter(registry, eventRouter)
         val configs = listOf(config("primary", "failing", priority = 0), config("fallback", "working", priority = 1))
@@ -131,7 +132,7 @@ class SportsProviderScoreSourceRouterTest {
             eventResponse = { _, _ -> liveEvent("match", now) },
             scoreResponse = { _, _ -> scoreResult },
         )
-        val registry = SportsProviderRegistry(listOf(factory))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
         val router = SportsProviderScoreSourceRouter(registry, SportsProviderEventSourceRouter(registry))
         val providers = router.eligibleProviders(
             listOf(config("retry-account", "retry")),

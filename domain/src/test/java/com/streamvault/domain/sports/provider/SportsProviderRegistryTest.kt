@@ -20,10 +20,10 @@ class SportsProviderRegistryTest {
                 SportsProviderResult.Success(ProviderBatch<ProviderEvent>(emptyList()))
         }
     }
-    private val registry = SportsProviderRegistry(listOf(factory))
+    private val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
 
     @Test fun `empty registry supports local only startup`() {
-        val empty = SportsProviderRegistry(emptyList())
+        val empty = SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true))
         assertThat(empty.descriptors).isEmpty()
         assertThat(empty.eligible(emptyList(), SportsCapability.EVENTS)).isEmpty()
     }
@@ -36,7 +36,7 @@ class SportsProviderRegistryTest {
 
             override fun capabilitiesFor(config: SportsProviderConfig): Set<SportsCapability> = descriptor.capabilities
         }
-        val registry = SportsProviderRegistry(listOf(scores, factory))
+        val registry = SportsProviderRegistry(listOf(scores, factory), SportsProviderReleasePolicy(development = true))
         val configs = listOf(
             config("b"), config("a"), config("disabled").copy(enabled = false),
             config("unknown").copy(typeId = "unknown"), config("score").copy(typeId = "scores"),
@@ -54,7 +54,7 @@ class SportsProviderRegistryTest {
     }
 
     @Test fun `duplicate adapter registration is rejected`() {
-        assertThrows(IllegalArgumentException::class.java) { SportsProviderRegistry(listOf(factory, factory)) }
+        assertThrows(IllegalArgumentException::class.java) { SportsProviderRegistry(listOf(factory, factory), SportsProviderReleasePolicy(development = true)) }
     }
 
     @Test fun `factory cannot advertise a capability without implementing its interface`() {
@@ -68,7 +68,7 @@ class SportsProviderRegistryTest {
                 }
             }
             assertThrows(IllegalArgumentException::class.java) {
-                SportsProviderRegistry(listOf(bad)).create(config("a").copy(configurationVersion = 2))
+                SportsProviderRegistry(listOf(bad), SportsProviderReleasePolicy(development = true)).create(config("a").copy(configurationVersion = 2))
             }
         }
     }
@@ -84,7 +84,7 @@ class SportsProviderRegistryTest {
                     SportsProviderResult.Success(ProviderBatch<ProviderEvent>(emptyList()))
             }
         }
-        val registry = SportsProviderRegistry(listOf(optional))
+        val registry = SportsProviderRegistry(listOf(optional), SportsProviderReleasePolicy(development = true))
         registry.create(config("a").copy(configurationVersion = 2))
         assertThat(registry.eligible(listOf(config("a")), SportsCapability.EVENTS)).isEmpty()
     }
@@ -105,7 +105,7 @@ class SportsProviderRegistryTest {
             override fun migrate(config: SportsProviderConfig) = config.copy(instanceId = "other", configurationVersion = 2)
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SportsProviderRegistry(listOf(bad)).prepare(config("a"))
+            SportsProviderRegistry(listOf(bad), SportsProviderReleasePolicy(development = true)).prepare(config("a"))
         }
     }
 

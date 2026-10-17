@@ -13,6 +13,13 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.*
 
+/** Allow-listed numeric response metadata; it never includes response text or credentials. */
+data class SportsProviderResponseMetadata(
+    val requestLimit: Int? = null,
+    val requestsRemaining: Int? = null,
+    val resetAfterSeconds: Int? = null,
+)
+
 /**
  * Dedicated client: no shared URL logger, cookie jar, disk cache, or automatic redirects/retries.
  * Adapters own pagination/caching and schedule retries from typed failures and Retry-After.
@@ -50,6 +57,7 @@ class SportsProviderHttpClient(
         credentials: SportsProviderCredentials?,
         // Explicit opt-in for a user's self-hosted HTTP endpoint; HTTPS remains the default.
         allowInsecureHttp: Boolean = false,
+        onResponseMetadata: (SportsProviderResponseMetadata) -> Unit = {},
         decode: (String) -> T,
     ): SportsProviderResult<T> {
         val request = try {
@@ -87,7 +95,7 @@ class SportsProviderHttpClient(
 
                 override fun onResponse(call: Call, response: Response) {
                     try {
-                        val result = response.use { parse(it, decode) }
+                        val result = response.use { parse(it, onResponseMetadata, decode) }
                         if (continuation.isActive) continuation.resume(result)
                     } catch (e: CancellationException) {
                         if (continuation.isActive) continuation.resumeWithException(e)
@@ -106,7 +114,27 @@ class SportsProviderHttpClient(
             require(it.isNotBlank() && '\r' !in it && '\n' !in it)
         }
 
-    private fun <T> parse(response: Response, decode: (String) -> T): SportsProviderResult<T> {
+    private fun <T> parse(
+        response: Response,
+        onResponseMetadata: (SportsProviderResponseMetadata) -> Unit,
+        decode: (String) -> T,
+    ): SportsProviderResult<T> {
+        val metadata = SportsProviderResponseMetadata(
+            requestLimit = response.header("x-ratelimit-requests-limit")?.toIntOrNull()
+                ?.takeIf { it in 0..MAX_REPORTED_REQUESTS },
+            requestsRemaining = (response.header("x-ratelimit-requests-remaining")
+                ?: response.header("x-requestsavailable"))?.toIntOrNull()
+                ?.takeIf { it in 0..MAX_REPORTED_REQUESTS },
+            resetAfterSeconds = response.header("x-requestcounter-reset")?.toIntOrNull()
+                ?.takeIf { it in 0..MAX_RESET_SECONDS },
+        )
+        try {
+            onResponseMetadata(metadata)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Usage reporting must not change the provider result.
+        }
         if (!response.isSuccessful) return SportsProviderResult.Failure(
             category = when (response.code) {
                 401, 403 -> SportsProviderError.AUTHENTICATION
@@ -115,7 +143,8 @@ class SportsProviderHttpClient(
                 else -> SportsProviderError.HTTP
             },
             httpStatus = response.code,
-            retryAt = retryAt(response.header("Retry-After")),
+            retryAt = retryAt(response.header("Retry-After"))
+                ?: metadata.resetAfterSeconds?.let { clock.instant().plusSeconds(it.toLong()) },
         )
         val text = try {
             val body = response.body ?: return SportsProviderResult.Failure(SportsProviderError.INVALID_RESPONSE)
@@ -144,5 +173,10 @@ class SportsProviderHttpClient(
             } ?: ZonedDateTime.parse(value, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()
                 .takeIf { !it.isBefore(now) }
         }.getOrNull()
+    }
+
+    private companion object {
+        const val MAX_REPORTED_REQUESTS = 10_000_000
+        const val MAX_RESET_SECONDS = 86_400
     }
 }

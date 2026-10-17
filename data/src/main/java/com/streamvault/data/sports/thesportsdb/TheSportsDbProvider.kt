@@ -33,10 +33,26 @@ class TheSportsDbProviderFactory @Inject constructor(
             SportsCapability.EVENTS,
             SportsCapability.LIVE_SCORES,
             SportsCapability.GAME_STATUS,
+            SportsCapability.STANDINGS,
+            SportsCapability.BROADCASTERS,
+            SportsCapability.TEAM_METADATA,
+            SportsCapability.LEAGUE_METADATA,
         ),
         auth = SportsProviderAuth.ApiKeyHeader("X-API-KEY"),
         defaultBaseUrl = BASE_URL,
         supportsCustomBaseUrl = false,
+        displayName = "TheSportsDB",
+        isBeta = true,
+        compliance = ProviderComplianceInfo(
+            termsUrl = "https://www.thesportsdb.com/docs_terms_of_use.php",
+            documentationUrl = "https://www.thesportsdb.com/documentation",
+            reviewedAt = LocalDate.of(2026, 10, 17),
+            attribution = ProviderAttribution("TheSportsDB", "https://www.thesportsdb.com"),
+            appStoreAllowed = true,
+            commercialUseStatus = CommercialUseStatus.PERMITTED,
+            releaseGate = ProviderReleaseGate.REQUIRES_ATTRIBUTION,
+            requiresPaidAccount = true,
+        ),
     )
 
     override fun create(config: SportsProviderConfig): SportsProvider = TheSportsDbProvider(
@@ -63,21 +79,172 @@ internal class TheSportsDbProvider(
     private val endpointBaseUrl: String = config.baseUrl ?: TheSportsDbProviderFactory.BASE_URL,
     private val allowInsecureHttp: Boolean = false,
     private val clock: Clock = Clock.systemUTC(),
-) : EventProvider, LiveScoreProvider, GameStatusProvider, SportsProviderConnectionTester {
+    private val standingsBaseUrl: String = "https://www.thesportsdb.com/api/v1/json",
+) : EventProvider, LiveScoreProvider, GameStatusProvider, StandingsProvider, BroadcastProvider,
+    TeamMetadataProvider, LeagueMetadataProvider, SportsProviderConnectionTester {
     override val instanceId: String = config.instanceId
 
     override suspend fun testConnection(
         credentials: SportsProviderCredentials?,
-    ): SportsProviderResult<Unit> = when (val response = getObject(listOf("all", "sports"), credentials)) {
-        is SportsProviderResult.Failure -> response
-        is SportsProviderResult.Success -> {
-            val sports = response.value.get("sports")
-            if (sports == null || (!sports.isJsonNull && !sports.isJsonArray)) {
+    ): SportsProviderResult<Unit> {
+        if (credentials?.secret?.trim() == "123") return SportsProviderResult.Failure(
+            SportsProviderError.INVALID_CONFIGURATION,
+        )
+        val probes = listOf(
+            listOf("all", "sports") to "sports",
+            listOf("schedule", "next", "league", config.eventLeagueIds.firstOrNull() ?: "4328") to "schedule",
+            listOf("livescore", "all") to "livescore",
+            listOf("lookup", "event_tv", "584911") to "lookup",
+        )
+        for ((path, field) in probes) {
+            when (val response = getObject(path, credentials)) {
+                is SportsProviderResult.Failure -> return response
+                is SportsProviderResult.Success -> if (response.value.arrayOrEmpty(field) == null) {
+                    return SportsProviderResult.Failure(SportsProviderError.INVALID_RESPONSE)
+                }
+            }
+        }
+        return SportsProviderResult.Success(Unit)
+    }
+
+    override suspend fun broadcasters(
+        request: ProviderEventDetailRequest,
+    ): SportsProviderResult<ProviderBatch<ProviderBroadcaster>> {
+        if (!LEAGUE_ID.matches(request.eventId)) return invalidConfiguration()
+        return cachedLookup("tv", request.eventId, listOf("lookup", "event_tv", request.eventId),
+            Duration.ofHours(6)) { obj ->
+            val rows = obj.arrayOrEmpty("lookup") ?: throw IllegalArgumentException()
+            when (val mapped = mapProviderItems(rows, maxItems = 500) { element ->
+                val row = element.asJsonObject
+                require(row.text("idEvent") == request.eventId)
+                ProviderBroadcaster(
+                    name = requireNotNull(row.text("strChannel")),
+                    country = row.text("strCountry"),
+                    // The endpoint does not distinguish linear, streaming and radio channels.
+                    type = ProviderBroadcastType.UNKNOWN,
+                )
+            }) {
+                is SportsProviderResult.Failure -> mapped
+                is SportsProviderResult.Success -> SportsProviderResult.Success(mapped.value.copy(
+                    items = mapped.value.items.distinctBy {
+                        Triple(it.name.lowercase(Locale.ROOT), it.country?.lowercase(Locale.ROOT), it.type)
+                    },
+                ))
+            }
+        }
+    }
+
+    override suspend fun teamMetadata(
+        request: ProviderTeamMetadataRequest,
+    ): SportsProviderResult<ProviderTeamMetadata> {
+        if (!LEAGUE_ID.matches(request.teamId)) return invalidConfiguration()
+        return cachedLookup("team", request.teamId, listOf("lookup", "team", request.teamId),
+            Duration.ofHours(24)) { obj ->
+            val row = obj.arrayOrEmpty("lookup")?.singleOrNull()?.asJsonObject
+                ?: throw IllegalArgumentException()
+            require(row.text("idTeam") == request.teamId)
+            SportsProviderResult.Success(ProviderTeamMetadata(
+                team = ProviderCompetitor(requireNotNull(row.text("strTeam")), request.teamId,
+                    ProviderCompetitorKind.TEAM),
+                shortName = row.text("strTeamShort"), country = row.text("strCountry"),
+            ))
+        }
+    }
+
+    override suspend fun leagueMetadata(
+        request: ProviderLeagueMetadataRequest,
+    ): SportsProviderResult<ProviderLeagueMetadata> {
+        if (!LEAGUE_ID.matches(request.leagueId)) return invalidConfiguration()
+        return cachedLookup("league", request.leagueId, listOf("lookup", "league", request.leagueId),
+            Duration.ofHours(24)) { obj ->
+            val row = obj.arrayOrEmpty("lookup")?.singleOrNull()?.asJsonObject
+                ?: throw IllegalArgumentException()
+            require(row.text("idLeague") == request.leagueId)
+            SportsProviderResult.Success(ProviderLeagueMetadata(
+                league = ProviderLeague(row.text("strLeague"), request.leagueId, row.text("strSport")),
+                country = row.text("strCountry"), season = row.text("strCurrentSeason"),
+            ))
+        }
+    }
+
+    /** Standings are documented only in V1. This is the sole URL-key request, never logged. */
+    override suspend fun standings(request: ProviderStandingsRequest): SportsProviderResult<ProviderStandings> {
+        if (!LEAGUE_ID.matches(request.leagueId) ||
+            request.season?.let { parseSeasonRange(it) == null } == true) return invalidConfiguration()
+        val credentials = storedCredentials() ?: return invalidConfiguration()
+        val key = cacheKey("standings", "${request.leagueId}|${request.season}|$standingsBaseUrl", credentials)
+        cache.get<ProviderStandings>(key, clock.instant())?.let { return SportsProviderResult.Success(it) }
+        // Saving a key is not proof of a paid account. V1 also accepts free development keys.
+        when (val access = requirePremiumAccess(credentials)) {
+            is SportsProviderResult.Failure -> return access
+            is SportsProviderResult.Success -> Unit
+        }
+        val url = standingsBaseUrl.toHttpUrlOrNull()?.newBuilder()
+            ?.addPathSegment(credentials.secret)?.addPathSegment("lookuptable.php")
+            ?.addQueryParameter("l", request.leagueId)
+            ?.apply { request.season?.let { addQueryParameter("s", it) } }?.build()
+            ?: return invalidConfiguration()
+        val result = httpClient.get(url, SportsProviderAuth.None, null, allowInsecureHttp) { body ->
+            val obj = JsonParser.parseString(body).asJsonObject
+            val rows = obj.arrayOrEmpty("table") ?: throw IllegalArgumentException()
+            val mapped = mapProviderItems(rows, maxItems = 500) { element ->
+                val row = element.asJsonObject
+                require(row.text("idLeague") == request.leagueId)
+                require(request.season == null || row.text("strSeason") == request.season)
+                ProviderStandingRow(
+                    competitor = ProviderCompetitor(requireNotNull(row.text("strTeam")), row.text("idTeam"),
+                        ProviderCompetitorKind.TEAM),
+                    rank = row.text("intRank")?.toIntOrNull()?.takeIf { it > 0 },
+                    values = TABLE_FIELDS.associateWith { row.text(it) },
+                )
+            }
+            val batch = (mapped as? SportsProviderResult.Success)?.value ?: throw IllegalArgumentException()
+            val first = rows.firstOrNull()?.asJsonObject
+            ProviderStandings(
+                league = ProviderLeague(first?.text("strLeague"), request.leagueId, "Soccer"),
+                season = request.season ?: first?.text("strSeason"),
+                groups = if (batch.items.isEmpty()) emptyList() else listOf(ProviderStandingGroup(
+                    null, TABLE_FIELDS.map { ProviderStandingColumn(it) }, batch.items.sortedBy { it.rank ?: Int.MAX_VALUE },
+                )),
+                updatedAt = first?.text("dateUpdated")?.let(::parseUtcDateTime),
+            )
+        }
+        if (result is SportsProviderResult.Success) cache.put(key, result.value, Duration.ofMinutes(30), clock.instant())
+        return result
+    }
+
+    private fun invalidConfiguration() = SportsProviderResult.Failure(SportsProviderError.INVALID_CONFIGURATION)
+
+    private suspend fun requirePremiumAccess(credentials: SportsProviderCredentials): SportsProviderResult<Unit> {
+        val key = cacheKey("premium-access", "v2", credentials)
+        if (cache.get<Boolean>(key, clock.instant()) == true) return SportsProviderResult.Success(Unit)
+        return when (val response = getObject(listOf("all", "sports"), credentials)) {
+            is SportsProviderResult.Failure -> response
+            is SportsProviderResult.Success -> if (response.value.arrayOrEmpty("sports") == null) {
                 SportsProviderResult.Failure(SportsProviderError.INVALID_RESPONSE)
             } else {
+                cache.put(key, true, Duration.ofMinutes(15), clock.instant())
                 SportsProviderResult.Success(Unit)
             }
         }
+    }
+
+    private suspend fun <T : Any> cachedLookup(
+        kind: String, id: String, path: List<String>, ttl: Duration,
+        map: (JsonObject) -> SportsProviderResult<T>,
+    ): SportsProviderResult<T> {
+        val credentials = storedCredentials() ?: return invalidConfiguration()
+        val key = cacheKey(kind, id, credentials)
+        cache.get<T>(key, clock.instant())?.let { return SportsProviderResult.Success(it) }
+        val obj = when (val response = getObject(path, credentials)) {
+            is SportsProviderResult.Failure -> return response
+            is SportsProviderResult.Success -> response.value
+        }
+        val result = try { map(obj) } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) { SportsProviderResult.Failure(SportsProviderError.INVALID_RESPONSE) }
+        if (result is SportsProviderResult.Success) cache.put(key, result.value, ttl, clock.instant())
+        return result
     }
 
     override suspend fun events(
@@ -204,7 +371,7 @@ internal class TheSportsDbProvider(
     }
 
     private suspend fun storedCredentials(): SportsProviderCredentials? = try {
-        store.credentials(instanceId)
+        store.credentials(instanceId)?.takeIf { it.secret.isNotBlank() && it.secret.trim() != "123" }
     } catch (cancelled: CancellationException) {
         throw cancelled
     } catch (_: Exception) {
@@ -241,7 +408,7 @@ internal class TheSportsDbProvider(
         val fingerprint = MessageDigest.getInstance("SHA-256")
             .digest(identity.toByteArray(Charsets.UTF_8))
             .joinToString(separator = "") { byte -> "%02x".format(byte) }
-        return "${descriptor.typeId}:$instanceId:$fingerprint:$kind:$query"
+        return "${descriptor.typeId}:$instanceId:${config.cacheRevision}:$fingerprint:$kind:$query"
     }
 
     private fun mapScheduleEvent(element: JsonElement): MappedScheduleEvent {
@@ -260,11 +427,16 @@ internal class TheSportsDbProvider(
             event = ProviderEvent(
                 providerEventId = id,
                 sport = sport,
-                league = obj.text("strLeague")?.let { ProviderLeague(it, obj.text("idLeague"), sport) },
+                league = if (obj.text("strLeague") != null || obj.text("idLeague") != null) {
+                    ProviderLeague(obj.text("strLeague"), obj.text("idLeague"), sport)
+                } else null,
                 title = obj.text("strEvent"),
                 competitors = competitors,
                 eventStart = start,
-                status = mapStatus(obj.text("strStatus"), obj.text("strProgress"), null),
+                status = mapStatus(
+                    obj.text("strStatus") ?: obj.text("strPostponed")?.takeIf { it.equals("yes", true) }?.let { "POSTPONED" },
+                    obj.text("strProgress"), null,
+                ),
                 session = obj.text("strGroup"),
             ),
             utcEventDate = date,
@@ -394,6 +566,8 @@ internal class TheSportsDbProvider(
     }
 
     companion object {
+        private val TABLE_FIELDS = listOf("intPlayed", "intWin", "intDraw", "intLoss", "intGoalsFor",
+            "intGoalsAgainst", "intGoalDifference", "intPoints")
         private val SCHEDULE_CACHE_TTL = Duration.ofMinutes(15)
         private val LIVE_SCORE_CACHE_TTL = Duration.ofMinutes(2)
         private val SEASON_CACHE_TTL = Duration.ofHours(24)

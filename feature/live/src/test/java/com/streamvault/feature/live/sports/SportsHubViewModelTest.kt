@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.sports
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
@@ -83,13 +84,13 @@ class SportsHubViewModelTest {
         override val eventSourcePreference = flowOf(SportsEventSourcePreference.AUTOMATIC)
         override suspend fun setEventSourcePreference(preference: SportsEventSourcePreference) = Unit
     }
-    private val providerEventRouter = SportsProviderEventSourceRouter(SportsProviderRegistry(emptyList()))
+    private val providerEventRouter = SportsProviderEventSourceRouter(SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)))
     private val providerScoreRouter = SportsProviderScoreSourceRouter(
-        SportsProviderRegistry(emptyList()),
+        SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)),
         providerEventRouter,
     )
-    private val providerStandingsRouter = SportsProviderStandingsRouter(SportsProviderRegistry(emptyList()))
-    private val providerMetadataRouter = SportsProviderMetadataRouter(SportsProviderRegistry(emptyList()))
+    private val providerStandingsRouter = SportsProviderStandingsRouter(SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)))
+    private val providerMetadataRouter = SportsProviderMetadataRouter(SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)))
     private val scoreSourceSettings = object : SportsScoreSourceSettings {
         override val scoreSourcePreference = flowOf(SportsScoreSourcePreference.AUTOMATIC)
         override suspend fun setScoreSourcePreference(preference: SportsScoreSourcePreference) = Unit

@@ -1,0 +1,8 @@
+{
+  "data": [
+    { "sport": "nba", "tier": "free", "status": null },
+    { "sport": "nfl", "tier": "free", "status": null },
+    { "sport": "mlb", "tier": "paid", "status": "active" },
+    { "sport": "epl", "tier": "free", "status": null }
+  ]
+}

@@ -3,6 +3,7 @@ package com.streamvault.feature.live.sports
 import com.streamvault.domain.sports.provider.ProviderLeague
 import com.streamvault.domain.sports.provider.ProviderStandings
 import com.streamvault.domain.sports.provider.ProviderStandingsRequest
+import com.streamvault.domain.sports.provider.ProviderAttribution
 import com.streamvault.domain.sports.provider.StandingsProvider
 import com.streamvault.domain.sports.provider.SportsCapability
 import com.streamvault.domain.sports.provider.SportsProviderConfig
@@ -22,6 +23,7 @@ internal data class LoadedSportsStandings(
     val instanceId: String,
     val typeId: String,
     val providerName: String,
+    val attribution: ProviderAttribution?,
     val isStale: Boolean,
 )
 
@@ -152,6 +154,7 @@ internal class SportsProviderStandingsRouter @Inject constructor(
             instanceId = config.instanceId,
             typeId = config.typeId,
             providerName = registry.descriptor(config.typeId)?.displayName ?: config.typeId,
+            attribution = registry.descriptor(config.typeId)?.compliance?.attribution,
             isStale = stale,
         )
 

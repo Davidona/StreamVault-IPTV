@@ -1,6 +1,7 @@
 package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,8 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.MaterialTheme
@@ -36,6 +39,8 @@ import com.streamvault.domain.sports.provider.SportsEventSourcePreference
 import com.streamvault.domain.sports.provider.SportsProviderAuth
 import com.streamvault.domain.sports.provider.SportsProviderConfig
 import com.streamvault.domain.sports.provider.SportsProviderDescriptor
+import com.streamvault.domain.sports.provider.SportsProviderUsageSnapshot
+import com.streamvault.domain.sports.provider.ProviderAttributionFormat
 import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_TYPE_ID
 import com.streamvault.domain.sports.provider.SportsScoreSourceMode
 import com.streamvault.domain.sports.provider.SportsScoreSourcePreference
@@ -259,6 +264,7 @@ internal fun SportsDataProviderSettingsPage(
                         capabilities = viewModel.capabilitiesFor(config),
                         descriptor = descriptor,
                         accountNumber = accountNumber,
+                        usageSnapshot = uiState.usageSnapshots[config.instanceId],
                         state = uiState.connectionStates[config.instanceId],
                         busy = config.instanceId in uiState.busyInstances,
                         onEnabledChange = { viewModel.setEnabled(config, it) },
@@ -424,6 +430,13 @@ private fun SportsProviderDescriptorCard(
         verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
     ) {
         Text(localizedProviderName(descriptor.typeId), color = colors.primaryText, style = MaterialTheme.typography.titleSmall)
+        if (descriptor.isBeta) {
+            Text(
+                text = stringResource(R.string.settings_sports_provider_beta),
+                color = colors.secondaryText,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         Text(
             text = stringResource(R.string.settings_sports_provider_capabilities) + ": " +
                 capabilitySummary(descriptor.capabilities),
@@ -445,6 +458,7 @@ private fun SportsProviderAccountCard(
     capabilities: Set<SportsCapability>,
     descriptor: SportsProviderDescriptor?,
     accountNumber: Int,
+    usageSnapshot: SportsProviderUsageSnapshot?,
     state: SportsProviderConnectionState?,
     busy: Boolean,
     onEnabledChange: (Boolean) -> Unit,
@@ -474,12 +488,35 @@ private fun SportsProviderAccountCard(
                 style = MaterialTheme.typography.bodySmall,
             )
         } else {
+            if (descriptor.isBeta) {
+                Text(
+                    text = stringResource(R.string.settings_sports_provider_beta),
+                    color = colors.secondaryText,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             Text(
                 text = stringResource(R.string.settings_sports_provider_capabilities) + ": " +
                     capabilitySummary(capabilities),
                 color = colors.secondaryText,
                 style = MaterialTheme.typography.bodySmall,
             )
+        }
+        usageSnapshot?.let { usage ->
+            usage.planTier?.let { tier ->
+                Text(
+                    text = stringResource(R.string.settings_sports_provider_plan_tier, tier),
+                    color = colors.secondaryText,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            usage.requestsRemaining?.let { remaining ->
+                Text(
+                    text = stringResource(R.string.settings_sports_provider_usage_remaining, remaining),
+                    color = colors.secondaryText,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
         SwitchSettingsRow(
             label = stringResource(if (config.enabled) R.string.settings_enabled else R.string.settings_disabled),
@@ -555,6 +592,7 @@ private fun SportsProviderConfigDialog(
     onDraftChanged: () -> Unit,
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
+    val context = androidx.compose.ui.platform.LocalContext.current
     var baseUrl by remember(existing?.instanceId, descriptor.typeId) {
         mutableStateOf(existing?.baseUrl ?: descriptor.defaultBaseUrl.orEmpty())
     }
@@ -575,8 +613,14 @@ private fun SportsProviderConfigDialog(
     val baseUrlIsValid = isValidOptionalHttpsUrl(baseUrl) && (!isCustomProvider || baseUrl.isNotBlank())
     val parsedLeagueIds = parseEventLeagueIds(leagueIds)
     val leagueIdsAreValid = parsedLeagueIds != null &&
-        (descriptor.typeId != THESPORTSDB_TYPE_ID ||
-            parsedLeagueIds.isNotEmpty() && parsedLeagueIds.all { it.matches(Regex("\\d{1,12}")) })
+        when (descriptor.typeId) {
+            THESPORTSDB_TYPE_ID -> parsedLeagueIds.isNotEmpty() &&
+                parsedLeagueIds.all { it.matches(Regex("\\d{1,12}")) }
+            ODDSPAPI_TYPE_ID -> parsedLeagueIds.size <= 5 &&
+                parsedLeagueIds.all { it.matches(Regex("[1-9]\\d{0,11}")) }
+            OPENLIGADB_TYPE_ID -> parsedLeagueIds.size in 1..5 && parsedLeagueIds.all(::isOpenLigaDbScope)
+            else -> true
+        }
     val customDefinitionIsValid = !isCustomProvider || customDefinitionJson.isNotBlank()
 
     PremiumDialog(
@@ -586,6 +630,22 @@ private fun SportsProviderConfigDialog(
         bodyHeightFraction = if (isCustomProvider) 0.86f else 0.68f,
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8)) {
+                descriptor.compliance?.attribution?.let { attribution ->
+                    if (attribution.format == ProviderAttributionFormat.ODBL && attribution.licenseUrl != null) {
+                        OpenLigaDbAttribution(attribution, colors.secondaryText)
+                    } else {
+                        Text(
+                            text = stringResource(
+                                if (attribution.format == ProviderAttributionFormat.FOOTBALL_DATA) {
+                                    R.string.settings_sports_provider_football_data_attribution
+                                } else R.string.settings_sports_provider_attribution,
+                                attribution.sourceName,
+                            ),
+                            color = colors.secondaryText,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
                 if (descriptor.supportsCustomBaseUrl) {
                     Text(
                         text = stringResource(R.string.settings_sports_provider_base_url),
@@ -613,10 +673,23 @@ private fun SportsProviderConfigDialog(
                         color = colors.secondaryText,
                         style = MaterialTheme.typography.labelSmall,
                     )
+                    if (customDefinitionJson.isBlank()) {
+                        CompactSettingsActionChip(
+                            label = stringResource(R.string.settings_sports_custom_definition_example_action),
+                            accent = colors.accent,
+                            enabled = !isSaving,
+                            onClick = {
+                                customDefinitionJson = customSportsProviderExample(
+                                    context.getString(R.string.settings_sports_provider_custom_json),
+                                )
+                                onDraftChanged()
+                            },
+                        )
+                    }
                     EpgSourceTextField(
                         value = customDefinitionJson,
                         onValueChange = { customDefinitionJson = it; onDraftChanged() },
-                        placeholder = stringResource(R.string.settings_sports_custom_definition_hint),
+                        placeholder = stringResource(R.string.settings_sports_custom_definition_placeholder),
                         modifier = Modifier.heightIn(min = 112.dp, max = 200.dp),
                         singleLine = false,
                         maxLines = 8,
@@ -639,7 +712,7 @@ private fun SportsProviderConfigDialog(
                     SportsCapability.STANDINGS in descriptor.capabilities
                 ) {
                     Text(
-                        text = stringResource(R.string.settings_sports_provider_league_ids),
+                        text = stringResource(if (descriptor.typeId == OPENLIGADB_TYPE_ID) R.string.settings_sports_provider_openligadb_scopes else R.string.settings_sports_provider_league_ids),
                         color = colors.secondaryText,
                         style = MaterialTheme.typography.labelSmall,
                     )
@@ -649,7 +722,7 @@ private fun SportsProviderConfigDialog(
                         placeholder = stringResource(R.string.settings_sports_provider_league_ids),
                     )
                     Text(
-                        text = stringResource(R.string.settings_sports_provider_league_ids_hint),
+                        text = stringResource(if (descriptor.typeId == OPENLIGADB_TYPE_ID) R.string.settings_sports_provider_openligadb_scope_hint else R.string.settings_sports_provider_league_ids_hint),
                         color = colors.secondaryText,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -846,17 +919,29 @@ private fun CustomProviderCredentialsFields(
 @Composable
 private fun localizedProviderName(typeId: String): String = when (typeId) {
     THESPORTSDB_TYPE_ID -> stringResource(R.string.settings_sports_provider_thesportsdb_name)
+    HIGHLIGHTLY_TYPE_ID -> stringResource(R.string.settings_sports_provider_highlightly_name)
+    FOOTBALL_DATA_TYPE_ID -> stringResource(R.string.settings_sports_provider_football_data_name)
+    ODDSPAPI_TYPE_ID -> stringResource(R.string.settings_sports_provider_oddspapi_name)
+    OPENLIGADB_TYPE_ID -> stringResource(R.string.settings_sports_provider_openligadb_name)
     CUSTOM_SPORTS_PROVIDER_TYPE_ID -> stringResource(R.string.settings_sports_provider_custom_json)
     else -> typeId
 }
 
 private fun android.content.Context.localizedProviderName(typeId: String): String = when (typeId) {
     THESPORTSDB_TYPE_ID -> getString(R.string.settings_sports_provider_thesportsdb_name)
+    HIGHLIGHTLY_TYPE_ID -> getString(R.string.settings_sports_provider_highlightly_name)
+    FOOTBALL_DATA_TYPE_ID -> getString(R.string.settings_sports_provider_football_data_name)
+    ODDSPAPI_TYPE_ID -> getString(R.string.settings_sports_provider_oddspapi_name)
+    OPENLIGADB_TYPE_ID -> getString(R.string.settings_sports_provider_openligadb_name)
     CUSTOM_SPORTS_PROVIDER_TYPE_ID -> getString(R.string.settings_sports_provider_custom_json)
     else -> typeId
 }
 
 private const val THESPORTSDB_TYPE_ID = "thesportsdb"
+private const val HIGHLIGHTLY_TYPE_ID = "highlightly"
+private const val FOOTBALL_DATA_TYPE_ID = "football-data"
+private const val ODDSPAPI_TYPE_ID = "oddspapi"
+private const val OPENLIGADB_TYPE_ID = "openligadb"
 
 @Composable
 private fun capabilitySummary(capabilities: Set<SportsCapability>): String {
@@ -900,6 +985,40 @@ private fun credentialsValid(
     SportsProviderAuth.Bearer -> existing || secret.isNotBlank()
 }
 
+private fun customSportsProviderExample(localizedName: String): String =
+    """
+        {
+          "name": ${JSONObject.quote(localizedName)},
+          "auth": { "mode": "api_key_header", "parameterName": "X-API-Key" },
+          "events": {
+            "endpoint": "/fixtures?from={fromDate}&to={toDate}&leagueId={leagueId}",
+            "items": "data.events",
+            "id": "id",
+            "sport": "sport",
+            "leagueName": "league.name",
+            "leagueId": "league.id",
+            "title": "title",
+            "start": "start",
+            "startFormat": "ISO_OFFSET",
+            "homeName": "home.name",
+            "awayName": "away.name",
+            "status": "status"
+          },
+          "scores": {
+            "endpoint": "/scores?ids={eventIds}",
+            "items": "data.scores",
+            "eventId": "id",
+            "homeName": "home.name",
+            "homeScore": "home.score",
+            "awayName": "away.name",
+            "awayScore": "away.score",
+            "status": "status",
+            "updatedAt": "updatedAt",
+            "updatedAtFormat": "ISO_OFFSET"
+          }
+        }
+    """.trimIndent()
+
 private fun customCredentialsValid(
     definition: String,
     existing: Boolean,
@@ -923,6 +1042,32 @@ private fun customCredentialsValid(
     }
 }
 
+@Composable
+private fun OpenLigaDbAttribution(
+    attribution: com.streamvault.domain.sports.provider.ProviderAttribution,
+    color: androidx.compose.ui.graphics.Color,
+) {
+    val uriHandler = LocalUriHandler.current
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            stringResource(R.string.settings_sports_provider_attribution, attribution.sourceName),
+            modifier = Modifier.clickable { uriHandler.openUri(attribution.sourceUrl) },
+            color = color,
+            textDecoration = TextDecoration.Underline,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            stringResource(R.string.settings_sports_provider_openligadb_license_name),
+            modifier = Modifier.clickable { attribution.licenseUrl?.let(uriHandler::openUri) },
+            color = color,
+            textDecoration = TextDecoration.Underline,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+private fun isOpenLigaDbScope(value: String): Boolean =
+    value.matches(Regex("[A-Za-z0-9._-]{1,40}:(?:19\\d{2}|20\\d{2}|2100)"))
 private fun parseEventLeagueIds(input: String): List<String>? {
     val trimmed = input.trim()
     if (trimmed.isEmpty()) return emptyList()

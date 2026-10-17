@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Detalye ng koponan: %1$s</string>
     <string name="live_sports_league_metadata">Detalye ng liga: %1$s</string>
     <string name="live_sports_standings_season">Season: %1$s</string>
+    <string name="live_sports_table_played">Laro</string>
+    <string name="live_sports_table_won">Panalo</string>
+    <string name="live_sports_table_drawn">Tabla</string>
+    <string name="live_sports_table_lost">Talo</string>
+    <string name="live_sports_table_goals_for">Gol na naitala</string>
+    <string name="live_sports_table_goals_against">Gol na pinayagan</string>
+    <string name="live_sports_table_goal_difference">Agwat ng gol</string>
+    <string name="live_sports_table_points">Puntos</string>
+    <string name="live_sports_football_data_attribution">Data ng football na ibinigay ng %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

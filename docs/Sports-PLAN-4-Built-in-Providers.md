@@ -85,7 +85,7 @@ No technical configuration for ordinary users.
 
 ## 1.2 Custom REST/JSON provider
 
-This remains the advanced Plan 3 option for unsupported/self-hosted APIs.
+This remains the advanced Plan 3 option for unsupported/self-hosted APIs. The settings form offers an editable starter mapping and setup instructions; the complete schema and examples are in [`sports/providers/custom-json.md`](sports/providers/custom-json.md).
 
 Users may configure:
 
@@ -111,6 +111,8 @@ Published terms/docs are sufficiently clear that the provider is a strong candid
 ## GREEN-WITH-GATE — strong candidate, one material question remains
 
 Technically and commercially promising, but StreamVault should obtain clarification or satisfy a specific term before enabling the adapter in production.
+
+These colors track terms and release rights, not test maturity. The app marks TheSportsDB and Highlightly as **Beta** while live-account validation is unavailable; Beta does not alter either provider’s compliance gate.
 
 ## YELLOW — technically useful but rights/terms require caution
 
@@ -2112,6 +2114,7 @@ docs/sports/providers/
 ├── thesportsdb.md
 ├── balldontlie.md
 ├── highlightly.md
+├── custom-json.md
 ├── sportmonks.md
 ├── football-data.md
 ├── oddspapi.md
@@ -2237,12 +2240,12 @@ Cached provider data may be shown only according to the provider's terms/cache r
 
 ## Phase 4.1 — Provider compliance registry
 
-- [ ] Add internal provider review metadata.
-- [ ] Add release-gate enum.
-- [ ] Add attribution capability.
-- [ ] Add artwork-rights status.
-- [ ] Add terms/docs source fields.
-- [ ] Add tests ensuring `DO_NOT_SHIP` adapters cannot appear in Play provider registry.
+- [x] Add internal provider review metadata.
+- [x] Add release-gate enum.
+- [x] Add attribution capability.
+- [x] Add artwork-rights status.
+- [x] Add terms/docs source fields.
+- [x] Add tests ensuring `DO_NOT_SHIP` adapters cannot appear in Play provider registry.
 
 ---
 
@@ -2254,47 +2257,64 @@ The Plan 3 implementation already provides the key UI, premium-key V2 auth, even
 - [x] V2 auth.
 - [x] event mapping.
 - [x] live-score mapping.
-- [ ] standings mapping.
-- [ ] TV-broadcast mapping.
-- [ ] attribution in every applicable Sports UI surface.
+- [x] standings mapping — documented V1-only endpoint; all other operations use V2.
+- [x] TV-broadcast mapping.
+- [x] attribution in every applicable Sports UI surface.
 - [x] cache/rate policy.
 - [x] fixture tests.
 - [x] API-first integration.
-- [ ] broadcaster → local channel integration.
-- [ ] real-device test.
+- [x] broadcaster → local channel integration.
+- [x] Beta status is visible in provider settings because no live Premium account is available.
+- [ ] live Premium-account validation — deferred by the user (no key available); the provider remains Beta until a real account check is completed.
 
 ---
 
 ## Phase 4.3 — BALLDONTLIE
 
-- [ ] key UI.
-- [ ] account/subscription introspection.
-- [ ] sport capability resolver.
-- [ ] event mapping.
-- [ ] live-score mapping.
-- [ ] standings where available.
-- [ ] cache/rate policy.
-- [ ] fixture tests.
-- [ ] API-first + EPG channel resolver test.
+- [x] key UI — uses the localized shared provider configuration form.
+- [x] account/subscription introspection.
+- [x] sport capability resolver.
+- [x] event mapping.
+- [x] live-score mapping.
+- [x] standings where available, with the account tier checked per sport.
+- [x] cache/rate policy.
+- [x] fixture tests.
+- [x] API-first + EPG channel resolver test.
+
+The initial adapter scope is NBA, NFL, MLB, and the English Premier League.
+Other BALLDONTLIE sport APIs remain future work. The API-backed behavior was
+verified against documented-response fixtures; no live account key was
+configured or tested. See `sports/providers/balldontlie.md`.
+Account-tier checks distinguish EPL match access (ALL-STAR/Paid) from its
+Free standings route; NBA standings require GOAT/Paid Plus, and NFL/MLB
+standings require ALL-STAR/Paid.
 
 ---
 
 ## Phase 4.4 — Highlightly
 
-- [ ] key UI.
-- [ ] direct All Sports base.
-- [ ] sport-prefix routing.
-- [ ] pagination.
-- [ ] matches/live scores.
-- [ ] standings.
-- [ ] metadata.
-- [ ] shared quota tracking.
-- [ ] fixture tests.
-- [ ] no highlights/video initially.
+- [x] key UI through the shared provider credentials form.
+- [x] direct All Sports base.
+- [x] sport-prefix routing.
+- [x] bounded offset pagination.
+- [x] matches/live scores and game status.
+- [x] standings for documented route shapes.
+- [x] team and supported league metadata.
+- [x] shared quota tracking; show remaining requests and plan tier when supplied.
+- [x] fixture tests.
+- [x] no highlights/video endpoints.
+
+Implementation and fixture coverage are recorded in
+[`sports/providers/highlightly.md`](sports/providers/highlightly.md). Highlightly is marked **Beta** in provider settings until a live account validation can be completed; no account key is available.
 
 ---
 
-## Phase 4.5 — Sportmonks release gate
+## Phase 4.5 — Sportmonks (skipped per user instruction)
+
+**Status (2026-10-17):** Skipped at the user's direction. No vendor inquiry was
+sent and no Sportmonks adapter was implemented or registered. The direct
+native-BYOK gate remains uncleared; Sportmonks stays unavailable as a built-in
+provider unless this decision is revisited and the gate is cleared.
 
 Before coding production adapter:
 
@@ -2325,30 +2345,46 @@ support user's Sportmonks proxy through Custom REST/JSON
 
 ## Phase 4.6 — football-data.org
 
-- [ ] token UI.
-- [ ] attribution.
-- [ ] event/score/standings.
-- [ ] plan/rate handling.
-- [ ] cache cleanup on loss of subscription.
-- [ ] no provider logos.
-- [ ] single-application/BYOK review.
+- [x] token UI through the shared provider credential form.
+- [x] required attribution on provider-backed event and standings surfaces.
+- [x] event/score/standings mapping.
+- [x] conservative local request cap and provider rate metadata.
+- [x] credential-scoped cache cleanup on 401/403.
+- [x] no provider logos or artwork.
+- [x] single-application/BYOK review recorded from published terms.
+
+Offline implementation and fixture coverage are recorded in
+[`sports/providers/football-data.md`](sports/providers/football-data.md).
+No live account validation was performed.
 
 ---
 
 ## Phase 4.7 — OddsPapi score-only adapter
 
-- [ ] key UI.
-- [ ] secure URL redaction.
-- [ ] fixtures.
-- [ ] participant mapping.
-- [ ] scores.
-- [ ] fixture state.
-- [ ] explicitly omit odds endpoints from StreamVault capabilities.
+- [x] key UI through the shared provider credential form.
+- [x] query-key transport remains absent from app logs and typed failures.
+- [x] bounded fixture lookup and time filtering.
+- [x] participant mapping.
+- [x] period-score aggregation.
+- [x] fixture-state mapping.
+- [x] omit odds endpoints and capabilities.
 - [ ] provider-use confirmation before release.
+
+**Release status:** Prototype only. Terms and documented API behavior were
+reviewed on 2026-10-17. The terms do not answer whether a user's direct key may
+be used to show fixtures/scores in a paid Android media-player app. No vendor
+inquiry was sent, so the production release gate remains closed. See
+[`sports/providers/oddspapi.md`](sports/providers/oddspapi.md).
 
 ---
 
 ## Phase 4.8 — Conditional providers
+
+The published-term reviews were completed for API-SPORTS and SportDB.dev on
+2026-10-17. SportDevs' official terms URL returned HTTP 502 and could not be
+reviewed successfully. No provider was contacted and none has an adapter in
+this change. See
+[`sports/providers/conditional-and-open-data-review-2026-10-17.md`](sports/providers/conditional-and-open-data-review-2026-10-17.md).
 
 For each of:
 
@@ -2358,10 +2394,14 @@ SportDB.dev
 SportDevs
 ```
 
-- [ ] finish rights/terms review.
-- [ ] obtain clarification where necessary.
-- [ ] set release gate.
-- [ ] only implement/release after gate passes.
+- [x] finish the available rights/terms review.
+- [ ] obtain clarification where public terms do not resolve app display.
+- [x] set or retain a closed release gate.
+- [x] keep adapters unimplemented/unreleased until their gates pass.
+
+Current gates: API-SPORTS `DO_NOT_SHIP` pending publication permissions;
+SportDB.dev `REQUIRES_VENDOR_CONFIRMATION`; SportDevs `DO_NOT_SHIP` until its
+terms can be reviewed.
 
 API-SPORTS adapter work may be prototyped against documented schemas but remains disabled if publication rights remain unresolved.
 
@@ -2376,6 +2416,9 @@ SportsDataIO
 Sportradar
 ```
 
+Deferred because this work contains no customer request or production
+agreement for these products. No adapters were added.
+
 Requirements:
 
 - [ ] user has production commercial agreement.
@@ -2388,11 +2431,24 @@ Requirements:
 
 ## Phase 4.10 — Optional OpenLigaDB
 
-- [ ] ODbL compliance analysis.
-- [ ] attribution.
-- [ ] fixtures/results/tables.
-- [ ] isolate cached database if needed for share-alike compliance.
-- [ ] low-priority regional adapter.
+- [x] ODbL compliance analysis.
+- [x] linked source and ODbL attribution on provider event and standings surfaces.
+- [x] offline fixture, result/status, and table adapter.
+- [x] keep only bounded raw responses in process memory; do not create a derivative database.
+- [x] keep as a low-priority optional adapter.
+
+The 2026-10-17 review found that publicly used Produced Works need an
+OpenLigaDB/ODbL notice with source and license links; derivative databases have
+additional share-alike and machine-readable access duties. The optional adapter
+ships only bounded, short-lived raw-response caching, disables provider artwork,
+and shows linked attribution on data surfaces. No live OpenLigaDB account was
+used. Details are in
+[`sports/providers/conditional-and-open-data-review-2026-10-17.md`](sports/providers/conditional-and-open-data-review-2026-10-17.md).
+
+The implementation uses at most five configured `shortcut:season` scopes,
+fetches documented group/season-match/table routes, filters fixtures to the
+requested half-open time window, and spaces requests by at least 1.2 seconds
+across the app process. See [`sports/providers/openligadb.md`](sports/providers/openligadb.md).
 
 ---
 
@@ -2442,7 +2498,7 @@ data allowed in applications/products
 
 ## Best football+broadcast premium provider
 
-**Sportmonks**
+**Sportmonks** (unimplemented candidate; skipped in this change)
 
 Why:
 
@@ -2468,15 +2524,17 @@ but only for users with actual commercial contracts.
 
 # 54. Final recommendation
 
-Ship Plan 4 in this order:
+For integrations that are enabled or have an approved next step, proceed in this
+order. Sportmonks is skipped, OddsPapi and conditional services remain gated,
+and enterprise providers wait for a customer contract:
 
 ```text
 1. TheSportsDB
 2. BALLDONTLIE
 3. Highlightly
-4. Sportmonks (after confirmation)
-5. football-data.org
-6. OddsPapi score-only
+4. football-data.org
+5. OpenLigaDB (optional)
+6. OddsPapi score-only, after provider-use confirmation
 7. conditional APIs as terms clear
 8. enterprise adapters only when requested
 ```
@@ -2508,7 +2566,7 @@ clean failure behavior
         v              v              v              v
        EPG        TheSportsDB    BALLDONTLIE    Highlightly
         |              |              |              |
-        |          Sportmonks     Football-Data     ...
+        |       Football-Data     OpenLigaDB        ...
         |              |              |              |
         +--------------+--------------+--------------+
                                |

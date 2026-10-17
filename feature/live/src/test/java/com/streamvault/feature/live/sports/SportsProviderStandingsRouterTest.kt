@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.sports
 
+import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.sports.provider.ProviderCompetitor
 import com.streamvault.domain.sports.provider.ProviderStandingColumn
@@ -29,7 +30,7 @@ class SportsProviderStandingsRouterTest {
     fun `automatic prefers compatible league identity and explicit source stays isolated`() {
         val primary = TestFactory("primary")
         val sameType = TestFactory("api")
-        val registry = SportsProviderRegistry(listOf(primary, sameType))
+        val registry = SportsProviderRegistry(listOf(primary, sameType), SportsProviderReleasePolicy(development = true))
         val router = SportsProviderStandingsRouter(registry)
         val configs = listOf(
             config("primary-account", "primary", priority = 0),
@@ -77,7 +78,7 @@ class SportsProviderStandingsRouterTest {
             ),
         )
         val factory = TestFactory("standings", response = { response })
-        val router = SportsProviderStandingsRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderStandingsRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
         val config = config("standings-account", "standings", leagueIds = listOf("pl-id"))
         val providerSource = SportsSourceRef.Provider("events-account", "another-api", "event-1")
         val providers = router.eligibleProviders(
@@ -100,7 +101,7 @@ class SportsProviderStandingsRouterTest {
     @Test
     fun `league ID from another provider is never sent without the selected account scope`() = runTest {
         val factory = TestFactory("standings")
-        val router = SportsProviderStandingsRouter(SportsProviderRegistry(listOf(factory)))
+        val router = SportsProviderStandingsRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))
         val config = config("standings-account", "standings")
         val providers = router.eligibleProviders(
             listOf(config),

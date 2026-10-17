@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Joukkueen tiedot: %1$s</string>
     <string name="live_sports_league_metadata">Liigan tiedot: %1$s</string>
     <string name="live_sports_standings_season">Kausi: %1$s</string>
+    <string name="live_sports_table_played">Ottelut</string>
+    <string name="live_sports_table_won">Voitot</string>
+    <string name="live_sports_table_drawn">Tasapelit</string>
+    <string name="live_sports_table_lost">Tappiot</string>
+    <string name="live_sports_table_goals_for">Tehdyt maalit</string>
+    <string name="live_sports_table_goals_against">Päästetyt maalit</string>
+    <string name="live_sports_table_goal_difference">Maaliero</string>
+    <string name="live_sports_table_points">Pisteet</string>
+    <string name="live_sports_football_data_attribution">Jalkapallotiedot tarjoaa %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

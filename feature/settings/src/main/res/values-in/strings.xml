@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Masukkan nama pengguna dan rahasia yang diperlukan.</string>
     <string name="settings_sports_provider_invalid_input">Periksa URL dan detail yang diperlukan.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Paket: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Sisa permintaan: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Kunci API premium</string>
     <string name="settings_sports_provider_secret">Kunci API, token, atau kata sandi</string>
     <string name="settings_sports_provider_keep_credentials">Biarkan kosong untuk mempertahankan kredensial tersimpan.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Sumber data tim dan liga</string>
     <string name="settings_sports_provider_custom_json">Penyedia JSON kustom</string>
     <string name="settings_sports_custom_definition">Konfigurasi (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Masukkan jalur endpoint, mode autentikasi, dan pemilih bidang JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Masukkan HTTPS base URL API Anda di atas. Sisipkan contoh, lalu sesuaikan path endpoint dan kolom JSON dengan dokumentasi API Anda. Masukkan key atau token di kolom kredensial.</string>
+    <string name="settings_sports_provider_attribution">Data dari %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Data sepak bola disediakan oleh %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Liga dan musim</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Format: singkatan:musim, dipisahkan koma. Contoh: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · belum diuji dengan akun penyedia yang aktif.</string>
+    <string name="settings_sports_custom_definition_example_action">Sisipkan contoh</string>
+    <string name="settings_sports_custom_definition_placeholder">Tempel JSON penyedia</string>
 </resources>

@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Saisissez le nom d’utilisateur et le secret requis.</string>
     <string name="settings_sports_provider_invalid_input">Vérifiez l’URL et les informations requises.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Offre : %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Requêtes restantes : %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Clé API premium</string>
     <string name="settings_sports_provider_secret">Clé API, jeton ou mot de passe</string>
     <string name="settings_sports_provider_keep_credentials">Laissez vide pour conserver les identifiants enregistrés.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Source des données des équipes et des ligues</string>
     <string name="settings_sports_provider_custom_json">Fournisseur JSON personnalisé</string>
     <string name="settings_sports_custom_definition">Configuration (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Saisissez les chemins des points de terminaison, le mode d’authentification et les sélecteurs de champs JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Saisissez ci-dessus l’URL HTTPS de base de votre API. Insérez l’exemple, puis remplacez les chemins des points de terminaison et les champs JSON selon la documentation de votre API. Saisissez la clé ou le jeton dans le champ des identifiants.</string>
+    <string name="settings_sports_provider_attribution">Données de %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Données de football fournies par %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligues et saisons</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Format : raccourci:saison, séparés par des virgules. Exemple : bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Bêta · non testé avec un compte actif du fournisseur.</string>
+    <string name="settings_sports_custom_definition_example_action">Insérer un exemple</string>
+    <string name="settings_sports_custom_definition_placeholder">Collez le JSON du fournisseur</string>
 </resources>

@@ -12,6 +12,8 @@ import com.streamvault.domain.sports.provider.SportsProviderDescriptor
 import com.streamvault.domain.sports.provider.SportsProviderRegistry
 import com.streamvault.domain.sports.provider.SportsProviderResult
 import com.streamvault.domain.sports.provider.SportsProviderStore
+import com.streamvault.domain.sports.provider.SportsProviderUsageProvider
+import com.streamvault.domain.sports.provider.SportsProviderUsageSnapshot
 import com.streamvault.domain.sports.provider.SportsCapability
 import com.streamvault.domain.sports.provider.SportsEventSourcePreference
 import com.streamvault.domain.sports.provider.SportsEventSourceSettings
@@ -42,6 +44,7 @@ internal data class SportsProviderSettingsUiState(
     val configurations: List<SportsProviderConfig> = emptyList(),
     val descriptors: List<SportsProviderDescriptor> = emptyList(),
     val credentialedInstanceIds: Set<String> = emptySet(),
+    val usageSnapshots: Map<String, SportsProviderUsageSnapshot> = emptyMap(),
     val eventSourcePreference: SportsEventSourcePreference = SportsEventSourcePreference.AUTOMATIC,
     val scoreSourcePreference: SportsScoreSourcePreference = SportsScoreSourcePreference.AUTOMATIC,
     val standingsSourcePreference: SportsStandingsSourcePreference = SportsStandingsSourcePreference.AUTOMATIC,
@@ -80,6 +83,11 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
             try {
                 val configurations = store.configurations()
                 val credentialedInstanceIds = store.credentialedInstanceIds()
+                val usageSnapshots = buildMap {
+                    configurations.forEach { config ->
+                        usageSnapshotFor(config)?.let { put(config.instanceId, it) }
+                    }
+                }
                 val eventSourcePreference = eventSourceSettings.eventSourcePreference.first()
                 val scoreSourcePreference = scoreSourceSettings.scoreSourcePreference.first()
                 val standingsSourcePreference = standingsSourceSettings.standingsSourcePreference.first()
@@ -89,6 +97,7 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
                         isLoading = false,
                         loadFailed = false,
                         configurations = configurations,
+                        usageSnapshots = usageSnapshots,
                         descriptors = registry.descriptors,
                         credentialedInstanceIds = credentialedInstanceIds,
                         eventSourcePreference = eventSourcePreference,
@@ -168,6 +177,7 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
                             existing == null -> it.credentialedInstanceIds - prepared.instanceId
                             else -> it.credentialedInstanceIds
                         },
+                        usageSnapshots = it.usageSnapshots - prepared.instanceId,
                         operationFailed = false,
                         validationFailed = false,
                         lastSavedInstanceId = prepared.instanceId,
@@ -287,6 +297,7 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
                         configurations = it.configurations.filterNot { config -> config.instanceId == instanceId },
                         credentialedInstanceIds = it.credentialedInstanceIds - instanceId,
                         connectionStates = it.connectionStates - instanceId,
+                        usageSnapshots = it.usageSnapshots - instanceId,
                         lastRemovedInstanceId = instanceId,
                     )
                 }
@@ -310,16 +321,20 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
+            var usageSnapshot: SportsProviderUsageSnapshot? = null
             val status = try {
                 if (registry.descriptors.none { it.typeId == config.typeId }) {
                     SportsProviderConnectionState.ADAPTER_UNAVAILABLE
                 } else {
                     val provider: SportsProvider = registry.create(config)
                     val tester = provider as? SportsProviderConnectionTester
+                    val credentials = store.credentials(config.instanceId)
                     if (tester == null) {
                         SportsProviderConnectionState.UNSUPPORTED
                     } else {
-                        when (tester.testConnection(store.credentials(config.instanceId))) {
+                        val result = tester.testConnection(credentials)
+                        usageSnapshot = (provider as? SportsProviderUsageProvider)?.usageSnapshot(credentials)
+                        when (result) {
                             is SportsProviderResult.Success -> SportsProviderConnectionState.SUCCESS
                             is SportsProviderResult.Failure -> SportsProviderConnectionState.FAILED
                         }
@@ -333,9 +348,21 @@ internal class SportsProviderSettingsViewModel @Inject constructor(
                 mutableState.update { it.copy(busyInstances = it.busyInstances - config.instanceId) }
             }
             mutableState.update {
-                it.copy(connectionStates = it.connectionStates + (config.instanceId to status))
+                it.copy(
+                    connectionStates = it.connectionStates + (config.instanceId to status),
+                    usageSnapshots = usageSnapshot?.let { snapshot ->
+                        it.usageSnapshots + (config.instanceId to snapshot)
+                    } ?: it.usageSnapshots,
+                )
             }
         }
+    }
+
+    private suspend fun usageSnapshotFor(config: SportsProviderConfig): SportsProviderUsageSnapshot? {
+        val provider = runCatching { registry.create(config) }.getOrNull() as? SportsProviderUsageProvider
+            ?: return null
+        val credentials = store.credentials(config.instanceId)
+        return provider.usageSnapshot(credentials)
     }
 
     fun testDraftConnection(

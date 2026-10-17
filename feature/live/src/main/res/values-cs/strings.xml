@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Informace o týmu: %1$s</string>
     <string name="live_sports_league_metadata">Informace o lize: %1$s</string>
     <string name="live_sports_standings_season">Sezóna: %1$s</string>
+    <string name="live_sports_table_played">Odehráno</string>
+    <string name="live_sports_table_won">Výhry</string>
+    <string name="live_sports_table_drawn">Remízy</string>
+    <string name="live_sports_table_lost">Prohry</string>
+    <string name="live_sports_table_goals_for">Vstřelené</string>
+    <string name="live_sports_table_goals_against">Obdržené</string>
+    <string name="live_sports_table_goal_difference">Rozdíl gólů</string>
+    <string name="live_sports_table_points">Body</string>
+    <string name="live_sports_football_data_attribution">Fotbalová data poskytuje %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

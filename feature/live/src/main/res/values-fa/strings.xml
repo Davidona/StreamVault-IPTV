@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">جزئیات تیم: %1$s</string>
     <string name="live_sports_league_metadata">جزئیات لیگ: %1$s</string>
     <string name="live_sports_standings_season">فصل: %1$s</string>
+    <string name="live_sports_table_played">بازی</string>
+    <string name="live_sports_table_won">برد</string>
+    <string name="live_sports_table_drawn">تساوی</string>
+    <string name="live_sports_table_lost">باخت</string>
+    <string name="live_sports_table_goals_for">گل زده</string>
+    <string name="live_sports_table_goals_against">گل خورده</string>
+    <string name="live_sports_table_goal_difference">تفاضل گل</string>
+    <string name="live_sports_table_points">امتیاز</string>
+    <string name="live_sports_football_data_attribution">داده‌های فوتبال ارائه‌شده توسط %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

@@ -44,6 +44,9 @@ data class SportsProviderDescriptor(
     val configurationVersion: Int = 1,
     val defaultBaseUrl: String? = null,
     val supportsCustomBaseUrl: Boolean = false,
+    val compliance: ProviderComplianceInfo? = null,
+    /** True when adapter behavior has fixture coverage but has not been checked against a live account. */
+    val isBeta: Boolean = false,
 ) {
     init {
         require(typeId.matches(Regex("[a-z0-9][a-z0-9._-]*")))

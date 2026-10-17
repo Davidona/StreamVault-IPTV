@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "Premier League - Regular Season",
+      "standings": [
+        {
+          "team": { "id": 10, "name": "Arsenal" },
+          "total": { "games": 8, "wins": 6, "draws": 1, "loses": 1, "scoredGoals": 17, "receivedGoals": 6 },
+          "points": 19,
+          "position": 1
+        },
+        {
+          "team": { "id": 20, "name": "Chelsea" },
+          "total": { "games": 8, "wins": 5, "draws": 2, "loses": 1, "scoredGoals": 15, "receivedGoals": 8 },
+          "points": 17,
+          "position": 2
+        }
+      ]
+    }
+  ],
+  "league": { "id": 39, "name": "Premier League", "season": 2026 }
+}

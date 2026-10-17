@@ -274,7 +274,17 @@
     <string name="live_sports_standings_loading">Loading standings…</string>
     <string name="live_sports_standings_unavailable">Standings unavailable</string>
     <string name="live_sports_standings_attribution">Data from %1$s</string>
+    <string name="live_sports_football_data_attribution">Football data provided by the %1$s</string>
     <string name="live_sports_team_metadata">Team details: %1$s</string>
     <string name="live_sports_league_metadata">League details: %1$s</string>
     <string name="live_sports_standings_season">Season: %1$s</string>
+    <string name="live_sports_table_played">Played</string>
+    <string name="live_sports_table_won">Won</string>
+    <string name="live_sports_table_drawn">Drawn</string>
+    <string name="live_sports_table_lost">Lost</string>
+    <string name="live_sports_table_goals_for">Goals for</string>
+    <string name="live_sports_table_goals_against">Goals against</string>
+    <string name="live_sports_table_goal_difference">Goal difference</string>
+    <string name="live_sports_table_points">Points</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

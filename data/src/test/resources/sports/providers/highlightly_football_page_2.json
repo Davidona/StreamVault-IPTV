@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": 502,
+      "round": "Regular Season - 8",
+      "date": "2026-10-17T19:00:00.000Z",
+      "homeTeam": { "id": 30, "name": "Liverpool", "type": "club" },
+      "awayTeam": { "id": 40, "name": "Tottenham", "type": "club" },
+      "league": { "id": 39, "season": 2026, "name": "Premier League" },
+      "state": {
+        "description": "Not started",
+        "score": { "current": "0 - 0", "penalties": "0 - 0" }
+      }
+    }
+  ],
+  "pagination": { "totalCount": 2, "offset": 1, "limit": 1 },
+  "plan": { "tier": "BASIC", "message": "Fixture plan" }
+}

@@ -84,6 +84,20 @@ interface SportsProviderConnectionTester : SportsProvider {
     suspend fun testConnection(credentials: SportsProviderCredentials?): SportsProviderResult<Unit>
 }
 
+/** Latest account-level usage metadata observed by an adapter, when its API exposes it. */
+data class SportsProviderUsageSnapshot(
+    val requestLimit: Int? = null,
+    val requestsRemaining: Int? = null,
+    val planTier: String? = null,
+    val observedAt: Instant? = null,
+    val resetAt: Instant? = null,
+)
+
+/** Optional, read-only usage reporting; adapters must never expose credentials or response bodies. */
+interface SportsProviderUsageProvider : SportsProvider {
+    fun usageSnapshot(credentials: SportsProviderCredentials?): SportsProviderUsageSnapshot?
+}
+
 /** Declared capabilities may be a subset of implemented ones (for example an account tier). */
 fun SportsProvider.validateCapabilities() {
     val implemented = buildSet {

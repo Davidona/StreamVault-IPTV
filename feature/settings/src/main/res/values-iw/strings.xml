@@ -872,6 +872,9 @@
     <string name="settings_sports_provider_credentials_required">יש להזין את שם המשתמש ואת הסוד הנדרשים.</string>
     <string name="settings_sports_provider_invalid_input">יש לבדוק את הכתובת ואת הפרטים הנדרשים.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">תוכנית: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">בקשות שנותרו: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">מפתח API פרימיום</string>
     <string name="settings_sports_provider_secret">מפתח API, אסימון או סיסמה</string>
     <string name="settings_sports_provider_keep_credentials">יש להשאיר ריק כדי לשמור את פרטי הגישה הקיימים.</string>
@@ -897,5 +900,16 @@
     <string name="settings_sports_metadata_source">מקור נתוני הקבוצות והליגות</string>
     <string name="settings_sports_provider_custom_json">ספק JSON מותאם אישית</string>
     <string name="settings_sports_custom_definition">הגדרות (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">הזינו נתיבי נקודות קצה, מצב אימות ובוררי שדות JSON.</string>
+    <string name="settings_sports_custom_definition_hint">הזינו למעלה את כתובת הבסיס HTTPS של ה-API. הוסיפו את הדוגמה, ואז החליפו את נתיבי נקודות הקצה ואת שדות ה-JSON בהתאם לתיעוד ה-API. הזינו את המפתח או האסימון בשדה פרטי הכניסה.</string>
+    <string name="settings_sports_provider_attribution">נתונים מאת %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">נתוני כדורגל מסופקים על ידי %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">ליגות ועונות</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">פורמט: קיצור:עונה, מופרדים בפסיקים. לדוגמה: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">בטא · לא נבדק עם חשבון פעיל של הספק.</string>
+    <string name="settings_sports_custom_definition_example_action">הוספת דוגמה</string>
+    <string name="settings_sports_custom_definition_placeholder">הדביקו JSON של ספק</string>
 </resources>

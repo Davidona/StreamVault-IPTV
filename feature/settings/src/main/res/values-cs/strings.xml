@@ -875,6 +875,9 @@
     <string name="settings_sports_provider_credentials_required">Zadejte požadované uživatelské jméno a tajný údaj.</string>
     <string name="settings_sports_provider_invalid_input">Zkontrolujte adresu URL a povinné údaje.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Plán: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Zbývající požadavky: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Prémiový klíč API</string>
     <string name="settings_sports_provider_secret">Klíč API, token nebo heslo</string>
     <string name="settings_sports_provider_keep_credentials">Nechte prázdné, chcete-li zachovat uložené přihlašovací údaje.</string>
@@ -900,5 +903,16 @@
     <string name="settings_sports_metadata_source">Zdroj informací o týmech a ligách</string>
     <string name="settings_sports_provider_custom_json">Vlastní poskytovatel JSON</string>
     <string name="settings_sports_custom_definition">Konfigurace (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Zadejte cesty koncových bodů, režim ověřování a selektory polí JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Výše zadejte základní HTTPS adresu URL svého API. Vložte příklad a potom upravte cesty koncových bodů a pole JSON podle dokumentace API. Klíč nebo token zadejte do pole přihlašovacích údajů.</string>
+    <string name="settings_sports_provider_attribution">Data od %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Fotbalová data poskytuje %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligy a sezóny</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Formát: zkratka ligy:sezóna, oddělené čárkami. Příklad: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · nebylo testováno s živým účtem poskytovatele.</string>
+    <string name="settings_sports_custom_definition_example_action">Vložit příklad</string>
+    <string name="settings_sports_custom_definition_placeholder">Vložte JSON poskytovatele</string>
 </resources>

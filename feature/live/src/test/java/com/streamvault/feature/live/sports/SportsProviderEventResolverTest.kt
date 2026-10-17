@@ -1,6 +1,7 @@
 package com.streamvault.feature.live.sports
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.Channel
 import com.streamvault.domain.sports.provider.ProviderCompetitor
 import com.streamvault.domain.sports.provider.ProviderCompetitorKind
 import com.streamvault.domain.sports.provider.ProviderCompetitorRole
@@ -12,6 +13,7 @@ import com.streamvault.domain.sports.provider.ProviderGameState
 import com.streamvault.domain.sports.provider.ProviderGameStatus
 import com.streamvault.domain.sports.provider.ProviderLeague
 import com.streamvault.domain.sports.provider.ProviderScore
+import com.streamvault.domain.sports.provider.ProviderStandingRow
 import com.streamvault.domain.sports.provider.SourcedValue
 import com.streamvault.domain.sports.provider.SportsEventSourceSelection
 import com.streamvault.domain.sports.provider.SportsEventTiming
@@ -70,6 +72,48 @@ class SportsProviderEventResolverTest {
         assertThat(resolved.provenance.status?.value?.state).isEqualTo(ProviderGameState.LIVE)
         assertThat(resolved.provenance.sources).contains(eventSource)
         assertThat(cache.links).hasSize(1)
+    }
+
+    @Test
+    fun `BALLDONTLIE NBA fixture enriches matching EPG while its local playable channel stays attached`() = runTest {
+        val channel = Channel(
+            id = 77L,
+            name = "ESPN HD",
+            streamUrl = "https://iptv.example.test/live/77",
+            providerId = 8L,
+        )
+        val epg = localEvent().copy(
+            title = "Cleveland Cavaliers vs Charlotte Hornets",
+            league = "NBA",
+            sport = SportType.BASKETBALL,
+            competitors = listOf(SportsCompetitor("Cleveland Cavaliers"), SportsCompetitor("Charlotte Hornets")),
+            broadcasts = listOf(SportsBroadcast(channel, combinedProfileId = null)),
+        )
+        val event = ProviderEvent(
+            providerEventId = "nba:15907925",
+            sport = "Basketball",
+            league = ProviderLeague("NBA", "nba", "Basketball"),
+            title = "Cleveland Cavaliers vs Charlotte Hornets",
+            competitors = listOf(
+                team("Cleveland Cavaliers", ProviderCompetitorRole.HOME),
+                team("Charlotte Hornets", ProviderCompetitorRole.AWAY),
+            ),
+            eventStart = KICKOFF,
+            status = ProviderGameStatus(ProviderGameState.LIVE, period = "3", clock = "5:21"),
+        )
+        val resolved = SportsProviderEventResolver(TestEventLinkCache()).resolve(
+            epgEvents = listOf(epg),
+            providerEvents = listOf(SourcedValue(event, providerSource("balldontlie-account", event.providerEventId))),
+            selection = SportsEventSourceSelection(eventInstanceId = "balldontlie-account"),
+            now = KICKOFF,
+        ).single()
+
+        assertThat(resolved.epgEvent?.id).isEqualTo(epg.id)
+        assertThat(resolved.provenance.title?.value).isEqualTo(event.title)
+        assertThat(resolved.provenance.status?.value?.state).isEqualTo(ProviderGameState.LIVE)
+        assertThat(resolved.provenance.timing.eventStart).isEqualTo(KICKOFF)
+        assertThat(resolved.epgEvent?.broadcasts?.map { it.channel.id }).containsExactly(channel.id)
+        assertThat(resolved.epgEvent?.broadcasts?.single()?.channel?.streamUrl).isEqualTo(channel.streamUrl)
     }
 
     @Test

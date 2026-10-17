@@ -869,6 +869,9 @@
     <string name="settings_sports_provider_credentials_required">Shkruani emrin e përdoruesit dhe sekretin e kërkuar.</string>
     <string name="settings_sports_provider_invalid_input">Kontrolloni URL-në dhe të dhënat e kërkuara.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Plani: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Kërkesa të mbetura: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Çelësi API premium</string>
     <string name="settings_sports_provider_secret">Çelës API, token ose fjalëkalim</string>
     <string name="settings_sports_provider_keep_credentials">Lëreni bosh për të ruajtur kredencialet e ruajtura.</string>
@@ -894,5 +897,16 @@
     <string name="settings_sports_metadata_source">Burimi i të dhënave për ekipet dhe ligat</string>
     <string name="settings_sports_provider_custom_json">Ofrues i personalizuar JSON</string>
     <string name="settings_sports_custom_definition">Konfigurimi (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Shkruani shtigjet e pikave fundore, mënyrën e vërtetimit dhe përzgjedhësit e fushave JSON.</string>
+    <string name="settings_sports_custom_definition_hint">Vendosni më sipër URL-në bazë HTTPS të API-t tuaj. Futni shembullin, pastaj zëvendësoni shtigjet e pikave fundore dhe fushat JSON sipas dokumentacionit të API-t. Shkruani çelësin ose tokenin në fushën e kredencialeve.</string>
+    <string name="settings_sports_provider_attribution">Të dhëna nga %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Të dhënat e futbollit ofrohen nga %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Ligat dhe sezonet</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Formati: shkurtim:sezon, të ndara me presje. Shembull: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Beta · nuk është testuar me një llogari aktive të ofruesit.</string>
+    <string name="settings_sports_custom_definition_example_action">Fut shembullin</string>
+    <string name="settings_sports_custom_definition_placeholder">Ngjitni JSON-in e ofruesit</string>
 </resources>

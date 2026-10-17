@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">รายละเอียดทีม: %1$s</string>
     <string name="live_sports_league_metadata">รายละเอียดลีก: %1$s</string>
     <string name="live_sports_standings_season">ฤดูกาล: %1$s</string>
+    <string name="live_sports_table_played">แข่ง</string>
+    <string name="live_sports_table_won">ชนะ</string>
+    <string name="live_sports_table_drawn">เสมอ</string>
+    <string name="live_sports_table_lost">แพ้</string>
+    <string name="live_sports_table_goals_for">ประตูได้</string>
+    <string name="live_sports_table_goals_against">ประตูเสีย</string>
+    <string name="live_sports_table_goal_difference">ผลต่างประตู</string>
+    <string name="live_sports_table_points">คะแนน</string>
+    <string name="live_sports_football_data_attribution">ข้อมูลฟุตบอลจัดทำโดย %1$s</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

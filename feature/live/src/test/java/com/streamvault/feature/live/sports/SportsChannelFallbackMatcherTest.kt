@@ -17,6 +17,18 @@ import org.junit.Test
 class SportsChannelFallbackMatcherTest {
     private val utc = ZoneId.of("UTC")
 
+    @Test fun providerBroadcasterOutranksDatedTeamNameFallbackAndRadioIsIgnored() {
+        val source = SportsSourceRef.Provider("account", "thesportsdb", "2070217")
+        val event = teamEvent().copy(provenance = SportsEventProvenance(
+            broadcasters = SourcedValue(listOf(ProviderBroadcaster("ESPN"), ProviderBroadcaster("Radio Sport",
+                type = com.streamvault.domain.sports.provider.ProviderBroadcastType.RADIO)), source),
+        ))
+        val index = SportsChannelIndex.build(listOf(channel(1, "EPL | 18 Oct | Man Utd vs Barcelona"),
+            channel(2, "ESPN HD"), channel(3, "Radio Sport")).map(::entry))
+        val matches = SportsChannelFallbackMatcher.findMatches(event, index, zoneId = utc)
+        assertEquals(listOf(2L, 1L), matches.map { it.entry.channel.id })
+    }
+
     @Test
     fun teamMatchRequiresBothCompetitorsAndSupportsAliases() {
         val event = teamEvent()

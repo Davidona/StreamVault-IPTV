@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Csapat adatai: %1$s</string>
     <string name="live_sports_league_metadata">Liga adatai: %1$s</string>
     <string name="live_sports_standings_season">Idény: %1$s</string>
+    <string name="live_sports_table_played">Meccsek</string>
+    <string name="live_sports_table_won">Győzelmek</string>
+    <string name="live_sports_table_drawn">Döntetlenek</string>
+    <string name="live_sports_table_lost">Vereségek</string>
+    <string name="live_sports_table_goals_for">Lőtt gólok</string>
+    <string name="live_sports_table_goals_against">Kapott gólok</string>
+    <string name="live_sports_table_goal_difference">Gólkülönbség</string>
+    <string name="live_sports_table_points">Pontok</string>
+    <string name="live_sports_football_data_attribution">Labdarúgási adatokat a(z) %1$s szolgáltatja</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

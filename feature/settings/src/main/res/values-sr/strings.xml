@@ -872,6 +872,9 @@
     <string name="settings_sports_provider_credentials_required">Унесите потребно корисничко име и тајну.</string>
     <string name="settings_sports_provider_invalid_input">Проверите URL и обавезне податке.</string>
     <string name="settings_sports_provider_thesportsdb_name">TheSportsDB</string>
+    <string name="settings_sports_provider_highlightly_name">Highlightly</string>
+    <string name="settings_sports_provider_plan_tier">Nivo paketa: %1$s</string>
+    <string name="settings_sports_provider_usage_remaining">Preostali zahtevi: %1$d</string>
     <string name="settings_sports_provider_thesportsdb_api_key">Премијум API кључ</string>
     <string name="settings_sports_provider_secret">API кључ, токен или лозинка</string>
     <string name="settings_sports_provider_keep_credentials">Оставите празно да бисте задржали сачуване податке за пријаву.</string>
@@ -897,5 +900,16 @@
     <string name="settings_sports_metadata_source">Извор података о тимовима и лигама</string>
     <string name="settings_sports_provider_custom_json">Прилагођени JSON добављач</string>
     <string name="settings_sports_custom_definition">Конфигурација (JSON)</string>
-    <string name="settings_sports_custom_definition_hint">Унесите путање крајњих тачака, режим аутентификације и JSON бираче поља.</string>
+    <string name="settings_sports_custom_definition_hint">Изнад унесите основни HTTPS URL своје API услуге. Уметните пример, па замените путање крајњих тачака и JSON поља према документацији API услуге. Кључ или токен унесите у поље акредитива.</string>
+    <string name="settings_sports_provider_attribution">Подаци од %1$s</string>
+    <string name="settings_sports_provider_football_data_name">Football-Data.org</string>
+    <string name="settings_sports_provider_football_data_attribution">Фудбалске податке пружа %1$s</string>
+    <string name="settings_sports_provider_oddspapi_name">OddsPapi</string>
+    <string name="settings_sports_provider_openligadb_name">OpenLigaDB</string>
+    <string name="settings_sports_provider_openligadb_scopes">Лиге и сезоне</string>
+    <string name="settings_sports_provider_openligadb_scope_hint">Формат: скраћеница:сезона, раздвојено зарезима. Пример: bl1:2026.</string>
+    <string name="settings_sports_provider_openligadb_license_name">ODbL 1.0</string>
+    <string name="settings_sports_provider_beta">Бета · није тестирано са активним налогом добављача.</string>
+    <string name="settings_sports_custom_definition_example_action">Уметни пример</string>
+    <string name="settings_sports_custom_definition_placeholder">Налепите JSON добављача</string>
 </resources>

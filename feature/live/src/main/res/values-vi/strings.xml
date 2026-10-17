@@ -277,4 +277,14 @@
     <string name="live_sports_team_metadata">Thông tin đội: %1$s</string>
     <string name="live_sports_league_metadata">Thông tin giải đấu: %1$s</string>
     <string name="live_sports_standings_season">Mùa giải: %1$s</string>
+    <string name="live_sports_table_played">Đã đấu</string>
+    <string name="live_sports_table_won">Thắng</string>
+    <string name="live_sports_table_drawn">Hòa</string>
+    <string name="live_sports_table_lost">Thua</string>
+    <string name="live_sports_table_goals_for">Bàn thắng</string>
+    <string name="live_sports_table_goals_against">Bàn thua</string>
+    <string name="live_sports_table_goal_difference">Hiệu số</string>
+    <string name="live_sports_table_points">Điểm</string>
+    <string name="live_sports_football_data_attribution">Dữ liệu bóng đá do %1$s cung cấp</string>
+    <string name="live_sports_odbl_license_name">ODbL 1.0</string>
 </resources>

@@ -51,12 +51,14 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -70,6 +72,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import com.streamvault.domain.sports.provider.ProviderCompetitorRole
 import com.streamvault.domain.sports.provider.ProviderGameState
+import com.streamvault.domain.sports.provider.ProviderAttributionFormat
 import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 import com.streamvault.core.ui.design.BrowseColors
@@ -394,7 +397,7 @@ private fun FeaturedSportsEvent(
     onPlayBroadcast: (SportsBroadcast) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(140.dp)
+        modifier = Modifier.fillMaxWidth().height(140.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount })
             .clip(RoundedCornerShape(12.dp))
             .background(Brush.horizontalGradient(listOf(BrowseColors.SurfaceEmphasis, BrowseColors.Surface)))
             .border(1.dp, BrowseColors.Outline, RoundedCornerShape(12.dp))
@@ -433,29 +436,92 @@ private fun EventEyebrow(event: SportsEvent, isLive: Boolean) {
         stringResource(R.string.live_sports_league_efl_championship),
     ) ?: event.categoryLabel ?: stringResource(R.string.nav_sports)
     val sourcedStatus = event.provenance.status
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Text(leagueLabel,
-            modifier = Modifier.weight(1f), fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
-            color = BrowseColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        if (isLive) LiveBadge()
-        sourcedStatus?.value?.let { status ->
-            val liveDetail = listOfNotNull(status.period, status.clock, status.detail)
-                .map(String::trim)
-                .filter(String::isNotEmpty)
-                .distinct()
-                .joinToString(" · ")
-            if (liveDetail.isNotEmpty()) {
-                Text(
-                    liveDetail,
-                    fontSize = 10.sp,
-                    color = if (sourcedStatus?.isStale == true) BrowseColors.TextTertiary else BrowseColors.TextSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text(leagueLabel,
+                modifier = Modifier.weight(1f), fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+                color = BrowseColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (isLive) LiveBadge()
+            sourcedStatus?.value?.let { status ->
+                val liveDetail = listOfNotNull(status.period, status.clock, status.detail)
+                    .map(String::trim)
+                    .filter(String::isNotEmpty)
+                    .distinct()
+                    .joinToString(" · ")
+                if (liveDetail.isNotEmpty()) {
+                    Text(
+                        liveDetail,
+                        fontSize = 10.sp,
+                        color = if (sourcedStatus?.isStale == true) BrowseColors.TextTertiary else BrowseColors.TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
+        SportsProviderCredits(event)
     }
+}
+
+@Composable
+private fun SportsProviderCredits(event: SportsEvent) {
+    event.attributionCredits.forEach { attribution -> SportsAttributionLine(attribution) }
+}
+
+private data class SportsAttributionCredit(
+    val sourceName: String,
+    val format: ProviderAttributionFormat,
+    val sourceUrl: String? = null,
+    val licenseUrl: String? = null,
+) {
+    val lineCount: Int get() = if (format == ProviderAttributionFormat.ODBL) 2 else 1
+}
+
+private val SportsEvent.attributionCredits: List<SportsAttributionCredit>
+    get() = (providerAttributions.map {
+        SportsAttributionCredit(it.sourceName, it.format, it.sourceUrl, it.licenseUrl)
+    } + listOfNotNull(metadataAttributionName?.let {
+        SportsAttributionCredit(it, ProviderAttributionFormat.SOURCE_NAME)
+    })).distinctBy(SportsAttributionCredit::sourceName)
+
+@Composable
+private fun SportsAttributionLine(
+    attribution: SportsAttributionCredit,
+    modifier: Modifier = Modifier,
+    color: Color = BrowseColors.TextSecondary,
+) {
+    if (attribution.format == ProviderAttributionFormat.ODBL && attribution.licenseUrl != null) {
+        val uriHandler = LocalUriHandler.current
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(
+                attributionText(attribution),
+                modifier = Modifier.clickable { attribution.sourceUrl?.let(uriHandler::openUri) },
+                fontSize = 10.sp,
+                color = color,
+                textDecoration = TextDecoration.Underline,
+            )
+            Text(
+                stringResource(R.string.live_sports_odbl_license_name),
+                modifier = Modifier.clickable { uriHandler.openUri(attribution.licenseUrl) },
+                fontSize = 10.sp,
+                color = color,
+                textDecoration = TextDecoration.Underline,
+            )
+        }
+    } else {
+        Text(attributionText(attribution), modifier = modifier, fontSize = 10.sp, color = color)
+    }
+}
+
+@Composable
+private fun attributionText(attribution: SportsAttributionCredit): String = when (attribution.format) {
+    ProviderAttributionFormat.SOURCE_NAME, ProviderAttributionFormat.ODBL -> stringResource(
+        R.string.live_sports_standings_attribution, attribution.sourceName,
+    )
+    ProviderAttributionFormat.FOOTBALL_DATA -> stringResource(
+        R.string.live_sports_football_data_attribution, attribution.sourceName,
+    )
 }
 
 private fun SportsEvent.isLiveAt(nowMillis: Long): Boolean =
@@ -531,7 +597,7 @@ private fun SportsEventCard(
 ) {
     TvClickableSurface(
         onClick = { onShowDetails(event) },
-        modifier = Modifier.width(244.dp).height(140.dp),
+        modifier = Modifier.width(244.dp).height(140.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount }),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
     ) {
@@ -651,13 +717,6 @@ private fun SportsEventDetailsDialog(
                             color = BrowseColors.TextSecondary,
                         )
                     }
-                    event.metadataAttributionName?.let { providerName ->
-                        Text(
-                            stringResource(R.string.live_sports_standings_attribution, providerName),
-                            fontSize = 10.sp,
-                            color = BrowseColors.TextSecondary,
-                        )
-                    }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -749,7 +808,7 @@ private fun SportsStandingsContent(loaded: LoadedSportsStandings) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         stringResource(R.string.live_sports_standings_rank),
-                        modifier = Modifier.width(152.dp),
+                        modifier = Modifier.width(30.dp),
                         fontSize = 10.sp,
                         color = BrowseColors.TextSecondary,
                     )
@@ -761,7 +820,7 @@ private fun SportsStandingsContent(loaded: LoadedSportsStandings) {
                     )
                     group.columns.forEach { column ->
                         Text(
-                            column.label?.takeIf(String::isNotBlank) ?: column.key,
+                            localizedTableColumn(column.key) ?: column.label?.takeIf(String::isNotBlank) ?: column.key,
                             modifier = Modifier.width(68.dp),
                             fontSize = 10.sp,
                             color = BrowseColors.TextSecondary,
@@ -801,11 +860,28 @@ private fun SportsStandingsContent(loaded: LoadedSportsStandings) {
             }
         }
     }
-    Text(
-        stringResource(R.string.live_sports_standings_attribution, loaded.providerName),
-        fontSize = 10.sp,
+    SportsAttributionLine(
+        SportsAttributionCredit(
+            sourceName = loaded.attribution?.sourceName ?: loaded.providerName,
+            format = loaded.attribution?.format ?: ProviderAttributionFormat.SOURCE_NAME,
+            sourceUrl = loaded.attribution?.sourceUrl,
+            licenseUrl = loaded.attribution?.licenseUrl,
+        ),
         color = BrowseColors.TextSecondary.copy(alpha = if (loaded.isStale) 0.65f else 1f),
     )
+}
+
+@Composable
+private fun localizedTableColumn(key: String): String? = when (key) {
+    "intPlayed", "played", "games_played" -> stringResource(R.string.live_sports_table_played)
+    "intWin", "won", "wins" -> stringResource(R.string.live_sports_table_won)
+    "intDraw", "drawn", "ties" -> stringResource(R.string.live_sports_table_drawn)
+    "intLoss", "lost", "losses" -> stringResource(R.string.live_sports_table_lost)
+    "intGoalsFor", "goals_for" -> stringResource(R.string.live_sports_table_goals_for)
+    "intGoalsAgainst", "goals_against" -> stringResource(R.string.live_sports_table_goals_against)
+    "intGoalDifference", "goal_difference" -> stringResource(R.string.live_sports_table_goal_difference)
+    "points" -> stringResource(R.string.live_sports_table_points)
+    else -> null
 }
 
 @Composable
@@ -875,6 +951,7 @@ private fun SportsManualChannelPickerDialog(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
+                    SportsProviderCredits(event)
                     OutlinedTextField(
                         value = query,
                         onValueChange = { query = it },
