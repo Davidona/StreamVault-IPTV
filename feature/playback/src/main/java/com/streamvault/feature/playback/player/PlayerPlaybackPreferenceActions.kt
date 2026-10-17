@@ -36,17 +36,22 @@ fun PlayerViewModel.selectAudioTrack(trackId: String) {
 }
 
 fun PlayerViewModel.selectSubtitleTrack(trackId: String?) {
-    playerEngine.selectSubtitleTrack(trackId)
+    // Capture the track before changing the engine selection. Some engines emit a
+    // new track list synchronously, which can make a valid selection look unavailable.
     val selectedTrack = trackId?.let { id ->
         playerEngine.availableSubtitleTracks.value.firstOrNull { it.id == id }
     }
-    if (trackId != null && selectedTrack == null) return
+    playerEngine.selectSubtitleTrack(trackId)
 
     val current = activeVodTrackPreferences ?: VodTrackPreferences()
+    val subtitlePreference = if (trackId == null) {
+        VodTrackPreference(disabled = true)
+    } else {
+        selectedTrack?.toVodTrackPreference() ?: VodTrackPreference(trackId = trackId)
+    }
     persistVodTrackPreferences(
         updated = current.copy(
-            subtitle = selectedTrack?.toVodTrackPreference()
-                ?: VodTrackPreference(disabled = true)
+            subtitle = subtitlePreference
         )
     )
 }

@@ -29,6 +29,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
+- Fixed selected subtitles reverting to off by saving track details before the player refreshes its available subtitle list.
 - Fixed Guide schedules briefly appearing and disappearing during background updates, and missing provider EPG requests for channels loaded after the first page.
 - Fixed Jellyfin Quick Connect QR links to use the Web Quick Connect route and safely encode the pairing code.
 - Fixed QR provider pairing session cleanup and request validation, including expired sessions, malformed or oversized submissions, slow clients, and duplicate submissions.
