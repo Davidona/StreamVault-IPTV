@@ -1,6 +1,8 @@
 import java.util.Properties
 import java.net.URI
+import java.io.File
 import java.io.FileInputStream
+import java.io.Serializable
 import java.security.KeyStore
 import java.security.MessageDigest
 import org.gradle.api.DefaultTask
@@ -574,8 +576,31 @@ dependencies {
     androidTestImplementation(libs.datastore.preferences)
 }
 
+private class ReleaseR8DexOutputSpec(
+    private val dexOutputDirectory: String,
+    private val requireDexOutput: Boolean,
+) : org.gradle.api.specs.Spec<org.gradle.api.Task>, Serializable {
+    override fun isSatisfiedBy(task: org.gradle.api.Task): Boolean =
+        requireDexOutput && File(dexOutputDirectory).walkTopDown().any { file ->
+            file.isFile && file.extension == "dex"
+        }
+}
+
+val releaseDexOutputDirectory =
+    layout.buildDirectory.dir("intermediates/dex/release/minifyReleaseWithR8").get().asFile.absolutePath
 tasks.configureEach {
     if (name == "hiltJavaCompileDebugUnitTest") {
         enabled = false
+    }
+
+    if (name == "minifyReleaseWithR8") {
+        // L8 consumes this directory. A cached/previously-created empty directory can make Gradle
+        // mark R8 up to date even though it produced no DEX files, causing L8 to fail with
+        // "No source specified".
+        outputs.cacheIf(
+            "Release R8 DEX output must be generated locally",
+            ReleaseR8DexOutputSpec(releaseDexOutputDirectory, requireDexOutput = false),
+        )
+        outputs.upToDateWhen(ReleaseR8DexOutputSpec(releaseDexOutputDirectory, requireDexOutput = true))
     }
 }
