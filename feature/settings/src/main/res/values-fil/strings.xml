@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">Gabay sa TV / EPG</string>
     <string name="settings_sports_provider_league_ids">Mga ID ng liga</string>
     <string name="settings_sports_provider_league_ids_hint">Opsyonal. Maglagay lang ng mga ID ng liga kung kailangan ito ng provider na ito.</string>
+    <string name="settings_sports_custom_scopes_hint">Para sa custom na JSON provider, ilagay ang mga scope sa format na sport/league at paghiwalayin ng kuwit.</string>
     <string name="nav_sports">Palakasan</string>
     <string name="settings_sports_settings_description">Pamahalaan ang mga nakakonektang provider ng datos sa palakasan.</string>
     <string name="settings_sports_data_providers_title">Mga provider ng datos sa palakasan</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">Maglagay ng halimbawa</string>
     <string name="settings_sports_custom_definition_placeholder">I-paste ang JSON ng provider</string>
     <string name="settings_open_source_licenses">Mga lisensya at abiso ng open source</string>
+    <string name="settings_sports_custom_definition_load_file">Mag-load ng JSON file</string>
+    <string name="settings_sports_custom_definition_file_too_large">Lumampas ang JSON file sa limit na 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Hindi ma-load ang JSON file na ito</string>
+    <string name="settings_experimental_badge">Eksperimental</string>
 </resources>

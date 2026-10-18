@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">TV-műsorújság / EPG</string>
     <string name="settings_sports_provider_league_ids">Bajnokságazonosítók</string>
     <string name="settings_sports_provider_league_ids_hint">Nem kötelező. Csak akkor adjon meg bajnokságazonosítókat, ha ez a szolgáltató kéri őket.</string>
+    <string name="settings_sports_custom_scopes_hint">Egyéni JSON-szolgáltatónál vesszővel elválasztva, sport/league formátumban adja meg a hatóköröket.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Kezeld a csatlakoztatott sportadat-szolgáltatókat.</string>
     <string name="settings_sports_data_providers_title">Sportadat-szolgáltatók</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Példa beszúrása</string>
     <string name="settings_sports_custom_definition_placeholder">Illeszd be a szolgáltató JSON-adatait</string>
     <string name="settings_open_source_licenses">Nyílt forráskódú licencek és közlemények</string>
+    <string name="settings_sports_custom_definition_load_file">JSON-fájl betöltése</string>
+    <string name="settings_sports_custom_definition_file_too_large">A JSON-fájl meghaladja a 32 KB-os korlátot</string>
+    <string name="settings_sports_custom_definition_file_error">Ez a JSON-fájl nem tölthető be</string>
+    <string name="settings_experimental_badge">Kísérleti</string>
 </resources>

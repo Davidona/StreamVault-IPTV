@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">Tv-gids / EPG</string>
     <string name="settings_sports_provider_league_ids">Competitie-ID’s</string>
     <string name="settings_sports_provider_league_ids_hint">Optioneel. Voeg alleen competitie-ID’s toe als deze provider ze vereist.</string>
+    <string name="settings_sports_custom_scopes_hint">Voer voor een aangepaste JSON-provider scopes in de vorm sport/league in, gescheiden door komma’s.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Beheer verbonden aanbieders van sportgegevens.</string>
     <string name="settings_sports_data_providers_title">Aanbieders van sportgegevens</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Voorbeeld invoegen</string>
     <string name="settings_sports_custom_definition_placeholder">Plak de JSON van de provider</string>
     <string name="settings_open_source_licenses">Open-sourcelicenties en kennisgevingen</string>
+    <string name="settings_sports_custom_definition_load_file">JSON-bestand laden</string>
+    <string name="settings_sports_custom_definition_file_too_large">Het JSON-bestand is groter dan de limiet van 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Dit JSON-bestand kon niet worden geladen</string>
+    <string name="settings_experimental_badge">Experimenteel</string>
 </resources>

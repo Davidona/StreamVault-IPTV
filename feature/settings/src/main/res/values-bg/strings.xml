@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">ТВ справочник / EPG</string>
     <string name="settings_sports_provider_league_ids">Идентификатори на лиги</string>
     <string name="settings_sports_provider_league_ids_hint">По избор. Добавете идентификатори на лиги само ако доставчикът ги изисква.</string>
+    <string name="settings_sports_custom_scopes_hint">За персонализирания JSON доставчик въведете обхватите във формат sport/league, разделени със запетаи.</string>
     <string name="nav_sports">Спорт</string>
     <string name="settings_sports_settings_description">Управлявайте свързаните доставчици на спортни данни.</string>
     <string name="settings_sports_data_providers_title">Доставчици на спортни данни</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">Вмъкване на пример</string>
     <string name="settings_sports_custom_definition_placeholder">Поставете JSON на доставчика</string>
     <string name="settings_open_source_licenses">Лицензи и известия за софтуер с отворен код</string>
+    <string name="settings_sports_custom_definition_load_file">Зареждане на JSON файл</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON файлът надвишава ограничението от 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Този JSON файл не може да бъде зареден</string>
+    <string name="settings_experimental_badge">Експериментално</string>
 </resources>

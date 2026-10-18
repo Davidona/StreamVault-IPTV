@@ -15,10 +15,12 @@ import com.streamvault.domain.sports.provider.ProviderAttribution
 import com.streamvault.domain.sports.provider.SourcedValue
 import com.streamvault.domain.sports.provider.SportsSourceRef
 import com.streamvault.domain.sports.provider.SportsEventProvenance
+import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_TYPE_ID
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal data class LoadedSportsProviderEvents(
     val instanceId: String? = null,
@@ -62,7 +64,11 @@ internal class SportsProviderEventSourceRouter @Inject constructor(
             if (synchronized(broadcasterCooldowns) { broadcasterCooldowns[config]?.isAfter(now) == true }) continue
             val result = try {
                 val provider = registry.create(config) as? BroadcastProvider ?: continue
-                provider.broadcasters(ProviderEventDetailRequest(source.externalEventId))
+                provider.broadcasters(ProviderEventDetailRequest(
+                    eventId = source.externalEventId,
+                    sport = sourced.value.sport.takeIf { config.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+                    leagueId = sourced.value.league?.id.takeIf { config.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+                ))
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) { continue }
@@ -120,22 +126,29 @@ internal class SportsProviderEventSourceRouter @Inject constructor(
                 ?: listOf(null)
             var succeeded = false
             val events = mutableListOf<ProviderEvent>()
-            for (leagueId in leagueIds) {
-                val result = try {
-                    provider.events(ProviderEventRequest(from = from, until = until, leagueId = leagueId))
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (_: Exception) {
-                    continue
-                }
-                when (result) {
-                    is SportsProviderResult.Success -> {
-                        succeeded = true
-                        events += result.value.items
+            val completed = withTimeoutOrNull(20_000L) {
+                for (leagueId in leagueIds) {
+                    val result = try {
+                        provider.events(ProviderEventRequest(from = from, until = until, leagueId = leagueId))
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        continue
                     }
-                    is SportsProviderResult.Failure -> Unit
+                    when (result) {
+                        is SportsProviderResult.Success -> {
+                            succeeded = true
+                            events += result.value.items
+                        }
+                        is SportsProviderResult.Failure -> SportsDiagnostics.providerFailure(
+                            "events", result.category, result.httpStatus,
+                        )
+                    }
                 }
             }
+            if (completed == null) SportsDiagnostics.providerFailure(
+                "events-timeout", com.streamvault.domain.sports.provider.SportsProviderError.NETWORK,
+            )
             if (succeeded) {
                 return LoadedSportsProviderEvents(
                     instanceId = config.instanceId,

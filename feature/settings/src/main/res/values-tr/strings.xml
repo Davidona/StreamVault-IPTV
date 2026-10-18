@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">TV rehberi / EPG</string>
     <string name="settings_sports_provider_league_ids">Lig kimlikleri</string>
     <string name="settings_sports_provider_league_ids_hint">İsteğe bağlı. Lig kimliklerini yalnızca bu sağlayıcı gerektiriyorsa ekleyin.</string>
+    <string name="settings_sports_custom_scopes_hint">Özel JSON sağlayıcısı için kapsamları sport/league biçiminde ve virgülle ayırarak girin.</string>
     <string name="nav_sports">Spor</string>
     <string name="settings_sports_settings_description">Bağlı spor verisi sağlayıcılarını yönetin.</string>
     <string name="settings_sports_data_providers_title">Spor verisi sağlayıcıları</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Örneği ekle</string>
     <string name="settings_sports_custom_definition_placeholder">Sağlayıcı JSON verisini yapıştırın</string>
     <string name="settings_open_source_licenses">Açık kaynak lisansları ve bildirimleri</string>
+    <string name="settings_sports_custom_definition_load_file">JSON dosyasını yükle</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON dosyası 32 KB sınırını aşıyor</string>
+    <string name="settings_sports_custom_definition_file_error">Bu JSON dosyası yüklenemedi</string>
+    <string name="settings_experimental_badge">Deneysel</string>
 </resources>

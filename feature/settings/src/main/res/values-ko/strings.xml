@@ -870,6 +870,7 @@
     <string name="settings_sports_event_source_epg">TV 편성표 / EPG</string>
     <string name="settings_sports_provider_league_ids">리그 ID</string>
     <string name="settings_sports_provider_league_ids_hint">선택사항입니다. 이 제공업체에서 필요한 경우에만 리그 ID를 입력하세요.</string>
+    <string name="settings_sports_custom_scopes_hint">사용자 지정 JSON 제공업체의 범위는 sport/league 형식으로 입력하고 쉼표로 구분하세요.</string>
     <string name="nav_sports">스포츠</string>
     <string name="settings_sports_settings_description">연결된 스포츠 데이터 제공자를 관리합니다.</string>
     <string name="settings_sports_data_providers_title">스포츠 데이터 제공자</string>
@@ -931,4 +932,8 @@
     <string name="settings_sports_custom_definition_example_action">예시 삽입</string>
     <string name="settings_sports_custom_definition_placeholder">제공업체 JSON 붙여넣기</string>
     <string name="settings_open_source_licenses">오픈 소스 라이선스 및 고지</string>
+    <string name="settings_sports_custom_definition_load_file">JSON 파일 불러오기</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON 파일이 32KB 제한을 초과합니다</string>
+    <string name="settings_sports_custom_definition_file_error">이 JSON 파일을 불러오지 못했습니다</string>
+    <string name="settings_experimental_badge">실험적 기능</string>
 </resources>

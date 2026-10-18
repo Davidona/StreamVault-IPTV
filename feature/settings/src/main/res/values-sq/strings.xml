@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">Udhëzuesi TV / EPG</string>
     <string name="settings_sports_provider_league_ids">ID-të e ligave</string>
     <string name="settings_sports_provider_league_ids_hint">Opsionale. Shtoni ID-të e ligave vetëm nëse i kërkon ky ofrues.</string>
+    <string name="settings_sports_custom_scopes_hint">Për një ofrues JSON të personalizuar, vendosni fushat në formatin sport/league, të ndara me presje.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Menaxhoni ofruesit e lidhur të të dhënave sportive.</string>
     <string name="settings_sports_data_providers_title">Ofrues të të dhënave sportive</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">Fut shembullin</string>
     <string name="settings_sports_custom_definition_placeholder">Ngjitni JSON-in e ofruesit</string>
     <string name="settings_open_source_licenses">Licencat dhe njoftimet e burimit të hapur</string>
+    <string name="settings_sports_custom_definition_load_file">Ngarko skedarin JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Skedari JSON tejkalon kufirin prej 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Ky skedar JSON nuk mund të ngarkohej</string>
+    <string name="settings_experimental_badge">Eksperimentale</string>
 </resources>

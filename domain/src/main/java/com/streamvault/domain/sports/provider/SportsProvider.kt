@@ -89,7 +89,7 @@ data class SportsProviderConfig(
 
     private companion object {
         const val MAX_EVENT_LEAGUE_IDS = 50
-        val EVENT_LEAGUE_ID = Regex("[A-Za-z0-9._:-]{1,128}")
+        val EVENT_LEAGUE_ID = Regex("(?=.{1,128}$)[A-Za-z0-9._:-]+(?:/[A-Za-z0-9._:-]+)?")
     }
 }
 
@@ -152,6 +152,9 @@ data class SportsProviderHealth(
 
 /** Provider configurations stay separate from preferences and use dedicated portable backup records. */
 interface SportsProviderStore {
+    /** Invalidates consumers after a persisted configuration or credential change. */
+    val configurationChanges: kotlinx.coroutines.flow.Flow<Long>
+        get() = kotlinx.coroutines.flow.flowOf(0L)
     suspend fun configurations(): List<SportsProviderConfig>
     suspend fun credentials(instanceId: String): SportsProviderCredentials?
     suspend fun credentialedInstanceIds(): Set<String> = configurations().mapNotNull { config ->

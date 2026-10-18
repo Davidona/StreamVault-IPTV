@@ -6,6 +6,7 @@ import com.streamvault.domain.sports.provider.*
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -15,6 +16,8 @@ import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.RecordedRequest
 import okhttp3.tls.HandshakeCertificates
 import okhttp3.tls.HeldCertificate
 import org.junit.After
@@ -25,6 +28,128 @@ class CustomSportsProviderTest {
     private val server = MockWebServer()
     private lateinit var httpClient: SportsProviderHttpClient
     private lateinit var store: TestProviderStore
+
+    @Test
+    fun `daily requests cover UTC dates and respect the exclusive end bound`() = runTest {
+        val definition = eventOnlyDefinition("\"mode\":\"none\"")
+            .replace("/events?from={fromDate}&to={toDate}&leagueId={leagueId}", "/events?date={date}")
+            .replace("\"events\":{", "\"events\":{\"dailyRequests\":true,\"dateFormat\":\"YYYYMMDD\",")
+        repeat(2) { server.enqueue(MockResponse().setBody(eventPayload())) }
+        val provider = CustomSportsProviderFactory(httpClient, store).create(config(definition)) as EventProvider
+
+        val result = provider.events(ProviderEventRequest(
+            Instant.parse("2026-10-17T21:00:00Z"), Instant.parse("2026-10-19T00:00:00Z"),
+        )) as SportsProviderResult.Success
+
+        val dates = List(2) { server.takeRequest(5, TimeUnit.SECONDS)!!.requestUrl!!.queryParameter("date") }
+        assertThat(dates).containsExactly("20261017", "20261018")
+        assertThat(result.value.items).hasSize(1)
+    }
+
+    @Test
+    fun `successful scope survives another stalled scope`() = runBlocking {
+        val definition = eventOnlyDefinition("\"mode\":\"none\"")
+            .replace("\"events\":{", "\"scopes\":[{\"leagueId\":\"fast\"},{\"leagueId\":\"slow\"}],\"events\":{")
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse =
+                if (request.requestUrl!!.queryParameter("leagueId") == "slow") {
+                    MockResponse().setHeadersDelay(4, TimeUnit.SECONDS).setBody(eventPayload())
+                } else MockResponse().setBody(eventPayload())
+        }
+        val factory = CustomSportsProviderFactory(httpClient, store)
+        val provider = CustomSportsProvider(
+            config(definition), factory.descriptor, CustomSportsProviderDefinition.parse(definition),
+            httpClient, store, eventLoadTimeoutMillis = 1_000L,
+        )
+
+        val result = provider.events(ProviderEventRequest(
+            Instant.parse("2026-10-17T00:00:00Z"), Instant.parse("2026-10-18T00:00:00Z"),
+        )) as SportsProviderResult.Success
+
+        assertThat(result.value.items.single().providerEventId).isEqualTo("event-1")
+        assertThat(server.requestCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `scopes load concurrently while duplicate IDs keep definition order`() = runBlocking {
+        val definition = eventOnlyDefinition("\"mode\":\"none\"")
+            .replace("\"leagueName\":\"league.name\",\"leagueId\":\"league.id\",", "")
+            .replace("\"events\":{", "\"scopes\":[{\"leagueId\":\"first\",\"leagueName\":\"Specific\"},{\"leagueId\":\"second\",\"leagueName\":\"Aggregate\"}],\"events\":{")
+        val arrived = java.util.concurrent.CountDownLatch(2)
+        val concurrent = java.util.concurrent.atomic.AtomicBoolean(true)
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                arrived.countDown()
+                if (!arrived.await(2, TimeUnit.SECONDS)) concurrent.set(false)
+                return MockResponse().setBody(eventPayload())
+            }
+        }
+        val provider = CustomSportsProviderFactory(httpClient, store).create(config(definition)) as EventProvider
+        val result = provider.events(ProviderEventRequest(
+            Instant.parse("2026-10-17T00:00:00Z"), Instant.parse("2026-10-18T00:00:00Z"),
+        )) as SportsProviderResult.Success
+
+        assertThat(concurrent.get()).isTrue()
+        assertThat(result.value.items.single().league?.name).isEqualTo("Specific")
+        assertThat(result.value.items.single().league?.id).isEqualTo("first")
+    }
+
+    @Test
+    fun `custom mapping parses nested competitors status broadcasters and scoped metadata`() {
+        val definition = CustomSportsProviderDefinition.parse(
+            """
+            {
+              "name": "Custom Multi-Sport",
+              "auth": { "mode": "none" },
+              "scopes": [{ "sport": "soccer", "leagueId": "league-1", "leagueName": "Premier League" }],
+              "events": {
+                "endpoint": "/events",
+                "items": "events",
+                "id": "id",
+                "title": "name",
+                "start": "date",
+                "startFormat": "ISO_OFFSET",
+                "competitors": {
+                  "items": "competitions[0].competitors[*]",
+                  "id": "team.id",
+                  "name": "team.displayName",
+                  "role": "homeAway",
+                  "logo": "team.logo"
+                },
+                "competitorKind": "TEAM",
+                "status": "status.type.state",
+                "clock": "status.displayClock",
+                "period": "status.period",
+                "broadcasters": {
+                  "items": "competitions[0].geoBroadcasts[*]",
+                  "name": "media.shortName",
+                  "country": "region",
+                  "language": "lang",
+                  "type": "type.shortName"
+                },
+                "dailyRequests": true
+              }
+            }
+            """.trimIndent(),
+        )
+        val payload = Json.parseToJsonElement(
+            """{"events":[{"id":"match","name":"River City at Harbor Town","date":"2026-10-17T11:30Z","status":{"type":{"state":"in"},"displayClock":"64:00","period":2},"competitions":[{"competitors":[{"homeAway":"away","team":{"id":"river-city","displayName":"River City","logo":"https://images.example/river-city.png"}},{"homeAway":"home","team":{"id":"harbor-town","displayName":"Harbor Town","logo":"http://unsafe.example/logo.png"}}],"geoBroadcasts":[{"media":{"shortName":"National Sports Network"},"region":"us","lang":"en","type":{"shortName":"TV"}}]}]}]}""",
+        )
+        val result = CustomSportsProviderJsonMapper.events(
+            definition.events, payload, sportFallback = "soccer", leagueIdFallback = "league-1",
+            leagueNameFallback = "Premier League",
+        ) as SportsProviderResult.Success
+        val event = result.value.items.single()
+        assertThat(definition.scopes).hasSize(1)
+        assertThat(definition.events.dailyRequests).isTrue()
+        assertThat(event.league?.id).isEqualTo("league-1")
+        assertThat(event.competitors.first { it.role == ProviderCompetitorRole.HOME }.name).isEqualTo("Harbor Town")
+        assertThat(event.competitors.first { it.role == ProviderCompetitorRole.AWAY }.logoUrl)
+            .isEqualTo("https://images.example/river-city.png")
+        assertThat(event.competitors.first { it.role == ProviderCompetitorRole.HOME }.logoUrl).isNull()
+        assertThat(event.status?.state).isEqualTo(ProviderGameState.LIVE)
+        assertThat(event.broadcasters.single().name).isEqualTo("National Sports Network")
+    }
 
     @Before
     fun start() {
@@ -77,8 +202,9 @@ class CustomSportsProviderTest {
         assertThat(event.providerEventId).isEqualTo("event-1")
         assertThat(event.eventStart).isEqualTo(Instant.parse("2026-10-17T19:30:00Z"))
         assertThat(event.sport).isEqualTo("Football")
-        assertThat(event.league).isEqualTo(ProviderLeague("Premier", "league-1"))
+        assertThat(event.league).isEqualTo(ProviderLeague("Premier", "league-1", "Football"))
         assertThat(event.competitors.map { it.name }).containsExactly("North", "South").inOrder()
+        assertThat(event.competitors.map { it.logoUrl }).containsExactly(null, null)
         assertThat(event.status?.state).isEqualTo(ProviderGameState.LIVE)
     }
 
@@ -113,12 +239,12 @@ class CustomSportsProviderTest {
         val eventsOnly = config(eventOnlyDefinition())
         val eventsAndScores = config(withScoresDefinition(), id = "custom-with-scores")
 
-        assertThat(registry.capabilities(eventsOnly)).containsExactly(SportsCapability.EVENTS)
+        assertThat(registry.capabilities(eventsOnly)).containsExactly(SportsCapability.EVENTS, SportsCapability.GAME_STATUS)
         assertThat(registry.eligible(listOf(eventsOnly), SportsCapability.LIVE_SCORES)).isEmpty()
         assertThat(registry.eligible(listOf(eventsOnly), SportsCapability.EVENTS))
             .containsExactly(eventsOnly)
         assertThat(registry.capabilities(eventsAndScores))
-            .containsExactly(SportsCapability.EVENTS, SportsCapability.LIVE_SCORES)
+            .containsExactly(SportsCapability.EVENTS, SportsCapability.LIVE_SCORES, SportsCapability.GAME_STATUS)
     }
 
     @Test

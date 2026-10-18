@@ -68,6 +68,7 @@ internal enum class SportsEventType {
 internal data class SportsCompetitor(
     val displayName: String,
     val canonicalName: String = SportsAliasRegistry.normalizeTeamName(displayName),
+    val logoUrl: String? = null,
 )
 
 internal data class SportsClassification(

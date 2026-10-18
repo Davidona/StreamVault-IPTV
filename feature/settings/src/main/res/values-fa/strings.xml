@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">راهنمای تلویزیون / EPG</string>
     <string name="settings_sports_provider_league_ids">شناسه‌های لیگ</string>
     <string name="settings_sports_provider_league_ids_hint">اختیاری. فقط اگر این ارائه‌دهنده نیاز دارد، شناسه لیگ وارد کنید.</string>
+    <string name="settings_sports_custom_scopes_hint">برای ارائه‌دهنده JSON سفارشی، محدوده‌ها را با قالب sport/league و با جداکنندهٔ ویرگول وارد کنید.</string>
     <string name="nav_sports">ورزش</string>
     <string name="settings_sports_settings_description">ارائه‌دهندگان متصل داده‌های ورزشی را مدیریت کنید.</string>
     <string name="settings_sports_data_providers_title">ارائه‌دهندگان داده‌های ورزشی</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">درج نمونه</string>
     <string name="settings_sports_custom_definition_placeholder">JSON ارائه‌دهنده را جای‌گذاری کنید</string>
     <string name="settings_open_source_licenses">مجوزها و اطلاعیه‌های نرم‌افزار متن‌باز</string>
+    <string name="settings_sports_custom_definition_load_file">بارگذاری فایل JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">اندازه فایل JSON از حد ۳۲ کیلوبایت بیشتر است</string>
+    <string name="settings_sports_custom_definition_file_error">بارگذاری این فایل JSON ممکن نبود</string>
+    <string name="settings_experimental_badge">آزمایشی</string>
 </resources>

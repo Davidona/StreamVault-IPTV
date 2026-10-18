@@ -869,6 +869,7 @@
     <string name="settings_sports_event_source_epg">電視節目指南 / EPG</string>
     <string name="settings_sports_provider_league_ids">聯賽 ID</string>
     <string name="settings_sports_provider_league_ids_hint">選填。只有此供應商要求時才新增聯賽 ID。</string>
+    <string name="settings_sports_custom_scopes_hint">自訂 JSON 提供者請以 sport/league 格式輸入範圍，並以逗號分隔。</string>
     <string name="nav_sports">體育</string>
     <string name="settings_sports_settings_description">管理已連線的體育資料提供者。</string>
     <string name="settings_sports_data_providers_title">體育資料提供者</string>
@@ -930,4 +931,8 @@
     <string name="settings_sports_custom_definition_example_action">插入範例</string>
     <string name="settings_sports_custom_definition_placeholder">貼上提供者 JSON</string>
     <string name="settings_open_source_licenses">開放原始碼授權與聲明</string>
+    <string name="settings_sports_custom_definition_load_file">載入 JSON 檔案</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON 檔案超過 32 KB 上限</string>
+    <string name="settings_sports_custom_definition_file_error">無法載入此 JSON 檔案</string>
+    <string name="settings_experimental_badge">實驗性</string>
 </resources>

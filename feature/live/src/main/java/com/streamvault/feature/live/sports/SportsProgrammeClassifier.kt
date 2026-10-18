@@ -168,7 +168,19 @@ internal object SportsProgrammeClassifier {
         SportsEventParser.eventIdentity(classification, sourceKey)
 
     /** Uses Plan 2's sport aliases for provider names; unknown values remain unknown. */
-    fun sportForProvider(value: String?): SportType = value?.let(::detectSport) ?: SportType.UNKNOWN
+    fun sportForProvider(value: String?, league: String? = null): SportType {
+        // Some APIs route American football under "football". League identity
+        // disambiguates the sport without changing the provider's route variables.
+        if (SportsTextNormalizer.normalize(value.orEmpty()) == "football") {
+            val normalizedLeague = SportsTextNormalizer.normalize(league.orEmpty())
+            if ("nfl" in normalizedLeague.split(' ') ||
+                normalizedLeague.contains("national football league") ||
+                normalizedLeague.contains("college football") ||
+                normalizedLeague.contains("ncaa football")
+            ) return SportType.AMERICAN_FOOTBALL
+        }
+        return value?.let(::detectSport) ?: SportType.UNKNOWN
+    }
 
     fun canonicalEventTitle(value: String): String = SportsEventParser.canonicalEventTitle(value)
 

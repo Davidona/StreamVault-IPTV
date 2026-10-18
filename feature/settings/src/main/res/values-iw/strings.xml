@@ -877,6 +877,7 @@
     <string name="settings_sports_event_source_epg">מדריך טלוויזיה / EPG</string>
     <string name="settings_sports_provider_league_ids">מזהי ליגות</string>
     <string name="settings_sports_provider_league_ids_hint">לא חובה. יש להוסיף מזהי ליגות רק אם הספק הזה דורש זאת.</string>
+    <string name="settings_sports_custom_scopes_hint">בספק JSON מותאם אישית, יש להזין תחומים בפורמט sport/league ולהפריד ביניהם בפסיקים.</string>
     <string name="nav_sports">ספורט</string>
     <string name="settings_sports_settings_description">ניהול ספקי נתוני ספורט מחוברים.</string>
     <string name="settings_sports_data_providers_title">ספקי נתוני ספורט</string>
@@ -938,4 +939,8 @@
     <string name="settings_sports_custom_definition_example_action">הוספת דוגמה</string>
     <string name="settings_sports_custom_definition_placeholder">הדביקו JSON של ספק</string>
     <string name="settings_open_source_licenses">רישיונות והודעות של קוד פתוח</string>
+    <string name="settings_sports_custom_definition_load_file">טען קובץ JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">קובץ JSON חורג מהמגבלה של 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">לא ניתן לטעון את קובץ ה-JSON הזה</string>
+    <string name="settings_experimental_badge">ניסיוני</string>
 </resources>

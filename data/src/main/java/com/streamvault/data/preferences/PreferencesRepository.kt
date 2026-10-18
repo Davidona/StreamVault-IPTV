@@ -15,6 +15,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.streamvault.data.local.dao.ChannelPreferenceDao
@@ -240,6 +241,35 @@ class PreferencesRepository @Inject constructor(
                 ?.removePrefix("automatic_sync_status_")?.toLongOrNull() ?: return@mapNotNull null
             runCatching { id to com.google.gson.Gson().fromJson(value as String, com.streamvault.domain.sync.AutomaticSyncStatus::class.java) }.getOrNull()
         }.toMap()
+    }
+
+    fun getExcludedSports(): Flow<Set<String>> = preferencesDataStore.data.map {
+        it[stringSetPreferencesKey("sports_excluded_sports")].orEmpty()
+    }
+
+    fun getExcludedSportsLeagues(): Flow<Set<String>> = preferencesDataStore.data.map {
+        it[stringSetPreferencesKey("sports_excluded_leagues")].orEmpty()
+    }
+
+    suspend fun setSportsSportIncluded(sport: String, included: Boolean) {
+        preferencesDataStore.edit { values ->
+            val key = stringSetPreferencesKey("sports_excluded_sports")
+            values[key] = if (included) values[key].orEmpty() - sport else values[key].orEmpty() + sport
+        }
+    }
+
+    suspend fun setSportsLeagueIncluded(league: String, included: Boolean) {
+        preferencesDataStore.edit { values ->
+            val key = stringSetPreferencesKey("sports_excluded_leagues")
+            values[key] = if (included) values[key].orEmpty() - league else values[key].orEmpty() + league
+        }
+    }
+
+    suspend fun resetSportsInclusions() {
+        preferencesDataStore.edit { values ->
+            values.remove(stringSetPreferencesKey("sports_excluded_sports"))
+            values.remove(stringSetPreferencesKey("sports_excluded_leagues"))
+        }
     }
 
     override val eventSourcePreference: Flow<SportsEventSourcePreference> = preferencesDataStore.data.map { values ->

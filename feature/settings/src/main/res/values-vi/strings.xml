@@ -871,6 +871,7 @@
     <string name="settings_sports_event_source_epg">Hướng dẫn TV / EPG</string>
     <string name="settings_sports_provider_league_ids">ID giải đấu</string>
     <string name="settings_sports_provider_league_ids_hint">Không bắt buộc. Chỉ thêm ID giải đấu nếu nhà cung cấp này yêu cầu.</string>
+    <string name="settings_sports_custom_scopes_hint">Với nhà cung cấp JSON tùy chỉnh, hãy nhập các phạm vi theo định dạng sport/league và phân tách bằng dấu phẩy.</string>
     <string name="nav_sports">Thể thao</string>
     <string name="settings_sports_settings_description">Quản lý các nhà cung cấp dữ liệu thể thao đã kết nối.</string>
     <string name="settings_sports_data_providers_title">Nhà cung cấp dữ liệu thể thao</string>
@@ -932,4 +933,8 @@
     <string name="settings_sports_custom_definition_example_action">Chèn ví dụ</string>
     <string name="settings_sports_custom_definition_placeholder">Dán JSON của nhà cung cấp</string>
     <string name="settings_open_source_licenses">Giấy phép và thông báo mã nguồn mở</string>
+    <string name="settings_sports_custom_definition_load_file">Tải tệp JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Tệp JSON vượt quá giới hạn 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Không thể tải tệp JSON này</string>
+    <string name="settings_experimental_badge">Thử nghiệm</string>
 </resources>

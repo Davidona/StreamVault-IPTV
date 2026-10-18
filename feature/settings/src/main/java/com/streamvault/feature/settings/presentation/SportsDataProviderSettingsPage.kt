@@ -1,5 +1,9 @@
 package com.streamvault.feature.settings.presentation
 
+import android.content.ContentResolver
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
@@ -50,7 +54,10 @@ import com.streamvault.domain.sports.provider.SportsMetadataSourceMode
 import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
 import com.streamvault.feature.settings.R
 import java.net.URI
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 import org.json.JSONObject
+import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_MAX_CONFIGURATION_CHARS
 
 @Composable
 internal fun SportsDataProviderSettingsPage(
@@ -604,6 +611,28 @@ private fun SportsProviderConfigDialog(
     var customDefinitionJson by remember(existing?.instanceId, descriptor.typeId) {
         mutableStateOf(existing?.customDefinitionJson.orEmpty())
     }
+    var customJsonImportError by remember(existing?.instanceId, descriptor.typeId) {
+        mutableStateOf<Int?>(null)
+    }
+    val customJsonFilePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            when (val result = readCustomSportsJsonFile(context.contentResolver, uri)) {
+                is CustomSportsJsonFileResult.Success -> {
+                    customDefinitionJson = result.contents
+                    customJsonImportError = null
+                    onDraftChanged()
+                }
+                CustomSportsJsonFileResult.TooLarge -> {
+                    customJsonImportError = R.string.settings_sports_custom_definition_file_too_large
+                }
+                CustomSportsJsonFileResult.Invalid -> {
+                    customJsonImportError = R.string.settings_sports_custom_definition_file_error
+                }
+            }
+        }
+    }
     val isCustomProvider = descriptor.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID
     val credentialsAreValid = if (isCustomProvider) {
         customCredentialsValid(customDefinitionJson, hasExistingCredentials, username, secret)
@@ -673,27 +702,52 @@ private fun SportsProviderConfigDialog(
                         color = colors.secondaryText,
                         style = MaterialTheme.typography.labelSmall,
                     )
-                    if (customDefinitionJson.isBlank()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8)) {
                         CompactSettingsActionChip(
-                            label = stringResource(R.string.settings_sports_custom_definition_example_action),
+                            label = stringResource(R.string.settings_sports_custom_definition_load_file),
                             accent = colors.accent,
                             enabled = !isSaving,
                             onClick = {
-                                customDefinitionJson = customSportsProviderExample(
-                                    context.getString(R.string.settings_sports_provider_custom_json),
+                                customJsonImportError = null
+                                customJsonFilePicker.launch(
+                                    arrayOf("application/json", "text/*", "application/octet-stream"),
                                 )
-                                onDraftChanged()
                             },
                         )
+                        if (customDefinitionJson.isBlank()) {
+                            CompactSettingsActionChip(
+                                label = stringResource(R.string.settings_sports_custom_definition_example_action),
+                                accent = colors.accent,
+                                enabled = !isSaving,
+                                onClick = {
+                                    customJsonImportError = null
+                                    customDefinitionJson = customSportsProviderExample(
+                                        context.getString(R.string.settings_sports_provider_custom_json),
+                                    )
+                                    onDraftChanged()
+                                },
+                            )
+                        }
                     }
                     EpgSourceTextField(
                         value = customDefinitionJson,
-                        onValueChange = { customDefinitionJson = it; onDraftChanged() },
+                        onValueChange = {
+                            customDefinitionJson = it
+                            customJsonImportError = null
+                            onDraftChanged()
+                        },
                         placeholder = stringResource(R.string.settings_sports_custom_definition_placeholder),
                         modifier = Modifier.heightIn(min = 112.dp, max = 200.dp),
                         singleLine = false,
                         maxLines = 8,
                     )
+                    customJsonImportError?.let { errorResource ->
+                        Text(
+                            text = stringResource(errorResource),
+                            color = colors.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     Text(
                         text = stringResource(R.string.settings_sports_custom_definition_hint),
                         color = colors.secondaryText,
@@ -722,7 +776,13 @@ private fun SportsProviderConfigDialog(
                         placeholder = stringResource(R.string.settings_sports_provider_league_ids),
                     )
                     Text(
-                        text = stringResource(if (descriptor.typeId == OPENLIGADB_TYPE_ID) R.string.settings_sports_provider_openligadb_scope_hint else R.string.settings_sports_provider_league_ids_hint),
+                        text = stringResource(
+                            when {
+                                descriptor.typeId == OPENLIGADB_TYPE_ID -> R.string.settings_sports_provider_openligadb_scope_hint
+                                isCustomProvider -> R.string.settings_sports_custom_scopes_hint
+                                else -> R.string.settings_sports_provider_league_ids_hint
+                            },
+                        ),
                         color = colors.secondaryText,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -1042,6 +1102,39 @@ private fun customCredentialsValid(
     }
 }
 
+private sealed interface CustomSportsJsonFileResult {
+    data class Success(val contents: String) : CustomSportsJsonFileResult
+    data object TooLarge : CustomSportsJsonFileResult
+    data object Invalid : CustomSportsJsonFileResult
+}
+
+private fun readCustomSportsJsonFile(
+    contentResolver: ContentResolver,
+    uri: Uri,
+): CustomSportsJsonFileResult = try {
+    val contents = buildString {
+        val input = requireNotNull(contentResolver.openInputStream(uri))
+        InputStreamReader(input, StandardCharsets.UTF_8).use { reader ->
+            val buffer = CharArray(4_096)
+            while (length <= CUSTOM_SPORTS_PROVIDER_MAX_CONFIGURATION_CHARS) {
+                val remaining = CUSTOM_SPORTS_PROVIDER_MAX_CONFIGURATION_CHARS + 1 - length
+                if (remaining <= 0) break
+                val count = reader.read(buffer, 0, minOf(buffer.size, remaining))
+                if (count < 0) break
+                append(buffer, 0, count)
+            }
+        }
+    }.removePrefix("\uFEFF")
+    if (contents.length > CUSTOM_SPORTS_PROVIDER_MAX_CONFIGURATION_CHARS) {
+        CustomSportsJsonFileResult.TooLarge
+    } else {
+        JSONObject(contents)
+        CustomSportsJsonFileResult.Success(contents)
+    }
+} catch (_: Exception) {
+    CustomSportsJsonFileResult.Invalid
+}
+
 @Composable
 private fun OpenLigaDbAttribution(
     attribution: com.streamvault.domain.sports.provider.ProviderAttribution,
@@ -1072,7 +1165,7 @@ private fun parseEventLeagueIds(input: String): List<String>? {
     val trimmed = input.trim()
     if (trimmed.isEmpty()) return emptyList()
     val ids = trimmed.split(Regex("[,\\s]+")).filter(String::isNotEmpty)
-    if (ids.size > 50 || ids.any { !it.matches(Regex("[A-Za-z0-9._:-]{1,128}")) }) return null
+    if (ids.size > 50 || ids.any { !it.matches(Regex("[A-Za-z0-9._:/-]{1,128}")) }) return null
     if (ids.distinct().size != ids.size) return null
     return ids
 }

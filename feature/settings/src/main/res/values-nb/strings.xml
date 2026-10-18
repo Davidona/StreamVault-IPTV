@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">TV-guide / EPG</string>
     <string name="settings_sports_provider_league_ids">Liga-ID-er</string>
     <string name="settings_sports_provider_league_ids_hint">Valgfritt. Legg bare til liga-ID-er hvis denne leverandøren krever dem.</string>
+    <string name="settings_sports_custom_scopes_hint">For en egendefinert JSON-leverandør angir du omfang i formatet sport/league, atskilt med komma.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Administrer tilkoblede leverandører av sportsdata.</string>
     <string name="settings_sports_data_providers_title">Leverandører av sportsdata</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Sett inn eksempel</string>
     <string name="settings_sports_custom_definition_placeholder">Lim inn leverandørens JSON</string>
     <string name="settings_open_source_licenses">Lisenser og merknader for åpen kildekode</string>
+    <string name="settings_sports_custom_definition_load_file">Last inn JSON-fil</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON-filen overskrider grensen på 32 kB</string>
+    <string name="settings_sports_custom_definition_file_error">Denne JSON-filen kunne ikke lastes inn</string>
+    <string name="settings_experimental_badge">Eksperimentell</string>
 </resources>

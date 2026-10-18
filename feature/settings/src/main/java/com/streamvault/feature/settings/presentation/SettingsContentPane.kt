@@ -215,6 +215,9 @@ public fun SettingsContentPane(
                 SettingsLocalHeader(
                     title = stringResource(page?.title ?: category.title),
                     description = stringResource(page?.description ?: category.description),
+                    badge = if (category == SettingsCategory.SPORTS) {
+                        stringResource(R.string.settings_experimental_badge)
+                    } else null,
                     parentTitle = when {
                         activeSearchTarget != null -> stringResource(R.string.settings_search_title)
                         page != null -> stringResource(category.title)

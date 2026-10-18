@@ -2,6 +2,7 @@ package com.streamvault.feature.live.sports
 
 import android.util.Log
 import com.streamvault.domain.model.Program
+import com.streamvault.domain.sports.provider.SportsProviderError
 
 internal object SportsDiagnostics {
     private const val TAG = "SportsHub"
@@ -9,6 +10,13 @@ internal object SportsDiagnostics {
     private const val MAX_LOG_VALUE_LENGTH = 160
 
     fun isEnabled(): Boolean = Log.isLoggable(TAG, Log.DEBUG)
+
+    fun providerFailure(stage: String, category: SportsProviderError, httpStatus: Int? = null) {
+        // Diagnostics must never interrupt provider fallback (including host-side tests).
+        runCatching {
+            if (isEnabled()) Log.d(TAG, "provider-stage=$stage category=$category httpStatus=$httpStatus")
+        }
+    }
 
     fun classificationCache(hits: Long, misses: Long, entries: Int, estimatedBytes: Long) {
         if (!Log.isLoggable(PERFORMANCE_TAG, Log.DEBUG)) return

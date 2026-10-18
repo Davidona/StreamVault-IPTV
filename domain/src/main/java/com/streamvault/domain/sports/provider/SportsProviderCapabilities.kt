@@ -12,24 +12,46 @@ data class ProviderEventRequest(
     init { require(from.isBefore(until)) }
 }
 
+/** Identifies a provider event's sport/league path when detail APIs require scoped URLs. */
+data class ProviderEventScope(val sport: String? = null, val leagueId: String? = null)
+
 /** IDs belong to the receiving provider instance. Adapters own API batch/pagination limits. */
-data class ProviderScoreRequest(val eventIds: Set<String>) {
+data class ProviderScoreRequest(
+    val eventIds: Set<String>,
+    val eventScopes: Map<String, ProviderEventScope> = emptyMap(),
+) {
     init { require(eventIds.isNotEmpty() && eventIds.none { it.isBlank() }) }
 }
 
-data class ProviderEventDetailRequest(val eventId: String) {
+data class ProviderEventDetailRequest(
+    val eventId: String,
+    val sport: String? = null,
+    val leagueId: String? = null,
+) {
     init { require(eventId.isNotBlank()) }
 }
 
-data class ProviderStandingsRequest(val leagueId: String, val season: String? = null) {
+data class ProviderStandingsRequest(
+    val leagueId: String,
+    val season: String? = null,
+    val sport: String? = null,
+    val leagueName: String? = null,
+) {
     init { require(leagueId.isNotBlank()) }
 }
 
-data class ProviderTeamMetadataRequest(val teamId: String) {
+data class ProviderTeamMetadataRequest(
+    val teamId: String,
+    val sport: String? = null,
+    val leagueId: String? = null,
+) {
     init { require(teamId.isNotBlank()) }
 }
 
-data class ProviderLeagueMetadataRequest(val leagueId: String) {
+data class ProviderLeagueMetadataRequest(
+    val leagueId: String,
+    val sport: String? = null,
+) {
     init { require(leagueId.isNotBlank()) }
 }
 

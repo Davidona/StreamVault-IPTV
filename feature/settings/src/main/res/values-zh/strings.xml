@@ -870,6 +870,7 @@
     <string name="settings_sports_event_source_epg">电视节目指南 / EPG</string>
     <string name="settings_sports_provider_league_ids">联赛 ID</string>
     <string name="settings_sports_provider_league_ids_hint">可选。仅当此提供商要求时才添加联赛 ID。</string>
+    <string name="settings_sports_custom_scopes_hint">对于自定义 JSON 提供方，请按 sport/league 格式输入范围，并用逗号分隔。</string>
     <string name="nav_sports">体育</string>
     <string name="settings_sports_settings_description">管理已连接的体育数据提供方。</string>
     <string name="settings_sports_data_providers_title">体育数据提供方</string>
@@ -931,4 +932,8 @@
     <string name="settings_sports_custom_definition_example_action">插入示例</string>
     <string name="settings_sports_custom_definition_placeholder">粘贴提供商 JSON</string>
     <string name="settings_open_source_licenses">开源许可证和声明</string>
+    <string name="settings_sports_custom_definition_load_file">加载 JSON 文件</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON 文件超过 32 KB 限制</string>
+    <string name="settings_sports_custom_definition_file_error">无法加载此 JSON 文件</string>
+    <string name="settings_experimental_badge">实验性</string>
 </resources>

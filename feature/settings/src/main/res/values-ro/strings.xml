@@ -877,6 +877,7 @@
     <string name="settings_sports_event_source_epg">Ghid TV / EPG</string>
     <string name="settings_sports_provider_league_ids">ID-uri de ligi</string>
     <string name="settings_sports_provider_league_ids_hint">Opțional. Adăugați ID-uri de ligi doar dacă acest furnizor le solicită.</string>
+    <string name="settings_sports_custom_scopes_hint">Pentru un furnizor JSON personalizat, introduceți domenii în formatul sport/league, separate prin virgule.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Gestionează furnizorii conectați de date sportive.</string>
     <string name="settings_sports_data_providers_title">Furnizori de date sportive</string>
@@ -938,4 +939,8 @@
     <string name="settings_sports_custom_definition_example_action">Inserează exemplu</string>
     <string name="settings_sports_custom_definition_placeholder">Lipește JSON-ul furnizorului</string>
     <string name="settings_open_source_licenses">Licențe și notificări pentru software open-source</string>
+    <string name="settings_sports_custom_definition_load_file">Încarcă fișier JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Fișierul JSON depășește limita de 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Acest fișier JSON nu a putut fi încărcat</string>
+    <string name="settings_experimental_badge">Experimental</string>
 </resources>

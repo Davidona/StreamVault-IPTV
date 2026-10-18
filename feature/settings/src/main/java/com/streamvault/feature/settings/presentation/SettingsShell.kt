@@ -1,6 +1,7 @@
 package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ internal fun SettingsLocalHeader(
     onExit: (() -> Unit)? = null,
     searchModifier: Modifier = Modifier,
     backModifier: Modifier = Modifier,
+    badge: String? = null,
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
     Row(
@@ -100,6 +102,17 @@ internal fun SettingsLocalHeader(
                 color = colors.primaryText,
                 modifier = Modifier.semantics { heading() },
             )
+            if (badge != null) {
+                Text(
+                    text = badge,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.primaryText,
+                    modifier = Modifier
+                        .background(colors.groupSurface, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                )
+            }
             if (description.isNotBlank()) {
                 Text(
                     text = description,

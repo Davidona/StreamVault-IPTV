@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">Panduan TV / EPG</string>
     <string name="settings_sports_provider_league_ids">ID liga</string>
     <string name="settings_sports_provider_league_ids_hint">Opsional. Tambahkan ID liga hanya jika penyedia ini memerlukannya.</string>
+    <string name="settings_sports_custom_scopes_hint">Untuk penyedia JSON kustom, masukkan cakupan dengan format sport/league yang dipisahkan koma.</string>
     <string name="nav_sports">Olahraga</string>
     <string name="settings_sports_settings_description">Kelola penyedia data olahraga yang terhubung.</string>
     <string name="settings_sports_data_providers_title">Penyedia data olahraga</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Sisipkan contoh</string>
     <string name="settings_sports_custom_definition_placeholder">Tempel JSON penyedia</string>
     <string name="settings_open_source_licenses">Lisensi dan pemberitahuan sumber terbuka</string>
+    <string name="settings_sports_custom_definition_load_file">Muat file JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">File JSON melebihi batas 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">File JSON ini tidak dapat dimuat</string>
+    <string name="settings_experimental_badge">Eksperimental</string>
 </resources>

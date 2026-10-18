@@ -18,6 +18,17 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], manifest = Config.NONE)
 class EncryptedSportsProviderStoreTest {
+    @Test fun `successful saves and removals invalidate sports consumers`() = runTest {
+        val store = store()
+        assertThat(store.configurationChanges.value).isEqualTo(0L)
+        store.save(config("account"))
+        assertThat(store.configurationChanges.value).isEqualTo(1L)
+        store.save(config("account"), SportsProviderCredentials("rotated"))
+        assertThat(store.configurationChanges.value).isEqualTo(2L)
+        store.remove("account")
+        assertThat(store.configurationChanges.value).isEqualTo(3L)
+    }
+
     @get:Rule val temporary = TemporaryFolder()
     // Fake crypto verifies the storage boundary, not the platform cipher.
     private val crypto = object : CredentialCrypto {

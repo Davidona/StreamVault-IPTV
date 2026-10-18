@@ -7,6 +7,18 @@ import org.junit.Test
 
 class SportsProgrammeClassifierTest {
     @Test
+    fun `provider football routes use league identity to distinguish NFL and soccer`() {
+        assertThat(SportsProgrammeClassifier.sportForProvider("football", "NFL"))
+            .isEqualTo(SportType.AMERICAN_FOOTBALL)
+        assertThat(SportsProgrammeClassifier.sportForProvider("football", "College Football"))
+            .isEqualTo(SportType.AMERICAN_FOOTBALL)
+        assertThat(SportsProgrammeClassifier.sportForProvider("football", "Premier League"))
+            .isEqualTo(SportType.FOOTBALL)
+        assertThat(SportsProgrammeClassifier.sportForProvider("soccer", "Premier League"))
+            .isEqualTo(SportType.FOOTBALL)
+    }
+
+    @Test
     fun classifiesTeamAndNonTeamCompetitionsFromTitles() {
         val matchup = classify(
             title = "FC Barcelona - Real Madrid CF",

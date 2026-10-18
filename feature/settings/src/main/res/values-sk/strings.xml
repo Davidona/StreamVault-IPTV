@@ -878,6 +878,7 @@
     <string name="settings_sports_event_source_epg">TV program / EPG</string>
     <string name="settings_sports_provider_league_ids">ID ligy</string>
     <string name="settings_sports_provider_league_ids_hint">Voliteľné. ID ligy zadajte iba vtedy, ak ich tento poskytovateľ vyžaduje.</string>
+    <string name="settings_sports_custom_scopes_hint">Pre vlastného poskytovateľa JSON zadajte rozsahy vo formáte sport/league oddelené čiarkami.</string>
     <string name="nav_sports">Šport</string>
     <string name="settings_sports_settings_description">Spravujte pripojených poskytovateľov športových údajov.</string>
     <string name="settings_sports_data_providers_title">Poskytovatelia športových údajov</string>
@@ -939,4 +940,8 @@
     <string name="settings_sports_custom_definition_example_action">Vložiť príklad</string>
     <string name="settings_sports_custom_definition_placeholder">Vložte JSON poskytovateľa</string>
     <string name="settings_open_source_licenses">Licencie a oznámenia o otvorenom kóde</string>
+    <string name="settings_sports_custom_definition_load_file">Načítať súbor JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Súbor JSON prekračuje limit 32 kB</string>
+    <string name="settings_sports_custom_definition_file_error">Tento súbor JSON sa nepodarilo načítať</string>
+    <string name="settings_experimental_badge">Experimentálne</string>
 </resources>

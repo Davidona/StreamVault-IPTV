@@ -12,6 +12,7 @@ import com.streamvault.domain.sports.provider.SportsProviderResult
 import com.streamvault.domain.sports.provider.SportsStandingsSourceMode
 import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
 import com.streamvault.domain.sports.provider.SportsSourceRef
+import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_TYPE_ID
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
@@ -61,7 +62,9 @@ internal class SportsProviderStandingsRouter @Inject constructor(
         eventLeagueSource: SportsSourceRef.Provider?,
         now: Instant = Instant.now(),
     ): LoadedSportsStandings? {
-        val leagueName = eventLeague?.name?.trim()?.takeIf(String::isNotEmpty) ?: return null
+        val leagueName = eventLeague?.name?.trim()?.takeIf(String::isNotEmpty)
+            ?: eventLeague?.id?.takeIf(String::isNotEmpty)
+            ?: return null
         var staleFallback: LoadedSportsStandings? = null
         for (config in providers) {
             val sameProviderIdentity = config.instanceId == eventLeagueSource?.instanceId
@@ -99,7 +102,11 @@ internal class SportsProviderStandingsRouter @Inject constructor(
                 }
 
                 val result = try {
-                    provider.standings(ProviderStandingsRequest(leagueId))
+                    provider.standings(ProviderStandingsRequest(
+                        leagueId = leagueId,
+                        sport = eventLeague?.sport.takeIf { config.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+                        leagueName = eventLeague?.name,
+                    ))
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Exception) {
@@ -142,10 +149,10 @@ internal class SportsProviderStandingsRouter @Inject constructor(
         sameProviderIdentity: Boolean,
     ): Boolean {
         val returnedId = standings.league.id
-        if (returnedId != null && returnedId != requestedId) return false
-        if (sameProviderIdentity || returnedId == requestedId) return true
-        val returnedName = standings.league.name?.trim()?.takeIf(String::isNotEmpty) ?: return false
-        return normalize(returnedName) == normalize(requestedName)
+        val returnedName = standings.league.name?.trim()?.takeIf(String::isNotEmpty)
+        val namesMatch = returnedName?.let { normalize(it) == normalize(requestedName) } == true
+        if (returnedId != null && returnedId != requestedId) return sameProviderIdentity && namesMatch
+        return sameProviderIdentity || returnedId == requestedId || namesMatch
     }
 
     private fun loaded(config: SportsProviderConfig, value: ProviderStandings, stale: Boolean) =

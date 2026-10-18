@@ -27,6 +27,32 @@ import org.junit.Test
 
 class SportsProviderScoreSourceRouterTest {
     @Test
+    fun `busy catalog caps score requests and prioritizes live games`() = runTest {
+        val now = Instant.parse("2026-10-17T12:00:00Z")
+        val events = (1..75).map { index -> ProviderEvent(
+            providerEventId = "event-$index", eventStart = now.plusSeconds(index.toLong()),
+            status = ProviderGameStatus(if (index == 75) ProviderGameState.LIVE else ProviderGameState.SCHEDULED),
+        ) }
+        var requested = emptySet<String>()
+        val factory = TestFactory("scores", scoreResponse = { _, request ->
+            requested = request.eventIds
+            SportsProviderResult.Success(ProviderBatch(request.eventIds.map { ProviderScore(it) }))
+        })
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val router = SportsProviderScoreSourceRouter(registry, SportsProviderEventSourceRouter(registry))
+        val loaded = router.load(
+            listOf(config("account", "scores")),
+            LoadedSportsProviderEvents("account", "scores", events),
+            now.minusSeconds(86_400), now.plusSeconds(86_400), now,
+        )
+
+        assertThat(requested).hasSize(50)
+        assertThat(requested).contains("event-75")
+        assertThat(requested.first()).isEqualTo("event-75")
+        assertThat(loaded.scores).hasSize(50)
+    }
+
+    @Test
     fun `automatic selection prefers event account and manual selection stays independent`() {
         val first = TestFactory("first")
         val second = TestFactory("second")

@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">Τηλεοπτικός οδηγός / EPG</string>
     <string name="settings_sports_provider_league_ids">Αναγνωριστικά πρωταθλημάτων</string>
     <string name="settings_sports_provider_league_ids_hint">Προαιρετικό. Προσθέστε αναγνωριστικά πρωταθλημάτων μόνο αν τα απαιτεί αυτός ο πάροχος.</string>
+    <string name="settings_sports_custom_scopes_hint">Για προσαρμοσμένο πάροχο JSON, εισαγάγετε εύρη στη μορφή sport/league, χωρισμένα με κόμμα.</string>
     <string name="nav_sports">Αθλητικά</string>
     <string name="settings_sports_settings_description">Διαχειριστείτε συνδεδεμένους παρόχους αθλητικών δεδομένων.</string>
     <string name="settings_sports_data_providers_title">Πάροχοι αθλητικών δεδομένων</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Εισαγωγή παραδείγματος</string>
     <string name="settings_sports_custom_definition_placeholder">Επικολλήστε το JSON του παρόχου</string>
     <string name="settings_open_source_licenses">Άδειες και γνωστοποιήσεις λογισμικού ανοικτού κώδικα</string>
+    <string name="settings_sports_custom_definition_load_file">Φόρτωση αρχείου JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Το αρχείο JSON υπερβαίνει το όριο των 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Δεν ήταν δυνατή η φόρτωση αυτού του αρχείου JSON</string>
+    <string name="settings_experimental_badge">Πειραματικό</string>
 </resources>

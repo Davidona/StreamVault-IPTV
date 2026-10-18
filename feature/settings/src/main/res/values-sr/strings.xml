@@ -875,6 +875,7 @@
     <string name="settings_sports_event_source_epg">ТВ водич / EPG</string>
     <string name="settings_sports_provider_league_ids">ИД-јеви лига</string>
     <string name="settings_sports_provider_league_ids_hint">Опционално. Унесите ИД-јеве лига само ако их овај добављач захтева.</string>
+    <string name="settings_sports_custom_scopes_hint">За прилагођеног JSON добављача унесите опсеге у формату sport/league, раздвојене зарезима.</string>
     <string name="nav_sports">Спорт</string>
     <string name="settings_sports_settings_description">Управљајте повезаним добављачима спортских података.</string>
     <string name="settings_sports_data_providers_title">Добављачи спортских података</string>
@@ -936,4 +937,8 @@
     <string name="settings_sports_custom_definition_example_action">Уметни пример</string>
     <string name="settings_sports_custom_definition_placeholder">Налепите JSON добављача</string>
     <string name="settings_open_source_licenses">Лиценце и обавештења о софтверу отвореног кода</string>
+    <string name="settings_sports_custom_definition_load_file">Учитај JSON датотеку</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON датотека премашује ограничење од 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Није могуће учитати ову JSON датотеку</string>
+    <string name="settings_experimental_badge">Експериментално</string>
 </resources>

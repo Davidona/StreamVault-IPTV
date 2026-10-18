@@ -880,6 +880,7 @@
     <string name="settings_sports_event_source_epg">ТВ-программа / EPG</string>
     <string name="settings_sports_provider_league_ids">Идентификаторы лиг</string>
     <string name="settings_sports_provider_league_ids_hint">Необязательно. Добавляйте идентификаторы лиг, только если они нужны этому провайдеру.</string>
+    <string name="settings_sports_custom_scopes_hint">Для пользовательского JSON-провайдера укажите области в формате sport/league через запятую.</string>
     <string name="nav_sports">Спорт</string>
     <string name="settings_sports_settings_description">Управляйте подключёнными поставщиками спортивных данных.</string>
     <string name="settings_sports_data_providers_title">Поставщики спортивных данных</string>
@@ -941,4 +942,8 @@
     <string name="settings_sports_custom_definition_example_action">Вставить пример</string>
     <string name="settings_sports_custom_definition_placeholder">Вставьте JSON провайдера</string>
     <string name="settings_open_source_licenses">Лицензии и уведомления об открытом исходном коде</string>
+    <string name="settings_sports_custom_definition_load_file">Загрузить файл JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Файл JSON превышает ограничение 32 КБ</string>
+    <string name="settings_sports_custom_definition_file_error">Не удалось загрузить этот файл JSON</string>
+    <string name="settings_experimental_badge">Экспериментально</string>
 </resources>

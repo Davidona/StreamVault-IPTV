@@ -15,8 +15,15 @@ data class ProviderCompetitor(
     val id: String? = null,
     val kind: ProviderCompetitorKind = ProviderCompetitorKind.UNKNOWN,
     val role: ProviderCompetitorRole = ProviderCompetitorRole.PARTICIPANT,
+    val logoUrl: String? = null,
 ) {
-    init { require(name.isNotBlank()) }
+    init {
+        require(name.isNotBlank())
+        require(logoUrl == null || runCatching {
+            val uri = URI(logoUrl)
+            uri.scheme == "https" && !uri.host.isNullOrBlank() && uri.userInfo == null && uri.fragment == null
+        }.getOrDefault(false))
+    }
 }
 
 enum class ProviderGameState { SCHEDULED, LIVE, SUSPENDED, DELAYED, POSTPONED, CANCELLED, FINAL, UNKNOWN }
@@ -126,7 +133,12 @@ data class ProviderLeagueMetadata(
 
 enum class ProviderEntityType { EVENT, TEAM, LEAGUE, COMPETITOR }
 
-data class ProviderEntityRef(val type: ProviderEntityType, val id: String) {
+data class ProviderEntityRef(
+    val type: ProviderEntityType,
+    val id: String,
+    val sport: String? = null,
+    val leagueId: String? = null,
+) {
     init { require(id.isNotBlank()) }
 }
 

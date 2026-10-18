@@ -880,6 +880,7 @@
     <string name="settings_sports_event_source_epg">Телепрограма / EPG</string>
     <string name="settings_sports_provider_league_ids">Ідентифікатори ліг</string>
     <string name="settings_sports_provider_league_ids_hint">Необов’язково. Додавайте ідентифікатори ліг, лише якщо вони потрібні цьому провайдеру.</string>
+    <string name="settings_sports_custom_scopes_hint">Для власного постачальника JSON введіть області у форматі sport/league через кому.</string>
     <string name="nav_sports">Спорт</string>
     <string name="settings_sports_settings_description">Керуйте підключеними постачальниками спортивних даних.</string>
     <string name="settings_sports_data_providers_title">Постачальники спортивних даних</string>
@@ -941,4 +942,8 @@
     <string name="settings_sports_custom_definition_example_action">Вставити приклад</string>
     <string name="settings_sports_custom_definition_placeholder">Вставте JSON провайдера</string>
     <string name="settings_open_source_licenses">Ліцензії та повідомлення про відкрите програмне забезпечення</string>
+    <string name="settings_sports_custom_definition_load_file">Завантажити файл JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Файл JSON перевищує обмеження 32 КБ</string>
+    <string name="settings_sports_custom_definition_file_error">Не вдалося завантажити цей файл JSON</string>
+    <string name="settings_experimental_badge">Експериментально</string>
 </resources>

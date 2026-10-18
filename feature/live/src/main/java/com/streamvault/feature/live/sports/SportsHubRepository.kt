@@ -14,6 +14,7 @@ import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
 import com.streamvault.domain.sports.provider.ProviderEvent
 import com.streamvault.domain.sports.provider.ProviderLeague
+import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_TYPE_ID
 import com.streamvault.domain.sports.provider.SourcedValue
 import com.streamvault.domain.sports.provider.SportsEventSourcePreference
 import com.streamvault.domain.sports.provider.SportsEventSourceSettings
@@ -33,6 +34,7 @@ import java.time.Instant
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +60,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal data class SportsHubUiState(
     val isLoading: Boolean = true,
@@ -67,6 +70,10 @@ internal data class SportsHubUiState(
     val selectedSportFilter: SportsSportFilter = SportsSportFilter.ALL,
     val selectedLeagueFilter: String? = null,
     val nowMillis: Long = System.currentTimeMillis(),
+    val searchQuery: String = "",
+    val excludedSports: Set<String> = emptySet(),
+    val excludedLeagues: Set<String> = emptySet(),
+    val knownLeagues: Map<String, String> = emptyMap(),
 )
 
 internal fun shouldRefreshSportsOnClock(
@@ -90,6 +97,7 @@ internal class SportsHubRepository @Inject constructor(
     private val sportsProviderScoreSourceRouter: SportsProviderScoreSourceRouter,
     private val sportsProviderStandingsRouter: SportsProviderStandingsRouter,
     private val sportsProviderMetadataRouter: SportsProviderMetadataRouter,
+    private val sportsProviderExtraDetailsRouter: SportsProviderExtraDetailsRouter,
     private val sportsEventSourceSettings: SportsEventSourceSettings,
     private val sportsScoreSourceSettings: SportsScoreSourceSettings,
     private val sportsStandingsSourceSettings: SportsStandingsSourceSettings,
@@ -113,8 +121,18 @@ internal class SportsHubRepository @Inject constructor(
     private val initialLoadStartedAt = SystemClock.elapsedRealtime()
     private var initialContentLogged = false
     private var lastPublishedAtMillis = 0L
+    private var loadInProgress = false
+    private var progressiveLoad = true
 
     init {
+        scope.launch {
+            combine(preferencesRepository.getExcludedSports(), preferencesRepository.getExcludedSportsLeagues()) { sports, leagues ->
+                sports to leagues
+            }.collect { (sports, leagues) ->
+                _uiState.update { it.copy(excludedSports = sports, excludedLeagues = leagues,
+                    selectedLeagueFilter = it.selectedLeagueFilter?.takeUnless { league -> league in leagues }) }
+            }
+        }
         val activeSource = combine(
             combinedM3uRepository.getActiveLiveSource(),
             providerRepository.getActiveProvider(),
@@ -208,8 +226,9 @@ internal class SportsHubRepository @Inject constructor(
         val sourcePreferences = combine(
             sportsEventSourceSettings.eventSourcePreference,
             sportsScoreSourceSettings.scoreSourcePreference,
-        ) { eventSourcePreference, scoreSourcePreference ->
-            eventSourcePreference to scoreSourcePreference
+            sportsProviderStore.configurationChanges,
+        ) { eventSourcePreference, scoreSourcePreference, revision ->
+            Triple(eventSourcePreference, scoreSourcePreference, revision)
         }
         val loadSettings = combine(
             selectedTimeRange,
@@ -224,6 +243,7 @@ internal class SportsHubRepository @Inject constructor(
                 sourceSelection.first,
                 sourceSelection.second,
                 metadataSourcePreference,
+                sourceSelection.third,
             )
         }
         val loadRequests = combine(channelSnapshots, guideRevision, loadSettings) { channels, revision, settings ->
@@ -234,6 +254,7 @@ internal class SportsHubRepository @Inject constructor(
                 settings.eventSourcePreference,
                 settings.scoreSourcePreference,
                 settings.metadataSourcePreference,
+                settings.providerRevision,
             ) to settings.range
         }
         scope.launch {
@@ -270,7 +291,7 @@ internal class SportsHubRepository @Inject constructor(
                         com.streamvault.domain.sports.provider.ProviderGameState.LIVE ||
                         event.broadcastStatusAt(now) == SportsBroadcastStatus.ON_AIR
                 }
-                if (_uiState.subscriptionCount.value > 0 &&
+                if (_uiState.subscriptionCount.value > 0 && !loadInProgress &&
                     shouldRefreshSportsOnClock(range, hasLiveEvents, lastRequestedLocalDate != today)
                 ) {
                     refreshRequest.update { it + 1 }
@@ -326,8 +347,22 @@ internal class SportsHubRepository @Inject constructor(
         _uiState.update { it.copy(selectedLeagueFilter = league) }
     }
 
+    fun setSearchQuery(query: String) { _uiState.update { it.copy(searchQuery = query) } }
+
+    fun setSportIncluded(sport: SportType, included: Boolean) {
+        scope.launch { preferencesRepository.setSportsSportIncluded(sport.discoveryKey, included) }
+    }
+
+    fun setLeagueIncluded(league: String, included: Boolean) {
+        scope.launch { preferencesRepository.setSportsLeagueIncluded(league, included) }
+    }
+
+    fun resetInclusions() { scope.launch { preferencesRepository.resetSportsInclusions() } }
+
     private suspend fun loadEvents(inputs: SportsLoadInputs, range: SportsTimeRange, now: Long) {
         val loadStartedAt = SystemClock.elapsedRealtime()
+        loadInProgress = true
+        progressiveLoad = _uiState.value.events.isEmpty() || _uiState.value.isLoading
         val providerChannels = inputs.providers
         val window = windowFor(range, now)
         lastRequestedLocalDate = localDate(now)
@@ -356,11 +391,31 @@ internal class SportsHubRepository @Inject constructor(
                 cached.events to cached.providerEvents
             } ?: withContext(Dispatchers.Default) {
                 val (requestFromMillis, requestUntilMillis) = providerEventRequestWindow(range, now, window)
-                val providerEventLoad = sportsProviderEventSourceRouter.load(
-                    eventProviders,
-                    Instant.ofEpochMilli(requestFromMillis),
-                    Instant.ofEpochMilli(requestUntilMillis),
-                )
+                availableChannelEntries = providerChannels.flatMap { provider ->
+                    provider.channels.map { SportsChannelIndexEntry(it, provider.combinedProfileId) }
+                }
+                val providerTask = async {
+                    withTimeoutOrNull(PROVIDER_LOAD_TIMEOUT_MS) {
+                        sportsProviderEventSourceRouter.load(
+                            eventProviders, Instant.ofEpochMilli(requestFromMillis), Instant.ofEpochMilli(requestUntilMillis),
+                        )
+                    } ?: LoadedSportsProviderEvents()
+                }
+                // A week of guide data can be large. Show API events while that local scan
+                // continues; the final resolver will join them to actual guide broadcasts.
+                val provisionalPublisher = launch {
+                    val early = providerTask.await()
+                    if (early.events.isNotEmpty()) {
+                        val resolved = sportsProviderEventResolver.resolve(
+                            epgEvents = emptyList(), providerEvents = sourcedEvents(early),
+                            selection = SportsEventSourceSelection(eventInstanceId = early.instanceId),
+                            now = Instant.ofEpochMilli(now),
+                        )
+                        withContext(Dispatchers.Main.immediate) {
+                            publishEvents(resolved.mapNotNull { it.toSportsHubEvent() }, range, now, window)
+                        }
+                    }
+                }
                 val providerData = buildList {
                     providerChannels.forEach { provider ->
                         add(loadProviderCandidates(provider, range, now, window))
@@ -377,27 +432,19 @@ internal class SportsHubRepository @Inject constructor(
                 )
                 val entries = providerData.flatMap { it.channels }
                 availableChannelEntries = entries
+                // The guide is usable immediately, even when a remote API is slow.
+                if (!providerTask.isCompleted && (assembled.isNotEmpty() || eventProviders.isEmpty())) {
+                    withContext(Dispatchers.Main.immediate) { publishEvents(assembled, range, now, window) }
+                }
+                val providerEventLoad = providerTask.await()
+                provisionalPublisher.join()
                 // Most guide-derived events already have playable broadcasts. Build the
                 // full text index only when fallback matching or manual search needs it.
                 val channelIndex by lazy { getFallbackChannelIndex(entries) }
-                val sourcedProviderEvents = if (providerEventLoad.instanceId == null || providerEventLoad.typeId == null) {
-                    emptyList()
-                } else {
-                    providerEventLoad.events.map { event ->
-                        SourcedValue(
-                            value = event,
-                            source = SportsSourceRef.Provider(
-                                instanceId = providerEventLoad.instanceId,
-                                typeId = providerEventLoad.typeId,
-                                externalEventId = event.providerEventId,
-                            ),
-                        )
-                    }
-                }
+                val sourcedProviderEvents = sourcedEvents(providerEventLoad)
                 val selectedProviderId = providerEventLoad.instanceId
                 val providerResolutionStartedAt = SystemClock.elapsedRealtime()
-                val providerResolved = sportsProviderEventSourceRouter.enrichBroadcasters(
-                    sportsProviderEventResolver.resolve(
+                val catalogResolved = sportsProviderEventResolver.resolve(
                         epgEvents = assembled,
                         providerEvents = sourcedProviderEvents,
                         selection = SportsEventSourceSelection(
@@ -405,10 +452,15 @@ internal class SportsHubRepository @Inject constructor(
                             metadataInstanceId = selectedProviderId,
                         ),
                         now = Instant.ofEpochMilli(now),
-                    ),
-                    configuredProviders,
-                    Instant.ofEpochMilli(now),
                 )
+                withContext(Dispatchers.Main.immediate) {
+                    publishEvents(catalogResolved.mapNotNull { it.toSportsHubEvent() }, range, now, window)
+                }
+                val providerResolved = withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
+                    sportsProviderEventSourceRouter.enrichBroadcasters(
+                        catalogResolved, configuredProviders, Instant.ofEpochMilli(now),
+                    )
+                } ?: catalogResolved
                 SportsDiagnostics.performance(
                     stage = "provider-event-resolution",
                     elapsedMillis = SystemClock.elapsedRealtime() - providerResolutionStartedAt,
@@ -416,7 +468,10 @@ internal class SportsHubRepository @Inject constructor(
                     groupCount = sourcedProviderEvents.size,
                 )
                 val resolved = providerResolved.mapNotNull { resolved ->
-                    resolved.toSportsHubEvent()?.let { event ->
+                    currentCoroutineContext().ensureActive()
+                    resolved.toSportsHubEvent()?.takeIf { event ->
+                        programMatchesRange(event.startTime, event.endTime, range, now, window)
+                    }?.let { event ->
                         val resolvedEvent = if (event.broadcasts.none { it.channel.streamUrl.isNotBlank() }) {
                             SportsEventFallbackResolver.addFallbacksWhenDirectChoicesAreUnavailable(event, channelIndex)
                         } else {
@@ -430,6 +485,7 @@ internal class SportsHubRepository @Inject constructor(
                 if (cacheKey != null) cacheEvents(cacheKey, resolved, providerEventLoad)
                 resolved to providerEventLoad
             }
+            publishEvents(baseEvents, range, now, window)
             val selectedEventProviderInstanceId = reusableProviderEvents.instanceId
             val scoreProviders = sportsProviderScoreSourceRouter.eligibleProviders(
                 configuredProviders,
@@ -438,13 +494,13 @@ internal class SportsHubRepository @Inject constructor(
             )
             val (requestFromMillis, requestUntilMillis) = providerEventRequestWindow(range, now, window)
             val scoreLoad = withContext(Dispatchers.Default) {
-                sportsProviderScoreSourceRouter.load(
+                withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) { sportsProviderScoreSourceRouter.load(
                     providers = scoreProviders,
                     reusableEventLoad = reusableProviderEvents,
                     from = Instant.ofEpochMilli(requestFromMillis),
                     until = Instant.ofEpochMilli(requestUntilMillis),
                     now = Instant.ofEpochMilli(now),
-                )
+                ) } ?: LoadedSportsProviderScores()
             }
             val sourcedScoreEvents = if (scoreLoad.instanceId == null || scoreLoad.typeId == null) {
                 emptyList()
@@ -456,6 +512,8 @@ internal class SportsHubRepository @Inject constructor(
                             instanceId = scoreLoad.instanceId,
                             typeId = scoreLoad.typeId,
                             externalEventId = event.providerEventId,
+                            sport = event.sport.takeIf { scoreLoad.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+                            leagueId = event.league?.id.takeIf { scoreLoad.typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
                         ),
                     )
                 }
@@ -485,14 +543,15 @@ internal class SportsHubRepository @Inject constructor(
                     events = scoreLoad.events,
                 ),
             )
+            publishEvents(resolvedEvents, range, now, window)
             val metadata = withContext(Dispatchers.Default) {
-                sportsProviderMetadataRouter.load(
+                withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) { sportsProviderMetadataRouter.load(
                     configs = configuredProviders,
                     preference = inputs.metadataSourcePreference,
                     eventCatalogs = eventCatalogs,
                     eventProviderInstanceId = reusableProviderEvents.instanceId,
                     now = Instant.ofEpochMilli(now),
-                )
+                ) } ?: LoadedSportsProviderMetadata()
             }
             val events = sportsProviderMetadataRouter.enrichEvents(resolvedEvents, metadata).map { event ->
                 event.copy(providerAttributions = sportsProviderEventSourceRouter.attributions(event.provenance))
@@ -502,47 +561,77 @@ internal class SportsHubRepository @Inject constructor(
                 elapsedMillis = SystemClock.elapsedRealtime() - loadStartedAt,
                 itemCount = events.size,
             )
-            val currentEvents = events.filter { event ->
-                programMatchesRange(event.startTime, event.endTime, range, now, window)
-            }
-            val rememberedPicks = preferencesRepository.getSportsEventChannelPicks(
-                eventIds = currentEvents.mapTo(mutableSetOf(), SportsEvent::id),
-                nowMillis = now,
-            )
-            val availableChannels = availableChannelEntries
-            val presentedEvents = currentEvents.map { event ->
-                SportsEventChannelPreferencePolicy.apply(
-                    event = event,
-                    pick = rememberedPicks[event.id],
-                    availableChannels = availableChannels,
-                    nowMillis = now,
-                )
-            }
-            val currentState = _uiState.value
-            val selectedLeague = currentState.selectedLeagueFilter?.takeIf { league ->
-                presentedEvents.any { event -> event.leagueFilterKey == league && event.matches(currentState.selectedSportFilter) }
-            }
-            _uiState.value = SportsHubUiState(
-                isLoading = false,
-                events = presentedEvents,
-                selectedTimeRange = range,
-                selectedSportFilter = currentState.selectedSportFilter,
-                selectedLeagueFilter = selectedLeague,
-                nowMillis = now,
-            )
-            lastPublishedAtMillis = System.currentTimeMillis()
-            if (!initialContentLogged) {
-                SportsDiagnostics.performance(
-                    stage = "initial-content",
-                    elapsedMillis = SystemClock.elapsedRealtime() - initialLoadStartedAt,
-                    itemCount = presentedEvents.size,
-                )
-                initialContentLogged = true
-            }
+            publishEvents(events, range, now, window, complete = true)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             _uiState.update { it.copy(isLoading = false, hasError = true) }
+        } finally {
+            loadInProgress = false
+        }
+    }
+
+    private fun sourcedEvents(loaded: LoadedSportsProviderEvents): List<SourcedValue<ProviderEvent>> {
+        val instanceId = loaded.instanceId ?: return emptyList()
+        val typeId = loaded.typeId ?: return emptyList()
+        return loaded.events.map { event ->
+            SourcedValue(event, SportsSourceRef.Provider(
+                instanceId, typeId, event.providerEventId,
+                sport = event.sport.takeIf { typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+                leagueId = event.league?.id.takeIf { typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID },
+            ))
+        }
+    }
+
+    private suspend fun publishEvents(
+        events: List<SportsEvent>,
+        range: SportsTimeRange,
+        now: Long,
+        window: SportsTimeWindow,
+        complete: Boolean = false,
+    ) {
+        if (!complete && !progressiveLoad) return
+        val previous = _uiState.value.events.associateBy(SportsEvent::id)
+        val currentEvents = events.filter { event ->
+            programMatchesRange(event.startTime, event.endTime, range, now, window)
+        }
+        val rememberedPicks = preferencesRepository.getSportsEventChannelPicks(
+            eventIds = currentEvents.mapTo(mutableSetOf(), SportsEvent::id),
+            nowMillis = now,
+        )
+        val availableChannels = availableChannelEntries
+        val presentedEvents = currentEvents.map { event ->
+            val retained = retainSportsPresentation(event, previous[event.id], Instant.ofEpochMilli(now))
+            SportsEventChannelPreferencePolicy.apply(
+                event = retained,
+                pick = rememberedPicks[event.id],
+                availableChannels = availableChannels,
+                nowMillis = now,
+            ).copy(providerAttributions = sportsProviderEventSourceRouter.attributions(retained.provenance))
+        }
+        val currentState = _uiState.value
+        val selectedLeague = currentState.selectedLeagueFilter?.takeIf { league ->
+            presentedEvents.any { event -> event.leagueFilterKey == league && event.matches(currentState.selectedSportFilter) }
+        }
+        _uiState.value = currentState.copy(
+            isLoading = false,
+            events = presentedEvents,
+            selectedTimeRange = range,
+            selectedSportFilter = currentState.selectedSportFilter,
+            selectedLeagueFilter = selectedLeague,
+            nowMillis = now,
+            knownLeagues = currentState.knownLeagues + presentedEvents.mapNotNull { event ->
+                event.leagueFilterKey?.let { it to (event.league ?: event.leagueInfo?.displayName ?: it) }
+            }.toMap(),
+        )
+        lastPublishedAtMillis = System.currentTimeMillis()
+        if (!initialContentLogged) {
+            SportsDiagnostics.performance(
+                stage = "initial-content",
+                elapsedMillis = SystemClock.elapsedRealtime() - initialLoadStartedAt,
+                itemCount = presentedEvents.size,
+            )
+            initialContentLogged = true
         }
     }
 
@@ -581,6 +670,10 @@ internal class SportsHubRepository @Inject constructor(
         }
     }
 
+    suspend fun loadExtraDetails(event: SportsEvent): LoadedSportsEventExtraDetails? = withContext(Dispatchers.IO) {
+        sportsProviderExtraDetailsRouter.load(event)
+    }
+
     private fun SportsResolvedEvent.toSportsHubEvent(): SportsEvent? {
         val local = epgEvent
         if (local != null) {
@@ -592,6 +685,12 @@ internal class SportsHubRepository @Inject constructor(
                     SportsLeagueRegistry.detectNormalized(SportsTextNormalizer.normalize(league))
                 },
                 provenance = provenance,
+                competitors = local.competitors.map { competitor ->
+                    val providerCompetitor = providerEvent?.value?.competitors?.firstOrNull {
+                        SportsAliasRegistry.normalizeTeamName(it.name) == competitor.canonicalName
+                    }
+                    competitor.copy(logoUrl = providerCompetitor?.logoUrl ?: competitor.logoUrl)
+                },
             )
         }
 
@@ -616,13 +715,15 @@ internal class SportsHubRepository @Inject constructor(
             league = league,
             categoryLabel = null,
             description = "",
-            sport = providerEvent.sport.toSportType(),
+            sport = SportsProgrammeClassifier.sportForProvider(
+                providerEvent.sport ?: providerEvent.league?.sport, league,
+            ).takeUnless { it == SportType.UNKNOWN } ?: SportType.OTHER,
             startTime = startTime,
             endTime = safeEndTime,
             broadcasts = emptyList(),
             confidence = 0.85f,
             competitors = providerEvent.competitors.map { competitor ->
-                SportsCompetitor(competitor.name)
+                SportsCompetitor(competitor.name, logoUrl = competitor.logoUrl)
             },
             session = providerEvent.session,
             eventType = providerEvent.status?.state.toSportsEventType(),
@@ -630,27 +731,6 @@ internal class SportsHubRepository @Inject constructor(
             leagueInfo = league?.let { SportsLeagueRegistry.detectNormalized(SportsTextNormalizer.normalize(it)) },
             provenance = provenance,
         )
-    }
-
-    private fun String?.toSportType(): SportType = when (SportsTextNormalizer.normalize(this.orEmpty())) {
-        "football", "soccer" -> SportType.FOOTBALL
-        "basketball" -> SportType.BASKETBALL
-        "american football" -> SportType.AMERICAN_FOOTBALL
-        "baseball" -> SportType.BASEBALL
-        "hockey", "ice hockey" -> SportType.HOCKEY
-        "tennis" -> SportType.TENNIS
-        "motorsport", "motor sport", "racing" -> SportType.MOTORSPORT
-        "mma", "mixed martial arts" -> SportType.MMA
-        "boxing" -> SportType.BOXING
-        "cricket" -> SportType.CRICKET
-        "rugby", "rugby union", "rugby league" -> SportType.RUGBY
-        "golf" -> SportType.GOLF
-        "volleyball" -> SportType.VOLLEYBALL
-        "handball" -> SportType.HANDBALL
-        "snooker" -> SportType.SNOOKER
-        "darts" -> SportType.DARTS
-        "cycling" -> SportType.CYCLING
-        else -> SportType.OTHER
     }
 
     private fun com.streamvault.domain.sports.provider.ProviderGameState?.toSportsEventType(): SportsEventType = when (this) {
@@ -946,6 +1026,7 @@ internal class SportsHubRepository @Inject constructor(
         val eventSourcePreference: SportsEventSourcePreference,
         val scoreSourcePreference: SportsScoreSourcePreference,
         val metadataSourcePreference: SportsMetadataSourcePreference,
+        val providerRevision: Long,
     )
 
     private data class SportsLoadSettings(
@@ -954,6 +1035,7 @@ internal class SportsHubRepository @Inject constructor(
         val eventSourcePreference: SportsEventSourcePreference,
         val scoreSourcePreference: SportsScoreSourcePreference,
         val metadataSourcePreference: SportsMetadataSourcePreference,
+        val providerRevision: Long,
     )
 
     private data class LoadedSportsProvider(
@@ -1023,6 +1105,8 @@ internal class SportsHubRepository @Inject constructor(
     )
 
     private companion object {
+        const val PROVIDER_LOAD_TIMEOUT_MS = 25_000L
+        const val ENRICHMENT_TIMEOUT_MS = 5_000L
         const val EVENT_INDEX_CACHE_TTL_MS = 5 * 60_000L
         const val MAX_EVENT_INDEX_ENTRIES = 8
         const val PROVIDER_EVENT_LOOKBACK_MS = 18 * 60 * 60_000L

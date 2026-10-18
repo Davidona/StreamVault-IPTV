@@ -1,6 +1,6 @@
 package com.streamvault.feature.live.sports
 
-import com.streamvault.domain.sports.provider.SportsProviderReleasePolicy
+import com.streamvault.domain.sports.provider.*
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
@@ -17,18 +17,6 @@ import com.streamvault.domain.repository.EpgRepository
 import com.streamvault.domain.repository.EpgSourceRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SyncMetadataRepository
-import com.streamvault.domain.sports.provider.SportsEventSourcePreference
-import com.streamvault.domain.sports.provider.SportsEventSourceSettings
-import com.streamvault.domain.sports.provider.SportsScoreSourcePreference
-import com.streamvault.domain.sports.provider.SportsScoreSourceSettings
-import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
-import com.streamvault.domain.sports.provider.SportsStandingsSourceSettings
-import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
-import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
-import com.streamvault.domain.sports.provider.SportsProviderConfig
-import com.streamvault.domain.sports.provider.SportsProviderCredentials
-import com.streamvault.domain.sports.provider.SportsProviderRegistry
-import com.streamvault.domain.sports.provider.SportsProviderStore
 import com.streamvault.data.sports.provider.InMemorySportsProviderEventLinkCache
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -74,8 +62,11 @@ class SportsHubViewModelTest {
     private val sources: EpgSourceRepository = mock()
     private val sync: SyncMetadataRepository = mock()
     private val preferences: PreferencesRepository = mock()
+    private var sportsProviderConfigs: List<SportsProviderConfig> = emptyList()
+    private val sportsProviderRevision = MutableStateFlow(0L)
     private val sportsProviderStore = object : SportsProviderStore {
-        override suspend fun configurations(): List<SportsProviderConfig> = emptyList()
+        override val configurationChanges = sportsProviderRevision
+        override suspend fun configurations(): List<SportsProviderConfig> = sportsProviderConfigs
         override suspend fun credentials(instanceId: String): SportsProviderCredentials? = null
         override suspend fun save(config: SportsProviderConfig, credentials: SportsProviderCredentials?) = Unit
         override suspend fun remove(instanceId: String) = Unit
@@ -135,6 +126,8 @@ class SportsHubViewModelTest {
         whenever(preferences.getHiddenCategoryIds(7L, ContentType.LIVE)).thenReturn(hiddenCategories)
         whenever(preferences.getHiddenChannelIds(7L)).thenReturn(flowOf(emptySet()))
         whenever(preferences.getSportsEventChannelPicks(any(), any())).thenReturn(emptyMap())
+        whenever(preferences.getExcludedSports()).thenReturn(flowOf(emptySet()))
+        whenever(preferences.getExcludedSportsLeagues()).thenReturn(flowOf(emptySet()))
         whenever(sync.observeMetadata(7L)).thenReturn(flowOf(null))
         whenever(sources.getAllSources()).thenReturn(flowOf(emptyList()))
         whenever(sources.getAssignmentsForProvider(7L)).thenReturn(flowOf(emptyList()))
@@ -327,7 +320,162 @@ class SportsHubViewModelTest {
         assertThat(subscriptions.get()).isEqualTo(1)
     }
 
-    private fun createRepository() = SportsHubRepository(
+    @Test
+    fun `guide is published while provider discovery is pending`() = runBlocking<Unit> {
+        val gate = CompletableDeferred<Unit>()
+        val started = CompletableDeferred<Unit>()
+        val factory = enrichmentFactory(events = {
+            started.complete(Unit)
+            gate.await()
+            emptyList()
+        })
+        sportsProviderConfigs = listOf(SportsProviderConfig("test-api", factory.descriptor.typeId))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val model = createModel(createRepository(registry))
+        withTimeout(10_000L) { started.await() }
+
+        assertThat(model.uiState.value.isLoading).isFalse()
+        assertThat(model.uiState.value.events).hasSize(1)
+        assertThat(model.uiState.value.events.single().broadcasts.single().channel.id).isEqualTo(1L)
+        gate.complete(Unit)
+    }
+
+    @Test
+    fun `API events appear while a long guide scan remains pending across clock ticks`() = runBlocking<Unit> {
+        val guideGate = CompletableDeferred<Map<String, List<Program>>>()
+        val guideReads = AtomicInteger()
+        whenever(epg.getResolvedProgramsForChannels(any(), any(), any(), any())).doSuspendableAnswer {
+            guideReads.incrementAndGet()
+            guideGate.await()
+        }
+        val factory = enrichmentFactory(events = { listOf(ProviderEvent(
+            providerEventId = "api-match", title = "North vs South", sport = "soccer",
+            competitors = listOf(ProviderCompetitor("North"), ProviderCompetitor("South")),
+            eventStart = java.time.Instant.now().minusSeconds(60),
+        )) })
+        sportsProviderConfigs = listOf(SportsProviderConfig("test-api", factory.descriptor.typeId))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val model = createModel(createRepository(registry))
+        await { !model.uiState.value.isLoading && model.uiState.value.events.isNotEmpty() && guideReads.get() > 0 }
+        assertThat(model.uiState.value.events.single().title).isEqualTo("North vs South")
+
+        scheduler.advanceTimeBy(120_000L)
+        scheduler.runCurrent()
+        assertThat(guideReads.get()).isEqualTo(1)
+        assertThat(model.uiState.value.isLoading).isFalse()
+        guideGate.complete(emptyMap())
+    }
+
+    @Test
+    fun `saving provider configuration reloads the retained sports tab`() = runBlocking {
+        val calls = AtomicInteger()
+        val factory = enrichmentFactory(events = { calls.incrementAndGet(); emptyList() })
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val model = createModel(createRepository(registry))
+        await { !model.uiState.value.isLoading }
+        assertThat(calls.get()).isEqualTo(0)
+
+        sportsProviderConfigs = listOf(SportsProviderConfig("test-api", factory.descriptor.typeId))
+        sportsProviderRevision.value++
+
+        await { calls.get() > 0 && !model.uiState.value.isLoading }
+        assertThat(model.uiState.value.events.single().broadcasts.single().channel.id).isEqualTo(1L)
+    }
+
+    @Test
+    fun `events remain usable while scores and metadata are pending`() = runBlocking<Unit> {
+        val scoresStarted = CompletableDeferred<Unit>()
+        val scoresGate = CompletableDeferred<Unit>()
+        val metadataStarted = CompletableDeferred<Unit>()
+        val metadataGate = CompletableDeferred<Unit>()
+        val factory = enrichmentFactory(
+            events = { listOf(ProviderEvent(
+                providerEventId = "match", sport = "soccer", title = "Arsenal vs Chelsea",
+                eventStart = java.time.Instant.now().minusSeconds(60),
+                competitors = listOf(ProviderCompetitor("Arsenal", "arsenal"), ProviderCompetitor("Chelsea", "chelsea")),
+            )) },
+            scores = { scoresStarted.complete(Unit); scoresGate.await() },
+            metadata = { if (!metadataStarted.isCompleted) metadataStarted.complete(Unit); metadataGate.await() },
+        )
+        sportsProviderConfigs = listOf(SportsProviderConfig("test-api", factory.descriptor.typeId))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val model = createModel(createRepository(registry))
+        withTimeout(10_000L) { scoresStarted.await() }
+        assertThat(model.uiState.value.isLoading).isFalse()
+        assertThat(model.uiState.value.events).hasSize(1)
+        scoresGate.complete(Unit)
+        withTimeout(10_000L) { metadataStarted.await() }
+        assertThat(model.uiState.value.isLoading).isFalse()
+        assertThat(model.uiState.value.events.single().broadcasts.single().channel.id).isEqualTo(1L)
+        metadataGate.complete(Unit)
+    }
+
+    @Test
+    fun `clock refresh never publishes unscored replacements for scored fixtures`() = runBlocking<Unit> {
+        val eventStart = java.time.Instant.now().minusSeconds(60)
+        val score = ProviderScore("match", listOf(
+            ProviderCompetitorScore(ProviderCompetitor("Arsenal", "arsenal"), "2"),
+            ProviderCompetitorScore(ProviderCompetitor("Chelsea", "chelsea"), "1"),
+        ))
+        val calls = AtomicInteger()
+        val factory = enrichmentFactory(
+            events = {
+                calls.incrementAndGet()
+                listOf(ProviderEvent(
+                    providerEventId = "match", sport = "soccer", title = "Arsenal vs Chelsea",
+                    eventStart = eventStart,
+                    competitors = listOf(ProviderCompetitor("Arsenal", "arsenal"), ProviderCompetitor("Chelsea", "chelsea")),
+                ))
+            },
+            scoreItems = { listOf(score) },
+        )
+        sportsProviderConfigs = listOf(SportsProviderConfig("test-api", factory.descriptor.typeId))
+        val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
+        val model = createModel(createRepository(registry))
+        await { model.uiState.value.events.singleOrNull()?.provenance?.score != null }
+        // Let the first load finish, then collect every state during a scheduled refresh.
+        delay(100L)
+        val observed = mutableListOf<SportsHubUiState>()
+        val collector = repositoryScope.launch { model.uiState.collect { observed.add(it) } }
+        val initialCalls = calls.get()
+        scheduler.advanceTimeBy(60_000L)
+        scheduler.runCurrent()
+        await { calls.get() > initialCalls }
+        delay(100L)
+        collector.cancel()
+        assertThat(observed).isNotEmpty()
+        assertThat(observed.all { state -> state.events.isNotEmpty() && state.events.all { it.provenance.score != null } }).isTrue()
+    }
+
+    private fun enrichmentFactory(
+        events: suspend () -> List<ProviderEvent>,
+        scores: suspend () -> Unit = {},
+        metadata: suspend () -> Unit = {},
+        scoreItems: () -> List<ProviderScore> = { emptyList() },
+    ) = object : SportsProviderFactory {
+        override val descriptor = SportsProviderDescriptor(
+            typeId = "test-api", auth = SportsProviderAuth.None,
+            capabilities = setOf(SportsCapability.EVENTS, SportsCapability.LIVE_SCORES, SportsCapability.TEAM_METADATA),
+        )
+        override fun create(config: SportsProviderConfig): SportsProvider {
+            val factoryDescriptor = descriptor
+            return object : EventProvider, LiveScoreProvider, TeamMetadataProvider {
+                override val descriptor = factoryDescriptor
+                override val instanceId = config.instanceId
+                override suspend fun events(request: ProviderEventRequest) = SportsProviderResult.Success(ProviderBatch(events()))
+                override suspend fun liveScores(request: ProviderScoreRequest): SportsProviderResult<ProviderBatch<ProviderScore>> {
+                    scores()
+                    return SportsProviderResult.Success(ProviderBatch(scoreItems()))
+                }
+                override suspend fun teamMetadata(request: ProviderTeamMetadataRequest): SportsProviderResult<ProviderTeamMetadata> {
+                    metadata()
+                    return SportsProviderResult.Failure(SportsProviderError.NETWORK)
+                }
+            }
+        }
+    }
+
+    private fun createRepository(registry: SportsProviderRegistry? = null) = SportsHubRepository(
         providers,
         combined,
         channels,
@@ -336,10 +484,11 @@ class SportsHubViewModelTest {
         sync,
         preferences,
         sportsProviderStore,
-        providerEventRouter,
-        providerScoreRouter,
+        registry?.let(::SportsProviderEventSourceRouter) ?: providerEventRouter,
+        registry?.let { SportsProviderScoreSourceRouter(it, SportsProviderEventSourceRouter(it)) } ?: providerScoreRouter,
         providerStandingsRouter,
-        providerMetadataRouter,
+        registry?.let(::SportsProviderMetadataRouter) ?: providerMetadataRouter,
+        SportsProviderExtraDetailsRouter(SportsProviderRegistry(emptyList(), SportsProviderReleasePolicy(development = true)), sportsProviderStore),
         eventSourceSettings,
         scoreSourceSettings,
         standingsSourceSettings,

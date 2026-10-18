@@ -70,7 +70,6 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
-import com.streamvault.domain.sports.provider.ProviderCompetitorRole
 import com.streamvault.domain.sports.provider.ProviderGameState
 import com.streamvault.domain.sports.provider.ProviderAttributionFormat
 import androidx.tv.material3.Text
@@ -104,6 +103,10 @@ fun SportsHubScreen(
         SportsHubContent(
             state = state,
             onRetry = viewModel::retry,
+            onSearchQueryChanged = viewModel::setSearchQuery,
+            onSetSportIncluded = viewModel::setSportIncluded,
+            onSetLeagueIncluded = viewModel::setLeagueIncluded,
+            onResetInclusions = viewModel::resetInclusions,
             onSelectTimeRange = viewModel::selectTimeRange,
             onSelectSportFilter = viewModel::selectSportFilter,
             onSelectLeagueFilter = viewModel::selectLeagueFilter,
@@ -111,6 +114,7 @@ fun SportsHubScreen(
             onRememberChannelForEvent = viewModel::rememberChannelForEvent,
             onForgetChannelForEvent = viewModel::forgetChannelForEvent,
             onLoadStandings = viewModel::loadStandings,
+            onLoadExtraDetails = viewModel::loadExtraDetails,
             onPlayBroadcast = { broadcast ->
                 onPlaybackRequested(
                     LiveChannelPlaybackRequest(
@@ -133,6 +137,10 @@ fun SportsHubScreen(
 private fun SportsHubContent(
     state: SportsHubUiState,
     onRetry: () -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onSetSportIncluded: (SportType, Boolean) -> Unit,
+    onSetLeagueIncluded: (String, Boolean) -> Unit,
+    onResetInclusions: () -> Unit,
     onSelectTimeRange: (SportsTimeRange) -> Unit,
     onSelectSportFilter: (SportsSportFilter) -> Unit,
     onSelectLeagueFilter: (String?) -> Unit,
@@ -140,18 +148,18 @@ private fun SportsHubContent(
     onRememberChannelForEvent: suspend (SportsEvent, SportsBroadcast) -> Boolean,
     onForgetChannelForEvent: suspend (SportsEvent) -> Unit,
     onLoadStandings: suspend (SportsEvent) -> LoadedSportsStandings?,
+    onLoadExtraDetails: suspend (SportsEvent) -> LoadedSportsEventExtraDetails?,
     onPlayBroadcast: (SportsBroadcast) -> Unit,
 ) {
     var detailsEvent by remember { mutableStateOf<SportsEvent?>(null) }
     var manualPickerEvent by remember { mutableStateOf<SportsEvent?>(null) }
     val actionScope = rememberCoroutineScope()
-    val visibleEvents = state.events.filter { event ->
-        event.matches(state.selectedSportFilter) &&
-            (state.selectedLeagueFilter == null || event.leagueFilterKey == state.selectedLeagueFilter)
-    }
+    var inclusionsOpen by remember { mutableStateOf(false) }
+    val visibleEvents = state.events.filter { it.matchesDiscovery(state) }
     val eflChampionshipLabel = stringResource(R.string.live_sports_league_efl_championship)
     val availableLeagues = state.events.asSequence()
-        .filter { it.matches(state.selectedSportFilter) }
+        .filter { it.matches(state.selectedSportFilter) && it.sport.discoveryKey !in state.excludedSports &&
+            it.leagueFilterKey !in state.excludedLeagues }
         .mapNotNull { event -> event.leagueFilterKey?.let { key ->
             SportsLeagueFilterOption(key, event.localizedLeagueName(eflChampionshipLabel).orEmpty())
         } }
@@ -179,6 +187,7 @@ private fun SportsHubContent(
         }
         item(key = "sports-filters") {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                SportsDiscoverySearch(state.searchQuery, onSearchQueryChanged, onOpenInclusions = { inclusionsOpen = true })
                 SportsSportFilters(state.selectedSportFilter, onSelectSportFilter)
                 if (availableLeagues.isNotEmpty()) {
                     SportsLeagueFilters(availableLeagues, state.selectedLeagueFilter, onSelectLeagueFilter)
@@ -238,11 +247,16 @@ private fun SportsHubContent(
             }
         }
     }
-    detailsEvent?.let { event ->
+    if (inclusionsOpen) {
+        SportsInclusionsDialog(state, onSetSportIncluded, onSetLeagueIncluded, onResetInclusions) { inclusionsOpen = false }
+    }
+    detailsEvent?.let { selected ->
+        val event = state.events.firstOrNull { it.id == selected.id } ?: selected
         SportsEventDetailsDialog(
             event = event,
             nowMillis = state.nowMillis,
             onLoadStandings = onLoadStandings,
+            onLoadExtraDetails = onLoadExtraDetails,
             onDismiss = { detailsEvent = null },
             onFindAnotherChannel = {
                 detailsEvent = null
@@ -397,7 +411,7 @@ private fun FeaturedSportsEvent(
     onPlayBroadcast: (SportsBroadcast) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(140.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount })
+        modifier = Modifier.fillMaxWidth().height(180.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount })
             .clip(RoundedCornerShape(12.dp))
             .background(Brush.horizontalGradient(listOf(BrowseColors.SurfaceEmphasis, BrowseColors.Surface)))
             .border(1.dp, BrowseColors.Outline, RoundedCornerShape(12.dp))
@@ -532,36 +546,31 @@ private fun SportsEvent.localizedLeagueName(eflChampionshipLabel: String): Strin
     if (leagueInfo?.id == "efl-championship") eflChampionshipLabel
     else league ?: leagueInfo?.displayName
 
-private fun SportsEvent.scoreFor(competitor: SportsCompetitor, index: Int): String? {
+internal fun SportsEvent.scoreFor(competitor: SportsCompetitor): String? {
     val scores = provenance.score?.value?.scores.orEmpty()
-    val expectedRole = when (index) {
-        0 -> ProviderCompetitorRole.HOME
-        1 -> ProviderCompetitorRole.AWAY
-        else -> ProviderCompetitorRole.PARTICIPANT
-    }
-    return scores.firstOrNull { it.competitor.role == expectedRole }
-        ?.value?.takeIf(String::isNotBlank)
-        ?: scores.firstOrNull {
-            SportsAliasRegistry.normalizeTeamName(it.competitor.name) == competitor.canonicalName
-        }?.value?.takeIf(String::isNotBlank)
+    return scores.firstOrNull {
+        SportsAliasRegistry.normalizeTeamName(it.competitor.name) == competitor.canonicalName
+    }?.value?.takeIf(String::isNotBlank)
 }
 
 @Composable
 private fun SportsFixture(event: SportsEvent, featured: Boolean, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(if (featured) 8.dp else 6.dp)) {
         if (event.competitors.size == 2) {
-            event.competitors.forEachIndexed { index, competitor ->
+            event.competitors.forEach { competitor ->
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.size(if (featured) 28.dp else 22.dp).clip(CircleShape)
-                        .background(BrowseColors.Brand.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-                        Text(competitor.displayName.firstOrNull(Char::isLetterOrDigit)?.toString().orEmpty(), fontSize = if (featured) 14.sp else 11.sp,
-                            color = BrowseColors.BrandStrong, fontWeight = FontWeight.Bold)
-                    }
+                    ChannelLogoBadge(
+                        channelName = competitor.displayName,
+                        logoUrl = competitor.logoUrl,
+                        modifier = Modifier.size(if (featured) 32.dp else 26.dp),
+                        shape = CircleShape,
+                        backgroundColor = BrowseColors.Brand.copy(alpha = 0.14f),
+                    )
                     Text(competitor.displayName, fontSize = if (featured) 18.sp else 14.sp,
                         modifier = Modifier.weight(1f),
                         fontWeight = FontWeight.SemiBold, color = BrowseColors.TextPrimary,
                         maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    event.scoreFor(competitor, index)?.let { score ->
+                    event.scoreFor(competitor)?.let { score ->
                         Text(
                             score,
                             fontSize = if (featured) 18.sp else 14.sp,
@@ -597,7 +606,7 @@ private fun SportsEventCard(
 ) {
     TvClickableSurface(
         onClick = { onShowDetails(event) },
-        modifier = Modifier.width(244.dp).height(140.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount }),
+        modifier = Modifier.width(244.dp).height(172.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount }),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
     ) {
@@ -658,6 +667,7 @@ private fun SportsEventDetailsDialog(
     onForgetChoice: () -> Unit,
     onPlayBroadcast: (SportsBroadcast) -> Unit,
     onLoadStandings: suspend (SportsEvent) -> LoadedSportsStandings?,
+    onLoadExtraDetails: suspend (SportsEvent) -> LoadedSportsEventExtraDetails?,
 ) {
     val firstChannelFocusRequester = remember(event.id) { FocusRequester() }
     val displayBroadcasts = event.broadcastsForPresentation()
@@ -665,6 +675,9 @@ private fun SportsEventDetailsDialog(
     var standings by remember(event.id) { mutableStateOf<LoadedSportsStandings?>(null) }
     var standingsLoading by remember(event.id) { mutableStateOf(false) }
     var standingsRequested by remember(event.id) { mutableStateOf(false) }
+    var extraDetails by remember(event.id) { mutableStateOf<LoadedSportsEventExtraDetails?>(null) }
+    var extraDetailsLoading by remember(event.id) { mutableStateOf(false) }
+    var extraDetailsRequested by remember(event.id) { mutableStateOf(false) }
     LaunchedEffect(event.id) {
         if (displayBroadcasts.isNotEmpty()) firstChannelFocusRequester.requestFocus()
     }
@@ -756,6 +769,47 @@ private fun SportsEventDetailsDialog(
                         )
                         standings != null -> SportsStandingsContent(checkNotNull(standings))
                     }
+                    if (event.provenance.sources.any { it is com.streamvault.domain.sports.provider.SportsSourceRef.Provider }) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                stringResource(R.string.live_sports_extra_details),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = BrowseColors.TextPrimary,
+                            )
+                            Spacer(Modifier.weight(1f))
+                            TvButton(
+                                onClick = {
+                                    if (!extraDetailsLoading) standingsScope.launch {
+                                        extraDetailsRequested = true
+                                        extraDetailsLoading = true
+                                        extraDetails = onLoadExtraDetails(event)
+                                        extraDetailsLoading = false
+                                    }
+                                },
+                                modifier = Modifier.height(32.dp),
+                            ) {
+                                Text(stringResource(R.string.live_sports_extra_details_load), fontSize = 11.sp)
+                            }
+                        }
+                        when {
+                            extraDetailsLoading -> Text(
+                                stringResource(R.string.live_sports_extra_details_loading),
+                                fontSize = 11.sp,
+                                color = BrowseColors.TextSecondary,
+                            )
+                            extraDetailsRequested && extraDetails == null -> Text(
+                                stringResource(R.string.live_sports_extra_details_unavailable),
+                                fontSize = 11.sp,
+                                color = BrowseColors.TextSecondary,
+                            )
+                            extraDetails != null -> SportsExtraDetailsContent(checkNotNull(extraDetails))
+                        }
+                    }
                     displayBroadcasts.forEachIndexed { index, broadcast ->
                         SportsChannelButton(channel = broadcast.channel, compact = true,
                             modifier = Modifier.fillMaxWidth().then(
@@ -780,6 +834,77 @@ private fun SportsEventDetailsDialog(
             }
         }
     }
+}
+
+@Composable
+private fun SportsExtraDetailsContent(details: LoadedSportsEventExtraDetails) {
+    val teamArtwork = details.teamArtwork.distinctBy(LoadedSportsTeamArtwork::teamName)
+    if (teamArtwork.isNotEmpty()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            teamArtwork.forEach { item ->
+                ChannelLogoBadge(
+                    channelName = item.teamName,
+                    logoUrl = item.artwork.uri.toString(),
+                    modifier = Modifier.size(46.dp),
+                    shape = CircleShape,
+                )
+            }
+        }
+    }
+    details.statistics?.let { result ->
+        if (result.statistics.isNotEmpty()) {
+            Text(
+                stringResource(R.string.live_sports_statistics),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = BrowseColors.TextPrimary,
+            )
+            result.statistics.forEach { statistic ->
+                val label = statistic.label?.takeIf(String::isNotBlank) ?: statistic.key
+                val value = statistic.value?.takeIf(String::isNotBlank) ?: return@forEach
+                val teamName = statistic.competitor?.name?.takeIf(String::isNotBlank)
+                Text(
+                    listOfNotNull(teamName, label, value).joinToString(" · "),
+                    fontSize = 11.sp,
+                    color = BrowseColors.TextSecondary,
+                )
+            }
+        }
+    }
+    details.lineups.forEach { lineup ->
+        if (lineup.members.isNotEmpty()) {
+            Text(
+                lineup.team?.name?.takeIf(String::isNotBlank)
+                    ?: stringResource(R.string.live_sports_lineups),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = BrowseColors.TextPrimary,
+            )
+            lineup.members.forEach { member ->
+                val detailsText = listOfNotNull(
+                    member.position?.takeIf(String::isNotBlank),
+                    member.shirtNumber?.takeIf(String::isNotBlank)?.let { "#$it" },
+                    if (member.starter == true) stringResource(R.string.live_sports_lineup_starter) else null,
+                ).joinToString(" · ")
+                Text(
+                    listOfNotNull(member.competitor.name, detailsText.takeIf(String::isNotBlank))
+                        .joinToString(" · "),
+                    fontSize = 11.sp,
+                    color = BrowseColors.TextSecondary,
+                )
+            }
+        }
+    }
+    val attribution = details.attribution
+    SportsAttributionLine(
+        SportsAttributionCredit(
+            sourceName = attribution?.sourceName ?: details.providerName,
+            format = attribution?.format ?: ProviderAttributionFormat.SOURCE_NAME,
+            sourceUrl = attribution?.sourceUrl,
+            licenseUrl = attribution?.licenseUrl,
+        ),
+        color = BrowseColors.TextSecondary,
+    )
 }
 
 @Composable

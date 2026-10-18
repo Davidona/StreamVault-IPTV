@@ -16,6 +16,8 @@ sealed interface SportsSourceRef {
         val instanceId: String,
         val typeId: String,
         val externalEventId: String,
+        val sport: String? = null,
+        val leagueId: String? = null,
     ) : SportsSourceRef {
         init {
             require(instanceId.isNotBlank() && typeId.isNotBlank() && externalEventId.isNotBlank())

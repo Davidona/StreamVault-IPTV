@@ -14,6 +14,10 @@ internal class SportsHubViewModel @Inject constructor(
 
     val uiState = repository.uiState
 
+    fun setSearchQuery(query: String) = repository.setSearchQuery(query)
+    fun setSportIncluded(sport: SportType, included: Boolean) = repository.setSportIncluded(sport, included)
+    fun setLeagueIncluded(league: String, included: Boolean) = repository.setLeagueIncluded(league, included)
+    fun resetInclusions() = repository.resetInclusions()
     fun retry() = repository.retry()
     fun selectTimeRange(range: SportsTimeRange) = repository.selectTimeRange(range)
     fun selectSportFilter(filter: SportsSportFilter) = repository.selectSportFilter(filter)
@@ -23,4 +27,5 @@ internal class SportsHubViewModel @Inject constructor(
         repository.rememberChannelForEvent(event, broadcast)
     suspend fun forgetChannelForEvent(event: SportsEvent) = repository.forgetChannelForEvent(event)
     suspend fun loadStandings(event: SportsEvent) = repository.loadStandings(event)
+    suspend fun loadExtraDetails(event: SportsEvent) = repository.loadExtraDetails(event)
 }

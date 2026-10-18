@@ -9,6 +9,7 @@ import java.time.LocalTime
 import java.time.Month
 import java.time.ZoneId
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 private val CHANNEL_NAME_DECORATION = setOf(
     "4k", "alt", "backup", "feed", "fhd", "h265", "hd", "hevc", "raw", "uhd", "vip",
@@ -44,6 +45,15 @@ internal class SportsChannelIndex private constructor(
     private val tokensByIndex: List<Set<String>>,
     private val tokenToIndices: Map<String, Set<Int>>,
 ) {
+    private val broadcasterNamesByIndex = ConcurrentHashMap<Int, Set<String>>()
+
+    fun broadcasterNames(index: Int): Set<String> = broadcasterNamesByIndex.getOrPut(index) {
+        val channel = entries[index].channel
+        setOf(channel.name, channel.canonicalName).filter(String::isNotBlank).mapTo(mutableSetOf()) { name ->
+            SportsTextNormalizer.normalize(ChannelNormalizer.classify(name, channel.providerId).canonicalName)
+        }
+    }
+
     val byCanonicalName: Map<String, List<Int>> by lazy {
         entries.indices.groupBy { index ->
             val channel = entries[index].channel
@@ -194,9 +204,10 @@ internal object SportsChannelFallbackMatcher {
                         add(surname)
                     }
                 }
-            }
+            }.mapTo(mutableSetOf(), SportsTextNormalizer::normalize)
         }
         val leagueAliases = SportsLeagueRegistry.aliasesFor(event.league)
+            .mapTo(mutableSetOf(), SportsTextNormalizer::normalize)
         val eventTokens = eventSpecificTokens(event, leagueAliases)
         val broadcasterNames = event.provenance.broadcasters?.value.orEmpty()
             .filter { it.type != com.streamvault.domain.sports.provider.ProviderBroadcastType.RADIO }
@@ -208,9 +219,7 @@ internal object SportsChannelFallbackMatcher {
                 addAll(SportsTextNormalizer.normalize(alias).split(' ').filter(String::isNotBlank))
             }
             addAll(eventTokens)
-            leagueAliases.forEach { alias ->
-                addAll(SportsTextNormalizer.normalize(alias).split(' ').filter(String::isNotBlank))
-            }
+            // League-only candidates cannot establish event or broadcaster identity.
             broadcasterNames.forEach { broadcaster ->
                 addAll(broadcaster.split(' ').filter(String::isNotBlank))
             }
@@ -230,6 +239,7 @@ internal object SportsChannelFallbackMatcher {
                 leagueAliases = leagueAliases,
                 eventTokens = eventTokens,
                 broadcasterNames = broadcasterNames,
+                channelBroadcasterNames = if (broadcasterNames.isEmpty()) emptySet() else index.broadcasterNames(candidateIndex),
                 dateSource = index.dateSource(candidateIndex),
                 zoneId = zoneId,
             ) ?: continue
@@ -309,6 +319,7 @@ internal object SportsChannelFallbackMatcher {
         leagueAliases: Set<String>,
         eventTokens: Set<String>,
         broadcasterNames: Set<String>,
+        channelBroadcasterNames: Set<String>,
         dateSource: String,
         zoneId: ZoneId,
     ): SportsChannelMatch? {
@@ -316,10 +327,7 @@ internal object SportsChannelFallbackMatcher {
         val hasCompetitorPair = competitorAliases.size >= 2 && competitorAliases
             .take(2)
             .all { aliases -> aliases.any { alias -> containsPhrase(channelName, alias) } }
-        val hasBroadcasterMatch = broadcasterNames.any { broadcaster ->
-            broadcaster == normalizedBroadcasterName(entry.channel.name, entry.channel.providerId) ||
-                broadcaster == normalizedBroadcasterName(entry.channel.canonicalName, entry.channel.providerId)
-        }
+        val hasBroadcasterMatch = broadcasterNames.any(channelBroadcasterNames::contains)
         val reasons = linkedSetOf<SportsChannelMatchReason>()
         var score = 0
         var hasEventIdentityMatch = false
@@ -395,9 +403,8 @@ internal object SportsChannelFallbackMatcher {
         SportsTextNormalizer.normalize(ChannelNormalizer.classify(name, providerId).canonicalName)
 
     private fun containsPhrase(normalizedText: String, phrase: String): Boolean {
-        val normalizedPhrase = SportsTextNormalizer.normalize(phrase)
-        if (normalizedPhrase.isBlank()) return false
-        return " $normalizedText ".contains(" $normalizedPhrase ")
+        if (phrase.isBlank()) return false
+        return " $normalizedText ".contains(" $phrase ")
     }
 
     private fun manualQueryScore(

@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">TV-guide / EPG</string>
     <string name="settings_sports_provider_league_ids">Liga-ID:n</string>
     <string name="settings_sports_provider_league_ids_hint">Valfritt. Lägg bara till liga-ID:n om den här leverantören kräver dem.</string>
+    <string name="settings_sports_custom_scopes_hint">För en anpassad JSON-leverantör anger du omfång i formatet sport/league, separerade med kommatecken.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Hantera anslutna leverantörer av sportdata.</string>
     <string name="settings_sports_data_providers_title">Leverantörer av sportdata</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Infoga exempel</string>
     <string name="settings_sports_custom_definition_placeholder">Klistra in leverantörens JSON</string>
     <string name="settings_open_source_licenses">Licenser och meddelanden för öppen källkod</string>
+    <string name="settings_sports_custom_definition_load_file">Läs in JSON-fil</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON-filen överskrider gränsen på 32 kB</string>
+    <string name="settings_sports_custom_definition_file_error">Det gick inte att läsa in den här JSON-filen</string>
+    <string name="settings_experimental_badge">Experimentell</string>
 </resources>

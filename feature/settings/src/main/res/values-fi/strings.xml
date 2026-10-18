@@ -874,6 +874,7 @@
     <string name="settings_sports_event_source_epg">TV-opas / EPG</string>
     <string name="settings_sports_provider_league_ids">Liigatunnukset</string>
     <string name="settings_sports_provider_league_ids_hint">Valinnainen. Lisää liigatunnuksia vain, jos tämä palveluntarjoaja niitä vaatii.</string>
+    <string name="settings_sports_custom_scopes_hint">Anna mukautetulle JSON-palveluntarjoajalle lajit ja liigat muodossa sport/league pilkuilla erotettuina.</string>
     <string name="nav_sports">Urheilu</string>
     <string name="settings_sports_settings_description">Hallitse yhdistettyjä urheilutietojen tarjoajia.</string>
     <string name="settings_sports_data_providers_title">Urheilutietojen tarjoajat</string>
@@ -935,4 +936,8 @@
     <string name="settings_sports_custom_definition_example_action">Lisää esimerkki</string>
     <string name="settings_sports_custom_definition_placeholder">Liitä palveluntarjoajan JSON</string>
     <string name="settings_open_source_licenses">Avoimen lähdekoodin lisenssit ja ilmoitukset</string>
+    <string name="settings_sports_custom_definition_load_file">Lataa JSON-tiedosto</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON-tiedosto ylittää 32 kt:n rajan</string>
+    <string name="settings_sports_custom_definition_file_error">Tätä JSON-tiedostoa ei voitu ladata</string>
+    <string name="settings_experimental_badge">Kokeellinen</string>
 </resources>

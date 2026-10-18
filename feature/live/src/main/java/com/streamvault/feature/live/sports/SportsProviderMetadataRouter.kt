@@ -27,12 +27,15 @@ internal data class LoadedSportsProviderMetadata(
     val providerName: String? = null,
     val teams: Map<String, LoadedMetadataValue<ProviderTeamMetadata>> = emptyMap(),
     val leagues: Map<String, LoadedMetadataValue<ProviderLeagueMetadata>> = emptyMap(),
+    val scopedTeams: Map<ProviderMetadataKey, LoadedMetadataValue<ProviderTeamMetadata>> = emptyMap(),
+    val scopedLeagues: Map<ProviderMetadataKey, LoadedMetadataValue<ProviderLeagueMetadata>> = emptyMap(),
     val eventCatalogs: Map<ProviderEventKey, com.streamvault.domain.sports.provider.ProviderEvent> = emptyMap(),
 )
 
 internal data class LoadedMetadataValue<out T>(val value: T, val isStale: Boolean)
 
 internal data class ProviderEventKey(val instanceId: String, val typeId: String, val eventId: String)
+internal data class ProviderMetadataKey(val id: String, val sport: String?, val leagueId: String?)
 
 /** Bounded metadata enrichment; stable provider IDs and account-scoped caches avoid fuzzy API fan-out. */
 @Singleton
@@ -104,33 +107,66 @@ internal class SportsProviderMetadataRouter @Inject constructor(
             }
             val teams = linkedMapOf<String, LoadedMetadataValue<ProviderTeamMetadata>>()
             val leagues = linkedMapOf<String, LoadedMetadataValue<ProviderLeagueMetadata>>()
-            val teamIds = providerEvents.asSequence().flatMap { it.competitors.asSequence() }
-                .mapNotNull { it.id }.distinct().take(MAX_TEAM_REQUESTS).toList()
-            val leagueIds = providerEvents.asSequence().mapNotNull { it.league?.id }
-                .distinct().take(MAX_LEAGUE_REQUESTS).toList()
+            val scopedTeams = linkedMapOf<ProviderMetadataKey, LoadedMetadataValue<ProviderTeamMetadata>>()
+            val scopedLeagues = linkedMapOf<ProviderMetadataKey, LoadedMetadataValue<ProviderLeagueMetadata>>()
+            val teamRequests = providerEvents.flatMap { event ->
+                event.competitors.mapNotNull { competitor ->
+                    competitor.id?.let {
+                        metadataKey(config.typeId, it, event.sport, event.league?.id)
+                    }
+                }
+            }.distinct().take(MAX_TEAM_REQUESTS)
+            val leagueRequests = providerEvents.mapNotNull { event ->
+                event.league?.let { league ->
+                    league.id?.let { leagueId ->
+                        metadataKey(config.typeId, leagueId, event.sport ?: league.sport, leagueId)
+                    }
+                }
+            }.distinct().take(MAX_LEAGUE_REQUESTS)
 
             val capabilities = registry.capabilities(config)
             if (provider is TeamMetadataProvider && SportsCapability.TEAM_METADATA in capabilities) {
-                for (teamId in teamIds) {
-                    val value = loadTeam(config, provider, teamId, now)
-                    if (value != null) teams[teamId] = value
+                for (teamRequest in teamRequests) {
+                    val value = loadTeam(
+                        config,
+                        provider,
+                        teamRequest.id,
+                        teamRequest.sport,
+                        teamRequest.leagueId,
+                        now,
+                    )
+                    if (value != null) {
+                        teams[teamRequest.id] = value
+                        scopedTeams[teamRequest] = value
+                    }
                 }
             }
             if (provider is LeagueMetadataProvider &&
                 SportsCapability.LEAGUE_METADATA in capabilities
             ) {
-                for (leagueId in leagueIds) {
-                    val value = loadLeague(config, provider, leagueId, now)
-                    if (value != null) leagues[leagueId] = value
+                for (leagueRequest in leagueRequests) {
+                    val value = loadLeague(
+                        config,
+                        provider,
+                        leagueRequest.id,
+                        leagueRequest.sport,
+                        now,
+                    )
+                    if (value != null) {
+                        leagues[leagueRequest.id] = value
+                        scopedLeagues[leagueRequest] = value
+                    }
                 }
             }
-            if (teams.isNotEmpty() || leagues.isNotEmpty()) {
+            if (scopedTeams.isNotEmpty() || scopedLeagues.isNotEmpty()) {
                 return LoadedSportsProviderMetadata(
                     instanceId = config.instanceId,
                     typeId = config.typeId,
                     providerName = registry.descriptor(config.typeId)?.displayName ?: config.typeId,
                     teams = teams,
                     leagues = leagues,
+                    scopedTeams = scopedTeams,
+                    scopedLeagues = scopedLeagues,
                     eventCatalogs = eventIndex,
                 )
             }
@@ -144,7 +180,9 @@ internal class SportsProviderMetadataRouter @Inject constructor(
     ): List<SportsEvent> {
         val instanceId = metadata.instanceId ?: return events
         val typeId = metadata.typeId ?: return events
-        if (metadata.teams.isEmpty() && metadata.leagues.isEmpty()) return events
+        if (metadata.teams.isEmpty() && metadata.leagues.isEmpty() &&
+            metadata.scopedTeams.isEmpty() && metadata.scopedLeagues.isEmpty()
+        ) return events
         return events.map { event ->
             val sourceAndProviderEvent = event.provenance.sources.asSequence()
                 .filterIsInstance<SportsSourceRef.Provider>()
@@ -156,14 +194,31 @@ internal class SportsProviderMetadataRouter @Inject constructor(
                 .firstOrNull() ?: return@map event
             val (eventSource, providerEvent) = sourceAndProviderEvent
             val teams = providerEvent.competitors.mapNotNull { competitor ->
-                competitor.id?.let(metadata.teams::get)?.value
+                competitor.id?.let {
+                    metadata.team(typeId, it, providerEvent.sport, providerEvent.league?.id)
+                }?.value
             }.distinctBy { it.team.id ?: it.team.name }
             val teamMetadataStale = providerEvent.competitors.mapNotNull { competitor ->
-                competitor.id?.let(metadata.teams::get)
+                competitor.id?.let {
+                    metadata.team(typeId, it, providerEvent.sport, providerEvent.league?.id)
+                }
             }.any(LoadedMetadataValue<ProviderTeamMetadata>::isStale)
-            val leagueResult = providerEvent.league?.id?.let(metadata.leagues::get)
+            val leagueResult = providerEvent.league?.id?.let { leagueId ->
+                metadata.league(typeId, metadataKey(
+                    typeId,
+                    leagueId,
+                    providerEvent.sport ?: providerEvent.league?.sport,
+                    leagueId,
+                ))
+            }
             val league = leagueResult?.value
-            val source = SportsSourceRef.Provider(instanceId, typeId, eventSource.externalEventId)
+            val source = SportsSourceRef.Provider(
+                instanceId = instanceId,
+                typeId = typeId,
+                externalEventId = eventSource.externalEventId,
+                sport = eventSource.sport,
+                leagueId = eventSource.leagueId,
+            )
             val teamValue = teams.takeIf { it.isNotEmpty() }?.let {
                 SourcedValue(
                     it,
@@ -190,9 +245,11 @@ internal class SportsProviderMetadataRouter @Inject constructor(
         config: SportsProviderConfig,
         provider: TeamMetadataProvider,
         teamId: String,
+        sport: String?,
+        leagueId: String?,
         now: Instant,
     ): LoadedMetadataValue<ProviderTeamMetadata>? {
-        val key = MetadataCacheKey(config, teamId)
+        val key = MetadataCacheKey(config, teamId, sport, leagueId)
         val cached = synchronized(teamCache) { teamCache[key] }
         if (cached != null && now.isBefore(cached.fetchedAt.plus(CACHE_TTL))) {
             return LoadedMetadataValue(cached.value, isStale = false)
@@ -201,7 +258,7 @@ internal class SportsProviderMetadataRouter @Inject constructor(
         if (cooling) return cached?.takeIf { now.isBefore(it.fetchedAt.plus(STALE_CACHE_TTL)) }
             ?.let { LoadedMetadataValue(it.value, isStale = true) }
         val result = try {
-            provider.teamMetadata(ProviderTeamMetadataRequest(teamId))
+            provider.teamMetadata(ProviderTeamMetadataRequest(teamId, sport, leagueId))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
@@ -235,9 +292,10 @@ internal class SportsProviderMetadataRouter @Inject constructor(
         config: SportsProviderConfig,
         provider: LeagueMetadataProvider,
         leagueId: String,
+        sport: String?,
         now: Instant,
     ): LoadedMetadataValue<ProviderLeagueMetadata>? {
-        val key = MetadataCacheKey(config, leagueId)
+        val key = MetadataCacheKey(config, leagueId, sport, leagueId)
         val cached = synchronized(leagueCache) { leagueCache[key] }
         if (cached != null && now.isBefore(cached.fetchedAt.plus(CACHE_TTL))) {
             return LoadedMetadataValue(cached.value, isStale = false)
@@ -247,7 +305,7 @@ internal class SportsProviderMetadataRouter @Inject constructor(
                 ?.let { LoadedMetadataValue(it.value, isStale = true) }
         }
         val result = try {
-            provider.leagueMetadata(ProviderLeagueMetadataRequest(leagueId))
+            provider.leagueMetadata(ProviderLeagueMetadataRequest(leagueId, sport))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
@@ -280,6 +338,33 @@ internal class SportsProviderMetadataRouter @Inject constructor(
     private fun isCoolingDown(config: SportsProviderConfig, now: Instant): Boolean =
         synchronized(failureCooldowns) { failureCooldowns[config]?.isAfter(now) == true }
 
+    private fun metadataKey(
+        typeId: String,
+        id: String,
+        sport: String?,
+        leagueId: String?,
+    ) = if (typeId == CUSTOM_SPORTS_PROVIDER_TYPE_ID) {
+        ProviderMetadataKey(id, sport, leagueId)
+    } else {
+        ProviderMetadataKey(id, sport = null, leagueId = null)
+    }
+
+    private fun LoadedSportsProviderMetadata.team(
+        typeId: String,
+        id: String,
+        sport: String?,
+        leagueId: String?,
+    ): LoadedMetadataValue<ProviderTeamMetadata>? =
+        scopedTeams[metadataKey(typeId, id, sport, leagueId)]
+            ?: teams[id].takeIf { typeId != CUSTOM_SPORTS_PROVIDER_TYPE_ID }
+
+    private fun LoadedSportsProviderMetadata.league(
+        typeId: String,
+        key: ProviderMetadataKey,
+    ): LoadedMetadataValue<ProviderLeagueMetadata>? =
+        scopedLeagues[key]
+            ?: leagues[key.id].takeIf { typeId != CUSTOM_SPORTS_PROVIDER_TYPE_ID }
+
     private fun clearCooldown(config: SportsProviderConfig) {
         synchronized(failureCooldowns) { failureCooldowns.remove(config) }
     }
@@ -291,7 +376,12 @@ internal class SportsProviderMetadataRouter @Inject constructor(
         }
     }
 
-    private data class MetadataCacheKey(val config: SportsProviderConfig, val entityId: String)
+    private data class MetadataCacheKey(
+        val config: SportsProviderConfig,
+        val entityId: String,
+        val sport: String?,
+        val leagueId: String?,
+    )
     private data class CachedTeam(val value: ProviderTeamMetadata, val fetchedAt: Instant)
     private data class CachedLeague(val value: ProviderLeagueMetadata, val fetchedAt: Instant)
 

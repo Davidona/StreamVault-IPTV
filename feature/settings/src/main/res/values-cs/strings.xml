@@ -880,6 +880,7 @@
     <string name="settings_sports_event_source_epg">TV průvodce / EPG</string>
     <string name="settings_sports_provider_league_ids">ID lig</string>
     <string name="settings_sports_provider_league_ids_hint">Volitelné. ID lig zadejte pouze tehdy, když je tento poskytovatel vyžaduje.</string>
+    <string name="settings_sports_custom_scopes_hint">U vlastního poskytovatele JSON zadejte rozsahy ve formátu sport/league oddělené čárkami.</string>
     <string name="nav_sports">Sport</string>
     <string name="settings_sports_settings_description">Spravujte připojené poskytovatele sportovních dat.</string>
     <string name="settings_sports_data_providers_title">Poskytovatelé sportovních dat</string>
@@ -941,4 +942,8 @@
     <string name="settings_sports_custom_definition_example_action">Vložit příklad</string>
     <string name="settings_sports_custom_definition_placeholder">Vložte JSON poskytovatele</string>
     <string name="settings_open_source_licenses">Licence a oznámení k softwaru s otevřeným zdrojovým kódem</string>
+    <string name="settings_sports_custom_definition_load_file">Načíst soubor JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">Soubor JSON překračuje limit 32 kB</string>
+    <string name="settings_sports_custom_definition_file_error">Tento soubor JSON nelze načíst</string>
+    <string name="settings_experimental_badge">Experimentální</string>
 </resources>

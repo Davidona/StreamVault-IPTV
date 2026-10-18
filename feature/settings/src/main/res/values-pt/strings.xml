@@ -870,6 +870,7 @@
     <string name="settings_sports_event_source_epg">Guia de TV / EPG</string>
     <string name="settings_sports_provider_league_ids">IDs das ligas</string>
     <string name="settings_sports_provider_league_ids_hint">Opcional. Adicione IDs das ligas apenas se este fornecedor os exigir.</string>
+    <string name="settings_sports_custom_scopes_hint">Para um fornecedor JSON personalizado, introduza âmbitos no formato sport/league, separados por vírgulas.</string>
     <string name="nav_sports">Desporto</string>
     <string name="settings_sports_settings_description">Gerencie provedores conectados de dados esportivos.</string>
     <string name="settings_sports_data_providers_title">Provedores de dados esportivos</string>
@@ -931,4 +932,8 @@
     <string name="settings_sports_custom_definition_example_action">Inserir exemplo</string>
     <string name="settings_sports_custom_definition_placeholder">Cole o JSON do provedor</string>
     <string name="settings_open_source_licenses">Licenças e avisos de código aberto</string>
+    <string name="settings_sports_custom_definition_load_file">Carregar arquivo JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">O arquivo JSON excede o limite de 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">Não foi possível carregar este arquivo JSON</string>
+    <string name="settings_experimental_badge">Experimental</string>
 </resources>

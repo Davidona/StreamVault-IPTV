@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">टीवी गाइड / EPG</string>
     <string name="settings_sports_provider_league_ids">लीग आईडी</string>
     <string name="settings_sports_provider_league_ids_hint">वैकल्पिक। लीग आईडी केवल तभी जोड़ें जब यह प्रदाता उन्हें मांगता है।</string>
+    <string name="settings_sports_custom_scopes_hint">कस्टम JSON प्रदाता के लिए sport/league प्रारूप में स्कोप दर्ज करें और उन्हें कॉमा से अलग करें।</string>
     <string name="nav_sports">खेल</string>
     <string name="settings_sports_settings_description">जुड़े हुए खेल डेटा प्रदाताओं को प्रबंधित करें।</string>
     <string name="settings_sports_data_providers_title">खेल डेटा प्रदाता</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">उदाहरण डालें</string>
     <string name="settings_sports_custom_definition_placeholder">प्रदाता JSON पेस्ट करें</string>
     <string name="settings_open_source_licenses">ओपन-सोर्स लाइसेंस और सूचनाएँ</string>
+    <string name="settings_sports_custom_definition_load_file">JSON फ़ाइल लोड करें</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON फ़ाइल 32 KB की सीमा से बड़ी है</string>
+    <string name="settings_sports_custom_definition_file_error">यह JSON फ़ाइल लोड नहीं की जा सकी</string>
+    <string name="settings_experimental_badge">प्रायोगिक</string>
 </resources>

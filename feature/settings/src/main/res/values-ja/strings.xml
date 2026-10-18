@@ -872,6 +872,7 @@
     <string name="settings_sports_event_source_epg">テレビ番組表 / EPG</string>
     <string name="settings_sports_provider_league_ids">リーグ ID</string>
     <string name="settings_sports_provider_league_ids_hint">任意。このプロバイダーで必要な場合にのみリーグ ID を入力してください。</string>
+    <string name="settings_sports_custom_scopes_hint">カスタム JSON プロバイダーでは、sport/league 形式のスコープをコンマ区切りで入力します。</string>
     <string name="nav_sports">スポーツ</string>
     <string name="settings_sports_settings_description">接続済みのスポーツデータプロバイダーを管理します。</string>
     <string name="settings_sports_data_providers_title">スポーツデータプロバイダー</string>
@@ -933,4 +934,8 @@
     <string name="settings_sports_custom_definition_example_action">例を挿入</string>
     <string name="settings_sports_custom_definition_placeholder">プロバイダーのJSONを貼り付け</string>
     <string name="settings_open_source_licenses">オープンソースライセンスと通知</string>
+    <string name="settings_sports_custom_definition_load_file">JSON ファイルを読み込む</string>
+    <string name="settings_sports_custom_definition_file_too_large">JSON ファイルが 32 KB の上限を超えています</string>
+    <string name="settings_sports_custom_definition_file_error">この JSON ファイルを読み込めませんでした</string>
+    <string name="settings_experimental_badge">試験運用</string>
 </resources>

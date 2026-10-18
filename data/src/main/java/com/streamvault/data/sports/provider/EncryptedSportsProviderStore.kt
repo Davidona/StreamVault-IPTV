@@ -15,6 +15,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.*
 
 /** One atomic encrypted envelope in noBackupFilesDir, outside Room/preferences exports. */
@@ -31,6 +34,8 @@ class EncryptedSportsProviderStore internal constructor(
     private val file = AtomicFile(file)
     private val mutex = Mutex()
     private val json = Json
+    private val revision = MutableStateFlow(0L)
+    override val configurationChanges = revision.asStateFlow()
 
     override suspend fun configurations(): List<SportsProviderConfig> = access {
         read().map { it.config }
@@ -54,11 +59,15 @@ class EncryptedSportsProviderStore internal constructor(
             val record = Record(config, credentials ?: previous?.credentials)
             if (index < 0) records.add(record) else records[index] = record
             write(records)
+            revision.update { it + 1 }
         }
     }
 
     override suspend fun remove(instanceId: String) {
-        access { write(read().filterNot { it.config.instanceId == instanceId }) }
+        access {
+            write(read().filterNot { it.config.instanceId == instanceId })
+            revision.update { it + 1 }
+        }
     }
 
     private suspend fun <T> access(block: () -> T): T = withContext(Dispatchers.IO) {

@@ -886,6 +886,7 @@
     <string name="settings_sports_event_source_epg">دليل التلفاز / EPG</string>
     <string name="settings_sports_provider_league_ids">معرّفات الدوريات</string>
     <string name="settings_sports_provider_league_ids_hint">اختياري. أضف معرّفات الدوريات فقط إذا كان هذا المزوّد يتطلبها.</string>
+    <string name="settings_sports_custom_scopes_hint">في موفّر JSON المخصّص، أدخل النطاقات بصيغة sport/league وافصل بينها بفواصل.</string>
     <string name="nav_sports">الرياضة</string>
     <string name="settings_sports_settings_description">إدارة موفري بيانات الرياضة المتصلين.</string>
     <string name="settings_sports_data_providers_title">موفرو بيانات الرياضة</string>
@@ -947,4 +948,8 @@
     <string name="settings_sports_custom_definition_example_action">إدراج مثال</string>
     <string name="settings_sports_custom_definition_placeholder">الصق JSON الخاص بالمزوّد</string>
     <string name="settings_open_source_licenses">تراخيص وإشعارات البرامج مفتوحة المصدر</string>
+    <string name="settings_sports_custom_definition_load_file">تحميل ملف JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">ملف JSON أكبر من الحد الأقصى البالغ 32 كيلوبايت</string>
+    <string name="settings_sports_custom_definition_file_error">تعذّر تحميل ملف JSON هذا</string>
+    <string name="settings_experimental_badge">تجريبي</string>
 </resources>

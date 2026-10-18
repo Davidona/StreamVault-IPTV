@@ -68,6 +68,7 @@ internal object SportsProviderEventMatcher {
 
         val providerSport = SportsProgrammeClassifier.sportForProvider(
             providerEvent.sport ?: providerEvent.league?.sport,
+            providerEvent.league?.name,
         )
         if (providerSport != SportType.UNKNOWN && localEvent.sport != SportType.UNKNOWN &&
             providerSport != localEvent.sport

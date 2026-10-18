@@ -869,6 +869,7 @@
     <string name="settings_sports_event_source_epg">ผังรายการทีวี / EPG</string>
     <string name="settings_sports_provider_league_ids">รหัสลีก</string>
     <string name="settings_sports_provider_league_ids_hint">ไม่บังคับ เพิ่มรหัสลีกเฉพาะเมื่อผู้ให้บริการนี้กำหนดให้ใช้</string>
+    <string name="settings_sports_custom_scopes_hint">สำหรับผู้ให้บริการ JSON แบบกำหนดเอง ให้ป้อนขอบเขตในรูปแบบ sport/league โดยคั่นด้วยจุลภาค</string>
     <string name="nav_sports">กีฬา</string>
     <string name="settings_sports_settings_description">จัดการผู้ให้บริการข้อมูลกีฬาที่เชื่อมต่อแล้ว</string>
     <string name="settings_sports_data_providers_title">ผู้ให้บริการข้อมูลกีฬา</string>
@@ -930,4 +931,8 @@
     <string name="settings_sports_custom_definition_example_action">แทรกตัวอย่าง</string>
     <string name="settings_sports_custom_definition_placeholder">วาง JSON ของผู้ให้บริการ</string>
     <string name="settings_open_source_licenses">ใบอนุญาตและประกาศเกี่ยวกับซอฟต์แวร์โอเพนซอร์ส</string>
+    <string name="settings_sports_custom_definition_load_file">โหลดไฟล์ JSON</string>
+    <string name="settings_sports_custom_definition_file_too_large">ไฟล์ JSON มีขนาดเกินขีดจำกัด 32 KB</string>
+    <string name="settings_sports_custom_definition_file_error">ไม่สามารถโหลดไฟล์ JSON นี้ได้</string>
+    <string name="settings_experimental_badge">ฟีเจอร์ทดลอง</string>
 </resources>

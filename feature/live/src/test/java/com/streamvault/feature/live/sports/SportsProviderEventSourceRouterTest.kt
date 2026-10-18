@@ -22,6 +22,42 @@ import org.junit.Test
 
 class SportsProviderEventSourceRouterTest {
     @Test
+    fun `stalled provider times out and automatic selection reaches next account`() = runTest {
+        val stalled = TestFactory("stalled", eventResponse = { _, _ ->
+            kotlinx.coroutines.awaitCancellation()
+        })
+        val working = TestFactory("working", eventResponse = { _, _ ->
+            SportsProviderResult.Success(ProviderBatch(listOf(ProviderEvent("available"))))
+        })
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(
+            listOf(stalled, working), SportsProviderReleasePolicy(development = true),
+        ))
+        val loaded = router.load(
+            listOf(config("stalled", "stalled"), config("working", "working")),
+            Instant.parse("2026-10-17T00:00:00Z"), Instant.parse("2026-10-18T00:00:00Z"),
+        )
+        assertThat(loaded.instanceId).isEqualTo("working")
+        assertThat(loaded.events.map { it.providerEventId }).containsExactly("available")
+    }
+
+    @Test
+    fun `completed leagues survive a later league timeout`() = runTest {
+        val scoped = TestFactory("scoped", eventResponse = { _, request ->
+            if (request.leagueId == "slow") kotlinx.coroutines.awaitCancellation()
+            SportsProviderResult.Success(ProviderBatch(listOf(ProviderEvent("available"))))
+        })
+        val router = SportsProviderEventSourceRouter(SportsProviderRegistry(
+            listOf(scoped), SportsProviderReleasePolicy(development = true),
+        ))
+        val loaded = router.load(
+            listOf(config("account", "scoped", leagueIds = listOf("fast", "slow"))),
+            Instant.parse("2026-10-17T00:00:00Z"), Instant.parse("2026-10-18T00:00:00Z"),
+        )
+        assertThat(loaded.instanceId).isEqualTo("account")
+        assertThat(loaded.events.map { it.providerEventId }).containsExactly("available")
+    }
+
+    @Test
     fun `EPG selection returns no event providers`() {
         val factory = TestFactory("events")
         val router = SportsProviderEventSourceRouter(SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true)))

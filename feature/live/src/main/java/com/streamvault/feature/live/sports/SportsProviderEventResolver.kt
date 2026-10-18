@@ -56,7 +56,9 @@ internal class SportsProviderEventResolver @Inject constructor(
             }
         }
 
-        val proposedMatches = uniqueProviderEvents.mapNotNull { sourced ->
+        // An absent guide (including a provisional API-only presentation) is not
+        // evidence that an existing link has become invalid.
+        val proposedMatches = if (epgEvents.isEmpty()) emptyList() else uniqueProviderEvents.mapNotNull { sourced ->
             val candidates = SportsProviderEventMatcher.candidateKeys(sourced.value)
                 .flatMap { localEventsByCandidateKey[it].orEmpty() }
                 .distinctBy(SportsEvent::id)
