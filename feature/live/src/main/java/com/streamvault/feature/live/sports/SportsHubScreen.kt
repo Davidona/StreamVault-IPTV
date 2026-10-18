@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -56,6 +57,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
@@ -88,6 +90,9 @@ import com.streamvault.feature.live.api.LiveHomeScaffoldContent
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CircularProgressIndicator
 import kotlinx.coroutines.launch
 
 private data class SportsLeagueFilterOption(val id: String, val label: String)
@@ -134,7 +139,7 @@ fun SportsHubScreen(
 }
 
 @Composable
-private fun SportsHubContent(
+internal fun SportsHubContent(
     state: SportsHubUiState,
     onRetry: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
@@ -186,9 +191,17 @@ private fun SportsHubContent(
             }
         }
         item(key = "sports-filters") {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                SportsDiscoverySearch(state.searchQuery, onSearchQueryChanged, onOpenInclusions = { inclusionsOpen = true })
-                SportsSportFilters(state.selectedSportFilter, onSelectSportFilter)
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .clip(BrowseShapes.Panel)
+                    .background(BrowseColors.Surface.copy(alpha = 0.65f))
+                    .border(1.dp, BrowseColors.Outline, BrowseShapes.Panel)
+                    .padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                SportsDiscoverySearch(state.searchQuery, onSearchQueryChanged, onOpenInclusions = { inclusionsOpen = true }) {
+                    SportsSportFilters(state.selectedSportFilter, onSelectSportFilter)
+                }
                 if (availableLeagues.isNotEmpty()) {
                     SportsLeagueFilters(availableLeagues, state.selectedLeagueFilter, onSelectLeagueFilter)
                 }
@@ -223,27 +236,31 @@ private fun SportsHubContent(
                     )
                 }
                 leagueGroups.forEach { (leagueKey, league, events) ->
-                        item(key = "league:$leagueKey") {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(league, fontSize = 17.sp, fontWeight = FontWeight.SemiBold,
-                                    color = BrowseColors.TextPrimary)
-                                LazyRow(
-                                    modifier = Modifier.fillMaxWidth().focusGroup(),
-                                    contentPadding = PaddingValues(4.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                ) {
-                                    items(events, key = SportsEvent::id) { event ->
-                                        SportsEventCard(
-                                            event = event,
-                                            isLive = event.isLiveAt(state.nowMillis),
-                                            showDate = state.selectedTimeRange == SportsTimeRange.UPCOMING,
-                                            onShowDetails = { detailsEvent = it },
-                                        )
-                                    }
+                    item(key = "league:$leagueKey") {
+                        val attributionLines = events.maxOf { event ->
+                            event.attributionCredits.sumOf { it.lineCount }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(league, fontSize = 17.sp, fontWeight = FontWeight.SemiBold,
+                                color = BrowseColors.TextPrimary)
+                            LazyRow(
+                                modifier = Modifier.fillMaxWidth().focusGroup(),
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                items(events, key = SportsEvent::id) { event ->
+                                    SportsEventCard(
+                                        event = event,
+                                        isLive = event.isLiveAt(state.nowMillis),
+                                        showDate = state.selectedTimeRange == SportsTimeRange.UPCOMING,
+                                        attributionLines = attributionLines,
+                                        onShowDetails = { detailsEvent = it },
+                                    )
                                 }
                             }
                         }
                     }
+                }
             }
         }
     }
@@ -297,7 +314,7 @@ private fun SportsTimeRangeFilters(
     onSelected: (SportsTimeRange) -> Unit,
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).padding(3.dp).focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         SportsFilterButton(
@@ -324,7 +341,7 @@ private fun SportsSportFilters(
     onSelected: (SportsSportFilter) -> Unit,
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).padding(3.dp).focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         SportsFilterButton(
@@ -362,7 +379,7 @@ private fun SportsLeagueFilters(
     onSelected: (String?) -> Unit,
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).padding(3.dp).focusGroup(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         SportsFilterButton(
@@ -388,7 +405,7 @@ private fun SportsFilterButton(
 ) {
     TvButton(
         onClick = onClick,
-        modifier = Modifier.height(30.dp),
+        modifier = Modifier.height(30.dp).semantics { this.selected = selected },
         scale = ButtonDefaults.scale(focusedScale = 1f),
         colors = ButtonDefaults.colors(
             containerColor = if (selected) BrowseColors.Brand.copy(alpha = 0.20f) else Color.Transparent,
@@ -398,6 +415,10 @@ private fun SportsFilterButton(
         ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
     ) {
+        if (selected) {
+            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(13.dp))
+            Spacer(Modifier.width(5.dp))
+        }
         Text(label, fontSize = 12.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium, maxLines = 1)
     }
 }
@@ -421,11 +442,12 @@ private fun FeaturedSportsEvent(
         Column(Modifier.weight(1.15f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             EventEyebrow(event, isLive)
             SportsFixture(event, featured = true, modifier = Modifier.weight(1f))
-            Text(formatEventTime(event, showDate), fontSize = 12.sp, color = BrowseColors.TextSecondary)
+            Text(formatEventTime(event, showDate), fontSize = 12.sp, color = BrowseColors.TextSecondary,
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Box(Modifier.width(1.dp).fillMaxHeight().background(BrowseColors.Outline))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(event.description.ifBlank { event.title }, fontSize = 12.sp,
+            Text(sportsDescriptionForPresentation(event.description).ifBlank { event.title }, fontSize = 12.sp,
                 color = BrowseColors.TextSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.weight(1f))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -602,11 +624,12 @@ private fun SportsEventCard(
     event: SportsEvent,
     isLive: Boolean,
     showDate: Boolean,
+    attributionLines: Int,
     onShowDetails: (SportsEvent) -> Unit,
 ) {
     TvClickableSurface(
         onClick = { onShowDetails(event) },
-        modifier = Modifier.width(244.dp).height(172.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount }),
+        modifier = Modifier.width(244.dp).height(172.dp + 18.dp * attributionLines),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
     ) {
@@ -643,6 +666,8 @@ private fun SportsChannelButton(
             .height(if (compact) 36.dp else 60.dp)
             .semantics { contentDescription = accessibilityLabel },
     ) {
+        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(if (compact) 16.dp else 20.dp))
+        Spacer(Modifier.width(6.dp))
         ChannelLogoBadge(
             channelName = channel.name,
             logoUrl = channel.logoUrl,
@@ -685,7 +710,7 @@ private fun SportsEventDetailsDialog(
         usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = false,
     )) {
         Surface(
-            modifier = Modifier.widthIn(max = 640.dp).height(560.dp),
+            modifier = Modifier.padding(24.dp).widthIn(max = 720.dp).fillMaxHeight(0.92f),
             colors = SurfaceDefaults.colors(containerColor = BrowseColors.SurfaceElevated),
             shape = BrowseShapes.Panel,
         ) {
@@ -694,19 +719,26 @@ private fun SportsEventDetailsDialog(
                 Text(event.title, fontSize = 22.sp, fontWeight = FontWeight.Bold,
                     color = BrowseColors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(formatEventTime(event, showDate = true), fontSize = 12.sp, color = BrowseColors.TextSecondary)
-                Text(event.description.ifBlank { stringResource(R.string.epg_hero_no_program_description) },
-                    fontSize = 13.sp, color = BrowseColors.TextSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(stringResource(R.string.live_sports_channel_choices, event.broadcasts.size),
-                    fontSize = 12.sp, color = BrowseColors.TextSecondary)
-                event.rememberedBroadcast()?.let { broadcast ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(R.string.badge_saved), fontSize = 11.sp, color = BrowseColors.Brand)
-                        Text(broadcast.channel.name, fontSize = 11.sp, color = BrowseColors.TextSecondary,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
                 Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.live_sports_channel_choices, event.broadcasts.size),
+                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = BrowseColors.TextPrimary)
+                    event.rememberedBroadcast()?.let { broadcast ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(R.string.badge_saved), fontSize = 11.sp, color = BrowseColors.Brand)
+                            Text(broadcast.channel.name, fontSize = 11.sp, color = BrowseColors.TextSecondary,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                    displayBroadcasts.forEachIndexed { index, broadcast ->
+                        SportsChannelButton(channel = broadcast.channel, compact = true,
+                            modifier = Modifier.fillMaxWidth().then(
+                                if (index == 0) Modifier.focusRequester(firstChannelFocusRequester) else Modifier),
+                            onClick = { onPlayBroadcast(broadcast) })
+                    }
+                    Spacer(Modifier.height(2.dp))
+                    Text(sportsDescriptionForPresentation(event.description).ifBlank { stringResource(R.string.epg_hero_no_program_description) },
+                        fontSize = 13.sp, color = BrowseColors.TextSecondary)
                     val teams = event.provenance.teamMetadata?.value.orEmpty()
                     if (teams.isNotEmpty()) {
                         val details = teams.joinToString(" · ") { team ->
@@ -810,14 +842,9 @@ private fun SportsEventDetailsDialog(
                             extraDetails != null -> SportsExtraDetailsContent(checkNotNull(extraDetails))
                         }
                     }
-                    displayBroadcasts.forEachIndexed { index, broadcast ->
-                        SportsChannelButton(channel = broadcast.channel, compact = true,
-                            modifier = Modifier.fillMaxWidth().then(
-                                if (index == 0) Modifier.focusRequester(firstChannelFocusRequester) else Modifier),
-                            onClick = { onPlayBroadcast(broadcast) })
-                    }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TvButton(onClick = onFindAnotherChannel, modifier = Modifier.height(36.dp)) {
                         Text(stringResource(R.string.live_sports_find_another_channel), fontSize = 12.sp)
                     }
@@ -826,7 +853,6 @@ private fun SportsEventDetailsDialog(
                             Text(stringResource(R.string.live_sports_forget_choice), fontSize = 12.sp)
                         }
                     }
-                    Spacer(Modifier.weight(1f))
                     TvButton(onClick = onDismiss, modifier = Modifier.height(36.dp)) {
                         Text(stringResource(R.string.hidden_channels_dialog_close), fontSize = 12.sp)
                     }
@@ -1188,10 +1214,12 @@ private fun LiveBadge() {
 
 @Composable
 private fun SportsLoadingState() {
-    Box(
+    Column(
         modifier = Modifier.fillMaxWidth().heightIn(min = 300.dp),
-        contentAlignment = Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
+        CircularProgressIndicator(modifier = Modifier.size(28.dp), color = BrowseColors.Brand, strokeWidth = 2.dp)
         Text(
             text = stringResource(R.string.live_sports_loading),
             style = MaterialTheme.typography.titleLarge,

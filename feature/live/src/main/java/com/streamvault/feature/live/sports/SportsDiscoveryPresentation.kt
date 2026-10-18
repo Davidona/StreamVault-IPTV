@@ -6,6 +6,14 @@ import java.time.Instant
 internal val SportType.discoveryKey: String
     get() = if (this == SportType.UNKNOWN) SportType.OTHER.name else name
 
+/** Some guides send escaped line breaks as literal text. Keep those out of the UI. */
+internal fun sportsDescriptionForPresentation(description: String): String = description
+    .replace("\\r\\n", "\n")
+    .replace("\\n", "\n")
+    .replace("\\r", "\n")
+    .replace("\r\n", "\n")
+    .trim()
+
 internal fun SportsEvent.matchesDiscovery(state: SportsHubUiState): Boolean {
     if (sport.discoveryKey in state.excludedSports || leagueFilterKey in state.excludedLeagues) return false
     if (!matches(state.selectedSportFilter)) return false

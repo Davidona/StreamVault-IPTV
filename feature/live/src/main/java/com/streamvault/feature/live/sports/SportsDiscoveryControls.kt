@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -31,6 +34,9 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import androidx.tv.material3.Icon
+import androidx.tv.material3.ButtonDefaults
+import androidx.compose.ui.text.style.TextOverflow
 import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.design.BrowseShapes
 import com.streamvault.core.ui.interaction.TvButton
@@ -38,8 +44,15 @@ import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.feature.live.R
 
 @Composable
-internal fun SportsDiscoverySearch(query: String, onQuery: (String) -> Unit, onOpenInclusions: () -> Unit) {
+internal fun SportsDiscoverySearch(
+    query: String,
+    onQuery: (String) -> Unit,
+    onOpenInclusions: () -> Unit,
+    filters: @Composable () -> Unit,
+) {
+    var searchOpen by remember { mutableStateOf(false) }
     var acceptsInput by remember { mutableStateOf(false) }
+    var inputFocused by remember { mutableStateOf(false) }
     val inputFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val searchLabel = stringResource(R.string.live_sports_search_events)
@@ -50,49 +63,78 @@ internal fun SportsDiscoverySearch(query: String, onQuery: (String) -> Unit, onO
             keyboardController?.show()
         }
     }
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.weight(1f)) {
-            OutlinedTextField(
-                value = query, onValueChange = onQuery, singleLine = true,
-                label = { Text(searchLabel, color = BrowseColors.TextSecondary) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(inputFocusRequester)
-                    .focusProperties { canFocus = acceptsInput }
-                    .onFocusChanged { focusState ->
-                        if (acceptsInput && !focusState.isFocused) {
-                            acceptsInput = false
-                            keyboardController?.hide()
-                        }
-                    },
-                readOnly = !acceptsInput,
-                colors = sportsSearchColors(),
-            )
-            if (!acceptsInput) {
-                TvClickableSurface(
-                    onClick = { acceptsInput = true },
-                    modifier = Modifier
-                        .matchParentSize()
-                        .semantics {
-                            contentDescription = searchLabel
-                        },
-                    shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        contentColor = Color.Transparent,
-                        focusedContentColor = Color.Transparent,
-                    ),
-                    border = ClickableSurfaceDefaults.border(
-                        border = Border(BorderStroke(0.dp, Color.Transparent), shape = BrowseShapes.Control),
-                        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
-                    ),
-                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                ) { }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) { filters() }
+            TvButton(
+                onClick = { searchOpen = !searchOpen; acceptsInput = searchOpen },
+                modifier = Modifier.height(34.dp),
+                scale = ButtonDefaults.scale(focusedScale = 1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(searchLabel, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            TvButton(
+                onClick = onOpenInclusions,
+                modifier = Modifier.height(34.dp),
+                scale = ButtonDefaults.scale(focusedScale = 1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.live_sports_inclusions), fontSize = 11.sp, maxLines = 1)
             }
         }
-        if (query.isNotEmpty()) TvButton(onClick = { onQuery("") }) { Text(stringResource(R.string.epg_clear_search)) }
-        TvButton(onClick = onOpenInclusions) { Text(stringResource(R.string.live_sports_inclusions)) }
+        if (searchOpen || query.isNotEmpty()) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = query, onValueChange = onQuery, singleLine = true,
+                        label = { Text(searchLabel, color = BrowseColors.TextSecondary) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(inputFocusRequester)
+                            .focusProperties { canFocus = acceptsInput }
+                            .onFocusChanged { focusState ->
+                                val lostFocus = inputFocused && !focusState.isFocused
+                                inputFocused = focusState.isFocused
+                                if (lostFocus) {
+                                    acceptsInput = false
+                                    keyboardController?.hide()
+                                }
+                            },
+                        readOnly = !acceptsInput,
+                        shape = BrowseShapes.Control,
+                        colors = sportsSearchColors(),
+                    )
+                    if (!acceptsInput) {
+                        TvClickableSurface(
+                            onClick = { acceptsInput = true },
+                            modifier = Modifier
+                                .matchParentSize()
+                                .semantics {
+                                    contentDescription = searchLabel
+                                },
+                            shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
+                            colors = ClickableSurfaceDefaults.colors(
+                                containerColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                contentColor = Color.Transparent,
+                                focusedContentColor = Color.Transparent,
+                            ),
+                            border = ClickableSurfaceDefaults.border(
+                                border = Border(BorderStroke(0.dp, Color.Transparent), shape = BrowseShapes.Control),
+                                focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
+                            ),
+                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                        ) { }
+                    }
+                }
+                if (query.isNotEmpty()) TvButton(onClick = { onQuery("") }) { Text(stringResource(R.string.epg_clear_search)) }
+            }
+        }
     }
 }
 
@@ -110,7 +152,7 @@ internal fun SportsInclusionsDialog(
         .sortedBy { it.value }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
-            modifier = Modifier.widthIn(max = 880.dp).height(580.dp),
+            modifier = Modifier.padding(24.dp).widthIn(max = 880.dp).fillMaxHeight(0.92f),
             colors = SurfaceDefaults.colors(containerColor = BrowseColors.SurfaceElevated),
             shape = BrowseShapes.Panel,
         ) {

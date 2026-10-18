@@ -2,6 +2,7 @@ package com.streamvault.feature.settings.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -103,14 +104,17 @@ internal fun SettingsLocalHeader(
                 modifier = Modifier.semantics { heading() },
             )
             if (badge != null) {
+                val badgeShape = RoundedCornerShape(50)
+                val warning = AppColors.Warning
                 Text(
                     text = badge,
                     style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colors.primaryText,
+                    fontWeight = FontWeight.Bold,
+                    color = warning,
                     modifier = Modifier
-                        .background(colors.groupSurface, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .background(warning.copy(alpha = 0.16f), badgeShape)
+                        .border(1.dp, warning.copy(alpha = 0.55f), badgeShape)
+                        .padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
             if (description.isNotBlank()) {

@@ -6,6 +6,13 @@ import java.time.Instant
 import org.junit.Test
 
 class SportsDiscoveryPresentationTest {
+    @Test fun `guide descriptions show line breaks instead of escaped provider formatting`() {
+        assertThat(sportsDescriptionForPresentation("  Match\\r\\nLeague\\nSeason\r\nVenue  "))
+            .isEqualTo("Match\nLeague\nSeason\nVenue")
+        assertThat(sportsDescriptionForPresentation("")).isEmpty()
+        assertThat(sportsDescriptionForPresentation("Regular description")).isEqualTo("Regular description")
+    }
+
     private val now = Instant.parse("2026-10-17T20:00:00Z")
     private val source = SportsSourceRef.Provider("account", "custom-json", "game")
     private val event = SportsEvent(
